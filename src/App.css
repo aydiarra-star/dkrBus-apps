@@ -1181,6 +1181,148 @@ button:disabled { cursor: not-allowed; }
 .explore-nearby .stop-row-copy strong { font-size: 13px; }
 .explore-stop-distance { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
 .explore-nearby > p { margin: 0; color: var(--guide-copy); font-size: 12.5px; }
+
+/* Bouton « Mobilités à proximité » : pile à la place de l’indication passive,
+   vert signature, hauteur verrouillée à 1 cm. Le libellé ne doit pas le faire
+   grandir. */
+.nearby-mobility-launch {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 1cm;
+  max-height: 1cm;
+  min-height: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #157347;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .01em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background .16s ease, transform .16s cubic-bezier(.22, 1, .36, 1);
+}
+.nearby-mobility-launch svg { flex: 0 0 auto; }
+.nearby-mobility-launch:hover:not(:disabled) { background: #0f5132; }
+.nearby-mobility-launch:active:not(:disabled) { transform: scale(.98); }
+.nearby-mobility-launch:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.nearby-mobility-launch:disabled { opacity: .72; cursor: progress; }
+.nearby-mobility-launch.is-open { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .38); }
+
+/* Espace dédié sous le bouton. Le défilement est interne : Mes destinations
+   et Réseaux de référence restent dans le flux, ni recouverts ni réordonnés. */
+.nearby-mobility-slot {
+  display: grid;
+  grid-template-rows: 1fr;
+  min-width: 0;
+  min-height: 0;
+  animation: nearby-slot-open .34s cubic-bezier(.22, 1, .36, 1);
+}
+.nearby-mobility-panel {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
+  max-height: 168px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 8px 8px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--green-50) 78%, var(--surface-card));
+  scrollbar-width: thin;
+}
+.nearby-mobility-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.nearby-mobility-meta,
+.nearby-mobility-note,
+.nearby-mobility-status {
+  margin: 0;
+  color: var(--guide-copy);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.nearby-mobility-dismiss {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--green-800);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+}
+.nearby-mobility-dismiss:hover { text-decoration: underline; text-underline-offset: 2px; }
+.nearby-mobility-dismiss:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.nearby-mobility-groups { display: grid; gap: 12px; }
+.nearby-mobility-group {
+  display: grid;
+  gap: 6px;
+  padding: 8px 8px 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: inset 3px 0 0 var(--mobility-badge, var(--green-600));
+}
+.nearby-mobility-group-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.nearby-mobility-group-head > span {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+}
+.nearby-mobility-group-head > small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 750;
+}
+.nearby-mobility-list { display: grid; margin: 0; padding: 0; list-style: none; gap: 4px; }
+.nearby-mobility-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name distance"
+    "lines distance";
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  gap: 1px 10px;
+}
+.nearby-mobility-row strong { grid-area: name; color: var(--text); font-size: 12.5px; font-weight: 750; }
+.nearby-mobility-lines { grid-area: lines; color: var(--muted); font-size: 10.5px; line-height: 1.35; }
+.nearby-mobility-row > small { grid-area: distance; color: var(--muted); font-size: 11px; font-weight: 750; white-space: nowrap; }
+.nearby-mobility-row:hover { background: var(--green-50); }
+.nearby-mobility-row:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 1px; }
+.nearby-mobility-published { display: grid; gap: 6px; }
+.nearby-mobility-published > strong { color: var(--text); font-size: 12px; font-weight: 750; }
+.nearby-mobility-published .published-stop-list { margin: 0; }
+@keyframes nearby-slot-open {
+  from { grid-template-rows: 0fr; }
+  to { grid-template-rows: 1fr; }
+}
+@media (min-width: 821px) {
+  .nearby-mobility-panel { max-height: 220px; gap: 12px; padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nearby-mobility-slot { animation: none; }
+  .nearby-mobility-launch { transition: none; }
+}
+
 /* Proximité fluide entre la recherche, les pastilles de destination et la liste des réseaux. */
 .network-summary-section { display: grid; margin-top: 0; gap: 4px; }
 .network-summary-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
