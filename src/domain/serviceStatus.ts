@@ -30,8 +30,6 @@ export interface ServiceDisplayState {
   showCountdown: boolean
 }
 
-const MINUTE_MS = 60_000
-
 /** « 06:00 » → 360 (minutes après minuit). Null si format invalide. */
 function parseClockMinutes(value: string): number | null {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim())
