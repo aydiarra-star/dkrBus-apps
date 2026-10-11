@@ -2,11 +2,14 @@
 // Version du cache : incrémenter à chaque changement de stratégie. L'activation
 // purge tous les caches "dakar-bus-*" qui ne portent pas ce nom.
 //
-// v5 borne le cache. Sans plafond, chaque publication ajoute des fichiers
+// v7 renouvelle le shell pour veille/Direct rue ; toutes les API restent hors cache.
+// v6 a retiré les anciens bundles qui contenaient des alertes de démonstration.
+// Les données trafic passent uniquement par /api (hors cache), jamais par le shell.
+// v5 a borné le cache. Sans plafond, chaque publication ajoute des fichiers
 // hachés dans le même cache et rien ne les retire tant que le nom ne change pas.
 
 /* policy:start */
-const CACHE_NAME = 'dakar-bus-shell-v5'
+const CACHE_NAME = 'dakar-bus-shell-v7'
 // Shell (page, manifeste, icône) + quelques générations d'assets hachés.
 // Assez large pour un usage hors ligne, assez étroit pour ne pas croître sans fin.
 const MAX_CACHE_ENTRIES = 48
@@ -96,7 +99,7 @@ function remember(request, response) {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request
-  if (request.method !== 'GET') return
+  if (request.method !== 'GET' || request.cache === 'no-store') return
   const url = new URL(request.url)
   if (url.origin !== self.location.origin || isApiPath(url.pathname)) return
 

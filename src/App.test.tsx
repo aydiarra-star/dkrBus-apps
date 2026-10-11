@@ -2,6 +2,8 @@
 import { act, fireEvent, render, screen, cleanup, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { trafficAlert, trafficPayload, TRAFFIC_TEST_NOW } from './test/trafficFixtures'
+import { communityPayload, communityReport, COMMUNITY_TEST_ID, COMMUNITY_TEST_KEY } from './test/communityFixtures'
 
 vi.mock('./components/TransitMap', () => ({
   TransitMap: ({
@@ -37,7 +39,7 @@ const errorResponse = (status: number, code: string): ApiResponse => ({ ok: fals
 
 /** Routes by URL prefix; anything unmatched is a hard 404 NOT_FOUND. */
 function stubApi(routes: { match: string; respond: () => ApiResponse }[]) {
-  const fetchMock = vi.fn((input: RequestInfo | URL) => {
+  const fetchMock = vi.fn((input: RequestInfo | URL, _options?: RequestInit) => {
     const url = String(input)
     const route = routes.find((entry) => url.startsWith(entry.match))
     return Promise.resolve(route ? route.respond() : errorResponse(404, 'NOT_FOUND'))
@@ -308,14 +310,15 @@ describe('Dakar Bus experience safety', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
 
-    // La vue « Autour de moi » affiche désormais le bandeau GPS, la synthèse
-    // IA et les exemples d'alertes : le message « pas de flux » n'est plus
-    // affiché par défaut, mais la vérité reste accessible via les canaux.
+    // La structure GPS/IA est inchangée, mais aucune alerte de démonstration
+    // ne remplace désormais un flux absent.
     expect(screen.getByText(/assistant ia/i)).toBeTruthy()
-    expect(screen.queryByText(/l’ia agrège 3 types de flux/i)).toBeNull()
+    expect(screen.queryByText(/l’ia croise les sources officielles/i)).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /voir les canaux officiels/i }))
-    expect(screen.getByText(/l’ia agrège 3 types de flux/i)).toBeTruthy()
+    expect(screen.getByText(/l’ia croise les sources officielles/i)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'sentersa.sn' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /aucune perturbation récente signalée/i })).toBeTruthy()
+    expect(screen.queryByRole('heading', { name: /Trafic fluide/i })).toBeNull()
   })
 })
 
@@ -1288,6 +1291,118 @@ describe('barre de recherche du Trajet', () => {
   })
 })
 
+describe('alertes actualisées sans modification de la structure visuelle', () => {
+  it('affiche uniquement les incidents actifs vérifiés, jamais les exemples figés', async () => {
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(trafficPayload([trafficAlert({}, Date.now())], Date.now())) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByText('Incident confirmé à Dakar')).toBeTruthy()
+    expect(document.querySelector('.alerts-gps-banner')).not.toBeNull()
+    expect(document.querySelector('.alerts-ai-summary')).not.toBeNull()
+    expect(document.querySelector('.alerts-switch')).not.toBeNull()
+    expect(screen.queryByText('Ralentissement VDN · Sacré-Cœur')).toBeNull()
+    expect(screen.queryByText('BRT : cadence 6 min respectée')).toBeNull()
+    expect(screen.getByLabelText(/synthèse IA/i).textContent).toContain('1 perturbation(s) confirmée(s)')
+  })
+
+  it('affiche clairement le statut à jour si les cinq sources vérifiées ne signalent rien', async () => {
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(trafficPayload([], Date.now())) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByRole('heading', { name: /Trafic fluide \/ Aucune perturbation en cours/i })).toBeTruthy()
+    expect(document.querySelector('.alerts-list')).toBeNull()
+    expect(screen.getByText(/actualisation automatique toutes les heures/i)).toBeTruthy()
+  })
+
+  it('une source manquante ou la 404 de Pages ne signifie jamais trafic fluide', async () => {
+    const partial = () => {
+      const payload = trafficPayload([], Date.now())
+      const road = payload.sources.find((source) => source.id === 'road')!
+      road.status = 'NOT_CONFIGURED'; road.checkedAt = null
+      return payload
+    }
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(partial()) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByRole('heading', { name: /aucune perturbation récente signalée/i })).toBeTruthy()
+    expect(document.querySelector('.alerts-unavailable-card')?.textContent).toContain('Vérification des sources incomplète')
+    expect(screen.queryByRole('heading', { name: /Trafic fluide/i })).toBeNull()
+  })
+
+  it('revalide le GPS au réveil sans déplacer la carte', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(TRAFFIC_TEST_NOW)
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(trafficPayload([], Date.now())) },
+    ])
+    const locate = vi.spyOn(navigator.geolocation, 'getCurrentPosition')
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(0) })
+    expect(locate).toHaveBeenCalledTimes(1)
+    fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
+    const recenter = screen.getByTestId('map-recenter').textContent
+    vi.setSystemTime(TRAFFIC_TEST_NOW + 60 * 60_000)
+    fireEvent(document, new Event('visibilitychange'))
+    await act(async () => { await vi.advanceTimersByTimeAsync(0) })
+    expect(locate).toHaveBeenCalledTimes(2)
+    expect(locate.mock.calls[1][2]?.maximumAge).toBe(0)
+    expect(screen.getByTestId('map-recenter').textContent).toBe(recenter)
+  })
+
+  it('continue la collecte sans GPS refusé, sans redemander la localisation au réveil', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(TRAFFIC_TEST_NOW)
+    const fetcher = stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(trafficPayload([], Date.now())) },
+    ])
+    const locate = vi.spyOn(navigator.geolocation, 'getCurrentPosition').mockImplementation((_success, error) => {
+      error?.({ code: 1, message: 'refusée', PERMISSION_DENIED: 1, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 })
+    })
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(0) })
+    expect(screen.getByText(/localisation refusée/i)).toBeTruthy()
+    vi.setSystemTime(TRAFFIC_TEST_NOW + 2 * 60 * 60_000)
+    fireEvent(document, new Event('visibilitychange'))
+    await act(async () => { await vi.advanceTimersByTimeAsync(0) })
+    expect(locate).toHaveBeenCalledTimes(1)
+    expect(fetcher.mock.calls.filter(([url]) => String(url).startsWith('/api/traffic/alerts')).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('purge le vieux cache Direct rue au démarrage et à sa limite exacte, même sans horaire actif', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(TRAFFIC_TEST_NOW)
+    const report = {
+      id: 'legacy', kind: 'INCIDENT', place: 'Signalement ancien', source: 'COMMUNITY',
+      networkId: null, comment: null, lat: null, lng: null,
+      createdAt: new Date(TRAFFIC_TEST_NOW - 60 * 60_000 + 1000).toISOString(),
+      expiresAt: new Date(TRAFFIC_TEST_NOW + 30 * 60_000).toISOString(),
+    }
+    window.localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
+      report, { ...report, id: 'veille', place: 'Accident de la veille', createdAt: new Date(TRAFFIC_TEST_NOW - 24 * 60 * 60_000).toISOString() },
+    ]))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    fireEvent.click(screen.getByRole('button', { name: /direct rue/i }))
+    await act(async () => { await vi.advanceTimersByTimeAsync(0) })
+    expect(screen.getByText('Signalement ancien')).toBeTruthy()
+    expect(screen.queryByText('Accident de la veille')).toBeNull()
+    await act(async () => { await vi.advanceTimersByTimeAsync(1000) })
+    expect(screen.queryByText('Signalement ancien')).toBeNull()
+    expect(JSON.parse(window.localStorage.getItem('dakar-bus:street-reports')!)).toEqual([])
+  })
+})
+
 describe('Direct rue', () => {
   function openStreetView() {
     fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
@@ -1306,9 +1421,9 @@ describe('Direct rue', () => {
     expect(screen.getByRole('button', { name: /publier le signalement/i })).toBeTruthy()
     expect(document.querySelector('.alerts-list')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /autour de moi/i }))
-    // La vue agrégée montre les cartes d'alerte (exemples de synthèse IA)
-    // en plus du résumé.
-    expect(document.querySelector('.alerts-list')).not.toBeNull()
+    // Sans flux vérifié, aucun exemple ni signalement non confirmé n'est
+    // affiché comme incident actif dans la vue agrégée.
+    expect(document.querySelector('.alerts-list')).toBeNull()
   })
 
   it('publie un signalement local, le conserve et permet de le retirer', async () => {
@@ -1568,5 +1683,137 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
     const log = within(screen.getByRole('region', { name: /assistant mobilité/i })).getByRole('log')
     expect(await within(log).findByText(/station BRT|Itinéraire repère/)).toBeTruthy()
     expect(within(log).queryByText(/Indiquez « trajet de/)).toBeNull()
+  })
+})
+
+
+describe('veille résiliente et Direct rue valorisé, onglets inchangés', () => {
+  function enterStreetForm(place = 'Portion de route de test') {
+    fireEvent.click(screen.getByRole('button', { name: /direct rue/i }))
+    fireEvent.change(screen.getByLabelText(/portion de route/i), { target: { value: place } })
+  }
+
+  it('un témoignage proche frais enrichit l’IA et Autour de moi sans être déclaré confirmé ou fluide', async () => {
+    const report = communityReport({ id: 'own-local', shared: false }, Date.now())
+    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([report]))
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/alerts', respond: () => jsonResponse(trafficPayload([], Date.now())) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByText('Embouteillage · Portion de route de test')).toBeTruthy()
+    expect(screen.getByLabelText(/synthèse IA/i).textContent).toContain('Direct rue : 1 signalement(s)')
+    expect(screen.getByLabelText(/synthèse IA/i).textContent).toContain('non vérifié')
+    expect(screen.queryByRole('heading', { name: /Trafic fluide/i })).toBeNull()
+    expect(document.querySelector('.alert-source-tag')?.textContent).toContain('Direct rue · non vérifié')
+    expect(document.querySelectorAll('.alerts-switch-button')).toHaveLength(2)
+  })
+
+  it('GPS : masque les témoignages éloignés/non localisés dans Autour de moi, les trie dans Direct rue', async () => {
+    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
+      communityReport({ id: 'unknown', place: 'Repère sans GPS', lat: null, lng: null, shared: false }, Date.now()),
+      communityReport({ id: 'far', place: 'Portion éloignée', lat: 14.81, lng: -17.3, shared: false }, Date.now()),
+      communityReport({ id: 'near', place: 'Portion proche', shared: false }, Date.now() - 60_000),
+    ]))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByText('Embouteillage · Portion proche')).toBeTruthy()
+    expect(screen.queryByText('Embouteillage · Portion éloignée')).toBeNull()
+    expect(screen.queryByText('Embouteillage · Repère sans GPS')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /direct rue/i }))
+    expect([...document.querySelectorAll('.street-report-place')].map((node) => node.textContent)).toEqual(['Portion proche', 'Portion éloignée', 'Repère sans GPS'])
+  })
+
+  it('le pool partagé affiche les pairs sans leur offrir de retrait et sans changer le formulaire', async () => {
+    stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/community', respond: () => jsonResponse(communityPayload([communityReport({}, Date.now())], Date.now())) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    expect(await screen.findByText('Embouteillage · Portion de route de test')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /direct rue/i }))
+    expect(screen.getByRole('button', { name: /retirer le signalement/i }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByText('partagé · non vérifié')).toBeTruthy()
+    expect(document.querySelectorAll('.street-form')).toHaveLength(1)
+    expect(screen.getByLabelText(/synthèse IA/i).textContent).toContain('la véracité')
+  })
+
+  it('partage un nouveau signalement sans GPS implicite, conserve son reçu auteur et le retire', async () => {
+    let reports: ReturnType<typeof communityReport>[] = []
+    const fetcher = vi.fn((input: RequestInfo | URL, options?: RequestInit) => {
+      const url = String(input)
+      if (url.startsWith('/api/traffic/community')) {
+        if (options?.method === 'POST') {
+          const body = JSON.parse(options.body as string)
+          reports = [communityReport({ ...body }, Date.now())]
+          return Promise.resolve(jsonResponse({ report: reports[0], deleteKey: COMMUNITY_TEST_KEY }, 201))
+        }
+        if (options?.method === 'DELETE') { reports = []; return Promise.resolve(jsonResponse({ removed: true })) }
+        return Promise.resolve(jsonResponse(communityPayload(reports, Date.now())))
+      }
+      return Promise.resolve(url.startsWith('/api/network') ? jsonResponse(NETWORK_EMPTY) : errorResponse(404, 'NOT_FOUND'))
+    })
+    vi.stubGlobal('fetch', fetcher)
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    await screen.findByRole('heading', { name: /aucune perturbation récente signalée/i })
+    enterStreetForm()
+    fireEvent.click(screen.getByRole('button', { name: /publier le signalement/i }))
+    await act(async () => { for (let tick = 0; tick < 15; tick++) await Promise.resolve() })
+    const published = fetcher.mock.calls.find(([, options]) => options?.method === 'POST')!
+    expect(JSON.parse(published[1]!.body as string)).toMatchObject({ lat: null, lng: null })
+    expect(screen.getByText('partagé · non vérifié')).toBeTruthy()
+    const button = screen.getByRole('button', { name: /retirer le signalement/i })
+    expect(button.hasAttribute('disabled')).toBe(false)
+    expect(JSON.parse(localStorage.getItem('dakar-bus:community-ownership')!)[COMMUNITY_TEST_ID].deleteKey).toBe(COMMUNITY_TEST_KEY)
+    fireEvent.click(button)
+    await act(async () => { for (let tick = 0; tick < 12; tick++) await Promise.resolve() })
+    expect(screen.getByText(/aucun signalement actif/i)).toBeTruthy()
+  })
+
+  it('une panne de publication garde le témoignage local, sans annoncer un partage réussi', async () => {
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL, options?: RequestInit) => {
+      if (String(input).startsWith('/api/traffic/community')) return Promise.resolve(options?.method === 'POST'
+        ? errorResponse(503, 'UNAVAILABLE') : jsonResponse(communityPayload([], Date.now())))
+      return Promise.resolve(errorResponse(404, 'NOT_FOUND'))
+    }))
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    await screen.findByRole('heading', { name: /aucune perturbation récente signalée/i })
+    enterStreetForm('Signalement de repli')
+    fireEvent.click(screen.getByRole('button', { name: /publier le signalement/i }))
+    await act(async () => { for (let tick = 0; tick < 12; tick++) await Promise.resolve() })
+    expect(screen.getByText('Signalement de repli')).toBeTruthy()
+    expect(screen.getByText('local · non vérifié')).toBeTruthy()
+    expect(screen.getByRole('status').textContent).toContain('Partage non confirmé')
+    expect(JSON.parse(localStorage.getItem('dakar-bus:street-reports')!)).toHaveLength(1)
+  })
+
+  it('ne téléverse jamais le cache local antérieur et met en forme un témoignage sans GPS dans Direct rue', async () => {
+    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([communityReport({ id: 'legacy-local', shared: false, lat: null, lng: null }, Date.now())]))
+    const fetcher = stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/traffic/community', respond: () => jsonResponse(communityPayload([], Date.now())) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    fireEvent.click(screen.getByRole('button', { name: /direct rue/i }))
+    expect(screen.getByLabelText(/synthèse IA/i).textContent).toContain('Précision de l’usager')
+    await act(async () => { for (let tick = 0; tick < 8; tick++) await Promise.resolve() })
+    expect(fetcher.mock.calls.every((call) => !(call[1] as RequestInit | undefined)?.method)).toBe(true)
+  })
+
+  it('refuse les balises dans le formulaire, sans envoi, et conserve le texte à corriger', () => {
+    const fetcher = stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /alertes/i }))
+    enterStreetForm('<script>Texte</script>')
+    fireEvent.click(screen.getByRole('button', { name: /publier le signalement/i }))
+    expect(screen.getByRole('alert').textContent).toContain('texte simple')
+    expect((screen.getByLabelText(/portion de route/i) as HTMLInputElement).value).toBe('<script>Texte</script>')
+    expect(fetcher.mock.calls.every((call) => !(call[1] as RequestInit | undefined)?.method)).toBe(true)
   })
 })

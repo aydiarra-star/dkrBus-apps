@@ -38,6 +38,12 @@ import {
 } from 'lucide-react'
 import { TransitMap, type Coordinates, type RoutePointKey, type UserLocation } from './components/TransitMap'
 import { useViewportLock } from './components/useViewportLock'
+import { useTrafficAlerts } from './components/useTrafficAlerts'
+import { useCommunityReports } from './components/useCommunityReports'
+import { useTrafficNotifications } from './components/useTrafficNotifications'
+import { assessStreetReport, rankStreetReports, relevantStreetReports, communityDisplayAlert, communityAwareTrafficSummary, nextCommunityExpiry, trafficEmptyState } from './domain/communityTraffic'
+import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
+import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
@@ -93,20 +99,23 @@ import {
   readStreetReports,
   removeStreetReport,
   writeStreetReports,
+  streetReportExpiresAt,
+  STREET_REPORT_TTL_MINUTES,
+  STREET_REPORT_STORAGE_KEY,
   type StreetReport,
   type StreetReportDraft,
 } from './domain/streetReports'
 import {
-  aggregateAlerts,
-  aiTrafficSummaryFr,
-  aiTrafficSummaryWo,
   formatDistanceMeters,
   proximityLabel,
   rankAlerts,
+  relevantAlerts,
+  trafficCheckedAtLabel,
   sourceLabel,
   OFFICIAL_ALERT_CHANNELS,
   ALERT_PROXIMITY_RADIUS_M,
   type RankedAlert,
+  type TrafficSummaryContext,
 } from './domain/trafficAlerts'
 import { getRemainingMinutes } from './domain/truth'
 import { isValidLatLng, readJsonBody, safeHttpUrl, timedRequest } from './domain/http'
@@ -434,6 +443,7 @@ function App() {
   })
   const [layersOpen, setLayersOpen] = useState(false)
   const [location, setLocation] = useState<UserLocation | null>(null)
+  const [locationObservedAt, setLocationObservedAt] = useState<number | null>(null)
   const [gpsState, setGpsState] = useState<GpsState>('idle')
   const [recenterTo, setRecenterTo] = useState<Coordinates | null>(null)
   const [zoomAction, setZoomAction] = useState<{ delta: number; nonce: number } | null>(null)
@@ -451,6 +461,13 @@ function App() {
   const [alertsView, setAlertsView] = useState<'official' | 'street'>('official')
   /** Signalements d’usagers : locaux à l’appareil, jamais transmis. */
   const [streetReports, setStreetReports] = useState<StreetReport[]>(() => readStreetReports(safeLocalStorage()))
+  const withdrawnPendingReports = useRef(new Set<string>())
+  const pendingSharedReports = useRef(new Set<string>())
+  const appMounted = useRef(true)
+  const locationAgeMs = locationObservedAt === null ? Infinity : Date.now() - locationObservedAt
+  const trafficLocation = gpsState === 'ready' && locationAgeMs >= 0 && locationAgeMs < TRAFFIC_ALERT_TTL_MS ? location : null
+  const traffic = useTrafficAlerts(trafficLocation, refreshTrafficGps)
+  const community = useCommunityReports()
   const [toast, setToast] = useState<string | null>(null)
   const [gpsMessage, setGpsMessage] = useState<string | null>(null)
   const [exploreFilter, setExploreFilter] = useState<NetworkId | 'all'>('all')
@@ -460,7 +477,7 @@ function App() {
   /** Section technique de l’onglet Paramètres : console d’administration locale. */
   const [consoleOpen, setConsoleOpen] = useState(false)
   /** Réponse de l’assistant à la dernière recherche universelle. */
-  const [assistantAnswer, setAssistantAnswer] = useState<{ question: string; answer: string } | null>(null)
+  const [assistantAnswer, setAssistantAnswer] = useState<{ question: string; answer: string; traffic?: boolean } | null>(null)
   const [governance, setGovernance] = useState<GovernanceState>({ status: 'idle', datasets: [], pipeline: null, error: null })
   const [published, setPublished] = useState<PublishedState>({ status: 'idle', network: null, error: null })
   const [nearby, setNearby] = useState<NearbyState>({ status: 'idle', stops: [], radius: NEARBY_RADIUS_M, error: null })
@@ -567,7 +584,10 @@ function App() {
     }
   }
 
-  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+  useEffect(() => {
+    appMounted.current = true
+    return () => { appMounted.current = false; window.clearTimeout(toastTimer.current) }
+  }, [])
 
   /**
    * Décomptes de référence : pour chaque mobilité qui publie une fréquence
@@ -650,6 +670,7 @@ function App() {
   }, [])
 
   function announce(message: string) {
+    if (!appMounted.current) return
     setToast(message)
     window.clearTimeout(toastTimer.current)
     toastTimer.current = window.setTimeout(() => setToast(null), 3600)
@@ -799,6 +820,7 @@ function App() {
         if (!isValidLatLng(position.coords.latitude, position.coords.longitude)) return
         const coords = { lat: position.coords.latitude, lng: position.coords.longitude }
         setLocation({ ...coords, accuracy: position.coords.accuracy })
+        setLocationObservedAt(Date.now())
         setGpsState('ready')
         setGpsMessage(position.coords.accuracy > 100 ? 'Position approximative' : 'Position localisée')
         if (!dataAvailableRef.current) return
@@ -882,15 +904,17 @@ function App() {
     const context: AssistantContext = {
       publishedAvailable: dataAvailable,
       adminOnline: governance.status === 'ready',
-      userLocation: gpsState === 'ready' && location
-        ? { lat: location.lat, lon: location.lng, accuracyM: location.accuracy }
+      userLocation: trafficLocation
+        ? { lat: trafficLocation.lat, lon: trafficLocation.lng, accuracyM: trafficLocation.accuracy }
         : null,
       trafficSummaryFr: aiSummaryFr || null,
       trafficSummaryWo: aiSummaryWo || null,
+      trafficSummaryValidUntil,
     }
     const intent = extractMobilityIntent(question)
     if (intent?.origin && intent.destination) openAssistantJourney(intent.origin, intent.destination)
-    setAssistantAnswer({ question, answer: answerAssistant(question, context) })
+    const answer = answerAssistant(question, context)
+    setAssistantAnswer({ question, answer, traffic: Boolean(context.trafficSummaryFr && answer.includes(context.trafficSummaryFr)) })
     void runStopSearch(question)
   }
 
@@ -1041,7 +1065,14 @@ function App() {
       (position) => {
         const coords = { lat: position.coords.latitude, lng: position.coords.longitude }
         const result: UserLocation = { ...coords, accuracy: position.coords.accuracy }
+        if (!isValidLatLng(coords.lat, coords.lng)) {
+          setGpsState('error')
+          setLocationObservedAt(null)
+          setGpsMessage('Position GPS invalide. Réessayez la localisation.')
+          return
+        }
         setLocation(result)
+        setLocationObservedAt(Date.now())
         setRecenterTo(coords)
         setGpsState('ready')
         setGpsMessage(position.coords.accuracy > 100 ? 'Position approximative' : 'Position localisée')
@@ -1071,6 +1102,25 @@ function App() {
         announce(message)
       },
       { enableHighAccuracy: true, timeout: 12_000, maximumAge: 30_000 },
+    )
+  }
+
+  /** Revalidation horaire / après veille, uniquement après autorisation GPS.
+   *  Aucun recentrage ni toast : la structure et les interactions restent inchangées. */
+  function refreshTrafficGps() {
+    if (gpsState !== 'ready' || !navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        if (!isValidLatLng(position.coords.latitude, position.coords.longitude)) return
+        setLocation({ lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy })
+        setLocationObservedAt(Date.now())
+      },
+      (error) => {
+        setLocationObservedAt(null)
+        setGpsState(error.code === error.PERMISSION_DENIED ? 'denied' : 'error')
+        setGpsMessage('Position GPS à actualiser. Réessayez la localisation.')
+      },
+      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 0 },
     )
   }
 
@@ -1229,30 +1279,68 @@ function App() {
   }
 
 
-  /** « Direct rue » : les signalements restent sur l’appareil, ne sont envoyés
-   *  à aucun serveur et ne sont jamais présentés comme une alerte officielle. */
-  function publishStreetReport(draft: StreetReportDraft) {
-    const report = createStreetReport(draft)
-    if (!report) {
-      announce('Indiquez la portion de route concernée pour publier un signalement.')
-      return
-    }
+  /** « Direct rue » : nouveau partage explicite par le formulaire si disponible,
+   *  sinon local. Aucun témoignage n'est certifié par l'Assistant. */
+  function publishStreetReport(draft: StreetReportDraft): string | null {
+    const assessment = assessStreetReport(draft)
+    if (!assessment.ok) return assessment.reason
+    const report = createStreetReport(assessment.value)
+    if (!report) return 'Indiquez la portion de route concernée pour publier un signalement.'
+    // Instant local presentation by Assistant rules, while the shared POST is
+    // pending. No background upload of earlier local reports/positions.
     setStreetReports((current) => [report, ...current])
-    announce('Signalement publié sur cet appareil · visible 90 minutes · non vérifié.')
+    if (community.sharingAvailable) {
+      announce('Forme validée par l’Assistant · partage en cours · constat non vérifié.')
+      pendingSharedReports.current.add(report.id)
+      void community.publish(assessment.value, () => !withdrawnPendingReports.current.has(report.id)).then((shared) => {
+        if (!appMounted.current) return
+        setStreetReports((current) => removeStreetReport(current, report.id))
+        announce(shared ? `Signalement partagé · visible au maximum ${STREET_REPORT_TTL_MINUTES} minutes · constat non vérifié.` : 'Signalement retiré.')
+      }).catch(() => {
+        announce(withdrawnPendingReports.current.has(report.id)
+          ? 'Retrait partagé non confirmé : le reçu auteur est conservé pour réessayer.'
+          : 'Partage non confirmé : signalement conservé sur cet appareil, non vérifié.')
+      }).finally(() => {
+        pendingSharedReports.current.delete(report.id)
+        withdrawnPendingReports.current.delete(report.id)
+      })
+    } else {
+      announce(`Signalement publié sur cet appareil · visible ${STREET_REPORT_TTL_MINUTES} minutes · forme validée, constat non vérifié.`)
+    }
+    return null
   }
 
   function deleteStreetReport(id: string) {
-    setStreetReports((current) => removeStreetReport(current, id))
+    if (streetReports.some((report) => report.id === id)) {
+      if (pendingSharedReports.current.has(id)) withdrawnPendingReports.current.add(id)
+      setStreetReports((current) => removeStreetReport(current, id))
+    } else {
+      void community.remove(id).then(() => announce('Signalement retiré.')).catch(() => announce('Retrait non confirmé ; seul l’auteur peut retirer un signalement partagé.'))
+    }
   }
 
-  // Les signalements périmés disparaissent d’eux-mêmes à chaque réveil de
-  // l’horloge : une information vieille de plus de 90 minutes n’est plus montrée.
+  // Expiration exacte, indépendante d'un prochain départ ou de l'onglet ouvert.
+  // Le cache historique de 90 minutes est également plafonné à une heure.
   useEffect(() => {
-    setStreetReports((current) => {
-      const next = current.filter((report) => !isReportExpired(report, countdownNow))
+    const purge = () => setStreetReports((current) => {
+      const next = current.filter((report) => !isReportExpired(report, Date.now()))
       return next.length === current.length ? current : next
     })
-  }, [countdownNow])
+    purge()
+    const now = Date.now()
+    const deadlines = streetReports.map(streetReportExpiresAt).filter((at): at is number => at !== null && at > now)
+    if (deadlines.length === 0) return
+    const timer = window.setTimeout(purge, Math.min(...deadlines) - now)
+    return () => window.clearTimeout(timer)
+  }, [streetReports, countdownNow, traffic.now])
+
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === STREET_REPORT_STORAGE_KEY || event.key === null) setStreetReports(readStreetReports(safeLocalStorage()))
+    }
+    window.addEventListener('storage', sync)
+    return () => window.removeEventListener('storage', sync)
+  }, [])
 
   // Persistance locale d’après l’état affiché : aucune écriture dans un
   // calcul de mise à jour, et ce qui est affiché est ce qui est stocké.
@@ -1279,22 +1367,23 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
 
-  /** Agrégation multisource des alertes : exemples IA de synthèse
-   *  + signalements « Direct rue » en cours, classés par proximité GPS. */
-  const rankedAlerts = useMemo<RankedAlert[]>(() => {
-    const alerts = aggregateAlerts(streetReports, countdownNow)
-    const userPoint = location ? { lat: location.lat, lng: location.lng } : null
-    return rankAlerts(alerts, userPoint, ALERT_PROXIMITY_RADIUS_M)
-  }, [streetReports, location, countdownNow])
-
-  const aiSummaryFr = useMemo(
-    () => aiTrafficSummaryFr(rankedAlerts, location ? { lat: location.lat, lng: location.lng } : null),
-    [rankedAlerts, location],
-  )
-  const aiSummaryWo = useMemo(
-    () => aiTrafficSummaryWo(rankedAlerts, location ? { lat: location.lat, lng: location.lng } : null),
-    [rankedAlerts, location],
-  )
+  /** Le GPS et l'IA partagent exactement le même snapshot périssable.
+   *  Les déclarations Direct rue restent séparées des incidents confirmés. */
+  const alertsNow = Math.max(traffic.now, community.now, countdownNow, Date.now())
+  const rankedStreetReports = rankStreetReports([...streetReports, ...community.reports], trafficLocation, alertsNow)
+  const activeStreetReports = rankedStreetReports.map(({ report }) => report)
+  const rankedAlerts = useMemo<RankedAlert[]>(() => relevantAlerts(
+    rankAlerts(traffic.snapshot?.alerts ?? [], trafficLocation, ALERT_PROXIMITY_RADIUS_M, alertsNow), trafficLocation,
+  ), [traffic.snapshot, trafficLocation, alertsNow])
+  const trafficSummary = communityAwareTrafficSummary(rankedAlerts, rankedStreetReports, trafficLocation, traffic.summaryContext, alertsNow)
+  const directRueSummary = communityAwareTrafficSummary(rankedAlerts, rankedStreetReports, null, traffic.summaryContext, alertsNow)
+  const trafficNotifications = useTrafficNotifications(rankedAlerts, rankedStreetReports, trafficLocation, alertsNow)
+  const visibleToast = toast ?? trafficNotifications.notice?.message ?? null
+  const aiSummaryFr = trafficSummary.fr
+  const aiSummaryWo = trafficSummary.wo
+  const summaryDeadlines = [nextTrafficExpiry(traffic.snapshot, alertsNow), nextCommunityExpiry(activeStreetReports, alertsNow)]
+    .filter((at): at is number => at !== null)
+  const trafficSummaryValidUntil = new Date(summaryDeadlines.length ? Math.min(...summaryDeadlines) : alertsNow + TRAFFIC_ALERT_TTL_MS).toISOString()
 
   const visibleSources = exploreFilter === 'all'
     ? NETWORK_SOURCES
@@ -1469,11 +1558,12 @@ function App() {
                 publishedAvailable: dataAvailable,
                 adminOnline: governance.status === 'ready',
                 nextDepartureAt: assistantScheduleFromJourney(journey.search, countdownNow),
-                userLocation: gpsState === 'ready' && location
-                  ? { lat: location.lat, lon: location.lng, accuracyM: location.accuracy }
+                userLocation: trafficLocation
+                  ? { lat: trafficLocation.lat, lon: trafficLocation.lng, accuracyM: trafficLocation.accuracy }
                   : null,
                 trafficSummaryFr: aiSummaryFr || null,
                 trafficSummaryWo: aiSummaryWo || null,
+                trafficSummaryValidUntil,
               }} onOpenJourney={openAssistantJourney} />
             </div>
           </header>
@@ -1550,7 +1640,10 @@ function App() {
               {search.trim() && (
                 <UniversalSearchCard
                   query={search}
-                  answer={assistantAnswer}
+                  answer={assistantAnswer?.traffic ? { ...assistantAnswer, answer: answerAssistant(assistantAnswer.question, {
+                    publishedAvailable: dataAvailable, adminOnline: governance.status === 'ready',
+                    trafficSummaryFr: aiSummaryFr, trafficSummaryWo: aiSummaryWo, trafficSummaryValidUntil,
+                  }, alertsNow) } : assistantAnswer}
                   search={stopSearch}
                   onRetry={() => askUniversalSearch(search)}
                   onClear={clearSearch}
@@ -1588,14 +1681,16 @@ function App() {
               onToggleInfo={() => setAlertInfoOpen((open) => !open)}
               view={alertsView}
               onViewChange={setAlertsView}
-              streetReports={streetReports}
-              now={countdownNow}
-              location={location ? { lat: location.lat, lng: location.lng } : null}
-              gpsState={gpsState}
-              gpsMessage={gpsMessage}
+              streetReports={activeStreetReports}
+              communitySharing={community.sharingAvailable}
+              now={alertsNow}
+              location={trafficLocation}
+              gpsState={gpsState === 'ready' && !trafficLocation ? 'error' : gpsState}
+              gpsMessage={gpsState === 'ready' && !trafficLocation ? 'Position GPS à actualiser. Réessayez la localisation.' : gpsMessage}
               rankedAlerts={rankedAlerts}
-              aiSummaryFr={aiSummaryFr}
-              aiSummaryWo={aiSummaryWo}
+              aiSummaryFr={alertsView === 'street' ? directRueSummary.fr : aiSummaryFr}
+              aiSummaryWo={alertsView === 'street' ? directRueSummary.wo : aiSummaryWo}
+              trafficContext={traffic.summaryContext}
               onLocate={() => requestLocation()}
               onSubmitStreetReport={publishStreetReport}
               onRemoveStreetReport={deleteStreetReport}
@@ -1657,7 +1752,7 @@ function App() {
         })}
       </nav>
 
-      {toast && <div className="toast-message" role="status"><Info size={16} /><span>{toast}</span><button type="button" aria-label="Fermer le message" onClick={() => setToast(null)}><X size={15} /></button></div>}
+      {visibleToast && <div className="toast-message" role="status"><Info size={16} /><span>{visibleToast}</span><button type="button" aria-label="Fermer le message" onClick={() => { setToast(null); trafficNotifications.dismiss() }}><X size={15} /></button></div>}
     </main>
   )
 }
@@ -2993,6 +3088,7 @@ function AlertsPanel({
   view,
   onViewChange,
   streetReports,
+  communitySharing,
   now,
   location,
   gpsState,
@@ -3000,6 +3096,7 @@ function AlertsPanel({
   rankedAlerts,
   aiSummaryFr,
   aiSummaryWo,
+  trafficContext,
   onLocate,
   onSubmitStreetReport,
   onRemoveStreetReport,
@@ -3009,6 +3106,7 @@ function AlertsPanel({
   view: 'official' | 'street'
   onViewChange: (view: 'official' | 'street') => void
   streetReports: readonly StreetReport[]
+  communitySharing: boolean
   now: number
   location: { lat: number; lng: number } | null
   gpsState: GpsState
@@ -3016,13 +3114,17 @@ function AlertsPanel({
   rankedAlerts: readonly RankedAlert[]
   aiSummaryFr: string
   aiSummaryWo: string
+  trafficContext: TrafficSummaryContext
   onLocate: () => void
-  onSubmitStreetReport: (draft: StreetReportDraft) => void
+  onSubmitStreetReport: (draft: StreetReportDraft) => string | null
   onRemoveStreetReport: (id: string) => void
 }) {
   const hasGps = gpsState === 'ready' && location !== null
-  const nearbyCount = rankedAlerts.filter((r) => r.nearby).length
-  const officialAlerts = rankedAlerts.filter((r) => r.alert.source.kind !== 'COMMUNITY')
+  const communityAlerts: RankedAlert[] = relevantStreetReports(rankStreetReports(streetReports, location, now), location)
+    .map(({ report, distanceM, nearby, priority }) => ({ alert: communityDisplayAlert(report), nearestStop: null, distanceM, nearby, priority: priority + 20 }))
+  const displayAlerts = [...rankedAlerts, ...communityAlerts].sort((a, b) => a.priority - b.priority || (a.distanceM ?? Infinity) - (b.distanceM ?? Infinity))
+  const nearbyCount = displayAlerts.filter((r) => r.nearby).length
+  const emptyState = trafficEmptyState(trafficContext, location, now)
   return (
     <section className="panel alerts-panel" aria-label="Alertes de service">
       <div className="panel-heading-row">
@@ -3069,7 +3171,7 @@ function AlertsPanel({
         <p className="alerts-ai-text alerts-ai-wolof" lang="wo"><MobilityText text={aiSummaryWo} /></p>
       </div>
 
-      {/* Switch entre vue des alertes agrégées (officielles + trafic + IA)
+      {/* Switch entre vue des alertes confirmées (officielles + trafic)
           et « Direct rue » (signalements communautaires). */}
       <div className="alerts-switch" role="group" aria-label="Choisir la vue des alertes">
         <button
@@ -3079,7 +3181,7 @@ function AlertsPanel({
           onClick={() => onViewChange('official')}
         >
           <Bell size={14} /> Autour de moi
-          {officialAlerts.length > 0 && <span className="alerts-switch-count">{officialAlerts.length}</span>}
+          {displayAlerts.length > 0 && <span className="alerts-switch-count">{displayAlerts.length}</span>}
         </button>
         <button
           type="button"
@@ -3100,19 +3202,20 @@ function AlertsPanel({
           onLocate={onLocate}
           onSubmit={onSubmitStreetReport}
           onRemove={onRemoveStreetReport}
+          sharingAvailable={communitySharing}
         />
       ) : (
         <>
-          {officialAlerts.length === 0 ? (
+          {displayAlerts.length === 0 ? (
             <div className="alerts-unavailable-card">
               <div className="alerts-status-icon"><CircleAlert size={22} /></div>
-              <span className="eyebrow">AUCUNE ALERTE CHARGÉE</span>
-              <h3>Aucune alerte officielle connectée pour le moment.</h3>
-              <p>Vérifiez auprès de votre opérateur avant de partir. La synthèse ci-dessus est un exemple de ce que l’IA produira quand les flux seront branchés.</p>
+              <span className="eyebrow">{emptyState.eyebrow}</span>
+              <h3>{emptyState.title}</h3>
+              <p>{emptyState.detail}{trafficContext.checkedAt ? ` Dernière vérification : ${trafficCheckedAtLabel(trafficContext.checkedAt)}.` : ''} Actualisation automatique toutes les heures.</p>
             </div>
           ) : (
             <ul className="alerts-list" aria-label="Liste des alertes classées par proximité">
-              {officialAlerts.map(({ alert, nearestStop, distanceM, nearby }) => (
+              {displayAlerts.map(({ alert, nearestStop, distanceM, nearby }) => (
                 <li
                   key={alert.id}
                   className={`alert-card severity-${alert.severity}${nearby ? ' is-nearby' : ''}`}
@@ -3127,7 +3230,7 @@ function AlertsPanel({
                     <p className="alert-card-reco"><strong>Conseil :</strong> {alert.recommendationFr}</p>
                   )}
                   <div className="alert-card-meta">
-                    <span className="alert-source-tag">{sourceLabel(alert.source)}</span>
+                    <span className="alert-source-tag">{sourceLabel(alert.source)}{alert.corroboratingSources?.length ? ` · Croisé avec ${alert.corroboratingSources.map((source) => source.label).join(', ')}` : ''}</span>
                     {alert.delayMinutes !== null && (
                       <span className="alert-delay-tag">~{alert.delayMinutes} min de retard</span>
                     )}
@@ -3161,7 +3264,7 @@ function AlertsPanel({
           </button>
           {infoOpen && (
             <div className="alert-channels-card">
-              <p className="alert-channels-intro">L’IA agrège 3 types de flux : sources officielles (CETUD, SETER, SunuBRT), trafic routier (OSM/Waze) et Direct rue (usagers). Les flux temps réel ne sont pas encore connectés : les alertes ci-dessus sont des exemples de synthèse.</p>
+              <p className="alert-channels-intro">L’IA croise les sources officielles (CETUD, SENTER/SETER, SunuBRT, Dakar Dem Dikk) et le trafic routier géolocalisé via les flux autorisés configurés sur le serveur. Seuls les incidents actifs et confirmés depuis moins d’une heure sont affichés. Les bulletins publics sont extraits seulement s’ils sont datés et annoncent un incident actuel. Direct rue enrichit la synthèse et la proximité, mais reste un témoignage non vérifié : l’IA contrôle la forme, pas la véracité. Les sites ci-dessous ne garantissent pas une couverture temps réel complète.</p>
               <ul className="alert-channels-list">
                 {OFFICIAL_ALERT_CHANNELS.map((channel) => (
                   <li key={channel.label}>
@@ -3171,8 +3274,8 @@ function AlertsPanel({
                     ) : null}
                   </li>
                 ))}
-                <li><strong>Trafic routier</strong><span>OSM / Waze — bientôt connecté</span></li>
-                <li><strong>Direct rue</strong><span>Signalements d’usagers sur cet appareil</span></li>
+                <li><strong>Trafic routier</strong><span>Flux géolocalisé autorisé · actualisation horaire</span></li>
+                <li><strong>Direct rue</strong><span>{communitySharing ? 'Signalements partagés et locaux · moins de 60 minutes' : 'Signalements locaux · partage actuellement indisponible'}</span></li>
               </ul>
             </div>
           )}
@@ -3226,7 +3329,7 @@ function SettingsHelpSection() {
     {
       id: 'alerts',
       label: 'Alertes',
-      text: 'Activez le GPS pour voir les arrêts à proximité et les perturbations autour de vous. L’IA agrège sources officielles, trafic routier et « Direct rue » en un résumé clair (français et wolof).'
+      text: 'Activez le GPS pour voir les perturbations confirmées autour de vous. L’IA résume les flux officiels et routiers vérifiés, actualisés toutes les heures. Sans vérification complète, le trafic fluide n’est pas confirmé ; Direct rue contribue comme témoignage non vérifié.'
     },
     {
       id: 'settings',
@@ -3359,8 +3462,8 @@ function ChangelogSection() {
       title: 'Alertes : GPS, arrêts à proximité et synthèse IA temps réel',
       items: [
         'Géolocalisation : à l’ouverture de l’onglet Alertes, le GPS est activé automatiquement (avec votre accord) pour détecter les arrêts TER/BRT/DDD/TATA dans un rayon de 1,5 km autour de vous ; un bandeau indique l’état du GPS (localisé, en cours, refusé).',
-        'Collecte multisource : l’onglet agrège trois types de flux — sources officielles (CETUD, SETER/Sen TER, SunuBRT), trafic routier (OSM/Waze — en cours de connexion), et « Direct rue » (signalements communautaires) ; les signalements d’usagers apparaissent dans la liste globale avec la mention « non vérifié ».',
-        'Synthèse IA : l’assistant agrège les signaux bruts (incidents, ralentissements, pannes) en un résumé clair en français et en wolof (modèle de base), avec sévérité, arrêt le plus proche, retard estimé et recommandation (arrêt de repli / ligne alternative).',
+        'Collecte multisource : la logique croise les flux autorisés CETUD, SENTER/SETER (TER), SunuBRT, Dakar Dem Dikk et le trafic routier géolocalisé, lorsqu’ils sont configurés sur le serveur. Seules les alertes confirmées de moins d’une heure sont affichées ; Direct rue est partagé si l’API est disponible et reste un témoignage non vérifié, traité par l’Assistant.',
+        'Synthèse IA : l’assistant résume les incidents confirmés en français et en wolof (modèle de base), sans créer de retard ni d’incident fictif. Les retards et conseils affichés proviennent des sources.',
         'Classement : les alertes impactant les arrêts et lignes à proximité du voyageur s’affichent en premier (géofencing), avec pastille « À proximité » ; les alertes critiques (accident, route coupée) sont priorisées.',
         'Assistant : la question « Y a-t-il des bouchons sur mon trajet actuel ? » reçoit une réponse contextualisée à partir du résumé IA au lieu du message « pas de flux connecté » ; le wolof est joint comme seconde langue.',
       ],
@@ -3429,7 +3532,7 @@ function ChangelogSection() {
       items: [
         'Explorer : le décompte de chaque mobilité descend en temps réel (créneau théorique calculé depuis la fréquence officielle déclarée) — jamais du temps réel.',
         'Explorer : « Mes destinations » passe au-dessus des réseaux de référence, pour un accès immédiat à Maison, Boulot et Adresse.',
-        'Alertes : nouvelle vue « Direct rue » — les usagers signalent embouteillages, incidents, travaux et routes coupées. Signalements locaux à l’appareil, non vérifiés, effacés après 90 minutes.',
+        'Alertes : nouvelle vue « Direct rue » — les usagers signalent embouteillages, incidents, travaux et routes coupées. Signalements partagés si le serveur est disponible, sinon locaux, non vérifiés et retirés après 60 minutes.',
         'Trajet : titre « Planifier un trajet », couverture TER · BRT · DDD · TATA · AFTU, deux encadrés Départ/Destination avec inversion, et bouton « Rechercher mon itinéraire ».',
         'Trajet : la barre de recherche couvre les cinq mobilités et tous les arrêts déclarés (gares TER/SETER, stations BRT/SunuBRT, arrêts du snapshot). Un réseau sans arrêt déclaré l’explique au lieu d’être inventé.',
         'Résultats : durée, correspondances, ligne empruntée et prochain départ avec son point vert. Les détails de provenance sont repliés dans « Détails et sources ».',

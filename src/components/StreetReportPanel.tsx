@@ -12,6 +12,7 @@ import {
   type StreetReportDraft,
   type StreetReportKind,
 } from '../domain/streetReports'
+import { assessStreetReport } from '../domain/communityTraffic'
 import { NETWORK_SOURCES, type NetworkId } from '../domain/network'
 import { isMobilityId } from '../domain/mobilityColors'
 import { MobilityBadge } from './MobilityBadge'
@@ -21,9 +22,9 @@ const MIN_PLACE_LENGTH = 3
 /**
  * « Direct rue » : les usagers remontent ce qu'ils voient sur la chaussée.
  *
- * Tout est local à l'appareil : le signalement n'est envoyé à aucun serveur,
- * n'est vérifié par personne et n'est jamais présenté comme une alerte
- * officielle ni comme du temps réel. Il expire de lui-même.
+ * Partage serveur lorsqu'il est disponible, sinon repli local explicite.
+ * L'Assistant contrôle la forme, jamais la vérité de l'observation.
+ * La structure du formulaire et des cartes reste inchangée.
  */
 export function StreetReportPanel({
   reports,
@@ -32,13 +33,15 @@ export function StreetReportPanel({
   onLocate,
   onSubmit,
   onRemove,
+  sharingAvailable = false,
 }: {
   reports: readonly StreetReport[]
   now: number
   location: { lat: number; lng: number } | null
   onLocate: () => void
-  onSubmit: (draft: StreetReportDraft) => void
+  onSubmit: (draft: StreetReportDraft) => string | null | void
   onRemove: (id: string) => void
+  sharingAvailable?: boolean
 }) {
   const [kind, setKind] = useState<StreetReportKind>('CONGESTION')
   const [place, setPlace] = useState('')
@@ -56,15 +59,18 @@ export function StreetReportPanel({
       setError(`Indiquez la portion de route concernée (au moins ${MIN_PLACE_LENGTH} caractères).`)
       return
     }
-    setError(null)
-    onSubmit({
-      kind,
-      place: trimmedPlace,
-      networkId,
-      comment: comment.trim() || null,
-      lat: joinedPosition?.lat ?? null,
-      lng: joinedPosition?.lng ?? null,
+    if (attachPosition && !location) {
+      setError('Attendez une position GPS fraîche ou retirez la position jointe.')
+      return
+    }
+    const assessment = assessStreetReport({
+      kind, place: trimmedPlace, networkId, comment: comment.trim() || null,
+      lat: joinedPosition?.lat ?? null, lng: joinedPosition?.lng ?? null,
     })
+    if (!assessment.ok) { setError(assessment.reason); return }
+    const refusal = onSubmit(assessment.value)
+    if (refusal) { setError(refusal); return }
+    setError(null)
     setPlace('')
     setComment('')
     setNetworkId(null)
@@ -75,7 +81,7 @@ export function StreetReportPanel({
     <section className="street-panel" aria-label="Direct rue">
       <div className="street-provenance">
         <Info size={16} />
-        <p>{STREET_REPORT_PROVENANCE}</p>
+        <p>{STREET_REPORT_PROVENANCE} {sharingAvailable ? 'Les nouveaux signalements sont partagés avec les usagers ; la position est envoyée uniquement si vous la joignez.' : 'Partage indisponible : publication uniquement sur cet appareil.'}</p>
       </div>
 
       <form className="street-form" onSubmit={handleSubmit}>
@@ -83,7 +89,7 @@ export function StreetReportPanel({
           <span className="street-form-icon"><Megaphone size={16} /></span>
           <div>
             <strong>Signaler ce que vous voyez</strong>
-            <small>Embouteillage, incident, travaux… sur une portion de route précise.</small>
+            <small>Décrivez ce que vous voyez maintenant, sans donnée personnelle.</small>
           </div>
         </div>
 
@@ -172,7 +178,7 @@ export function StreetReportPanel({
       </form>
 
       <div className="street-list-heading">
-        <span>SIGNALEMENTS ACTIFS SUR CET APPAREIL</span>
+        <span>{sharingAvailable ? 'SIGNALEMENTS RÉCENTS · PARTAGÉS ET LOCAUX' : 'SIGNALEMENTS ACTIFS SUR CET APPAREIL'}</span>
         <span className="source-count">{reports.length}</span>
       </div>
 
@@ -189,6 +195,8 @@ export function StreetReportPanel({
                   type="button"
                   className="street-report-remove"
                   aria-label={`Retirer le signalement ${report.place}`}
+                  disabled={report.canRemove === false}
+                  title={report.canRemove === false ? 'Seul l’auteur peut retirer ce signalement.' : 'Retirer ou marquer cette situation comme terminée.'}
                   onClick={() => onRemove(report.id)}
                 >
                   <Trash2 size={14} />
@@ -200,7 +208,7 @@ export function StreetReportPanel({
                 {report.lat !== null && report.lng !== null && (
                   <span><MapPin size={12} /> {report.lat.toFixed(4)}, {report.lng.toFixed(4)}</span>
                 )}
-                <span className="street-report-source">non vérifié</span>
+                <span className="street-report-source">{report.shared ? 'partagé · non vérifié' : 'local · non vérifié'}</span>
               </div>
               {report.comment && <p className="street-report-comment">{report.comment}</p>}
             </li>
@@ -210,8 +218,8 @@ export function StreetReportPanel({
 
       <p className="street-footnote">
         <TriangleAlert size={13} />
-        Visible uniquement sur cet appareil, effaçable à tout moment et automatiquement retiré après{' '}
-        {STREET_REPORT_TTL_MINUTES} minutes.
+        {sharingAvailable ? 'Signalements partagés par l’API ; les entrées locales restent sur cet appareil. Retrait réservé à l’auteur.' : 'Visible uniquement sur cet appareil et effaçable à tout moment.'} Automatiquement retiré après{' '}
+        {STREET_REPORT_TTL_MINUTES} minutes, même hors ligne.
       </p>
     </section>
   )

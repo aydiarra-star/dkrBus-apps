@@ -30,8 +30,8 @@ const policy = loadPolicy()
 const swSource = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../public/sw.js'), 'utf8')
 
 describe('service worker borné', () => {
-  it('nomme un cache v5 et plafonne à un entier raisonnable', () => {
-    expect(policy.CACHE_NAME).toBe('dakar-bus-shell-v5')
+  it('nomme un cache v6 et plafonne à un entier raisonnable', () => {
+    expect(policy.CACHE_NAME).toBe('dakar-bus-shell-v7')
     expect(policy.MAX_CACHE_ENTRIES).toBe(48)
     expect(Number.isInteger(policy.MAX_CACHE_ENTRIES)).toBe(true)
     expect(swSource).toContain(`const CACHE_NAME = '${policy.CACHE_NAME}'`)
@@ -45,6 +45,9 @@ describe('service worker borné', () => {
     expect(policy.isApiPath('/Dakar-Bus/api/journeys')).toBe(true)
     expect(policy.isApiPath('/Dakar-Bus/apiculture')).toBe(false)
     expect(policy.isApiPath('/Dakar-Bus/assets/index.js')).toBe(false)
+    expect(policy.isApiPath('/api/traffic/alerts')).toBe(true)
+    expect(policy.isApiPath('/Dakar-Bus/api/traffic/alerts')).toBe(true)
+    expect(swSource).toContain("request.cache === 'no-store'")
   })
 
   it('protège la page, le manifeste et l’icône, pas les assets hachés', () => {
