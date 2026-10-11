@@ -35,7 +35,7 @@ const HUB_BY_KIND: Record<string, string> = {
 }
 
 const PLACE_LIMIT =
-  'Estimations du réseau de référence : TER bleu #003366 et BRT vert #00A859 en tracés continus, DDD jaune #F59E0B et AFTU/TATA orange #D97706 en pointillés légers + pastilles. Fréquences DDD/AFTU/TATA non publiées ligne par ligne : ni temps réel, ni prochain passage garanti.'
+  'Estimations du réseau de référence : TER et BRT en tracés continus, DDD et AFTU/TATA en pointillés légers + pastilles. Fréquences DDD/AFTU/TATA non publiées ligne par ligne : ni temps réel, ni prochain passage garanti.'
 
 function networkLabel(place: PlaceEntry): string {
   if (place.kind === 'ter') return CORRIDOR_NETWORKS.ter.label
@@ -56,10 +56,10 @@ function identityLine(place: PlaceEntry): string {
     return `${place.name} — station BRT${note}, ligne B1 Petersen ↔ Préfecture de Guédiawaye (${CORRIDOR_NETWORKS.brt.operator}).`
   }
   if (place.kind === 'ddd') {
-    return `${place.name} — arrêt DDD${note}, réseau urbain Dakar Dem Dikk (jaune #F59E0B) en pointillés légers + pastille.`
+    return `${place.name} — arrêt DDD${note}, réseau urbain Dakar Dem Dikk  en pointillés légers + pastille.`
   }
   if (place.kind === 'aftu') {
-    return `${place.name} — arrêt AFTU${note}, réseau minibus AFTU (orange ambré #D97706) en pointillés légers + pastille.`
+    return `${place.name} — arrêt AFTU${note}, réseau minibus AFTU  en pointillés légers + pastille.`
   }
   if (place.kind === 'tata') {
     return `${place.name} — arrêt TATA${note}, réseau TATA (marron #C05621, palette AFTU) en pointillés légers + pastille.`
@@ -77,16 +77,16 @@ function serviceLine(place: PlaceEntry): string | null {
 /** Mode le plus adapté pour atteindre ce lieu, d'après le réseau de référence. */
 function bestModeLine(place: PlaceEntry): string {
   if (place.kind === 'ter') {
-    return 'Mode le plus adapté : le TER bleu #003366 — le plus rapide sur ce corridor, aux heures de service publiées.'
+    return 'Mode le plus adapté : le TER — le plus rapide sur ce corridor, aux heures de service publiées.'
   }
   if (place.kind === 'brt') {
-    return 'Mode le plus adapté : le BRT vert #00A859 (B1) — cadence de référence la plus régulière du réseau, en site propre.'
+    return 'Mode le plus adapté : le BRT (B1) — cadence de référence la plus régulière du réseau, en site propre.'
   }
   if (place.kind === 'ddd') {
-    return 'Mode le plus adapté : DDD jaune #F59E0B — bus urbains, affichage en pointillés légers + pastilles pour éviter la surcharge.'
+    return 'Mode le plus adapté : DDD — bus urbains, affichage en pointillés légers + pastilles pour éviter la surcharge.'
   }
   if (place.kind === 'aftu') {
-    return 'Mode le plus adapté : AFTU orange #D97706 — minibus, pointillés légers + pastilles.'
+    return 'Mode le plus adapté : AFTU — minibus, pointillés légers + pastilles.'
   }
   if (place.kind === 'tata') {
     return 'Mode le plus adapté : TATA marron #C05621 — réseau indépendant, même palette AFTU, pointillés légers.'

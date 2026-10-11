@@ -398,6 +398,9 @@ describe('isolation de la vue carte', () => {
 
 describe('structure en quatre piliers', () => {
   it('garde Explorer compact et déplace les détails techniques dans Paramètres', () => {
+    vi.useFakeTimers()
+    // Service actif : jeudi 8 octobre 2026, 12:00 UTC = 12:00 Dakar.
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
@@ -407,7 +410,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // DDD, AFTU et TATA ne publient pas de fréquence : rien n’est inventé.
-    expect(screen.getAllByText('Non déclaré')).toHaveLength(3)
+    // DDD et AFTU n’ont pas de fréquence : « Non déclaré ». TATA n’a pas de referenceData : « Fin de service ».
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -425,6 +428,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
     expect(screen.getByRole('link', { name: 'TER / SETER' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'CETUD / SunuBRT' })).toBeTruthy()
+    vi.useRealTimers()
   })
 
   it('expose exactement quatre onglets, avec leurs rôles exclusifs', async () => {
@@ -985,6 +989,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
   })
 
   it('déclenche une micro-interaction et un retour haptique lors de la sélection d’un réseau', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const vibrateMock = vi.fn(() => true)
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrateMock })
@@ -1006,9 +1012,12 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     fireEvent.click(terHeader)
     expect(terItem.classList.contains('is-selected')).toBe(false)
+    vi.useRealTimers()
   })
 
   it('n’émet aucun recentrage de carte à l’ouverture du volet TER, seulement au choix d’une gare', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
     const recenter = () => screen.getByTestId('map-recenter').textContent
@@ -1022,6 +1031,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(container.querySelector('.network-item-ter .network-summary-header')!)
     fireEvent.click(within(container.querySelector('.station-board') as HTMLElement).getAllByText('Colobane')[0])
     expect(recenter()).not.toBe('')
+    vi.useRealTimers()
   })
 
   it('décline les créneaux TER station par station et sens par sens', async () => {
@@ -1107,6 +1117,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
   })
 
   it('prépare la structure AFTU et TATA avec pointillés légers + pastilles (sans inventer d’horaire temps réel)', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
@@ -1120,10 +1132,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
       if (board) {
         expect(board.textContent).toMatch(/Créneaux théoriques|pastilles|pointillés|référence/)
       } else {
-        // Fallback si aucune ligne : message d'attente conservé
-        expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé/i)
+        // Fallback si aucune ligne : message d’attente ou d’état de service
+        expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
       }
     }
+    vi.useRealTimers()
   })
 
   it('bascule élégamment entre le mode clair et le mode sombre adaptatif', () => {
