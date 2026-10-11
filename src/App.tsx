@@ -57,10 +57,19 @@ import {
   TATA_STOPS,
   TER_STOPS,
   getCorridorStop,
+  haversineMeters,
   linesServingStop,
   searchCorridorStops,
   type CorridorStop,
 } from './domain/corridors'
+import {
+  NEARBY_MOBILITY_KIND,
+  NEARBY_MOBILITY_RADIUS_M,
+  absentNearbyLabel,
+  absentNearbyNetworks,
+  detectNearbyMobilities,
+  groupNearbyMobilities,
+} from './domain/nearbyMobilities'
 import {
   declaredClockLabel,
   formatJourneyDate,
@@ -767,10 +776,60 @@ function App() {
     setNearby({ status: 'ready', stops: parsed.value, radius: NEARBY_RADIUS_M, error: null })
   }, [])
 
+  const lastNearbySample = useRef<{ lat: number; lng: number; at: number } | null>(null)
+  const proximityWatchId = useRef<number | null>(null)
+  const nearbyLoaderRef = useRef(loadNearbyStops)
+  const dataAvailableRef = useRef(dataAvailable)
+  useEffect(() => { nearbyLoaderRef.current = loadNearbyStops }, [loadNearbyStops])
+  useEffect(() => { dataAvailableRef.current = dataAvailable }, [dataAvailable])
+
   useEffect(() => {
     if (!dataAvailable || !location || nearby.status !== 'idle') return
+    lastNearbySample.current = { lat: location.lat, lng: location.lng, at: Date.now() }
     void loadNearbyStops(location)
   }, [dataAvailable, location, nearby.status, loadNearbyStops])
+
+  /** Suivi GPS : la liste « Mobilités à proximité » se met à jour avec la
+   *  position, sans recentrer la carte à chaque pas. */
+  const ensureProximityWatch = useCallback(() => {
+    const geo = navigator.geolocation
+    if (!geo || typeof geo.watchPosition !== 'function' || proximityWatchId.current !== null) return
+    proximityWatchId.current = geo.watchPosition(
+      (position) => {
+        if (!isValidLatLng(position.coords.latitude, position.coords.longitude)) return
+        const coords = { lat: position.coords.latitude, lng: position.coords.longitude }
+        setLocation({ ...coords, accuracy: position.coords.accuracy })
+        setGpsState('ready')
+        setGpsMessage(position.coords.accuracy > 100 ? 'Position approximative' : 'Position localisée')
+        if (!dataAvailableRef.current) return
+        const last = lastNearbySample.current
+        const moved = !last || haversineMeters(
+          { lat: last.lat, lon: last.lng },
+          { lat: coords.lat, lon: coords.lng },
+        ) >= 80
+        const stale = !last || Date.now() - last.at >= 20_000
+        if (!moved && !stale) return
+        lastNearbySample.current = { ...coords, at: Date.now() }
+        void nearbyLoaderRef.current(coords)
+      },
+      () => {
+        // Un échec de suivi ne retire pas une position déjà affichée.
+      },
+      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 15_000 },
+    )
+  }, [])
+
+  useEffect(() => {
+    if (gpsState !== 'ready') return
+    ensureProximityWatch()
+  }, [gpsState, ensureProximityWatch])
+
+  useEffect(() => () => {
+    const id = proximityWatchId.current
+    if (id === null) return
+    proximityWatchId.current = null
+    try { navigator.geolocation?.clearWatch(id) } catch { /* déjà arrêté */ }
+  }, [])
 
   async function openStop(stop: PublishedStop) {
     const id = beginRequest('openStop')
@@ -1012,6 +1071,26 @@ function App() {
         announce(message)
       },
       { enableHighAccuracy: true, timeout: 12_000, maximumAge: 30_000 },
+    )
+  }
+
+  /** Bouton « Mobilités à proximité » : position immédiate, puis suivi en direct. */
+  function requestProximity() {
+    ensureProximityWatch()
+    requestLocation('center')
+  }
+
+  /** Recentre la carte sur un arrêt détecté, sans ouvrir le volet des réseaux. */
+  function focusNearbyStop(stop: CorridorStop) {
+    triggerHaptic(8)
+    setRecenterTo({ lat: stop.lat, lng: stop.lon })
+    const networkId = mobilityFromStopId(stop.id)
+    const label = networkId ? CORRIDOR_NETWORKS[networkId].label : 'réseau de référence'
+    const lines = linesServingStop(stop.id)
+    announce(
+      `${stop.name} — ${label}` +
+        (lines.length > 0 ? ` · ${lines.map((line) => line.shortName).join(', ')}` : '') +
+        ' · réseau de référence',
     )
   }
 
@@ -1444,10 +1523,13 @@ function App() {
             <ExplorerPanel
               gpsState={gpsState}
               gpsMessage={gpsMessage}
+              location={location}
               onLocate={() => requestLocation()}
+              onRequestProximity={requestProximity}
               dataAvailable={dataAvailable}
               nearby={nearby}
               onSelectStop={(stop) => void openStop(stop)}
+              onFocusNearbyStop={focusNearbyStop}
               search={search}
               onSearchChange={setSearch}
               onSearchSubmit={handleSearchSubmit}
@@ -1648,10 +1730,13 @@ function publishedBadge(state: PublishedState): { label: string; tone: 'neutral'
 function ExplorerPanel({
   gpsState,
   gpsMessage,
+  location,
   onLocate,
+  onRequestProximity,
   dataAvailable,
   nearby,
   onSelectStop,
+  onFocusNearbyStop,
   search,
   onSearchChange,
   onSearchSubmit,
@@ -1667,10 +1752,13 @@ function ExplorerPanel({
 }: {
   gpsState: GpsState
   gpsMessage: string | null
+  location: UserLocation | null
   onLocate: () => void
+  onRequestProximity: () => void
   dataAvailable: boolean
   nearby: NearbyState
   onSelectStop: (stop: PublishedStop) => void
+  onFocusNearbyStop: (stop: CorridorStop) => void
   search: string
   onSearchChange: (value: string) => void
   onSearchSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -1686,13 +1774,35 @@ function ExplorerPanel({
   onFocusStation: (stop: CorridorStop) => void
   now: number
 }) {
-  const locationHint = gpsState === 'loading'
+  const [proximityOpen, setProximityOpen] = useState(false)
+  const [proximityDismissed, setProximityDismissed] = useState(false)
+
+  useEffect(() => {
+    if (gpsState === 'ready' && !proximityDismissed) setProximityOpen(true)
+  }, [gpsState, proximityDismissed])
+
+  const nearbyHits = useMemo(() => {
+    if (!proximityOpen || gpsState !== 'ready' || !location) return []
+    return detectNearbyMobilities({ lat: location.lat, lon: location.lng })
+  }, [proximityOpen, gpsState, location])
+  const nearbyGroups = useMemo(() => groupNearbyMobilities(nearbyHits), [nearbyHits])
+  const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
+  /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
+   *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
+  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready' ? nearby.stops : []
+
+  function revealNearby() {
+    triggerHaptic(10)
+    setProximityDismissed(false)
+    setProximityOpen(true)
+    onRequestProximity()
+  }
+
+  const proximityStatus = gpsState === 'loading'
     ? 'Recherche de votre position…'
     : gpsState === 'denied' || gpsState === 'error'
       ? gpsMessage ?? 'Votre position n’est pas disponible.'
-      : gpsState === 'ready'
-        ? gpsMessage ?? 'Votre position est affichée sur la carte.'
-        : 'Touchez la carte ou cherchez une destination.'
+      : null
 
   return (
     <section className="panel explore-guide-panel" aria-label="Guide de déplacement">
@@ -1726,34 +1836,104 @@ function ExplorerPanel({
         </button>
       </form>
 
-      <p className="explore-guide-hint" role="status">{locationHint}</p>
+      <button
+        type="button"
+        className={`nearby-mobility-launch${proximityOpen ? ' is-open' : ''}`}
+        aria-expanded={proximityOpen}
+        aria-controls="nearby-mobility-slot"
+        onClick={revealNearby}
+        disabled={gpsState === 'loading'}
+      >
+        <LocateFixed size={14} aria-hidden="true" className={gpsState === 'loading' ? 'is-spinning' : ''} />
+        Mobilités à proximité
+      </button>
 
-      {dataAvailable && gpsState === 'ready' && nearby.status === 'loading' && (
-        <p className="explore-nearby-message" role="status">Recherche des arrêts proches…</p>
-      )}
-      {dataAvailable && gpsState === 'ready' && nearby.status === 'error' && (
-        <p className="explore-nearby-message" role="status">Les arrêts proches n’ont pas pu être chargés.</p>
-      )}
-      {dataAvailable && gpsState === 'ready' && nearby.status === 'ready' && (
-        <section className="explore-nearby" aria-label="Mobilité à proximité">
-          <h3>Mobilité à proximité</h3>
-          {nearby.stops.length > 0 ? (
-            <ul className="published-stop-list">
-              {nearby.stops.slice(0, 3).map((stop) => (
-                <li key={stop.stopId}>
-                  <button type="button" className="published-stop-row" onClick={() => onSelectStop(stop)}>
-                    <span className="stop-row-icon"><MapPin size={17} /></span>
-                    <span className="stop-row-copy"><strong>{stop.stopName}</strong></span>
-                    <small className="explore-stop-distance">{formatDistance(stop.distanceM) ?? ''}</small>
-                    <ArrowRight size={16} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Aucun arrêt à proximité pour le moment.</p>
-          )}
-        </section>
+      {/* Espace dédié, sous le bouton uniquement : il se déplie dans sa propre
+          zone défilante et ne recouvre ni Mes destinations ni les réseaux. */}
+      {proximityOpen && (
+        <div className="nearby-mobility-slot" id="nearby-mobility-slot">
+          <section className="nearby-mobility-panel" aria-label="Mobilités à proximité">
+            <div className="nearby-mobility-head">
+              <p className="nearby-mobility-meta" role="status">
+                {proximityStatus ?? `Arrêts de référence dans ${formatDistanceMeters(NEARBY_MOBILITY_RADIUS_M)}${gpsMessage ? ` · ${gpsMessage}` : ''} · pas de position de véhicule.`}
+              </p>
+              <button
+                type="button"
+                className="nearby-mobility-dismiss"
+                onClick={() => { setProximityDismissed(true); setProximityOpen(false) }}
+              >
+                Masquer
+              </button>
+            </div>
+
+            {gpsState === 'ready' && nearbyGroups.length === 0 && !proximityStatus && (
+              <p className="nearby-mobility-status" role="status">Aucune mobilité de référence dans ce rayon.</p>
+            )}
+
+            {nearbyGroups.length > 0 && (
+              <div className="nearby-mobility-groups">
+                {nearbyGroups.map((group) => (
+                  <div
+                    key={group.network}
+                    className={`nearby-mobility-group mobility-${group.network}`}
+                    data-network={group.network}
+                  >
+                    <div className="nearby-mobility-group-head">
+                      <MobilityBadge id={group.network} />
+                      <span>{NEARBY_MOBILITY_KIND[group.network]}</span>
+                      <small>{group.hits.length}</small>
+                    </div>
+                    <ul className="nearby-mobility-list">
+                      {group.hits.map((hit) => (
+                        <li key={hit.stop.id}>
+                          <button
+                            type="button"
+                            className="nearby-mobility-row"
+                            onClick={() => onFocusNearbyStop(hit.stop)}
+                          >
+                            <strong>{hit.stop.name}</strong>
+                            <span className="nearby-mobility-lines">
+                              {hit.lineNames.length > 0 ? hit.lineNames.join(' · ') : 'Réseau de référence'}
+                            </span>
+                            <small>{formatDistance(hit.distanceM) ?? ''}</small>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {missingNearby && gpsState === 'ready' && (
+              <p className="nearby-mobility-note">{missingNearby}</p>
+            )}
+
+            {dataAvailable && gpsState === 'ready' && nearby.status === 'loading' && (
+              <p className="nearby-mobility-status" role="status">Recherche des arrêts publiés…</p>
+            )}
+            {dataAvailable && gpsState === 'ready' && nearby.status === 'error' && (
+              <p className="nearby-mobility-status" role="status">Les arrêts publiés n’ont pas pu être chargés. Les arrêts de référence restent affichés.</p>
+            )}
+            {publishedNearby.length > 0 && (
+              <div className="nearby-mobility-published">
+                <strong>Arrêts publiés</strong>
+                <ul className="published-stop-list">
+                  {publishedNearby.map((stop) => (
+                    <li key={stop.stopId}>
+                      <button type="button" className="published-stop-row" onClick={() => onSelectStop(stop)}>
+                        <span className="stop-row-icon"><MapPin size={17} /></span>
+                        <span className="stop-row-copy"><strong>{stop.stopName}</strong></span>
+                        <small className="explore-stop-distance">{formatDistance(stop.distanceM) ?? ''}</small>
+                        <ArrowRight size={16} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        </div>
       )}
 
       {/* « Mes destinations » en pastilles compactes au-dessus des réseaux :
@@ -3036,7 +3216,7 @@ function SettingsHelpSection() {
     {
       id: 'explore',
       label: 'Explorer',
-      text: 'Recherchez « On va où ? », utilisez votre position ou touchez la carte. Enregistrez vos destinations en bas.'
+      text: 'Recherchez « On va où ? », touchez « Mobilités à proximité » pour les arrêts autour de vous, ou la carte. Enregistrez vos destinations en bas.'
     },
     {
       id: 'route',
@@ -3144,6 +3324,15 @@ function LegalSection() {
 /** Historique des mises à jour, daté et vérifiable dans l’historique Git. */
 function ChangelogSection() {
   const releases: { date: string; title: string; items: string[] }[] = [
+    {
+      date: '2026-10-11',
+      title: 'Bouton Mobilités à proximité',
+      items: [
+        'Explorer : l’indication passive sous la recherche est remplacée par le bouton vert compact « Mobilités à proximité » (1 cm de haut).',
+        'Au clic, ou dès que le GPS est connu, les arrêts TER, stations BRT et arrêts DDD, AFTU et TATA dans un rayon de 1,5 km s’affichent dans un espace dédié, défilant, sans modifier Mes destinations ni les réseaux de référence.',
+        'La liste suit la position GPS. Ce sont des arrêts de référence, pas des positions de véhicules.',
+      ],
+    },
     {
       date: '2026-10-11',
       title: 'États de service, masquage des codes techniques et interactivité',

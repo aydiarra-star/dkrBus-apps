@@ -988,6 +988,54 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
+  it('remplace l’indication passive par le bouton Mobilités à proximité', async () => {
+    stubGeolocation(14.7003482, -17.4416523)
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    expect(screen.queryByText(/Touchez la carte ou cherchez une destination/i)).toBeNull()
+    const launch = screen.getByRole('button', { name: 'Mobilités à proximité' })
+    expect(launch.className).toContain('nearby-mobility-launch')
+
+    const destinations = container.querySelector('.destination-shortcuts')
+    const networks = container.querySelector('.network-summary-section')
+    expect(launch.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    fireEvent.click(launch)
+    const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
+    expect(launch.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(panel.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
+    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText('Bus DDD')).toBeTruthy()
+    expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
+    expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
+    expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
+
+    fireEvent.click(within(panel).getByRole('button', { name: /Place de la Nation/ }))
+    expect(screen.getByTestId('map-recenter').textContent).toBe('14.6960909,-17.4506369')
+
+    fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
+    expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
+    expect(screen.getByText('Mes destinations')).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
+    expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('affiche les mobilités dès que le GPS est connu, sans nouveau clic sur le bouton', async () => {
+    stubGeolocation(14.7003482, -17.4416523)
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+
+    expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Ma position' }))
+    const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
+    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText('Bus DDD')).toBeTruthy()
+  })
+
   it('déclenche une micro-interaction et un retour haptique lors de la sélection d’un réseau', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
