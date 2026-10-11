@@ -8,6 +8,12 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-weight: 400;
+  /* Réglages d'accessibilité posés par l'écran Paramètres sur la coquille :
+     l'échelle de facteur, le contraste renforcé et la réduction d'animation
+     n'ont d'effet que parce que ces variables existent et sont consommées. */
+  --app-font-scale: 1;
+  --app-contrast: 0;
+  --app-motion: 1;
   /* Vert signature #198754 : toute la charte en découle, par paliers de
      luminosité. Seules les couleurs d'identité des réseaux (TER, AFTU, DDD,
      Tata) et des états d'alerte restent hors de cette gamme. */
@@ -2168,16 +2174,43 @@ button:disabled { cursor: not-allowed; }
 
 
 /* Optional reference comparison: published journeys and default route stay intact. */
-.route-comparison { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-card); }
-.route-comparison-action { padding: 9px 12px; border: 1px solid var(--green-700); border-radius: 9px; background: var(--green-700); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
-.route-comparison-results { margin-top: 12px; color: var(--text); font-size: 12px; line-height: 1.5; }
-.route-comparison-results h3 { margin: 0 0 6px; font-size: 14px; }
-.route-comparison-results p { margin: 6px 0; }
-.route-comparison-results > ol { display: grid; gap: 8px; padding: 0; list-style: none; }
-.route-comparison-results > ol > li { display: grid; gap: 3px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-sunken); }
-.route-comparison-results small { color: var(--green-700); font-weight: 750; }
-.route-comparison-results details summary { cursor: pointer; }
-.route-comparison-results details ol { padding-left: 20px; }
+/* Comparateur d'itinéraires du référentiel : mêmes paliers visuels que le
+   panneau de saisie, aucune nouvelle couleur — uniquement la charte verte. */
+.journey-options { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-card); }
+.journey-options-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.journey-options-head h3 { margin: 2px 0 4px; font-size: 14px; }
+.journey-options-head p { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--guide-copy); }
+.journey-options-empty { margin: 8px 0 0; font-size: 12px; line-height: 1.55; color: var(--guide-copy); }
+.journey-option-list { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.journey-option > article { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-sunken); }
+.journey-option.is-preferred > article { border-color: var(--green-500); box-shadow: inset 3px 0 0 var(--green-600); }
+.journey-option > article header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.journey-option-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.journey-option-title h4 { margin: 0; font-size: 13px; }
+.journey-option-rank { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--green-600); color: #fff; font-size: 11px; font-weight: 750; }
+.journey-option-plain { font-size: 11.5px; color: var(--guide-copy); }
+.journey-option-tag { font-size: 10.5px; font-weight: 750; color: var(--green-700); letter-spacing: .02em; }
+.journey-option-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin: 0; }
+.journey-option-metrics > div { padding: 6px 8px; border-radius: 8px; background: var(--surface-card); border: 1px solid var(--line); }
+.journey-option-metrics dt { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--guide-copy); }
+.journey-option-metrics dd { margin: 2px 0 0; font-size: 13px; font-weight: 700; display: grid; gap: 2px; }
+.journey-option-metrics dd small { font-size: 10.5px; font-weight: 500; color: var(--guide-copy); line-height: 1.4; }
+.journey-option-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.journey-option-actions .text-action { display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; border: 1px solid var(--green-700); border-radius: 9px; background: transparent; color: var(--green-800); font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.journey-option-actions .text-action:hover { background: var(--green-50); }
+.journey-option-steps { display: grid; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--line); }
+.journey-option-source { margin: 0; font-size: 11px; line-height: 1.5; color: var(--guide-copy); }
+.journey-option-warning { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--green-50); border-left: 3px solid var(--green-600); font-size: 11.5px; line-height: 1.5; }
+.journey-options-notes { display: grid; gap: 4px; margin: 10px 0 0; padding-left: 18px; font-size: 11.5px; line-height: 1.55; color: var(--guide-copy); }
+.journey-options-note { margin: 8px 0 0; font-size: 11.5px; color: var(--guide-copy); }
+.journey-roundtrip { margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-sunken); display: grid; gap: 8px; }
+.journey-roundtrip header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+.journey-roundtrip header strong { font-size: 12.5px; }
+.journey-roundtrip header span { color: var(--guide-copy); font-size: 11px; }
+.journey-roundtrip p { margin: 0; font-size: 11.5px; color: var(--guide-copy); }
+.journey-roundtrip ul, .journey-roundtrip ol { display: grid; gap: 4px; margin: 0; padding-left: 18px; font-size: 11.5px; line-height: 1.5; }
+.journey-roundtrip-leg { display: grid; gap: 4px; }
+.journey-roundtrip-leg strong { font-size: 12px; }
 .assistant-route-reply { align-self: flex-start; max-width: 92%; }
 .assistant-route-reply .assistant-bubble { max-width: 100%; }
 .assistant-route-reply .assistant-chip { margin: 5px 0 0; }
@@ -2587,4 +2620,36 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 820px) {
   .map-mobility-legend { bottom: 26px; left: 8px; max-width: calc(100% - 62px); padding: 6px; }
   .map-mobility-legend small { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Réglages d'accessibilité — appliqués pour de vrai, pas seulement affichés.
+   Les variables sont posées sur la coquille par `accessibilityStyle()` ; sans
+   ces règles, l'écran Paramètres ne changerait rien. La carte est volontairement
+   exclue de l'échelle de texte : sa géométrie (tuiles, marqueurs) est calculée
+   par la librairie de carte en pixels.
+--------------------------------------------------------------------------- */
+.panel, .panel-content, .journey-options, .universal-search-card { zoom: var(--app-font-scale, 1); }
+
+.app-shell[data-contrast='high'] { --text: #04231a; --guide-copy: #0a3622; --line: #96d6b3; }
+.app-shell[data-contrast='high'].theme-dark { --text: #f4fbf7; --guide-copy: #d6efe3; --line: #2b9d6c; }
+.app-shell[data-contrast='high'] .panel,
+.app-shell[data-contrast='high'] .journey-options,
+.app-shell[data-contrast='high'] .journey-option > article,
+.app-shell[data-contrast='high'] .journey-option-metrics > div { border-width: 2px; }
+.app-shell[data-contrast='high'] .eyebrow,
+.app-shell[data-contrast='high'] .journey-option-tag,
+.app-shell[data-contrast='high'] .journey-option-metrics dt { letter-spacing: .1em; font-weight: 800; }
+.app-shell[data-contrast='high'] a { text-decoration: underline; }
+.app-shell[data-contrast='high'] .text-action,
+.app-shell[data-contrast='high'] .primary-action { outline: 2px solid var(--green-800); outline-offset: 1px; }
+
+.app-shell[data-motion='reduced'],
+.app-shell[data-motion='reduced'] *,
+.app-shell[data-motion='reduced'] *::before,
+.app-shell[data-motion='reduced'] *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+  scroll-behavior: auto !important;
 }

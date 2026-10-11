@@ -90,6 +90,9 @@ export interface JourneyPlan {
 
 export type JourneyPlanOutcome = JourneyPlan | (PlannerFailure & { ok: false })
 
+/** Résultat de l'aller-retour : les deux plans, ou l'échec de l'aller. */
+export type JourneyRoundTripPlan = ReturnType<typeof planRoundTrip>
+
 export type EngineOptions = {
   allowedNetworks: MobilityId[] | null
   walkSpeedPreset?: WalkSpeedPreset

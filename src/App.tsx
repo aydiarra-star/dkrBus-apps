@@ -47,7 +47,10 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
-import { RouteComparison } from './components/RouteComparison'
+import { JourneyOptions } from './components/JourneyOptions'
+import { planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
+import { accessibilityStyle, plannerPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
+import { speak, speechSynthesisSupported } from './domain/speech'
 import { extractMobilityIntent } from './domain/intent'
 import { MultimodalPlanner } from './components/MultimodalPlanner'
 import { StopCombobox } from './components/StopCombobox'
@@ -352,14 +355,25 @@ function shouldUseReferenceFallback(result: ApiResult): boolean {
   return result.status === 0 || (result.status === 404 && result.code === null) || result.code === 'NOT_PUBLISHED'
 }
 
-function planReferencePoints(origin: MapPoint, destination: MapPoint): PlannerOutcome {
-  const endpoint = (point: MapPoint) => ({
+function referenceEndpoint(point: MapPoint): PlannerEndpoint {
+  return {
     label: point.label,
     lat: point.lat,
     lon: point.lng,
     ...(point.stopId && getCorridorStop(point.stopId) ? { stopId: point.stopId } : {}),
-  })
-  return planReferenceJourney(endpoint(origin), endpoint(destination))
+  }
+}
+
+function planReferencePoints(origin: MapPoint, destination: MapPoint): PlannerOutcome {
+  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination))
+}
+
+/**
+ * Comparaison des itinéraires du référentiel, alimentée par les mêmes points que
+ * le formulaire et par les préférences de mobilité de l'appareil.
+ */
+function referenceJourneyPlan(origin: MapPoint, destination: MapPoint, preferences: Preferences): JourneyPlanOutcome {
+  return planJourneyOptions(referenceEndpoint(origin), referenceEndpoint(destination), plannerPreferences(preferences))
 }
 
 function explicitJourneyNetwork(journey: Journey): 'brt' | 'ter' | null {
@@ -431,6 +445,8 @@ function App() {
   /** Hauteur verrouillée de la coquille : elle ne varie pas quand le clavier
    *  mobile s'ouvre, la mise en page ne se décale plus sous le doigt. */
   const viewportLock = useViewportLock()
+  /** Réglages de l'appareil : ils pilotent le calcul, les unités et l'affichage. */
+  const preferences = usePreferences()
   const [activeTab, setActiveTab] = useState<TabId>('explore')
   const [search, setSearch] = useState('')
   const [networkLayers, setNetworkLayers] = useState<Record<NetworkId, boolean>>({
@@ -449,6 +465,7 @@ function App() {
   const [zoomAction, setZoomAction] = useState<{ delta: number; nonce: number } | null>(null)
   const [nextZoomNonce, setNextZoomNonce] = useState(0)
   const [routePoints, setRoutePoints] = useState<Partial<Record<RoutePointKey, MapPoint>>>({})
+  /** Comparaison calculée pour l'écran Trajet, conservée entre les onglets. */
   const [pickingPoint, setPickingPoint] = useState<RoutePointKey | null>(null)
   const [savedDestinations, setSavedDestinations] = useState(() => readSavedDestinations())
   const [pendingShortcut, setPendingShortcut] = useState<DestinationShortcutId | null>(null)
@@ -1394,6 +1411,18 @@ function App() {
   const mapVisible = activeTab === 'explore'
   const showStopCard = activeTab === 'explore' || activeTab === 'route'
 
+  // Comparaison des itinéraires sur les mêmes points que le formulaire : dès que
+  // départ et destination sont connus, les critères sont calculés sans clic
+  // supplémentaire. Les préférences de mobilité filtrent réellement le graphe.
+  const journeyPlan = routePoints.origin && routePoints.destination
+    ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
+    : null
+
+  // Les réglages d'accessibilité posent des variables et des attributs sur la
+  // coquille ; sans eux, l'écran Paramètres afficherait des interrupteurs
+  // décoratifs. Les valeurs vides sont retirées pour ne rien casser.
+  const accessibility = Object.fromEntries(Object.entries(accessibilityStyle(preferences)).filter(([, value]) => value !== ''))
+
   // Rappels stables pour la carte mémorisée : un tic de l’horloge ne la redessine pas.
   const stableMapPick = useStableCallback(handleMapPick)
   const stableOpenStop = useStableCallback((stop: PublishedStop) => void openStop(stop))
@@ -1402,7 +1431,10 @@ function App() {
   return (
     <main
       className={`app-shell tab-${activeTab} theme-${theme}${mapVisible ? '' : ' is-map-hidden'}${viewportLock.keyboardOpen ? ' is-keyboard-open' : ''}`}
-      style={shellHeightStyle(viewportLock.height)}
+      data-contrast={preferences.accessibility.contrast}
+      data-motion={preferences.accessibility.reduceMotion ? 'reduced' : 'full'}
+      data-font-scale={preferences.accessibility.fontScale}
+      style={{ ...(shellHeightStyle(viewportLock.height) ?? {}), ...accessibility } as CSSProperties}
     >
       {mapVisible && (
       <section className="map-stage" aria-label="Carte de Dakar">
@@ -1667,6 +1699,8 @@ function App() {
                 dataAvailable={dataAvailable}
                 journey={journey}
                 countdownNow={countdownNow}
+                preferences={preferences}
+                journeyPlan={journeyPlan}
               />
               <details className="advanced-planner">
                 <summary>Autres options de trajet</summary>
@@ -2446,6 +2480,8 @@ function RoutePanel({
   dataAvailable,
   journey,
   countdownNow,
+  preferences,
+  journeyPlan,
 }: {
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
@@ -2461,6 +2497,8 @@ function RoutePanel({
   dataAvailable: boolean
   journey: JourneyState
   countdownNow: number
+  preferences: Preferences
+  journeyPlan: JourneyPlanOutcome | null
 }) {
   return (
     <section className="panel route-panel" aria-label="Planifier un itinéraire">
@@ -2522,9 +2560,17 @@ function RoutePanel({
           )}
         </div>
       )}
-      {routePoints.origin && routePoints.destination && (
-        <RouteComparison origin={routePoints.origin} destination={routePoints.destination} />
-      )}
+      {journeyPlan && routePoints.origin && routePoints.destination ? (
+        <JourneyOptions
+          origin={routePoints.origin}
+          destination={routePoints.destination}
+          plan={journeyPlan}
+          preferences={plannerPreferences(preferences)}
+          units={preferences.units.distance}
+          speak={preferences.language.interface}
+          onReadAloud={speechSynthesisSupported() ? (text, language) => { speak({ text, lang: language }) } : undefined}
+        />
+      ) : null}
     </section>
   )
 }
