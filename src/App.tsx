@@ -2586,6 +2586,7 @@ function RoutePanel({
           preferences={plannerPreferences(preferences)}
           units={preferences.units.distance}
           speak={preferences.language.interface}
+          publishedAlongside={Boolean(journey.search)}
           onReadAloud={speechSynthesisSupported() ? (text, language) => { speak({ text, lang: language }) } : undefined}
         />
       ) : null}

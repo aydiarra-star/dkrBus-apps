@@ -46,6 +46,9 @@ export function JourneyOptions({
   preferences,
   units = 'metric',
   speak = 'fr',
+  /** Une course directe publiée est-elle affichée à côté ? Le comparateur le
+   *  dit pour que les deux sources ne soient pas confondues. */
+  publishedAlongside = false,
   onReadAloud,
 }: {
   origin: Point
@@ -55,6 +58,8 @@ export function JourneyOptions({
   preferences?: JourneyPlanPreferences
   units?: DistanceUnits
   speak?: 'fr' | 'wo'
+  /** Le comparateur est estimé ; la course publiée garde ses horaires propres. */
+  publishedAlongside?: boolean
   onReadAloud?: (text: string, language: 'fr' | 'wo') => void
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
@@ -105,6 +110,7 @@ export function JourneyOptions({
           <p>
             {plan.options.length} itinéraire{plan.options.length > 1 ? 's' : ''} distinct{plan.options.length > 1 ? 's' : ''} calculé
             {plan.options.length > 1 ? 's' : ''} · durées estimées avec leur marge · aucune donnée temps réel.
+            {publishedAlongside && ' Les courses directes publiées restent affichées séparément : leurs horaires ne sont pas mélangés à ces estimations.'}
           </p>
         </div>
         {onReadAloud && (

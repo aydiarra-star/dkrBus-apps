@@ -160,11 +160,17 @@ export const INTERFACE_LANGUAGE_CHOICES: readonly { id: 'fr' | 'wo'; label: stri
   { id: 'wo', label: 'Wolof', detail: 'Assistant, voix et réponses de trajet en wolof ; les libellés restent en français tant que la traduction n’est pas validée.' },
 ]
 
+/**
+ * Le battement est plafonné à 5 minutes par correspondance : au-delà, le calcul
+ * ne deviendrait pas plus juste — il fabriquerait une marge que rien ne justifie.
+ * Les choix proposés s'arrêtent donc au plafond, pour que le réglage annonce ce
+ * qu'il fait réellement.
+ */
 export const TRANSFER_BUFFER_CHOICES: readonly { id: number; label: string; detail: string }[] = [
   { id: 0, label: 'Aucun', detail: 'Durées calculées au plus juste, sans marge de confort.' },
-  { id: 3, label: '3 min', detail: 'Battement ajouté à chaque correspondance.' },
-  { id: 6, label: '6 min', detail: 'Marge confortable pour les changements avec montée/descente.' },
-  { id: 10, label: '10 min', detail: 'Pour ne pas courir : la durée totale est allongée d’autant.' },
+  { id: 2, label: '2 min', detail: 'Petit matelas pour avaler la marche de correspondance.' },
+  { id: 3, label: '3 min', detail: 'Battement de référence déjà utilisé par le moteur.' },
+  { id: 5, label: '5 min', detail: 'Plafond accepté : au-delà, aucune donnée ne permettrait de promettre plus large.' },
 ]
 
 function isRecord(value: unknown): value is Record<string, unknown> {
