@@ -7,15 +7,13 @@ import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { copilotAnswer } from '../domain/copilot'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
-import {
-  loadAssistantLanguagePreference,
-  saveAssistantLanguagePreference,
-  type AssistantLanguagePreference,
-} from '../domain/language'
+import { type AssistantLanguagePreference } from '../domain/language'
+import { getPreferences, updatePreferences, usePreferences } from '../domain/preferences'
 import type { PlannerEndpoint } from '../domain/planner'
 import {
-  WOLOF_STT_UNAVAILABLE,
+  WOLOF_STT_PHONETIC_FALLBACK,
   speechRecognitionSupported,
+  speechSynthesisSupported,
   speak,
   startSpeechRecognition,
   stopSpeaking,
@@ -84,7 +82,10 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const [notice, setNotice] = useState<string | null>(null)
   const [listening, setListening] = useState(false)
   const [speakingId, setSpeakingId] = useState<number | null>(null)
-  const [preference, setPreference] = useState<AssistantLanguagePreference>(() => loadAssistantLanguagePreference())
+  // La langue de l'assistant est un réglage de l'appareil, partagé avec l'écran
+  // Paramètres : le changer ici se voit là, et réciproquement.
+  const preferences = usePreferences()
+  const preference = preferences.language.assistant
   const listRef = useRef<HTMLDivElement | null>(null)
   const memoryRef = useRef<ConversationMemory>(createConversationMemory())
   const lastTrafficQuestionRef = useRef<string | null>(null)
@@ -239,6 +240,14 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
       ])
       pendingRef.current = false
       setPending(false)
+      // Guidage vocal demandé dans Paramètres : la réponse est lue une fois,
+      // dans la langue de la réponse. Sans voix installée, rien n'est annoncé.
+      const accessibility = getPreferences().accessibility
+      if (accessibility.voiceGuidance && !failed && speechSynthesisSupported()) {
+        const spoken = text.split('\nSource : ')[0].slice(0, 420)
+        const started = speak({ text: spoken, lang: reply?.language ?? 'fr' })
+        if (started) setSpeakingId(nextMessageId - 1)
+      }
     }, 0)
     return true
   }, [])
@@ -250,8 +259,11 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   }
 
   function chooseLanguage(value: AssistantLanguagePreference) {
-    setPreference(value)
-    saveAssistantLanguagePreference(value)
+    updatePreferences('language', { assistant: value })
+  }
+
+  function readMicrophoneAllowed(): boolean {
+    return getPreferences().privacy.allowMicrophone
   }
 
   function toggleMicrophone() {
@@ -261,9 +273,14 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
       setListening(false)
       return
     }
-    if (preferenceRef.current === 'wo') {
-      setNotice(WOLOF_STT_UNAVAILABLE)
+    if (!readMicrophoneAllowed()) {
+      setNotice('Le micro est refusé dans vos réglages. Autorisez-le dans Paramètres, section Confidentialité et position, ou écrivez votre question.')
       return
+    }
+    if (preferenceRef.current === 'wo') {
+      // Le wolof dicté passe par la transcription française du navigateur, puis
+      // par la lecture wolof : c'est annoncé, pas caché.
+      setNotice(WOLOF_STT_PHONETIC_FALLBACK)
     }
     if (!speechRecognitionSupported()) {
       setNotice('La reconnaissance vocale n’est pas disponible dans ce navigateur. Écrivez votre question : le chat fonctionne sans micro.')

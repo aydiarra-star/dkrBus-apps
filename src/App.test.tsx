@@ -2,6 +2,7 @@
 import { act, fireEvent, render, screen, cleanup, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { resetPreferences } from './domain/preferences'
 import { trafficAlert, trafficPayload, TRAFFIC_TEST_NOW } from './test/trafficFixtures'
 import { communityPayload, communityReport, COMMUNITY_TEST_ID, COMMUNITY_TEST_KEY } from './test/communityFixtures'
 
@@ -215,6 +216,9 @@ function publishedApi() {
 
 beforeEach(() => {
   window.localStorage.clear()
+  // Les réglages vivent dans un magasin partagé : sans remise à zéro, la langue
+  // choisie par un test déborderait sur les suivants.
+  resetPreferences()
   stubGeolocation()
 })
 
@@ -1285,7 +1289,9 @@ describe('barre de recherche du Trajet', () => {
     })
 
     expect(screen.getByText(/≈ 42 min/)).toBeTruthy()
-    expect(screen.getByText(/sans correspondance/i)).toBeTruthy()
+    // Le comparateur affiche le même constat sous son propre libellé : on
+    // vérifie qu'il est dit, pas qu'il est dit une seule fois.
+    expect(screen.getAllByText(/sans correspondance/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/départ programmé dans 6 min/i)).toBeTruthy()
     expect(document.querySelectorAll('.journey-countdown .live-dot')).toHaveLength(1)
   })
@@ -1501,11 +1507,19 @@ describe('copilote et comparateur sur les parcours existants', () => {
     fireEvent.submit(search.closest('form')!)
     expect(await screen.findByText(/Copilote · Préfecture de Guédiawaye/)).toBeTruthy()
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /comparer les options TER\/BRT/i }))
-    const comparison = screen.getByRole('region', { name: /comparaison des itinéraires TER\/BRT/i })
-    expect(within(comparison).getByText(/Option 2/)).toBeTruthy()
-    expect(within(comparison).getByText(/Prix non comparés/)).toBeTruthy()
-    expect(within(comparison).getByText(/horaires ne sont pas mélangés/)).toBeTruthy()
+    // Les options comparées s’affichent sans clic supplémentaire : le comparateur
+    // est branché sur le calcul en cours du panneau Trajet.
+    const comparison = await screen.findByRole('region', { name: /itinéraires de référence/i })
+    expect(within(comparison).getAllByText(/le plus rapide|moins de marche|moins de correspondances/i).length).toBeGreaterThan(1)
+    // La durée est toujours accompagnée de sa marge, et le tarif de sa source :
+    // jamais un prix inventé.
+    expect(within(comparison).getAllByText(/marge/i).length).toBeGreaterThan(0)
+    expect(within(comparison).getAllByText(/publié|grille|non publié|somme des tickets/i).length).toBeGreaterThan(0)
+    // Chaque option se déplie réellement en étapes, et la vérification auprès des
+    // exploitants y est rappelée.
+    fireEvent.click(within(comparison).getAllByRole('button', { name: /voir les étapes/i })[0])
+    expect(within(comparison).getAllByText(/min · via |· direct|À pied|Correspondance à pied/).length).toBeGreaterThan(0)
+    expect(within(comparison).getByText(/Vérifiez le service auprès des opérateurs/i)).toBeTruthy()
   })
 
   it('ouvre Trajet depuis le chat sans changer les autres réponses', async () => {
@@ -1519,7 +1533,8 @@ describe('copilote et comparateur sur les parcours existants', () => {
     await screen.findByText(/Itinéraire de référence Petersen/i)
     fireEvent.click(screen.getByRole('button', { name: /ouvrir dans Trajet/i }))
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
-    expect(screen.getByRole('button', { name: /comparer les options TER\/BRT/i })).toBeTruthy()
+    // Le comparateur suit les points choisis : rien à activer pour le voir.
+    expect(screen.getByRole('region', { name: /itinéraires de référence/i })).toBeTruthy()
   })
 })
 
@@ -1815,5 +1830,122 @@ describe('veille résiliente et Direct rue valorisé, onglets inchangés', () =>
     expect(screen.getByRole('alert').textContent).toContain('texte simple')
     expect((screen.getByLabelText(/portion de route/i) as HTMLInputElement).value).toBe('<script>Texte</script>')
     expect(fetcher.mock.calls.every((call) => !(call[1] as RequestInit | undefined)?.method)).toBe(true)
+  })
+})
+
+describe('réglages appliqués réellement à l’application', () => {
+  /** Ouvre un volet de réglages par son ancrage de section, sans dépendre d'un
+   *  libellé qui peut se répéter dans l'aide ou les listes. */
+  function openSettingsSection(id: 'mobility' | 'language' | 'accessibility' | 'units' | 'privacy' | 'offline') {
+    fireEvent.click(screen.getByRole('tab', { name: /paramètres/i }))
+    const details = document.querySelector(`details[data-section='${id}']`) as HTMLDetailsElement
+    expect(details, `section ${id} absente de Paramètres`).toBeTruthy()
+    fireEvent.click(details.querySelector('summary')!)
+    return within(details as unknown as HTMLElement)
+  }
+
+  it('l’échelle de texte, le contraste et les animations choisis sont appliqués à la coquille', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    const section = openSettingsSection('accessibility')
+    fireEvent.click(section.getByRole('button', { name: /Très grand/i }))
+    fireEvent.click(section.getByRole('button', { name: /Contraste renforcé/i }))
+    fireEvent.click(section.getByRole('switch', { name: /Réduire les animations/i }))
+    const shell = document.querySelector('.app-shell') as HTMLElement
+    expect(shell.dataset.fontScale).toBe('xl')
+    expect(shell.getAttribute('style')).toContain('--app-font-scale: 1.25')
+    expect(shell.dataset.contrast).toBe('high')
+    expect(shell.dataset.motion).toBe('reduced')
+    // Le réglage est écrit pour survivre au rechargement.
+    expect(JSON.parse(String(window.localStorage.getItem('dakar-bus:preferences:v1'))).accessibility).toMatchObject({
+      fontScale: 'xl',
+      contrast: 'high',
+      reduceMotion: true,
+    })
+  })
+
+  it('un réseau retiré du calcul est dit, mémorisé, et le dernier restant est protégé', async () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    const section = openSettingsSection('mobility')
+    const tata = section.getByRole('button', { name: /TATA/ })
+    expect(tata.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(tata)
+    expect(tata.getAttribute('aria-pressed')).toBe('false')
+    expect(section.getByText(/4 réseaux autorisés dans le calcul/)).toBeTruthy()
+    expect(JSON.parse(String(window.localStorage.getItem('dakar-bus:preferences:v1'))).mobility.networks.tata).toBe(false)
+    // Les trois autres sont retirés un à un : il ne reste qu'AFTU.
+    for (const label of [/Dakar Dem Dikk/, /BRT SunuBRT/, /TER/]) {
+      fireEvent.click(section.getByRole('button', { name: label }))
+    }
+    expect(section.getByText(/1 réseau autorisé dans le calcul/)).toBeTruthy()
+    const last = section.getByRole('button', { name: /AFTU/ })
+    expect(last.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(last)
+    // Le dernier réseau autorisé ne peut pas être retiré, et la raison est dite.
+    expect(await screen.findByText(/Au moins un réseau doit rester autorisé/)).toBeTruthy()
+    expect(last.getAttribute('aria-pressed')).toBe('true')
+    expect(section.getByText(/1 réseau autorisé dans le calcul/)).toBeTruthy()
+    // Un réseau exclu se rétablit par le même bouton.
+    fireEvent.click(section.getByRole('button', { name: /TER/ }))
+    expect(section.getByText(/2 réseaux autorisés dans le calcul/)).toBeTruthy()
+  })
+
+  it('le mode hors ligne télécharge, vérifie et supprime le paquet local', async () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    const section = openSettingsSection('offline')
+    expect(section.getByText(/Aucun paquet hors ligne sur cet appareil/)).toBeTruthy()
+    fireEvent.click(section.getByRole('button', { name: /télécharger le référentiel/i }))
+    expect(await section.findByText(/Paquet vérifié, conforme au référentiel de l’application/)).toBeTruthy()
+    expect(section.getByText(/arrêts · .* lignes · .* correspondances/)).toBeTruthy()
+    expect(window.localStorage.getItem('dakar-bus:offline-pack:v1')).toContain('"stops"')
+    // Les limites du hors ligne sont affichées, pas cachées.
+    expect(section.getAllByText(/Fond de carte/i).length).toBeGreaterThan(0)
+    expect(section.getAllByText(/nécessite une connexion/).length).toBeGreaterThan(0)
+    fireEvent.click(section.getByRole('button', { name: /supprimer de cet appareil/i }))
+    expect(section.getByText(/Aucun paquet hors ligne sur cet appareil/)).toBeTruthy()
+    expect(window.localStorage.getItem('dakar-bus:offline-pack:v1')).toBeNull()
+  })
+
+  it('la langue choisie dans les réglages est bien celle de l’assistant, sans second magasin', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    const section = openSettingsSection('language')
+    fireEvent.click(section.getByRole('button', { name: /Réponses en wolof/i }))
+    expect(JSON.parse(String(window.localStorage.getItem('dakar-bus:preferences:v1'))).language.assistant).toBe('wo')
+    expect(window.localStorage.getItem('dakar-bus:assistant-language')).toBe('wo')
+    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
+    expect(screen.getByRole('button', { name: 'WO', hidden: false }).getAttribute('aria-pressed')).toBe('true')
+  })
+
+  it('la géolocalisation refusée dans les réglages n’est jamais demandée au navigateur', async () => {
+    const requested = vi.fn()
+    Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: requested } })
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    const section = openSettingsSection('privacy')
+    fireEvent.click(section.getByRole('button', { name: /^Jamais/ }))
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /utiliser ma position comme départ/i }))
+    expect(await screen.findByText(/Géolocalisation désactivée dans vos réglages/i)).toBeTruthy()
+    expect(requested).not.toHaveBeenCalled()
+  })
+
+  it('les unités choisies changent l’affichage des distances du comparateur', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Destination', 'rufisque', /rufisque/i)
+    const region = screen.getByRole('region', { name: /itinéraires de référence/i })
+    const metric = region.textContent ?? ''
+    expect(metric).toMatch(/\d+ m|\d+,\d km/)
+    const section = openSettingsSection('units')
+    fireEvent.click(section.getByRole('button', { name: /miles/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    const imperial = screen.getByRole('region', { name: /itinéraires de référence/i }).textContent ?? ''
+    expect(imperial).toMatch(/\d+ pi|\d+,\d mi/)
+    expect(imperial).not.toBe(metric)
   })
 })

@@ -48,8 +48,9 @@ import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
+import { SettingsPreferences } from './components/SettingsPreferences'
 import { planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
-import { accessibilityStyle, plannerPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
+import { accessibilityStyle, plannerPreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
 import { extractMobilityIntent } from './domain/intent'
 import { MultimodalPlanner } from './components/MultimodalPlanner'
@@ -1069,6 +1070,14 @@ function App() {
   }
 
   function requestLocation(purpose: 'center' | 'origin' = 'center') {
+    // « Jamais » dans Paramètres → Confidentialité est appliqué ici : aucune
+    // demande de position n'est envoyée au navigateur, et la raison est dite.
+    if (preferences.privacy.gps === 'never') {
+      setGpsState('denied')
+      setGpsMessage('La géolocalisation est refusée dans vos réglages. Autorisez-la dans Paramètres, section Confidentialité et position.')
+      announce('Géolocalisation désactivée dans vos réglages.')
+      return
+    }
     if (!('geolocation' in navigator)) {
       setGpsState('error')
       setGpsMessage('La géolocalisation n’est pas disponible sur cet appareil.')
@@ -1126,6 +1135,7 @@ function App() {
    *  Aucun recentrage ni toast : la structure et les interactions restent inchangées. */
   function refreshTrafficGps() {
     if (gpsState !== 'ready' || !navigator.geolocation) return
+    if (preferences.privacy.gps === 'never') return
     navigator.geolocation.getCurrentPosition(
       (position) => {
         if (!isValidLatLng(position.coords.latitude, position.coords.longitude)) return
@@ -1366,12 +1376,15 @@ function App() {
   }, [streetReports])
 
   useEffect(() => {
+    // « Ne pas conserver l'historique des lieux » : la session reste utilitaire,
+    // rien n'est écrit sur l'appareil au-delà.
+    if (!preferences.privacy.keepPlaceHistory) return
     try {
       window.localStorage.setItem(SAVED_DESTINATIONS_KEY, JSON.stringify(savedDestinations))
     } catch {
       // La destination reste utilisable en mémoire même si le stockage est indisponible.
     }
-  }, [savedDestinations])
+  }, [savedDestinations, preferences.privacy.keepPlaceHistory])
 
   /** Activation automatique du GPS à l'ouverture de l'onglet Alertes
    *  (géolocalisation en direct) — la permission est demandée une fois, puis
@@ -1733,6 +1746,11 @@ function App() {
 
           {activeTab === 'settings' && (
             <>
+              <SettingsPreferences
+                preferences={preferences}
+                onNotify={(message) => { announce(message); setToast(message) }}
+                onClearSavedPlaces={() => setSavedDestinations({})}
+              />
               <SettingsHelpSection />
               <SettingsDisclosure title="État des données">
                 <ReadApiCard published={published} dataAvailable={dataAvailable} onRefresh={() => void loadPublishedNetwork()} />

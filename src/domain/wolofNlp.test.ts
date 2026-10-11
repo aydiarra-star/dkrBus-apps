@@ -79,6 +79,22 @@ describe('compréhension wolof', () => {
     expect(understandWolof('dama bëgg yoon bu amul soppi').criterion).toBe('transfers')
   })
 
+  it('orient le trajet d’après les mots de la phrase, pas d’après l’ordre des lieux', () => {
+    const stop = (id: string) => getCorridorStop(id)?.name
+    // Le lieu cité en second est le départ : « je suis à Keur Mbaye Fall ».
+    const first = understandWolof('Comment faire pour aller à Dakar ? Je suis à Keur Mbaye Fall')
+    expect(first.originText).toBe(stop('ter-mbao'))
+    expect(first.destinationText).toBe(stop('ter-dakar'))
+    // Même phrase en wolof : « dem » marque la destination, « jóge » le départ.
+    const second = understandWolof('naka laay def ngir dem Ndakaaru, sama jóge Guédiawaye')
+    expect(second.destinationText).toBe(stop('ter-dakar'))
+    expect(second.originText).toBeTruthy()
+    // Un lieu unique sans indice est la destination visée, jamais le départ.
+    const single = understandWolof('naka laay def ngir dem Garu Ndakaaru ?')
+    expect(single.originText).toBeNull()
+    expect(single.destinationText).toBe(stop('ter-dakar'))
+  })
+
   it('signale que le départ vient de l’appareil, sans le confondre avec un lieu', () => {
     expect(understandWolof('naka laay def ngir dem ndakaaru, sama position').originFromSelf).toBe(true)
     expect(understandWolof('naka laay def ngir dem ndakaaru').originFromSelf).toBe(false)

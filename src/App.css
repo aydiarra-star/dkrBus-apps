@@ -2653,3 +2653,57 @@ button:disabled { cursor: not-allowed; }
   transition-duration: .001ms !important;
   scroll-behavior: auto !important;
 }
+
+/* ---------------------------------------------------------------------------
+   Écran Paramètres — réglages actifs. Mêmes paliers que les fiches d'aide :
+   carte 11-13 px, rayon 13 px, texte 10-11,5 px. L'état actif d'un choix est
+   marqué par le vert signature, comme les interrupteurs réutilisables `.switch`.
+--------------------------------------------------------------------------- */
+.settings-preferences { padding-bottom: 6px; }
+.pref-effect { margin: 0 0 10px; color: var(--guide-copy); font-size: 11px; line-height: 1.55; }
+.pref-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 12px; border: 1px solid #e7f1ec; border-radius: 13px; background: #fdfefe; margin-top: 9px; }
+.pref-copy { display: grid; gap: 3px; }
+.pref-copy strong { color: #214333; font-size: 11.5px; }
+.pref-copy span { color: var(--muted); font-size: 10px; line-height: 1.55; }
+.pref-control { flex: 0 0 auto; }
+.pref-choices-wrap { margin-top: 12px; }
+.pref-choices-label { display: block; margin-bottom: 6px; color: #214333; font-size: 11.5px; font-weight: 750; }
+.pref-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 7px; }
+.pref-choice { display: grid; gap: 4px; padding: 10px 11px; border: 1px solid #dceae4; border-radius: 13px; background: #fdfefe; color: #214333; text-align: left; cursor: pointer; transition: border-color .16s ease, background .16s ease; }
+.pref-choice strong { font-size: 11.5px; }
+.pref-choice small { color: var(--muted); font-size: 10px; line-height: 1.5; }
+.pref-choice:hover { border-color: var(--green-500); }
+.pref-choice.selected { border-color: var(--green-600); background: #e9f6f0; box-shadow: inset 0 0 0 1px var(--green-600); }
+.pref-choice.selected strong { color: var(--green-800); }
+.pref-network { align-items: center; }
+.pref-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.pref-actions .text-action { display: inline-flex; align-items: center; gap: 5px; padding: 8px 11px; border: 1px solid var(--green-700); border-radius: 9px; background: transparent; color: var(--green-800); font-size: 11px; font-weight: 700; cursor: pointer; }
+.pref-actions .text-action:hover { background: var(--green-50); }
+.pref-status { margin: 12px 0 0; padding: 10px 11px; border-left: 3px solid var(--green-600); border-radius: 0 9px 9px 0; background: #f6fcf9; color: #415e51; font-size: 10.5px; line-height: 1.6; }
+.pref-offline-state { display: grid; gap: 4px; padding: 11px 12px; border: 1px solid #dceae4; border-radius: 13px; background: #fdfefe; font-size: 10.5px; line-height: 1.55; }
+.pref-offline-state strong { color: #214333; font-size: 11.5px; }
+.pref-offline-state span { color: var(--muted); }
+.pref-offline-state.integrity-intact { border-color: var(--green-600); background: #e9f6f0; }
+.pref-offline-state.integrity-stale,
+.pref-offline-state.integrity-modified { border-color: #d98b2b; background: #fdf6ea; }
+.pref-offline-error { color: #8a4b06; font-weight: 700; }
+.pref-capabilities { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.pref-capabilities li { padding: 9px 11px; border: 1px solid #e7f1ec; border-radius: 11px; background: #fdfefe; font-size: 10.5px; line-height: 1.55; }
+.pref-capabilities li strong { display: block; color: #214333; font-size: 11.5px; }
+.pref-capabilities li.available { border-left: 3px solid var(--green-600); }
+.pref-capabilities li.unavailable { border-left: 3px solid #c9d6d0; color: var(--muted); }
+.pref-offline-text { margin: 12px 0 0; padding: 11px 12px; border-radius: 11px; background: #f2faf6; color: #214333; font-family: inherit; font-size: 10.5px; line-height: 1.6; white-space: pre-wrap; }
+.theme-dark .pref-row,
+.theme-dark .pref-choice,
+.theme-dark .pref-offline-state,
+.theme-dark .pref-capabilities li { border-color: var(--line); background: var(--surface-card); }
+.theme-dark .pref-choice.selected { background: rgba(25, 135, 84, .18); }
+.theme-dark .pref-copy strong,
+.theme-dark .pref-choices-label,
+.theme-dark .pref-offline-state strong,
+.theme-dark .pref-capabilities li strong { color: var(--text); }
+.theme-dark .pref-status,
+.theme-dark .pref-offline-text { background: var(--surface-sunken); color: var(--text); }
+.theme-dark .pref-offline-error { color: #f0b76a; }
+.theme-dark .pref-offline-state.integrity-stale,
+.theme-dark .pref-offline-state.integrity-modified { border-color: #b9761f; background: rgba(185, 118, 31, .12); }

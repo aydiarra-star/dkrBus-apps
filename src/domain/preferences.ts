@@ -134,6 +134,39 @@ export const GPS_MODE_CHOICES: readonly { id: GpsMode; label: string; detail: st
   { id: 'never', label: 'Jamais', detail: 'Aucune demande de position. La recherche par nom de lieu reste disponible.' },
 ]
 
+export const CONTRAST_CHOICES: readonly { id: ContrastMode; label: string; detail: string }[] = [
+  { id: 'standard', label: 'Standard', detail: 'Palette validée de l’application, contrastes déjà au-dessus du seuil AA.' },
+  { id: 'high', label: 'Contraste renforcé', detail: 'Texte assombri, contours et liens visibles, bordures épaissies.' },
+]
+
+export const DISTANCE_UNIT_CHOICES: readonly { id: DistanceUnits; label: string; detail: string }[] = [
+  { id: 'metric', label: 'Mètres et kilomètres', detail: 'Unités employées à Dakar pour la marche et les correspondances.' },
+  { id: 'imperial', label: 'Miles', detail: 'Affichage impérial pour les distances ; les durées restent en minutes.' },
+]
+
+export const DURATION_FORMAT_CHOICES: readonly { id: DurationFormat; label: string; detail: string }[] = [
+  { id: 'minutes', label: 'Minutes', detail: 'Comme les grilles de fréquence publiées (6 min, 10 min).' },
+  { id: 'hours', label: 'Heures et minutes', detail: 'Pour les trajets longs, au-delà d’une heure.' },
+]
+
+export const LANGUAGE_CHOICES: readonly { id: AssistantLanguagePreference; label: string; detail: string }[] = [
+  { id: 'auto', label: 'Langue de la question', detail: 'Français si la phrase est en français, wolof si elle est en wolof.' },
+  { id: 'fr', label: 'Français', detail: 'Réponses et voix en français, quelle que soit la question.' },
+  { id: 'wo', label: 'Wolof', detail: 'Réponses en wolof ; le français reste affiché pour les mentions légales.' },
+]
+
+export const INTERFACE_LANGUAGE_CHOICES: readonly { id: 'fr' | 'wo'; label: string; detail: string }[] = [
+  { id: 'fr', label: 'Français', detail: 'Libellés complets de l’interface.' },
+  { id: 'wo', label: 'Wolof', detail: 'Assistant, voix et réponses de trajet en wolof ; les libellés restent en français tant que la traduction n’est pas validée.' },
+]
+
+export const TRANSFER_BUFFER_CHOICES: readonly { id: number; label: string; detail: string }[] = [
+  { id: 0, label: 'Aucun', detail: 'Durées calculées au plus juste, sans marge de confort.' },
+  { id: 3, label: '3 min', detail: 'Battement ajouté à chaque correspondance.' },
+  { id: 6, label: '6 min', detail: 'Marge confortable pour les changements avec montée/descente.' },
+  { id: 10, label: '10 min', detail: 'Pour ne pas courir : la durée totale est allongée d’autant.' },
+]
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }

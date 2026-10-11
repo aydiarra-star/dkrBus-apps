@@ -254,9 +254,9 @@ const DAY_PARTS: readonly { part: WolofDayPart; patterns: readonly RegExp[] }[] 
 
 const TOMORROW_PATTERN = /\b(chende|chendeh|guinor|tomorrow|demain)\b/
 
-/** Lieux du référentiel cités dans une phrase déjà réduite. */
-export function wolofPlaceMentions(folded: string, preferredNetwork: string | null = null): CorridorStop[] {
-  // Les clés sont tries de la plus longue à la plus courte : une forme courte
+/** Lieux du référentiel cités dans une phrase réduite, avec leur position. */
+export function wolofPlaceSpans(folded: string, preferredNetwork: string | null = null): { at: number; to: number; stop: CorridorStop }[] {
+  // Les clés sont triées de la plus longue à la plus courte : une forme courte
   // comprise dans une forme déjà reconnue (« parcelles » dans « parcelles
   // assainies ») ne crée pas un second lieu.
   const groups: { at: number; from: number; to: number; stops: CorridorStop[] }[] = []
@@ -264,15 +264,52 @@ export function wolofPlaceMentions(folded: string, preferredNetwork: string | nu
     const at = folded.indexOf(entry.key)
     if (at < 0) continue
     const to = at + entry.key.length
-    // Une forme courte comprise dans une forme déjà reconnue (« parcelles » dans
-    // « parcelles assainies ») ne crée pas un second lieu.
     if (groups.some((group) => at < group.to && to > group.from)) continue
     groups.push({ at, from: at, to, stops: entry.stops })
   }
-  if (groups.length === 0) return []
   return groups
     .sort((a, b) => a.at - b.at)
-    .map((group) => preferredStop(group.stops, preferredNetwork)!)
+    .map((group) => ({ at: group.at, to: group.to, stop: preferredStop(group.stops, preferredNetwork)! }))
+    .filter((entry) => entry.stop)
+}
+
+/** Lieux du référentiel cités dans une phrase déjà réduite. */
+export function wolofPlaceMentions(folded: string, preferredNetwork: string | null = null): CorridorStop[] {
+  return wolofPlaceSpans(folded, preferredNetwork).map((entry) => entry.stop)
+}
+
+// Les indices de rôle sont cherchés avant chaque lieu, dans la fenêtre de mots
+// qui le précède : « aller à Dakar, je suis à Keur Mbaye Fall » ne se lit pas
+// dans l'ordre des lieux mais selon ces repères.
+const ORIGIN_CUES = /\b(?:joge|jóge|depuis|je suis a|je pars de|beug a joge|partir de|goodiu ci)\b/
+const DESTINATION_CUES = /\b(?:dem|gis|vers|aller a|rejoindre|arriver a|a la|bis)\b/
+const CUE_WINDOW = 26
+
+function roleOfMention(folded: string, at: number): 'origin' | 'destination' | 'neutral' {
+  const before = folded.slice(Math.max(0, at - CUE_WINDOW), at)
+  const originAt = before.search(ORIGIN_CUES)
+  const destinationAt = before.search(DESTINATION_CUES)
+  if (originAt >= 0 && originAt > destinationAt) return 'origin'
+  if (destinationAt >= 0) return 'destination'
+  return 'neutral'
+}
+
+/** Départ et destination tels que la phrase les assigne, jamais devinés. */
+export function wolofJourneyEndpoints(folded: string, preferredNetwork: string | null = null): { origin: CorridorStop | null; destination: CorridorStop | null } {
+  const entries = wolofPlaceSpans(folded, preferredNetwork)
+    .map((entry) => ({ ...entry, role: roleOfMention(folded, entry.at) }))
+  if (entries.length === 0) return { origin: null, destination: null }
+  if (entries.length === 1) {
+    const only = entries[0]!
+    // Un lieu unique avec un indice de départ reste un départ : la réponse
+    // demandera la destination. Sans indice, il s'agit de la destination visée.
+    return only.role === 'origin' ? { origin: only.stop, destination: null } : { origin: null, destination: only.stop }
+  }
+  const originEntry = entries.find((entry) => entry.role === 'origin') ?? null
+  const destinationEntry = [...entries].reverse().find((entry) => entry.role === 'destination' && entry.stop !== originEntry?.stop) ?? null
+  const origin = originEntry?.stop ?? entries[0]!.stop
+  const destination = destinationEntry?.stop ?? [...entries].reverse().find((entry) => entry.stop !== origin)?.stop ?? null
+  return { origin, destination }
 }
 
 export function understandWolof(question: string): WolofUnderstanding {
@@ -308,8 +345,13 @@ export function understandWolof(question: string): WolofUnderstanding {
   const criterion = (Object.keys(CRITERIONS) as WolofCriterion[]).find((key) => matches(folded, CRITERIONS[key])) ?? null
   const dayPart = DAY_PARTS.find((entry) => matches(folded, entry.patterns))?.part ?? null
 
-  const origin = intent === 'journey' ? (places.length >= 2 ? places[0] : places.length === 1 && /\bjoge\b/.test(folded) ? places[0] : null) : null
-  const destination = intent === 'journey' ? (places.length >= 2 ? places[places.length - 1] : places.length === 1 && !origin ? places[0] : null) : null
+  // Le rôle de chaque lieu suit les mots de la phrase (« je suis à », « dem »),
+  // pas leur ordre d'apparition : une réponse dans le sens inverse serait une
+  // erreur de trajet, pas une nuance.
+  const endpoints = wolofJourneyEndpoints(folded, network)
+  const saysOriginOnly = places.length === 1 && /\bjoge\b/.test(folded)
+  const origin = intent === 'journey' ? (places.length >= 2 ? endpoints.origin : saysOriginOnly ? places[0] : null) : null
+  const destination = intent === 'journey' ? (places.length >= 2 ? endpoints.destination : places.length === 1 && !origin ? places[0] : null) : null
   const focus = intent === 'journey' ? null : places[0] ?? null
 
   return {

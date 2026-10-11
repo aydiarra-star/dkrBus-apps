@@ -70,7 +70,7 @@ export function JourneyOptions({
       <section className="journey-options" aria-label="Itinéraires de référence">
         <header className="journey-options-head">
           <div>
-            <span className="eyebrow">CALCUL SUR LE RÉFÉRENTIEL</span>
+            <span className="eyebrow">RÉSEAU DE RÉFÉRENCE</span>
             <h3>Comparer les itinéraires</h3>
           </div>
         </header>
@@ -100,7 +100,7 @@ export function JourneyOptions({
     <section className="journey-options" aria-label="Itinéraires de référence">
       <header className="journey-options-head">
         <div>
-          <span className="eyebrow">CALCUL SUR LE RÉFÉRENTIEL</span>
+          <span className="eyebrow">RÉSEAU DE RÉFÉRENCE</span>
           <h3>{plan.originLabel} → {plan.destinationLabel}</h3>
           <p>
             {plan.options.length} itinéraire{plan.options.length > 1 ? 's' : ''} distinct{plan.options.length > 1 ? 's' : ''} calculé
