@@ -61,7 +61,7 @@ describe('création d’un signalement', () => {
     expect(created.place).toBe('Voie de dégagement du BRT')
     expect(created.comment).toBe('Bus arrêté')
     expect(created.createdAt).toBe('2026-10-08T12:00:00.000Z')
-    expect(created.expiresAt).toBe('2026-10-08T13:30:00.000Z')
+    expect(created.expiresAt).toBe('2026-10-08T13:00:00.000Z')
     expect(created.source).toBe('COMMUNITY')
     expect(created.lat).toBeNull()
   })
@@ -110,6 +110,19 @@ describe('validation des signalements lus', () => {
     expect(sortStreetReports([older, newer]).map((item) => item.id)).toEqual(['b', 'a'])
   })
 
+  it('plafonne aussi l’ancien cache de 90 minutes et refuse les dates futures', () => {
+    const legacy = report({ createdAt: new Date(NOW - 61 * 60_000).toISOString(), expiresAt: new Date(NOW + 29 * 60_000).toISOString() })
+    expect(isReportExpired(legacy, NOW)).toBe(true)
+    expect(parseStreetReports([legacy, report({ id: 'futur', createdAt: new Date(NOW + 1).toISOString() })], NOW)).toEqual([])
+    const migrated = parseStreetReport({ ...report(), expiresAt: new Date(NOW + 90 * 60_000).toISOString() })!
+    expect(migrated.expiresAt).toBe(new Date(NOW + 60 * 60_000).toISOString())
+  })
+
+  it('retire immédiatement un signalement résolu', () => {
+    expect(isReportExpired(report({ status: 'RESOLVED' }), NOW)).toBe(true)
+    expect(parseStreetReports([report({ status: 'RESOLVED' })], NOW)).toEqual([])
+  })
+
   it('signale l’expiration à l’instant de fin de validité', () => {
     const value = report()
     expect(isReportExpired(value, NOW)).toBe(false)
@@ -124,6 +137,18 @@ describe('persistance locale', () => {
     const expired = report({ id: 'vieux', expiresAt: new Date(NOW - 1_000).toISOString() })
     writeStreetReports(storage, [fresh, expired], NOW)
     expect(readStreetReports(storage, NOW).map((item) => item.id)).toEqual(['ok'])
+  })
+
+  it('purge physiquement le cache périmé à la lecture, sans rajeunir les dates', () => {
+    const storage = memoryStorage()
+    const legacy = report({ id: 'ancienne', createdAt: new Date(NOW - 61 * 60_000).toISOString(), expiresAt: new Date(NOW + 29 * 60_000).toISOString() })
+    storage.setItem(STREET_REPORT_STORAGE_KEY, JSON.stringify([legacy, report()]))
+    expect(readStreetReports(storage, NOW).map((entry) => entry.id)).toEqual(['r1'])
+    const saved = JSON.parse(storage.getItem(STREET_REPORT_STORAGE_KEY)!)
+    expect(saved).toHaveLength(1)
+    expect(saved[0].createdAt).toBe(new Date(NOW).toISOString())
+    expect(readStreetReports(storage, NOW + 60 * 60_000)).toEqual([])
+    expect(storage.getItem(STREET_REPORT_STORAGE_KEY)).toBe('[]')
   })
 
   it('renvoie une liste vide quand le stockage est indisponible', () => {

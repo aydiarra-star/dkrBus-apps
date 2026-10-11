@@ -4,8 +4,8 @@
  * RÈGLE DE VÉRITÉ — ces signalements sont des déclarations d'usagers :
  *  - ils ne sont jamais vérifiés par l'application, ni par un exploitant ;
  *  - ils ne remplacent ni ne corrigent un horaire déclaré ;
- *  - ils ne sont pas transmis à un serveur : ils vivent dans le stockage local
- *    du navigateur, sur l'appareil de celle ou celui qui les saisit ;
+ *  - les déclarations locales restent sur l'appareil ; le formulaire peut
+ *    partager les NOUVEAUX signalements lorsque l'API Direct rue est disponible ;
  *  - ils expirent d'eux-mêmes (durée de vie courte) pour qu'une information
  *    périmée ne reste pas affichée comme actuelle.
  *
@@ -14,6 +14,8 @@
  */
 
 import { NETWORK_SOURCES, type NetworkId } from './network'
+import { isValidLatLng } from './http'
+import { trafficInstant, TRAFFIC_ALERT_TTL_MS } from './trafficFreshness'
 
 export type StreetReportKind = 'CONGESTION' | 'INCIDENT' | 'ROADWORK' | 'BLOCKED' | 'OTHER'
 
@@ -48,16 +50,22 @@ export interface StreetReport {
   /** Fin de validité : au-delà, le signalement disparaît de l'écran. */
   expiresAt: string
   source: 'COMMUNITY'
+  /** Une résolution reçue ou locale invalide immédiatement le signalement. */
+  status?: 'ACTIVE' | 'RESOLVED'
+  /** API Direct rue, jamais une preuve officielle de l'incident. */
+  shared?: boolean
+  /** Capacité locale de retrait ; attribuée après vérification du reçu auteur. */
+  canRemove?: boolean
 }
 
 export const STREET_REPORT_STORAGE_KEY = 'dakar-bus:street-reports'
-export const STREET_REPORT_TTL_MINUTES = 90
+export const STREET_REPORT_TTL_MINUTES = TRAFFIC_ALERT_TTL_MS / 60_000
 export const MAX_PLACE_LENGTH = 80
 export const MAX_COMMENT_LENGTH = 140
 export const MAX_STORED_REPORTS = 40
 
 export const STREET_REPORT_PROVENANCE =
-  'Signalements d’usagers, non vérifiés : ce ne sont ni des alertes officielles, ni du temps réel, ni un horaire.'
+  'Signalements d’usagers, non vérifiés : l’Assistant contrôle la forme et la fraîcheur, pas la véracité. Ce ne sont ni des alertes officielles, ni un horaire.'
 
 export function reportKindLabel(kind: StreetReportKind): string {
   return STREET_REPORT_KINDS.find((item) => item.id === kind)?.label ?? 'Signalement'
@@ -83,7 +91,7 @@ function isNetworkId(value: unknown): value is NetworkId {
 }
 
 function isIsoInstant(value: unknown): value is string {
-  return typeof value === 'string' && Number.isFinite(Date.parse(value))
+  return trafficInstant(value) !== null
 }
 
 let fallbackSequence = 0
@@ -111,7 +119,7 @@ export interface StreetReportDraft {
  */
 export function createStreetReport(draft: StreetReportDraft, now = Date.now()): StreetReport | null {
   const place = cleanText(draft.place, MAX_PLACE_LENGTH)
-  if (!place || !isKind(draft.kind)) return null
+  if (!place || !isKind(draft.kind) || !Number.isFinite(new Date(now + TRAFFIC_ALERT_TTL_MS).getTime())) return null
   const createdAt = new Date(now).toISOString()
   const lat = finiteCoordinate(draft.lat)
   const lng = finiteCoordinate(draft.lng)
@@ -119,20 +127,31 @@ export function createStreetReport(draft: StreetReportDraft, now = Date.now()): 
     id: createReportId(now),
     kind: draft.kind,
     place,
-    networkId: draft.networkId ?? null,
+    networkId: isNetworkId(draft.networkId) ? draft.networkId : null,
     comment: cleanText(draft.comment, MAX_COMMENT_LENGTH),
     // Une position n'est conservée que si les deux composantes sont exploitables.
-    lat: lat !== null && lng !== null ? lat : null,
-    lng: lat !== null && lng !== null ? lng : null,
+    lat: isValidLatLng(lat, lng) ? lat : null,
+    lng: isValidLatLng(lat, lng) ? lng : null,
     createdAt,
     expiresAt: new Date(now + STREET_REPORT_TTL_MINUTES * 60_000).toISOString(),
     source: 'COMMUNITY',
+    status: 'ACTIVE',
+    shared: false,
+    canRemove: true,
   }
 }
 
+/** Clamp aussi les anciennes entrées écrites avec une durée de 90 minutes. */
+export function streetReportExpiresAt(report: StreetReport): number | null {
+  const createdAt = trafficInstant(report.createdAt)
+  const expiresAt = trafficInstant(report.expiresAt)
+  return createdAt === null || expiresAt === null ? null : Math.min(expiresAt, createdAt + TRAFFIC_ALERT_TTL_MS)
+}
+
 export function isReportExpired(report: StreetReport, now = Date.now()): boolean {
-  const expiresAt = Date.parse(report.expiresAt)
-  return !Number.isFinite(expiresAt) || expiresAt <= now
+  const createdAt = trafficInstant(report.createdAt)
+  const expiresAt = streetReportExpiresAt(report)
+  return !Number.isFinite(now) || report.status === 'RESOLVED' || createdAt === null || createdAt > now || expiresAt === null || expiresAt <= now || expiresAt <= createdAt
 }
 
 /** Valide un objet inconnu (stockage local) sans rien inventer en cas de doute. */
@@ -143,7 +162,10 @@ export function parseStreetReport(value: unknown): StreetReport | null {
   if (!isKind(raw.kind)) return null
   const place = cleanText(raw.place, MAX_PLACE_LENGTH)
   if (!place) return null
-  if (!isIsoInstant(raw.createdAt) || !isIsoInstant(raw.expiresAt)) return null
+  if (raw.source !== 'COMMUNITY' || !isIsoInstant(raw.createdAt) || !isIsoInstant(raw.expiresAt)) return null
+  if (raw.status !== undefined && raw.status !== 'ACTIVE' && raw.status !== 'RESOLVED') return null
+  const expiry = Math.min(trafficInstant(raw.expiresAt)!, trafficInstant(raw.createdAt)! + TRAFFIC_ALERT_TTL_MS)
+  if (expiry <= trafficInstant(raw.createdAt)!) return null
   const lat = finiteCoordinate(raw.lat)
   const lng = finiteCoordinate(raw.lng)
   return {
@@ -153,11 +175,14 @@ export function parseStreetReport(value: unknown): StreetReport | null {
     networkId: isNetworkId(raw.networkId) ? raw.networkId : null,
     comment: cleanText(raw.comment, MAX_COMMENT_LENGTH),
     // Une position n'est conservée que si les deux composantes sont exploitables.
-    lat: lat !== null && lng !== null ? lat : null,
-    lng: lat !== null && lng !== null ? lng : null,
+    lat: isValidLatLng(lat, lng) ? lat : null,
+    lng: isValidLatLng(lat, lng) ? lng : null,
     createdAt: raw.createdAt,
-    expiresAt: raw.expiresAt,
+    expiresAt: new Date(expiry).toISOString(),
     source: 'COMMUNITY',
+    status: raw.status === 'RESOLVED' ? 'RESOLVED' : 'ACTIVE',
+    shared: raw.shared === true,
+    canRemove: raw.canRemove !== false,
   }
 }
 
@@ -188,8 +213,12 @@ export function readStreetReports(storage: Storage | null, now = Date.now()): St
   try {
     const stored = storage.getItem(STREET_REPORT_STORAGE_KEY)
     if (!stored) return []
-    return parseStreetReports(JSON.parse(stored) as unknown, now)
+    const kept = parseStreetReports(JSON.parse(stored) as unknown, now).slice(0, MAX_STORED_REPORTS)
+    // Purge physique dès la lecture, pas seulement un filtre d'affichage.
+    writeStreetReports(storage, kept, now)
+    return kept
   } catch {
+    try { storage.removeItem(STREET_REPORT_STORAGE_KEY) } catch { /* stockage refusé */ }
     return []
   }
 }
@@ -197,8 +226,9 @@ export function readStreetReports(storage: Storage | null, now = Date.now()): St
 export function writeStreetReports(storage: Storage | null, reports: readonly StreetReport[], now = Date.now()): void {
   if (!storage) return
   try {
-    const kept = sortStreetReports(reports.filter((report) => !isReportExpired(report, now))).slice(0, MAX_STORED_REPORTS)
-    storage.setItem(STREET_REPORT_STORAGE_KEY, JSON.stringify(kept))
+    const kept = parseStreetReports(reports, now).slice(0, MAX_STORED_REPORTS)
+    const serialized = JSON.stringify(kept)
+    if (storage.getItem(STREET_REPORT_STORAGE_KEY) !== serialized) storage.setItem(STREET_REPORT_STORAGE_KEY, serialized)
   } catch {
     // Le stockage peut être plein ou refusé : les signalements restent
     // utilisables pour la session en cours, sans être persistés.

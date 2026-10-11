@@ -90,6 +90,17 @@ describe('assistant mobilité', () => {
     expect(answer).toContain('cetud.sn')
   })
 
+  it('refuse une synthèse trafic périmée ou sans date limite, même gardée dans un ancien contexte', () => {
+    const now = Date.parse('2026-10-11T12:00:00Z')
+    const context: AssistantContext = {
+      ...CONTEXT, trafficSummaryFr: 'Un incident actif de test est confirmé.',
+      trafficSummaryValidUntil: '2026-10-11T12:01:00Z',
+    }
+    expect(answerAssistant('Y a-t-il des bouchons ?', context, now)).toContain('Un incident actif de test')
+    expect(answerAssistant('Y a-t-il des bouchons ?', context, now + 60_000)).not.toContain('Un incident actif de test')
+    expect(answerAssistant('Y a-t-il des bouchons ?', { ...context, trafficSummaryValidUntil: null }, now)).toContain('aucune alerte vérifiable')
+  })
+
   it('donne l’état réel des données quand on le demande', () => {
     const answer = answerAssistant('où en sont les données publiées ?', CONTEXT)
     expect(answer).toContain('aucun snapshot GTFS n’est publié')

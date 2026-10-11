@@ -27,6 +27,8 @@ import { placeBriefWithQuestion, placeQuestionReply, unroutablePairReply } from 
 import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, unrecognizedPlaceNote } from './places'
 import type { PlannerPriority } from './planner'
 
+import { trafficInstant } from './trafficFreshness'
+
 export interface AssistantContext {
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
   publishedAvailable: boolean
@@ -43,11 +45,13 @@ export interface AssistantContext {
     routeDescription?: string
   } | null
   /** Résumé IA des alertes trafic autour de l'usager (français), alimenté par
-   *  le pilier multisource de l'onglet Alertes. Quand il est absent, le
-   *  copilote redonne sa réponse honnête « pas de flux connecté ». */
+   *  le pilier multisource de l'onglet Alertes. Quand il est absent ou périmé, le
+   *  copilote refuse de reprendre une ancienne information trafic. */
   trafficSummaryFr?: string | null
   /** Version wolof du résumé, quand elle est disponible. */
   trafficSummaryWo?: string | null
+  /** Date limite de la synthèse, bornée par la plus courte preuve source. */
+  trafficSummaryValidUntil?: string | null
 }
 
 export interface AssistantMessage {
@@ -118,7 +122,7 @@ function noReliableDepartureAnswer(network: 'brt' | 'ter'): string {
 }
 
 const OFFICIAL_CHANNELS =
-  'Canaux officiels d’information voyageurs : Sen TER (sentersa.sn, centre d’appels SETER), SunuBRT (sunubrt.sn, Dakar Mobilité) et le CETUD (cetud.sn). Aucune de ces sources n’est connectée en temps réel à cette application pour l’instant.'
+  'Canaux officiels d’information voyageurs : SENTER/SETER (sentersa.sn), SunuBRT (sunubrt.sn), CETUD (cetud.sn) et Dakar Dem Dikk (demdikk.sn). Ces liens ne constituent pas une vérification du trafic actuel.'
 
 /** Réponses communes au calcul d'itinéraire, quelle que soit la formulation. */
 const CHEAPEST_REPLY =
@@ -354,13 +358,14 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
   ])
   const asksCurrentRoute = includesAny(text, ['mon trajet', 'sur mon trajet', 'actuel', 'maintenant', 'autour de moi', 'ci ma wet', 'ci sa wet'])
   if (trafficAsk || asksCurrentRoute) {
-    if (context.trafficSummaryFr) {
+    const validUntil = trafficInstant(context.trafficSummaryValidUntil)
+    if (context.trafficSummaryFr && validUntil !== null && validUntil > now) {
       const prefix = asksCurrentRoute
         ? 'Sur votre trajet actuel / autour de vous : '
         : 'Voici l’état du trafic autour de vous : '
       return `${prefix}${context.trafficSummaryFr}${context.trafficSummaryWo ? `\n\n(Wolof · ${context.trafficSummaryWo})` : ''}`
     }
-    return `Je n’ai aucune alerte vérifiable à afficher : aucune source de perturbation n’est connectée, et l’absence d’alerte ne signifie pas que le service est normal. ${OFFICIAL_CHANNELS}${context.adminOnline ? ' L’API de gouvernance locale est joignable, mais elle ne transporte pas encore de flux d’alertes.' : ''} Activez le GPS dans l’onglet Alertes pour activer la détection des arrêts à proximité.`
+    return `Je n’ai aucune alerte vérifiable à afficher : aucune synthèse trafic récente n’est disponible dans ce contexte, et l’absence d’alerte ne signifie pas que le service est normal. ${OFFICIAL_CHANNELS}${context.adminOnline ? ' Une API joignable ne garantit pas que les flux trafic soient configurés et vérifiés.' : ''} Activez le GPS dans l’onglet Alertes pour activer la détection des arrêts à proximité.`
   }
 
   // 9) État des données / gouvernance.

@@ -3,9 +3,12 @@
 
 Two things live here.
 
-*Read*: the public routes serve the active published snapshot and nothing else,
-and the governance routes describe staged versions and their review state. Both
-are GET-only and report honestly when the store or a journal is unusable.
+*Read*: published transit, short-lived traffic and optional Direct rue read
+routes; governance routes describe staging and review. Missing/stale stores never
+produce a fake normal network.
+
+*Community*: when explicitly enabled, anonymous Direct rue POST/owner DELETE,
+separate from authenticated governance. Form validation is NOT fact checking.
 
 *Decide*: the console authenticates a local account, then records approvals,
 refusals, reversals and publications. A decision always goes through the same
@@ -27,6 +30,7 @@ import argparse
 import hmac
 import json
 import re
+import sqlite3
 from collections.abc import Callable, Iterable
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -62,6 +66,9 @@ try:  # Works both as `python -m scripts.serve_admin_api` and as a file script.
     from .review_ledger import current_review_state
     from .serve_read_api import PUBLIC_ROUTES, ApiError, resolve_public_route
     from .snapshot_gtfs import DATA_POLICY, SnapshotError, list_snapshots
+    from .traffic_feeds import TRAFFIC_ROUTE, TrafficFeedService, validate_traffic_query
+    from .community_reports import (COMMUNITY_ROUTE, COMMUNITY_HEADER, REPORT_KEY_HEADER, MAX_COMMUNITY_BODY_BYTES,
+                                    CommunityError, CommunityReportStore)
 except ImportError:  # pragma: no cover - exercised by the direct CLI entry point
     from actor_registry import (
         MAX_LOGIN_FAILURES,
@@ -90,6 +97,9 @@ except ImportError:  # pragma: no cover - exercised by the direct CLI entry poin
     from review_ledger import current_review_state
     from serve_read_api import PUBLIC_ROUTES, ApiError, resolve_public_route
     from snapshot_gtfs import DATA_POLICY, SnapshotError, list_snapshots
+    from traffic_feeds import TRAFFIC_ROUTE, TrafficFeedService, validate_traffic_query
+    from community_reports import (COMMUNITY_ROUTE, COMMUNITY_HEADER, REPORT_KEY_HEADER, MAX_COMMUNITY_BODY_BYTES,
+                                   CommunityError, CommunityReportStore)
 
 
 API_PREFIX = "/api"
@@ -205,7 +215,7 @@ def host_allowed(host_header: str | None, extra_hosts: Iterable[str] = ()) -> bo
 
 
 def _known_routes() -> str:
-    return ", ".join((*GOVERNANCE_ROUTES, *PUBLIC_ROUTES))
+    return ", ".join((*GOVERNANCE_ROUTES, *PUBLIC_ROUTES, TRAFFIC_ROUTE, COMMUNITY_ROUTE))
 
 
 def _not_found(message: str) -> ApiError:
@@ -418,6 +428,8 @@ class AdminApiHandler(BaseHTTPRequestHandler):
     published_root: Path
     actors_root: Path
     sessions: SessionStore
+    traffic_service: TrafficFeedService
+    community_store: CommunityReportStore | None
     base_router: dict[str, Callable[[], dict[str, Any]]]
     allowed_hosts: tuple[str, ...] = ()
 
@@ -476,7 +488,25 @@ class AdminApiHandler(BaseHTTPRequestHandler):
             payload["blockers"] = list(blockers)
         self._send(error.status, payload)
 
+    def _community(self) -> CommunityReportStore:
+        if self.community_store is None:
+            raise ApiError(503, "COMMUNITY_NOT_CONFIGURED", "Le partage Direct rue n’est pas configuré ; les signalements restent locaux.")
+        return self.community_store
+
     def _resolve(self, path: str, query: str) -> dict[str, Any]:
+        if path == COMMUNITY_ROUTE:
+            if query:
+                raise ApiError(400, "INVALID_QUERY", "Aucun paramètre n’est accepté pour les signalements partagés.")
+            try:
+                return self._community().snapshot()
+            except (OSError, sqlite3.Error):
+                raise ApiError(503, "COMMUNITY_UNAVAILABLE", "Le partage Direct rue est indisponible.") from None
+        if path == TRAFFIC_ROUTE:
+            try:
+                validate_traffic_query(query)
+            except ValueError as error:
+                raise ApiError(400, "INVALID_QUERY", str(error)) from error
+            return self.traffic_service.snapshot()
         route = self.base_router.get(path)
         if route is not None:
             return route()
@@ -533,13 +563,13 @@ class AdminApiHandler(BaseHTTPRequestHandler):
             },
         )
 
-    def _read_json(self) -> dict[str, Any]:
+    def _read_json(self, *, maximum: int = MAX_BODY_BYTES) -> dict[str, Any]:
         try:
             length = int(self.headers.get("Content-Length") or 0)
         except ValueError as error:
             raise ApiError(400, "INVALID_REQUEST", "En-tête Content-Length illisible.") from error
-        if length < 0 or length > MAX_BODY_BYTES:
-            raise ApiError(413, "REQUEST_TOO_LARGE", f"Corps de requête trop volumineux (maximum {MAX_BODY_BYTES} octets).")
+        if length < 0 or length > maximum:
+            raise ApiError(413, "REQUEST_TOO_LARGE", f"Corps de requête trop volumineux (maximum {maximum} octets).")
         if length == 0:
             return {}
         # Type exigé dès qu'il y a un corps : un formulaire ou un texte brut ne passe pas.
@@ -850,6 +880,28 @@ class AdminApiHandler(BaseHTTPRequestHandler):
         path = raw_path.rstrip("/") or "/"
         match = DATASET_ACTION_RE.match(path)
         try:
+            if path == COMMUNITY_ROUTE or path.startswith(COMMUNITY_ROUTE + "/"):
+                self._refuse_foreign_origin()
+                if _query:
+                    raise ApiError(400, "INVALID_QUERY", "Aucun paramètre d’écriture Direct rue n’est accepté.")
+                if self.headers.get(COMMUNITY_HEADER) != "1":
+                    raise ApiError(403, "COMMUNITY_HEADER_REQUIRED", "Utilisez le formulaire Direct rue de cette application.")
+                store = self._community()
+                try:
+                    if self.command == "POST" and path == COMMUNITY_ROUTE:
+                        payload = store.publish(self._read_json(maximum=MAX_COMMUNITY_BODY_BYTES), client=self.client_address[0])
+                        self._send(201, payload)
+                        return
+                    if self.command == "DELETE" and path.startswith(COMMUNITY_ROUTE + "/"):
+                        store.remove(path[len(COMMUNITY_ROUTE) + 1:], self.headers.get(REPORT_KEY_HEADER) or "")
+                        self._send(200, {"removed": True})
+                        return
+                except CommunityError as error:
+                    raise ApiError(error.status, error.code, error.message) from None
+                except (OSError, sqlite3.Error):
+                    raise ApiError(503, "COMMUNITY_UNAVAILABLE", "Le partage Direct rue est indisponible.") from None
+                self._refuse_write()
+                return
             if self.command == "POST" and path == f"{API_PREFIX}/session":
                 self._login()
                 return
@@ -903,6 +955,10 @@ def create_server(
     session_ttl_seconds: int = SESSION_TTL_SECONDS,
     allowed_hosts: Iterable[str] = (),
     quiet: bool = False,
+    traffic_feeds_file: str | Path | None = None,
+    traffic_service: TrafficFeedService | None = None,
+    traffic_public_watch: bool = False,
+    community_reports_root: str | Path | None = None,
 ) -> ThreadingHTTPServer:
     resolved_root = Path(root)
     resolved_published = Path(published_root) if published_root is not None else resolved_root.parent / "published"
@@ -915,6 +971,8 @@ def create_server(
             "published_root": resolved_published,
             "actors_root": resolved_actors,
             "sessions": SessionStore(ttl_seconds=session_ttl_seconds),
+            "traffic_service": traffic_service if traffic_service is not None else TrafficFeedService.from_config(traffic_feeds_file, public_watch=traffic_public_watch),
+            "community_store": CommunityReportStore(community_reports_root) if community_reports_root is not None else None,
             "base_router": make_router(resolved_root, resolved_published),
             "allowed_hosts": tuple(allowed_hosts),
         },
@@ -955,6 +1013,9 @@ def main() -> int:
         metavar="HOTE",
         help="Nom d’hôte supplémentaire accepté dans l’en-tête Host (répétable ; la boucle locale est toujours acceptée)",
     )
+    parser.add_argument("--traffic-feeds-file", type=Path, help="Configuration serveur des adaptateurs trafic autorisés (ou DAKAR_TRAFFIC_FEEDS_FILE)")
+    parser.add_argument("--traffic-public-watch", action="store_true", help="Activer la veille conservatrice sur les canaux publics enregistrés (couverture toujours partielle)")
+    parser.add_argument("--community-reports-root", type=Path, help="Activer les signalements partagés anonymes (données privées hors Git, TTL 60 minutes)")
     parser.add_argument("--quiet", action="store_true", help="Ne pas journaliser les requêtes")
     args = parser.parse_args()
     if not 0 <= args.port <= 65535:
@@ -971,10 +1032,13 @@ def main() -> int:
         session_ttl_seconds=args.session_ttl,
         allowed_hosts=args.allowed_host,
         quiet=args.quiet,
+        traffic_feeds_file=args.traffic_feeds_file,
+        traffic_public_watch=args.traffic_public_watch,
+        community_reports_root=args.community_reports_root,
     )
     bound_host, bound_port = server.server_address[0], server.server_address[1]
     print(
-        f"API publique en lecture seule + console de gouvernance sur http://{bound_host}:{bound_port} "
+        f"API publique + console de gouvernance sur http://{bound_host}:{bound_port} "
         f"(staging : {args.root} ; publié : {args.published_root} ; comptes : {args.actors_root})",
         flush=True,
     )

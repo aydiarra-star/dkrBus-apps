@@ -38,7 +38,7 @@ try {
 } catch {
   check('dist/sw.js', false, 'le service worker doit rester à la racine de l’application')
 }
-check('cache borné', sw.includes("CACHE_NAME = 'dakar-bus-shell-v5'") && sw.includes('MAX_CACHE_ENTRIES = 48') && sw.includes('function keysToEvict'), '')
+check('cache borné', sw.includes("CACHE_NAME = 'dakar-bus-shell-v7'") && sw.includes('MAX_CACHE_ENTRIES = 48') && sw.includes('function keysToEvict'), '')
 
 const assets = readdirSync(join(dist, 'assets'))
 const scripts = assets.filter((name) => name.endsWith('.js'))

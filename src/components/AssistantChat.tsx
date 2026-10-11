@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { Bot, Mic, MicOff, Send, Sparkles, Square, Volume2, X } from 'lucide-react'
 import { extractJourneyRequest, getAssistantCountdownMinutes, type AssistantContext, type AssistantMessage } from '../domain/assistant'
@@ -6,7 +6,7 @@ import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { copilotAnswer } from '../domain/copilot'
-import { createConversationMemory, type ConversationMemory } from '../domain/conversation'
+import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
 import {
   loadAssistantLanguagePreference,
   saveAssistantLanguagePreference,
@@ -35,6 +35,8 @@ interface ChatMessage extends AssistantMessage {
   lang?: 'fr' | 'wo'
   /** Une réponse qui n’a pas pu être préparée est affichée comme telle. */
   failed?: boolean
+  /** Les réponses trafic sont une vue courante, pas un historique d'accidents. */
+  trafficQuestion?: string
 }
 
 function AssistantBubble({ message }: { message: ChatMessage }) {
@@ -85,6 +87,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const [preference, setPreference] = useState<AssistantLanguagePreference>(() => loadAssistantLanguagePreference())
   const listRef = useRef<HTMLDivElement | null>(null)
   const memoryRef = useRef<ConversationMemory>(createConversationMemory())
+  const lastTrafficQuestionRef = useRef<string | null>(null)
   const contextRef = useRef(context)
   const preferenceRef = useRef(preference)
   const pendingRef = useRef(false)
@@ -98,7 +101,20 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     preferenceRef.current = preference
   }, [preference])
 
-  const messages = exchanges
+  // Les réponses trafic suivent les preuves courantes : un accident résolu
+  // ne reste pas dans une ancienne bulle. Les autres échanges sont inchangés.
+  const messages = useMemo(() => {
+    if (!exchanges.some((message) => message.trafficQuestion)) return exchanges
+    const current = exchanges.map((message) => {
+      if (!message.trafficQuestion) return message
+      try {
+        return { ...message, text: copilotAnswer(message.trafficQuestion, context, createConversationMemory(), message.lang ?? 'fr', Date.now()).text }
+      } catch {
+        return { ...message, text: 'Informations trafic indisponibles. Vérifiez auprès de votre opérateur.' }
+      }
+    })
+    return current.every((message, index) => message.text === exchanges[index].text) ? exchanges : current
+  }, [exchanges, context])
   const toggleRef = useRef<HTMLButtonElement | null>(null)
   const [position, setPosition] = useState({ top: 12, left: 12, width: 360, maxHeight: 360 })
 
@@ -190,13 +206,20 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
       let text: string
       let failed = false
       let reply: ReturnType<typeof copilotAnswer> | null = null
+      const repeatedTraffic = detectFollowUp(trimmed) === 'again' ? lastTrafficQuestionRef.current : null
       try {
+        if (lastTrafficQuestionRef.current) {
+          // Même « répète » doit oublier une perturbation résolue/périmée.
+          memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
+        }
         reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
       } catch {
         failed = true
         text = 'Une erreur est survenue en préparant cette réponse. Réessayez : la carte, la recherche et le calcul de trajet restent disponibles pendant ce temps.'
       }
+      const trafficQuestion = failed ? undefined : repeatedTraffic ?? (contextRef.current.trafficSummaryFr && text.includes(contextRef.current.trafficSummaryFr) ? trimmed : undefined)
+      lastTrafficQuestionRef.current = trafficQuestion ?? null
       const journey = reply ? reply.journey : extractJourneyRequest(trimmed) ?? undefined
       const countdownMinutes = reply?.countdownMinutes
         ?? getAssistantCountdownMinutes(trimmed, contextRef.current, Date.now())
@@ -209,6 +232,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           text,
           lang: reply?.language ?? 'fr',
           ...(failed ? { failed } : {}),
+          ...(trafficQuestion ? { trafficQuestion } : {}),
           ...(journey ? { journey } : {}),
           ...(countdownMinutes === undefined ? {} : { countdownMinutes }),
         },
