@@ -1895,9 +1895,11 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     const section = openSettingsSection('offline')
-    expect(section.getByText(/Aucun paquet hors ligne sur cet appareil/)).toBeTruthy()
-    fireEvent.click(section.getByRole('button', { name: /télécharger le référentiel/i }))
+    // Le paquet est préparé dès la première connexion (réglage par défaut) : la
+    // consultation hors ligne n'attend pas un clic de l'usager.
     expect(await section.findByText(/Paquet vérifié, conforme au référentiel de l’application/)).toBeTruthy()
+    fireEvent.click(section.getByRole('button', { name: /actualiser le paquet/i }))
+    expect(section.getByText(/Paquet vérifié, conforme au référentiel de l’application/)).toBeTruthy()
     expect(section.getByText(/arrêts · .* lignes · .* correspondances/)).toBeTruthy()
     expect(window.localStorage.getItem('dakar-bus:offline-pack:v1')).toContain('"stops"')
     // Les limites du hors ligne sont affichées, pas cachées.

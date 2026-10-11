@@ -49,9 +49,10 @@ import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/Mo
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
 import { SettingsPreferences } from './components/SettingsPreferences'
-import { planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
-import { accessibilityStyle, plannerPreferences, usePreferences, type Preferences } from './domain/preferences'
+import { optionSummaryLine, planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
+import { accessibilityStyle, getPreferences, plannerPreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
+import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
 import { extractMobilityIntent } from './domain/intent'
 import { MultimodalPlanner } from './components/MultimodalPlanner'
 import { StopCombobox } from './components/StopCombobox'
@@ -220,9 +221,14 @@ function safeLocalStorage(): Storage | null {
   }
 }
 
-/** Retour haptique léger pour les micro-interactions sur mobile compatible. */
+/**
+ * Retour haptique léger pour les micro-interactions sur mobile compatible.
+ * Le réglage « Vibrations de confirmation » des Paramètres est lu ici : sans
+ * cela, l'interrupteur afficherait un état que l'application n'appliquerait pas.
+ */
 function triggerHaptic(durationMs = 10) {
   try {
+    if (!getPreferences().accessibility.haptics) return
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       navigator.vibrate(durationMs)
     }
@@ -1431,6 +1437,28 @@ function App() {
     ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
     : null
 
+  // « Annoncer le premier résultat » : la première option est énoncée une seule
+  // fois par calcul — pas à chaque tic d'horloge ni à chaque changement d'onglet.
+  const announcedPlanRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!journeyPlan || !journeyPlan.ok || journeyPlan.options.length === 0) return
+    if (!preferences.accessibility.announceResults || !speechSynthesisSupported()) return
+    const signature = `${journeyPlan.originLabel}→${journeyPlan.destinationLabel}:${journeyPlan.options.length}`
+    if (announcedPlanRef.current === signature) return
+    announcedPlanRef.current = signature
+    const first = journeyPlan.options[0]!
+    speak({ text: `${first.label} : ${optionSummaryLine(first)}`, lang: preferences.language.interface })
+  }, [journeyPlan, preferences.accessibility.announceResults, preferences.language.interface])
+
+  // Le paquet hors ligne est préparé une fois par session quand l'usager l'a
+  // accepté : aucun réseau n'est exigé, aucun échec n'est affiché en face.
+  useEffect(() => {
+    if (!preferences.offline.autoDownload) return
+    if (offlinePackState().available) return
+    const result = saveOfflinePack()
+    if (result.ok) announce(`Préparation hors ligne : ${result.summary.stops} arrêts et ${result.summary.lines} lignes enregistrés sur cet appareil.`)
+  }, [preferences.offline.autoDownload])
+
   // Les réglages d'accessibilité posent des variables et des attributs sur la
   // coquille ; sans eux, l'écran Paramètres afficherait des interrupteurs
   // décoratifs. Les valeurs vides sont retirées pour ne rien casser.
@@ -1748,7 +1776,7 @@ function App() {
             <>
               <SettingsPreferences
                 preferences={preferences}
-                onNotify={(message) => { announce(message); setToast(message) }}
+                onNotify={announce}
                 onClearSavedPlaces={() => setSavedDestinations({})}
               />
               <SettingsHelpSection />
@@ -3492,6 +3520,18 @@ function LegalSection() {
 /** Historique des mises à jour, daté et vérifiable dans l’historique Git. */
 function ChangelogSection() {
   const releases: { date: string; title: string; items: string[] }[] = [
+    {
+      date: '2026-10-11',
+      title: 'Itinéraires multimodaux comparés, réglages appliqués et assistant wolof',
+      items: [
+        'Trajet : trois critères réellement calculés sur le réseau de référence — le plus rapide, le moins de correspondances, le moins de marche — avec les arrêts intermédiaires, les temps de marche et de battement, le tarif quand il est publié, et l’aller-retour recalculé dans l’autre sens. Une option n’est jamais dupliquée pour faire nombre : s’il en manque, c’est écrit.',
+        'Correspondances : les pôles d’échange entre TER, BRT, DDD, AFTU et TATA sont déduits des positions déclarées (distance à vol d’oiseau portée à la marche, moins de 120 m entre deux arrêts d’un même pôle) et étiquetés « déclarée » ou « estimée ».',
+        'Incertitude assumée : quand une ligne n’a pas de grille de fréquences publiée, le calcul bascule sur une fréquence estimée et la durée annoncée porte une marge plus large, affichée à côté du chiffre.',
+        'Assistant : réponses en wolof aux questions en wolof, y compris transcrites phonétiquement (« naka laay def ngir dem garu ndakaaru »), trajet, arrêt le plus proche, où monter, correspondances, tarif, cadence et dernier départ. Le wolof produit est une base de phrases en attente de validation par des locuteurs, et cela reste dit.',
+        'Paramètres : huit sections actives — mobilité, langue, accessibilité, unités, confidentialité et position, sources, conditions d’utilisation, hors ligne. Chaque choix filtre réellement le calcul, change les unités affichées, pose l’échelle de texte et le contraste, autorise ou refuse la position et le micro.',
+        'Mode hors ligne : le référentiel (arrêts, lignes, correspondances, tarifs publiés) est préparé sur l’appareil et vérifié par empreinte ; le fond de carte et le temps réel exigent toujours une connexion, et le panneau le dit.',
+      ],
+    },
     {
       date: '2026-10-11',
       title: 'Bouton Mobilités à proximité',

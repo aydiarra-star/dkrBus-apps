@@ -140,3 +140,43 @@ describe('assistant mobilité', () => {
     expect(extractJourneyRequest('bonjour')).toBeNull()
   })
 })
+
+describe('point d’embarquement demandé au guichet', () => {
+  const LOCATED: AssistantContext = { ...CONTEXT, userLocation: { lat: 14.7, lon: -17.45 } }
+
+  it('répond où monter un réseau avec les arrêts déclarés et la cadence publiée', () => {
+    const answer = answerAssistant('Où prendre le BRT ?', CONTEXT)
+    expect(answer).toMatch(/Où embarquer/)
+    expect(answer).toMatch(/23 arrêts déclarés/)
+    expect(answer).toContain('Petersen')
+    expect(answer).toContain('6 minutes')
+    expect(answer).toMatch(/Vérifiez le service auprès des opérateurs/)
+    // Aucun emplacement physique n'est inventé : ni quai numéroté, ni voie.
+    expect(answer).not.toMatch(/quai \d|voie \d/)
+  })
+
+  it('borne la réponse au réseau nommé et compte chaque arrêt une fois', () => {
+    const ter = answerAssistant('Où monter le TER ?', CONTEXT)
+    expect(ter).toMatch(/13 arrêts déclarés/)
+    expect(ter).not.toMatch(/BRT \(SunuBRT\)/)
+    const both = answerAssistant('Où prendre le TER ou le BRT ?', CONTEXT)
+    expect(both).toMatch(/• TER/)
+    expect(both).toMatch(/• BRT/)
+    // DDD : trois lignes de référence qui partagent des arrêts, comptés une fois.
+    const ddd = answerAssistant('Où prendre un bus DDD ?', CONTEXT)
+    expect(ddd).toMatch(/lignes de référence, \d+ arrêts déclarés/)
+    expect(ddd).toMatch(/fréquences non publiées|Aucun horaire par arrêt/)
+  })
+
+  it('demande le réseau manquant au lieu de deviner, et exploite la position autorisée', () => {
+    expect(answerAssistant('Où prendre le bus ?', CONTEXT)).toMatch(/Précisez le réseau voulu/)
+    expect(answerAssistant('Où monter le TER ?', LOCATED)).toMatch(/Le plus près de votre position/)
+    expect(answerAssistant('Où prendre le BRT ?', CONTEXT)).toMatch(/Autorisez la localisation/)
+  })
+
+  it('ne confond pas « quand prendre » et « où prendre »', () => {
+    const when = answerAssistant('Quand prendre le BRT ?', CONTEXT)
+    expect(when).not.toMatch(/Où embarquer/)
+    expect(when).toMatch(/fréquence officielle de référence de 6 minutes/)
+  })
+})

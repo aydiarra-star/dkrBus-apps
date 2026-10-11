@@ -10,10 +10,14 @@
 
 import {
   BRT_STOPS,
+  CORRIDOR_LINES,
   CORRIDOR_NETWORKS,
   TER_STOPS,
+  getCorridorStop,
+  haversineMeters,
   linesServingStop,
   searchCorridorStops,
+  type CorridorNetworkId,
 } from './corridors'
 import { NETWORK_REFERENCE_DATA, OFFICIAL_REFERENCE_FREQUENCIES, formatFrequencyPeriod, formatSourceVerification } from './frequencies'
 import { answerMobilityKnowledge, busKnowledgeSummary, generalFareReply } from './mobilityKnowledge'
@@ -100,6 +104,74 @@ export function getAssistantCountdownMinutes(question: string, context: Assistan
   if (!requestedNetwork || !scheduled || scheduled.network !== requestedNetwork || scheduled.status !== 'SCHEDULED') return null
   return getRemainingMinutes(scheduled.nextDepartureAt, now)
 }
+
+// « Où prendre le BRT ? », « où monter le TER », « où est le quai du BRT » :
+// une demande de point d'embarquement, pas une demande d'itinéraire.
+const BOARDING_ASK = /(?:\bou\b|\boù\b)[^?]{0,40}(?:prendre|monter|embarquer|attraper|trouver|est|se trouve)|(?:prendre|monter|embarquer)[^?]{0,24}(?:brt|ter|bus|dikk|tata|aftu)|(?:quai|voie|plate-?forme|borne d'arr[eê]t)/
+const BOARDING_NETWORKS: readonly { id: CorridorNetworkId; words: readonly string[] }[] = [
+  { id: 'brt', words: ['brt', 'sunubrt', 'bus rapide', 'b1'] },
+  { id: 'ter', words: ['ter', 'train', 'gare express'] },
+  { id: 'ddd', words: ['ddd', 'dakar dem dikk', 'dem dikk'] },
+  { id: 'aftu', words: ['aftu'] },
+  { id: 'tata', words: ['tata'] },
+]
+
+/**
+ * « Où prendre le BRT ? » — réponse de guichet : les points d'embarquement du
+ * réseau, le plus proche si l'usager a autorisé la localisation, et la cadence
+ * réellement publiée. Rien sur les quais physiques, l'information n'est pas dans
+ * la mémoire : c'est dit au lieu d'être comblé.
+ */
+function whereToBoardReply(question: string, text: string, context: AssistantContext): string | null {
+  if (!BOARDING_ASK.test(question.toLowerCase())) return null
+  if (/\bquand\b|\b[aà] quelle heure\b/.test(text)) return null
+  const networks = BOARDING_NETWORKS.filter((entry) => entry.words.some((word) => text.includes(word)))
+  if (networks.length === 0) {
+    return 'Précisez le réseau voulu : « où prendre le BRT ? », « où monter le TER ? », « où prendre un bus DDD ou TATA ? ». Je réponds sur les arrêts déclarés, pas sur un emplacement inventé.'
+  }
+  const blocks = networks.map(({ id }) => {
+    const reference = CORRIDOR_NETWORKS[id]
+    const lines = CORRIDOR_LINES.filter((line) => line.network === id)
+    const termini = [...new Set(lines.flatMap((line) => [line.stopIds[0], line.stopIds[line.stopIds.length - 1]]).filter(Boolean))]
+      .map((stopId) => getCorridorStop(stopId!)?.name ?? stopId!)
+    // Arrêts distincts : deux lignes qui partagent un arrêt ne le comptent pas deux fois.
+    const stopCount = new Set(lines.flatMap((line) => [...line.stopIds])).size
+    const frequency = id === 'brt' || id === 'ter'
+      ? officialFrequencyAnswer(id)
+      : (() => {
+        const data = NETWORK_REFERENCE_DATA[id === 'tata' ? 'aftu' : id]
+        return data
+          ? `${data.operator} : ${data.frequencyLabel} ; service ${data.serviceStart}–${data.serviceEnd}. Aucun horaire par arrêt : le compte à rebours n’est pas calculable.`
+          : `${reference.operator} : fréquence par ligne non publiée dans cette mémoire.`
+      })()
+    const access = lines.length > 0
+      ? `${lines.length} ligne${lines.length > 1 ? 's' : ''} de référence, ${stopCount} arrêts déclarés — on monte à n’importe lequel.${termini.length > 0 ? ` Pôles principaux : ${termini.slice(0, 4).join(', ')}.` : ''}`
+      : 'Aucun tracé de référence pour ce réseau : impossible d’indiquer un point d’embarquement précis.'
+    // Arrêts du réseau seulement : le point le plus proche de l'usager peut
+    // appartenir à un autre réseau, ce n'est pas une réponse à la question posée.
+    const networkStops = [...new Set(lines.flatMap((line) => [...line.stopIds]))]
+      .map((stopId) => getCorridorStop(stopId))
+      .filter((stop): stop is NonNullable<typeof stop> => Boolean(stop))
+    const nearby = context.userLocation
+      ? networkStops
+          .map((stop) => ({ stop, distanceM: haversineMeters({ lat: context.userLocation!.lat, lon: context.userLocation!.lon }, stop) }))
+          .sort((a, b) => a.distanceM - b.distanceM)
+          .slice(0, 2)
+          .map((entry) => `${entry.stop.name} (à ${formatMeters(entry.distanceM)})`)
+      : []
+    const nearest = nearby.length > 0 ? `Le plus près de votre position : ${nearby.join(', ')}.` : ''
+    return `• ${reference.label} — ${access}${nearest ? ` ${nearest}` : ''}\n${frequency}`
+  })
+  const asksQuai = /quai|voie|plate[- ]?forme|porte/.test(text)
+  return [
+    `Où embarquer — d’après le réseau de référence déclaré :\n${blocks.join('\n')}`,
+    asksQuai
+      ? 'Emplacement précis du quai ou de la porte : non intégré dans cette mémoire. Suivre le plan de la station ou demander au personnel de la station.'
+      : 'Les arrêts sont ceux du référentiel déclaré ; aucun emplacement d’arrêt approximatif n’est ajouté. Vérifiez le service auprès des opérateurs avant de partir.',
+    context.userLocation ? '' : 'Autorisez la localisation (ou donnez-moi votre point de départ) et j’indique l’arrêt du réseau le plus proche.',
+  ].filter(Boolean).join('\n')
+}
+
 
 function officialFrequencyAnswer(network: 'brt' | 'ter'): string {
   const reference = NETWORK_REFERENCE_DATA[network]
@@ -279,7 +351,11 @@ ${HONEST_LIMIT}`
   const wantsBrt = includesAny(text, ['brt', 'b1', 'b2', 'b3', 'sunubrt', 'bus rapide'])
   const wantsTer = includesAny(text, ['ter', 'train', 'gare', 'express regional'])
   const asksFrequency = includesAny(text, ['prochain', 'prochaine', 'bientot', 'attente', 'frequence', 'passage', 'passe', 'cadence', 'dans combien', 'combien de temps', 'arrive'])
-  if (asksFrequency) {
+  // « Quand prendre le BRT ? » est une question de cadence, pas de point
+  // d'embarquement : le mot interrogatif seul ne suffit pas, il faut qu'un
+  // réseau soit nommé.
+  const asksWhenToTake = /\bquand\b/.test(text) && (wantsBrt || wantsTer || includesAny(text, ['bus', 'dikk', 'tata', 'aftu', 'ddd']))
+  if (asksFrequency || asksWhenToTake) {
     const destinationStops = searchCorridorStops(question.replace(/.*?(vers|pour|a|à|jusqu'a|jusqu à)\s+/i, ''))
     const target = destinationStops[0]
     const serving = target ? linesServingStop(target.id) : []
@@ -321,6 +397,12 @@ ${HONEST_LIMIT}`
     ].join('\n')
     return `${frequencies}\n${unknownFrequencyNetworks}\nAucune heure de prochain passage n’est disponible sans horaire fiable.`
   }
+
+  // 3b) Point d'embarquement demandé (« Où prendre le BRT ? », « Fan la … » en
+  //     wolof est traité par le module de langue) : réponse sur les arrêts
+  //     déclarés, jamais sur un quai inventé.
+  const boarding = whereToBoardReply(question, text, context)
+  if (boarding) return boarding
 
   // 4) Desserte d'un lieu.
   const desserte = /(?:est[- ]ce que|va[- ]t[- ]il|dessert|passe[- ]t[- ]il|s?arr[eê]te).*/.test(text) || includesAny(text, ['va a ', 'aller a ', 'jusqu a '])

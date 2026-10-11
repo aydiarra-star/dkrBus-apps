@@ -321,6 +321,14 @@ describe('copilote wolof : questions locales comprises et réponses calculées',
     expect(reply.language).not.toBe('wo')
   })
 
+  it('désigne où monter le réseau demandé, au plus près de la position autorisée', () => {
+    const { reply } = ask('Fan la ma wara yég BRT bi ? sama position', { context: withLocation(14.7249, -17.4555) })
+    expect(reply.language).toBe('wo')
+    expect(reply.text).toMatch(/Yég ci/)
+    expect(reply.text).toMatch(/stations ak pôles yi nekk ci référaas bi/)
+    expect(reply.text).toMatch(/Petersen|Préfecture de Guédiawaye/)
+  })
+
   it('chaque réponse wolof porte la limite de fiabilité', () => {
     for (const question of ['Ñaata la tarif bi ?', 'Lan la correspondance à Petersen ?', 'Nanga def']) {
       const { reply } = ask(question)

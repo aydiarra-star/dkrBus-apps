@@ -52,7 +52,7 @@ import {
 } from './referential'
 import { understandWolof, resolveWolofPlace, WOLOF_HELP_TEXT } from './wolofNlp'
 import { planJourneyOptions, type JourneyOption } from './journeyOptions'
-import { CORRIDOR_LINES, CORRIDOR_NETWORKS, INTERMODAL_TRANSFERS, getCorridorStop, linesServingStop, networkOfStopId, type CorridorNetworkId, type CorridorStop } from './corridors'
+import { CORRIDOR_LINES, CORRIDOR_NETWORKS, INTERMODAL_TRANSFERS, getCorridorStop, haversineMeters, linesServingStop, networkOfStopId, type CorridorNetworkId, type CorridorStop } from './corridors'
 import { offlineCapabilityText, offlinePackState } from './offlinePack'
 import {
   woAskOrigin,
@@ -565,11 +565,18 @@ function wolofIntentReply(question: string, context: AssistantContext, memory: C
 function wolofNearestBoarding(network: string, context: AssistantContext): string | null {
   const location = context.userLocation
   if (!location) return null
-  const near = nearestReferentialStops({ lat: location.lat, lon: location.lon }, 4)
-    .find((entry) => networkOfStopId(entry.stop.id) === network)
-  if (!near) return null
-  const lines = linesServingStop(near.stop.id).filter((line) => line.network === network).map((line) => line.shortName)
-  return woNearestBoarding(near.stop.name, near.distanceM, lines)
+  // Arrêts du réseau demandé uniquement : le point le plus proche de l'usager
+  // peut être d'un autre réseau, ce ne serait pas une réponse à sa question.
+  const ids = [...new Set(CORRIDOR_LINES.filter((line) => line.network === network).flatMap((line) => [...line.stopIds]))]
+  const stops = ids.map((id) => getCorridorStop(id)).filter((stop): stop is CorridorStop => Boolean(stop))
+  let nearest: { stop: CorridorStop; distanceM: number } | null = null
+  for (const stop of stops) {
+    const distanceM = haversineMeters({ lat: location.lat, lon: location.lon }, stop)
+    if (!nearest || distanceM < nearest.distanceM) nearest = { stop, distanceM }
+  }
+  if (!nearest) return null
+  const lines = linesServingStop(nearest.stop.id).filter((line) => line.network === network).map((line) => line.shortName)
+  return woNearestBoarding(nearest.stop.name, nearest.distanceM, lines)
 }
 
 function woNearestStopOfPlace(endpoint: PlannerEndpoint): string {
