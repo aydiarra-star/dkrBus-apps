@@ -180,3 +180,31 @@ describe('point d’embarquement demandé au guichet', () => {
     expect(when).toMatch(/fréquence officielle de référence de 6 minutes/)
   })
 })
+
+describe('questions d’exemple du cahier des charges', () => {
+  const API: AssistantContext = { publishedAvailable: false, adminOnline: true }
+
+  it('trace un trajet de Pikine à la gare de Dakar avec durée, marche et tarif', () => {
+    const answer = answerAssistant('Comment aller de Pikine à la gare de Dakar ?', API)
+    expect(answer).toMatch(/Itinéraire de référence Pikine → Dakar/)
+    expect(answer).toMatch(/marge ±\d+ min/)
+    expect(answer).toMatch(/0 correspondance/)
+    expect(answer).toMatch(/1 000 F CFA|500 F CFA/)
+    // Le détail est daté et qualifié : jamais un horaire prétendu temps réel.
+    expect(answer).toMatch(/ni un horaire, ni du temps réel/)
+  })
+
+  it('désigne le point d’embarquement du BRT sans inventer de quai', () => {
+    const answer = answerAssistant('Où prendre le BRT ?', API)
+    expect(answer).toMatch(/Où embarquer/)
+    expect(answer).toContain('BRT')
+    expect(answer).toMatch(/fréquence officielle de référence de 6 minutes/)
+  })
+
+  it('énumère ce que l’on peut faire à Petersen plutôt que d’inventer une correspondance', () => {
+    const answer = answerAssistant('Quelles correspondances à Petersen ?', API)
+    expect(answer).toContain('Petersen')
+    expect(answer).toMatch(/Pôle d’échange/)
+    expect(answer).toMatch(/B1/)
+  })
+})

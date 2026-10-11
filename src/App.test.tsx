@@ -2,7 +2,7 @@
 import { act, fireEvent, render, screen, cleanup, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
-import { resetPreferences } from './domain/preferences'
+import { resetPreferences, updatePreferences } from './domain/preferences'
 import { trafficAlert, trafficPayload, TRAFFIC_TEST_NOW } from './test/trafficFixtures'
 import { communityPayload, communityReport, COMMUNITY_TEST_ID, COMMUNITY_TEST_KEY } from './test/communityFixtures'
 
@@ -1932,6 +1932,18 @@ describe('réglages appliqués réellement à l’application', () => {
     fireEvent.click(screen.getByRole('button', { name: /utiliser ma position comme départ/i }))
     expect(await screen.findByText(/Géolocalisation désactivée dans vos réglages/i)).toBeTruthy()
     expect(requested).not.toHaveBeenCalled()
+  })
+
+  it('le micro coupé dans les réglages refuse la dictée, sans masquer la saisie écrite', async () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    updatePreferences('privacy', { allowMicrophone: false })
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
+    fireEvent.click(screen.getByRole('button', { name: /poser la question par la voix/i }))
+    expect(await screen.findByText(/Le micro est refusé dans vos réglages/i)).toBeTruthy()
+    // Le champ de question reste utilisable : rien n'est bloqué au-delà de la voix.
+    expect(screen.getByRole('textbox', { name: /votre question à l’assistant/i })).toBeTruthy()
+    updatePreferences('privacy', { allowMicrophone: true })
   })
 
   it('les unités choisies changent l’affichage des distances du comparateur', () => {

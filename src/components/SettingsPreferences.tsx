@@ -108,12 +108,10 @@ const TER_CLASS_CHOICES: readonly { id: FareClass; label: string; detail: string
 export function SettingsPreferences({
   preferences,
   onNotify,
-  onOpenSection,
   onClearSavedPlaces,
 }: {
   preferences: Preferences
   onNotify: (message: string) => void
-  onOpenSection?: (anchor: string) => void
   onClearSavedPlaces?: () => void
 }) {
   const [offline, setOffline] = useState(() => offlinePackState())
@@ -395,11 +393,6 @@ export function SettingsPreferences({
                   {offline.available && (
                     <button type="button" className="text-action" onClick={removePack}>
                       <Eraser size={14} /> Supprimer de cet appareil
-                    </button>
-                  )}
-                  {onOpenSection && (
-                    <button type="button" className="text-action" onClick={() => onOpenSection('preferences-hors-ligne-aide')}>
-                      Ce que le mode hors ligne permet
                     </button>
                   )}
                 </div>
