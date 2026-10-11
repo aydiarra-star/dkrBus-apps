@@ -186,7 +186,7 @@ export const REFERENTIAL_NETWORKS: readonly ReferentialNetwork[] = [
     serviceWindow: NETWORK_REFERENCE_DATA.ddd.serviceWindow,
     frequencyStatus: 'UNKNOWN',
     known:
-      'Ampleur déclarée (38 lignes, ~400 bus) + 14 arrêts principaux de référence géolocalisés (jaune #F59E0B) en pointillés légers + pastilles pour éviter la surcharge carte.',
+      'Ampleur déclarée (38 lignes, ~400 bus) + 14 arrêts principaux de référence géolocalisés  en pointillés légers + pastilles pour éviter la surcharge carte.',
     missing:
       'Fréquences par ligne non publiées : pas de prochain passage temps réel, uniquement des repères géographiques légers.',
     source: REFERENTIAL_SOURCES.cetud,
@@ -203,7 +203,7 @@ export const REFERENTIAL_NETWORKS: readonly ReferentialNetwork[] = [
     serviceWindow: NETWORK_REFERENCE_DATA.aftu.serviceWindow,
     frequencyStatus: 'UNKNOWN',
     known:
-      'Ampleur déclarée (72 lignes, ~2 300 minibus, 14 GIE) + 13 arrêts principaux de référence géolocalisés (orange ambré #D97706) en pointillés légers + pastilles.',
+      'Ampleur déclarée (72 lignes, ~2 300 minibus, 14 GIE) + 13 arrêts principaux de référence géolocalisés  en pointillés légers + pastilles.',
     missing:
       'Fréquences par ligne non publiées : affichage léger uniquement, pas de temps réel.',
     source: REFERENTIAL_SOURCES.cetud,

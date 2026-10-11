@@ -75,6 +75,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
+import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
 import {
@@ -1318,9 +1319,19 @@ function App() {
         <div className="map-mobility-legend" aria-label="Code couleur des mobilités">
           <span className="map-mobility-legend-title">Réseaux</span>
           <div className="map-mobility-legend-row">
-            {MOBILITY_IDS.map((id) => <MobilityBadge key={id} id={id} />)}
+            {MOBILITY_IDS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className="map-legend-badge-button"
+                onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
+                aria-label={`Voir le réseau ${id.toUpperCase()}`}
+              >
+                <MobilityBadge id={id} />
+              </button>
+            ))}
           </div>
-          <small>TER bleu #003366 et BRT vert #00A859 en tracés continus · DDD jaune #F59E0B et AFTU/TATA orange #D97706 en pointillés légers + pastilles d'arrêts.</small>
+          <small>TER et BRT en tracés continus · DDD et AFTU/TATA en pointillés légers + pastilles d'arrêts.</small>
         </div>
 
         <div className="map-controls" aria-label="Contrôles de la carte">
@@ -1793,7 +1804,10 @@ function networkMetaLabel(network: NetworkSource): string {
 
 /** Résumé Explorer : le décompte descend en temps réel, sans jamais devenir du temps réel.
  *  Le réseau sélectionné décline ses créneaux station par station et sens par
- *  sens ; les réseaux sans ligne publiée l’expliquent au lieu d’inventer. */
+ *  sens ; les réseaux sans ligne publiée l’expliquent au lieu d’inventer.
+ *  L’état d’affichage dépend de l’heure de Dakar (UTC+0) : « Fin de service »
+ *  quand le service est terminé, « Reprise » dans la dernière heure avant le
+ *  démarrage, et affichage normal en service actif. */
 function ReferenceNetworkSummary({
   now,
   selectedNetwork,
@@ -1813,6 +1827,12 @@ function ReferenceNetworkSummary({
   const passages = networks.map((network) =>
     nextReferencePassage(network.referenceData?.officialFrequencies ?? [], now),
   )
+  /** État d’affichage par réseau : calculé à partir de l’heure de Dakar (UTC+0). */
+  const serviceStates = networks.map((network): ServiceDisplayState => {
+    const refData = network.referenceData
+    if (!refData) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
+    return getServiceDisplayState(now, refData.serviceStart, refData.serviceEnd)
+  })
 
   return (
     <section className="network-summary-section" aria-label="Réseaux de référence">
@@ -1822,13 +1842,16 @@ function ReferenceNetworkSummary({
       <ul className="network-summary-list" role="none">
         {networks.map((network, index) => {
           const passage = passages[index]
+          const serviceState = serviceStates[index]
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
+          const showCountdown = serviceState.showCountdown && passage
+
           return (
             <li
               key={network.id}
               data-network={network.id}
-              className={`network-summary-item network-item-${network.id}${isMobilityId(network.id) ? ` mobility-${network.id}` : ''}${isSelected ? ' is-selected' : ''}`}
+              className={`network-summary-item network-item-${network.id}${isMobilityId(network.id) ? ` mobility-${network.id}` : ''}${isSelected ? ' is-selected' : ''} service-status-${serviceState.status.toLowerCase()}`}
             >
               <button
                 type="button"
@@ -1837,13 +1860,31 @@ function ReferenceNetworkSummary({
                 onClick={() => onSelectNetwork(network.id)}
               >
                 <span
-                  className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`}
+                  className={`network-summary-dot is-referenced${showCountdown ? ' is-counting' : ''} status-${serviceState.status.toLowerCase()}`}
                   aria-hidden="true"
                 />
                 {isMobilityId(network.id)
                   ? <MobilityBadge id={network.id}>{refData?.shortName ?? network.label}</MobilityBadge>
                   : <span className="network-summary-name">{refData?.shortName ?? network.label}</span>}
-                {passage ? (
+                {serviceState.status === 'FINISHED' ? (
+                  <span
+                    className="network-summary-passage is-finished"
+                    role="status"
+                    aria-label={`${refData?.shortName ?? network.label} : fin de service.`}
+                  >
+                    <strong>Fin de service</strong>
+                    <small>{refData ? `Reprise à ${refData.serviceStart}` : networkMetaLabel(network)}</small>
+                  </span>
+                ) : serviceState.status === 'UPCOMING' ? (
+                  <span
+                    className="network-summary-passage is-upcoming"
+                    role="status"
+                    aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}
+                  >
+                    <strong>{serviceState.label}</strong>
+                    <small>{passage ? `créneau ${passage.clockLabel}` : `début ${refData?.serviceStart ?? '—'}`}</small>
+                  </span>
+                ) : showCountdown ? (
                   <span
                     className="network-summary-passage"
                     role="status"
@@ -1864,9 +1905,19 @@ function ReferenceNetworkSummary({
                 <div className="network-summary-detail station-board-detail">
                   <span className="station-board-context">
                     {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
+                    {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
+                    {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
-                  {boards.length > 0 ? (
+                  {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
                     boards.map((board) => <StationBoardView key={board.line.id} board={board} onFocusStation={onFocusStation} />)
+                  ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
+                    <p className="station-board-pending">
+                      Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
+                    </p>
+                  ) : serviceState.status === 'FINISHED' ? (
+                    <p className="station-board-pending">
+                      Service terminé. Les créneaux par station reprendront demain à partir de {refData?.serviceStart ?? 'l’heure habituelle'}.
+                    </p>
                   ) : (
                     <p className="station-board-pending">
                       Horaires par station : aucune ligne {refData?.shortName ?? network.label} n’est encore publiée.
@@ -1883,6 +1934,7 @@ function ReferenceNetworkSummary({
     </section>
   )
 }
+
 
 /** Cellule de créneau d’une station : le design et le format du décompte
  *  restent exactement ceux du résumé des réseaux (« 5 min / créneau 08:10 »). */
@@ -3092,6 +3144,17 @@ function LegalSection() {
 /** Historique des mises à jour, daté et vérifiable dans l’historique Git. */
 function ChangelogSection() {
   const releases: { date: string; title: string; items: string[] }[] = [
+    {
+      date: '2026-10-11',
+      title: 'États de service, masquage des codes techniques et interactivité',
+      items: [
+        'États de service : chaque carte de réseau affiche désormais « Fin de service » (rouge) quand le service est terminé, « Reprise dans X min » (jaune) dans la dernière heure avant le démarrage, et le décompte normal (vert) en service actif. Le compte à rebours est masqué pendant la nuit.',
+        'Heure de Dakar (UTC+0) : l’état de service est calculé exclusivement sur l’horloge locale de Dakar (Africa/Dakar), quel que soit le fuseau du téléphone.',
+        'Codes hexadécimaux masqués : les codes couleur techniques (#003366, #00A859, etc.) ne sont plus affichés dans les textes de l’assistant, les réponses de recherche, ni la légende de la carte. Ils restent utilisés en interne pour le rendu visuel.',
+        'Interactivité : les pastilles de la légende carte sont maintenant cliquables et ouvrent le détail du réseau correspondant.',
+        'Amplitudes de référence : TER 05:30–22:00, BRT 06:00–21:00, DDD 06:00–21:00, AFTU 06:00–21:00, TATA 06:00–21:00 (sources CETUD, SETER, TER Dakar).',
+      ],
+    },
     {
       date: '2026-10-10',
       title: 'Code couleur officiel des mobilités',

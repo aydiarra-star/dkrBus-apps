@@ -47,10 +47,11 @@ describe('mémoire du maître : fiche d’un lieu', () => {
     }
   })
 
-  it('rappelle ses limites : ni horaire, ni temps réel, ni fréquence bus (avec code couleur)', () => {
+  it('rappelle ses limites : ni horaire, ni temps réel, ni fréquence bus (sans codes hex)', () => {
     const brief = placeBrief(keurMbayeFall)
-    expect(brief).toMatch(/TER bleu #003366|ni horaire de passage|pointillés légers/)
-    expect(brief).toMatch(/#00A859|#F59E0B|#D97706/)
+    expect(brief).toMatch(/TER|ni horaire de passage|pointillés légers/)
+    // Les codes hexadécimaux ne doivent jamais apparaître dans le texte affiché.
+    expect(brief).not.toMatch(/#[0-9A-Fa-f]{6}/)
   })
 })
 
