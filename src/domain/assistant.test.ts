@@ -76,7 +76,9 @@ describe('assistant mobilité', () => {
     const answer = answerAssistant('comment aller de Préfecture de Guédiawaye à Diamniadio', CONTEXT)
     expect(answer).toContain('correspondance')
     expect(answer).toContain('TER')
-    expect(answer).toContain('B1')
+    // L'accès au TER peut se faire par le BRT ou par un bus de quartier : le
+    // moteur choisit la chaîne réellement la plus courte du référentiel.
+    expect(answer).toMatch(/B1|TATA|DDD|AFTU/)
   })
 
   it('dit honnêtement qu’un lieu non desservi n’est pas deviné', () => {
@@ -136,5 +138,73 @@ describe('assistant mobilité', () => {
     expect(request?.origin.label).toBe('Colobane')
     expect(request?.destination.label).toBe('Bargny')
     expect(extractJourneyRequest('bonjour')).toBeNull()
+  })
+})
+
+describe('point d’embarquement demandé au guichet', () => {
+  const LOCATED: AssistantContext = { ...CONTEXT, userLocation: { lat: 14.7, lon: -17.45 } }
+
+  it('répond où monter un réseau avec les arrêts déclarés et la cadence publiée', () => {
+    const answer = answerAssistant('Où prendre le BRT ?', CONTEXT)
+    expect(answer).toMatch(/Où embarquer/)
+    expect(answer).toMatch(/23 arrêts déclarés/)
+    expect(answer).toContain('Petersen')
+    expect(answer).toContain('6 minutes')
+    expect(answer).toMatch(/Vérifiez le service auprès des opérateurs/)
+    // Aucun emplacement physique n'est inventé : ni quai numéroté, ni voie.
+    expect(answer).not.toMatch(/quai \d|voie \d/)
+  })
+
+  it('borne la réponse au réseau nommé et compte chaque arrêt une fois', () => {
+    const ter = answerAssistant('Où monter le TER ?', CONTEXT)
+    expect(ter).toMatch(/13 arrêts déclarés/)
+    expect(ter).not.toMatch(/BRT \(SunuBRT\)/)
+    const both = answerAssistant('Où prendre le TER ou le BRT ?', CONTEXT)
+    expect(both).toMatch(/• TER/)
+    expect(both).toMatch(/• BRT/)
+    // DDD : trois lignes de référence qui partagent des arrêts, comptés une fois.
+    const ddd = answerAssistant('Où prendre un bus DDD ?', CONTEXT)
+    expect(ddd).toMatch(/lignes de référence, \d+ arrêts déclarés/)
+    expect(ddd).toMatch(/fréquences non publiées|Aucun horaire par arrêt/)
+  })
+
+  it('demande le réseau manquant au lieu de deviner, et exploite la position autorisée', () => {
+    expect(answerAssistant('Où prendre le bus ?', CONTEXT)).toMatch(/Précisez le réseau voulu/)
+    expect(answerAssistant('Où monter le TER ?', LOCATED)).toMatch(/Le plus près de votre position/)
+    expect(answerAssistant('Où prendre le BRT ?', CONTEXT)).toMatch(/Autorisez la localisation/)
+  })
+
+  it('ne confond pas « quand prendre » et « où prendre »', () => {
+    const when = answerAssistant('Quand prendre le BRT ?', CONTEXT)
+    expect(when).not.toMatch(/Où embarquer/)
+    expect(when).toMatch(/fréquence officielle de référence de 6 minutes/)
+  })
+})
+
+describe('questions d’exemple du cahier des charges', () => {
+  const API: AssistantContext = { publishedAvailable: false, adminOnline: true }
+
+  it('trace un trajet de Pikine à la gare de Dakar avec durée, marche et tarif', () => {
+    const answer = answerAssistant('Comment aller de Pikine à la gare de Dakar ?', API)
+    expect(answer).toMatch(/Itinéraire de référence Pikine → Dakar/)
+    expect(answer).toMatch(/marge ±\d+ min/)
+    expect(answer).toMatch(/0 correspondance/)
+    expect(answer).toMatch(/1 000 F CFA|500 F CFA/)
+    // Le détail est daté et qualifié : jamais un horaire prétendu temps réel.
+    expect(answer).toMatch(/ni un horaire, ni du temps réel/)
+  })
+
+  it('désigne le point d’embarquement du BRT sans inventer de quai', () => {
+    const answer = answerAssistant('Où prendre le BRT ?', API)
+    expect(answer).toMatch(/Où embarquer/)
+    expect(answer).toContain('BRT')
+    expect(answer).toMatch(/fréquence officielle de référence de 6 minutes/)
+  })
+
+  it('énumère ce que l’on peut faire à Petersen plutôt que d’inventer une correspondance', () => {
+    const answer = answerAssistant('Quelles correspondances à Petersen ?', API)
+    expect(answer).toContain('Petersen')
+    expect(answer).toMatch(/Pôle d’échange/)
+    expect(answer).toMatch(/B1/)
   })
 })

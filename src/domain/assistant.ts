@@ -10,10 +10,14 @@
 
 import {
   BRT_STOPS,
+  CORRIDOR_LINES,
   CORRIDOR_NETWORKS,
   TER_STOPS,
+  getCorridorStop,
+  haversineMeters,
   linesServingStop,
   searchCorridorStops,
+  type CorridorNetworkId,
 } from './corridors'
 import { NETWORK_REFERENCE_DATA, OFFICIAL_REFERENCE_FREQUENCIES, formatFrequencyPeriod, formatSourceVerification } from './frequencies'
 import { answerMobilityKnowledge, busKnowledgeSummary, generalFareReply } from './mobilityKnowledge'
@@ -22,6 +26,8 @@ import { getRemainingMinutes } from './truth'
 import { formatPassageCountdown } from './headways'
 import { describeLeg, formatMeters, planReferenceJourney, type PlannerEndpoint } from './planner'
 import { compareReferenceJourneys, PRIORITY_LABELS } from './comparison'
+import { priceRanking } from './journeyOptions'
+import { fareStatusLabel } from './fares'
 import { departureAdvice, extractMobilityIntent, routePreferencesFrom } from './intent'
 import { placeBriefWithQuestion, placeQuestionReply, unroutablePairReply } from './placeMemory'
 import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, unrecognizedPlaceNote } from './places'
@@ -99,6 +105,74 @@ export function getAssistantCountdownMinutes(question: string, context: Assistan
   return getRemainingMinutes(scheduled.nextDepartureAt, now)
 }
 
+// « Où prendre le BRT ? », « où monter le TER », « où est le quai du BRT » :
+// une demande de point d'embarquement, pas une demande d'itinéraire.
+const BOARDING_ASK = /(?:\bou\b|\boù\b)[^?]{0,40}(?:prendre|monter|embarquer|attraper|trouver|est|se trouve)|(?:prendre|monter|embarquer)[^?]{0,24}(?:brt|ter|bus|dikk|tata|aftu)|(?:quai|voie|plate-?forme|borne d'arr[eê]t)/
+const BOARDING_NETWORKS: readonly { id: CorridorNetworkId; words: readonly string[] }[] = [
+  { id: 'brt', words: ['brt', 'sunubrt', 'bus rapide', 'b1'] },
+  { id: 'ter', words: ['ter', 'train', 'gare express'] },
+  { id: 'ddd', words: ['ddd', 'dakar dem dikk', 'dem dikk'] },
+  { id: 'aftu', words: ['aftu'] },
+  { id: 'tata', words: ['tata'] },
+]
+
+/**
+ * « Où prendre le BRT ? » — réponse de guichet : les points d'embarquement du
+ * réseau, le plus proche si l'usager a autorisé la localisation, et la cadence
+ * réellement publiée. Rien sur les quais physiques, l'information n'est pas dans
+ * la mémoire : c'est dit au lieu d'être comblé.
+ */
+function whereToBoardReply(question: string, text: string, context: AssistantContext): string | null {
+  if (!BOARDING_ASK.test(question.toLowerCase())) return null
+  if (/\bquand\b|\b[aà] quelle heure\b/.test(text)) return null
+  const networks = BOARDING_NETWORKS.filter((entry) => entry.words.some((word) => text.includes(word)))
+  if (networks.length === 0) {
+    return 'Précisez le réseau voulu : « où prendre le BRT ? », « où monter le TER ? », « où prendre un bus DDD ou TATA ? ». Je réponds sur les arrêts déclarés, pas sur un emplacement inventé.'
+  }
+  const blocks = networks.map(({ id }) => {
+    const reference = CORRIDOR_NETWORKS[id]
+    const lines = CORRIDOR_LINES.filter((line) => line.network === id)
+    const termini = [...new Set(lines.flatMap((line) => [line.stopIds[0], line.stopIds[line.stopIds.length - 1]]).filter(Boolean))]
+      .map((stopId) => getCorridorStop(stopId!)?.name ?? stopId!)
+    // Arrêts distincts : deux lignes qui partagent un arrêt ne le comptent pas deux fois.
+    const stopCount = new Set(lines.flatMap((line) => [...line.stopIds])).size
+    const frequency = id === 'brt' || id === 'ter'
+      ? officialFrequencyAnswer(id)
+      : (() => {
+        const data = NETWORK_REFERENCE_DATA[id === 'tata' ? 'aftu' : id]
+        return data
+          ? `${data.operator} : ${data.frequencyLabel} ; service ${data.serviceStart}–${data.serviceEnd}. Aucun horaire par arrêt : le compte à rebours n’est pas calculable.`
+          : `${reference.operator} : fréquence par ligne non publiée dans cette mémoire.`
+      })()
+    const access = lines.length > 0
+      ? `${lines.length} ligne${lines.length > 1 ? 's' : ''} de référence, ${stopCount} arrêts déclarés — on monte à n’importe lequel.${termini.length > 0 ? ` Pôles principaux : ${termini.slice(0, 4).join(', ')}.` : ''}`
+      : 'Aucun tracé de référence pour ce réseau : impossible d’indiquer un point d’embarquement précis.'
+    // Arrêts du réseau seulement : le point le plus proche de l'usager peut
+    // appartenir à un autre réseau, ce n'est pas une réponse à la question posée.
+    const networkStops = [...new Set(lines.flatMap((line) => [...line.stopIds]))]
+      .map((stopId) => getCorridorStop(stopId))
+      .filter((stop): stop is NonNullable<typeof stop> => Boolean(stop))
+    const nearby = context.userLocation
+      ? networkStops
+          .map((stop) => ({ stop, distanceM: haversineMeters({ lat: context.userLocation!.lat, lon: context.userLocation!.lon }, stop) }))
+          .sort((a, b) => a.distanceM - b.distanceM)
+          .slice(0, 2)
+          .map((entry) => `${entry.stop.name} (à ${formatMeters(entry.distanceM)})`)
+      : []
+    const nearest = nearby.length > 0 ? `Le plus près de votre position : ${nearby.join(', ')}.` : ''
+    return `• ${reference.label} — ${access}${nearest ? ` ${nearest}` : ''}\n${frequency}`
+  })
+  const asksQuai = /quai|voie|plate[- ]?forme|porte/.test(text)
+  return [
+    `Où embarquer — d’après le réseau de référence déclaré :\n${blocks.join('\n')}`,
+    asksQuai
+      ? 'Emplacement précis du quai ou de la porte : non intégré dans cette mémoire. Suivre le plan de la station ou demander au personnel de la station.'
+      : 'Les arrêts sont ceux du référentiel déclaré ; aucun emplacement d’arrêt approximatif n’est ajouté. Vérifiez le service auprès des opérateurs avant de partir.',
+    context.userLocation ? '' : 'Autorisez la localisation (ou donnez-moi votre point de départ) et j’indique l’arrêt du réseau le plus proche.',
+  ].filter(Boolean).join('\n')
+}
+
+
 function officialFrequencyAnswer(network: 'brt' | 'ter'): string {
   const reference = NETWORK_REFERENCE_DATA[network]
   const source = network === 'brt' ? 'CETUD / SunuBRT' : 'TER / SETER'
@@ -127,6 +201,20 @@ const OFFICIAL_CHANNELS =
 /** Réponses communes au calcul d'itinéraire, quelle que soit la formulation. */
 const CHEAPEST_REPLY =
   'Je ne peux pas classer les trajets par prix : les tarifs complets et vérifiés TER/BRT ne sont pas disponibles ici. Je peux comparer la durée, la marche ou les correspondances, pas inventer un coût.'
+
+/**
+ * Classement par prix, calculé sur les grilles publiées uniquement.
+ * Le module `journeyOptions.priceRanking` refuse de produire un classement dès
+ * qu'une ligne sans tarif déclaré (DDD, AFTU, TATA) entre dans la chaîne : la
+ * réponse rapporte ce refus au lieu d'estimer un prix.
+ */
+function cheapestReply(origin: PlannerEndpoint, destination: PlannerEndpoint): string {
+  const ranking = priceRanking(origin, destination)
+  if (ranking.status === 'unavailable') {
+    return `${ranking.reason} Je peux en revanche classer la durée, la marche et les correspondances, et afficher la part de tarif connue de chaque option.`
+  }
+  return `Classement par prix entre ${origin.label} et ${destination.label}, sur les seules options calculées dont tous les tarifs sont publiés :\n${ranking.lines.join('\n')}\n${ranking.note}`
+}
 const INVALID_ARRIVAL_REPLY =
   'Heure d’arrivée invalide : indiquez une heure de Dakar au format « avant 9 h » ou « avant 09:30 ». Aucun départ ne peut être conseillé sans heure valide.'
 
@@ -167,17 +255,21 @@ export function journeyReply(
   if (compare || priority !== 'fastest') {
     const comparison = compareReferenceJourneys(origin, destination)
     if (!comparison.ok) return comparison.message
-    const chosen = comparison.options.find((option) => option.priority === comparison.bestBy[priority])!
+    // Un classement par prix ne peut pas être promis sans grilles complètes :
+    // le critère retenu reste le plus rapide calculé, et le motif est dit plus bas.
+    const criterion = priority === 'lowestFare' ? 'fastest' : priority
+    const chosen = comparison.options.find((option) => option.priority === comparison.bestBy[criterion]) ?? comparison.options[0]
     const alternatives = comparison.options.map((option, index) =>
-      `• Option ${index + 1} (${option.result.boardedLines.join(' + ') || 'à pied'}) : environ ${option.result.totalMinutes} min, ${formatMeters(option.result.totalWalkM)} de marche, ${option.result.transfers} correspondance(s).`).join('\n')
+      `• Option ${index + 1} (${option.result.boardedLines.join(' + ') || 'à pied'}) : environ ${option.result.totalMinutes} min, ${formatMeters(option.result.totalWalkM)} de marche, ${option.result.transfers} correspondance(s), ${fareStatusLabel(option.result.fare)} (grilles publiées).`).join('\n')
     const advice = arrivalMinutes === null ? '' : `\n${departureAdvice(arrivalMinutes, chosen.result.totalMinutes, now, tomorrow)}`
-    return `Copilote · ${origin.label} → ${destination.label}. ${PRIORITY_LABELS[priority]} : option ${comparison.options.indexOf(chosen) + 1}.\n${alternatives}\n${comparison.options.length === 1 ? 'Une seule option distincte est calculable. ' : ''}Classement parmi ces options calculées. Données : réseau de référence TER/BRT, marche et attente estimées, sans horaires de passage ni temps réel. Tarif non comparable (données insuffisantes).${advice} Ouvrez Trajet pour voir le détail et comparer les options.`
+    return `Copilote · ${origin.label} → ${destination.label}. ${PRIORITY_LABELS[priority]} : option ${comparison.options.indexOf(chosen) + 1}.\n${alternatives}\n${comparison.options.length === 1 ? 'Une seule option distincte est calculable. ' : ''}Classement parmi ces options calculées. Données : réseau de référence (TER, BRT et arrêts DDD/AFTU/TATA enregistrés), marche et attente estimées, sans horaires de passage ni temps réel. Les prix affichés sont une somme de tickets d’après les grilles publiées, jamais un billet combiné.${advice} Ouvrez Trajet pour voir le détail, le tarif et l’aller-retour.`
   }
   const outcome = planReferenceJourney(origin, destination)
   if (!outcome.ok) return outcome.message
   const steps = outcome.legs.map((leg) => `• ${describeLeg(leg)}`).join('\n')
   const advice = arrivalMinutes === null ? '' : `\n${departureAdvice(arrivalMinutes, outcome.totalMinutes, now, tomorrow)}`
-  return `Itinéraire de référence ${origin.label} → ${destination.label} — environ ${outcome.totalMinutes} min, ${outcome.transfers} correspondance${outcome.transfers > 1 ? 's' : ''}, ${formatMeters(outcome.totalWalkM)} de marche :\n${steps}\n${outcome.limitation}${advice}`
+  const uncertainty = outcome.uncertaintyMinutes > 0 ? ` (marge ±${outcome.uncertaintyMinutes} min)` : ''
+  return `Itinéraire de référence ${origin.label} → ${destination.label} — environ ${outcome.totalMinutes} min${uncertainty}, ${outcome.transfers} correspondance${outcome.transfers > 1 ? 's' : ''}, ${formatMeters(outcome.totalWalkM)} de marche, ${fareStatusLabel(outcome.fare)} :\n${steps}\n${outcome.limitation}${outcome.fare.note ? `\nTarif : ${outcome.fare.note}` : ''}${advice}`
 }
 
 export function answerAssistant(question: string, context: AssistantContext, now = Date.now()): string {
@@ -221,7 +313,11 @@ ${HONEST_LIMIT}`
         ? `${unknown} ${recall}`
         : `Ni votre départ ni votre destination ne sont reconnus dans la mémoire des lieux (13 gares TER, 23 stations BRT et les lieux des fiches DDD/AFTU). ${recall}`
     }
-    if (intent.priority === 'cheapest') return CHEAPEST_REPLY
+    if (intent.priority === 'cheapest') {
+      return intent.origin && intent.destination
+        ? cheapestReply(intent.origin, intent.destination)
+        : `Pour classer par prix, il me faut un départ et une destination reconnus. ${CHEAPEST_REPLY}`
+    }
     if (intent.arrivalRequested && intent.arrivalMinutes === null) return INVALID_ARRIVAL_REPLY
     if (intent.origin && intent.destination) {
       return journeyReply(intent.origin, intent.destination, {
@@ -255,7 +351,11 @@ ${HONEST_LIMIT}`
   const wantsBrt = includesAny(text, ['brt', 'b1', 'b2', 'b3', 'sunubrt', 'bus rapide'])
   const wantsTer = includesAny(text, ['ter', 'train', 'gare', 'express regional'])
   const asksFrequency = includesAny(text, ['prochain', 'prochaine', 'bientot', 'attente', 'frequence', 'passage', 'passe', 'cadence', 'dans combien', 'combien de temps', 'arrive'])
-  if (asksFrequency) {
+  // « Quand prendre le BRT ? » est une question de cadence, pas de point
+  // d'embarquement : le mot interrogatif seul ne suffit pas, il faut qu'un
+  // réseau soit nommé.
+  const asksWhenToTake = /\bquand\b/.test(text) && (wantsBrt || wantsTer || includesAny(text, ['bus', 'dikk', 'tata', 'aftu', 'ddd']))
+  if (asksFrequency || asksWhenToTake) {
     const destinationStops = searchCorridorStops(question.replace(/.*?(vers|pour|a|à|jusqu'a|jusqu à)\s+/i, ''))
     const target = destinationStops[0]
     const serving = target ? linesServingStop(target.id) : []
@@ -297,6 +397,12 @@ ${HONEST_LIMIT}`
     ].join('\n')
     return `${frequencies}\n${unknownFrequencyNetworks}\nAucune heure de prochain passage n’est disponible sans horaire fiable.`
   }
+
+  // 3b) Point d'embarquement demandé (« Où prendre le BRT ? », « Fan la … » en
+  //     wolof est traité par le module de langue) : réponse sur les arrêts
+  //     déclarés, jamais sur un quai inventé.
+  const boarding = whereToBoardReply(question, text, context)
+  if (boarding) return boarding
 
   // 4) Desserte d'un lieu.
   const desserte = /(?:est[- ]ce que|va[- ]t[- ]il|dessert|passe[- ]t[- ]il|s?arr[eê]te).*/.test(text) || includesAny(text, ['va a ', 'aller a ', 'jusqu a '])
@@ -386,7 +492,7 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
       // sans verbe de déplacement (« Keur Mbaye Fall Dakar »), avec les mêmes
       // critères que pour une phrase complète.
       const preferences = routePreferencesFrom(question)
-      if (preferences.priority === 'cheapest') return CHEAPEST_REPLY
+      if (preferences.priority === 'cheapest') return cheapestReply(origin, destination)
       if (preferences.arrivalRequested && preferences.arrivalMinutes === null) return INVALID_ARRIVAL_REPLY
       return journeyReply(origin, destination, {
         priority: preferences.priority,

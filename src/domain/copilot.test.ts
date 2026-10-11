@@ -228,7 +228,19 @@ describe('copilote : honnêteté et non-invention', () => {
   it('aucun prix n’est inventé quand on demande le moins cher', () => {
     const { reply } = ask('Quel trajet de Petersen à Rufisque est le moins cher ?')
     expect(reply.text).toContain('prix')
-    expect(reply.text).not.toMatch(/\d+\s*(?:FCFA|F CFA|francs)/i)
+    // Petersen ↔ Rufisque fait entrer AFTU dans la chaîne : sans tarif publié
+    // pour ce réseau, aucun total n'est annoncé.
+    expect(reply.text).toMatch(/Aucun tarif publié pour AFTU 1/)
+    expect(reply.text).not.toMatch(/total de \d+\s*F CFA/i)
+  })
+
+  it('un prix affiché vient toujours d’une grille publiée, avec sa limite', () => {
+    const { reply } = ask('Compare les trajets de Guédiawaye à Rufisque par prix')
+    if (/\d[\s\u202f]*F CFA/.test(reply.text)) {
+      expect(reply.text).toMatch(/grilles|somme des tickets|billet combiné/i)
+    } else {
+      expect(reply.text).toMatch(/pas comparable|Aucun tarif publié/)
+    }
   })
 
   it('les questions hors périmètre restent transparentes (météo : aucune source, rien d’inventé)', () => {
@@ -251,5 +263,84 @@ describe('mémoire embarquée sans publication ni API', () => {
     expect(reply.text).toContain('AFTU 42')
     expect(reply.text).toContain('Ouakam Baye')
     expect(reply.journey).toBeUndefined()
+  })
+})
+
+describe('copilote wolof : questions locales comprises et réponses calculées', () => {
+  const withLocation = (lat: number, lon: number): AssistantContext => ({
+    publishedAvailable: false,
+    adminOnline: false,
+    userLocation: { lat, lon, accuracyM: 60 },
+  })
+
+  it('comprend la phonétique approximative et demande le départ au lieu de le deviner', () => {
+    const { reply } = ask('Naka laay def ngir dem Garu Ndakaaru ?')
+    expect(reply.language).toBe('wo')
+    expect(reply.text).toContain('Dakar')
+    // Aucun départ énoncé, aucune position autorisée : rien n'est supposé.
+    expect(reply.journey).toBeUndefined()
+    expect(reply.text).toMatch(/xamuma fan nga/)
+  })
+
+  it('calcule un vrai trajet depuis la position autorisée et garde les marges', () => {
+    const memory = createConversationMemory()
+    const reply = copilotAnswer(
+      'Naka laay def ngir dem garou Ndakaaru, sama position',
+      withLocation(14.693, -17.4552),
+      memory,
+      'auto',
+      NOW,
+    )
+    expect(reply.language).toBe('wo')
+    expect(reply.text).toContain('sa position')
+    expect(reply.text).toMatch(/minit/)
+    expect(reply.text).toMatch(/marge ±/)
+    // Un trajet wolof exploitable dans l'onglet Trajet.
+    expect(reply.journey?.destination.stopId).toBe('ter-dakar')
+    expect(memory.lastJourney).not.toBeNull()
+  })
+
+  it('répond en wolof sur la base des grilles publiées, et dit ce qui manque', () => {
+    const fare = ask('Ñaata la tarif bi ?').reply.text
+    expect(fare).toContain('500 F CFA')
+    expect(fare).toMatch(/amul bu ñu publié/)
+    const frequency = ask('Ñaata la fréquence BRT ?').reply.text
+    expect(frequency).toContain('6 minit')
+    expect(frequency).toMatch(/amul fii|du temps réel/)
+  })
+
+  it('nomme les correspondances réellement déclarées ou estimées', () => {
+    const { reply } = ask('Lan la correspondance à Petersen ?')
+    expect(reply.language).toBe('wo')
+    expect(reply.text).toContain('Petersen')
+    expect(reply.text).toMatch(/déclarée|estimée/)
+  })
+
+  it('ne répond pas en wolof à une phrase sans marqueur exploitable', () => {
+    const { reply } = ask('Pikine')
+    expect(reply.language).not.toBe('wo')
+  })
+
+  it('désigne où monter le réseau demandé, au plus près de la position autorisée', () => {
+    const { reply } = ask('Fan la ma wara yég BRT bi ? sama position', { context: withLocation(14.7249, -17.4555) })
+    expect(reply.language).toBe('wo')
+    expect(reply.text).toMatch(/Yég ci/)
+    expect(reply.text).toMatch(/stations ak pôles yi nekk ci référaas bi/)
+    expect(reply.text).toMatch(/Petersen|Préfecture de Guédiawaye/)
+  })
+
+  it('chaque réponse wolof porte la limite de fiabilité', () => {
+    for (const question of ['Ñaata la tarif bi ?', 'Lan la correspondance à Petersen ?', 'Nanga def']) {
+      const { reply } = ask(question)
+      expect(reply.language).toBe('wo')
+      expect(reply.text).toMatch(/Du ma jum dara|validation par des locuteurs|validés/)
+    }
+  })
+
+  it('un lieu inconnu est dit inconnu en wolof, sans itinéraire inventé', () => {
+    const { reply } = ask('Naka laay def ngir dem Kénawa Villagë, sama position ?')
+    expect(reply.language).toBe('wo')
+    expect(reply.journey).toBeUndefined()
+    expect(reply.text).toMatch(/amul ci|Li ma xamul|xamuma/)
   })
 })

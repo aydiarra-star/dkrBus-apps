@@ -22,6 +22,15 @@ export const STT_LANGUAGES = { fr: 'fr-FR' } as const
 export const WOLOF_STT_UNAVAILABLE =
   'La reconnaissance vocale du wolof n’est pas disponible dans ce navigateur. Vous pouvez écrire votre question, ou la poser en français si le moteur le prend en charge.'
 
+/**
+ * Repli assumé : aucun moteur ne transcrit le wolof, mais la dictée reste
+ * utilisable. Le texte rendu en alphabet français est lu par le module de
+ * compréhension wolof (`wolofNlp.ts`), qui est écrit pour ces transcriptions
+ * approximatives ; la réponse, elle, revient en wolof.
+ */
+export const WOLOF_STT_PHONETIC_FALLBACK =
+  'Aucun moteur de reconnaissance du wolof dans ce navigateur : la dictée transcrit en français approximatif, puis la réponse est calculée et dite en wolof. Vous pouvez aussi écrire votre question.'
+
 export interface SpeechRecognitionHandle {
   stop: () => void
 }

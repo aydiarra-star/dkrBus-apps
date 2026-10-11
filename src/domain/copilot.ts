@@ -36,7 +36,7 @@ import {
   type AssistantLanguagePreference,
   type ResponseLanguage,
 } from './language'
-import { describeLeg, formatMeters, planReferenceJourney, type PlannerEndpoint, type PlannerLeg, type PlannerPriority } from './planner'
+import { describeLeg, formatMeters, planReferenceJourney, headwayForLine, type PlannerEndpoint, type PlannerLeg, type PlannerPriority } from './planner'
 import {
   REFERENTIAL_LINES,
   REFERENTIAL_STOPS,
@@ -50,6 +50,10 @@ import {
   referentialKnowledgeSummary,
   stopsBetween,
 } from './referential'
+import { understandWolof, resolveWolofPlace, WOLOF_HELP_TEXT } from './wolofNlp'
+import { planJourneyOptions, type JourneyOption } from './journeyOptions'
+import { CORRIDOR_LINES, CORRIDOR_NETWORKS, INTERMODAL_TRANSFERS, getCorridorStop, haversineMeters, linesServingStop, networkOfStopId, type CorridorNetworkId, type CorridorStop } from './corridors'
+import { offlineCapabilityText, offlinePackState } from './offlinePack'
 import {
   woAskOrigin,
   woFrenchFallbackPrefix,
@@ -61,6 +65,20 @@ import {
   woNoLocation,
   woTotal,
   woUnknownPlace,
+  woFareGrid,
+  woFrequency,
+  woJourneySteps,
+  woLastDeparture,
+  woMissingOrigin,
+  woNearestBoarding,
+  woPositionOrigin,
+  woOptionLine,
+  woOptionsIntro,
+  woPlanNotes,
+  woThanks,
+  woTransfersAt,
+  woUnknownPlaces,
+  woWhereToBoard,
 } from './wolof'
 
 export interface CopilotReply {
@@ -391,6 +409,184 @@ function memRememberPendingPlace(memory: ConversationMemory, question: string): 
  * Répond à une question libre en s'appuyant sur le référentiel, le moteur
  * d'itinéraires et le contexte de conversation. `memory` est mis à jour.
  */
+/**
+ * Réponses wolof construites sur le moteur réel.
+ *
+ * La phrase est d'abord comprise par `wolofNlp` (phonétique + intentions) : une
+ * reconnaissance vocale de navigateur qui rend « naka laay def ngir dem garou
+ * dakar » avec l'orthographe française est donc comprise, sans que personne
+ * n'ait à écrire en wolof standard. Aucun lieu n'est deviné : un nom qui n'est
+ * pas dans le référentiel est cité et la réponse le dit.
+ */
+function endpointOf(stop: CorridorStop): PlannerEndpoint {
+  return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
+}
+
+function wolofPlanReply(memory: ConversationMemory, origin: PlannerEndpoint, destination: PlannerEndpoint): CopilotReply {
+  const plan = planJourneyOptions(origin, destination)
+  if (!plan.ok) {
+    return { text: `${plan.message}\n${woHonestLimit()}`, language: 'wo' }
+  }
+  const first = plan.options[0]
+  const text = [
+    woOptionsIntro(plan),
+    plan.options.map((option, index) => `• ${woOptionLine(option, index)}`).join('\n'),
+    '',
+    woJourneySteps(first),
+    '',
+    woFareNoteOf(first),
+    woPlanNotes(plan),
+    woHonestLimit(),
+  ].filter(Boolean).join('\n')
+  rememberJourney(memory, {
+    origin,
+    destination,
+    steps: first.result.legs.map((leg) => describeLeg(leg)),
+    totalMinutes: first.result.totalMinutes,
+    boardedLines: first.result.boardedLines,
+    transfers: first.result.transfers,
+    alightStop: first.result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to ?? null,
+  })
+  memory.lastOrigin = origin
+  memory.lastDestination = destination
+  return { text, language: 'wo', journey: { origin, destination } }
+}
+
+function woFareNoteOf(option: JourneyOption): string {
+  return option.metrics.fareStatus === 'KNOWN'
+    ? `Tarif : ${option.metrics.fareCfa} F CFA (somme des tickets, grilles TER/BRT). ${option.metrics.fareNote}`
+    : option.metrics.fareNote
+}
+
+function wolofIntentReply(question: string, context: AssistantContext, memory: ConversationMemory, _now: number): CopilotReply | null {
+  const understood = understandWolof(question)
+  if (!understood.wolof && understood.intent === 'unknown') return null
+  const network = understood.network
+  const endpointFromName = (name: string | null): PlannerEndpoint | null => {
+    if (!name) return null
+    const stop = resolveWolofPlace(name, network)[0] ?? getCorridorStop(name)
+    return stop ? endpointOf(stop) : null
+  }
+
+  switch (understood.intent) {
+    case 'greeting':
+      return { text: woGreeting(), language: 'wo' }
+    case 'thanks':
+      return { text: woThanks(), language: 'wo' }
+    case 'journey': {
+      const origin = endpointFromName(understood.originText)
+      const destination = endpointFromName(understood.destinationText)
+      if (!origin && !destination) {
+        const unknown = understood.placeNames
+        return { text: `${unknown.length > 0 ? woUnknownPlaces(unknown) : woUnknownPlace()}\n${WOLOF_HELP_TEXT}`, language: 'wo' }
+      }
+      if (origin && destination) return wolofPlanReply(memory, origin, destination)
+      const known = destination ?? origin
+      if (!known) return { text: `${woUnknownPlace()}\n${woHonestLimit()}`, language: 'wo' }
+      // « depuis ici / ma position » : le départ est la position de l'appareil,
+      // jamais une position inventée. Sans autorisation de localisation, on le dit.
+      const location = context.userLocation
+      if (destination && understood.originFromSelf) {
+        if (!location) return { text: `${woNoLocation()}\n${woHonestLimit()}`, language: 'wo' }
+        const near = nearestReferentialStops({ lat: location.lat, lon: location.lon }, 1)[0]
+        if (near && near.stop.id !== destination.stopId) {
+          const reply = wolofPlanReply(memory, endpointOf(near.stop), destination)
+          return {
+            ...reply,
+            text: `${woPositionOrigin(near.stop.name, near.distanceM)}\n${reply.text}`,
+          }
+        }
+      }
+      // Un seul lieu : l'essentiel est déjà donné (desserte du pôle), puis la
+      // question courte suit — jamais une phrase toute faite.
+      const fromMemory = understood.originText ? origin : memory.lastOrigin
+      if (destination && fromMemory && fromMemory.stopId !== destination.stopId) {
+        return wolofPlanReply(memory, fromMemory, destination)
+      }
+      return { text: `${woMissingOrigin(known.label)}\n${woNearestStopOfPlace(known)}`, language: 'wo' }
+    }
+    case 'nearest_stop': {
+      const location = context.userLocation
+      if (!location) return { text: `${woNoLocation()}\n${woHonestLimit()}`, language: 'wo' }
+      const nearest = nearestReferentialStops({ lat: location.lat, lon: location.lon }, 1)[0]
+      if (!nearest) return { text: 'Amul arrêt bu nekk ci référaas bi bu mën a jege sa position.', language: 'wo' }
+      const lines = linesServingStop(nearest.stop.id).map((line) => line.shortName).join(' ak ')
+      return { text: `${woNearestStop(nearest.stop.name, nearest.distanceM, lines || 'référaas')}\n${woHonestLimit()}`, language: 'wo' }
+    }
+    case 'where_to_board': {
+      const boarding = network ? wolofNearestBoarding(network, context) : null
+      const label = network ? CORRIDOR_NETWORKS[network as CorridorNetworkId]?.label ?? network : 'BRT'
+      const stops = network ? CORRIDOR_LINES.filter((line) => line.network === network).flatMap((line) => [line.stopIds[0] as string, line.stopIds[line.stopIds.length - 1] as string]) : []
+      const names: string[] = [...new Set(stops.map((id) => getCorridorStop(id)?.name ?? id))]
+      const focus = understood.focusText ? resolveWolofPlace(understood.focusText, network)[0] : null
+      const base = focus
+        ? `${focus.name} — lignes : ${linesServingStop(focus.id).map((line) => line.shortName).join(', ') || 'amul'}.`
+        : ''
+      return { text: [base, boarding, woWhereToBoard(label, names), woHonestLimit()].filter(Boolean).join('\n'), language: 'wo' }
+    }
+    case 'transfers': {
+      const focus = understood.focusText ? resolveWolofPlace(understood.focusText, network)[0] : null
+      if (!focus) return { text: 'Waxal ma bërëb bi (gare wala station) : « correspondance à Petersen ».', language: 'wo' }
+      const entries: string[] = INTERMODAL_TRANSFERS
+        .filter((transfer) => transfer.fromStopId === focus.id || transfer.toStopId === focus.id)
+        .map((transfer) => {
+          const otherId = transfer.fromStopId === focus.id ? transfer.toStopId : transfer.fromStopId
+          const other = getCorridorStop(otherId)
+          return `${other?.name ?? otherId} (${networkOfStopId(otherId) ?? 'réseau'}) · ${transfer.walkM} m · ${transfer.declared ? 'déclarée' : 'estimée'}`
+        })
+      return { text: `${woTransfersAt(focus.name, entries)}\n${woHonestLimit()}`, language: 'wo' }
+    }
+    case 'fare':
+      return { text: `${woFareGrid()}\n${woHonestLimit()}`, language: 'wo' }
+    case 'frequency': {
+      const target = network ?? 'ter'
+      const line = CORRIDOR_LINES.find((candidate) => candidate.network === (target as CorridorNetworkId))
+      if (!line) return { text: `Fréquence : ${target.toUpperCase()} amul ci référaas bi.`, language: 'wo' }
+      const headway = headwayForLine(line)
+      return { text: `${woFrequency(CORRIDOR_NETWORKS[line.network].label, headway.minutes, headway.basis === 'officialReference')}\n${headway.fallback ? `${headway.fallback}\n` : ''}${woHonestLimit()}`, language: 'wo' }
+    }
+    case 'last_departure': {
+      const parts = (network ? [network] : ['ter', 'brt']).map((id) => {
+        const window = publishedServiceWindow(id as 'ter' | 'brt')
+        return woLastDeparture(CORRIDOR_NETWORKS[id as CorridorNetworkId]?.label ?? id, window.status === 'SCHEDULED' ? `${window.firstDeparture}–${window.lastDeparture}` : 'amul bu ñu publié')
+      })
+      return { text: `${parts.join('\n')}\n${woHonestLimit()}`, language: 'wo' }
+    }
+    case 'network_coverage':
+      return { text: `${referentialKnowledgeSummary()}\n${woHonestLimit()}`, language: 'wo' }
+    case 'offline':
+      return { text: `${offlineCapabilityText(offlinePackState())}\n${woHonestLimit()}`, language: 'wo' }
+    default:
+      return null
+  }
+}
+
+/** L'arrêt où monter le plus près de la position de l'appareil, s'il existe. */
+function wolofNearestBoarding(network: string, context: AssistantContext): string | null {
+  const location = context.userLocation
+  if (!location) return null
+  // Arrêts du réseau demandé uniquement : le point le plus proche de l'usager
+  // peut être d'un autre réseau, ce ne serait pas une réponse à sa question.
+  const ids = [...new Set(CORRIDOR_LINES.filter((line) => line.network === network).flatMap((line) => [...line.stopIds]))]
+  const stops = ids.map((id) => getCorridorStop(id)).filter((stop): stop is CorridorStop => Boolean(stop))
+  let nearest: { stop: CorridorStop; distanceM: number } | null = null
+  for (const stop of stops) {
+    const distanceM = haversineMeters({ lat: location.lat, lon: location.lon }, stop)
+    if (!nearest || distanceM < nearest.distanceM) nearest = { stop, distanceM }
+  }
+  if (!nearest) return null
+  const lines = linesServingStop(nearest.stop.id).filter((line) => line.network === network).map((line) => line.shortName)
+  return woNearestBoarding(nearest.stop.name, nearest.distanceM, lines)
+}
+
+function woNearestStopOfPlace(endpoint: PlannerEndpoint): string {
+  const stop = endpoint.stopId ? getCorridorStop(endpoint.stopId) : null
+  if (!stop) return ''
+  const lines = linesServingStop(stop.id).map((line) => line.shortName)
+  return lines.length > 0 ? `Li ma xam ci ${stop.name} : lignes ${lines.join(', ')}.` : `${stop.name} — amul ligne bu registered.`
+}
+
+
 export function copilotAnswer(
   question: string,
   context: AssistantContext,
@@ -465,8 +661,15 @@ export function copilotAnswer(
     return reply
   }
 
-  // 3) Intention de trajet en wolof : mêmes données, modèle wolof.
+  // 3) Intentions wolof : trajet, arrêt le plus proche, endroit où monter,
+  //    correspondance, tarif, fréquence, dernier départ. Le calcul est le même
+  //    que côté français ; seule la langue de la réponse change.
   if (language === 'wo') {
+    const understood = wolofIntentReply(question, context, memory, now)
+    if (understood) {
+      memory.lastAnswer = understood.text
+      return understood
+    }
     const wolofRoute = wolofJourneyEndpoints(question)
     if (wolofRoute) {
       if (!wolofRoute.origin && !wolofRoute.destination) return { text: `${woUnknownPlace()}\n${woHonestLimit()}`, language: 'wo' }

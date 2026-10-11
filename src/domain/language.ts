@@ -8,6 +8,8 @@
  * la confiance est insuffisante, l'application répond en français et le dit.
  */
 
+import { wolofSignal } from './wolofNlp'
+
 export type AssistantLanguagePreference = 'auto' | 'fr' | 'wo'
 export type DetectedLanguage = 'fr' | 'wo' | 'mixed' | 'undetermined'
 export type ResponseLanguage = 'fr' | 'wo'
@@ -31,6 +33,7 @@ const WOLOF_STRONG_MARKERS: readonly string[] = [
   'waaw', 'déedéet', 'deedet', 'gëna', 'gën a', 'soxla', 'fàww', 'faww',
   'ci kanam', 'ba tey', 'sax', 'ndëgg', 'ndeysaan', 'sama', 'yën', 'yeen',
   'war na', 'mën na', 'men na', 'amul solo', 'lu mel ni', 'noppal', 'fayda',
+  'lan la', 'bu mujj',
   'ak sama', 'baax na', 'baaxul', 'jar na', 'jeex na', 'ànd ak', 'and ak',
 ]
 
@@ -79,6 +82,11 @@ export function detectLanguage(question: string): DetectedLanguage {
   if (wolofScore >= 1 && frenchScore >= 1) return 'mixed'
   if (wolofScore >= 1) return 'wo'
   if (frenchScore >= 1) return 'fr'
+  // Repli phonétique : une reconnaissance vocale qui rend « naka laay def ngir
+  // dem garou ndakaaru » sans diacritiques n'accroche aucun marqueur orthographié.
+  // Elle n'est consultée qu'en dernier, jamais au détriment d'une phrase
+  // française déjà classée, et jamais sur un texte sans signe exploitable.
+  if (wolofSignal(text).score >= 1) return 'wo'
   return 'undetermined'
 }
 
