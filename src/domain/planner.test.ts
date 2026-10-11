@@ -22,9 +22,11 @@ describe('calculateur multimodal de référence', () => {
     expect(result.limitation).toContain('réseau de référence')
   })
 
-  it('combine BRT et TER avec une correspondance marchable déclarée pour Rufisque', () => {
+  it('combine BRT et TER avec la correspondance marchable déclarée pour Rufisque', () => {
     // Départ près du terminus BRT (Guédiawaye) vers Rufisque, desservi par le seul TER.
-    const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
+    // Sans le BRT, la gare TER la plus proche est à plus d'un kilomètre : le moteur
+    // doit donc emprunter la correspondance déclarée Petersen ↔ gare de Dakar.
+    const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest', { allowedNetworks: ['ter', 'brt'] })
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
     const lines = result.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)
@@ -34,13 +36,29 @@ describe('calculateur multimodal de référence', () => {
     expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
   })
 
+  it('enchaîne réellement un bus de quartier et le TER, sans correspondance inventée', () => {
+    // Le graphe relie désormais les réseaux au même pôle : un bus peut précéder ou
+    // suivre le TER. Chaque correspondance affichée doit citer sa source.
+    const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
+    expect(outcome.ok).toBe(true)
+    const result = outcome as PlannerResult
+    expect(result.legs.filter((leg) => leg.kind === 'ride').length).toBeGreaterThanOrEqual(1)
+    for (const leg of result.legs.filter((entry) => entry.kind === 'walk_transfer')) {
+      expect(leg.note).toMatch(/positions déclarées|marche de référence/)
+    }
+    // Le trajet arrive bien à Rufisque en TER, quel que soit le réseau d'accès.
+    expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
+  })
+
   it('refuse un départ trop éloigné du réseau de référence au lieu de deviner', () => {
     const far = { label: 'Mbour', lat: 14.4167, lon: -16.9667 }
     const outcome = planReferenceJourney(far, GUEDIAWAYE)
     expect(outcome.ok).toBe(false)
     if (!outcome.ok) {
       expect(outcome.reason).toBe('NO_ACCESSIBLE_STOP')
-      expect(outcome.message).toContain('DDD')
+      // Le message reste mesuré : un rayon, une raison, aucune ligne inventée.
+      expect(outcome.message).toMatch(/1,2 km/)
+      expect(outcome.message).toMatch(/réseau de référence/)
     }
   })
 

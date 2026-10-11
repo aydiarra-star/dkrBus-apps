@@ -20,16 +20,15 @@ describe('comparateur de trajets de référence', () => {
     if (comparison.ok) expect(comparison.options[0].result).toEqual(original)
   })
 
-  it('ne présente que des trajets distincts calculés et classe selon les valeurs affichées (TER/BRT continus, DDD/AFTU pointillés)', () => {
+  it('ne présente que des trajets distincts calculés et classe selon les valeurs affichées', () => {
     const comparison = compareReferenceJourneys(GUEDIAWAYE, RUFISQUE)
     expect(comparison.ok).toBe(true)
     if (!comparison.ok) return
-    // Avec DDD/AFTU/TATA en pointillés, il peut y avoir plus de 2 options ; on vérifie au moins 2 et l'ordre
-    expect(comparison.options.length).toBeGreaterThanOrEqual(2)
-    // Les deux premières options historiques restent : 1.4km et 1km de marche
-    const walks = comparison.options.map((o) => o.result.totalWalkM).sort((a, b) => a - b)
-    expect(walks[0]).toBeLessThanOrEqual(1000)
-    expect(walks[walks.length - 1]).toBeGreaterThanOrEqual(1000)
+    // Trois critères sont testés ; seules les options réellement distinctes
+    // restent. Sur ce couple d'arrêts, les trois critères aboutissent au même
+    // parcours : le comparateur rend une option et le dit, au lieu d'en forger
+    // deux autres avec la même liste d'étapes.
+    expect(comparison.options.length).toBeGreaterThanOrEqual(1)
     for (const { result } of comparison.options) {
       expect(result.totalMinutes).toBeGreaterThan(0)
       expect(result.totalWalkM).toBeGreaterThanOrEqual(0)

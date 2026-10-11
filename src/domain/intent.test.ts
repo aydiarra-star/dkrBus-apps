@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { answerAssistant } from './assistant'
 import { departureAdvice, extractMobilityIntent } from './intent'
+import { priceRanking } from './journeyOptions'
+import { getCorridorStop } from './corridors'
+import type { PlannerEndpoint } from './planner'
+
+const POINT = (id: string): PlannerEndpoint => {
+  const stop = getCorridorStop(id)!
+  return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: id }
+}
 
 const CONTEXT = { publishedAvailable: false, adminOnline: false }
 const NOW = Date.parse('2026-10-10T07:00:00Z')
@@ -14,12 +22,31 @@ describe('copilote local à intentions explicites', () => {
     expect(extractMobilityIntent('je veux aller à Rufisque')?.origin).toBeNull()
   })
 
-  it('classe sur marche et correspondances avec les mesures réelles, et refuse le prix', () => {
+  it('classe sur marche et correspondances avec les mesures réelles', () => {
     expect(answerAssistant('Compare les trajets de Petersen à Rufisque, moins de marche', CONTEXT, NOW)).toMatch(/Copilote.*moins de marche/i)
     expect(answerAssistant('Trajet de Guédiawaye à Diamniadio sans correspondance', CONTEXT, NOW)).toContain('Le moins de correspondances')
+  })
+
+  it('refuse de classer par prix dès qu’un réseau sans tarif déclaré est dans la chaîne', () => {
     const cheapest = answerAssistant('Quel trajet de Petersen à Rufisque est le moins cher ?', CONTEXT, NOW)
-    expect(cheapest).toContain('ne peux pas classer les trajets par prix')
-    expect(cheapest).not.toMatch(/\b\d+\s*(?:FCFA|francs)/i)
+    // Petersen ↔ Rufisque fait intervenir AFTU : aucun tarif n'étant publié pour
+    // ce réseau, aucun total n'est avancé — et la raison nomme la ligne manquante.
+    expect(cheapest).toMatch(/Aucun tarif publié pour AFTU 1/)
+    expect(cheapest).toMatch(/pas comparable/)
+    expect(cheapest).not.toMatch(/total de \d+\s*F CFA/i)
+  })
+
+  it('classe par prix quand toutes les options comparées ont une grille publiée', () => {
+    const ranked = priceRanking(POINT('brt-prefecture-guediawaye'), POINT('ter-rufisque'), { allowedNetworks: ['ter', 'brt'] })
+    expect(ranked.status).toBe('ranked')
+    if (ranked.status !== 'ranked') return
+    // Le chiffre est accompagné de sa source et de sa limite : une somme de
+    // tickets, jamais un billet combiné.
+    expect(ranked.note).toContain('grilles')
+    expect(ranked.note).toContain('billet combiné')
+    expect(ranked.ranked.every((entry) => entry.totalCfa > 0)).toBe(true)
+    const sorted = [...ranked.ranked].sort((a, b) => a.totalCfa - b.totalCfa)
+    expect(ranked.ranked.map((entry) => entry.totalCfa)).toEqual(sorted.map((entry) => entry.totalCfa))
   })
 
   it('ne promet pas de départ ni de service en calculant une heure cible', () => {

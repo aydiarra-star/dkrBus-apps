@@ -22,6 +22,8 @@ import { getRemainingMinutes } from './truth'
 import { formatPassageCountdown } from './headways'
 import { describeLeg, formatMeters, planReferenceJourney, type PlannerEndpoint } from './planner'
 import { compareReferenceJourneys, PRIORITY_LABELS } from './comparison'
+import { priceRanking } from './journeyOptions'
+import { fareStatusLabel } from './fares'
 import { departureAdvice, extractMobilityIntent, routePreferencesFrom } from './intent'
 import { placeBriefWithQuestion, placeQuestionReply, unroutablePairReply } from './placeMemory'
 import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, unrecognizedPlaceNote } from './places'
@@ -127,6 +129,20 @@ const OFFICIAL_CHANNELS =
 /** Réponses communes au calcul d'itinéraire, quelle que soit la formulation. */
 const CHEAPEST_REPLY =
   'Je ne peux pas classer les trajets par prix : les tarifs complets et vérifiés TER/BRT ne sont pas disponibles ici. Je peux comparer la durée, la marche ou les correspondances, pas inventer un coût.'
+
+/**
+ * Classement par prix, calculé sur les grilles publiées uniquement.
+ * Le module `journeyOptions.priceRanking` refuse de produire un classement dès
+ * qu'une ligne sans tarif déclaré (DDD, AFTU, TATA) entre dans la chaîne : la
+ * réponse rapporte ce refus au lieu d'estimer un prix.
+ */
+function cheapestReply(origin: PlannerEndpoint, destination: PlannerEndpoint): string {
+  const ranking = priceRanking(origin, destination)
+  if (ranking.status === 'unavailable') {
+    return `${ranking.reason} Je peux en revanche classer la durée, la marche et les correspondances, et afficher la part de tarif connue de chaque option.`
+  }
+  return `Classement par prix entre ${origin.label} et ${destination.label}, sur les seules options calculées dont tous les tarifs sont publiés :\n${ranking.lines.join('\n')}\n${ranking.note}`
+}
 const INVALID_ARRIVAL_REPLY =
   'Heure d’arrivée invalide : indiquez une heure de Dakar au format « avant 9 h » ou « avant 09:30 ». Aucun départ ne peut être conseillé sans heure valide.'
 
@@ -167,17 +183,21 @@ export function journeyReply(
   if (compare || priority !== 'fastest') {
     const comparison = compareReferenceJourneys(origin, destination)
     if (!comparison.ok) return comparison.message
-    const chosen = comparison.options.find((option) => option.priority === comparison.bestBy[priority])!
+    // Un classement par prix ne peut pas être promis sans grilles complètes :
+    // le critère retenu reste le plus rapide calculé, et le motif est dit plus bas.
+    const criterion = priority === 'lowestFare' ? 'fastest' : priority
+    const chosen = comparison.options.find((option) => option.priority === comparison.bestBy[criterion]) ?? comparison.options[0]
     const alternatives = comparison.options.map((option, index) =>
-      `• Option ${index + 1} (${option.result.boardedLines.join(' + ') || 'à pied'}) : environ ${option.result.totalMinutes} min, ${formatMeters(option.result.totalWalkM)} de marche, ${option.result.transfers} correspondance(s).`).join('\n')
+      `• Option ${index + 1} (${option.result.boardedLines.join(' + ') || 'à pied'}) : environ ${option.result.totalMinutes} min, ${formatMeters(option.result.totalWalkM)} de marche, ${option.result.transfers} correspondance(s), ${fareStatusLabel(option.result.fare)} (grilles publiées).`).join('\n')
     const advice = arrivalMinutes === null ? '' : `\n${departureAdvice(arrivalMinutes, chosen.result.totalMinutes, now, tomorrow)}`
-    return `Copilote · ${origin.label} → ${destination.label}. ${PRIORITY_LABELS[priority]} : option ${comparison.options.indexOf(chosen) + 1}.\n${alternatives}\n${comparison.options.length === 1 ? 'Une seule option distincte est calculable. ' : ''}Classement parmi ces options calculées. Données : réseau de référence TER/BRT, marche et attente estimées, sans horaires de passage ni temps réel. Tarif non comparable (données insuffisantes).${advice} Ouvrez Trajet pour voir le détail et comparer les options.`
+    return `Copilote · ${origin.label} → ${destination.label}. ${PRIORITY_LABELS[priority]} : option ${comparison.options.indexOf(chosen) + 1}.\n${alternatives}\n${comparison.options.length === 1 ? 'Une seule option distincte est calculable. ' : ''}Classement parmi ces options calculées. Données : réseau de référence (TER, BRT et arrêts DDD/AFTU/TATA enregistrés), marche et attente estimées, sans horaires de passage ni temps réel. Les prix affichés sont une somme de tickets d’après les grilles publiées, jamais un billet combiné.${advice} Ouvrez Trajet pour voir le détail, le tarif et l’aller-retour.`
   }
   const outcome = planReferenceJourney(origin, destination)
   if (!outcome.ok) return outcome.message
   const steps = outcome.legs.map((leg) => `• ${describeLeg(leg)}`).join('\n')
   const advice = arrivalMinutes === null ? '' : `\n${departureAdvice(arrivalMinutes, outcome.totalMinutes, now, tomorrow)}`
-  return `Itinéraire de référence ${origin.label} → ${destination.label} — environ ${outcome.totalMinutes} min, ${outcome.transfers} correspondance${outcome.transfers > 1 ? 's' : ''}, ${formatMeters(outcome.totalWalkM)} de marche :\n${steps}\n${outcome.limitation}${advice}`
+  const uncertainty = outcome.uncertaintyMinutes > 0 ? ` (marge ±${outcome.uncertaintyMinutes} min)` : ''
+  return `Itinéraire de référence ${origin.label} → ${destination.label} — environ ${outcome.totalMinutes} min${uncertainty}, ${outcome.transfers} correspondance${outcome.transfers > 1 ? 's' : ''}, ${formatMeters(outcome.totalWalkM)} de marche, ${fareStatusLabel(outcome.fare)} :\n${steps}\n${outcome.limitation}${outcome.fare.note ? `\nTarif : ${outcome.fare.note}` : ''}${advice}`
 }
 
 export function answerAssistant(question: string, context: AssistantContext, now = Date.now()): string {
@@ -221,7 +241,11 @@ ${HONEST_LIMIT}`
         ? `${unknown} ${recall}`
         : `Ni votre départ ni votre destination ne sont reconnus dans la mémoire des lieux (13 gares TER, 23 stations BRT et les lieux des fiches DDD/AFTU). ${recall}`
     }
-    if (intent.priority === 'cheapest') return CHEAPEST_REPLY
+    if (intent.priority === 'cheapest') {
+      return intent.origin && intent.destination
+        ? cheapestReply(intent.origin, intent.destination)
+        : `Pour classer par prix, il me faut un départ et une destination reconnus. ${CHEAPEST_REPLY}`
+    }
     if (intent.arrivalRequested && intent.arrivalMinutes === null) return INVALID_ARRIVAL_REPLY
     if (intent.origin && intent.destination) {
       return journeyReply(intent.origin, intent.destination, {
@@ -386,7 +410,7 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
       // sans verbe de déplacement (« Keur Mbaye Fall Dakar »), avec les mêmes
       // critères que pour une phrase complète.
       const preferences = routePreferencesFrom(question)
-      if (preferences.priority === 'cheapest') return CHEAPEST_REPLY
+      if (preferences.priority === 'cheapest') return cheapestReply(origin, destination)
       if (preferences.arrivalRequested && preferences.arrivalMinutes === null) return INVALID_ARRIVAL_REPLY
       return journeyReply(origin, destination, {
         priority: preferences.priority,
