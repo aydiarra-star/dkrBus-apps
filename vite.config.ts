@@ -35,7 +35,7 @@ function contentSecurityPolicy(): Plugin {
 }
 
 export default defineConfig({
-  base: '/Dakar-Bus/',
+  base: '/dkrBus-apps/',
   plugins: [react(), contentSecurityPolicy()],
   build: {
     rolldownOptions: {
