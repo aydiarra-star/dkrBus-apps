@@ -81,7 +81,7 @@ describe('estimation empirique de l’attente DDD/AFTU', () => {
   })
 
   it('ne prend pas en compte les signalements passifs, futurs ou d’une autre ligne', () => {
-    const passive = samples({ collectedBy: 'background-gps' as 'explicit-user-action' })
+    const passive = samples().map((item) => ({ ...item, collectedBy: 'background-gps' as unknown as 'explicit-user-action' }))
     expect(estimateObservedWait(passive, QUERY).kind).toBe('NONE')
     const future = samples().map((item) => ({ ...item, observedAt: '2026-10-09T10:00:00Z' }))
     expect(estimateObservedWait(future, QUERY).kind).toBe('NONE')
@@ -93,8 +93,8 @@ describe('estimation empirique de l’attente DDD/AFTU', () => {
     const sample = samples()[0]
     expect(isUsablePassageObservation(sample, NOW)).toBe(true)
     expect(isUsablePassageObservation({ ...sample, observedAt: '2026-10-08T13:00:00Z' }, NOW)).toBe(false)
-    expect(isUsablePassageObservation({ ...sample, collectedBy: 'background-gps' as 'explicit-user-action' }, NOW)).toBe(false)
-    expect(isUsablePassageObservation({ ...sample, networkId: 'tata' as 'aftu' }, NOW)).toBe(false)
+    expect(isUsablePassageObservation({ ...sample, collectedBy: 'background-gps' } as unknown as ObservedPassage, NOW)).toBe(false)
+    expect(isUsablePassageObservation({ ...sample, networkId: 'tata' } as unknown as ObservedPassage, NOW)).toBe(false)
     expect(OBSERVED_WAIT_POLICY.minIntervals).toBe(12)
   })
 
