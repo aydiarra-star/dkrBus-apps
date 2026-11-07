@@ -1174,11 +1174,27 @@
     "origin": "Terminus Malika (Cité Sonatel)",
     "destination": "Gare routière Colobane",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-13",
+    "waypoints": [
+      "Terminus Malika (Cité Sonatel)",
+      "Yeumbeul",
+      "Tally Diallo",
+      "Police Thiaroye",
+      "Poste Thiaroye",
+      "Route nationale 1",
+      "Bountou Pikine",
+      "Croisement Cambérène",
+      "Maristes",
+      "Échangeur Hann",
+      "Route du Front de Terre",
+      "Castors",
+      "Avenue Cheikh Ahmadou Bamba (rue 13 des HLM)",
+      "Rond-point Caisse de sécurité sociale",
+      "Terminus Gare routière Colobane"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-75/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU publiée le 13 juillet 2026; repères d’itinéraire, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
