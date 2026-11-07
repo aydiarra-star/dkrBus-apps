@@ -2303,12 +2303,12 @@ function StationPassageCell({
   hasPublishedFrequency: boolean
 }) {
   if (!passage) {
-    const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Non publié'
-    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : 'aucun horaire publié'
+    const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Estimation'
+    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : ''
     return (
       <span className="network-summary-passage is-undeclared station-board-passage">
         <strong>{title}</strong>
-        <small>{detail}</small>
+        {detail ? <small>{detail}</small> : null}
       </span>
     )
   }
@@ -2332,7 +2332,7 @@ function stationRowAriaLabel(
   if (isTerminus) return `${stopName} · terminus d’arrivée ${destinationLabel}`
   return hasPublishedFrequency
     ? `${stopName} · passage non disponible vers ${destinationLabel}`
-    : `${stopName} · horaire non publié vers ${destinationLabel}`
+    : `${stopName} · Estimation vers ${destinationLabel}`
 }
 
 /** Un sens de circulation : titre explicite (« Dakar ➔ Diamniadio »), puis une
@@ -2437,7 +2437,7 @@ function StationBoardView({
       <p className="station-board-footnote">
         {hasPublishedFrequency
           ? <>Créneaux théoriques : grille déclarée au départ de chaque terminus + parcours de référence ({board.line.speedKph} km/h). Pas de temps réel.</>
-          : 'Arrêts et directions de référence. Les fréquences et horaires de passage ne sont pas publiés pour cette ligne : aucun prochain passage n’est calculé.'}
+          : 'Estimation'}
       </p>
     </div>
   )
@@ -2476,8 +2476,8 @@ function ReferenceFrequencyCards() {
               </header>
               <p className="network-reference-counts">{counts.join(' · ')}</p>
               <div className={`network-reference-frequency${network.frequencyStatus === 'UNKNOWN' ? ' is-unknown' : ''}`}>
-                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Horaires non disponibles'}</strong>
-                <span>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? 'Fréquence officielle de référence' : network.frequencyLabel}</span>
+                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Estimation'}</strong>
+                {network.frequencyStatus === 'OFFICIAL_REFERENCE' ? <span>Fréquence officielle de référence</span> : null}
               </div>
               <p className="network-reference-service">Service {network.serviceWindow}</p>
               {network.officialFrequencies.length > 1 && (
