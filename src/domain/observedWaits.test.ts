@@ -103,7 +103,7 @@ describe('estimation empirique de l’attente DDD/AFTU', () => {
       ...item,
       observedAt: new Date(Date.parse('2026-10-08T10:00:00.000Z') + (index === 12 ? 160 : index * 10) * 60_000).toISOString(),
     }))
-    const result = estimateObservedWait(data, QUERY)
+    const result = estimateObservedWait(data, { ...QUERY, now: Date.parse('2026-10-08T13:01:00.000Z') })
     expect(result.kind).toBe('OBSERVED_WAIT_ESTIMATE')
     if (result.kind === 'OBSERVED_WAIT_ESTIMATE') {
       expect(result.meanWaitMinutes).toBeGreaterThan(5)
