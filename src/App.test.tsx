@@ -987,8 +987,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    const { container } = render(<App />)
+    render(<App />)
 
+    expect(screen.getByText(/05:30–06:00 · derniers 20:30–21:00/)).toBeTruthy()
     expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
     expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
     expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()

@@ -2262,11 +2262,13 @@ function ReferenceNetworkSummary({
                       <span className="network-summary-estimate-label">Estimation</span>
                       {network.id === 'ddd' ? (
                         <>
+                          <p><strong>Départs :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
                           <p><strong>Passages :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
                           <p><strong>Attente moyenne :</strong> 4 min en pointe · 6 min en heures creuses</p>
                         </>
                       ) : (
                         <>
+                          <p><strong>Service :</strong> 06:00–21:00</p>
                           <p><strong>Intervalle moyen observé :</strong> 11,6 min</p>
                           <p><strong>Attente moyenne estimée :</strong> 8 min</p>
                         </>
