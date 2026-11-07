@@ -1149,6 +1149,39 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
+  it.each(['ddd', 'aftu'] as const)('garde le tableau %s au même format sans transformer les horaires inconnus en terminus', (networkId) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    fireEvent.click(container.querySelector(`.network-item-${networkId} .network-summary-header`)!)
+
+    const board = container.querySelector('.station-board') as HTMLElement
+    expect(board).toBeTruthy()
+    expect(board.querySelectorAll('.station-direction-outbound .station-board-row').length).toBeGreaterThan(1)
+    expect(board.querySelectorAll('.station-direction-inbound .station-board-row').length).toBeGreaterThan(1)
+    expect(board.querySelectorAll('.station-board-passage strong')).toHaveLength(
+      board.querySelectorAll('.station-board-row').length,
+    )
+    // Chaque sens a un seul terminus d'arrivée ; les autres arrêts indiquent
+    // clairement l'absence d'horaires publiés, jamais un faux « Terminus ».
+    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(2)
+    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(
+      board.querySelectorAll('.station-board-passage strong').length - 2,
+    )
+    expect(board.textContent).toContain('aucun horaire publié')
+    expect(board.textContent).toContain('Arrêts et directions de référence')
+    expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
+    expect(board.querySelectorAll('.station-board-passage strong').length).toBe(
+      board.querySelectorAll('.station-board-row').length,
+    )
+    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(2)
+    expect([...board.querySelectorAll('.station-board-passage strong')].filter((node) => node.textContent === 'Terminus')).toHaveLength(2)
+    expect([...board.querySelectorAll('.station-board-passage strong')].some((node) => node.textContent === 'Non publié')).toBe(true)
+    vi.useRealTimers()
+  })
+
   it('affiche les 23 stations du BRT dans les deux sens, de Petersen à Guédiawaye', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
