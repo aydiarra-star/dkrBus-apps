@@ -93,7 +93,7 @@ describe('estimation empirique de l’attente DDD/AFTU', () => {
     const sample = samples()[0]
     expect(isUsablePassageObservation(sample, NOW)).toBe(true)
     expect(isUsablePassageObservation({ ...sample, observedAt: '2026-10-08T13:00:00Z' }, NOW)).toBe(false)
-    expect(isUsablePassageObservation({ ...sample, collectedBy: 'background-gps' }, NOW)).toBe(false)
+    expect(isUsablePassageObservation({ ...sample, collectedBy: 'background-gps' as 'explicit-user-action' }, NOW)).toBe(false)
     expect(isUsablePassageObservation({ ...sample, networkId: 'tata' as 'aftu' }, NOW)).toBe(false)
     expect(OBSERVED_WAIT_POLICY.minIntervals).toBe(12)
   })
