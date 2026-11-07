@@ -2252,8 +2252,8 @@ function ReferenceNetworkSummary({
                   </span>
                 ) : (
                   <span className="network-summary-passage is-undeclared">
-                    <strong>Non déclaré</strong>
-                    <small>{networkMetaLabel(network)}</small>
+                    <strong>Estimation</strong>
+                    <small>{estimatedWaitMinutes(network.id, now) === null ? '—' : `${estimatedWaitMinutes(network.id, now)} min`}</small>
                   </span>
                 )}
               </button>
