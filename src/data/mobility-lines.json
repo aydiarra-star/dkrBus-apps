@@ -225,11 +225,22 @@
     "origin": "Nord Foire",
     "destination": "Lat Dior",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-06-27",
+    "waypoints": [
+      "Terminus Nord Foire",
+      "VDN",
+      "Deux voies Liberté 6",
+      "Sacré-Cœur",
+      "Rue 10 Grand Dakar",
+      "Zone B",
+      "SHAM",
+      "Poste Médina",
+      "Avenue Blaise Diagne",
+      "Terminus Lat Dior"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-34/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
@@ -497,11 +508,26 @@
     "origin": "Terminus Keur Massar (Cité MTOA)",
     "destination": "UCAD",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-06",
+    "waypoints": [
+      "Terminus Keur Massar (MTOA)",
+      "Station Keur Massar",
+      "MTOA",
+      "Route de Boun",
+      "Mbedou Fass",
+      "Fass Mbao",
+      "Route nationale 1",
+      "Poste Thiaroye",
+      "Rond-point Seven Up",
+      "Boulevard du Centenaire de la Commune de Dakar",
+      "Place Bakou",
+      "Pont de Colobane",
+      "Canal 4",
+      "Terminus Université Cheikh Anta Diop"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-54/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
@@ -569,11 +595,23 @@
     "origin": "Colobane",
     "destination": "Bargny",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-07",
+    "waypoints": [
+      "Terminus Colobane",
+      "Autoroute",
+      "Route nationale 1",
+      "Diamaguène",
+      "Sicap Mbao",
+      "Fass Mbao",
+      "Croisement Keur Massar",
+      "Dioutyba (Rufisque)",
+      "Sonadis",
+      "Sococim",
+      "Terminus Bargny"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-60/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
@@ -761,11 +799,24 @@
     "origin": "Sipres",
     "destination": "Cité Assurance",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-14",
+    "waypoints": [
+      "Terminus Sipres",
+      "Rond-point Liberté 6",
+      "Marché Grand Yoff",
+      "Patte d’Oie",
+      "Croisement Cambérène",
+      "Bountou Pikine",
+      "Poste Thiaroye",
+      "Fass Mbao",
+      "Mbedou Fass",
+      "MTOA",
+      "Station Keur Massar",
+      "Terminus Cité Assurance"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-76/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
@@ -797,11 +848,27 @@
     "origin": "Sangalkam",
     "destination": "Cambérène",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-14",
+    "waypoints": [
+      "Terminus Sangalkam",
+      "Ndiakhirate",
+      "Croisement Niagues",
+      "Darou Thioub",
+      "Niacourab",
+      "Croisement Tivaouane Peulh",
+      "Station Keur Massar",
+      "Malika",
+      "VDN 3",
+      "Gadaye",
+      "Serigne Assane",
+      "Marché Boubess",
+      "Préfecture Guédiawaye",
+      "Cité Nations Unies (derrière hôpital Dalal Diam)",
+      "Terminus Cambérène"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-79/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
