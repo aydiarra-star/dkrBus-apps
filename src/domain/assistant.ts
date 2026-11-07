@@ -20,6 +20,7 @@ import {
   type CorridorNetworkId,
 } from './corridors'
 import { NETWORK_REFERENCE_DATA, OFFICIAL_REFERENCE_FREQUENCIES, formatFrequencyPeriod, formatSourceVerification } from './frequencies'
+import { estimatedWaitMinutes } from './estimatedWaits'
 import { answerMobilityKnowledge, busKnowledgeSummary, generalFareReply } from './mobilityKnowledge'
 import { referentialKnowledgeSummary } from './referential'
 import { getRemainingMinutes } from './truth'
@@ -368,7 +369,8 @@ ${HONEST_LIMIT}`
       const counts = unknownFrequencyNetwork.id === 'ddd'
         ? `${unknownFrequencyNetwork.lineCount} lignes et ${unknownFrequencyNetwork.vehicleCount} bus`
         : `${unknownFrequencyNetwork.lineCount} lignes, ${unknownFrequencyNetwork.vehicleCount?.toLocaleString('fr-FR')} bus et ${unknownFrequencyNetwork.gieCount} GIE`
-      return `${unknownFrequencyNetwork.operator} : ${counts}, service ${unknownFrequencyNetwork.serviceStart}–${unknownFrequencyNetwork.serviceEnd}. ${unknownFrequencyNetwork.frequencyLabel}. Aucun prochain départ fiable ou horaire par ligne n’est disponible : je ne peux pas donner de compte à rebours. Source : CETUD (${unknownFrequencyNetwork.source.sourceUrl}). ${formatSourceVerification(unknownFrequencyNetwork.source)}.`
+      const wait = estimatedWaitMinutes(unknownFrequencyNetwork.id, now)
+      return `${unknownFrequencyNetwork.operator} : ${counts}, service ${unknownFrequencyNetwork.serviceStart}–${unknownFrequencyNetwork.serviceEnd}. Estimation : ${wait === null ? 'service fermé' : `${wait} min d’attente moyenne`}.`
     }
     if (requestedNetwork) {
       const wantsNext = includesAny(text, ['prochain', 'prochaine', 'dans combien', 'combien de temps', 'arrive', 'arriver', 'attente'])
@@ -392,10 +394,10 @@ ${HONEST_LIMIT}`
     const ddd = NETWORK_REFERENCE_DATA.ddd
     const aftu = NETWORK_REFERENCE_DATA.aftu
     const unknownFrequencyNetworks = [
-      `• DDD : ${ddd.lineCount} lignes, ${ddd.vehicleCount} bus, ${ddd.serviceStart}–${ddd.serviceEnd} ; fréquences non publiées ligne par ligne. Source CETUD (${ddd.source.sourceUrl}) · ${formatSourceVerification(ddd.source)}.`,
-      `• AFTU : ${aftu.lineCount} lignes, ${aftu.vehicleCount?.toLocaleString('fr-FR')} bus, ${aftu.gieCount} GIE, ${aftu.serviceStart}–${aftu.serviceEnd} ; fréquences non publiées ligne par ligne. Source CETUD (${aftu.source.sourceUrl}) · ${formatSourceVerification(aftu.source)}.`,
+      `• DDD : ${ddd.lineCount} lignes, ${ddd.vehicleCount} bus, ${ddd.serviceStart}–${ddd.serviceEnd} ; Estimation ${estimatedWaitMinutes('ddd', now) ?? '—'} min.`,
+      `• AFTU : ${aftu.lineCount} lignes, ${aftu.vehicleCount?.toLocaleString('fr-FR')} bus, ${aftu.gieCount} GIE, ${aftu.serviceStart}–${aftu.serviceEnd} ; Estimation ${estimatedWaitMinutes('aftu', now) ?? '—'} min.`,
     ].join('\n')
-    return `${frequencies}\n${unknownFrequencyNetworks}\nAucune heure de prochain passage n’est disponible sans horaire fiable.`
+    return `${frequencies}\n${unknownFrequencyNetworks}`
   }
 
   // 3b) Point d'embarquement demandé (« Où prendre le BRT ? », « Fan la … » en
@@ -425,11 +427,11 @@ ${BRT_STOPS.map((stop, index) => `${index + 1}. ${stop.name}`).join('\n')}
     }
     if (includesAny(text, ['ddd', 'dakar dem dikk'])) {
       const reference = NETWORK_REFERENCE_DATA.ddd
-      return `${reference.operator} (${reference.shortName}) : ${reference.lineCount} lignes, ${reference.vehicleCount} bus, service ${reference.serviceStart}–${reference.serviceEnd}. ${reference.frequencyLabel} : aucune fréquence uniforme n’est attribuée aux lignes. Source : CETUD (${reference.source.sourceUrl}). ${formatSourceVerification(reference.source)}.`
+      return `${reference.operator} (${reference.shortName}) : ${reference.lineCount} lignes, ${reference.vehicleCount} bus, service ${reference.serviceStart}–${reference.serviceEnd}. Estimation : ${estimatedWaitMinutes('ddd', now) ?? '—'} min d’attente moyenne.`
     }
     if (includesAny(text, ['aftu'])) {
       const reference = NETWORK_REFERENCE_DATA.aftu
-      return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. ${reference.frequencyLabel} : aucune fréquence uniforme n’est attribuée aux lignes. Source : CETUD (${reference.source.sourceUrl}). ${formatSourceVerification(reference.source)}.`
+      return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. Estimation : ${estimatedWaitMinutes('aftu', now) ?? '—'} min d’attente moyenne.`
     }
     if (wantsTer && !wantsBrt) {
       return `Les 13 gares et haltes du TER, de Dakar à Diamniadio :
