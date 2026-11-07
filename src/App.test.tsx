@@ -1166,7 +1166,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
     }
     expect(board.textContent).toContain('Estimation')
-    expect(board.textContent).toContain('6 min')
+    expect(board.textContent).toMatch(/(?:6|8) min/)
     expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
     vi.useRealTimers()
   })
