@@ -57,6 +57,22 @@ describe('mémoire documentaire des lignes de transport', () => {
     expect(ask('bus DDD 999')).toContain('n’est pas documentée')
   })
 
+  it('affiche les amplitudes DDD/AFTU sans les confondre avec des horaires de ligne', () => {
+    expect(ask('horaires DDD')).toContain('06h00–21h00')
+    expect(ask('horaires DDD')).toContain('Centre social des Parcelles Assainies à 05h30')
+    expect(ask('horaires AFTU')).toContain('06h00–21h00')
+    expect(ask('horaires AFTU')).toContain('horaires variables selon les lignes')
+    expect(ask('horaires AFTU 53')).toContain('aucun horaire précis')
+  })
+
+  it('affiche les départs officiels des deux terminus DDD 01', () => {
+    expect(ask('horaires DDD 1')).toContain('05h30')
+    expect(ask('horaires DDD 1')).toContain('20h30')
+    expect(ask('horaires DDD 1')).toContain('06h30')
+    expect(ask('horaires DDD 1')).toContain('21h00')
+    expect(ask('horaires DDD 1')).toContain('pas les passages intermédiaires')
+  })
+
   it('ne donne ni fréquence ni tarif pour une ligne bus non documentée sur ce point', () => {
     expect(ask('prochain bus AFTU 53')).toContain('Aucun prochain départ fiable')
     expect(ask('horaires DDD 1')).not.toMatch(/dans \d+ min/)
