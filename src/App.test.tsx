@@ -1163,10 +1163,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
       expect(rows.length).toBeGreaterThan(1)
       expect(rows[rows.length - 1].textContent).toContain('Terminus')
-      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Non publié'))).toBe(true)
+      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
     }
-    expect(board.textContent).toContain('aucun horaire publié')
-    expect(board.textContent).toContain('Arrêts et directions de référence')
+    expect(board.textContent).toContain('Estimation')
+    expect(board.textContent).toContain('6 min')
     expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
     vi.useRealTimers()
   })
@@ -1207,7 +1207,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       // Pas de fréquence officielle : les créneaux restent UNKNOWN, pas de temps réel
       const board = detail.querySelector('.station-board')
       if (board) {
-        expect(board.textContent).toMatch(/Créneaux théoriques|pastilles|pointillés|référence/)
+        expect(board.textContent).toMatch(/Estimation/)
       } else {
         // Fallback si aucune ligne : message d’attente ou d’état de service
         expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
