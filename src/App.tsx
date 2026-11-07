@@ -2257,13 +2257,6 @@ function ReferenceNetworkSummary({
                   </span>
                 )}
               </button>
-              {isSelected && (
-                <div className="network-summary-detail station-board-detail">
-                  <span className="station-board-context">
-                    {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
-                    {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
-                    {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
-                  </span>
                   {(network.id === 'ddd' || network.id === 'aftu') && (
                     <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
                       <span className="network-summary-estimate-label">Estimation</span>
@@ -2280,6 +2273,13 @@ function ReferenceNetworkSummary({
                       )}
                     </div>
                   )}
+              {isSelected && (
+                <div className="network-summary-detail station-board-detail">
+                  <span className="station-board-context">
+                    {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
+                    {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
+                    {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
+                  </span>
                   {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
                     boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
