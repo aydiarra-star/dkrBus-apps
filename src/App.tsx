@@ -2291,14 +2291,24 @@ function ReferenceNetworkSummary({
 }
 
 
-/** Cellule de créneau d’une station : le design et le format du décompte
- *  restent exactement ceux du résumé des réseaux (« 5 min / créneau 08:10 »). */
-function StationPassageCell({ passage }: { passage: NextPassage | null }) {
+/** Cellule de passage : le même composant sert aux quatre réseaux.
+ *  Une absence de fréquence ne doit jamais être présentée comme un terminus. */
+function StationPassageCell({
+  passage,
+  isTerminus,
+  hasPublishedFrequency,
+}: {
+  passage: NextPassage | null
+  isTerminus: boolean
+  hasPublishedFrequency: boolean
+}) {
   if (!passage) {
+    const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Non publié'
+    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : 'aucun horaire publié'
     return (
       <span className="network-summary-passage is-undeclared station-board-passage">
-        <strong>Terminus</strong>
-        <small>arrivée</small>
+        <strong>{title}</strong>
+        <small>{detail}</small>
       </span>
     )
   }
@@ -2311,10 +2321,18 @@ function StationPassageCell({ passage }: { passage: NextPassage | null }) {
 }
 
 /** Phrase lue par les lecteurs d’écran : une station, un sens. */
-function stationRowAriaLabel(stopName: string, passage: NextPassage | null, destinationLabel: string): string {
-  return passage
-    ? `${stopName} · vers ${destinationLabel} : ${formatPassageCountdown(passage.minutes)}, créneau théorique ${passage.clockLabel} · pas de temps réel`
-    : `${stopName} · aucun départ, terminus ${destinationLabel}`
+function stationRowAriaLabel(
+  stopName: string,
+  passage: NextPassage | null,
+  destinationLabel: string,
+  isTerminus: boolean,
+  hasPublishedFrequency: boolean,
+): string {
+  if (passage) return `${stopName} · vers ${destinationLabel} : ${formatPassageCountdown(passage.minutes)}, créneau théorique ${passage.clockLabel} · pas de temps réel`
+  if (isTerminus) return `${stopName} · terminus d’arrivée ${destinationLabel}`
+  return hasPublishedFrequency
+    ? `${stopName} · passage non disponible vers ${destinationLabel}`
+    : `${stopName} · horaire non publié vers ${destinationLabel}`
 }
 
 /** Un sens de circulation : titre explicite (« Dakar ➔ Diamniadio »), puis une
@@ -2326,6 +2344,7 @@ function StationDirectionSection({
   fromLabel,
   toLabel,
   rows,
+  hasPublishedFrequency,
   onFocusStation,
 }: {
   network: MobilityId | null
@@ -2334,6 +2353,7 @@ function StationDirectionSection({
   fromLabel: string
   toLabel: string
   rows: readonly StationRow[]
+  hasPublishedFrequency: boolean
   onFocusStation: (stop: CorridorStop) => void
 }) {
   const directionName = direction === 'outbound' ? 'Aller' : 'Retour'
@@ -2347,19 +2367,20 @@ function StationDirectionSection({
         <span className="station-direction-route">{fromLabel} ➔ {toLabel}</span>
       </h4>
       <ul className="station-board-list">
-        {rows.map((row) => {
+        {rows.map((row, index) => {
           const passage = direction === 'outbound' ? row.outbound : row.inbound
+          const isTerminus = index === rows.length - 1
           return (
             <li key={row.stop.id}>
               <button
                 type="button"
                 className="station-board-row"
-                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel)}
+                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency)}
                 title={`${row.stop.name} — voir sur la carte`}
                 onClick={() => onFocusStation(row.stop)}
               >
                 <span className="station-board-stop" title={row.stop.name}>{row.stop.name}</span>
-                <StationPassageCell passage={passage} />
+                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} />
               </button>
             </li>
           )
@@ -2383,10 +2404,11 @@ function StationBoardView({
   const originLabel = stationShortName(board.originStop)
   const destinationLabel = stationShortName(board.destinationStop)
   const line = board.line.shortName
+  const hasPublishedFrequency = board.line.officialFrequencies.length > 0
   return (
     <div
       className="station-board"
-      aria-label={`Créneaux théoriques par station, ${line} ${originLabel} ↔ ${destinationLabel}, sens aller et retour`}
+      aria-label={`Tableau des arrêts, ${line} ${originLabel} ↔ ${destinationLabel}, sens aller et retour`}
     >
       <div className="station-board-head">
         <strong>{line} · {originLabel} ↔ {destinationLabel}</strong>
@@ -2399,6 +2421,7 @@ function StationBoardView({
         fromLabel={originLabel}
         toLabel={destinationLabel}
         rows={board.rows}
+        hasPublishedFrequency={hasPublishedFrequency}
         onFocusStation={onFocusStation}
       />
       <StationDirectionSection
@@ -2408,11 +2431,13 @@ function StationBoardView({
         fromLabel={destinationLabel}
         toLabel={originLabel}
         rows={[...board.rows].reverse()}
+        hasPublishedFrequency={hasPublishedFrequency}
         onFocusStation={onFocusStation}
       />
       <p className="station-board-footnote">
-        Créneaux théoriques : grille déclarée au départ de chaque terminus + parcours de référence
-        ({board.line.speedKph} km/h). Pas de temps réel.
+        {hasPublishedFrequency
+          ? <>Créneaux théoriques : grille déclarée au départ de chaque terminus + parcours de référence ({board.line.speedKph} km/h). Pas de temps réel.</>
+          : 'Arrêts et directions de référence. Les fréquences et horaires de passage ne sont pas publiés pour cette ligne : aucun prochain passage n’est calculé.'}
       </p>
     </div>
   )
