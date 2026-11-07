@@ -46,8 +46,14 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
     detail = line.waypoints.some((point) => /gare (ter|de dakar)/i.test(point))
       ? 'La fiche mentionne la gare TER / gare de Dakar comme point de passage. Cela fournit un repère pour rejoindre le TER, mais l’arrêt bus précis, le chemin piéton, les horaires coordonnés et le billet combiné ne sont pas validés ici.'
       : 'Aucune correspondance garantie n’est documentée pour cette ligne dans la mémoire. Un nom de quartier commun ne suffit pas à confirmer le même arrêt, un chemin piéton sûr ou des horaires coordonnés.'
-  } else if (/\b(prochain|prochaine|attente|passage|frequence|horaire|horaires|heure|depart)\b/.test(text) && !/\b(ou|arrets|itineraire|parcours)\b/.test(text)) {
-    detail = 'Aucun prochain départ fiable ni fréquence par ligne dans cette fiche. Je ne peux pas calculer un compte à rebours.'
+  } else if (/\b(horaire|horaires|heure|heures|depart|depart\s+premier|dernier)\b/.test(text) && !/\b(ou|arrets|itineraire|parcours)\b/.test(text)) {
+    if (line.network === 'ddd' && line.code === '1') {
+      detail = 'Horaires publiés par DDD pour la ligne 01 : depuis le Centre social des Parcelles Assainies, premier départ 05h30 et dernier départ 20h30 ; depuis le terminus Leclerc, premier départ 06h30 et dernier départ 21h00. Ces heures sont les départs aux terminus, pas les passages intermédiaires. Vérifiez les éventuelles modifications auprès de DDD.'
+    } else if (line.network === 'ddd') {
+      detail = 'Amplitude générale DDD publiée par le CETUD : 06h00–21h00. Ce n’est pas une grille horaire propre à cette ligne : aucun premier/dernier départ ni passage intermédiaire vérifié n’est publié ici.'
+    } else {
+      detail = 'Amplitude générale de référence CETUD : 06h00–21h00. La FAQ AFTU indique que les bus circulent généralement du matin jusqu’à 21h, avec des horaires variables selon les lignes et les zones. Aucun horaire précis de départ ou de passage n’est publié ici pour cette ligne.'
+    }
   } else if (/\b(prix|tarif|ticket|cout|coute|payer)\b/.test(text)) {
     detail = 'Tarif de cette ligne non documenté dans la base consultée : à confirmer auprès du receveur ou de l’opérateur.'
   } else if (line.waypoints.length) {
@@ -145,6 +151,10 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     const lines = BUS_LINES.filter((line) => networks.includes(line.network))
     if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
+    if (/\b(horaire|horaires|heure|heures|depart|frequence|frequences|amplitude|ouvre|ferme)\b/.test(text)) {
+      if (networks.includes('ddd')) return { text: `DDD — amplitude générale de référence : 06h00–21h00 selon le CETUD. Exception avec horaires détaillés publiés : ligne 01, départ du Centre social des Parcelles Assainies à 05h30 (premier) et 20h30 (dernier) ; départ du terminus Leclerc à 06h30 (premier) et 21h00 (dernier). Pour les autres lignes, les heures de départ et de passage ne sont pas publiées ligne par ligne dans les sources consultées. Ces amplitudes ne donnent pas le prochain bus.${source(SOURCES.ddd)}${source('https://demdikk.sn/')}` }
+      return { text: `AFTU — amplitude générale de référence CETUD : 06h00–21h00. La FAQ officielle AFTU précise que les bus circulent généralement du matin jusqu’à 21h, avec des horaires variables selon les lignes et les zones. Aucun tableau officiel de premiers/derniers départs ni de passages par arrêt n’a été trouvé pour chaque ligne. Ne pas interpréter 06h00 comme l’heure garantie du premier bus de chaque ligne.${source(SOURCES.aftu)}${source(SOURCES.aftuLines)}` }
+    }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
       if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
