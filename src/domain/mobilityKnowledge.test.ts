@@ -74,7 +74,7 @@ describe('mémoire documentaire des lignes de transport', () => {
     expect(ask('horaires DDD')).toContain('Centre social des Parcelles Assainies à 05h30')
     expect(ask('horaires AFTU')).toContain('06h00–21h00')
     expect(ask('horaires AFTU')).toContain('horaires variables selon les lignes')
-    expect(ask('horaires AFTU 53')).toContain('aucun horaire précis')
+    expect(ask('horaires AFTU 53')).toContain('Aucun horaire précis')
   })
 
   it('affiche les départs officiels des deux terminus DDD 01', () => {
