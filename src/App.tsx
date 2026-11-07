@@ -2476,8 +2476,8 @@ function ReferenceFrequencyCards() {
               </header>
               <p className="network-reference-counts">{counts.join(' · ')}</p>
               <div className={`network-reference-frequency${network.frequencyStatus === 'UNKNOWN' ? ' is-unknown' : ''}`}>
-                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Horaires non disponibles'}</strong>
-                <span>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? 'Fréquence officielle de référence' : network.frequencyLabel}</span>
+                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Fréquences par ligne non publiées'}</strong>
+                <span>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? 'Fréquence officielle de référence' : 'Amplitude générale affichée séparément · aucun passage minuté disponible'}</span>
               </div>
               <p className="network-reference-service">Service {network.serviceWindow}</p>
               {network.officialFrequencies.length > 1 && (
