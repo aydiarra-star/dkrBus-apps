@@ -19,8 +19,8 @@ const SERVICE_START_HOUR = 6
 const SERVICE_END_HOUR = 21
 
 export function estimatedFrequencyReference(network: string | null): string | null {
-  if (network === 'ddd') return 'Passage estimé : 7–10 min en pointe · 10–15 min en heures creuses'
-  if (network === 'aftu') return 'Intervalle moyen observé : 11,6 min · attente moyenne estimée : 8 min'
+  if (network === 'ddd') return 'Intervalle de passage : 7–10 min aux heures de pointe · 10–15 min en heures creuses'
+  if (network === 'aftu') return 'Intervalle moyen observé : 11,6 min'
   return null
 }
 
