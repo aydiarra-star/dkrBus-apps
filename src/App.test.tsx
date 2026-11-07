@@ -1159,26 +1159,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
-    expect(board.querySelectorAll('.station-direction-outbound .station-board-row').length).toBeGreaterThan(1)
-    expect(board.querySelectorAll('.station-direction-inbound .station-board-row').length).toBeGreaterThan(1)
-    expect(board.querySelectorAll('.station-board-passage strong')).toHaveLength(
-      board.querySelectorAll('.station-board-row').length,
-    )
-    // Chaque sens a un seul terminus d'arrivée ; les autres arrêts indiquent
-    // clairement l'absence d'horaires publiés, jamais un faux « Terminus ».
-    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(2)
-    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(
-      board.querySelectorAll('.station-board-passage strong').length - 2,
-    )
+    for (const direction of ['outbound', 'inbound'] as const) {
+      const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
+      expect(rows.length).toBeGreaterThan(1)
+      expect(rows[rows.length - 1].textContent).toContain('Terminus')
+      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Non publié'))).toBe(true)
+    }
     expect(board.textContent).toContain('aucun horaire publié')
     expect(board.textContent).toContain('Arrêts et directions de référence')
     expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
-    expect(board.querySelectorAll('.station-board-passage strong').length).toBe(
-      board.querySelectorAll('.station-board-row').length,
-    )
-    expect(board.querySelectorAll('.station-board-passage strong').length).toBeGreaterThan(2)
-    expect([...board.querySelectorAll('.station-board-passage strong')].filter((node) => node.textContent === 'Terminus')).toHaveLength(2)
-    expect([...board.querySelectorAll('.station-board-passage strong')].some((node) => node.textContent === 'Non publié')).toBe(true)
     vi.useRealTimers()
   })
 
