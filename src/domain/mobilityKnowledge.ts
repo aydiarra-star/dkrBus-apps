@@ -166,7 +166,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
       return { text: `AFTU — amplitude générale de référence CETUD : 06h00–21h00. La FAQ officielle AFTU précise que les bus circulent généralement du matin jusqu’à 21h, avec des horaires variables selon les lignes et les zones. Aucun tableau officiel de premiers/derniers départs ni de passages par arrêt n’a été trouvé pour chaque ligne. Ne pas interpréter 06h00 comme l’heure garantie du premier bus de chaque ligne.${source(SOURCES.aftu)}${source(SOURCES.aftuFaq)}` }
     }
     if (/\b(frequence|frequences)\b/.test(text)) {
-      if (networks.includes('ddd')) return { text: `DDD : le CETUD référence 38 lignes et 400 autobus. Fréquences non publiées ligne par ligne ; l’amplitude générale observée par DDD est donnée comme premiers départs 05h30–06h00 et derniers 20h30–21h00. Cela ne permet pas de calculer un prochain passage.${source(SOURCES.ddd)}${source(SOURCES.dddHours)}` }
+      if (networks.includes('ddd')) return { text: `DDD : le CETUD référence 38 lignes et 400 bus. Fréquences non publiées ligne par ligne ; l’amplitude générale observée par DDD est donnée comme premiers départs 05h30–06h00 et derniers 20h30–21h00. Cela ne permet pas de calculer un prochain passage.${source(SOURCES.ddd)}${source(SOURCES.dddHours)}` }
       return { text: `AFTU : le CETUD référence 72 lignes, 2 300 bus et 14 GIE. Fréquences non publiées ligne par ligne ; l’amplitude générale de référence est 06h00–21h00, avec des horaires variables selon les lignes et les zones. Cela ne permet pas de calculer un prochain passage.${source(SOURCES.aftu)}${source(SOURCES.aftuFaq)}` }
     }
     if (/\b(prochain|prochaine|attente|passage)\b/.test(text)) {
@@ -178,7 +178,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
       if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
     if (/\b(tata)\b/.test(text)) return { text: `Pour les minibus que vous appelez « TATA », je peux consulter les fiches AFTU si vous précisez le numéro. Je n’assimile pas automatiquement tout véhicule TATA à une ligne AFTU. ${busKnowledgeSummary()}${source(SOURCES.aftuLines)}` }
-    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes et 400 autobus ; DDD indique généralement des premiers départs 05h30–06h00 et des derniers 20h30–21h00. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
+    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes et 400 bus ; DDD indique généralement des premiers départs 05h30–06h00 et des derniers 20h30–21h00. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
   }
   return null
 }
