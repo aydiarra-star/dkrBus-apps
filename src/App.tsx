@@ -2445,6 +2445,7 @@ function StationBoardView({
         toLabel={originLabel}
         rows={[...board.rows].reverse()}
         hasPublishedFrequency={hasPublishedFrequency}
+        now={now}
         onFocusStation={onFocusStation}
       />
       <p className="station-board-footnote">
