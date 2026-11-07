@@ -53,7 +53,7 @@ class GTFSCatalogTests(unittest.TestCase):
     def test_catalog_recomputes_expiration_instead_of_trusting_old_snapshot(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output, staged = self.create_staged_dataset(directory)
-            later = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+            later = datetime(2027, 1, 2, 12, 0, tzinfo=timezone.utc)
             entry = show_staged_dataset(output, str(staged["dataset_id"]), now=later)
             self.assertEqual(entry["integrity"], "OK")
             self.assertEqual(entry["effective_validity_status"], "STALE")
