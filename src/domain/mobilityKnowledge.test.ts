@@ -11,7 +11,7 @@ describe('mémoire documentaire des lignes de transport', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
-    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(49)
+    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(53)
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {
@@ -31,6 +31,18 @@ describe('mémoire documentaire des lignes de transport', () => {
     expect(ask('AFTU ligne 1')).toContain('Lat Dior')
     expect(ask('AFTU ligne 1')).toContain('Grand Médine')
     expect(ask('AFTU ligne 1')).toContain('terminus à confirmer')
+  })
+
+  it('intègre les parcours officiels AFTU 77, 78, 80 et 83 publiés le 14 juillet', () => {
+    for (const code of ['77', '78', '80', '83']) {
+      const result = ask(`itinéraire AFTU ${code}`)
+      expect(result).toContain('Points de passage dans le sens publié')
+      expect(result).toContain('publication du 2026-07-14')
+    }
+    expect(ask('itinéraire AFTU 77')).toContain('Cité Tacco')
+    expect(ask('itinéraire AFTU 78')).toContain('Diamaguène')
+    expect(ask('itinéraire AFTU 80')).toContain('Darou Thioub')
+    expect(ask('itinéraire AFTU 83')).toContain('Zone de Captage')
   })
 
   it('donne le parcours AFTU récent plutôt que le parcours historique CETUD', () => {
