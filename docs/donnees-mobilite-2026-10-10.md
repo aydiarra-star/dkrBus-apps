@@ -60,11 +60,7 @@ par décision humaine authentifiée.
 - Perturbations et info trafic.
 
 ### DDD (Dakar Dem Dikk)
-Tout reste à faire : liste des 38 lignes urbaines, numéros, terminus, arrêts
-dans l'ordre de desserte, tracés, horaires ou fréquences par ligne,
-distinction urbain / express / interurbain / aéroportuaire, correspondances
-TER/BRT. Le référentiel est prêt à les recevoir (`IntegrationStatus`,
-`candidateLines.ts`) ; rien n'est inventé en attendant.
+Un inventaire candidat séparé contient actuellement **37 fiches DDD sans doublon** ; 15 disposent d'un parcours détaillé avec points de passage, les 22 autres n'ont que des informations de ligne partielles. Le chiffre de référence CETUD de **38 lignes** n'est donc pas encore réconcilié : une ligne reste à identifier ou à confirmer. Ces fiches ne constituent pas encore une intégration opérationnelle au référentiel (`METADATA_ONLY`) et ne prouvent ni les horaires, ni les fréquences, ni l'ensemble des arrêts. La prochaine étape est de rapprocher chaque fiche de la liste opérateur/CETUD et de documenter la ligne manquante avant toute promotion ; rien n'est inventé pour combler l'écart.
 
 ### AFTU
 Idem : lignes, codes réellement utilisés, arrêts, terminus, variantes et
