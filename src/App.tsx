@@ -2265,7 +2265,7 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
                   {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
-                    boards.map((board) => <StationBoardView key={board.line.id} board={board} now={countdownNow} onFocusStation={onFocusStation} />)
+                    boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
                     <p className="station-board-pending">
                       Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
