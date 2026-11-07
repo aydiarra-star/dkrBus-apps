@@ -95,7 +95,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { estimatedWaitMinutes } from './domain/estimatedWaits'
+import { estimatedFrequencyReference, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -2493,7 +2493,7 @@ function ReferenceFrequencyCards({ now }: { now: number }) {
                 <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Estimation'}</strong>
                 {network.frequencyStatus === 'OFFICIAL_REFERENCE'
                   ? <span>Fréquence officielle de référence</span>
-                  : <span>{estimatedWaitMinutes(id, now) === null ? 'Estimation' : `${estimatedWaitMinutes(id, now)} min d’attente moyenne`}</span>}
+                  : <span>{estimatedFrequencyReference(id) ?? (estimatedWaitMinutes(id, now) === null ? 'Estimation' : `${estimatedWaitMinutes(id, now)} min d’attente moyenne`)}</span>}
               </div>
               <p className="network-reference-service">Service {network.serviceWindow}</p>
               {network.officialFrequencies.length > 1 && (
