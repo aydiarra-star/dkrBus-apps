@@ -30,5 +30,6 @@ describe('initial transport catalogue', () => {
     expect(aftu).toBeDefined()
     expect(tata).toBeDefined()
     expect(tata?.id).not.toBe(aftu?.id)
+    expect(tata?.referenceData).toMatchObject({ lineCount: 32, vehicleCount: 600, frequencyStatus: 'UNKNOWN' })
   })
 })
