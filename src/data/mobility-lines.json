@@ -801,11 +801,22 @@
     "origin": "Jaxaay",
     "destination": "Gare des Baux Maraîchers",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-06",
+    "waypoints": [
+      "Terminus Jaxaay",
+      "Station Keur Massar",
+      "Hôpital Keur Massar",
+      "Route de Boun",
+      "Yeumbeul",
+      "Tally Diallo",
+      "Route des Niayes",
+      "Tally Icotaf",
+      "Bountou Pikine",
+      "Terminus Gare des Baux Maraîchers"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-51/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU publiée le 6 juillet 2026; repères d’itinéraire, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
