@@ -371,7 +371,8 @@ ${HONEST_LIMIT}`
         : `${unknownFrequencyNetwork.lineCount} lignes, ${unknownFrequencyNetwork.vehicleCount?.toLocaleString('fr-FR')} bus et ${unknownFrequencyNetwork.gieCount} GIE`
       const wait = estimatedWaitMinutes(unknownFrequencyNetwork.id, now)
       const frequency = estimatedFrequencyReference(unknownFrequencyNetwork.id)
-      return `${unknownFrequencyNetwork.operator} : ${counts}, service ${unknownFrequencyNetwork.serviceStart}–${unknownFrequencyNetwork.serviceEnd}. ${frequency ? `${frequency}. ` : ''}Estimation : ${wait === null ? 'service fermé' : `${wait} min d’attente moyenne`}.`
+      const serviceWindow = unknownFrequencyNetwork.id === 'ddd' ? unknownFrequencyNetwork.serviceWindow : `${unknownFrequencyNetwork.serviceStart}–${unknownFrequencyNetwork.serviceEnd}`
+      return `${unknownFrequencyNetwork.operator} : ${counts}, service ${serviceWindow}. ${frequency ? `${frequency}. ` : ''}Estimation : ${wait === null ? 'service fermé' : `${wait} min d’attente moyenne`}.`
     }
     if (requestedNetwork) {
       const wantsNext = includesAny(text, ['prochain', 'prochaine', 'dans combien', 'combien de temps', 'arrive', 'arriver', 'attente'])
@@ -395,7 +396,7 @@ ${HONEST_LIMIT}`
     const ddd = NETWORK_REFERENCE_DATA.ddd
     const aftu = NETWORK_REFERENCE_DATA.aftu
     const unknownFrequencyNetworks = [
-      `• DDD : ${ddd.lineCount} lignes, ${ddd.vehicleCount} bus, ${ddd.serviceStart}–${ddd.serviceEnd} ; ${estimatedFrequencyReference('ddd')} ; Estimation ${estimatedWaitMinutes('ddd', now) ?? '—'} min.`,
+      `• DDD : ${ddd.lineCount} lignes, ${ddd.vehicleCount} bus, ${ddd.serviceWindow} ; ${estimatedFrequencyReference('ddd')} ; Estimation ${estimatedWaitMinutes('ddd', now) ?? '—'} min.`,
       `• AFTU : ${aftu.lineCount} lignes, ${aftu.vehicleCount?.toLocaleString('fr-FR')} bus, ${aftu.gieCount} GIE, ${aftu.serviceStart}–${aftu.serviceEnd} ; ${estimatedFrequencyReference('aftu')} ; Estimation ${estimatedWaitMinutes('aftu', now) ?? '—'} min.`,
     ].join('\n')
     return `${frequencies}\n${unknownFrequencyNetworks}`
@@ -428,7 +429,7 @@ ${BRT_STOPS.map((stop, index) => `${index + 1}. ${stop.name}`).join('\n')}
     }
     if (includesAny(text, ['ddd', 'dakar dem dikk'])) {
       const reference = NETWORK_REFERENCE_DATA.ddd
-      return `${reference.operator} (${reference.shortName}) : ${reference.lineCount} lignes, ${reference.vehicleCount} bus, service ${reference.serviceStart}–${reference.serviceEnd}. ${estimatedFrequencyReference('ddd')}. Estimation : ${estimatedWaitMinutes('ddd', now) ?? '—'} min d’attente moyenne.`
+      return `${reference.operator} (${reference.shortName}) : ${reference.lineCount} lignes, ${reference.vehicleCount} bus, service ${reference.serviceWindow}. ${estimatedFrequencyReference('ddd')}. Estimation : ${estimatedWaitMinutes('ddd', now) ?? '—'} min d’attente moyenne.`
     }
     if (includesAny(text, ['aftu'])) {
       const reference = NETWORK_REFERENCE_DATA.aftu
