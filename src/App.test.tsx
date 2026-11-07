@@ -1149,6 +1149,28 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
+  it.each(['ddd', 'aftu'] as const)('garde le tableau %s au même format sans transformer les horaires inconnus en terminus', (networkId) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    fireEvent.click(container.querySelector(`.network-item-${networkId} .network-summary-header`)!)
+
+    const board = container.querySelector('.station-board') as HTMLElement
+    expect(board).toBeTruthy()
+    for (const direction of ['outbound', 'inbound'] as const) {
+      const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
+      expect(rows.length).toBeGreaterThan(1)
+      expect(rows[rows.length - 1].textContent).toContain('Terminus')
+      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Non publié'))).toBe(true)
+    }
+    expect(board.textContent).toContain('aucun horaire publié')
+    expect(board.textContent).toContain('Arrêts et directions de référence')
+    expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
+    vi.useRealTimers()
+  })
+
   it('affiche les 23 stations du BRT dans les deux sens, de Petersen à Guédiawaye', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))

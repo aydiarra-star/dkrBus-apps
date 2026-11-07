@@ -22,7 +22,7 @@ VALID_METADATA = IngestMetadata(
     date_source="2026-10-08",
     verified_at="2026-10-08T11:00:00Z",
     valid_from="2026-10-01T00:00:00Z",
-    valid_until="2026-10-31T23:59:59Z",
+    valid_until="2026-12-31T23:59:59Z",
     confidence=0.5,
     service_status="UNKNOWN",
 )
