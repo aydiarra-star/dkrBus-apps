@@ -39,6 +39,8 @@ describe('assistant mobilité', () => {
     const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT, midday)
     expect(ddd).toContain('38 lignes')
     expect(ddd).toContain('400 bus')
+    expect(ddd).toContain('Intervalle de passage : 7–10 min aux heures de pointe')
+    expect(ddd).toContain('10–15 min en heures creuses')
     expect(ddd).toContain('Estimation : 6 min d’attente moyenne')
     expect(ddd).not.toMatch(/dans \d+ min/)
 
@@ -46,6 +48,7 @@ describe('assistant mobilité', () => {
     expect(aftu).toContain('72 lignes')
     expect(aftu.replace(/\s/g, ' ')).toContain('2 300 bus')
     expect(aftu).toContain('14 GIE')
+    expect(aftu).toContain('Intervalle moyen observé : 11,6 min')
     expect(aftu).toContain('Estimation : 8 min d’attente moyenne')
   })
 
