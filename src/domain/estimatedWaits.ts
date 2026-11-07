@@ -18,6 +18,12 @@
 const SERVICE_START_HOUR = 6
 const SERVICE_END_HOUR = 21
 
+export function estimatedFrequencyReference(network: string | null): string | null {
+  if (network === 'ddd') return 'Passage estimé : 7–10 min en pointe · 10–15 min en heures creuses'
+  if (network === 'aftu') return 'Intervalle moyen observé : 11,6 min · attente moyenne estimée : 8 min'
+  return null
+}
+
 export function estimatedWaitMinutes(network: string | null, now = Date.now()): number | null {
   if (!Number.isFinite(now) || !network) return null
   const hour = new Date(now).getUTCHours()
@@ -28,6 +34,6 @@ export function estimatedWaitMinutes(network: string | null, now = Date.now()): 
     return peak ? 4 : 6
   }
 
-  if (network === 'aftu' || network === 'tata') return 8
+  if (network === 'aftu') return 8
   return null
 }
