@@ -58,7 +58,6 @@ export const OBSERVED_WAIT_POLICY = {
 } as const
 
 const DAY_MS = 86_400_000
-const MINUTE_MS = 60_000
 
 function serviceDayKind(date: Date): ServiceDayKind {
   const day = date.getUTCDay()
