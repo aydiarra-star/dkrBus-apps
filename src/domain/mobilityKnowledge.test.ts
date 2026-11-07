@@ -70,7 +70,7 @@ describe('mémoire documentaire des lignes de transport', () => {
   })
 
   it('affiche les amplitudes DDD/AFTU sans les confondre avec des horaires de ligne', () => {
-    expect(ask('horaires DDD')).toContain('06h00–21h00')
+    expect(ask('horaires DDD')).toContain('05h30 et 06h00')
     expect(ask('horaires DDD')).toContain('Centre social des Parcelles Assainies à 05h30')
     expect(ask('horaires AFTU')).toContain('06h00–21h00')
     expect(ask('horaires AFTU')).toContain('horaires variables selon les lignes')
