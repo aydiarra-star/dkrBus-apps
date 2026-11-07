@@ -95,6 +95,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
+import { estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -1782,7 +1783,7 @@ function App() {
               <SettingsHelpSection />
               <SettingsDisclosure title="État des données">
                 <ReadApiCard published={published} dataAvailable={dataAvailable} onRefresh={() => void loadPublishedNetwork()} />
-                <ReferenceFrequencyCards />
+                <ReferenceFrequencyCards now={countdownNow} />
                 <DataCatalogSection
                   filter={exploreFilter}
                   sources={visibleSources}
@@ -2264,7 +2265,7 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
                   {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
-                    boards.map((board) => <StationBoardView key={board.line.id} board={board} onFocusStation={onFocusStation} />)
+                    boards.map((board) => <StationBoardView key={board.line.id} board={board} now={countdownNow} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
                     <p className="station-board-pending">
                       Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
@@ -2297,14 +2298,19 @@ function StationPassageCell({
   passage,
   isTerminus,
   hasPublishedFrequency,
+  network,
+  now,
 }: {
   passage: NextPassage | null
   isTerminus: boolean
   hasPublishedFrequency: boolean
+  network: MobilityId | null
+  now: number
 }) {
   if (!passage) {
+    const estimate = !isTerminus && !hasPublishedFrequency ? estimatedWaitMinutes(network, now) : null
     const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Estimation'
-    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : ''
+    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : estimate === null ? '' : `${estimate} min`
     return (
       <span className="network-summary-passage is-undeclared station-board-passage">
         <strong>{title}</strong>
@@ -2327,12 +2333,14 @@ function stationRowAriaLabel(
   destinationLabel: string,
   isTerminus: boolean,
   hasPublishedFrequency: boolean,
+  network: MobilityId | null,
+  now: number,
 ): string {
   if (passage) return `${stopName} · vers ${destinationLabel} : ${formatPassageCountdown(passage.minutes)}, créneau théorique ${passage.clockLabel} · pas de temps réel`
   if (isTerminus) return `${stopName} · terminus d’arrivée ${destinationLabel}`
-  return hasPublishedFrequency
-    ? `${stopName} · passage non disponible vers ${destinationLabel}`
-    : `${stopName} · Estimation vers ${destinationLabel}`
+  if (hasPublishedFrequency) return `${stopName} · passage non disponible vers ${destinationLabel}`
+  const estimate = estimatedWaitMinutes(network, now)
+  return estimate === null ? `${stopName} · Estimation vers ${destinationLabel}` : `${stopName} · Estimation ${estimate} min vers ${destinationLabel}`
 }
 
 /** Un sens de circulation : titre explicite (« Dakar ➔ Diamniadio »), puis une
@@ -2345,6 +2353,7 @@ function StationDirectionSection({
   toLabel,
   rows,
   hasPublishedFrequency,
+  now,
   onFocusStation,
 }: {
   network: MobilityId | null
@@ -2354,6 +2363,7 @@ function StationDirectionSection({
   toLabel: string
   rows: readonly StationRow[]
   hasPublishedFrequency: boolean
+  now: number
   onFocusStation: (stop: CorridorStop) => void
 }) {
   const directionName = direction === 'outbound' ? 'Aller' : 'Retour'
@@ -2375,12 +2385,12 @@ function StationDirectionSection({
               <button
                 type="button"
                 className="station-board-row"
-                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency)}
+                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency, network, now)}
                 title={`${row.stop.name} — voir sur la carte`}
                 onClick={() => onFocusStation(row.stop)}
               >
                 <span className="station-board-stop" title={row.stop.name}>{row.stop.name}</span>
-                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} />
+                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} network={network} now={now} />
               </button>
             </li>
           )
@@ -2396,9 +2406,11 @@ function StationDirectionSection({
  *  publiera ses lignes (AFTU, TATA…). */
 function StationBoardView({
   board,
+  now,
   onFocusStation,
 }: {
   board: StationBoard
+  now: number
   onFocusStation: (stop: CorridorStop) => void
 }) {
   const originLabel = stationShortName(board.originStop)
@@ -2422,6 +2434,7 @@ function StationBoardView({
         toLabel={destinationLabel}
         rows={board.rows}
         hasPublishedFrequency={hasPublishedFrequency}
+        now={now}
         onFocusStation={onFocusStation}
       />
       <StationDirectionSection
@@ -2443,7 +2456,7 @@ function StationBoardView({
   )
 }
 
-function ReferenceFrequencyCards() {
+function ReferenceFrequencyCards({ now }: { now: number }) {
   return (
     <section className="network-reference-cards-section" aria-label="Fréquences et services de référence">
       <div className="network-reference-cards-heading">
@@ -2477,7 +2490,9 @@ function ReferenceFrequencyCards() {
               <p className="network-reference-counts">{counts.join(' · ')}</p>
               <div className={`network-reference-frequency${network.frequencyStatus === 'UNKNOWN' ? ' is-unknown' : ''}`}>
                 <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Estimation'}</strong>
-                {network.frequencyStatus === 'OFFICIAL_REFERENCE' ? <span>Fréquence officielle de référence</span> : null}
+                {network.frequencyStatus === 'OFFICIAL_REFERENCE'
+                  ? <span>Fréquence officielle de référence</span>
+                  : <span>{estimatedWaitMinutes(id, now) === null ? 'Estimation' : `${estimatedWaitMinutes(id, now)} min d’attente moyenne`}</span>}
               </div>
               <p className="network-reference-service">Service {network.serviceWindow}</p>
               {network.officialFrequencies.length > 1 && (
