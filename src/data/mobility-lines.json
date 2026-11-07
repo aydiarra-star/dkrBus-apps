@@ -892,11 +892,25 @@
     "origin": "Terminus Rufisque Sonadis",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-06",
+    "waypoints": [
+      "Terminus Rufisque Sonadis",
+      "Boulevard Maurice Gueye",
+      "Route nationale 1",
+      "Keur Mbaye Fall",
+      "Croisement Keur Massar",
+      "Poste Thiaroye",
+      "Bountou Pikine",
+      "Croisement Cambérène",
+      "Échangeur Patte d’Oie",
+      "Autoroute",
+      "Avenue Malick Sy",
+      "Allées Papa Gueye Fall",
+      "Terminus Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-55/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
@@ -940,11 +954,27 @@
     "origin": "Diamalaye",
     "destination": "Cité Gendarmerie (Jaxaay)",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
-    "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "consultedAt": "2026-11-07",
+    "publishedAt": "2026-07-07",
+    "waypoints": [
+      "Terminus Diamalaye",
+      "Stade Léopold-Sédar-Senghor",
+      "Police Parcelles",
+      "Case Ba",
+      "Pharmacie Golf",
+      "HLM Guédiawaye",
+      "Canada",
+      "Route des Niayes",
+      "Police Thiaroye",
+      "Tally Diallo",
+      "Route de Yeumbeul",
+      "Boune",
+      "Keur Massar",
+      "Cité Sotrac",
+      "Terminus Cité Gendarmerie"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-59/",
+    "note": "Parcours transcrit depuis la fiche officielle AFTU; repères d’itinéraire publiés, sans ajout d’horaires ni de temps de passage."
   },
   {
     "network": "aftu",
