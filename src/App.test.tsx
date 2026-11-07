@@ -983,6 +983,27 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getByText('9 min')).toBeTruthy()
   })
 
+  it('affiche directement les estimations DDD et AFTU dans Explorer', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    const ddd = container.querySelector('[data-network="ddd"] .network-summary-header')
+    expect(ddd).toBeTruthy()
+    fireEvent.click(ddd!)
+    expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
+    expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
+    expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
+
+    const aftu = container.querySelector('[data-network="aftu"] .network-summary-header')
+    expect(aftu).toBeTruthy()
+    fireEvent.click(aftu!)
+    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
+    expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
+    vi.useRealTimers()
+  })
+
   it('place « Mes destinations » au-dessus des réseaux de référence', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)

@@ -2264,6 +2264,22 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
+                  {(network.id === 'ddd' || network.id === 'aftu') && (
+                    <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
+                      <span className="network-summary-estimate-label">Estimation</span>
+                      {network.id === 'ddd' ? (
+                        <>
+                          <p><strong>Passages :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
+                          <p><strong>Attente moyenne :</strong> 4 min en pointe · 6 min en heures creuses</p>
+                        </>
+                      ) : (
+                        <>
+                          <p><strong>Intervalle moyen observé :</strong> 11,6 min</p>
+                          <p><strong>Attente moyenne estimée :</strong> 8 min</p>
+                        </>
+                      )}
+                    </div>
+                  )}
                   {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
                     boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (

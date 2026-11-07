@@ -1738,6 +1738,30 @@ button:disabled { cursor: not-allowed; }
    ========================================================================= */
 .station-board-detail { display: grid; gap: 8px; }
 .station-board-context { color: var(--muted); }
+.network-summary-estimates {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--green-600);
+  border-radius: 9px;
+  background: var(--surface-card);
+  color: var(--text);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.network-summary-estimate-label {
+  width: fit-content;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  color: var(--green-700);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.network-summary-estimates p { margin: 0; color: var(--muted); }
+.network-summary-estimates p strong { color: var(--text); font-weight: 750; }
 .station-board {
   display: grid;
   gap: 10px;

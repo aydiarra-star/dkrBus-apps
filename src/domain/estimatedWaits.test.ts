@@ -14,7 +14,7 @@ describe('estimations de temps d’attente', () => {
   })
 
   it('expose les plages de fréquence DDD et la référence AFTU sans extrapoler à TATA', () => {
-    expect(estimatedFrequencyReference('ddd')).toContain('7–10 min en pointe')
+    expect(estimatedFrequencyReference('ddd')).toContain('7–10 min aux heures de pointe')
     expect(estimatedFrequencyReference('ddd')).toContain('10–15 min en heures creuses')
     expect(estimatedFrequencyReference('aftu')).toContain('11,6 min')
     expect(estimatedFrequencyReference('tata')).toBeNull()
