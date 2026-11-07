@@ -142,7 +142,7 @@ function whereToBoardReply(question: string, text: string, context: AssistantCon
       : (() => {
         const data = NETWORK_REFERENCE_DATA[id === 'tata' ? 'aftu' : id]
         return data
-          ? `${data.operator} : ${data.frequencyLabel} ; service ${data.serviceStart}–${data.serviceEnd}. Aucun horaire par arrêt : le compte à rebours n’est pas calculable.`
+          ? `${data.operator} : Estimation ; service ${data.serviceStart}–${data.serviceEnd}.`
           : `${reference.operator} : fréquence par ligne non publiée dans cette mémoire.`
       })()
     const access = lines.length > 0
