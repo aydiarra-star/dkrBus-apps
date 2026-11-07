@@ -221,7 +221,7 @@ export const NETWORK_REFERENCE_DATA: Readonly<Record<ReferenceNetworkId, Network
     gieCount: null,
     serviceStart: '06:00',
     serviceEnd: '21:00',
-    serviceWindow: '06:00–21:00',
+    serviceWindow: 'Premiers départs : 05:30–06:00 · derniers : 20:30–21:00',
     frequencyStatus: 'UNKNOWN',
     frequencyLabel: 'Fréquences non publiées ligne par ligne',
     officialFrequencies: [],
