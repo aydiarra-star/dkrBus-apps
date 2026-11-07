@@ -116,7 +116,7 @@ describe('mémoire documentaire des lignes de transport', () => {
     expect(memory.lastKnowledgeLineId).toBe('ddd:1')
     const next = copilotAnswer('Et ses horaires ?', context, memory, 'fr')
     expect(next.text).toContain('DDD 1')
-    expect(next.text).toContain('Aucun prochain départ fiable')
+    expect(next.text).toContain('Horaires publiés par DDD pour la ligne 01')
   })
 
   it('répond hors ligne aux tarifs BRT et TER sans réclamer un GTFS', () => {
