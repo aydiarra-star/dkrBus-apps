@@ -34,18 +34,18 @@ describe('assistant mobilité', () => {
     expect(answer).not.toMatch(/prochain.*dans \d+ min/i)
   })
 
-  it('ne donne pas de fréquence uniforme ni de compte à rebours DDD/AFTU', () => {
+  it('affiche une attente moyenne estimée pour DDD et AFTU', () => {
     const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT)
     expect(ddd).toContain('38 lignes')
     expect(ddd).toContain('400 bus')
-    expect(ddd.toLowerCase()).toContain('fréquences non publiées ligne par ligne')
+    expect(ddd).toContain('Estimation : 6 min d’attente moyenne')
     expect(ddd).not.toMatch(/dans \d+ min/)
 
     const aftu = answerAssistant('Quand passe le prochain bus AFTU ?', CONTEXT)
     expect(aftu).toContain('72 lignes')
     expect(aftu.replace(/\s/g, ' ')).toContain('2 300 bus')
     expect(aftu).toContain('14 GIE')
-    expect(aftu.toLowerCase()).toContain('aucun prochain départ fiable')
+    expect(aftu).toContain('Estimation : 8 min d’attente moyenne')
   })
 
   it('ne calcule le délai que depuis un départ exact programmé du bon réseau', () => {
