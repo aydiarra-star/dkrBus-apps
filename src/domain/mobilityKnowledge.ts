@@ -50,6 +50,10 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
     detail = line.waypoints.some((point) => /gare (ter|de dakar)/i.test(point))
       ? 'La fiche mentionne la gare TER / gare de Dakar comme point de passage. Cela fournit un repère pour rejoindre le TER, mais l’arrêt bus précis, le chemin piéton, les horaires coordonnés et le billet combiné ne sont pas validés ici.'
       : 'Aucune correspondance garantie n’est documentée pour cette ligne dans la mémoire. Un nom de quartier commun ne suffit pas à confirmer le même arrêt, un chemin piéton sûr ou des horaires coordonnés.'
+  } else if (/\b(prochain|prochaine|attente|passage)\b/.test(text) && !/\b(horaire|horaires|heure|heures|premier|dernier)\b/.test(text)) {
+    detail = 'Aucun prochain départ fiable ni passage en temps réel n’est publié pour cette ligne. Je ne peux pas calculer de compte à rebours.'
+  } else if (/\b(frequence|frequences)\b/.test(text)) {
+    detail = 'La fréquence propre à cette ligne n’est pas publiée dans les sources consultées. Aucun intervalle ni prochain passage ne peut être garanti.'
   } else if (/\b(horaire|horaires|heure|heures|depart|depart\s+premier|dernier)\b/.test(text) && !/\b(ou|arrets|itineraire|parcours)\b/.test(text)) {
     referenceUrl = line.network === 'aftu' ? SOURCES.aftuFaq : SOURCES.dddHours
     referencePublishedAt = null
@@ -157,16 +161,24 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     const lines = BUS_LINES.filter((line) => networks.includes(line.network))
     if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
-    if (/\b(horaire|horaires|heure|heures|depart|frequence|frequences|amplitude|ouvre|ferme)\b/.test(text)) {
+    if (/\b(horaire|horaires|heure|heures|depart|amplitude|ouvre|ferme)\b/.test(text)) {
       if (networks.includes('ddd')) return { text: `DDD — réseau urbain : premiers départs généralement entre 05h30 et 06h00 ; derniers départs entre 20h30 et 21h00. Ligne 01, horaires précis publiés : Centre social des Parcelles Assainies à 05h30 (premier) et 20h30 (dernier) ; terminus Leclerc à 06h30 (premier) et 21h00 (dernier). Pour les autres lignes, aucune grille de départ et de passage par ligne n’est publiée ici. Ces plages ne donnent pas le prochain bus.${source(SOURCES.ddd)}${source(SOURCES.dddHours)}` }
       return { text: `AFTU — amplitude générale de référence CETUD : 06h00–21h00. La FAQ officielle AFTU précise que les bus circulent généralement du matin jusqu’à 21h, avec des horaires variables selon les lignes et les zones. Aucun tableau officiel de premiers/derniers départs ni de passages par arrêt n’a été trouvé pour chaque ligne. Ne pas interpréter 06h00 comme l’heure garantie du premier bus de chaque ligne.${source(SOURCES.aftu)}${source(SOURCES.aftuFaq)}` }
+    }
+    if (/\b(frequence|frequences)\b/.test(text)) {
+      if (networks.includes('ddd')) return { text: `DDD : le CETUD référence 38 lignes et 400 autobus. Les fréquences ne sont pas publiées ligne par ligne ; l’amplitude générale observée par DDD est donnée comme premiers départs 05h30–06h00 et derniers 20h30–21h00. Cela ne permet pas de calculer un prochain passage.${source(SOURCES.ddd)}${source(SOURCES.dddHours)}` }
+      return { text: `AFTU : le CETUD référence 72 lignes, 2 300 bus et 14 GIE. Les fréquences ne sont pas publiées ligne par ligne ; l’amplitude générale de référence est 06h00–21h00, avec des horaires variables selon les lignes et les zones. Cela ne permet pas de calculer un prochain passage.${source(SOURCES.aftu)}${source(SOURCES.aftuFaq)}` }
+    }
+    if (/\b(prochain|prochaine|attente|passage)\b/.test(text)) {
+      const summary = networks.includes('ddd') ? 'DDD : 38 lignes et 400 autobus.' : 'AFTU : 72 lignes, 2 300 bus et 14 GIE.'
+      return { text: `${summary} Aucun prochain départ fiable ni horaire de passage en temps réel n’est disponible pour l’ensemble de ce réseau dans les sources consultées. Précisez une ligne ; je peux afficher ses repères et les horaires officiels connus, sans inventer un compte à rebours.${busKnowledgeSummary()}${source(networks.includes('ddd') ? SOURCES.ddd : SOURCES.aftu)}` }
     }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
       if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
     if (/\b(tata)\b/.test(text)) return { text: `Pour les minibus que vous appelez « TATA », je peux consulter les fiches AFTU si vous précisez le numéro. Je n’assimile pas automatiquement tout véhicule TATA à une ligne AFTU. ${busKnowledgeSummary()}${source(SOURCES.aftuLines)}` }
-    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
+    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes et 400 autobus ; DDD indique généralement des premiers départs 05h30–06h00 et des derniers 20h30–21h00. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
   }
   return null
 }
