@@ -57,6 +57,7 @@ describe('références officielles de fréquence', () => {
       vehicleCount: 400,
       serviceStart: '06:00',
       serviceEnd: '21:00',
+      serviceWindow: 'Premiers départs : 05:30–06:00 · derniers : 20:30–21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
       frequencyLabel: 'Fréquences non publiées ligne par ligne',
