@@ -59,7 +59,8 @@ describe('références officielles de fréquence', () => {
       serviceEnd: '21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Fréquences non publiées ligne par ligne',
+      frequencyLabel: 'Fréquences et passages par ligne non publiés',
+      serviceWindow: '06:00–21:00 · amplitude générale ; ligne 01 : départs terminus 05:30–20:30 (Parcelles) et 06:30–21:00 (Leclerc)',
       officialFrequencies: [],
     })
     expect(NETWORK_REFERENCE_DATA.aftu).toMatchObject({
@@ -70,7 +71,8 @@ describe('références officielles de fréquence', () => {
       serviceEnd: '21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Fréquences non publiées ligne par ligne',
+      frequencyLabel: 'Horaires et fréquences détaillés non publiés par ligne',
+      serviceWindow: '06:00–21:00 · amplitude générale ; horaires variables selon les lignes',
       officialFrequencies: [],
     })
     expect(NETWORK_REFERENCE_DATA.aftu.lineCount).not.toBe(71)
