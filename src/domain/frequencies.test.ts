@@ -55,12 +55,12 @@ describe('références officielles de fréquence', () => {
     expect(NETWORK_REFERENCE_DATA.ddd).toMatchObject({
       lineCount: 38,
       vehicleCount: 400,
-      serviceStart: '06:00',
+      serviceStart: '05:30',
       serviceEnd: '21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
       frequencyLabel: 'Fréquences et passages par ligne non publiés',
-      serviceWindow: '06:00–21:00 · amplitude générale ; ligne 01 : départs terminus 05:30–20:30 (Parcelles) et 06:30–21:00 (Leclerc)',
+      serviceWindow: 'Premiers départs généralement 05:30–06:00 · derniers 20:30–21:00 ; ligne 01 : Parcelles 05:30–20:30, Leclerc 06:30–21:00',
       officialFrequencies: [],
     })
     expect(NETWORK_REFERENCE_DATA.aftu).toMatchObject({
