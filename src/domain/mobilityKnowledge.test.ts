@@ -7,15 +7,15 @@ import { answerAssistant } from './assistant'
 const context = { publishedAvailable: false, adminOnline: false }
 function ask(question: string) { return answerMobilityKnowledge(question)?.text ?? '' }
 
-describe('mémoire documentaire consultée le 10 octobre 2026', () => {
+describe('mémoire documentaire des lignes de transport', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
-    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(20)
+    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(28)
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {
-      expect(line.consultedAt).toBe('2026-10-10')
+      expect(['2026-10-10', '2026-11-07']).toContain(line.consultedAt)
       expect(new URL(line.sourceUrl).protocol).toBe('https:')
       expect(line.origin.length).toBeGreaterThan(1)
       expect(line.destination.length).toBeGreaterThan(1)
