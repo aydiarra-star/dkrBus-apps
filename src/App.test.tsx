@@ -417,7 +417,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // DDD, AFTU et TATA ne publient pas de fréquence : rien n’est inventé.
-    // DDD et AFTU n’ont pas de fréquence : « Non déclaré ». TATA n’a pas de referenceData : « Fin de service ».
+    // DDD, AFTU et TATA affichent une attente estimée ; seules TER et BRT ont une grille officielle.
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
