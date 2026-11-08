@@ -2256,7 +2256,7 @@ function ReferenceNetworkSummary({
                     <strong>{serviceState.label}</strong>
                     <small>{passage ? `créneau ${passage.clockLabel}` : `début ${refData?.serviceStart ?? '—'}`}</small>
                   </span>
-                ) : showCountdown ? (
+                ) : showCountdown && passage ? (
                   <span
                     className="network-summary-passage"
                     role="status"
