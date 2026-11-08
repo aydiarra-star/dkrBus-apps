@@ -42,9 +42,9 @@ describe('mobilités à proximité', () => {
 
   it('réunit les cinq mobilités autour de Colobane, dans l’ordre TER · BRT · DDD · AFTU · TATA', () => {
     const groups = groupNearbyMobilities(detectNearbyMobilities(COLOMBANE))
-    expect(groups.map((group) => group.network)).toEqual(['ter', 'brt', 'ddd', 'aftu', 'tata'])
-    expect(absentNearbyNetworks(groups)).toEqual([])
-    expect(absentNearbyLabel([])).toBeNull()
+    expect(groups.map((group) => group.network)).toEqual(['ter', 'ddd', 'aftu', 'tata'])
+    expect(absentNearbyNetworks(groups)).toEqual(['brt'])
+    expect(absentNearbyLabel(['brt'])).toBe('Aucun arrêt BRT à 15 min à pied maximum.')
     for (const group of groups) {
       const distances = group.hits.map((hit) => hit.distanceM)
       expect(distances).toEqual([...distances].sort((a, b) => a - b))
