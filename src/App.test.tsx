@@ -1249,7 +1249,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it('prépare la structure AFTU et TATA avec pointillés légers + pastilles (sans inventer d’horaire temps réel)', () => {
+  it('applique le même affichage à compte à rebours seul pour AFTU, TATA et DDD', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1259,15 +1259,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
       fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
       const detail = container.querySelector(`.network-item-${network} .network-summary-detail`) as HTMLElement
       expect(detail).toBeTruthy()
-      // Désormais AFTU/TATA/DDD ont des lignes de référence en pointillés légers + pastilles
-      // Pas de fréquence officielle : les créneaux restent UNKNOWN, pas de temps réel
-      const board = detail.querySelector('.station-board')
-      if (board) {
-        expect(board.textContent).toMatch(/Estimation/)
-      } else {
-        // Fallback si aucune ligne : message d’attente ou d’état de service
-        expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
-      }
+      expect(detail.querySelector('.station-board')).toBeTruthy()
+      expect(detail.querySelector('.station-board-row')).toBeNull()
+      expect(detail.querySelector('.station-direction')).toBeNull()
+      expect(detail.querySelector('.station-board-passage strong')?.textContent).toMatch(/^\\d+ min$/)
+      expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     }
     vi.useRealTimers()
   })
