@@ -77,7 +77,7 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
   }, [])
 
   return (
-    <section className="estimated-line-schedule-board station-board" aria-label={isDdd ? 'Affichage des lignes DDD' : network === 'tata' ? 'Affichage des lignes TATA' : 'Affichage des lignes AFTU'}>
+    <section className="station-board" aria-label={isDdd ? 'Affichage des lignes DDD' : network === 'tata' ? 'Affichage des lignes TATA' : 'Affichage des lignes AFTU'}>
       <header className="station-board-head">
         <strong>{isDdd ? 'Lignes DDD' : network === 'tata' ? 'Lignes TATA' : 'Lignes AFTU'}</strong>
       </header>
@@ -86,7 +86,7 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
           const minutes = scheduleCountdownMinutes(schedule, now)
           return (
             <li key={schedule.line}>
-              <div className="station-board-row">
+              <div className="station-board-row station-board-row-static">
                 <span className="station-board-stop">{label} {schedule.line}</span>
                 <span
                   className={`network-summary-passage station-board-passage${minutes === null ? ' is-undeclared' : ''}`}
