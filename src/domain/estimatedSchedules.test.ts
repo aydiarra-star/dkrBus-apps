@@ -20,6 +20,8 @@ describe('affiches horaires estimatives des réseaux', () => {
       sunday: null,
     })
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '403')?.weekday?.interval).toBe('12 min')
+    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '15')?.note).toContain('69 arrêts')
+    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '15')?.note).toContain('repère de planification')
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '218')?.sunday).toBeNull()
   })
 
