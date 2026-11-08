@@ -14,7 +14,7 @@ describe('estimations de temps d’attente', () => {
   })
 
   it('expose les références distinctes DDD, AFTU et TATA', () => {
-    expect(estimatedFrequencyReference('ddd')).toContain('7–10 min en pointe')
+    expect(estimatedFrequencyReference('ddd')).toContain('7–10 min aux heures de pointe')
     expect(estimatedFrequencyReference('ddd')).toContain('10–15 min en heures creuses')
     expect(estimatedFrequencyReference('aftu')).toContain('11,58 min')
     expect(estimatedFrequencyReference('tata')).toContain('partagée AFTU/TATA')
