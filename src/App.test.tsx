@@ -1236,8 +1236,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const board = detail.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
       if (network === 'tata') {
-        // Aucun rattachement de lignes/fréquences TATA indépendant n'est vérifié : ne rien inventer.
-        expect(board.querySelectorAll('.station-board-row')).toHaveLength(0)
+        // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
+        expect(board.querySelectorAll('.station-board-row')).toHaveLength(60)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(60)
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
