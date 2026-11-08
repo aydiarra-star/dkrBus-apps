@@ -38,7 +38,7 @@ describe('mémoire documentaire consultée le 10 octobre 2026', () => {
     expect(result).toContain('Terminus Keur Massar (Marché)')
     expect(result).toContain('Sococim → Bargny → Diamniadio')
     expect(result).toContain('publication du 2026-07-06')
-    expect(result).toContain('remplace ici le parcours Lac Rose')
+    expect(result).toContain('Les sources AFTU consultées ne concordent pas')
     expect(result).toContain('pas une liste d’arrêts géolocalisés')
   })
 

@@ -55,8 +55,9 @@ describe('références officielles de fréquence', () => {
     expect(NETWORK_REFERENCE_DATA.ddd).toMatchObject({
       lineCount: 38,
       vehicleCount: 400,
-      serviceStart: '06:00',
+      serviceStart: '05:30',
       serviceEnd: '21:00',
+      serviceWindow: 'Premiers départs : 05:30–06:00 · derniers : 20:30–21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
       frequencyLabel: 'Fréquences non publiées ligne par ligne',
@@ -79,6 +80,17 @@ describe('références officielles de fréquence', () => {
       sourceUrl: 'https://cetud.sn',
       verifiedAt: null,
       verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
+    })
+  })
+
+  it('ne compte pas les minibus TATA comme un réseau indépendant de l’AFTU', () => {
+    expect(NETWORK_REFERENCE_DATA.tata).toMatchObject({
+      operator: 'AFTU (minibus TATA)',
+      coverage: 'Minibus TATA · réseau AFTU',
+      lineCount: null,
+      vehicleCount: null,
+      frequencyStatus: 'UNKNOWN',
+      frequencyLabel: 'Référence empirique partagée AFTU/TATA',
     })
   })
 

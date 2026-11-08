@@ -63,8 +63,9 @@ export const NETWORK_SOURCES: readonly NetworkSource[] = [
   },
   {
     id: 'tata',
+    referenceData: NETWORK_REFERENCE_DATA.tata,
     label: 'TATA',
-    description: 'Réseau indépendant, classification à confirmer',
+    description: 'Réseau complémentaire de minibus',
     status: 'NOT_CONNECTED',
     sourceType: 'UNKNOWN',
     recordCount: null,

@@ -45,6 +45,7 @@ import { assessStreetReport, rankStreetReports, relevantStreetReports, community
 import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
 import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
+import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
@@ -95,6 +96,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
+import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -1782,7 +1784,7 @@ function App() {
               <SettingsHelpSection />
               <SettingsDisclosure title="État des données">
                 <ReadApiCard published={published} dataAvailable={dataAvailable} onRefresh={() => void loadPublishedNetwork()} />
-                <ReferenceFrequencyCards />
+                <ReferenceFrequencyCards now={countdownNow} />
                 <DataCatalogSection
                   filter={exploreFilter}
                   sources={visibleSources}
@@ -2251,11 +2253,39 @@ function ReferenceNetworkSummary({
                   </span>
                 ) : (
                   <span className="network-summary-passage is-undeclared">
-                    <strong>Non déclaré</strong>
-                    <small>{networkMetaLabel(network)}</small>
+                    <strong>Estimation</strong>
+                    <small>{estimatedWaitMinutes(network.id, now) === null ? '—' : `${estimatedWaitMinutes(network.id, now)} min`}</small>
                   </span>
                 )}
               </button>
+                  {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
+                    <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
+                      <span className="network-summary-estimate-label">Estimation</span>
+                      {network.id === 'ddd' ? (
+                        <>
+                          <p><strong>Départs généraux :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
+                          <p><strong>Ligne 1 :</strong> Parcelles 05:30–20:30 · Leclerc 06:30–21:00</p>
+                          <p><strong>TAF TAF :</strong> Ouakam–AIBD 06:00–21:00 · Ouakam–Sphère 05:45–21:00 · retour Sphère 06:00–20:30</p>
+                          <p><strong>Intervalle de passage estimé :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
+                          <p><strong>Relevés CETUD/CUREM :</strong> 6–52 min en semaine · 11–40 min le samedi sur les sites échantillonnés</p>
+                          <p><strong>Attente moyenne indicative :</strong> 4 min en pointe · 6 min en heures creuses</p>
+                        </>
+                      ) : network.id === 'aftu' ? (
+                        <>
+                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
+                          <p>Intervalle moyen observé : 11,6 min (mesure 11,58 min · étude 2023–2024)</p>
+                          <p><strong>Relevés CETUD/CUREM :</strong> 1–18 min en semaine · 3–19 min le samedi sur les sites échantillonnés</p>
+                          <p>Attente moyenne estimée : 8 min</p>
+                        </>
+                      ) : (
+                        <>
+                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
+                          <p><strong>Référence partagée AFTU/TATA :</strong> les minibus TATA font partie du réseau AFTU ; aucune mesure indépendante TATA n’a été identifiée.</p>
+                          <p><strong>Intervalle moyen observé :</strong> 11,58 min · <strong>attente moyenne estimée :</strong> 8 min</p>
+                        </>
+                      )}
+                    </div>
+                  )}
               {isSelected && (
                 <div className="network-summary-detail station-board-detail">
                   <span className="station-board-context">
@@ -2264,7 +2294,7 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
                   {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
-                    boards.map((board) => <StationBoardView key={board.line.id} board={board} onFocusStation={onFocusStation} />)
+                    boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
                     <p className="station-board-pending">
                       Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
@@ -2280,6 +2310,9 @@ function ReferenceNetworkSummary({
                       aucun horaire n’est inventé en attendant.
                     </p>
                   )}
+                  {network.id === 'ddd' ? <EstimatedLineScheduleBoard network="ddd" /> : null}
+                  {network.id === 'aftu' ? <EstimatedLineScheduleBoard network="aftu" /> : null}
+                  {network.id === 'tata' ? <EstimatedLineScheduleBoard network="tata" /> : null}
                 </div>
               )}
             </li>
@@ -2297,18 +2330,25 @@ function StationPassageCell({
   passage,
   isTerminus,
   hasPublishedFrequency,
+  network,
+  lineName,
+  now,
 }: {
   passage: NextPassage | null
   isTerminus: boolean
   hasPublishedFrequency: boolean
+  network: MobilityId | null
+  lineName: string
+  now: number
 }) {
   if (!passage) {
-    const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Non publié'
-    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : 'aucun horaire publié'
+    const estimate = !isTerminus && !hasPublishedFrequency ? estimatedLineWaitMinutes(lineName, network, now) : null
+    const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Estimation'
+    const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : estimate === null ? '' : `${estimate} min`
     return (
       <span className="network-summary-passage is-undeclared station-board-passage">
         <strong>{title}</strong>
-        <small>{detail}</small>
+        {detail ? <small>{detail}</small> : null}
       </span>
     )
   }
@@ -2327,12 +2367,15 @@ function stationRowAriaLabel(
   destinationLabel: string,
   isTerminus: boolean,
   hasPublishedFrequency: boolean,
+  network: MobilityId | null,
+  lineName: string,
+  now: number,
 ): string {
   if (passage) return `${stopName} · vers ${destinationLabel} : ${formatPassageCountdown(passage.minutes)}, créneau théorique ${passage.clockLabel} · pas de temps réel`
   if (isTerminus) return `${stopName} · terminus d’arrivée ${destinationLabel}`
-  return hasPublishedFrequency
-    ? `${stopName} · passage non disponible vers ${destinationLabel}`
-    : `${stopName} · horaire non publié vers ${destinationLabel}`
+  if (hasPublishedFrequency) return `${stopName} · passage non disponible vers ${destinationLabel}`
+  const estimate = estimatedLineWaitMinutes(lineName, network, now)
+  return estimate === null ? `${stopName} · Estimation vers ${destinationLabel}` : `${stopName} · Estimation ${estimate} min vers ${destinationLabel}`
 }
 
 /** Un sens de circulation : titre explicite (« Dakar ➔ Diamniadio »), puis une
@@ -2345,6 +2388,7 @@ function StationDirectionSection({
   toLabel,
   rows,
   hasPublishedFrequency,
+  now,
   onFocusStation,
 }: {
   network: MobilityId | null
@@ -2354,6 +2398,7 @@ function StationDirectionSection({
   toLabel: string
   rows: readonly StationRow[]
   hasPublishedFrequency: boolean
+  now: number
   onFocusStation: (stop: CorridorStop) => void
 }) {
   const directionName = direction === 'outbound' ? 'Aller' : 'Retour'
@@ -2375,12 +2420,12 @@ function StationDirectionSection({
               <button
                 type="button"
                 className="station-board-row"
-                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency)}
+                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency, network, line, now)}
                 title={`${row.stop.name} — voir sur la carte`}
                 onClick={() => onFocusStation(row.stop)}
               >
                 <span className="station-board-stop" title={row.stop.name}>{row.stop.name}</span>
-                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} />
+                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} network={network} lineName={line} now={now} />
               </button>
             </li>
           )
@@ -2396,15 +2441,18 @@ function StationDirectionSection({
  *  publiera ses lignes (AFTU, TATA…). */
 function StationBoardView({
   board,
+  now,
   onFocusStation,
 }: {
   board: StationBoard
+  now: number
   onFocusStation: (stop: CorridorStop) => void
 }) {
   const originLabel = stationShortName(board.originStop)
   const destinationLabel = stationShortName(board.destinationStop)
   const line = board.line.shortName
   const hasPublishedFrequency = board.line.officialFrequencies.length > 0
+  const lineEstimate = estimatedLineFrequencyReference(line)
   return (
     <div
       className="station-board"
@@ -2422,6 +2470,7 @@ function StationBoardView({
         toLabel={destinationLabel}
         rows={board.rows}
         hasPublishedFrequency={hasPublishedFrequency}
+        now={now}
         onFocusStation={onFocusStation}
       />
       <StationDirectionSection
@@ -2432,18 +2481,19 @@ function StationBoardView({
         toLabel={originLabel}
         rows={[...board.rows].reverse()}
         hasPublishedFrequency={hasPublishedFrequency}
+        now={now}
         onFocusStation={onFocusStation}
       />
       <p className="station-board-footnote">
         {hasPublishedFrequency
           ? <>Créneaux théoriques : grille déclarée au départ de chaque terminus + parcours de référence ({board.line.speedKph} km/h). Pas de temps réel.</>
-          : 'Arrêts et directions de référence. Les fréquences et horaires de passage ne sont pas publiés pour cette ligne : aucun prochain passage n’est calculé.'}
+          : lineEstimate ?? 'Estimation'}
       </p>
     </div>
   )
 }
 
-function ReferenceFrequencyCards() {
+function ReferenceFrequencyCards({ now }: { now: number }) {
   return (
     <section className="network-reference-cards-section" aria-label="Fréquences et services de référence">
       <div className="network-reference-cards-heading">
@@ -2476,8 +2526,10 @@ function ReferenceFrequencyCards() {
               </header>
               <p className="network-reference-counts">{counts.join(' · ')}</p>
               <div className={`network-reference-frequency${network.frequencyStatus === 'UNKNOWN' ? ' is-unknown' : ''}`}>
-                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Horaires non disponibles'}</strong>
-                <span>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? 'Fréquence officielle de référence' : network.frequencyLabel}</span>
+                <strong>{network.frequencyStatus === 'OFFICIAL_REFERENCE' ? network.frequencyLabel : 'Estimation'}</strong>
+                {network.frequencyStatus === 'OFFICIAL_REFERENCE'
+                  ? <span>Fréquence officielle de référence</span>
+                  : <span>{estimatedFrequencyReference(id) ?? (estimatedWaitMinutes(id, now) === null ? 'Estimation' : `${estimatedWaitMinutes(id, now)} min d’attente moyenne`)}</span>}
               </div>
               <p className="network-reference-service">Service {network.serviceWindow}</p>
               {network.officialFrequencies.length > 1 && (

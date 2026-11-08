@@ -417,7 +417,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // DDD, AFTU et TATA ne publient pas de fréquence : rien n’est inventé.
-    // DDD et AFTU n’ont pas de fréquence : « Non déclaré ». TATA n’a pas de referenceData : « Fin de service ».
+    // DDD, AFTU et TATA affichent une attente estimée ; seules TER et BRT ont une grille officielle.
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -970,7 +970,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     // Deux réseaux publient une fréquence officielle : deux décomptes vivants.
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
-    expect(screen.getByText('6 min')).toBeTruthy()
+    expect(screen.getAllByText('6 min').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
 
@@ -981,6 +981,22 @@ describe('décomptes dynamiques de l’Explorer', () => {
     // Le temps a passé : les minutes ont diminué, sans rechargement.
     expect(screen.getByText('5 min')).toBeTruthy()
     expect(screen.getByText('9 min')).toBeTruthy()
+  })
+
+  it('affiche directement les estimations DDD et AFTU dans Explorer', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+
+    expect(screen.getByText(/05:30–06:00 · derniers 20:30–21:00/)).toBeTruthy()
+    expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
+    expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
+    expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
+
+    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
+    expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
+    vi.useRealTimers()
   })
 
   it('place « Mes destinations » au-dessus des réseaux de référence', () => {
@@ -1163,10 +1179,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
       expect(rows.length).toBeGreaterThan(1)
       expect(rows[rows.length - 1].textContent).toContain('Terminus')
-      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Non publié'))).toBe(true)
+      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
     }
-    expect(board.textContent).toContain('aucun horaire publié')
-    expect(board.textContent).toContain('Arrêts et directions de référence')
+    expect(board.textContent).toContain('Estimation')
+    expect(board.textContent).toMatch(/(?:6|8) min/)
     expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
     vi.useRealTimers()
   })
@@ -1207,7 +1223,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       // Pas de fréquence officielle : les créneaux restent UNKNOWN, pas de temps réel
       const board = detail.querySelector('.station-board')
       if (board) {
-        expect(board.textContent).toMatch(/Créneaux théoriques|pastilles|pointillés|référence/)
+        expect(board.textContent).toMatch(/Estimation/)
       } else {
         // Fallback si aucune ligne : message d’attente ou d’état de service
         expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
