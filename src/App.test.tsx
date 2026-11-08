@@ -412,21 +412,21 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
-    // TER et BRT publient une fréquence : leur décompte est affiché et vivant.
+    // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
-    // DDD, AFTU et TATA reprennent exactement la présentation TER/BRT :
-    // un libellé « Estimation » suivi d’une heure, sans pastille ni unité différente.
-    for (const [network, clock] of [['ddd', '12:06'], ['aftu', '12:08'], ['tata', '12:08']]) {
+    // DDD, AFTU et TATA utilisent les mêmes cartes : uniquement le nombre de minutes.
+    for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min'], ['tata', '12 min']]) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
-      expect(passage!.querySelector('strong')?.textContent).toBe('Estimation')
-      expect(passage!.querySelector('small')?.textContent).toBe(clock)
+      expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
+      expect(passage!.querySelector('small')).toBeNull()
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
+    expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -977,8 +977,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    // Deux réseaux publient une fréquence officielle : deux décomptes vivants.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
+    // Les cinq cartes possèdent un compte à rebours actif.
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     expect(screen.getByText('6 min')).toBeTruthy()
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
