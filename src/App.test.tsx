@@ -1050,14 +1050,14 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(panel.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).queryByText('Stations BRT')).toBeNull()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
     expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
-    fireEvent.click(within(panel).getByRole('button', { name: /Place de la Nation/ }))
-    expect(screen.getByTestId('map-recenter').textContent).toBe('14.6960909,-17.4506369')
+    fireEvent.click(within(panel).getAllByRole('button', { name: /Colobane/ })[0])
+    expect(screen.getByTestId('map-recenter').textContent).toBe('14.7003482,-17.4416523')
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
