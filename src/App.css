@@ -2766,9 +2766,10 @@ button:disabled { cursor: not-allowed; }
 }
 .estimated-line-schedule-table {
   width: 100%;
-  min-width: 720px;
+  min-width: 280px;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
 }
 .estimated-line-schedule-table th,
@@ -2776,7 +2777,7 @@ button:disabled { cursor: not-allowed; }
   padding: 8px 9px;
   border-bottom: 1px solid #e9f0ec;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .estimated-line-schedule-table thead th {
   background: #f0f7f3;
@@ -2788,7 +2789,8 @@ button:disabled { cursor: not-allowed; }
   color: #214333;
   white-space: nowrap;
 }
-.estimated-line-schedule-table td { color: #4b6257; }
+.estimated-line-schedule-table td { color: #4b6257; text-align: right; white-space: nowrap; }
+.estimated-line-schedule-table tbody td strong { color: var(--green-800); font-size: 14px; font-weight: 850; }
 .estimated-line-schedule-table a {
   color: var(--green-800);
   font-weight: 700;
@@ -2818,3 +2820,8 @@ button:disabled { cursor: not-allowed; }
 .theme-dark .estimated-line-schedule-intro,
 .theme-dark .estimated-line-schedule-disclaimer { color: var(--muted); }
 .theme-dark .estimated-line-schedule-table a { color: #8bd5ae; }
+.theme-dark .estimated-line-schedule-table tbody td strong { color: #8bd5ae; }
+
+/* Les lignes DDD/AFTU/TATA reprennent la géométrie des panneaux TER/BRT sans simuler une action sur un arrêt. */
+.station-board-row-static { cursor: default; }
+.station-board-row-static:hover { background: transparent; }
