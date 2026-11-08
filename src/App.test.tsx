@@ -416,16 +416,16 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
-    // DDD, AFTU et TATA ne publient pas de fréquence : rien n’est inventé.
-    // DDD, AFTU et TATA affichent une attente estimée ; seules TER et BRT ont une grille officielle.
-    for (const [network, minutes] of [['ddd', '6'], ['aftu', '8'], ['tata', '8']]) {
-      const metric = document.querySelector(`.network-item-${network} .network-summary-estimated-minutes`)
+    // DDD, AFTU et TATA reprennent exactement la présentation TER/BRT :
+    // un libellé « Estimation » suivi d’une heure, sans pastille ni unité différente.
+    for (const [network, clock] of [['ddd', '12:06'], ['aftu', '12:08'], ['tata', '12:08']]) {
+      const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
-      expect(metric).toBeTruthy()
+      expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
-      expect(metric!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(metric!.querySelector('small')?.textContent).toBe('min')
-      expect(metric!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(passage!.querySelector('strong')?.textContent).toBe('Estimation')
+      expect(passage!.querySelector('small')?.textContent).toBe(clock)
+      expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
