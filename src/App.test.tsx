@@ -830,10 +830,12 @@ describe('published snapshot in the app', () => {
       { match: '/api/stops/near', respond: () => jsonResponse(NEARBY_PAYLOAD) },
       { match: '/api/stops/D2', respond: () => (published ? jsonResponse(STOP_D2_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
     ])
+    stubGeolocation()
     render(<App />)
     await openReadApiState()
 
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^ma position$/i }))
     // L'arrêt D2 est bien dans le rayon piéton : il reste sélectionnable.
     // D6/Yoff (4 860 m) doit, lui, être absent des résultats de proximité.
     const nearbyPanel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
