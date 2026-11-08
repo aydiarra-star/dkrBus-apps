@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedWaitMinutes } from './estimatedWaits'
+import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedNextPassage, estimatedWaitMinutes } from './estimatedWaits'
 
 describe('estimations de temps d’attente', () => {
   it('calcule une attente DDD indicative plus courte aux heures de pointe', () => {
@@ -28,6 +28,29 @@ describe('estimations de temps d’attente', () => {
     expect(estimatedFrequencyReference('aftu')).toContain('11,58 min')
     expect(estimatedFrequencyReference('tata')).toContain('partagée AFTU/TATA')
     expect(estimatedFrequencyReference('ter')).toBeNull()
+  })
+
+  it('projette un prochain passage décompté à partir des fréquences DDD et AFTU/TATA', () => {
+    expect(estimatedNextPassage('ddd', Date.parse('2026-11-07T07:40:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T07:44:00.000Z',
+      minutes: 4,
+      headwayMinutes: 8,
+    })
+    expect(estimatedNextPassage('ddd', Date.parse('2026-11-07T12:00:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T12:02:00.000Z',
+      minutes: 2,
+      headwayMinutes: 13,
+    })
+    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T12:12:00.000Z',
+      minutes: 12,
+      headwayMinutes: 12,
+    })
+    expect(estimatedNextPassage('tata', Date.parse('2026-11-07T12:00:00Z'))).toEqual(
+      estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
+    )
+    expect(estimatedNextPassage('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
+    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
   })
 
   it('ne donne pas d’attente en dehors de l’amplitude de service', () => {
