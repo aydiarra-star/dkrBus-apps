@@ -137,9 +137,9 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
     id: 'tata',
     label: 'TATA',
     operator: 'TATA (AFTU)',
-    description: 'Réseau TATA — partage la palette orange/marron avec AFTU.',
+    description: 'Minibus TATA exploités au sein du réseau AFTU — fiche visuelle distincte, références horaires partagées.',
     provenance:
-      'Réseau TATA assimilé à AFTU pour l’affichage cartographique léger (pointillés + pastilles).',
+      'Les sources consultées rattachent les minibus TATA à l’AFTU ; la fiche TATA reste séparée visuellement dans Dakar Bus, mais ne reçoit ni effectif ni fréquence autonome sans mesure distincte.',
   },
 }
 
