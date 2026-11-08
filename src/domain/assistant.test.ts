@@ -48,7 +48,7 @@ describe('assistant mobilité', () => {
     expect(aftu).toContain('72 lignes')
     expect(aftu.replace(/\s/g, ' ')).toContain('2 300 bus')
     expect(aftu).toContain('14 GIE')
-    expect(aftu).toContain('amplitude générale de référence est 06h00–21h00')
+    expect(aftu).toContain('Aucun prochain départ fiable')
     expect(aftu).not.toContain('Intervalle moyen observé : 11,6 min')
   })
 
