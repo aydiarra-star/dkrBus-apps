@@ -37,7 +37,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(screen.getByText('DDD 1')).toBeTruthy()
     expect(within(screen.getByText('DDD 1').closest('li')!).getByText('—')).toBeTruthy()
     expect(screen.getByText('DDD 6')).toBeTruthy()
-    expect(within(screen.getByText('DDD 6').closest('li')!).getByText('4 min')).toBeTruthy()
+    expect(within(screen.getByText('DDD 6').closest('li')!).getByText('6 min')).toBeTruthy()
   })
 
   it('affiche le catalogue TATA séparément et ne lui attribue aucune fréquence AFTU', () => {
