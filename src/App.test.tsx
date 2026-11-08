@@ -979,7 +979,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     // Deux réseaux publient une fréquence officielle : deux décomptes vivants.
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
-    expect(screen.getAllByText('6 min').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText('6 min')).toBeTruthy()
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
 
