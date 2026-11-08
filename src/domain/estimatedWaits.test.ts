@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { estimatedFrequencyReference, estimatedWaitMinutes } from './estimatedWaits'
+import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedWaitMinutes } from './estimatedWaits'
 
 describe('estimations de temps d’attente', () => {
   it('calcule une attente DDD indicative plus courte aux heures de pointe', () => {
@@ -11,6 +11,16 @@ describe('estimations de temps d’attente', () => {
   it('applique la référence empirique partagée aux minibus AFTU et TATA', () => {
     expect(estimatedWaitMinutes('aftu', Date.parse('2026-11-07T12:00:00Z'))).toBe(8)
     expect(estimatedWaitMinutes('tata', Date.parse('2026-11-07T12:00:00Z'))).toBe(8)
+  })
+
+  it('applique les fréquences estimatives propres aux lignes AFTU 42 et 53', () => {
+    expect(estimatedLineFrequencyReference('AFTU 42')).toContain('15 min du lundi au vendredi')
+    expect(estimatedLineFrequencyReference('AFTU 53')).toContain('22 min le week-end')
+    expect(estimatedLineFrequencyReference('AFTU 1')).toBeNull()
+    expect(estimatedLineWaitMinutes('AFTU 42', 'aftu', Date.parse('2026-11-09T12:00:00Z'))).toBe(8)
+    expect(estimatedLineWaitMinutes('AFTU 42', 'aftu', Date.parse('2026-11-08T12:00:00Z'))).toBe(13)
+    expect(estimatedLineWaitMinutes('AFTU 53', 'aftu', Date.parse('2026-11-09T12:00:00Z'))).toBe(9)
+    expect(estimatedLineWaitMinutes('AFTU 53', 'aftu', Date.parse('2026-11-08T12:00:00Z'))).toBe(11)
   })
 
   it('expose les références distinctes DDD, AFTU et TATA', () => {
