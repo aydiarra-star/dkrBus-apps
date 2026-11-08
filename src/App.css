@@ -2736,6 +2736,9 @@ button:disabled { cursor: not-allowed; }
 /* Affichage direct des lignes de bus : même hiérarchie de créneau que TER/BRT. */
 .estimated-line-schedule-board {
   display: grid;
+  max-height: 460px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   gap: 0;
   margin: 8px 0 12px;
   border: 1px solid var(--line);

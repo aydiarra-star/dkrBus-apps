@@ -2256,7 +2256,7 @@ function ReferenceNetworkSummary({
                   </span>
                 )}
               </button>
-                  {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
+                  {(network.id === 'ddd' || network.id === 'aftu') && (
                     <EstimatedLineScheduleBoard network={network.id} now={now} />
                   )}
               {isSelected && (

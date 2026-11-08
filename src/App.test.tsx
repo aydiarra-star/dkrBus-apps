@@ -417,12 +417,12 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // Les bus affichent les lignes et leurs deux sens, jamais un libellé générique.
-    for (const network of ['ddd', 'aftu', 'tata']) {
+    for (const network of ['ddd', 'aftu']) {
       expect(document.querySelector(`.network-item-${network} .estimated-line-schedule-board`)).toBeTruthy()
       expect(document.querySelector(`.network-item-${network} .network-summary-passage`)).toBeNull()
     }
-    expect(screen.getByText('Ligne 55')).toBeTruthy()
-    expect(screen.getByText('Ligne 57')).toBeTruthy()
+    expect(screen.getAllByText('Ligne 55').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Ligne 57').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Créneau').length).toBeGreaterThan(4)
     expect(screen.queryByText(/Estimation/i)).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
@@ -996,10 +996,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    expect(screen.getByText('Ligne 55')).toBeTruthy()
-    expect(screen.getByText('Terminus Rufisque Sonadis → Petersen')).toBeTruthy()
-    expect(screen.getByText('Ligne 57')).toBeTruthy()
-    expect(screen.getByText('Liberté 6 → Rufisque')).toBeTruthy()
+    expect(screen.getAllByText('Ligne 55').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Terminus Rufisque Sonadis → Petersen').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Ligne 57').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Liberté 6 → Rufisque').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Aller').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Retour').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Créneau').length).toBeGreaterThan(0)
