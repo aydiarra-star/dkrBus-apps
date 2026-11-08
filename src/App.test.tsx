@@ -141,6 +141,25 @@ const STOP_D2_DETAIL = {
   },
 }
 
+const STOP_D6_DETAIL = {
+  stop: {
+    stop_id: 'D6',
+    stop_name: 'Démo — Yoff Aéroport',
+    stop_lat: 14.748,
+    stop_lon: -17.49,
+    location_type: '0',
+    parent_station: null,
+    routes: [
+      { route_id: 'L1', route_short_name: 'L1', route_long_name: 'Démo — Plateau ↔ Yoff', route_type: '3', trip_count: 2 },
+    ],
+    scheduled_time_window: {
+      first_declared_departure: '07:05:00',
+      last_declared_departure: '07:20:00',
+      note: 'Heures théoriques déclarées dans stop_times (GTFS Static) ; ce n’est ni une position, ni un temps réel.',
+    },
+  },
+}
+
 const JOURNEYS_PAYLOAD = {
   generated_at: '2026-10-08T13:47:47+00:00',
   snapshot_id: 'snap-20261008t131934z-demonstration',
