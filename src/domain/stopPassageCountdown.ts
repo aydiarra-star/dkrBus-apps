@@ -36,7 +36,9 @@ export function nextStopPassageCountdown(
   const last = parseClock(plan.lastDeparture)
   if (first === null || last === null || last < first) return null
 
-  const current = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60
+  // Les horaires DDD/AFTU/TATA sont interprétés à l'heure de Dakar (UTC+0),
+  // indépendamment du fuseau horaire du téléphone de l'utilisateur.
+  const current = now.getUTCHours() * 60 + now.getUTCMinutes() + now.getUTCSeconds() / 60
   const firstPassage = first + offset
   const lastPassage = last + offset
   if (current > lastPassage) return null
