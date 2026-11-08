@@ -219,7 +219,7 @@ export const NETWORK_REFERENCE_DATA: Readonly<Record<ReferenceNetworkId, Network
     stationCount: null,
     vehicleCount: 400,
     gieCount: null,
-    serviceStart: '06:00',
+    serviceStart: '05:30',
     serviceEnd: '21:00',
     serviceWindow: 'Premiers départs : 05:30–06:00 · derniers : 20:30–21:00',
     frequencyStatus: 'UNKNOWN',
