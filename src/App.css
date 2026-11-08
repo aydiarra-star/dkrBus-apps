@@ -2731,3 +2731,90 @@ button:disabled { cursor: not-allowed; }
 .theme-dark .pref-offline-error { color: #f0b76a; }
 .theme-dark .pref-offline-state.integrity-stale,
 .theme-dark .pref-offline-state.integrity-modified { border-color: #b9761f; background: rgba(185, 118, 31, .12); }
+
+
+/* Affiches estimatives DDD / AFTU / TATA : tableau compact, défilant sur mobile. */
+.estimated-line-schedule-board {
+  margin: 12px 0 4px;
+  border: 1px solid #dce9e3;
+  border-radius: 12px;
+  background: #fbfdfc;
+  overflow: hidden;
+}
+.estimated-line-schedule-board > summary {
+  padding: 11px 12px;
+  color: #214333;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.estimated-line-schedule-board > summary::marker { color: var(--green-700); }
+.estimated-line-schedule-intro,
+.estimated-line-schedule-disclaimer {
+  margin: 0;
+  padding: 0 12px 9px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.estimated-line-schedule-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid #e5eee9;
+  border-bottom: 1px solid #e5eee9;
+}
+.estimated-line-schedule-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.estimated-line-schedule-table th,
+.estimated-line-schedule-table td {
+  padding: 8px 9px;
+  border-bottom: 1px solid #e9f0ec;
+  text-align: left;
+  vertical-align: top;
+}
+.estimated-line-schedule-table thead th {
+  background: #f0f7f3;
+  color: #315744;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.estimated-line-schedule-table tbody th {
+  color: #214333;
+  white-space: nowrap;
+}
+.estimated-line-schedule-table td { color: #4b6257; }
+.estimated-line-schedule-table a {
+  color: var(--green-800);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.estimated-line-schedule-note {
+  display: block;
+  max-width: 190px;
+  margin-top: 4px;
+  color: #87612d;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.estimated-line-schedule-disclaimer { padding-top: 9px; }
+.theme-dark .estimated-line-schedule-board {
+  border-color: var(--line);
+  background: var(--surface-card);
+}
+.theme-dark .estimated-line-schedule-board > summary,
+.theme-dark .estimated-line-schedule-table tbody th { color: var(--text); }
+.theme-dark .estimated-line-schedule-scroll,
+.theme-dark .estimated-line-schedule-table th,
+.theme-dark .estimated-line-schedule-table td { border-color: var(--line); }
+.theme-dark .estimated-line-schedule-table thead th { background: var(--surface-sunken); color: var(--text); }
+.theme-dark .estimated-line-schedule-table td,
+.theme-dark .estimated-line-schedule-intro,
+.theme-dark .estimated-line-schedule-disclaimer { color: var(--muted); }
+.theme-dark .estimated-line-schedule-table a { color: #8bd5ae; }
