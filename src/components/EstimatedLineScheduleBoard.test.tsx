@@ -49,7 +49,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(60)
-    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(58)
+    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(60)
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
   })
 })
