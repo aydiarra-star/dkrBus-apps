@@ -34,18 +34,22 @@ describe('assistant mobilité', () => {
     expect(answer).not.toMatch(/prochain.*dans \d+ min/i)
   })
 
-  it('ne donne pas de fréquence uniforme ni de compte à rebours DDD/AFTU', () => {
-    const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT)
+  it('affiche une attente moyenne estimée pour DDD et AFTU', () => {
+    const midday = Date.parse('2026-11-07T12:00:00Z')
+    const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT, midday)
     expect(ddd).toContain('38 lignes')
     expect(ddd).toContain('400 bus')
-    expect(ddd.toLowerCase()).toContain('fréquences non publiées ligne par ligne')
+    expect(ddd).toContain('Intervalle de passage : 7–10 min aux heures de pointe')
+    expect(ddd).toContain('10–15 min en heures creuses')
+    expect(ddd).toContain('Estimation : 6 min d’attente moyenne')
     expect(ddd).not.toMatch(/dans \d+ min/)
 
-    const aftu = answerAssistant('Quand passe le prochain bus AFTU ?', CONTEXT)
+    const aftu = answerAssistant('Quand passe le prochain bus AFTU ?', CONTEXT, midday)
     expect(aftu).toContain('72 lignes')
     expect(aftu.replace(/\s/g, ' ')).toContain('2 300 bus')
     expect(aftu).toContain('14 GIE')
-    expect(aftu.toLowerCase()).toContain('aucun prochain départ fiable')
+    expect(aftu).toContain('Intervalle moyen observé : 11,6 min')
+    expect(aftu).toContain('Estimation : 8 min d’attente moyenne')
   })
 
   it('ne calcule le délai que depuis un départ exact programmé du bon réseau', () => {
@@ -165,7 +169,7 @@ describe('point d’embarquement demandé au guichet', () => {
     // DDD : trois lignes de référence qui partagent des arrêts, comptés une fois.
     const ddd = answerAssistant('Où prendre un bus DDD ?', CONTEXT)
     expect(ddd).toMatch(/lignes de référence, \d+ arrêts déclarés/)
-    expect(ddd).toMatch(/fréquences non publiées|Aucun horaire par arrêt/)
+    expect(ddd).toContain('Estimation')
   })
 
   it('demande le réseau manquant au lieu de deviner, et exploite la position autorisée', () => {
