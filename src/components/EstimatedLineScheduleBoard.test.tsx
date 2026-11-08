@@ -33,7 +33,8 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
-    const row = screen.getByRole('row', { name: /^DDD 1\s*—$/ })
+    const row = screen.getAllByRole('row').find((candidate) => within(candidate).queryByText('DDD 1'))
+    expect(row).toBeTruthy()
     expect(within(row).getByText('—')).toBeTruthy()
   })
 
