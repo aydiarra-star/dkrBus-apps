@@ -9,7 +9,7 @@ const plan = {
 }
 
 const at = (hours: number, minutes: number, seconds = 0) =>
-  new Date(2026, 10, 8, hours, minutes, seconds)
+  new Date(Date.UTC(2026, 10, 8, hours, minutes, seconds))
 
 describe('nextStopPassageCountdown', () => {
   it('adds the stop-specific travel offset to each origin departure', () => {
