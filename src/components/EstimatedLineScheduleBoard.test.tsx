@@ -37,14 +37,13 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(row).getByText('—')).toBeTruthy()
   })
 
-  it('reprend les références AFTU pour TATA sans créer une fréquence séparée', () => {
+  it('ne réutilise ni les lignes ni les fréquences AFTU pour TATA sans source indépendante', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="tata" />)
-    const row = screen.getByText('TATA 2B').closest('li')!
-    expect(row).toBeTruthy()
-    expect(within(row).getByText('11 min')).toBeTruthy()
+    expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
+    expect(document.querySelectorAll('.station-board-row')).toHaveLength(0)
   })
 })
