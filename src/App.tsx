@@ -2265,7 +2265,7 @@ function ReferenceNetworkSummary({
                           <p><strong>Départs généraux :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
                           <p><strong>Ligne 1 :</strong> Parcelles 05:30–20:30 · Leclerc 06:30–21:00</p>
                           <p><strong>TAF TAF :</strong> Ouakam–AIBD 06:00–21:00 · Ouakam–Sphère 05:45–21:00 · retour Sphère 06:00–20:30</p>
-                          <p><strong>Fréquence de planification :</strong> 7–10 min en pointe · 10–15 min en heures creuses</p>
+                          <p><strong>Intervalle de passage estimé :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
                           <p><strong>Relevés CETUD/CUREM :</strong> 6–52 min en semaine · 11–40 min le samedi sur les sites échantillonnés</p>
                           <p><strong>Attente moyenne indicative :</strong> 4 min en pointe · 6 min en heures creuses</p>
                         </>
