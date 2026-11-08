@@ -2283,13 +2283,13 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
                   {hasEstimatedMinutes ? (
-                    <div className="estimated-countdown-board" aria-label={`Compte à rebours ${refData?.shortName ?? network.label}`}>
+                    <div className="station-board" aria-label={`Compte à rebours ${refData?.shortName ?? network.label}`}>
                       {boards.map((board) => (
                         <div className="station-board-head" key={board.line.id}>
                           <strong>{board.line.shortName} · {stationShortName(board.originStop)} ↔ {stationShortName(board.destinationStop)}</strong>
                         </div>
                       ))}
-                      <div className="estimated-countdown-value" role="status" aria-live="off">
+                      <div className="network-summary-passage station-board-passage" role="status" aria-live="off">
                         <strong>{formatPassageCountdown(estimatedPassage?.minutes ?? null)}</strong>
                       </div>
                     </div>
