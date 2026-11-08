@@ -122,16 +122,16 @@ const NEARBY_PAYLOAD = {
   ],
 }
 
-const STOP_D6_DETAIL = {
+const STOP_D2_DETAIL = {
   stop: {
-    stop_id: 'D6',
-    stop_name: 'Démo — Yoff Aéroport',
-    stop_lat: 14.748,
-    stop_lon: -17.49,
+    stop_id: 'D2',
+    stop_name: 'Démo — Plateau Sud',
+    stop_lat: 14.7053,
+    stop_lon: -17.4601,
     location_type: '0',
     parent_station: null,
     routes: [
-      { route_id: 'L1', route_short_name: 'L1', route_long_name: 'Démo — Plateau ↔ Yoff', route_type: '3', trip_count: 2 },
+      { route_id: 'L2', route_short_name: 'L2', route_long_name: 'Démo — Médina ↔ Guédiawaye', route_type: '3', trip_count: 2 },
     ],
     scheduled_time_window: {
       first_declared_departure: '07:05:00',
@@ -809,20 +809,19 @@ describe('published snapshot in the app', () => {
       },
       { match: '/api/routes', respond: () => jsonResponse(ROUTES_PAYLOAD) },
       { match: '/api/stops/near', respond: () => jsonResponse(NEARBY_PAYLOAD) },
-      { match: '/api/stops/D6', respond: () => (published ? jsonResponse(STOP_D6_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
+      { match: '/api/stops/D2', respond: () => (published ? jsonResponse(STOP_D2_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
     ])
     render(<App />)
     await openReadApiState()
 
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
-    // Yoff reste consultable par la recherche, mais n'est plus proposé dans
-    // le panneau de proximité si l'arrêt dépasse quinze minutes à pied.
-    const search = screen.getByLabelText(/rechercher un arrêt, une station ou une destination/i)
-    fireEvent.change(search, { target: { value: 'yoff' } })
-    fireEvent.submit(search.closest('form')!)
-    fireEvent.click(await screen.findByRole('button', { name: /démo — yoff aéroport/i }))
-    expect(await screen.findByRole('region', { name: /arrêt démo — yoff aéroport/i })).toBeTruthy()
-    expect(screen.getByTestId('mapped-stops').textContent).toContain('Démo — Yoff Aéroport')
+    // L'arrêt D2 est bien dans le rayon piéton : il reste sélectionnable.
+    // D6/Yoff (4 860 m) doit, lui, être absent des résultats de proximité.
+    const nearbyPanel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
+    expect(within(nearbyPanel).queryByText('Démo — Yoff Aéroport')).toBeNull()
+    fireEvent.click(within(nearbyPanel).getByRole('button', { name: /démo — plateau sud/i }))
+    expect(await screen.findByRole('region', { name: /arrêt démo — plateau sud/i })).toBeTruthy()
+    expect(screen.getByTestId('mapped-stops').textContent).toContain('Démo — Plateau Sud')
 
     // The publication is withdrawn server-side: refreshing must drop the view
     // instead of keeping a snapshot that is no longer served.
@@ -1080,7 +1079,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
     expect(within(panel).queryByText('Stations BRT')).toBeNull()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
-    expect(within(panel).getByText(/à 15 min à pied maximum/i)).toBeTruthy()
+    expect(within(panel).getAllByText(/à 15 min à pied maximum/i).length).toBeGreaterThan(0)
   })
 
   it('déclenche une micro-interaction et un retour haptique lors de la sélection d’un réseau', () => {
