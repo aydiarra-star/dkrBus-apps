@@ -60,7 +60,7 @@ export const DDD_PUBLIC_ROUTE_STOPS: readonly PublicBusRouteStops[] = [
   },
   {
     network: 'ddd', line: '23', directionLabel: 'Parcelles Assainies → Palais 1',
-    stops: ['Terminus des Parcelles','Ecole Dior','Diamalaye','HLM Grand Médine','Dior','Acapes','Dispensaire Norade','Hôpital Mame Abdou','Eglise','Unité 11','Croisement 22','Police Parcelles','Pont Emergent','Ecole Hyacinthe Thiandoum','Rond point Liberté 6','Khar Yalla','Front de Terre','Cité des Eaux','Station Castor','Avenue Bourguiba','Stade Demba Diop','Ecole Normale','Poste Fann','Avenue Cheikh Anta Diop','UCAD','Rond Point Sahm','Canal 4','Gueule Tapée','Rue 6','DAF','Poste Médina','Difoncé','Sandaga','ASECNA','Boulevard de la République','Avenue Léopold Sédar Senghor','Hôpital Principal','Rond point Assemblée nationale','Institut Pasteur','Terminus Palais 2'],
+    stops: ['Terminus des Parcelles','Ecole Dior','Diamalaye','HLM Grand Médine','Dior','Acapes','Dispensaire Norade','Hôpital Mame Abdou','Eglise','Unité 11','Croisement 22','Police Parcelles','Pont Emergent','Ecole Hyacinthe Thiandoum','Rond point Liberté 6','Khar Yalla','Front de Terre','Cité des Eaux','Station Castor','Avenue Bourguiba','Stade Demba Diop','Ecole Normale','Poste Fann','Avenue Cheikh Anta Diop','UCAD','Rond Point Sahm','Canal 4','Gueule Tapée','Rue 6','DAF','Poste Médina','Difoncé','Sandaga','ASECNA','Boulevard de la République','Avenue Léopold Sédar Senghor','Hôpital Principal','Rond point Assemblée nationale','Institut Pasteur','Terminus Palais 1'],
     sourceUrl, sourceLabel,
   },
   {
