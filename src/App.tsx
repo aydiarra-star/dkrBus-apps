@@ -77,6 +77,9 @@ import {
 import {
   NEARBY_MOBILITY_KIND,
   NEARBY_MOBILITY_RADIUS_M,
+  NEARBY_WALK_LIMIT_MINUTES,
+  isWithinWalkingLimit,
+  walkingMinutesFromDistance,
   absentNearbyLabel,
   absentNearbyNetworks,
   detectNearbyMobilities,
@@ -1971,7 +1974,9 @@ function ExplorerPanel({
   const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
   /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
    *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
-  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready' ? nearby.stops : []
+  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
+    ? nearby.stops.filter((stop) => isWithinWalkingLimit(stop.distanceM))
+    : []
 
   function revealNearby() {
     triggerHaptic(10)
@@ -2037,7 +2042,7 @@ function ExplorerPanel({
           <section className="nearby-mobility-panel" aria-label="Mobilités à proximité">
             <div className="nearby-mobility-head">
               <p className="nearby-mobility-meta" role="status">
-                {proximityStatus ?? `Arrêts de référence dans ${formatDistanceMeters(NEARBY_MOBILITY_RADIUS_M)}${gpsMessage ? ` · ${gpsMessage}` : ''} · pas de position de véhicule.`}
+                {proximityStatus ?? `Arrêts de référence à ${NEARBY_WALK_LIMIT_MINUTES} min à pied maximum${gpsMessage ? ` · ${gpsMessage}` : ''} · pas de position de véhicule.`}
               </p>
               <button
                 type="button"
@@ -2049,7 +2054,7 @@ function ExplorerPanel({
             </div>
 
             {gpsState === 'ready' && nearbyGroups.length === 0 && !proximityStatus && (
-              <p className="nearby-mobility-status" role="status">Aucune mobilité de référence dans ce rayon.</p>
+              <p className="nearby-mobility-status" role="status">Aucune mobilité de référence à 15 min à pied maximum.</p>
             )}
 
             {nearbyGroups.length > 0 && (
@@ -2077,7 +2082,7 @@ function ExplorerPanel({
                             <span className="nearby-mobility-lines">
                               {hit.lineNames.length > 0 ? hit.lineNames.join(' · ') : 'Réseau de référence'}
                             </span>
-                            <small>{formatDistance(hit.distanceM) ?? ''}</small>
+                            <small>{hit.walkMinutes} min à pied</small>
                           </button>
                         </li>
                       ))}
