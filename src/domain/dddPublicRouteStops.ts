@@ -78,11 +78,7 @@ export const DDD_PUBLIC_ROUTE_STOPS: readonly PublicBusRouteStops[] = [
     stops: ['Terminus Guédiawaye','Marché Jeudi','Hôpital Dalal Diam','Case PA','Police de Parcelles Assainies – Pont Sénégal 92','Patte d’Oie','Autoroute','Intendance','Avenue Lamine Gueye','Avenue André Peytavin','Avenue Jean Jaurès (Direction Générale ASECNA)','Boulevard de la République','Avenue Léopold Sédar Senghor','Avenue Nelson Mandela','Palais 1'],
     sourceUrl, sourceLabel,
   },
-  {
-    network: 'ddd', line: '6', directionLabel: 'Guédiawaye → Palais 1 (fiche itinéraire)',
-    stops: ['Terminus Guédiawaye','Marché Jeudi','Hôpital Dalal Diam','Camberene','Case PA','Police de Parcelles Assainies – Marché Grand Médine','Rond point 26','Foire','Sipres','Rond point Liberté 6','Terminus Liberté 5','Allées Khalifa Ababacar Sy','Jet d’Eau','Niary Tally','Eglise Sainte Thérèse','ENA','Boulevard Général de Gaulle','Allées Papa Guèye Fall','Avenue Faidherbe','Avenue Lamine Gueye','Avenue André Peytavin','Avenue Jean Jaurès','Boulevard de la République','Avenue Nelson Mandela','Palais 1'],
-    sourceUrl, sourceLabel,
-  },
+
   {
     network: 'ddd', line: '11', directionLabel: 'Keur Massar → Lat Dior',
     stops: ['Terminus Keur Massar','Station Keur Massar','Croisement Keur Massar','Fass Mbao','Diamaguène','Poste Thiaroye','Autoroute à péage','Corniche des HLM','Colobane','Boulevard Général de Gaulle (Centenaire)','RTS','Rond Point','Poste Médina','Blaise Diagne','Sandaga','Terminus Lat Dior'],
