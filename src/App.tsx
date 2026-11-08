@@ -76,10 +76,8 @@ import {
 } from './domain/corridors'
 import {
   NEARBY_MOBILITY_KIND,
-  NEARBY_MOBILITY_RADIUS_M,
   NEARBY_WALK_LIMIT_MINUTES,
   isWithinWalkingLimit,
-  walkingMinutesFromDistance,
   absentNearbyLabel,
   absentNearbyNetworks,
   detectNearbyMobilities,
