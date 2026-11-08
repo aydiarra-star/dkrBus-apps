@@ -14,13 +14,12 @@ describe('estimations de temps d’attente', () => {
   })
 
   it('applique les fréquences estimatives propres aux lignes AFTU 42 et 53', () => {
+    expect(estimatedLineFrequencyReference('DDD 1')).toContain('Parcelles Assainies 05:30–20:30')
     expect(estimatedLineFrequencyReference('AFTU 42')).toContain('15 min du lundi au vendredi')
-    expect(estimatedLineFrequencyReference('AFTU 53')).toContain('22 min le week-end')
+    expect(estimatedLineFrequencyReference('AFTU 53')).toBeNull()
     expect(estimatedLineFrequencyReference('AFTU 1')).toBeNull()
     expect(estimatedLineWaitMinutes('AFTU 42', 'aftu', Date.parse('2026-11-09T12:00:00Z'))).toBe(8)
     expect(estimatedLineWaitMinutes('AFTU 42', 'aftu', Date.parse('2026-11-08T12:00:00Z'))).toBe(13)
-    expect(estimatedLineWaitMinutes('AFTU 53', 'aftu', Date.parse('2026-11-09T12:00:00Z'))).toBe(9)
-    expect(estimatedLineWaitMinutes('AFTU 53', 'aftu', Date.parse('2026-11-08T12:00:00Z'))).toBe(11)
   })
 
   it('expose les références distinctes DDD, AFTU et TATA', () => {
