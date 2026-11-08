@@ -45,6 +45,7 @@ import { assessStreetReport, rankStreetReports, relevantStreetReports, community
 import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
 import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
+import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
@@ -2309,6 +2310,9 @@ function ReferenceNetworkSummary({
                       aucun horaire n’est inventé en attendant.
                     </p>
                   )}
+                  {network.id === 'ddd' ? <EstimatedLineScheduleBoard network="ddd" /> : null}
+                  {network.id === 'aftu' ? <EstimatedLineScheduleBoard network="aftu" /> : null}
+                  {network.id === 'tata' ? <EstimatedLineScheduleBoard network="tata" /> : null}
                 </div>
               )}
             </li>
