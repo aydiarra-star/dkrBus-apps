@@ -1970,10 +1970,10 @@ function ExplorerPanel({
   }, [proximityOpen, gpsState, location])
   const nearbyGroups = useMemo(() => groupNearbyMobilities(nearbyHits), [nearbyHits])
   const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
-  /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
-   *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
+  /** Les arrêts publiés sont également filtrés selon la limite de 15 min à pied ;
+   * l'API peut retourner un rayon plus large, mais il ne doit pas apparaître ici. */
   const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
-    ? nearby.stops.filter((stop) => isWithinWalkingLimit(stop.distanceM))
+    ? nearby.stops.filter((stop) => typeof stop.distanceM === 'number' && isWithinWalkingLimit(stop.distanceM))
     : []
 
   function revealNearby() {
