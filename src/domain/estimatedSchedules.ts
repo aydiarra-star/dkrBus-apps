@@ -26,11 +26,12 @@ const w = (start: string, end: string, interval: number | string): EstimatedFreq
 /**
  * Horaires de service et fréquences estimatives de lignes indexées par
  * TransitByCity, dont la dernière actualisation affichée est le 28/05/2026.
+ * Les lignes dont l'identifiant ne correspond pas exactement au catalogue
+ * officiel actuellement affiché sont volontairement exclues des panneaux.
  * Ces données tierces sont des repères de planification, jamais des horaires
  * officiels ni des prédictions de prochain véhicule.
  */
 export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
-  { line: '2B', weekday: w('04:00', '22:09', 11), saturday: w('04:10', '22:01', 17), sunday: w('04:10', '22:01', 17), sourceUrl: aftuUrl('2b'), sourceLabel: tb },
   { line: '5', weekday: w('06:00', '23:00', 10), saturday: w('06:00', '23:00', 15), sunday: w('06:00', '23:00', 20), sourceUrl: aftuUrl('5'), sourceLabel: tb },
   { line: '29', weekday: w('05:10', '22:58', 12), saturday: w('05:15', '22:55', 20), sunday: w('05:15', '22:55', 20), sourceUrl: aftuUrl('29'), sourceLabel: tb },
   { line: '30', weekday: w('05:15', '21:51', 12), saturday: w('05:30', '22:30', 30), sunday: w('05:30', '22:30', 30), sourceUrl: aftuUrl('30'), sourceLabel: tb },
@@ -62,17 +63,12 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
 
 export const DDD_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '1', weekday: null, saturday: null, sunday: null, sourceUrl: 'https://fr.linkedin.com/posts/dakar-dem-dikk_dakardemdikk-mobility-urbain-activity-7356651804501102593-rCq3', sourceLabel: 'Dakar Dem Dikk · départs publiés', note: 'Parcelles Assainies : premier départ 05:30, dernier 20:30 · Leclerc : premier départ 06:30, dernier 21:00.' },
-  { line: '2A', weekday: w('06:45', '21:20', 20), saturday: w('07:20', '21:00', 20), sunday: w('07:50', '21:00', 20), sourceUrl: dddUrl('2a'), sourceLabel: tb },
   { line: '6', weekday: w('04:30', '21:25', 7), saturday: w('05:00', '22:00', 12), sunday: w('05:00', '22:00', 17), sourceUrl: dddUrl('6'), sourceLabel: tb },
   { line: '12', weekday: w('06:00', '21:52', 17), saturday: w('06:00', '21:43', 23), sunday: w('06:00', '21:57', 33), sourceUrl: dddUrl('12'), sourceLabel: tb },
-  { line: '15', weekday: w('06:00', '22:00', 20), saturday: w('07:00', '22:00', 50), sunday: w('07:00', '22:00', 50), sourceUrl: dddUrl('15'), sourceLabel: tb, note: 'L’index TransitByCity détaille 69 arrêts entre « Gare Maritime de Rufisque » et « Gare Palais » ; la page officielle DDD présente la ligne 15 « Rufisque–Palais 1 » avec un tracé plus synthétique. Les libellés de terminus et le niveau de détail diffèrent entre les sources : cette fréquence reste un repère de planification de la ligne, pas un horaire de passage à un arrêt.' },
   { line: '16A', weekday: w('05:15', '21:58', 17), saturday: w('05:40', '22:00', 20), sunday: w('05:40', '22:00', 20), sourceUrl: dddUrl('16a'), sourceLabel: tb },
   { line: '16B', weekday: w('05:00', '23:30', 15), saturday: w('06:00', '22:40', 25), sunday: w('06:00', '23:00', 30), sourceUrl: dddUrl('16b'), sourceLabel: tb },
   { line: '217', weekday: w('05:45', '19:30', 25), saturday: w('06:30', '20:00', 20), sunday: w('07:00', '20:00', 25), sourceUrl: dddUrl('217'), sourceLabel: tb },
   { line: '218', weekday: w('05:45', '19:30', 25), saturday: w('06:30', '20:00', 20), sunday: null, sourceUrl: dddUrl('218'), sourceLabel: tb, note: 'Pas de service le dimanche selon la fiche consultée.' },
   { line: '219', weekday: w('06:40', '20:40', 20), saturday: w('07:00', '19:55', 25), sunday: w('08:30', '20:10', 25), sourceUrl: dddUrl('219'), sourceLabel: tb },
   { line: '227', weekday: w('06:30', '20:30', 30), saturday: w('06:30', '20:30', 30), sunday: w('07:00', '21:00', 30), sourceUrl: dddUrl('227'), sourceLabel: tb },
-  { line: '324', weekday: w('06:00', '22:00', 20), saturday: w('06:05', '21:48', 23), sunday: null, sourceUrl: dddUrl('324'), sourceLabel: tb, note: 'Pas de service le dimanche selon la fiche consultée.' },
-  { line: '403', weekday: w('06:00', '21:00', 12), saturday: w('06:00', '21:00', 20), sunday: w('06:00', '21:00', 25), sourceUrl: dddUrl('403'), sourceLabel: tb },
-  { line: '404B', weekday: w('07:30', '20:18', 12), saturday: w('07:30', '20:18', 16), sunday: w('07:30', '20:25', 25), sourceUrl: dddUrl('404b'), sourceLabel: tb },
 ]

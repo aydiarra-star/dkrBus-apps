@@ -1235,9 +1235,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const detail = container.querySelector(`.network-item-${network} .network-summary-detail`) as HTMLElement
       const board = detail.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
-      expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
+      if (network === 'tata') {
+        // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
+        expect(board.querySelectorAll('.station-board-row')).toHaveLength(60)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(60)
+      } else {
+        expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
+      }
       expect(board.textContent).not.toMatch(/Estimation|Terminus|horaires non publiés/i)
-      expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
     }
     vi.useRealTimers()
   })

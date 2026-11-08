@@ -9,14 +9,16 @@ afterEach(() => {
 })
 
 describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
-  it('affiche seulement la ligne et le décompte, qui diminue automatiquement', () => {
+  it('affiche le catalogue AFTU et fait diminuer automatiquement les seuls créneaux concordants', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
-    const row = screen.getByText('AFTU 2B').closest('li')!
+    const row = screen.getByText('AFTU 5').closest('li')!
     expect(row).toBeTruthy()
-    expect(within(row).getByText('11 min')).toBeTruthy()
+    expect(within(row).getByText('10 min')).toBeTruthy()
+    expect(screen.getByText('AFTU 91')).toBeTruthy()
+    expect(within(screen.getByText('AFTU 91').closest('li')!).getByText('—')).toBeTruthy()
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
@@ -24,27 +26,30 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getByText('10 min')).toBeTruthy()
+    expect(within(row).getByText('9 min')).toBeTruthy()
   })
 
-  it('ne fabrique aucun compte à rebours pour une ligne sans fréquence exploitable', () => {
+  it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
-    const row = screen.getByText('DDD 1').closest('li')!
-    expect(row).toBeTruthy()
-    expect(within(row).getByText('—')).toBeTruthy()
+    expect(screen.getByText('DDD 1')).toBeTruthy()
+    expect(within(screen.getByText('DDD 1').closest('li')!).getByText('—')).toBeTruthy()
+    expect(screen.getByText('DDD 6')).toBeTruthy()
+    expect(within(screen.getByText('DDD 6').closest('li')!).getByText('6 min')).toBeTruthy()
   })
 
-  it('reprend les références AFTU pour TATA sans créer une fréquence séparée', () => {
+  it('affiche le catalogue TATA séparément et ne lui attribue aucune fréquence AFTU', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
-    render(<EstimatedLineScheduleBoard network="tata" />)
-    const row = screen.getByText('TATA 2B').closest('li')!
-    expect(row).toBeTruthy()
-    expect(within(row).getByText('11 min')).toBeTruthy()
+    const { container } = render(<EstimatedLineScheduleBoard network="tata" />)
+    expect(screen.getByText('TATA 37')).toBeTruthy()
+    expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
+    expect(container.querySelectorAll('.station-board-row')).toHaveLength(60)
+    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(60)
+    expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
   })
 })
