@@ -77,35 +77,31 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
   }, [])
 
   return (
-    <section className="estimated-line-schedule-board" aria-label={isDdd ? 'Affichage des lignes DDD' : network === 'tata' ? 'Affichage des lignes TATA' : 'Affichage des lignes AFTU'}>
-      <div className="estimated-line-schedule-scroll">
-        <table className="estimated-line-schedule-table">
-          <thead>
-            <tr>
-              <th scope="col">Ligne</th>
-              <th scope="col">Compte à rebours</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.map((schedule) => {
-              const minutes = scheduleCountdownMinutes(schedule, now)
-              return (
-                <tr key={schedule.line}>
-                  <th scope="row">{label} {schedule.line}</th>
-                  <td
-                    role="status"
-                    aria-label={minutes === null
-                      ? `${label} ${schedule.line} : aucun créneau calculable aujourd’hui`
-                      : `${label} ${schedule.line} : décompte indicatif de ${minutes} minutes`}
-                  >
-                    <strong>{formatPassageCountdown(minutes)}</strong>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+    <section className="estimated-line-schedule-board station-board" aria-label={isDdd ? 'Affichage des lignes DDD' : network === 'tata' ? 'Affichage des lignes TATA' : 'Affichage des lignes AFTU'}>
+      <header className="station-board-head">
+        <strong>{isDdd ? 'Lignes DDD' : network === 'tata' ? 'Lignes TATA' : 'Lignes AFTU'}</strong>
+      </header>
+      <ul className="station-board-list">
+        {schedules.map((schedule) => {
+          const minutes = scheduleCountdownMinutes(schedule, now)
+          return (
+            <li key={schedule.line}>
+              <div className="station-board-row">
+                <span className="station-board-stop">{label} {schedule.line}</span>
+                <span
+                  className={`network-summary-passage station-board-passage${minutes === null ? ' is-undeclared' : ''}`}
+                  role="status"
+                  aria-label={minutes === null
+                    ? `${label} ${schedule.line} : aucun créneau calculable aujourd’hui`
+                    : `${label} ${schedule.line} : compte à rebours de ${minutes} minutes`}
+                >
+                  <strong>{formatPassageCountdown(minutes)}</strong>
+                </span>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }
