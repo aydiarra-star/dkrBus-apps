@@ -2275,31 +2275,38 @@ function ReferenceNetworkSummary({
               </button>
               {isSelected && (
                 <div className="network-summary-detail station-board-detail">
-                  <span className="station-board-context">
-                    {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
-                    {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
-                    {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
-                  </span>
-                  {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
-                    boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
-                  ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
-                    <p className="station-board-pending">
-                      Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
-                    </p>
-                  ) : serviceState.status === 'FINISHED' ? (
-                    <p className="station-board-pending">
-                      Service terminé. Les créneaux par station reprendront demain à partir de {refData?.serviceStart ?? 'l’heure habituelle'}.
-                    </p>
+                  {network.id === 'ddd' ? (
+                    <EstimatedLineScheduleBoard network="ddd" />
+                  ) : network.id === 'aftu' ? (
+                    <EstimatedLineScheduleBoard network="aftu" />
+                  ) : network.id === 'tata' ? (
+                    <EstimatedLineScheduleBoard network="tata" />
                   ) : (
-                    <p className="station-board-pending">
-                      Horaires par station : aucune ligne {refData?.shortName ?? network.label} n’est encore publiée.
-                      Les créneaux par arrêt et par sens s’afficheront ici dès qu’une ligne sera disponible —
-                      aucun horaire n’est inventé en attendant.
-                    </p>
+                    <>
+                      <span className="station-board-context">
+                        {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
+                        {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
+                        {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
+                      </span>
+                      {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
+                        boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
+                      ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
+                        <p className="station-board-pending">
+                          Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
+                        </p>
+                      ) : serviceState.status === 'FINISHED' ? (
+                        <p className="station-board-pending">
+                          Service terminé. Les créneaux par station reprendront demain à partir de {refData?.serviceStart ?? 'l’heure habituelle'}.
+                        </p>
+                      ) : (
+                        <p className="station-board-pending">
+                          Horaires par station : aucune ligne {refData?.shortName ?? network.label} n’est encore publiée.
+                          Les créneaux par arrêt et par sens s’afficheront ici dès qu’une ligne sera disponible —
+                          aucun horaire n’est inventé en attendant.
+                        </p>
+                      )}
+                    </>
                   )}
-                  {network.id === 'ddd' ? <EstimatedLineScheduleBoard network="ddd" /> : null}
-                  {network.id === 'aftu' ? <EstimatedLineScheduleBoard network="aftu" /> : null}
-                  {network.id === 'tata' ? <EstimatedLineScheduleBoard network="tata" /> : null}
                 </div>
               )}
             </li>
