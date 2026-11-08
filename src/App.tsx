@@ -2203,6 +2203,8 @@ function ReferenceNetworkSummary({
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
           const showCountdown = serviceState.showCountdown && passage
+          const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
+          const estimatedMinutes = hasEstimatedMinutes ? estimatedWaitMinutes(network.id, now) : null
 
           return (
             <li
@@ -2212,7 +2214,7 @@ function ReferenceNetworkSummary({
             >
               <button
                 type="button"
-                className="network-summary-header"
+                className={`network-summary-header${hasEstimatedMinutes ? ' has-estimated-minutes' : ''}`}
                 aria-expanded={isSelected}
                 onClick={() => onSelectNetwork(network.id)}
               >
@@ -2220,10 +2222,19 @@ function ReferenceNetworkSummary({
                   className={`network-summary-dot is-referenced${showCountdown ? ' is-counting' : ''} status-${serviceState.status.toLowerCase()}`}
                   aria-hidden="true"
                 />
+                {hasEstimatedMinutes ? (
+                  <span
+                    className={`network-summary-estimated-minutes${estimatedMinutes === null ? ' is-unavailable' : ''}`}
+                    role="status"
+                    aria-label={`${refData?.shortName ?? network.label} : ${estimatedMinutes === null ? 'estimation indisponible hors service' : `attente moyenne estimée ${estimatedMinutes} minutes`}. Ce n’est pas un horaire de passage en temps réel.`}
+                  >
+                    <strong>{estimatedMinutes ?? '—'}</strong><small>min</small>
+                  </span>
+                ) : null}
                 {isMobilityId(network.id)
                   ? <MobilityBadge id={network.id}>{refData?.shortName ?? network.label}</MobilityBadge>
                   : <span className="network-summary-name">{refData?.shortName ?? network.label}</span>}
-                {serviceState.status === 'FINISHED' ? (
+                {!hasEstimatedMinutes && serviceState.status === 'FINISHED' ? (
                   <span
                     className="network-summary-passage is-finished"
                     role="status"
@@ -2232,7 +2243,7 @@ function ReferenceNetworkSummary({
                     <strong>Fin de service</strong>
                     <small>{refData ? `Reprise à ${refData.serviceStart}` : networkMetaLabel(network)}</small>
                   </span>
-                ) : serviceState.status === 'UPCOMING' ? (
+                ) : !hasEstimatedMinutes && serviceState.status === 'UPCOMING' ? (
                   <span
                     className="network-summary-passage is-upcoming"
                     role="status"
@@ -2241,7 +2252,7 @@ function ReferenceNetworkSummary({
                     <strong>{serviceState.label}</strong>
                     <small>{passage ? `créneau ${passage.clockLabel}` : `début ${refData?.serviceStart ?? '—'}`}</small>
                   </span>
-                ) : showCountdown ? (
+                ) : !hasEstimatedMinutes && showCountdown ? (
                   <span
                     className="network-summary-passage"
                     role="status"
@@ -2251,12 +2262,12 @@ function ReferenceNetworkSummary({
                     <strong>{formatPassageCountdown(passage.minutes)}</strong>
                     <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
                   </span>
-                ) : (
+                ) : !hasEstimatedMinutes ? (
                   <span className="network-summary-passage is-undeclared">
                     <strong>Estimation</strong>
                     <small>{estimatedWaitMinutes(network.id, now) === null ? '—' : `${estimatedWaitMinutes(network.id, now)} min`}</small>
                   </span>
-                )}
+                ) : null}
               </button>
                   {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
                     <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
