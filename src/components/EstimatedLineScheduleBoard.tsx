@@ -77,8 +77,7 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
   }, [])
 
   return (
-    <details className="estimated-line-schedule-board">
-      <summary>{isDdd ? 'Lignes DDD' : network === 'tata' ? 'Lignes TATA' : 'Lignes AFTU'}</summary>
+    <section className="estimated-line-schedule-board" aria-label={isDdd ? 'Affichage des lignes DDD' : network === 'tata' ? 'Affichage des lignes TATA' : 'Affichage des lignes AFTU'}>
       <div className="estimated-line-schedule-scroll">
         <table className="estimated-line-schedule-table">
           <thead>
@@ -107,6 +106,6 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
           </tbody>
         </table>
       </div>
-    </details>
+    </section>
   )
 }
