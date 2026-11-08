@@ -44,6 +44,27 @@ export function estimatedFrequencyReference(network: string | null): string | nu
   return null
 }
 
+export function estimatedLineFrequencyReference(lineName: string): string | null {
+  const key = lineName.toUpperCase().replace(/\\s+/g, ' ').trim()
+  if (key === 'AFTU 42') {
+    return 'Estimation ligne 42 : 15 min du lundi au vendredi · 25 min le week-end · service 05:50–21:50 en semaine et 06:00–21:50 le week-end (référence TransitByCity, actualisée le 28/05/2026).'
+  }
+  if (key === 'AFTU 53') {
+    return 'Estimation ligne 53 : 17 min du lundi au vendredi · 22 min le week-end · service 05:50–21:59 en semaine et 06:05–21:51 le week-end (référence TransitByCity, actualisée le 28/05/2026).'
+  }
+  return null
+}
+
+export function estimatedLineWaitMinutes(lineName: string, network: string | null, now = Date.now()): number | null {
+  if (!Number.isFinite(now)) return null
+  const day = new Date(now).getUTCDay()
+  const weekend = day === 0 || day === 6
+  const key = lineName.toUpperCase().replace(/\\s+/g, ' ').trim()
+  if (key === 'AFTU 42') return weekend ? 13 : 8
+  if (key === 'AFTU 53') return weekend ? 11 : 9
+  return estimatedWaitMinutes(network, now)
+}
+
 export function estimatedWaitMinutes(network: string | null, now = Date.now()): number | null {
   if (!Number.isFinite(now) || !network) return null
   const minuteOfDay = new Date(now).getUTCHours() * 60 + new Date(now).getUTCMinutes()
