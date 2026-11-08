@@ -24,11 +24,12 @@ describe('initial transport catalogue', () => {
     expect(aftu?.referenceData?.officialFrequencies).toEqual([])
   })
 
-  it('keeps TATA separate from AFTU', () => {
+  it('keeps a separate TATA display without counting it as an independent AFTU network', () => {
     const aftu = NETWORK_SOURCES.find((network) => network.id === 'aftu')
     const tata = NETWORK_SOURCES.find((network) => network.id === 'tata')
     expect(aftu).toBeDefined()
     expect(tata).toBeDefined()
     expect(tata?.id).not.toBe(aftu?.id)
+    expect(tata?.referenceData).toMatchObject({ lineCount: null, vehicleCount: null, frequencyStatus: 'UNKNOWN' })
   })
 })
