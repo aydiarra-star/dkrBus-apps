@@ -2737,13 +2737,13 @@ button:disabled { cursor: not-allowed; }
 .estimated-line-schedule-board {
   display: grid;
   max-height: 460px;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   gap: 0;
   margin: 8px 0 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  overflow: hidden;
   background: var(--surface-card);
 }
 .estimated-line-schedule-row {

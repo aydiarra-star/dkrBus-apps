@@ -63,15 +63,16 @@ export function EstimatedLineScheduleBoard({
     <div className="estimated-line-schedule-board" aria-label={`Lignes ${network.toUpperCase()}`}>
       {routes.map((route) => {
         const schedule = scheduleByLine.get(route.code)
-        const selectedWindow = schedule
+        const indexedWindow = schedule
           ? windowForDay(schedule.weekday, schedule.saturday, schedule.sunday, now)
-          : defaultWindow(network)
-        const isPublishedFirstDeparture = network === 'ddd' && route.code === '1'
+          : null
+        const noServiceToday = Boolean(schedule?.note?.toLowerCase().includes('pas de service') && !indexedWindow)
+        const selectedWindow = noServiceToday ? null : indexedWindow ?? defaultWindow(network)
         const returnOffset = selectedWindow
           ? Math.max(1, Math.ceil(Number.parseInt(selectedWindow.interval, 10) / 2))
           : 0
-        const outbound = isPublishedFirstDeparture ? '05:30' : selectedWindow ? nextClock(selectedWindow, now) : '—'
-        const inbound = isPublishedFirstDeparture ? '06:30' : selectedWindow ? nextClock(selectedWindow, now, returnOffset) : '—'
+        const outbound = selectedWindow ? nextClock(selectedWindow, now) : '—'
+        const inbound = selectedWindow ? nextClock(selectedWindow, now, returnOffset) : '—'
         return (
           <article className="estimated-line-schedule-row" key={`${network}-${route.code}`}>
             <div className="estimated-line-route">

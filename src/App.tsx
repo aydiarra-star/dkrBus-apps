@@ -2259,7 +2259,7 @@ function ReferenceNetworkSummary({
                   {(network.id === 'ddd' || network.id === 'aftu') && (
                     <EstimatedLineScheduleBoard network={network.id} now={now} />
                   )}
-              {isSelected && (
+              {isSelected && network.id !== 'ddd' && network.id !== 'aftu' && (
                 <div className="network-summary-detail station-board-detail">
                   <span className="station-board-context">
                     {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
