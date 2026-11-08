@@ -34,7 +34,7 @@ describe('assistant mobilité', () => {
     expect(answer).not.toMatch(/prochain.*dans \d+ min/i)
   })
 
-  it('affiche une attente moyenne estimée pour DDD et AFTU', () => {
+  it('répond avec les amplitudes de référence DDD et AFTU', () => {
     const midday = Date.parse('2026-11-07T12:00:00Z')
     const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT, midday)
     expect(ddd).toContain('38 lignes')

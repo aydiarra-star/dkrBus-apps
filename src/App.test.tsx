@@ -423,7 +423,7 @@ describe('structure en quatre piliers', () => {
     }
     expect(screen.getAllByText('Ligne 55').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Ligne 57').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Créneau').length).toBeGreaterThan(4)
+    expect(screen.getAllByText(/Créneau/).length).toBeGreaterThan(4)
     expect(screen.queryByText(/Estimation/i)).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
@@ -1002,7 +1002,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getAllByText('Liberté 6 → Rufisque').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Aller').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Retour').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Créneau').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Créneau/).length).toBeGreaterThan(0)
     expect(screen.queryByText(/Estimation|attente moyenne|intervalle moyen/i)).toBeNull()
     vi.useRealTimers()
   })
