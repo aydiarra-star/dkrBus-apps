@@ -122,6 +122,25 @@ const NEARBY_PAYLOAD = {
   ],
 }
 
+const STOP_D2_DETAIL = {
+  stop: {
+    stop_id: 'D2',
+    stop_name: 'Démo — Plateau Sud',
+    stop_lat: 14.7053,
+    stop_lon: -17.4601,
+    location_type: '0',
+    parent_station: null,
+    routes: [
+      { route_id: 'L2', route_short_name: 'L2', route_long_name: 'Démo — Médina ↔ Guédiawaye', route_type: '3', trip_count: 2 },
+    ],
+    scheduled_time_window: {
+      first_declared_departure: '07:05:00',
+      last_declared_departure: '07:20:00',
+      note: 'Heures théoriques déclarées dans stop_times (GTFS Static) ; ce n’est ni une position, ni un temps réel.',
+    },
+  },
+}
+
 const STOP_D6_DETAIL = {
   stop: {
     stop_id: 'D6',
@@ -809,16 +828,21 @@ describe('published snapshot in the app', () => {
       },
       { match: '/api/routes', respond: () => jsonResponse(ROUTES_PAYLOAD) },
       { match: '/api/stops/near', respond: () => jsonResponse(NEARBY_PAYLOAD) },
-      { match: '/api/stops/D6', respond: () => (published ? jsonResponse(STOP_D6_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
+      { match: '/api/stops/D2', respond: () => (published ? jsonResponse(STOP_D2_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
     ])
+    stubGeolocation()
     render(<App />)
     await openReadApiState()
 
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
-    fireEvent.click(screen.getAllByRole('button', { name: /me localiser/i })[0])
-    fireEvent.click(await screen.findByRole('button', { name: /démo — yoff aéroport/i }))
-    expect(await screen.findByRole('region', { name: /arrêt démo — yoff aéroport/i })).toBeTruthy()
-    expect(screen.getByTestId('mapped-stops').textContent).toContain('Démo — Yoff Aéroport')
+    fireEvent.click(screen.getByRole('button', { name: /^ma position$/i }))
+    // L'arrêt D2 est bien dans le rayon piéton : il reste sélectionnable.
+    // D6/Yoff (4 860 m) doit, lui, être absent des résultats de proximité.
+    const nearbyPanel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
+    expect(within(nearbyPanel).queryByText('Démo — Yoff Aéroport')).toBeNull()
+    fireEvent.click(within(nearbyPanel).getByRole('button', { name: /démo — plateau sud/i }))
+    expect(await screen.findByRole('region', { name: /arrêt démo — plateau sud/i })).toBeTruthy()
+    expect(screen.getByTestId('mapped-stops').textContent).toContain('Démo — Plateau Sud')
 
     // The publication is withdrawn server-side: refreshing must drop the view
     // instead of keeping a snapshot that is no longer served.
@@ -1050,14 +1074,14 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(panel.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).queryByText('Stations BRT')).toBeNull()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
     expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
-    fireEvent.click(within(panel).getByRole('button', { name: /Place de la Nation/ }))
-    expect(screen.getByTestId('map-recenter').textContent).toBe('14.6960909,-17.4506369')
+    fireEvent.click(within(panel).getAllByRole('button', { name: /Colobane/ })[0])
+    expect(screen.getByTestId('map-recenter').textContent).toBe('14.7003482,-17.4416523')
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
@@ -1074,8 +1098,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Ma position' }))
     const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).queryByText('Stations BRT')).toBeNull()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
+    expect(within(panel).getAllByText(/à 15 min à pied maximum/i).length).toBeGreaterThan(0)
   })
 
   it('déclenche une micro-interaction et un retour haptique lors de la sélection d’un réseau', () => {
@@ -1184,7 +1209,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it.each(['ddd', 'aftu'] as const)('garde le tableau %s au même format sans transformer les horaires inconnus en terminus', (networkId) => {
+  it.each(['ddd', 'aftu', 'tata'] as const)('affiche uniquement un compte à rebours dans le détail %s', (networkId) => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1192,17 +1217,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     fireEvent.click(container.querySelector(`.network-item-${networkId} .network-summary-header`)!)
 
-    const board = container.querySelector('.station-board') as HTMLElement
-    expect(board).toBeTruthy()
-    for (const direction of ['outbound', 'inbound'] as const) {
-      const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
-      expect(rows.length).toBeGreaterThan(1)
-      expect(rows[rows.length - 1].textContent).toContain('Terminus')
-      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
-    }
-    expect(board.textContent).toContain('Estimation')
-    expect(board.textContent).toMatch(/(?:6|8) min/)
-    expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
+    const detail = container.querySelector(`.network-item-${networkId} .network-summary-detail`) as HTMLElement
+    expect(detail).toBeTruthy()
+    expect(detail.querySelector('.station-board')).toBeTruthy()
+    expect(detail.querySelector('.station-direction')).toBeNull()
+    expect(detail.querySelector('.station-board-row')).toBeNull()
+    expect(detail.querySelector('.network-summary-passage strong')?.textContent).toMatch(/^\d+ min$/)
+    expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     vi.useRealTimers()
   })
 
@@ -1228,7 +1249,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it('prépare la structure AFTU et TATA avec pointillés légers + pastilles (sans inventer d’horaire temps réel)', () => {
+  it('applique le même affichage à compte à rebours seul pour AFTU, TATA et DDD', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1238,15 +1259,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
       fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
       const detail = container.querySelector(`.network-item-${network} .network-summary-detail`) as HTMLElement
       expect(detail).toBeTruthy()
-      // Désormais AFTU/TATA/DDD ont des lignes de référence en pointillés légers + pastilles
-      // Pas de fréquence officielle : les créneaux restent UNKNOWN, pas de temps réel
-      const board = detail.querySelector('.station-board')
-      if (board) {
-        expect(board.textContent).toMatch(/Estimation/)
-      } else {
-        // Fallback si aucune ligne : message d’attente ou d’état de service
-        expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
-      }
+      expect(detail.querySelector('.station-board')).toBeTruthy()
+      expect(detail.querySelector('.station-board-row')).toBeNull()
+      expect(detail.querySelector('.station-direction')).toBeNull()
+      expect(detail.querySelector('.station-board-passage strong')?.textContent).toMatch(/^\d+ min$/)
+      expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     }
     vi.useRealTimers()
   })
