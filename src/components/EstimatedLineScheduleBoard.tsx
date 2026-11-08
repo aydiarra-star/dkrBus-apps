@@ -67,7 +67,13 @@ export function scheduleCountdownMinutes(
 
 export function EstimatedLineScheduleBoard({ network }: { network: EstimatedScheduleNetwork }) {
   const isDdd = network === 'ddd'
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
+  // TATA reste un réseau distinct : aucune grille AFTU n'est recopiée
+  // tant qu'un rattachement de lignes et des fréquences TATA ne sont pas vérifiés.
+  const schedules = isDdd
+    ? DDD_ESTIMATED_LINE_SCHEDULES
+    : network === 'aftu'
+      ? AFTU_ESTIMATED_LINE_SCHEDULES
+      : []
   const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA' : 'AFTU'
   const [now, setNow] = useState(() => Date.now())
 
