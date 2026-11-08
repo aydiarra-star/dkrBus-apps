@@ -418,6 +418,15 @@ describe('structure en quatre piliers', () => {
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // DDD, AFTU et TATA ne publient pas de fréquence : rien n’est inventé.
     // DDD, AFTU et TATA affichent une attente estimée ; seules TER et BRT ont une grille officielle.
+    for (const [network, minutes] of [['ddd', '6'], ['aftu', '8'], ['tata', '8']]) {
+      const metric = document.querySelector(`.network-item-${network} .network-summary-estimated-minutes`)
+      const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
+      expect(metric).toBeTruthy()
+      expect(badge).toBeTruthy()
+      expect(metric!.querySelector('strong')?.textContent).toBe(minutes)
+      expect(metric!.querySelector('small')?.textContent).toBe('min')
+      expect(metric!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -970,7 +979,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     // Deux réseaux publient une fréquence officielle : deux décomptes vivants.
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
-    expect(screen.getAllByText('6 min').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText('6 min')).toBeTruthy()
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
 
