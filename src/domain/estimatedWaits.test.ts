@@ -22,7 +22,8 @@ describe('estimations de temps d’attente', () => {
   })
 
   it('ne donne pas d’attente en dehors de l’amplitude de service', () => {
-    expect(estimatedWaitMinutes('ddd', Date.parse('2026-11-07T05:59:00Z'))).toBeNull()
+    expect(estimatedWaitMinutes('ddd', Date.parse('2026-11-07T05:29:00Z'))).toBeNull()
+    expect(estimatedWaitMinutes('ddd', Date.parse('2026-11-07T05:30:00Z'))).toBe(6)
     expect(estimatedWaitMinutes('aftu', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
     expect(estimatedWaitMinutes('tata', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
     expect(estimatedWaitMinutes('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
