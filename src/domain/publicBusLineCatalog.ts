@@ -218,6 +218,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
 /** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
  * sans preuve explicite de correspondance et aucune fréquence n'est extrapolée. */
 export const TATA_REFERENCE_POLICY = {
-  independentScheduleAvailable: false,\n  independentRouteCatalogAvailable: true,
+  independentScheduleAvailable: false,
+  independentRouteCatalogAvailable: true,
   note: 'Un catalogue de parcours TATA indépendant est disponible ; aucun horaire ni intervalle TATA fiable n’est encore validé.'
 } as const
