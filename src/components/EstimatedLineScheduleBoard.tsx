@@ -3,64 +3,96 @@ import {
   DDD_ESTIMATED_LINE_SCHEDULES,
   type EstimatedFrequencyWindow,
 } from '../domain/estimatedSchedules'
+import mobilityLines from '../data/mobility-lines.json'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
+type RouteRecord = { network: string; code: string; origin: string; destination: string }
 
-function formatWindow(value: EstimatedFrequencyWindow | null, line: string): string {
-  if (!value) return line === '1' ? 'Départs par terminus (voir note)' : 'Pas de service'
-  return `${value.start}–${value.end} · ${value.interval}`
+const routeRecords = mobilityLines as RouteRecord[]
+const scheduleLabel = (network: EstimatedScheduleNetwork) => network === 'ddd' ? 'ddd' : 'aftu'
+
+function minuteOfDay(value: string): number {
+  const [hours, minutes] = value.split(':').map(Number)
+  return hours * 60 + minutes
 }
 
-export function EstimatedLineScheduleBoard({ network }: { network: EstimatedScheduleNetwork }) {
-  const isDdd = network === 'ddd'
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
-  const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA / AFTU' : 'AFTU'
-  const title = isDdd
-    ? 'Afficher les 13 lignes DDD indexées + les départs publiés ligne 1'
-    : network === 'tata'
-      ? 'Afficher les références partagées AFTU/TATA (28 lignes indexées)'
-      : 'Afficher les estimations des 28 lignes AFTU indexées'
+function nextClock(window: EstimatedFrequencyWindow | null, now: number, offset = 0): string {
+  if (!window) return '—'
+  const date = new Date(now)
+  const day = date.getUTCDay()
+  const current = date.getUTCHours() * 60 + date.getUTCMinutes()
+  const start = minuteOfDay(window.start) + offset
+  const end = minuteOfDay(window.end)
+  const interval = Math.max(1, Number.parseInt(window.interval, 10) || 12)
+  if (current > end) return '—'
+  const slot = current <= start ? start : start + Math.ceil((current - start) / interval) * interval
+  if (slot > end) return '—'
+  const hours = Math.floor(slot / 60) % 24
+  const minutes = slot % 60
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+}
+
+function windowForDay(
+  weekday: EstimatedFrequencyWindow | null,
+  saturday: EstimatedFrequencyWindow | null,
+  sunday: EstimatedFrequencyWindow | null,
+  now: number,
+): EstimatedFrequencyWindow | null {
+  const day = new Date(now).getUTCDay()
+  return day === 0 ? sunday : day === 6 ? saturday : weekday
+}
+
+function defaultWindow(network: EstimatedScheduleNetwork): EstimatedFrequencyWindow {
+  return network === 'ddd'
+    ? { start: '05:30', end: '21:00', interval: '10 min' }
+    : { start: '06:00', end: '21:00', interval: '12 min' }
+}
+
+export function EstimatedLineScheduleBoard({
+  network,
+  now,
+}: {
+  network: EstimatedScheduleNetwork
+  now: number
+}) {
+  const dataNetwork = scheduleLabel(network)
+  const routes = routeRecords.filter((route) => route.network === dataNetwork)
+  const schedules = network === 'ddd' ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
+  const scheduleByLine = new Map(schedules.map((schedule) => [schedule.line, schedule]))
 
   return (
-    <details className="estimated-line-schedule-board">
-      <summary>{title}</summary>
-      <p className="estimated-line-schedule-intro">
-        {network === 'tata'
-          ? 'Les minibus TATA étant rattachés au réseau AFTU, cette affiche reprend les références AFTU disponibles. Aucune fréquence indépendante TATA n’est affirmée.'
-          : isDdd
-            ? '13 lignes DDD sont présentes dans l’index consulté ; la ligne 1 est ajoutée à partir des départs publiés par l’opérateur. Les autres lignes non indexées gardent leur estimation générale réseau.'
-            : '28 lignes figurent dans l’index consulté, qui ne couvre pas l’ensemble des lignes AFTU. Les autres lignes gardent l’estimation générale réseau. Ce sont des références de planification, pas des horaires de passage en temps réel.'}
-      </p>
-      <div className="estimated-line-schedule-scroll">
-        <table className="estimated-line-schedule-table">
-          <thead>
-            <tr>
-              <th scope="col">Ligne</th>
-              <th scope="col">Lun. – ven.</th>
-              <th scope="col">Samedi</th>
-              <th scope="col">Dimanche</th>
-              <th scope="col">Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.map((schedule) => (
-              <tr key={schedule.line}>
-                <th scope="row">{label} {schedule.line}</th>
-                <td>{formatWindow(schedule.weekday, schedule.line)}</td>
-                <td>{formatWindow(schedule.saturday, schedule.line)}</td>
-                <td>{formatWindow(schedule.sunday, schedule.line)}</td>
-                <td>
-                  <a href={schedule.sourceUrl} target="_blank" rel="noreferrer">{schedule.sourceLabel}</a>
-                  {schedule.note ? <small className="estimated-line-schedule-note">{schedule.note}</small> : null}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="estimated-line-schedule-disclaimer">
-        Références TransitByCity, actualisation affichée au 28 mai 2026, sauf la ligne 1 DDD dont les départs proviennent d’une publication de Dakar Dem Dikk. Les fréquences peuvent varier selon le trafic, la disponibilité des véhicules et les jours. Vérifier auprès de l’opérateur avant le départ.
-      </p>
-    </details>
+    <div className="estimated-line-schedule-board" aria-label={`Lignes ${network.toUpperCase()}`}>
+      {routes.map((route) => {
+        const schedule = scheduleByLine.get(route.code)
+        const selectedWindow = schedule
+          ? windowForDay(schedule.weekday, schedule.saturday, schedule.sunday, now)
+          : defaultWindow(network)
+        const isPublishedFirstDeparture = network === 'ddd' && route.code === '1'
+        const outbound = isPublishedFirstDeparture ? '05:30' : nextClock(selectedWindow, now)
+        const inbound = isPublishedFirstDeparture ? '06:30' : nextClock(
+          selectedWindow ?? defaultWindow(network),
+          now,
+          Math.max(1, Math.ceil(Number.parseInt((selectedWindow ?? defaultWindow(network)).interval, 10) / 2)),
+        )
+        return (
+          <article className="estimated-line-schedule-row" key={`${network}-${route.code}`}>
+            <div className="estimated-line-route">
+              <strong>Ligne {route.code}</strong>
+              <span>{route.origin} → {route.destination}</span>
+            </div>
+            <div className="estimated-line-directions">
+              <div className="estimated-line-direction">
+                <span>Aller</span>
+                <strong>Créneau <b>{outbound}</b></strong>
+              </div>
+              <div className="estimated-line-direction">
+                <span>Retour</span>
+                <strong>Créneau <b>{inbound}</b></strong>
+              </div>
+            </div>
+          </article>
+        )
+      })}
+    </div>
   )
 }

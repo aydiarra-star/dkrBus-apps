@@ -39,17 +39,17 @@ describe('assistant mobilité', () => {
     const ddd = answerAssistant('Quelle est la fréquence de DDD ?', CONTEXT, midday)
     expect(ddd).toContain('38 lignes')
     expect(ddd).toContain('400 bus')
-    expect(ddd).toContain('Intervalle de passage : 7–10 min aux heures de pointe')
-    expect(ddd).toContain('10–15 min en heures creuses')
-    expect(ddd).toContain('Estimation : 6 min d’attente moyenne')
+    expect(ddd).toContain('amplitude générale observée par DDD')
+    expect(ddd).toContain('premiers départs 05h30–06h00')
+    expect(ddd).not.toContain('Intervalle de passage : 7–10 min aux heures de pointe')
     expect(ddd).not.toMatch(/dans \d+ min/)
 
     const aftu = answerAssistant('Quand passe le prochain bus AFTU ?', CONTEXT, midday)
     expect(aftu).toContain('72 lignes')
     expect(aftu.replace(/\s/g, ' ')).toContain('2 300 bus')
     expect(aftu).toContain('14 GIE')
-    expect(aftu).toContain('Intervalle moyen observé : 11,6 min')
-    expect(aftu).toContain('Estimation : 8 min d’attente moyenne')
+    expect(aftu).toContain('amplitude générale de référence est 06h00–21h00')
+    expect(aftu).not.toContain('Intervalle moyen observé : 11,6 min')
   })
 
   it('ne calcule le délai que depuis un départ exact programmé du bon réseau', () => {

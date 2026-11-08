@@ -2203,9 +2203,6 @@ function ReferenceNetworkSummary({
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
           const showCountdown = serviceState.showCountdown && passage
-          const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
-          const estimatedMinutes = hasEstimatedMinutes ? estimatedWaitMinutes(network.id, now) : null
-
           return (
             <li
               key={network.id}
@@ -2225,16 +2222,7 @@ function ReferenceNetworkSummary({
                 {isMobilityId(network.id)
                   ? <MobilityBadge id={network.id}>{refData?.shortName ?? network.label}</MobilityBadge>
                   : <span className="network-summary-name">{refData?.shortName ?? network.label}</span>}
-                {hasEstimatedMinutes ? (
-                  <span
-                    className="network-summary-passage"
-                    role="status"
-                    aria-label={`${refData?.shortName ?? network.label} : estimation ${estimatedMinutes === null ? 'indisponible' : `à ${new Date(now + estimatedMinutes * 60_000).toISOString().slice(11, 16)}`}.`}
-                  >
-                    <strong>Estimation</strong>
-                    <small>{estimatedMinutes === null ? '—' : new Date(now + estimatedMinutes * 60_000).toISOString().slice(11, 16)}</small>
-                  </span>
-                ) : serviceState.status === 'FINISHED' ? (
+                {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') ? null : serviceState.status === 'FINISHED' ? (
                   <span
                     className="network-summary-passage is-finished"
                     role="status"
@@ -2257,45 +2245,19 @@ function ReferenceNetworkSummary({
                     className="network-summary-passage"
                     role="status"
                     title={passage.note}
-                    aria-label={`${refData?.shortName ?? network.label} : prochain créneau théorique à ${passage.clockLabel}, dans ${passage.minutes} minute${passage.minutes > 1 ? 's' : ''}. Ce n’est pas du temps réel.`}
+                    aria-label={`${refData?.shortName ?? network.label} : prochain créneau théorique à ${passage.clockLabel}, dans ${passage.minutes} minute${passage.minutes > 1 ? 's' : ''}.`}
                   >
                     <strong>{formatPassageCountdown(passage.minutes)}</strong>
                     <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
                   </span>
                 ) : (
                   <span className="network-summary-passage is-undeclared">
-                    <strong>Estimation</strong>
-                    <small>{estimatedWaitMinutes(network.id, now) === null ? '—' : `${estimatedWaitMinutes(network.id, now)} min`}</small>
+                    <strong>—</strong>
                   </span>
                 )}
               </button>
                   {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
-                    <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
-                      <span className="network-summary-estimate-label">Estimation</span>
-                      {network.id === 'ddd' ? (
-                        <>
-                          <p><strong>Départs généraux :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
-                          <p><strong>Ligne 1 :</strong> Parcelles 05:30–20:30 · Leclerc 06:30–21:00</p>
-                          <p><strong>TAF TAF :</strong> Ouakam–AIBD 06:00–21:00 · Ouakam–Sphère 05:45–21:00 · retour Sphère 06:00–20:30</p>
-                          <p><strong>Intervalle de passage estimé :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
-                          <p><strong>Relevés CETUD/CUREM :</strong> 6–52 min en semaine · 11–40 min le samedi sur les sites échantillonnés</p>
-                          <p><strong>Attente moyenne indicative :</strong> 4 min en pointe · 6 min en heures creuses</p>
-                        </>
-                      ) : network.id === 'aftu' ? (
-                        <>
-                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
-                          <p>Intervalle moyen observé : 11,6 min (mesure 11,58 min · étude 2023–2024)</p>
-                          <p><strong>Relevés CETUD/CUREM :</strong> 1–18 min en semaine · 3–19 min le samedi sur les sites échantillonnés</p>
-                          <p>Attente moyenne estimée : 8 min</p>
-                        </>
-                      ) : (
-                        <>
-                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
-                          <p><strong>Référence partagée AFTU/TATA :</strong> les minibus TATA font partie du réseau AFTU ; aucune mesure indépendante TATA n’a été identifiée.</p>
-                          <p><strong>Intervalle moyen observé :</strong> 11,58 min · <strong>attente moyenne estimée :</strong> 8 min</p>
-                        </>
-                      )}
-                    </div>
+                    <EstimatedLineScheduleBoard network={network.id} now={now} />
                   )}
               {isSelected && (
                 <div className="network-summary-detail station-board-detail">
@@ -2321,9 +2283,6 @@ function ReferenceNetworkSummary({
                       aucun horaire n’est inventé en attendant.
                     </p>
                   )}
-                  {network.id === 'ddd' ? <EstimatedLineScheduleBoard network="ddd" /> : null}
-                  {network.id === 'aftu' ? <EstimatedLineScheduleBoard network="aftu" /> : null}
-                  {network.id === 'tata' ? <EstimatedLineScheduleBoard network="tata" /> : null}
                 </div>
               )}
             </li>

@@ -416,17 +416,15 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
-    // DDD, AFTU et TATA reprennent exactement la présentation TER/BRT :
-    // un libellé « Estimation » suivi d’une heure, sans pastille ni unité différente.
-    for (const [network, clock] of [['ddd', '12:06'], ['aftu', '12:08'], ['tata', '12:08']]) {
-      const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
-      expect(passage).toBeTruthy()
-      expect(badge).toBeTruthy()
-      expect(passage!.querySelector('strong')?.textContent).toBe('Estimation')
-      expect(passage!.querySelector('small')?.textContent).toBe(clock)
-      expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
+    // Les bus affichent les lignes et leurs deux sens, jamais un libellé générique.
+    for (const network of ['ddd', 'aftu', 'tata']) {
+      expect(document.querySelector(`.network-item-${network} .estimated-line-schedule-board`)).toBeTruthy()
+      expect(document.querySelector(`.network-item-${network} .network-summary-passage`)).toBeNull()
     }
+    expect(screen.getByText('Ligne 55')).toBeTruthy()
+    expect(screen.getByText('Ligne 57')).toBeTruthy()
+    expect(screen.getAllByText('Créneau').length).toBeGreaterThan(4)
+    expect(screen.queryByText(/Estimation/i)).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -992,19 +990,20 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getByText('9 min')).toBeTruthy()
   })
 
-  it('affiche directement les estimations DDD et AFTU dans Explorer', () => {
+  it('affiche les lignes DDD et AFTU avec trajet, aller, retour et créneau', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
+    vi.setSystemTime(new Date('2026-11-07T07:40:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    expect(screen.getByText(/05:30–06:00 · derniers 20:30–21:00/)).toBeTruthy()
-    expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
-    expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
-    expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
-
-    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
-    expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
+    expect(screen.getByText('Ligne 55')).toBeTruthy()
+    expect(screen.getByText('Terminus Rufisque Sonadis → Petersen')).toBeTruthy()
+    expect(screen.getByText('Ligne 57')).toBeTruthy()
+    expect(screen.getByText('Liberté 6 → Rufisque')).toBeTruthy()
+    expect(screen.getAllByText('Aller').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Retour').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Créneau').length).toBeGreaterThan(0)
+    expect(screen.queryByText(/Estimation|attente moyenne|intervalle moyen/i)).toBeNull()
     vi.useRealTimers()
   })
 

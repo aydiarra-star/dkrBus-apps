@@ -2733,88 +2733,35 @@ button:disabled { cursor: not-allowed; }
 .theme-dark .pref-offline-state.integrity-modified { border-color: #b9761f; background: rgba(185, 118, 31, .12); }
 
 
-/* Affiches estimatives DDD / AFTU / TATA : tableau compact, défilant sur mobile. */
+/* Affichage direct des lignes de bus : même hiérarchie de créneau que TER/BRT. */
 .estimated-line-schedule-board {
-  margin: 12px 0 4px;
-  border: 1px solid #dce9e3;
+  display: grid;
+  gap: 0;
+  margin: 8px 0 12px;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fbfdfc;
   overflow: hidden;
-}
-.estimated-line-schedule-board > summary {
-  padding: 11px 12px;
-  color: #214333;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.estimated-line-schedule-board > summary::marker { color: var(--green-700); }
-.estimated-line-schedule-intro,
-.estimated-line-schedule-disclaimer {
-  margin: 0;
-  padding: 0 12px 9px;
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-.estimated-line-schedule-scroll {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-top: 1px solid #e5eee9;
-  border-bottom: 1px solid #e5eee9;
-}
-.estimated-line-schedule-table {
-  width: 100%;
-  min-width: 720px;
-  border-collapse: collapse;
-  font-size: 10px;
-  line-height: 1.45;
-}
-.estimated-line-schedule-table th,
-.estimated-line-schedule-table td {
-  padding: 8px 9px;
-  border-bottom: 1px solid #e9f0ec;
-  text-align: left;
-  vertical-align: top;
-}
-.estimated-line-schedule-table thead th {
-  background: #f0f7f3;
-  color: #315744;
-  font-weight: 800;
-  white-space: nowrap;
-}
-.estimated-line-schedule-table tbody th {
-  color: #214333;
-  white-space: nowrap;
-}
-.estimated-line-schedule-table td { color: #4b6257; }
-.estimated-line-schedule-table a {
-  color: var(--green-800);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.estimated-line-schedule-note {
-  display: block;
-  max-width: 190px;
-  margin-top: 4px;
-  color: #87612d;
-  font-size: 9px;
-  line-height: 1.45;
-}
-.estimated-line-schedule-disclaimer { padding-top: 9px; }
-.theme-dark .estimated-line-schedule-board {
-  border-color: var(--line);
   background: var(--surface-card);
 }
-.theme-dark .estimated-line-schedule-board > summary,
-.theme-dark .estimated-line-schedule-table tbody th { color: var(--text); }
-.theme-dark .estimated-line-schedule-scroll,
-.theme-dark .estimated-line-schedule-table th,
-.theme-dark .estimated-line-schedule-table td { border-color: var(--line); }
-.theme-dark .estimated-line-schedule-table thead th { background: var(--surface-sunken); color: var(--text); }
-.theme-dark .estimated-line-schedule-table td,
-.theme-dark .estimated-line-schedule-intro,
-.theme-dark .estimated-line-schedule-disclaimer { color: var(--muted); }
-.theme-dark .estimated-line-schedule-table a { color: #8bd5ae; }
+.estimated-line-schedule-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, .9fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.estimated-line-schedule-row:last-child { border-bottom: 0; }
+.estimated-line-route { display: grid; gap: 4px; min-width: 0; }
+.estimated-line-route strong { color: var(--text); font-size: 15px; font-weight: 800; }
+.estimated-line-route span { color: var(--guide-copy); font-size: 14px; line-height: 1.35; }
+.estimated-line-directions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.estimated-line-direction { display: grid; gap: 3px; }
+.estimated-line-direction > span { color: var(--muted); font-size: 13px; font-weight: 700; }
+.estimated-line-direction strong { color: var(--text); font-size: 14px; font-weight: 700; white-space: nowrap; }
+.estimated-line-direction b { color: var(--mobility-stroke, var(--green-800)); font-size: 16px; font-weight: 850; }
+.theme-dark .estimated-line-schedule-row { border-color: var(--line); }
+@media (max-width: 620px) {
+  .estimated-line-schedule-row { grid-template-columns: 1fr; gap: 8px; padding: 11px 12px; }
+  .estimated-line-directions { max-width: 100%; }
+}
