@@ -420,9 +420,12 @@ describe('structure en quatre piliers', () => {
     // DDD, AFTU et TATA affichent une attente estimée ; seules TER et BRT ont une grille officielle.
     for (const [network, minutes] of [['ddd', '6'], ['aftu', '8'], ['tata', '8']]) {
       const metric = document.querySelector(`.network-item-${network} .network-summary-estimated-minutes`)
-      expect(metric?.querySelector('strong')?.textContent).toBe(minutes)
-      expect(metric?.querySelector('small')?.textContent).toBe('min')
-      expect(metric?.compareDocumentPosition(document.querySelector(`.network-item-${network} .mobility-badge`)!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
+      expect(metric).toBeTruthy()
+      expect(badge).toBeTruthy()
+      expect(metric!.querySelector('strong')?.textContent).toBe(minutes)
+      expect(metric!.querySelector('small')?.textContent).toBe('min')
+      expect(metric!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     }
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
