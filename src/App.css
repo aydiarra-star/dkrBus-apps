@@ -1613,34 +1613,6 @@ button:disabled { cursor: not-allowed; }
   user-select: none;
   transition: background-color .22s cubic-bezier(.22, 1, .36, 1), transform .16s cubic-bezier(.22, 1, .36, 1);
 }
-.network-summary-header.has-estimated-minutes {
-  grid-template-columns: 10px auto minmax(0, 1fr);
-  gap: 10px;
-}
-.network-summary-estimated-minutes {
-  display: inline-flex;
-  align-items: baseline;
-  justify-self: start;
-  gap: 3px;
-  min-width: 45px;
-  color: #16834b;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.network-summary-estimated-minutes > strong {
-  color: #16834b;
-  font-size: 20px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -.045em;
-}
-.network-summary-estimated-minutes > small {
-  color: #16834b;
-  font-size: 10px;
-  font-weight: 800;
-}
-.network-summary-estimated-minutes.is-unavailable > strong,
-.network-summary-estimated-minutes.is-unavailable > small { color: var(--muted); }
 .network-summary-header:hover { background-color: var(--green-50); }
 .network-summary-header:active { transform: scale(.988); }
 .network-summary-list > li.network-summary-item.is-selected {
