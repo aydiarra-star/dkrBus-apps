@@ -815,7 +815,11 @@ describe('published snapshot in the app', () => {
     await openReadApiState()
 
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
-    fireEvent.click(screen.getAllByRole('button', { name: /me localiser/i })[0])
+    // Yoff reste consultable par la recherche, mais n'est plus proposé dans
+    // le panneau de proximité si l'arrêt dépasse quinze minutes à pied.
+    const search = screen.getByLabelText(/rechercher un arrêt, une station ou une destination/i)
+    fireEvent.change(search, { target: { value: 'yoff' } })
+    fireEvent.submit(search.closest('form')!)
     fireEvent.click(await screen.findByRole('button', { name: /démo — yoff aéroport/i }))
     expect(await screen.findByRole('region', { name: /arrêt démo — yoff aéroport/i })).toBeTruthy()
     expect(screen.getByTestId('mapped-stops').textContent).toContain('Démo — Yoff Aéroport')
@@ -1074,8 +1078,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Ma position' }))
     const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).queryByText('Stations BRT')).toBeNull()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
+    expect(within(panel).getByText(/à 15 min à pied maximum/i)).toBeTruthy()
   })
 
   it('déclenche une micro-interaction et un retour haptique lors de la sélection d’un réseau', () => {
