@@ -994,7 +994,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
     expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
 
-    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
+    expect(screen.getByText('Intervalle moyen observé :')).toBeTruthy()
+    expect(screen.getByText('11,6 min')).toBeTruthy()
     expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
     vi.useRealTimers()
   })
