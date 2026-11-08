@@ -27,8 +27,8 @@ describe('affiches horaires estimatives des réseaux', () => {
     for (const line of [...AFTU_ESTIMATED_LINE_SCHEDULES, ...DDD_ESTIMATED_LINE_SCHEDULES]) {
       for (const window of [line.weekday, line.saturday, line.sunday]) {
         if (!window) continue
-        expect(window.start).toMatch(/^\\d{2}:\\d{2}$/)
-        expect(window.end).toMatch(/^\\d{2}:\\d{2}$/)
+        expect(window.start).toMatch(/^\d{2}:\d{2}$/)
+        expect(window.end).toMatch(/^\d{2}:\d{2}$/)
         expect(window.interval.length).toBeGreaterThan(0)
       }
       expect(line.sourceUrl).toMatch(/^https:\/\//)
