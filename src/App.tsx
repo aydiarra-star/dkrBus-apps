@@ -95,7 +95,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { estimatedFrequencyReference, estimatedWaitMinutes } from './domain/estimatedWaits'
+import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -2327,16 +2327,18 @@ function StationPassageCell({
   isTerminus,
   hasPublishedFrequency,
   network,
+  lineName,
   now,
 }: {
   passage: NextPassage | null
   isTerminus: boolean
   hasPublishedFrequency: boolean
   network: MobilityId | null
+  lineName: string
   now: number
 }) {
   if (!passage) {
-    const estimate = !isTerminus && !hasPublishedFrequency ? estimatedWaitMinutes(network, now) : null
+    const estimate = !isTerminus && !hasPublishedFrequency ? estimatedLineWaitMinutes(lineName, network, now) : null
     const title = isTerminus ? 'Terminus' : hasPublishedFrequency ? 'Non disponible' : 'Estimation'
     const detail = isTerminus ? 'arrivée' : hasPublishedFrequency ? 'passage indisponible' : estimate === null ? '' : `${estimate} min`
     return (
@@ -2362,12 +2364,13 @@ function stationRowAriaLabel(
   isTerminus: boolean,
   hasPublishedFrequency: boolean,
   network: MobilityId | null,
+  lineName: string,
   now: number,
 ): string {
   if (passage) return `${stopName} · vers ${destinationLabel} : ${formatPassageCountdown(passage.minutes)}, créneau théorique ${passage.clockLabel} · pas de temps réel`
   if (isTerminus) return `${stopName} · terminus d’arrivée ${destinationLabel}`
   if (hasPublishedFrequency) return `${stopName} · passage non disponible vers ${destinationLabel}`
-  const estimate = estimatedWaitMinutes(network, now)
+  const estimate = estimatedLineWaitMinutes(lineName, network, now)
   return estimate === null ? `${stopName} · Estimation vers ${destinationLabel}` : `${stopName} · Estimation ${estimate} min vers ${destinationLabel}`
 }
 
@@ -2413,12 +2416,12 @@ function StationDirectionSection({
               <button
                 type="button"
                 className="station-board-row"
-                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency, network, now)}
+                aria-label={stationRowAriaLabel(row.stop.name, passage, toLabel, isTerminus, hasPublishedFrequency, network, line, now)}
                 title={`${row.stop.name} — voir sur la carte`}
                 onClick={() => onFocusStation(row.stop)}
               >
                 <span className="station-board-stop" title={row.stop.name}>{row.stop.name}</span>
-                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} network={network} now={now} />
+                <StationPassageCell passage={passage} isTerminus={isTerminus} hasPublishedFrequency={hasPublishedFrequency} network={network} lineName={line} now={now} />
               </button>
             </li>
           )
@@ -2445,6 +2448,7 @@ function StationBoardView({
   const destinationLabel = stationShortName(board.destinationStop)
   const line = board.line.shortName
   const hasPublishedFrequency = board.line.officialFrequencies.length > 0
+  const lineEstimate = estimatedLineFrequencyReference(line)
   return (
     <div
       className="station-board"
@@ -2479,7 +2483,7 @@ function StationBoardView({
       <p className="station-board-footnote">
         {hasPublishedFrequency
           ? <>Créneaux théoriques : grille déclarée au départ de chaque terminus + parcours de référence ({board.line.speedKph} km/h). Pas de temps réel.</>
-          : 'Estimation'}
+          : lineEstimate ?? 'Estimation'}
       </p>
     </div>
   )
