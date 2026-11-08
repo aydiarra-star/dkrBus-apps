@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { haversineMeters } from './corridors'
 import {
   NEARBY_MOBILITY_RADIUS_M,
+  NEARBY_WALK_LIMIT_MINUTES,
+  isWithinWalkingLimit,
+  walkingMinutesFromDistance,
   absentNearbyLabel,
   absentNearbyNetworks,
   detectNearbyMobilities,
@@ -15,21 +18,26 @@ const COLOMBANE = { lat: 14.7003482, lon: -17.4416523 }
 describe('mobilités à proximité', () => {
   it('couvre les cinq mobilités du catalogue, sans en inventer une sixième', () => {
     expect(nearbyMobilityCatalogCoversAllNetworks()).toBe(true)
-    expect(NEARBY_MOBILITY_RADIUS_M).toBe(1500)
+    expect(NEARBY_WALK_LIMIT_MINUTES).toBe(15)
+    expect(NEARBY_MOBILITY_RADIUS_M).toBe(923)
+    expect(walkingMinutesFromDistance(923)).toBe(15)
+    expect(walkingMinutesFromDistance(924)).toBe(16)
+    expect(isWithinWalkingLimit(923)).toBe(true)
+    expect(isWithinWalkingLimit(924)).toBe(false)
   })
 
   it('détecte TER, BRT, DDD et AFTU à Petersen, pas le TATA de Colobane', () => {
     const hits = detectNearbyMobilities(PETERSEN)
     const networks = new Set(hits.map((hit) => hit.network))
     expect(networks).toEqual(new Set(['ter', 'brt', 'ddd', 'aftu']))
-    expect(hits.every((hit) => hit.distanceM <= NEARBY_MOBILITY_RADIUS_M)).toBe(true)
+    expect(hits.every((hit) => hit.distanceM <= NEARBY_MOBILITY_RADIUS_M && hit.walkMinutes <= NEARBY_WALK_LIMIT_MINUTES)).toBe(true)
     expect(hits.map((hit) => hit.distanceM)).toEqual([...hits.map((hit) => hit.distanceM)].sort((a, b) => a - b))
     const brt = hits.find((hit) => hit.stop.id === 'brt-petersen')
     expect(brt?.distanceM).toBe(0)
     expect(brt?.lineNames).toContain('B1')
     const ddd = hits.find((hit) => hit.stop.id === 'ddd-petersen')
     expect(ddd?.lineNames).toEqual(expect.arrayContaining(['DDD 1', 'DDD 15']))
-    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBe('Aucun arrêt TATA dans ce rayon.')
+    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBe('Aucun arrêt TATA à 15 min à pied maximum.')
   })
 
   it('réunit les cinq mobilités autour de Colobane, dans l’ordre TER · BRT · DDD · AFTU · TATA', () => {
@@ -40,7 +48,7 @@ describe('mobilités à proximité', () => {
     for (const group of groups) {
       const distances = group.hits.map((hit) => hit.distanceM)
       expect(distances).toEqual([...distances].sort((a, b) => a - b))
-      expect(group.hits.every((hit) => haversineMeters(COLOMBANE, hit.stop) <= NEARBY_MOBILITY_RADIUS_M)).toBe(true)
+      expect(group.hits.every((hit) => haversineMeters(COLOMBANE, hit.stop) <= NEARBY_MOBILITY_RADIUS_M && hit.walkMinutes <= NEARBY_WALK_LIMIT_MINUTES)).toBe(true)
     }
   })
 
