@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { AFTU_ESTIMATED_LINE_SCHEDULES, DDD_ESTIMATED_LINE_SCHEDULES } from './estimatedSchedules'
 
 describe('affiches horaires estimatives des réseaux', () => {
-  it('recense les 28 lignes AFTU indexées et conserve les plages de semaine et de week-end', () => {
-    expect(AFTU_ESTIMATED_LINE_SCHEDULES).toHaveLength(28)
+  it('recense les 27 lignes AFTU dont l’identifiant concorde avec le catalogue et conserve les plages de semaine et de week-end', () => {
+    expect(AFTU_ESTIMATED_LINE_SCHEDULES).toHaveLength(27)
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '42')).toMatchObject({
       weekday: { start: '05:50', end: '21:50', interval: '15 min' },
       saturday: { start: '06:00', end: '21:50', interval: '25 min' },
@@ -12,17 +12,16 @@ describe('affiches horaires estimatives des réseaux', () => {
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '5')?.sunday?.interval).toBe('20 min')
   })
 
-  it('recense les 13 lignes DDD indexées et ajoute les départs publiés de la ligne 1', () => {
-    expect(DDD_ESTIMATED_LINE_SCHEDULES).toHaveLength(14)
+  it('recense les 9 lignes DDD dont l’identifiant concorde avec le catalogue et conserve la ligne 1 sans fréquence', () => {
+    expect(DDD_ESTIMATED_LINE_SCHEDULES).toHaveLength(9)
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '1')).toMatchObject({
       weekday: null,
       saturday: null,
       sunday: null,
     })
-    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '403')?.weekday?.interval).toBe('12 min')
-    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '15')?.note).toContain('69 arrêts')
-    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '15')?.note).toContain('repère de planification')
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '218')?.sunday).toBeNull()
+    expect(DDD_ESTIMATED_LINE_SCHEDULES.some((line) => ['2A', '15', '403', '404B'].includes(line.line))).toBe(false)
+    expect(AFTU_ESTIMATED_LINE_SCHEDULES.some((line) => line.line === '2B')).toBe(false)
   })
 
   it('ne laisse aucune plage de service incomplète pour les lignes estimées', () => {
