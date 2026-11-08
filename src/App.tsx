@@ -96,7 +96,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedWaitMinutes } from './domain/estimatedWaits'
+import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -654,6 +654,11 @@ function App() {
     }
     for (const entry of referencePassages) {
       if (entry.passage) deadlines.push(entry.passage.nextDepartureAt)
+    }
+    // Les cartes DDD, AFTU et TATA utilisent le même compte à rebours visuel.
+    for (const id of ['ddd', 'aftu', 'tata'] as const) {
+      const passage = estimatedNextPassage(id, countdownNow)
+      if (passage) deadlines.push(passage.nextDepartureAt)
     }
     // Tableau par station : chaque créneau affiché doit vivre au même rythme.
     for (const board of selectedNetworkBoards) {
@@ -2202,9 +2207,9 @@ function ReferenceNetworkSummary({
           const serviceState = serviceStates[index]
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
-          const showCountdown = serviceState.showCountdown && passage
           const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
-          const estimatedMinutes = hasEstimatedMinutes ? estimatedWaitMinutes(network.id, now) : null
+          const estimatedPassage = hasEstimatedMinutes ? estimatedNextPassage(network.id, now) : null
+          const showCountdown = hasEstimatedMinutes ? estimatedPassage !== null : serviceState.showCountdown && passage
 
           return (
             <li
@@ -2229,10 +2234,9 @@ function ReferenceNetworkSummary({
                   <span
                     className="network-summary-passage"
                     role="status"
-                    aria-label={`${refData?.shortName ?? network.label} : estimation ${estimatedMinutes === null ? 'indisponible' : `à ${new Date(now + estimatedMinutes * 60_000).toISOString().slice(11, 16)}`}.`}
+                    aria-label={`${refData?.shortName ?? network.label} : ${estimatedPassage ? `prochain passage dans ${estimatedPassage.minutes} minutes` : 'aucun passage prévu'}.`}
                   >
-                    <strong>Estimation</strong>
-                    <small>{estimatedMinutes === null ? '—' : new Date(now + estimatedMinutes * 60_000).toISOString().slice(11, 16)}</small>
+                    <strong>{formatPassageCountdown(estimatedPassage?.minutes ?? null)}</strong>
                   </span>
                 ) : serviceState.status === 'FINISHED' ? (
                   <span
@@ -2252,7 +2256,7 @@ function ReferenceNetworkSummary({
                     <strong>{serviceState.label}</strong>
                     <small>{passage ? `créneau ${passage.clockLabel}` : `début ${refData?.serviceStart ?? '—'}`}</small>
                   </span>
-                ) : showCountdown ? (
+                ) : showCountdown && passage ? (
                   <span
                     className="network-summary-passage"
                     role="status"
@@ -2269,34 +2273,6 @@ function ReferenceNetworkSummary({
                   </span>
                 )}
               </button>
-                  {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
-                    <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
-                      <span className="network-summary-estimate-label">Estimation</span>
-                      {network.id === 'ddd' ? (
-                        <>
-                          <p><strong>Départs généraux :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
-                          <p><strong>Ligne 1 :</strong> Parcelles 05:30–20:30 · Leclerc 06:30–21:00</p>
-                          <p><strong>TAF TAF :</strong> Ouakam–AIBD 06:00–21:00 · Ouakam–Sphère 05:45–21:00 · retour Sphère 06:00–20:30</p>
-                          <p><strong>Intervalle de passage estimé :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
-                          <p><strong>Relevés CETUD/CUREM :</strong> 6–52 min en semaine · 11–40 min le samedi sur les sites échantillonnés</p>
-                          <p><strong>Attente moyenne indicative :</strong> 4 min en pointe · 6 min en heures creuses</p>
-                        </>
-                      ) : network.id === 'aftu' ? (
-                        <>
-                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
-                          <p>Intervalle moyen observé : 11,6 min (mesure 11,58 min · étude 2023–2024)</p>
-                          <p><strong>Relevés CETUD/CUREM :</strong> 1–18 min en semaine · 3–19 min le samedi sur les sites échantillonnés</p>
-                          <p>Attente moyenne estimée : 8 min</p>
-                        </>
-                      ) : (
-                        <>
-                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
-                          <p><strong>Référence partagée AFTU/TATA :</strong> les minibus TATA font partie du réseau AFTU ; aucune mesure indépendante TATA n’a été identifiée.</p>
-                          <p><strong>Intervalle moyen observé :</strong> 11,58 min · <strong>attente moyenne estimée :</strong> 8 min</p>
-                        </>
-                      )}
-                    </div>
-                  )}
               {isSelected && (
                 <div className="network-summary-detail station-board-detail">
                   <span className="station-board-context">

@@ -81,3 +81,70 @@ export function estimatedWaitMinutes(network: string | null, now = Date.now()): 
   if (network === 'aftu' || network === 'tata') return 8
   return null
 }
+
+
+/** Prochain passage indicatif du réseau, projeté depuis les intervalles de référence.
+ *  Les créneaux sont ancrés au début de chaque plage pour produire un compte
+ *  à rebours vivant. Ils ne représentent pas la position d'un véhicule.
+ */
+export interface EstimatedNetworkPassage {
+  nextDepartureAt: string
+  minutes: number
+  headwayMinutes: number
+}
+
+type EstimatedHeadwayPeriod = { startMinute: number; endMinute: number; headwayMinutes: number }
+
+const DDD_HEADWAY_PERIODS: readonly EstimatedHeadwayPeriod[] = [
+  { startMinute: 5 * 60 + 30, endMinute: 6 * 60, headwayMinutes: 13 },
+  { startMinute: 6 * 60, endMinute: 9 * 60, headwayMinutes: 8 },
+  { startMinute: 9 * 60, endMinute: 16 * 60, headwayMinutes: 13 },
+  { startMinute: 16 * 60, endMinute: 19 * 60, headwayMinutes: 8 },
+  { startMinute: 19 * 60, endMinute: 21 * 60, headwayMinutes: 13 },
+]
+
+const AFTU_TATA_HEADWAY_PERIODS: readonly EstimatedHeadwayPeriod[] = [
+  // 11,58 minutes observées à Dakar, arrondies à 12 minutes.
+  { startMinute: 6 * 60, endMinute: 21 * 60, headwayMinutes: 12 },
+]
+
+const MINUTE_MS = 60_000
+const DAY_MS = 24 * 60 * MINUTE_MS
+
+/**
+ * Calcule un prochain passage indicatif à partir des fréquences de référence :
+ * DDD 8 min en pointe / 13 min hors pointe ; AFTU et TATA 12 min.
+ * TATA partage la référence AFTU : aucune fréquence autonome n'est inventée.
+ */
+export function estimatedNextPassage(network: string | null, now = Date.now()): EstimatedNetworkPassage | null {
+  if (!Number.isFinite(now) || !network) return null
+
+  const periods = network === 'ddd'
+    ? DDD_HEADWAY_PERIODS
+    : network === 'aftu' || network === 'tata'
+      ? AFTU_TATA_HEADWAY_PERIODS
+      : null
+  if (!periods) return null
+
+  const dayStart = Math.floor(now / DAY_MS) * DAY_MS
+  const minuteOfDay = Math.floor((now - dayStart) / MINUTE_MS)
+
+  for (const period of periods) {
+    const startAt = dayStart + period.startMinute * MINUTE_MS
+    const endAt = dayStart + period.endMinute * MINUTE_MS
+    if (minuteOfDay >= period.endMinute) continue
+
+    const intervalMs = period.headwayMinutes * MINUTE_MS
+    const slotIndex = now < startAt ? 0 : Math.floor((now - startAt) / intervalMs) + 1
+    const nextAt = startAt + slotIndex * intervalMs
+    if (nextAt >= endAt) continue
+
+    return {
+      nextDepartureAt: new Date(nextAt).toISOString(),
+      minutes: Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS)),
+      headwayMinutes: period.headwayMinutes,
+    }
+  }
+
+  return null
+}

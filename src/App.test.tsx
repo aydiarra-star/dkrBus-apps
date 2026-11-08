@@ -412,21 +412,21 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
-    // TER et BRT publient une fréquence : leur décompte est affiché et vivant.
+    // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
-    // DDD, AFTU et TATA reprennent exactement la présentation TER/BRT :
-    // un libellé « Estimation » suivi d’une heure, sans pastille ni unité différente.
-    for (const [network, clock] of [['ddd', '12:06'], ['aftu', '12:08'], ['tata', '12:08']]) {
+    // DDD, AFTU et TATA utilisent les mêmes cartes : uniquement le nombre de minutes.
+    for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min'], ['tata', '12 min']]) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
-      expect(passage!.querySelector('strong')?.textContent).toBe('Estimation')
-      expect(passage!.querySelector('small')?.textContent).toBe(clock)
+      expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
+      expect(passage!.querySelector('small')).toBeNull()
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
+    expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
     expect(screen.queryByText(/validité calendaire/i)).toBeNull()
@@ -977,8 +977,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    // Deux réseaux publient une fréquence officielle : deux décomptes vivants.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
+    // Les cinq cartes possèdent un compte à rebours actif.
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     expect(screen.getByText('6 min')).toBeTruthy()
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
@@ -992,19 +992,29 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getByText('9 min')).toBeTruthy()
   })
 
-  it('affiche directement les estimations DDD et AFTU dans Explorer', () => {
+  it('affiche DDD, AFTU et TATA dans les cartes existantes avec un compte à rebours', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    render(<App />)
+    const { container } = render(<App />)
 
-    expect(screen.getByText(/05:30–06:00 · derniers 20:30–21:00/)).toBeTruthy()
-    expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
-    expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
-    expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
+    const expected = { ddd: '2 min', aftu: '12 min', tata: '12 min' }
+    for (const [network, value] of Object.entries(expected)) {
+      const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
+      expect(passage?.querySelector('strong')?.textContent).toBe(value)
+      expect(passage?.querySelector('small')).toBeNull()
+    }
+    expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
-    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
-    expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
+    // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/créneau/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/créneau/)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(61_000)
+    })
+    expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
+    expect(container.querySelector('.network-item-aftu .network-summary-passage strong')?.textContent).toBe('11 min')
     vi.useRealTimers()
   })
 
