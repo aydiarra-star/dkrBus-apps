@@ -16,10 +16,8 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
     const row = screen.getByRole('row', { name: /AFTU 2B/ })
     expect(within(row).getByText('11 min')).toBeTruthy()
-    expect(screen.getAllByRole('columnheader').map((cell) => cell.textContent)).toEqual([
-      'Ligne',
-      'Compte à rebours',
-    ])
+    expect(container.querySelector('.station-board')).toBeTruthy()
+    expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
 
     act(() => {
