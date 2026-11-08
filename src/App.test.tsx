@@ -1207,7 +1207,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it.each(['ddd', 'aftu'] as const)('garde le tableau %s au même format sans transformer les horaires inconnus en terminus', (networkId) => {
+  it.each(['ddd', 'aftu', 'tata'] as const)('affiche uniquement un compte à rebours dans le détail %s', (networkId) => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1215,17 +1215,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     fireEvent.click(container.querySelector(`.network-item-${networkId} .network-summary-header`)!)
 
-    const board = container.querySelector('.station-board') as HTMLElement
-    expect(board).toBeTruthy()
-    for (const direction of ['outbound', 'inbound'] as const) {
-      const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
-      expect(rows.length).toBeGreaterThan(1)
-      expect(rows[rows.length - 1].textContent).toContain('Terminus')
-      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
-    }
-    expect(board.textContent).toContain('Estimation')
-    expect(board.textContent).toMatch(/(?:6|8) min/)
-    expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
+    const detail = container.querySelector(`.network-item-${networkId} .network-summary-detail`) as HTMLElement
+    expect(detail).toBeTruthy()
+    expect(detail.querySelector('.station-board')).toBeTruthy()
+    expect(detail.querySelector('.station-direction')).toBeNull()
+    expect(detail.querySelector('.station-board-row')).toBeNull()
+    expect(detail.querySelector('.network-summary-passage strong')?.textContent).toMatch(/^\\d+ min$/)
+    expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     vi.useRealTimers()
   })
 
