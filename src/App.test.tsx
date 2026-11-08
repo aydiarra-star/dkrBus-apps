@@ -1602,7 +1602,7 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
     expect(within(panel).getByRole('link', { name: 'aftu-senegal.org' }).getAttribute('href')).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-53/')
     fireEvent.change(input, { target: { value: 'Et ses horaires ?' } })
     fireEvent.submit(input.closest('form')!)
-    expect(await within(panel).findByText(/Aucun prochain départ fiable/)).toBeTruthy()
+    expect(await within(panel).findByText(/Amplitude générale de référence CETUD/)).toBeTruthy()
   })
 
   it('reste dans l’en-tête, ouvre un échange vide et rend le focus avec Échap', () => {

@@ -57,10 +57,10 @@ describe('références officielles de fréquence', () => {
       vehicleCount: 400,
       serviceStart: '05:30',
       serviceEnd: '21:00',
-      serviceWindow: 'Premiers départs : 05:30–06:00 · derniers : 20:30–21:00',
+      serviceWindow: 'Premiers départs généralement 05:30–06:00 · derniers 20:30–21:00 ; ligne 01 : Parcelles 05:30–20:30, Leclerc 06:30–21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Fréquences non publiées ligne par ligne',
+      frequencyLabel: 'Fréquences et passages par ligne non publiés',
       officialFrequencies: [],
     })
     expect(NETWORK_REFERENCE_DATA.aftu).toMatchObject({
@@ -71,7 +71,8 @@ describe('références officielles de fréquence', () => {
       serviceEnd: '21:00',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Fréquences non publiées ligne par ligne',
+      serviceWindow: '06:00–21:00 · amplitude générale ; horaires variables selon les lignes',
+      frequencyLabel: 'Horaires et fréquences détaillés non publiés par ligne',
       officialFrequencies: [],
     })
     expect(NETWORK_REFERENCE_DATA.aftu.lineCount).not.toBe(71)

@@ -7,15 +7,15 @@ import { answerAssistant } from './assistant'
 const context = { publishedAvailable: false, adminOnline: false }
 function ask(question: string) { return answerMobilityKnowledge(question)?.text ?? '' }
 
-describe('mémoire documentaire consultée le 10 octobre 2026', () => {
+describe('mémoire documentaire des lignes de transport', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
-    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(20)
+    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(53)
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {
-      expect(line.consultedAt).toBe('2026-10-10')
+      expect(['2026-10-10', '2026-11-07']).toContain(line.consultedAt)
       expect(new URL(line.sourceUrl).protocol).toBe('https:')
       expect(line.origin.length).toBeGreaterThan(1)
       expect(line.destination.length).toBeGreaterThan(1)
@@ -31,6 +31,18 @@ describe('mémoire documentaire consultée le 10 octobre 2026', () => {
     expect(ask('AFTU ligne 1')).toContain('Lat Dior')
     expect(ask('AFTU ligne 1')).toContain('Grand Médine')
     expect(ask('AFTU ligne 1')).toContain('terminus à confirmer')
+  })
+
+  it('intègre les parcours officiels AFTU 77, 78, 80 et 83 publiés le 14 juillet', () => {
+    for (const code of ['77', '78', '80', '83']) {
+      const result = ask(`itinéraire AFTU ${code}`)
+      expect(result).toContain('Points de passage dans le sens publié')
+      expect(result).toContain('publication du 2026-07-14')
+    }
+    expect(ask('itinéraire AFTU 77')).toContain('Cité Tacco')
+    expect(ask('itinéraire AFTU 78')).toContain('Diamaguène')
+    expect(ask('itinéraire AFTU 80')).toContain('Darou Thioub')
+    expect(ask('itinéraire AFTU 83')).toContain('Zone de Captage')
   })
 
   it('donne le parcours AFTU récent plutôt que le parcours historique CETUD', () => {
@@ -55,6 +67,22 @@ describe('mémoire documentaire consultée le 10 octobre 2026', () => {
     expect(ask('ligne AFTU 91')).toContain('APIX ↔ Dougar')
     expect(ask('ligne AFTU 91')).toContain('pas encore transcrit')
     expect(ask('bus DDD 999')).toContain('n’est pas documentée')
+  })
+
+  it('affiche les amplitudes DDD/AFTU sans les confondre avec des horaires de ligne', () => {
+    expect(ask('horaires DDD')).toContain('05h30 et 06h00')
+    expect(ask('horaires DDD')).toContain('Centre social des Parcelles Assainies à 05h30')
+    expect(ask('horaires AFTU')).toContain('06h00–21h00')
+    expect(ask('horaires AFTU')).toContain('horaires variables selon les lignes')
+    expect(ask('horaires AFTU 53')).toContain('Aucun horaire précis')
+  })
+
+  it('affiche les départs officiels des deux terminus DDD 01', () => {
+    expect(ask('horaires DDD 1')).toContain('05h30')
+    expect(ask('horaires DDD 1')).toContain('20h30')
+    expect(ask('horaires DDD 1')).toContain('06h30')
+    expect(ask('horaires DDD 1')).toContain('21h00')
+    expect(ask('horaires DDD 1')).toContain('pas les passages intermédiaires')
   })
 
   it('ne donne ni fréquence ni tarif pour une ligne bus non documentée sur ce point', () => {
@@ -88,7 +116,7 @@ describe('mémoire documentaire consultée le 10 octobre 2026', () => {
     expect(memory.lastKnowledgeLineId).toBe('ddd:1')
     const next = copilotAnswer('Et ses horaires ?', context, memory, 'fr')
     expect(next.text).toContain('DDD 1')
-    expect(next.text).toContain('Aucun prochain départ fiable')
+    expect(next.text).toContain('Horaires publiés par DDD pour la ligne 01')
   })
 
   it('répond hors ligne aux tarifs BRT et TER sans réclamer un GTFS', () => {
