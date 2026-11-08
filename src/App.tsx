@@ -45,7 +45,6 @@ import { assessStreetReport, rankStreetReports, relevantStreetReports, community
 import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
 import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
-import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
@@ -2283,7 +2282,18 @@ function ReferenceNetworkSummary({
                     {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
                     {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                   </span>
-                  {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
+                  {hasEstimatedMinutes ? (
+                    <div className="estimated-countdown-board" aria-label={`Compte à rebours ${refData?.shortName ?? network.label}`}>
+                      {boards.map((board) => (
+                        <div className="station-board-head" key={board.line.id}>
+                          <strong>{board.line.shortName} · {stationShortName(board.originStop)} ↔ {stationShortName(board.destinationStop)}</strong>
+                        </div>
+                      ))}
+                      <div className="estimated-countdown-value" role="status" aria-live="off">
+                        <strong>{formatPassageCountdown(estimatedPassage?.minutes ?? null)}</strong>
+                      </div>
+                    </div>
+                  ) : boards.length > 0 && serviceState.status === 'ACTIVE' ? (
                     boards.map((board) => <StationBoardView key={board.line.id} board={board} now={now} onFocusStation={onFocusStation} />)
                   ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
                     <p className="station-board-pending">
@@ -2300,9 +2310,6 @@ function ReferenceNetworkSummary({
                       aucun horaire n’est inventé en attendant.
                     </p>
                   )}
-                  {network.id === 'ddd' ? <EstimatedLineScheduleBoard network="ddd" /> : null}
-                  {network.id === 'aftu' ? <EstimatedLineScheduleBoard network="aftu" /> : null}
-                  {network.id === 'tata' ? <EstimatedLineScheduleBoard network="tata" /> : null}
                 </div>
               )}
             </li>
