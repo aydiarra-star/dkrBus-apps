@@ -19,10 +19,18 @@ export function nextStopPassageCountdown(
   now: Date = new Date(),
 ): number | null {
   if (!plan || !Number.isInteger(stopIndex) || stopIndex < 0) return null
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) return null
   if (!Array.isArray(plan.cumulativeMinutesByStop) ||
-      stopIndex >= plan.cumulativeMinutesByStop.length) return null
+      stopIndex >= plan.cumulativeMinutesByStop.length ||
+      plan.cumulativeMinutesByStop.length === 0) return null
+  // Une séquence cumulée doit être complète, finie et croissante ou constante.
+  // Un trou ou une inversion rendrait les décomptes incohérents sur la ligne.
+  let previousOffset = -1
+  for (const value of plan.cumulativeMinutesByStop) {
+    if (!Number.isFinite(value) || value < 0 || value < previousOffset) return null
+    previousOffset = value
+  }
   const offset = plan.cumulativeMinutesByStop[stopIndex]
-  if (!Number.isFinite(offset) || offset < 0) return null
   if (!Number.isInteger(plan.headwayMinutes) || plan.headwayMinutes <= 0) return null
 
   const parseClock = (value: string): number | null => {
