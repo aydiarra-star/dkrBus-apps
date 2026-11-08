@@ -83,6 +83,17 @@ describe('références officielles de fréquence', () => {
     })
   })
 
+  it('ne compte pas les minibus TATA comme un réseau indépendant de l’AFTU', () => {
+    expect(NETWORK_REFERENCE_DATA.tata).toMatchObject({
+      operator: 'AFTU (minibus TATA)',
+      coverage: 'Minibus TATA · réseau AFTU',
+      lineCount: null,
+      vehicleCount: null,
+      frequencyStatus: 'UNKNOWN',
+      frequencyLabel: 'Référence empirique partagée AFTU/TATA',
+    })
+  })
+
   it('uses only source URLs already recorded in the repository', () => {
     expect(FREQUENCY_SOURCES.brt.sourceUrl).toBe('https://www.sunubrt.sn')
     expect(FREQUENCY_SOURCES.ter.sourceUrl).toBe('https://www.senersa.sn')
