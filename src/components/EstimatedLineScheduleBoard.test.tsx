@@ -14,7 +14,8 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
-    const row = screen.getByRole('row', { name: /AFTU 2B/ })
+    const row = screen.getByText('AFTU 2B').closest('li')
+    expect(row).toBeTruthy()
     expect(within(row).getByText('11 min')).toBeTruthy()
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
@@ -31,7 +32,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
-    const row = screen.getAllByRole('row').find((candidate) => within(candidate).queryByText('DDD 1'))
+    const row = screen.getByText('DDD 1').closest('li')
     expect(row).toBeTruthy()
     expect(within(row).getByText('—')).toBeTruthy()
   })
@@ -41,8 +42,8 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="tata" />)
-    expect(screen.getByRole('row', { name: /TATA 2B/ })).toBeTruthy()
-    const row = screen.getByRole('row', { name: /TATA 2B/ })
+    const row = screen.getByText('TATA 2B').closest('li')
+    expect(row).toBeTruthy()
     expect(within(row).getByText('11 min')).toBeTruthy()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
   })
