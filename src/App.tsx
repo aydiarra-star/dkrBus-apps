@@ -2272,9 +2272,9 @@ function ReferenceNetworkSummary({
                       ) : network.id === 'aftu' ? (
                         <>
                           <p><strong>Service de référence :</strong> 06:00–21:00</p>
-                          <p><strong>Intervalle moyen observé :</strong> 11,6 min (mesure 11,58 min · étude 2023–2024)</p>
+                          <p>Intervalle moyen observé : 11,6 min (mesure 11,58 min · étude 2023–2024)</p>
                           <p><strong>Relevés CETUD/CUREM :</strong> 1–18 min en semaine · 3–19 min le samedi sur les sites échantillonnés</p>
-                          <p><strong>Attente moyenne estimée :</strong> 8 min</p>
+                          <p>Attente moyenne estimée : 8 min</p>
                         </>
                       ) : (
                         <>
