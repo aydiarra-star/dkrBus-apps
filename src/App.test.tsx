@@ -992,19 +992,29 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(screen.getByText('9 min')).toBeTruthy()
   })
 
-  it('affiche directement les estimations DDD et AFTU dans Explorer', () => {
+  it('affiche DDD, AFTU et TATA dans les cartes existantes avec un compte à rebours', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    render(<App />)
+    const { container } = render(<App />)
 
-    expect(screen.getByText(/05:30–06:00 · derniers 20:30–21:00/)).toBeTruthy()
-    expect(screen.getByText(/7–10 min aux heures de pointe/)).toBeTruthy()
-    expect(screen.getByText(/10–15 min en heures creuses/)).toBeTruthy()
-    expect(screen.getByText(/4 min en pointe · 6 min en heures creuses/)).toBeTruthy()
+    const expected = { ddd: '2 min', aftu: '12 min', tata: '12 min' }
+    for (const [network, value] of Object.entries(expected)) {
+      const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
+      expect(passage?.querySelector('strong')?.textContent).toBe(value)
+      expect(passage?.querySelector('small')).toBeNull()
+    }
+    expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
-    expect(screen.getByText(/Intervalle moyen observé : 11,6 min/)).toBeTruthy()
-    expect(screen.getByText(/Attente moyenne estimée : 8 min/)).toBeTruthy()
+    // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/créneau/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/créneau/)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(61_000)
+    })
+    expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
+    expect(container.querySelector('.network-item-aftu .network-summary-passage strong')?.textContent).toBe('11 min')
     vi.useRealTimers()
   })
 
