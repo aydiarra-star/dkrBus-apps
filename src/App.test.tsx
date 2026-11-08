@@ -1173,25 +1173,22 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it.each(['ddd', 'aftu'] as const)('garde le tableau %s au même format sans transformer les horaires inconnus en terminus', (networkId) => {
+  it.each(['ddd', 'aftu'] as const)('affiche directement les lignes %s avec deux créneaux lisibles', (networkId) => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    fireEvent.click(container.querySelector(`.network-item-${networkId} .network-summary-header`)!)
-
-    const board = container.querySelector('.station-board') as HTMLElement
+    const board = container.querySelector(`.network-item-${networkId} .estimated-line-schedule-board`) as HTMLElement
     expect(board).toBeTruthy()
-    for (const direction of ['outbound', 'inbound'] as const) {
-      const rows = [...board.querySelectorAll(`.station-direction-${direction} .station-board-row`)] as HTMLElement[]
-      expect(rows.length).toBeGreaterThan(1)
-      expect(rows[rows.length - 1].textContent).toContain('Terminus')
-      expect(rows.slice(0, -1).every((row) => row.textContent?.includes('Estimation'))).toBe(true)
-    }
-    expect(board.textContent).toContain('Estimation')
-    expect(board.textContent).toMatch(/(?:6|8) min/)
-    expect(board.textContent).not.toContain('Créneaux théoriques : grille déclarée')
+    const rows = [...board.querySelectorAll('.estimated-line-schedule-row')]
+    expect(rows.length).toBeGreaterThan(10)
+    expect(rows[0].textContent).toContain('Ligne')
+    expect(rows[0].textContent).toContain('Aller')
+    expect(rows[0].textContent).toContain('Retour')
+    expect(rows[0].textContent).toContain('Créneau')
+    expect(board.textContent).not.toContain('Estimation')
+    expect(container.querySelector(`.network-item-${networkId} .network-summary-detail`)).toBeNull()
     vi.useRealTimers()
   })
 
@@ -1217,27 +1214,16 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it('prépare la structure AFTU et TATA avec pointillés légers + pastilles (sans inventer d’horaire temps réel)', () => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+  it('garde les listes DDD/AFTU sobres et ne duplique pas les lignes sous TATA', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    for (const network of ['aftu', 'tata', 'ddd']) {
-      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
-      const detail = container.querySelector(`.network-item-${network} .network-summary-detail`) as HTMLElement
-      expect(detail).toBeTruthy()
-      // Désormais AFTU/TATA/DDD ont des lignes de référence en pointillés légers + pastilles
-      // Pas de fréquence officielle : les créneaux restent UNKNOWN, pas de temps réel
-      const board = detail.querySelector('.station-board')
-      if (board) {
-        expect(board.textContent).toMatch(/Estimation/)
-      } else {
-        // Fallback si aucune ligne : message d’attente ou d’état de service
-        expect(detail.textContent).toMatch(/aucune ligne (AFTU|TATA|DDD) n’est encore publiée|dès qu’une ligne sera disponible|aucun horaire n’est inventé|Service terminé|Reprise|pas encore démarré/i)
-      }
-    }
-    vi.useRealTimers()
+    expect(container.querySelector('.network-item-ddd .estimated-line-schedule-board')).toBeTruthy()
+    expect(container.querySelector('.network-item-aftu .estimated-line-schedule-board')).toBeTruthy()
+    expect(container.querySelector('.network-item-tata .estimated-line-schedule-board')).toBeNull()
+    expect(container.querySelector('.network-item-tata .network-summary-passage')).toBeNull()
+    expect(container.querySelector('.network-item-ddd')?.textContent).not.toContain('Estimation')
+    expect(container.querySelector('.network-item-aftu')?.textContent).not.toContain('Estimation')
   })
 
   it('bascule élégamment entre le mode clair et le mode sombre adaptatif', () => {
