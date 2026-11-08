@@ -36,8 +36,8 @@ const SERVICE_END_HOUR = 21
 
 export function estimatedFrequencyReference(network: string | null): string | null {
   if (network === 'ddd') return 'Planification historique : 7–10 min en pointe · 10–15 min en heures creuses'
-  if (network === 'aftu') return 'Moyenne observée à Dakar : 11,58 min entre passages (2023–2024)'
-  if (network === 'tata') return 'Référence partagée AFTU/TATA : 11,58 min entre passages observés (2023–2024)'
+  if (network === 'aftu') return 'Intervalle moyen observé : 11,6 min (11,58 min mesurés à Dakar en 2023–2024)'
+  if (network === 'tata') return 'Référence partagée AFTU/TATA : intervalle moyen observé 11,6 min (11,58 min mesurés en 2023–2024)'
   return null
 }
 
