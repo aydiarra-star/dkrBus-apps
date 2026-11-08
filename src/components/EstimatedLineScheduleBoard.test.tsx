@@ -1,8 +1,10 @@
+// @vitest-environment jsdom
+import { cleanup, render, screen, within, act } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, render, screen, within } from '@testing-library/react'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 
 afterEach(() => {
+  cleanup()
   vi.useRealTimers()
 })
 
