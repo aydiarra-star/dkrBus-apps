@@ -10,7 +10,7 @@ export interface PublicBusLineReference {
   destination: string
   sourceUrl: string
   sourceLabel: string
-  network: 'ddd' | 'aftu'
+  network: 'ddd' | 'aftu' | 'tata'
 }
 
 const aftuSource = 'https://aftu-senegal.org/infos-pratiques/'
@@ -141,9 +141,83 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceUrl: dddSource, sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
 }))
 
+
+const tataSource = 'https://momove.app/guide'
+
+/**
+ * Lignes explicitement indexées comme TATA à Dakar par MoMove
+ * (graphe de transport mis à jour le 09/06/2026). Ce catalogue est distinct
+ * de l'AFTU : les terminus sont des données de parcours, pas des horaires.
+ */
+export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
+  ['1','Sandaga','Sud Foire'],
+  ['2','Parcelles','Petersen'],
+  ['4','Petersen','Yoff'],
+  ['5','Parcelles','Sandaga'],
+  ['24','Guédiawaye','Université'],
+  ['25','Parcelles','Petersen'],
+  ['26','Parcelles','Thiaroye'],
+  ['27','Guédiawaye','Petersen'],
+  ['28','Gadaye','Lat Dior'],
+  ['29','Cambérène','Petersen'],
+  ['30','Colobane','Gadaye'],
+  ['31','Pikine','SHAM'],
+  ['32','Guédiawaye','SHAM'],
+  ['33','Colobane','Guédiawaye'],
+  ['34','Lat Dior','Yoff'],
+  ['35','Ngor','Pikine'],
+  ['36','Guédiawaye','Ngor'],
+  ['37','APIX','UCAD'],
+  ['38','Cité Enseignant','Sandaga'],
+  ['40','Jaxaay','Petersen'],
+  ['41','Guédiawaye','Rebeuss'],
+  ['42','Gadaye','Ouakam'],
+  ['43','Ouakam','Thiaroye'],
+  ['44','Mbao','Ouakam'],
+  ['46','Guédiawaye','Rebeuss'],
+  ['48','Kounoune','Sandaga'],
+  ['49','Guédiawaye','Ngor'],
+  ['50','Malika','Petersen'],
+  ['51','Baux Maraîchers','Terminus non précisé'],
+  ['52','Baux Maraîchers','Jaxaay'],
+  ['53','Keur Massar','Sébikotane'],
+  ['54','Cité Sotrac','Fann'],
+  ['55','Petersen','Rufisque'],
+  ['56','Keur Massar','Petersen'],
+  ['57','Liberté 6','Rufisque'],
+  ['58','Comico','SHAM'],
+  ['59','Cité Gendarmerie Keur Massar','Diamalaye'],
+  ['60','Bargny','Colobane'],
+  ['61','Keur Massar','Mamelles'],
+  ['62','Médina','Rufisque'],
+  ['63','Diamalaye','Terminus non précisé'],
+  ['65','Colobane','Kounoune'],
+  ['66','Ngorom','Yoff'],
+  ['67','Ouakam','Rufisque'],
+  ['68','Bargny','Yeumbeul'],
+  ['69','Parcelles Assainies','Terminus non précisé'],
+  ['70','Diakhaye','Guédiawaye'],
+  ['71','Fann Hock','Keur Massar'],
+  ['72','Guédiawaye','Kounoune'],
+  ['73','Lac Rose','Thiaroye'],
+  ['74','Bargny','Tivaouane Peulh'],
+  ['75','Colobane','Malika'],
+  ['76','Sipresse','Terminus non précisé'],
+  ['77','Cité Sofa','Liberté 5'],
+  ['78','Liberté 5','Terminus non précisé'],
+  ['79','Cambérène','Sangalkam'],
+  ['80','Darou Thioub','Diamalaye'],
+  ['81','Baux Maraîchers','Cité Tawfekh'],
+  ['82','Rebeuss','Yeumbeul'],
+  ['84','Jaxaay','Terminus non précisé'],
+].map(([line, origin, destination]) => ({
+  line, origin, destination, network: 'tata' as const,
+  sourceUrl: tataSource, sourceLabel: 'MoMove · lignes TATA à Dakar · 09/06/2026',
+}))
+
 /** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
  * sans preuve explicite de correspondance et aucune fréquence n'est extrapolée. */
 export const TATA_REFERENCE_POLICY = {
-  independentScheduleAvailable: false,
-  note: 'Aucun rattachement de ligne ni horaire TATA indépendant n’est actuellement validé ; le panneau reste vide plutôt que d’afficher des données AFTU.'
+  independentScheduleAvailable: false,\n  independentRouteCatalogAvailable: true,
+  note: 'Un catalogue de parcours TATA indépendant est disponible ; aucun horaire ni intervalle TATA fiable n’est encore validé.'
 } as const
