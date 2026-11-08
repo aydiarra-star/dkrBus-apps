@@ -18,7 +18,7 @@ const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
 
 function parseClock(value: string): number | null {
-  const match = /^(\\d{1,2}):(\\d{2})$/.exec(value.trim())
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim())
   if (!match) return null
   const hours = Number(match[1])
   const minutes = Number(match[2])
@@ -28,7 +28,7 @@ function parseClock(value: string): number | null {
 
 /** Une fréquence non numérique ou une plage non précise ne devient jamais un passage. */
 function parseInterval(value: string): number | null {
-  const match = /^(\\d+)\\s*min$/i.exec(value.trim())
+  const match = /^(\d+)\s*min$/i.exec(value.trim())
   if (!match) return null
   const minutes = Number(match[1])
   return Number.isSafeInteger(minutes) && minutes > 0 ? minutes : null
