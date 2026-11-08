@@ -2257,20 +2257,28 @@ function ReferenceNetworkSummary({
                   </span>
                 )}
               </button>
-                  {(network.id === 'ddd' || network.id === 'aftu') && (
+                  {(network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata') && (
                     <div className="network-summary-estimates" aria-label={`Estimations ${network.label}`}>
                       <span className="network-summary-estimate-label">Estimation</span>
                       {network.id === 'ddd' ? (
                         <>
-                          <p><strong>Départs :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
-                          <p><strong>Passages :</strong> 7–10 min aux heures de pointe · 10–15 min en heures creuses</p>
-                          <p><strong>Attente moyenne :</strong> 4 min en pointe · 6 min en heures creuses</p>
+                          <p><strong>Départs généraux :</strong> 05:30–06:00 · derniers 20:30–21:00</p>
+                          <p><strong>Fréquence de planification :</strong> 7–10 min en pointe · 10–15 min en heures creuses</p>
+                          <p><strong>Relevés CETUD/CUREM :</strong> 6–52 min en semaine · 11–40 min le samedi sur les sites échantillonnés</p>
+                          <p><strong>Attente moyenne indicative :</strong> 4 min en pointe · 6 min en heures creuses</p>
+                        </>
+                      ) : network.id === 'aftu' ? (
+                        <>
+                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
+                          <p><strong>Intervalle moyen observé :</strong> 11,58 min (étude 2023–2024)</p>
+                          <p><strong>Relevés CETUD/CUREM :</strong> 1–18 min en semaine · 3–19 min le samedi sur les sites échantillonnés</p>
+                          <p><strong>Attente moyenne estimée :</strong> 8 min</p>
                         </>
                       ) : (
                         <>
-                          <p><strong>Service :</strong> 06:00–21:00</p>
-                          <p><strong>Intervalle moyen observé :</strong> 11,6 min</p>
-                          <p><strong>Attente moyenne estimée :</strong> 8 min</p>
+                          <p><strong>Service de référence :</strong> 06:00–21:00</p>
+                          <p><strong>Référence partagée AFTU/TATA :</strong> les minibus TATA font partie du réseau AFTU ; aucune mesure indépendante TATA n’a été identifiée.</p>
+                          <p><strong>Intervalle moyen observé :</strong> 11,58 min · <strong>attente moyenne estimée :</strong> 8 min</p>
                         </>
                       )}
                     </div>
