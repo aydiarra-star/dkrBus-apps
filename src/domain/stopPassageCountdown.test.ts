@@ -35,5 +35,8 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown(plan, 9, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, headwayMinutes: 0 }, 0, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, -2] }, 1, at(6, 0))).toBeNull()
+    expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, 19, 7] }, 1, at(6, 0))).toBeNull()
+    expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, Number.NaN, 19] }, 1, at(6, 0))).toBeNull()
+    expect(nextStopPassageCountdown(plan, 1, new Date(Number.NaN))).toBeNull()
   })
 })
