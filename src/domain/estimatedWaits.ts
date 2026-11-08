@@ -31,8 +31,11 @@
  * https://www.itfglobal.org/sites/default/files/node/resources/files/2020%20Dakar%20BRT%20LIA%20EN.pdf
  */
 
-const SERVICE_START_HOUR = 6
-const SERVICE_END_HOUR = 21
+const SERVICE_END_MINUTE = 21 * 60
+
+function serviceStartMinute(network: string): number {
+  return network === 'ddd' ? 5 * 60 + 30 : 6 * 60
+}
 
 export function estimatedFrequencyReference(network: string | null): string | null {
   if (network === 'ddd') return 'Planification historique : 7–10 min en pointe · 10–15 min en heures creuses'
@@ -43,10 +46,11 @@ export function estimatedFrequencyReference(network: string | null): string | nu
 
 export function estimatedWaitMinutes(network: string | null, now = Date.now()): number | null {
   if (!Number.isFinite(now) || !network) return null
-  const hour = new Date(now).getUTCHours()
-  if (hour < SERVICE_START_HOUR || hour >= SERVICE_END_HOUR) return null
+  const minuteOfDay = new Date(now).getUTCHours() * 60 + new Date(now).getUTCMinutes()
+  if (minuteOfDay < serviceStartMinute(network) || minuteOfDay >= SERVICE_END_MINUTE) return null
 
   if (network === 'ddd') {
+    const hour = Math.floor(minuteOfDay / 60)
     const peak = (hour >= 6 && hour < 9) || (hour >= 16 && hour < 19)
     // Attente moyenne indicative dérivée du milieu des plages de planification.
     return peak ? 4 : 6
