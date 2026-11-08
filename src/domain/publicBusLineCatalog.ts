@@ -141,9 +141,9 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceUrl: dddSource, sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
 }))
 
-/** TATA est affiché dans son propre panneau mais n'est pas assimilé à un
- * catalogue d'horaires indépendant sans source dédiée et vérifiée. */
+/** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
+ * sans preuve explicite de correspondance et aucune fréquence n'est extrapolée. */
 export const TATA_REFERENCE_POLICY = {
   independentScheduleAvailable: false,
-  note: 'Les références AFTU peuvent être réutilisées pour l’affichage TATA lorsque le rattachement de ligne est confirmé ; aucune fréquence autonome n’est inventée.',
+  note: 'Aucun rattachement de ligne ni horaire TATA indépendant n’est actuellement validé ; le panneau reste vide plutôt que d’afficher des données AFTU.'
 } as const
