@@ -1222,7 +1222,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(detail.querySelector('.station-board')).toBeTruthy()
     expect(detail.querySelector('.station-direction')).toBeNull()
     expect(detail.querySelector('.station-board-row')).toBeNull()
-    expect(detail.querySelector('.network-summary-passage strong')?.textContent).toMatch(/^\\d+ min$/)
+    expect(detail.querySelector('.network-summary-passage strong')?.textContent).toMatch(/^\d+ min$/)
     expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     vi.useRealTimers()
   })
@@ -1262,7 +1262,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(detail.querySelector('.station-board')).toBeTruthy()
       expect(detail.querySelector('.station-board-row')).toBeNull()
       expect(detail.querySelector('.station-direction')).toBeNull()
-      expect(detail.querySelector('.station-board-passage strong')?.textContent).toMatch(/^\\d+ min$/)
+      expect(detail.querySelector('.station-board-passage strong')?.textContent).toMatch(/^\d+ min$/)
       expect(detail.textContent).not.toMatch(/Estimation|créneau|terminus|pas de service/i)
     }
     vi.useRealTimers()
