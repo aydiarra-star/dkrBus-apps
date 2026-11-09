@@ -4,6 +4,7 @@ import {
   TATA_PUBLIC_LINE_CATALOG,
   type PublicBusLineReference,
 } from './publicBusLineCatalog'
+import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 
 export type BusDirectionId = 'outbound' | 'inbound'
 export type BusDirectionStatus = 'awaiting_stops' | 'stops_mapped' | 'verified'
@@ -47,22 +48,40 @@ function makeDirection(
 }
 
 /**
- * Chaque ligne DDD, AFTU et TATA possède deux parcours indépendants dès le
- * référentiel. Les listes d'arrêts sont volontairement vides tant que leur
- * ordre et leur position n'ont pas été établis à partir d'une fiche de trajet,
- * d'une carte exploitable ou d'un relevé cartographique vérifiable.
- *
- * Important : le retour n'est PAS créé en inversant l'aller. Les deux sens
- * peuvent emprunter des rues et des arrêts différents.
+ * Les séquences DDD publiées dans un ordre terminus-à-terminus alimentent
+ * uniquement le sens documenté. Les circuits restent au registre documentaire
+ * et ne sont pas artificiellement séparés en Aller/Retour.
  */
+const DDD_OUTBOUND_BY_LINE = new Map(
+  DDD_PUBLISHED_ROUTES
+    .filter((route) => route.kind === 'published_order')
+    .map((route) => [route.line, route] as const),
+)
+
 function registerLine(source: PublicBusLineReference): BidirectionalBusLine {
+  const outbound = makeDirection(source, 'outbound', source.origin, source.destination)
+  const publishedDddRoute = source.network === 'ddd'
+    ? DDD_OUTBOUND_BY_LINE.get(source.line)
+    : undefined
+  const mappedOutbound: BusDirection = publishedDddRoute
+    ? {
+        ...outbound,
+        origin: publishedDddRoute.origin,
+        destination: publishedDddRoute.destination,
+        stopIds: [...publishedDddRoute.stops],
+        status: 'stops_mapped',
+        sourceUrl: publishedDddRoute.sourceUrl,
+        sourceLabel: publishedDddRoute.sourceLabel,
+      }
+    : outbound
+
   return {
     id: `${source.network}-${source.line}`,
     network: source.network,
     line: source.line,
     source,
     directions: {
-      outbound: makeDirection(source, 'outbound', source.origin, source.destination),
+      outbound: mappedOutbound,
       inbound: makeDirection(source, 'inbound', source.destination, source.origin),
     },
   }
