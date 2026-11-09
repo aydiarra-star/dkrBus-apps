@@ -30,6 +30,22 @@ Le fichier `src/data/dddHistoricalArcgisRegistry.ts` conserve les identifiants d
 
 Les identifiants de couches et volumes sont conservés comme métadonnées de source, dans le système de coordonnées EPSG:32628. Ils ne sont pas encore importés comme séquences Aller/Retour : le service publie des points par ligne, mais les informations consultées ne prouvent pas à elles seules l'ordre de desserte ni le sens de chaque point. Le registre garde donc `directionOrderVerified: false`.
 
+
+## Résultat de la consolidation historique — DDD ligne 13
+
+Les deux couches ont maintenant été interrogées directement par l'API ArcGIS, et leurs entités ont été comparées par coordonnées dans la projection native EPSG:32628 :
+
+- Couche 0 : 23 entités, avec `Nom_Arret` et géométrie ponctuelle.
+- Couche 8 : 22 entités, avec `Id` et géométrie ponctuelle.
+- Vingt-deux entités de la couche 8 ont une correspondance spatiale avec vingt-deux points de la couche 0 ; les écarts mesurés vont d'environ 0,2 m à 2,9 m.
+- Un point supplémentaire de la couche 0 (OBJECTID 2, « Arret Terminus Liberté 5 ») se trouve à environ 26,3 m du point le plus proche de la couche 8. Il est conservé comme point distinct, sans le supprimer ni l'assimiler au terminus voisin.
+
+Le fichier `src/data/dddLine13HistoricalMerged.ts` rassemble donc les 45 enregistrements sources en 23 points consolidés provisoires : les 22 rapprochements conservent les deux identifiants, les deux coordonnées d'origine et leur écart ; le point non apparié est conservé séparément. **Aucune donnée source brute n'est détruite.** Les rapprochements sont qualifiés de « doublons spatiaux candidats », pas de doublons commerciaux définitivement prouvés.
+
+La géométrie historique de l'itinéraire (couche 13) comporte un tracé de 138 sommets et une longueur publiée d'environ 10,56 km. La projection des points sur ce tracé donne un chaînage croissant compatible avec l'ordre OBJECTID de la couche 0. Cet ordre spatial sert au classement technique de la couche historique ; il ne suffit pas à certifier le sens actuellement exploité. La fiche d'itinéraire historique date du 13 décembre 2017 et mentionne des terminus Dieuppeul / Palais 2, alors que les points d'arrêt nomment Liberté 5 / Palais 1 : cette divergence est conservée comme contrôle à effectuer, et non corrigée par supposition.
+
+Les coordonnées WGS84 ont été calculées à partir des coordonnées sources EPSG:32628 pour permettre la cartographie. Cette consolidation historique n'est pas encore déclarée comme séquence Aller ou Retour actuelle ; elle doit être confrontée à la fiche officielle actuelle et aux observations récentes avant activation comme parcours passager.
+
 ## Politique de traitement des dates anciennes
 
 Une donnée ancienne n'est pas rejetée du seul fait de son âge. Elle est conservée avec sa date, sa provenance et son rôle : les couches historiques de l'ancien service interurbain peuvent fournir des arrêts nommés et leurs positions pour plusieurs lignes ; une géométrie de 2019 peut aider à reconstituer un corridor, comparer un itinéraire ou retrouver l'ordre spatial des arrêts ; les points d'arrêt de 2024 peuvent aider à identifier et géolocaliser les haltes. On croise ces couches entre elles et avec les fiches officielles disponibles. On marque ensuite chaque élément comme confirmé, corroboré ou à contrôler. Seule une preuve contradictoire ou une modification documentée justifie d'écarter une ancienne donnée. On ne transforme toutefois pas une ancienne géométrie en garantie que le service circule encore exactement sur ce tracé aujourd'hui.
