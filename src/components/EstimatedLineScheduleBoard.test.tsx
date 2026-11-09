@@ -47,7 +47,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
   })
 
-  it('affiche le catalogue TATA séparément avec la référence commune des minibus AFTU', () => {
+  it('affiche le catalogue TATA séparément sans fréquence AFTU non concordante', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
@@ -59,7 +59,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(120)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(120)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
-    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getAllByText('—')).toHaveLength(2)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
