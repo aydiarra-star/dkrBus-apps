@@ -63,6 +63,20 @@ La distance maximale entre un point et sa géométrie d'itinéraire historique v
 
 **Ce classement est une aide à la reconstitution, pas une certification Aller/Retour.** Les couches contiennent un seul tracé de référence par ligne, et le chaînage indique une position le long de ce tracé. Il ne prouve pas à lui seul le sens exploité, l'actualité de l'arrêt ou les horaires. Les lignes 13 et 18 nécessitent notamment un contrôle de terminus et d'orientation ; la ligne 8 nécessite une source permettant de nommer les points. La ligne 20 conserve sa géométrie historique, mais aucune couche d'arrêts correspondante n'a été trouvée dans cet inventaire.
 
+
+## Vérification des itinéraires publiés actuellement — 9 novembre 2026
+
+La page officielle DDD [Réseau urbain de Dakar](https://demdikk.sn/reseau-urbain-dakar/) est consultable et donne des séquences nominatives pour plusieurs lignes. Elle confirme notamment pour la ligne 13 le parcours publié « Liberté 5 ↔ Palais 2 » et énumère les repères suivants dans le sens présenté : Liberté 5, avenue Cheikh Ahmadou Bamba, Station Castors, Marché HLM, Ouagou Niayes, BOP, Masalikul Djinane, CSS, Lycée Kennedy, boulevard Général de Gaulle, Centenaire, RTS, Grande Mosquée, Allées Papa Guèye Fall, Petersen, avenue Faidherbe, Esso Port, Gare de Dakar, Place de l'Indépendance, avenue Léopold Sédar Senghor, Hôpital Principal, Rond-point Assemblée nationale, Institut Pasteur, Palais 2.
+
+Cette publication actuelle confirme les terminus de référence Liberté 5 / Palais 2, mais elle ne permet pas d'associer automatiquement chacun de ces repères aux 23 points de la couche historique : les anciens points mentionnent notamment « Palais 1 ». Les deux sources restent conservées et la divergence est explicitement ouverte. La liste actuelle est une séquence textuelle publiée ; les coordonnées historiques ne sont pas réattribuées par simple proximité de nom.
+
+La page officielle AFTU [Infos pratiques](https://aftu-senegal.org/infos-pratiques/) renvoie vers des fiches d'itinéraire par ligne. Trois fiches consultées affichent des mises à jour datées de mai 2026 :
+- Ligne 1 : itinéraire publié de la gare Lat Dior vers l'espace HLM Grand Yoff ; il décrit des rues et axes successifs, sans publier une liste complète d'arrêts nommés.
+- Ligne 2 : itinéraire des Parcelles Assainies à Petersen ; la fiche distingue explicitement des variantes de retour, notamment « rue 39 (retour par rue 17) » et « rue 25 (retour par rue 37) ». C'est une preuve que le retour ne doit pas être fabriqué en inversant l'aller.
+- Ligne 3 : itinéraire Yoff-Village vers Petersen via l'aéroport LSS, Ngor, les Mamelles, Ouakam et l'avenue Cheikh Anta Diop ; la fiche décrit principalement des axes, pas tous les arrêts commerciaux.
+
+Ces fiches AFTU sont de bonnes sources directionnelles pour le tracé routier, mais les noms de rues ne sont pas convertis automatiquement en arrêts passagers. Les séquences d'arrêts AFTU restent à établir à partir de véritables points d'arrêt documentés ou d'une carte exploitable.
+
 ## Politique de traitement des dates anciennes
 
 Une donnée ancienne n'est pas rejetée du seul fait de son âge. Elle est conservée avec sa date, sa provenance et son rôle : les couches historiques de l'ancien service interurbain peuvent fournir des arrêts nommés et leurs positions pour plusieurs lignes ; une géométrie de 2019 peut aider à reconstituer un corridor, comparer un itinéraire ou retrouver l'ordre spatial des arrêts ; les points d'arrêt de 2024 peuvent aider à identifier et géolocaliser les haltes. On croise ces couches entre elles et avec les fiches officielles disponibles. On marque ensuite chaque élément comme confirmé, corroboré ou à contrôler. Seule une preuve contradictoire ou une modification documentée justifie d'écarter une ancienne donnée. On ne transforme toutefois pas une ancienne géométrie en garantie que le service circule encore exactement sur ce tracé aujourd'hui.
