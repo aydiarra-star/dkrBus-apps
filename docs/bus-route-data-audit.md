@@ -24,6 +24,12 @@
 | TATA | [MoMove — guide](https://momove.app/guide) | Catalogue tiers de parcours et terminus TATA à Dakar | Source non officielle ; elle ne valide ni la liste complète des arrêts, ni leur ordre, ni les horaires |
 | TATA | [Covoiturage Sénégal — itinéraires TATA](https://www.covoiturage.sn/bus-tata-itineraire/) | Source secondaire de comparaison des terminus/parcours | À corroborer avant de valider un arrêt ou une direction |
 
+## Inventaire technique DDD intégré
+
+Le fichier `src/data/dddHistoricalArcgisRegistry.ts` conserve les identifiants des couches historiques et les estimations publiées par le service ArcGIS : lignes 1 (44 points), 4 (30), 6 (60), 7 (34), 8 (49), 9 (36), 10 (26), 13 (22), 18 (44), 23 (56) et 121 (31). Cela représente 455 entités d'arrêt estimées dans les onze couches recensées. La ligne 20 dispose d'une géométrie d'itinéraire (couche 15), mais aucune couche d'arrêts correspondante n'est identifiée dans cet inventaire : elle reste explicitement à compléter, sans créer de points fictifs.
+
+Les identifiants de couches et volumes sont conservés comme métadonnées de source, dans le système de coordonnées EPSG:32628. Ils ne sont pas encore importés comme séquences Aller/Retour : le service publie des points par ligne, mais les informations consultées ne prouvent pas à elles seules l'ordre de desserte ni le sens de chaque point. Le registre garde donc `directionOrderVerified: false`.
+
 ## Politique de traitement des dates anciennes
 
 Une donnée ancienne n'est pas rejetée du seul fait de son âge. Elle est conservée avec sa date, sa provenance et son rôle : les couches historiques de l'ancien service interurbain peuvent fournir des arrêts nommés et leurs positions pour plusieurs lignes ; une géométrie de 2019 peut aider à reconstituer un corridor, comparer un itinéraire ou retrouver l'ordre spatial des arrêts ; les points d'arrêt de 2024 peuvent aider à identifier et géolocaliser les haltes. On croise ces couches entre elles et avec les fiches officielles disponibles. On marque ensuite chaque élément comme confirmé, corroboré ou à contrôler. Seule une preuve contradictoire ou une modification documentée justifie d'écarter une ancienne donnée. On ne transforme toutefois pas une ancienne géométrie en garantie que le service circule encore exactement sur ce tracé aujourd'hui.
