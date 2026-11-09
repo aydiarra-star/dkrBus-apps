@@ -44,7 +44,7 @@ function parseClock(value: string): number | null {
 
 /** Une fréquence non numérique ou une plage non précise ne devient jamais un passage. */
 function parseInterval(value: string): number | null {
-  const match = /^(\d+)\s*min$/i.exec(value.trim())
+  const match = /^(\d+(?:[.,]\d+)?)\s*min$/i.exec(value.trim())
   if (!match) return null
   const minutes = Number(match[1].replace(',', '.'))
   return Number.isFinite(minutes) && minutes > 0 ? minutes : null
