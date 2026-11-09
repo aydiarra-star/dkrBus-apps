@@ -111,6 +111,11 @@ for (const name of files) {
   })
   console.log(`DDD ${line} / couche ${layerId}: ${candidates.length} points, ${result.geocodedFeatureCount} géométriques, ${result.namedStopCount} nommés, ${reversals} rupture(s) d'ordre`)
 }
+const rawTotal = report.reduce((n, x) => n + x.raw, 0)
+const mappedTotal = report.reduce((n, x) => n + x.mapped, 0)
+if (report.length !== 12 || rawTotal !== 455 || mappedTotal !== 454) {
+  throw new Error(`Unexpected DDD extraction totals: ${report.length} layers, ${rawTotal} raw, ${mappedTotal} mapped`)
+}
 await writeFile(join(root, 'ordered-candidates-summary.json'), JSON.stringify({
   generatedAt: new Date().toISOString(),
   note: 'Ordre géométrique historique uniquement. Ne prouve ni le sens actuel, ni le service actuel, ni l identité commerciale de chaque arrêt.',
