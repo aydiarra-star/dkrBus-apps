@@ -5,7 +5,7 @@ describe('DDD published route references', () => {
   it('keeps the published route lists as source references', () => {
     expect(DDD_PUBLISHED_ROUTES.map((route) => route.line)).toEqual([
       '1', '4', '7', '8', '9', '10', '13', '18', '20', '23', '121',
-      '2', '5', '11', '12', '16A', '16B', '208', '213', '218', '219',
+      '2', '5', '6', '11', '12', '16A', '16B', '208', '213', '218', '219',
       '220', '221', '227', '228', '232', '234',
     ])
     for (const route of DDD_PUBLISHED_ROUTES) {
@@ -31,6 +31,7 @@ describe('DDD published route references', () => {
   })
 
   it('does not manufacture a sequence for a line absent from this source page', () => {
-    expect(getDddPublishedRoute('6')).toBeNull()
+    expect(getDddPublishedRoute('6')?.origin).toBe('Cambérène 2')
+    expect(getDddPublishedRoute('6')?.destination).toBe('Palais 2')
   })
 })
