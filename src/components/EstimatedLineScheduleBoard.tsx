@@ -113,21 +113,35 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
           // Une ligne absente du jeu horaire reste visible, avec le tiret de disponibilité.
           const lineSchedule = schedulesByLine.get(line.line)
           const schedule = isDdd ? lineSchedule : lineSchedule ?? AFTU_TATA_NETWORK_REFERENCE
-          const minutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
+          // La fréquence de ligne est affichée dans les deux sens depuis les terminus
+          // documentés. Les séquences d'arrêts et les heures propres à chaque sens
+          // restent distinctes dès qu'elles seront publiées ; aucune position de bus
+          // en temps réel n'est déduite de ce compte à rebours.
+          const outboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
+          const inboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
+          const directions = [
+            { id: 'outbound', label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes },
+            { id: 'inbound', label: 'Retour', from: line.destination, to: line.origin, minutes: inboundMinutes },
+          ] as const
           return (
-            <li key={line.line}>
-              <div className="station-board-row station-board-row-static">
-                <span className="station-board-stop">{label} {line.line}</span>
-                <span
-                  className={`network-summary-passage station-board-passage${minutes === null ? ' is-undeclared' : ''}`}
-                  role="status"
-                  aria-label={minutes === null
-                    ? `${label} ${line.line} : horaire non disponible`
-                    : `${label} ${line.line} : compte à rebours de ${minutes} minutes`}
-                >
-                  <strong>{formatPassageCountdown(minutes)}</strong>
-                </span>
-              </div>
+            <li key={line.line} className="station-board-line-group">
+              {directions.map((direction) => (
+                <div key={direction.id} className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id}`}>
+                  <span className="station-board-stop">
+                    <strong>{label} {line.line} · {direction.label}</strong>
+                    <small>{direction.from} → {direction.to}</small>
+                  </span>
+                  <span
+                    className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`}
+                    role="status"
+                    aria-label={direction.minutes === null
+                      ? `${label} ${line.line}, ${direction.label}, ${direction.from} vers ${direction.to} : horaire non disponible`
+                      : `${label} ${line.line}, ${direction.label}, ${direction.from} vers ${direction.to} : compte à rebours de ${direction.minutes} minutes`}
+                  >
+                    <strong>{formatPassageCountdown(direction.minutes)}</strong>
+                  </span>
+                </div>
+              ))}
             </li>
           )
         })}
