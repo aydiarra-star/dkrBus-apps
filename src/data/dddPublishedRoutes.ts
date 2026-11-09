@@ -290,13 +290,6 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
     'Terminus Aéroport LSS',
   ]),
-  route('233', 'Baux Maraîchers', 'Palais 1', 'published_order', [
-    'Baux Maraîchers', 'Yarakh', 'Cafétéria', 'Hann Maristes',
-    'Cours Sainte Marie de Hann', 'Sortie Mariste', 'Usine des eaux',
-    'Front de terre', 'Khar Yalla', 'Rond Point Liberté 6',
-    'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
-    'Terminus Aéroport LSS',
-  ]),
   route('234', 'Jaxaay', 'Leclerc', 'published_order', [
     'Terminus Jaxaay (Mosquée Niakoul Rab)', 'Terminus 56',
     'Deux voies Jaxaay', 'Station Keur Massar', 'Croisement Keur Massar',
