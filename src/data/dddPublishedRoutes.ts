@@ -186,18 +186,6 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Boulevard de la République', 'Avenue Léopold Sédar Senghor',
     'Avenue Nelson Mandela', 'Palais 1',
   ]),
-  route('6', 'Guédiawaye', 'Palais 1', 'published_order', [
-    'Terminus Guédiawaye', 'Marché Jeudi', 'Hôpital Dalal Diam',
-    'Cambérène', 'Case PA',
-    'Police de Parcelles Assainies – Marché Grand Médine',
-    'Rond point 26', 'Foire', 'Sipres', 'Rond point Liberté 6',
-    'Terminus Liberté 5', 'Allées Khalifa Ababacar Sy', 'Jet d’Eau',
-    'Niary Tally', 'Eglise Sainte Thérèse', 'ENA',
-    'Boulevard Général de Gaulle', 'Allées Papa Guèye Fall',
-    'Avenue Faidherbe', 'Avenue Lamine Gueye',
-    'Avenue André Peytavin', 'Avenue Jean Jaurès',
-    'Boulevard de la République', 'Avenue Nelson Mandela', 'Palais 1',
-  ]),
   route('11', 'Keur Massar', 'Lat Dior', 'published_order', [
     'Terminus Keur Massar', 'Station Keur Massar', 'Croisement Keur Massar',
     'Fass Mbao', 'Diamaguène', 'Poste Thiaroye', 'Autoroute à péage',
@@ -244,12 +232,6 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Patte d’Oie', 'Marché Grand Yoff', 'Police Grand Yoff',
     'Rond Point Liberté 6', 'Deux voies Liberté 6', 'Rond Point JVC',
     'Terminus Dieuppeul',
-  ]),
-  route('217', 'Thiaroye', 'Aéroport LSS', 'published_order', [
-    'Dépôt Thiaroye', 'SIPS', 'Bountou Pikine', 'Patte d’Oie', 'Foire',
-    'VDN', 'Sipres', 'Ancienne piste', 'Ouakam', 'Marché Ouakam',
-    'Terminus Ouakam', 'Route des Mamelles', 'Route des Almadies', 'Ngor',
-    'Terminus Aéroport LSS',
   ]),
   route('218', 'Thiaroye', 'Aéroport LSS', 'published_order', [
     'Dépôt Thiaroye', 'SIPS', 'Bountou Pikine', 'Patte d’Oie', 'Foire',
