@@ -36,10 +36,12 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
-    expect(screen.getByText('DDD 1')).toBeTruthy()
-    expect(within(screen.getByText('DDD 1').closest('li')!).getAllByText('—')).toHaveLength(2)
-    expect(screen.getByText('DDD 6')).toBeTruthy()
-    expect(within(screen.getByText('DDD 6').closest('li')!).getAllByText('6 min')).toHaveLength(2)
+    const dddOneLabels = screen.getAllByText('DDD 1')
+    expect(dddOneLabels).toHaveLength(2)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('—')).toHaveLength(2)
+    const dddSixLabels = screen.getAllByText('DDD 6')
+    expect(dddSixLabels).toHaveLength(2)
+    expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
   })
 
   it('affiche le catalogue TATA séparément avec la référence commune des minibus AFTU', () => {
@@ -47,14 +49,16 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="tata" />)
-    expect(screen.getByText('TATA 37')).toBeTruthy()
+    const tataThirtySevenLabels = screen.getAllByText('TATA 37')
+    expect(tataThirtySevenLabels).toHaveLength(2)
     expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(60)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(60)
-    expect(within(screen.getByText('TATA 37').closest('li')!).getAllByText('5 min')).toHaveLength(2)
-    expect(within(screen.getByText('TATA 37').closest('li')!).getByText(/Aller ·/)).toBeTruthy()
-    expect(within(screen.getByText('TATA 37').closest('li')!).getByText(/Retour ·/)).toBeTruthy()
+    const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
+    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
+    expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
   })
 })
