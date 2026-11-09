@@ -46,7 +46,7 @@ function parseClock(value: string): number | null {
 function parseInterval(value: string): number | null {
   const match = /^(\d+)\s*min$/i.exec(value.trim())
   if (!match) return null
-  const minutes = Number(match[1])
+  const minutes = Number(match[1].replace(',', '.'))
   return Number.isFinite(minutes) && minutes > 0 ? minutes : null
 }
 
