@@ -2829,3 +2829,15 @@ button:disabled { cursor: not-allowed; }
 .station-board-stop { display: grid; gap: 2px; }
 .station-board-stop > strong { display: block; font-size: 11.5px; }
 .station-board-stop > small { display: block; color: var(--muted); font-size: 10px; font-weight: 600; line-height: 1.25; }
+
+
+/* Détails cliquables des itinéraires DDD / AFTU / TATA */
+.station-board-direction-toggle { width: 100%; border: 0; cursor: pointer; text-align: left; font: inherit; }
+.station-board-direction-toggle:focus-visible { outline: 2px solid var(--accent, #198754); outline-offset: 2px; }
+.station-board-direction-toggle.is-expanded { background: var(--surface-raised, rgba(25,135,84,.07)); }
+.station-board-direction-action { display: inline-flex; align-items: center; gap: 10px; }
+.station-board-itinerary { padding: 10px 14px 14px; border-top: 1px solid var(--border, rgba(128,128,128,.25)); }
+.station-board-itinerary-list { margin: 0; padding-left: 24px; display: grid; gap: 7px; }
+.station-board-itinerary-list li { padding-left: 3px; }
+.station-board-itinerary-pending, .station-board-nearest-stop { margin: 0 0 10px; font-size: .88rem; line-height: 1.45; }
+.station-board-itinerary-source { display: inline-block; margin-top: 10px; font-size: .88rem; }

@@ -2147,6 +2147,7 @@ function ExplorerPanel({
         onSelectNetwork={onSelectNetwork}
         boards={boards}
         onFocusStation={onFocusStation}
+        location={location}
       />
     </section>
   )
@@ -2173,12 +2174,14 @@ function ReferenceNetworkSummary({
   onSelectNetwork,
   boards,
   onFocusStation,
+  location,
 }: {
   now: number
   selectedNetwork: NetworkId | null
   onSelectNetwork: (id: NetworkId) => void
   boards: readonly StationBoard[]
   onFocusStation: (stop: CorridorStop) => void
+  location: UserLocation | null
 }) {
   const networks = COMPACT_NETWORK_IDS
     .map((id) => NETWORK_SOURCES.find((network) => network.id === id))
@@ -2273,11 +2276,11 @@ function ReferenceNetworkSummary({
               {isSelected && (
                 <div className="network-summary-detail station-board-detail">
                   {network.id === 'ddd' ? (
-                    <EstimatedLineScheduleBoard network="ddd" />
+                    <EstimatedLineScheduleBoard network="ddd" location={location} />
                   ) : network.id === 'aftu' ? (
-                    <EstimatedLineScheduleBoard network="aftu" />
+                    <EstimatedLineScheduleBoard network="aftu" location={location} />
                   ) : network.id === 'tata' ? (
-                    <EstimatedLineScheduleBoard network="tata" />
+                    <EstimatedLineScheduleBoard network="tata" location={location} />
                   ) : (
                     <>
                       <span className="station-board-context">
