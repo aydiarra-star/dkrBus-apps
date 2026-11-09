@@ -46,6 +46,23 @@ La géométrie historique de l'itinéraire (couche 13) comporte un tracé de 138
 
 Les coordonnées WGS84 ont été calculées à partir des coordonnées sources EPSG:32628 pour permettre la cartographie. Cette consolidation historique n'est pas encore déclarée comme séquence Aller ou Retour actuelle ; elle doit être confrontée à la fiche officielle actuelle et aux observations récentes avant activation comme parcours passager.
 
+
+## Résultat du classement géographique des autres couches DDD
+
+L'extraction et le rapprochement spatial avec les géométries d'itinéraire ont été automatisés dans `scripts/extract_ddd_historical_arcgis.mjs` et `scripts/analyze_ddd_historical_arcgis.mjs`. L'exécution du 9 novembre 2026 a traité les douze couches d'arrêts historiques :
+
+- 455 enregistrements bruts récupérés ;
+- 454 enregistrements disposent d'une géométrie ponctuelle ;
+- un enregistrement de la ligne 7 (couche 2) n'a pas de géométrie et reste conservé sans coordonnées ;
+- les 49 points de la ligne 8 (couche 3) ne disposent pas de champ `Nom_Arret` : ils sont localisables mais pas nommables à partir de cette couche ;
+- les 22 points de la deuxième couche de la ligne 13 (couche 8) ont un champ `Id` mais aucun nom d'arrêt ; ils ont été rapprochés spatialement de 22 des 23 points nommés de la couche 0 ;
+- la couche d'arrêts de la ligne 18 (couche 9) présente deux ruptures dans la progression du chaînage quand on suit les OBJECTID : son ordre doit être contrôlé avant de l'utiliser comme séquence ;
+- pour les autres couches, les OBJECTID progressent dans le même sens que le chaînage calculé sur la géométrie historique associée.
+
+La distance maximale entre un point et sa géométrie d'itinéraire historique varie d'environ 8,4 m à 23 m selon la couche. Le script produit un fichier de candidats ordonnés par chaînage pour chaque couche et un résumé `ordered-candidates-summary.json` dans l'artefact GitHub Actions `ddd-historical-arcgis-snapshots`.
+
+**Ce classement est une aide à la reconstitution, pas une certification Aller/Retour.** Les couches contiennent un seul tracé de référence par ligne, et le chaînage indique une position le long de ce tracé. Il ne prouve pas à lui seul le sens exploité, l'actualité de l'arrêt ou les horaires. Les lignes 13 et 18 nécessitent notamment un contrôle de terminus et d'orientation ; la ligne 8 nécessite une source permettant de nommer les points. La ligne 20 conserve sa géométrie historique, mais aucune couche d'arrêts correspondante n'a été trouvée dans cet inventaire.
+
 ## Politique de traitement des dates anciennes
 
 Une donnée ancienne n'est pas rejetée du seul fait de son âge. Elle est conservée avec sa date, sa provenance et son rôle : les couches historiques de l'ancien service interurbain peuvent fournir des arrêts nommés et leurs positions pour plusieurs lignes ; une géométrie de 2019 peut aider à reconstituer un corridor, comparer un itinéraire ou retrouver l'ordre spatial des arrêts ; les points d'arrêt de 2024 peuvent aider à identifier et géolocaliser les haltes. On croise ces couches entre elles et avec les fiches officielles disponibles. On marque ensuite chaque élément comme confirmé, corroboré ou à contrôler. Seule une preuve contradictoire ou une modification documentée justifie d'écarter une ancienne donnée. On ne transforme toutefois pas une ancienne géométrie en garantie que le service circule encore exactement sur ce tracé aujourd'hui.
