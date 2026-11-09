@@ -26,7 +26,7 @@
 
 ## Inventaire technique DDD intégré
 
-Le fichier `src/data/dddHistoricalArcgisRegistry.ts` conserve les identifiants des couches historiques et les estimations publiées par le service ArcGIS : lignes 1 (44 points), 4 (30), 6 (60), 7 (34), 8 (49), 9 (36), 10 (26), 13 (22), 18 (44), 23 (56) et 121 (31). Cela représente 455 entités d'arrêt estimées dans les onze couches recensées. La ligne 20 dispose d'une géométrie d'itinéraire (couche 15), mais aucune couche d'arrêts correspondante n'est identifiée dans cet inventaire : elle reste explicitement à compléter, sans créer de points fictifs.
+Le fichier `src/data/dddHistoricalArcgisRegistry.ts` conserve les identifiants des couches historiques et les estimations publiées par le service ArcGIS : lignes 1 (44 points), 4 (30), 6 (60), 7 (34), 8 (49), 9 (36), 10 (26), 13 (deux couches distinctes : 23 et 22 points), 18 (44), 23 (56) et 121 (31). Cela représente 455 entités d'arrêt estimées dans les douze couches recensées. Les deux couches de la ligne 13 sont conservées séparément, sans supposer qu'elles sont identiques. La ligne 20 dispose d'une géométrie d'itinéraire (couche 15), mais aucune couche d'arrêts correspondante n'est identifiée dans cet inventaire : elle reste explicitement à compléter, sans créer de points fictifs.
 
 Les identifiants de couches et volumes sont conservés comme métadonnées de source, dans le système de coordonnées EPSG:32628. Ils ne sont pas encore importés comme séquences Aller/Retour : le service publie des points par ligne, mais les informations consultées ne prouvent pas à elles seules l'ordre de desserte ni le sens de chaque point. Le registre garde donc `directionOrderVerified: false`.
 
