@@ -8,8 +8,8 @@
  */
 export interface DddHistoricalLayerReference {
   line: string
-  stopLayerId: number
-  stopLayerName: string
+  stopLayerId: number | null
+  stopLayerName: string | null
   estimatedStopFeatures: number
   routeLayerId: number | null
   routeLayerName: string | null
@@ -57,7 +57,7 @@ export const DDD_HISTORICAL_ARCGIS_REGISTRY: readonly DddHistoricalLayerReferenc
   entry('10', 6, 'Arrets_LIgne_10_Dakar_Dem_Dikk', 26, 22, 'Itinéraire_ligne_10_Dem_Dikk'),
   entry('13', 8, 'Arrets_LIgne_13_Dakar_Dem_Dikk', 22, 13, 'Itinéraire_ligne_13_Dem_Dikk'),
   entry('18', 9, 'Arrets_LIgne_18_Dakar_Dem_Dikk', 44, 14, 'Itinéraire_ligne_18_Dakar_Dem_Dikk'),
-  entry('20', -1, 'Aucune couche d’arrêts identifiée dans cet inventaire', 0, 15, 'Itinéraire_ligne_20_Dakar_Dem_Dikk'),
+  entry('20', null, null, 0, 15, 'Itinéraire_ligne_20_Dakar_Dem_Dikk'),
   entry('23', 10, 'Arrets_LIgne_23_Dakar_Dem_Dikk', 56, 16, 'Itinéraire_ligne_23_Dem_Dikk'),
   entry('121', 7, 'Arrets_LIgne_121_Dakar_Dem_Dikk', 31, 12, 'Itinéraire_ligne_121_Dem_Dikk'),
 ] as const
