@@ -96,7 +96,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const lineSchedule = schedulesByLine.get(line.line)
-          const schedule = isDdd ? lineSchedule : lineSchedule ?? AFTU_TATA_NETWORK_REFERENCE
+          const schedule = isDdd ? lineSchedule : lineSchedule ?? (network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : undefined)
           const outboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
           const inboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
