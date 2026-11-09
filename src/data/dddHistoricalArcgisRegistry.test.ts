@@ -6,14 +6,14 @@ import {
 } from './dddHistoricalArcgisRegistry'
 
 describe('DDD historical ArcGIS source registry', () => {
-  it('preserves the twelve documented historical line references', () => {
+  it('preserves all twelve historical stop-layer references, including both line 13 layers', () => {
     expect(DDD_HISTORICAL_ARCGIS_REGISTRY.map(({ line }) => line)).toEqual([
-      '1', '4', '6', '7', '8', '9', '10', '13', '18', '20', '23', '121',
+      '1', '4', '6', '7', '8', '9', '10', '13', '13', '18', '20', '23', '121',
     ])
   })
 
   it('records the published stop feature estimates without claiming direction order', () => {
-    expect(getDddHistoricalStopFeatureTotal()).toBe(432)
+    expect(getDddHistoricalStopFeatureTotal()).toBe(455)
     for (const reference of DDD_HISTORICAL_ARCGIS_REGISTRY) {
       expect(reference.spatialReference).toBe('EPSG:32628')
       expect(reference.sourceAge).toBe('historical')
