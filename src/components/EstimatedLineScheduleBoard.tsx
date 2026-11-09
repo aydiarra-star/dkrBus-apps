@@ -17,6 +17,22 @@ type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
 
+/**
+ * Référence empirique CETUD/étude 2023–2024 : moyenne AFTU 11,58 min,
+ * arrondie à 11,6 min pour le modèle de grille. Les TATA étant les minibus
+ * AFTU, cette même référence s'applique à leur catalogue. Ancre de grille
+ * et amplitude générale publiées par le CETUD : 06:00–21:00.
+ * Les fiches propres à une ligne restent prioritaires lorsqu'elles existent.
+ */
+const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
+  line: '*',
+  weekday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  saturday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  sunday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
+  sourceLabel: 'Mesures AFTU 2023–2024 · CETUD',
+}
+
 function parseClock(value: string): number | null {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim())
   if (!match) return null
@@ -28,10 +44,10 @@ function parseClock(value: string): number | null {
 
 /** Une fréquence non numérique ou une plage non précise ne devient jamais un passage. */
 function parseInterval(value: string): number | null {
-  const match = /^(\d+)\s*min$/i.exec(value.trim())
+  const match = /^(\d+(?:[.,]\d+)?)\s*min$/i.exec(value.trim())
   if (!match) return null
-  const minutes = Number(match[1])
-  return Number.isSafeInteger(minutes) && minutes > 0 ? minutes : null
+  const minutes = Number(match[1].replace(',', '.'))
+  return Number.isFinite(minutes) && minutes > 0 ? minutes : null
 }
 
 /** Décompte théorique fondé sur la plage et la fréquence de la fiche source. */
@@ -74,11 +90,7 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
     : network === 'tata'
       ? TATA_PUBLIC_LINE_CATALOG
       : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd
-    ? DDD_ESTIMATED_LINE_SCHEDULES
-    : network === 'aftu'
-      ? AFTU_ESTIMATED_LINE_SCHEDULES
-      : []
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
   const schedulesByLine = useMemo(
     () => new Map(schedules.map((schedule) => [schedule.line, schedule])),
     [schedules],
@@ -99,7 +111,8 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
         {catalogue.map((line) => {
           // Seule une fiche horaire portant exactement le même identifiant est utilisable.
           // Une ligne absente du jeu horaire reste visible, avec le tiret de disponibilité.
-          const schedule = schedulesByLine.get(line.line)
+          const lineSchedule = schedulesByLine.get(line.line)
+          const schedule = isDdd ? lineSchedule : lineSchedule ?? AFTU_TATA_NETWORK_REFERENCE
           const minutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
           return (
             <li key={line.line}>
