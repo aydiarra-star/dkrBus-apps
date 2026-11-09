@@ -24,8 +24,8 @@ const serviceUrl =
 
 const entry = (
   line: string,
-  stopLayerId: number,
-  stopLayerName: string,
+  stopLayerId: number | null,
+  stopLayerName: string | null,
   estimatedStopFeatures: number,
   routeLayerId: number | null,
   routeLayerName: string | null,
