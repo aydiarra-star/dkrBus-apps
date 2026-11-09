@@ -63,8 +63,13 @@ export const DDD_HISTORICAL_ARCGIS_REGISTRY: readonly DddHistoricalLayerReferenc
   entry('121', 7, 'Arrets_LIgne_121_Dakar_Dem_Dikk', 31, 12, 'Itinéraire_ligne_121_Dem_Dikk'),
 ] as const
 
+export const getDddHistoricalLayerReferences = (line: string) =>
+  DDD_HISTORICAL_ARCGIS_REGISTRY.filter((reference) => reference.line === line)
+
+/** Returns the first registered layer for compatibility; use the plural helper
+ * whenever a line can have multiple historical source layers. */
 export const getDddHistoricalLayerReference = (line: string) =>
-  DDD_HISTORICAL_ARCGIS_REGISTRY.find((reference) => reference.line === line)
+  getDddHistoricalLayerReferences(line)[0]
 
 export const getDddHistoricalStopFeatureTotal = () =>
   DDD_HISTORICAL_ARCGIS_REGISTRY.reduce(
