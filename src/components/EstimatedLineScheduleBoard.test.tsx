@@ -14,11 +14,16 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
-    const row = screen.getByText('AFTU 5').closest('li')!
+    const aftuFiveLabels = screen.getAllByText('AFTU 5')
+    expect(aftuFiveLabels).toHaveLength(2)
+    const row = aftuFiveLabels[0].closest('li')!
     expect(row).toBeTruthy()
-    expect(within(row).getByText('10 min')).toBeTruthy()
-    expect(screen.getByText('AFTU 91')).toBeTruthy()
-    expect(within(screen.getByText('AFTU 91').closest('li')!).getByText('5 min')).toBeTruthy()
+    expect(within(row).getAllByText('10 min')).toHaveLength(2)
+    expect(within(row).getByText(/Aller ·/)).toBeTruthy()
+    expect(within(row).getByText(/Retour ·/)).toBeTruthy()
+    const aftuNinetyOneLabels = screen.getAllByText('AFTU 91')
+    expect(aftuNinetyOneLabels).toHaveLength(2)
+    expect(within(aftuNinetyOneLabels[0].closest('li')!).getAllByText('5 min')).toHaveLength(2)
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
@@ -26,7 +31,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getByText('9 min')).toBeTruthy()
+    expect(within(row).getAllByText('9 min')).toHaveLength(2)
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
@@ -34,10 +39,12 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
-    expect(screen.getByText('DDD 1')).toBeTruthy()
-    expect(within(screen.getByText('DDD 1').closest('li')!).getByText('—')).toBeTruthy()
-    expect(screen.getByText('DDD 6')).toBeTruthy()
-    expect(within(screen.getByText('DDD 6').closest('li')!).getByText('6 min')).toBeTruthy()
+    const dddOneLabels = screen.getAllByText('DDD 1')
+    expect(dddOneLabels).toHaveLength(2)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('—')).toHaveLength(2)
+    const dddSixLabels = screen.getAllByText('DDD 6')
+    expect(dddSixLabels).toHaveLength(2)
+    expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
   })
 
   it('affiche le catalogue TATA séparément avec la référence commune des minibus AFTU', () => {
@@ -45,12 +52,16 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="tata" />)
-    expect(screen.getByText('TATA 37')).toBeTruthy()
+    const tataThirtySevenLabels = screen.getAllByText('TATA 37')
+    expect(tataThirtySevenLabels).toHaveLength(2)
     expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
-    expect(container.querySelectorAll('.station-board-row')).toHaveLength(60)
-    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(60)
-    expect(within(screen.getByText('TATA 37').closest('li')!).getByText('5 min')).toBeTruthy()
+    expect(container.querySelectorAll('.station-board-row')).toHaveLength(120)
+    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(120)
+    const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
+    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
+    expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
   })
 })

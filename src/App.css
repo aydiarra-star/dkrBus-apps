@@ -142,12 +142,13 @@ button:disabled { cursor: not-allowed; }
 .leaflet-map { width: 100%; height: 100%; background: #e4f0ea; font: inherit; }
 .leaflet-tile { filter: saturate(.77) contrast(.98) brightness(1.025); }
 .leaflet-control-attribution {
-  padding: 3px 7px !important;
-  border-radius: 7px 0 0 0;
-  background: rgba(var(--overlay), .8) !important;
+  padding: 1px 4px !important;
+  border-radius: 6px 0 0 0;
+  background: rgba(var(--overlay), .58) !important;
   color: #517363 !important;
-  font-size: 9px !important;
-  backdrop-filter: blur(8px);
+  font-size: 8px !important;
+  line-height: 1.2 !important;
+  backdrop-filter: blur(5px);
 }
 .leaflet-control-attribution a { color: #146d44 !important; text-decoration: none; }
 .leaflet-control-container .leaflet-top, .leaflet-control-container .leaflet-bottom { z-index: 400; }
@@ -307,8 +308,6 @@ button:disabled { cursor: not-allowed; }
 .map-control:disabled { opacity: .55; }
 .map-control.is-located { background: var(--green-100); box-shadow: inset 0 0 0 1px rgba(25, 135, 84, .22); color: var(--green-700); }
 .control-divider { display: block; height: 1px; margin: 2px 3px; background: #e8efec; }
-.map-attribution-note { position: absolute; z-index: 410; bottom: 7px; left: 25px; display: flex; align-items: center; color: #507162; font-size: 9px; gap: 6px; text-shadow: 0 1px 2px #fff; pointer-events: none; }
-.map-attribution-dot { width: 5px; height: 5px; border-radius: 50%; background: #6a8e7d; }
 
 .dakar-marker-shell { border: 0; background: transparent; }
 .map-user-marker, .map-route-marker { position: relative; display: grid; width: 32px; height: 32px; place-items: center; border: 3px solid white; border-radius: 50%; background: var(--marker-color); box-shadow: 0 3px 14px rgba(21, 115, 71, .32); }
@@ -2825,3 +2824,8 @@ button:disabled { cursor: not-allowed; }
 /* Les lignes DDD/AFTU/TATA reprennent la géométrie des panneaux TER/BRT sans simuler une action sur un arrêt. */
 .station-board-row-static { cursor: default; }
 .station-board-row-static:hover { background: transparent; }
+.station-board-line-group + .station-board-line-group { border-top: 1px solid var(--line-soft); }
+.station-board-direction-row { min-height: 50px; }
+.station-board-stop { display: grid; gap: 2px; }
+.station-board-stop > strong { display: block; font-size: 11.5px; }
+.station-board-stop > small { display: block; color: var(--muted); font-size: 10px; font-weight: 600; line-height: 1.25; }

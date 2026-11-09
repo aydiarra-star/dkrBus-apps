@@ -1597,9 +1597,6 @@ function App() {
           </button>
         </div>
 
-        <div className="map-attribution-note">
-          <span className="map-attribution-dot" /> Fond cartographique OpenStreetMap
-        </div>
       </section>
       )}
 
