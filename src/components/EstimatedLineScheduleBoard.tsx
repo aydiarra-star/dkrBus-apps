@@ -74,11 +74,10 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
     : network === 'tata'
       ? TATA_PUBLIC_LINE_CATALOG
       : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd
-    ? DDD_ESTIMATED_LINE_SCHEDULES
-    : network === 'aftu'
-      ? AFTU_ESTIMATED_LINE_SCHEDULES
-      : []
+  // AFTU et TATA appartiennent au même réseau de minibus : faute de grille TATA
+  // distincte, appliquer les références AFTU à TATA par identifiant de ligne.
+  // Les lignes sans correspondance exacte restent sans compte à rebours.
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
   const schedulesByLine = useMemo(
     () => new Map(schedules.map((schedule) => [schedule.line, schedule])),
     [schedules],
