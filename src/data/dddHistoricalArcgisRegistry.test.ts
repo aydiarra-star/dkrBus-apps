@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DDD_HISTORICAL_ARCGIS_REGISTRY,
   getDddHistoricalLayerReference,
+  getDddHistoricalLayerReferences,
   getDddHistoricalStopFeatureTotal,
 } from './dddHistoricalArcgisRegistry'
 
@@ -19,6 +20,16 @@ describe('DDD historical ArcGIS source registry', () => {
       expect(reference.sourceAge).toBe('historical')
       expect(reference.directionOrderVerified).toBe(false)
     }
+  })
+
+  it('returns both distinct historical stop layers for line 13 without collapsing either source', () => {
+    const line13Layers = getDddHistoricalLayerReferences('13')
+    expect(line13Layers).toHaveLength(2)
+    expect(line13Layers.map(({ stopLayerId, estimatedStopFeatures }) => ({ stopLayerId, estimatedStopFeatures }))).toEqual([
+      { stopLayerId: 0, estimatedStopFeatures: 23 },
+      { stopLayerId: 8, estimatedStopFeatures: 22 },
+    ])
+    expect(line13Layers[0].stopLayerName).not.toBe(line13Layers[1].stopLayerName)
   })
 
   it('keeps the line 20 route geometry while explicitly recording no stop layer in this inventory', () => {
