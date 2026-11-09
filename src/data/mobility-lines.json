@@ -159,11 +159,30 @@
     "origin": "Gadaye (Guédiawaye)",
     "destination": "Gare de Colobane",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-09",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Gadaye (Guédiawaye)",
+      "Wakhinane Nimzatt (rue 212)",
+      "Marché Ndiarème",
+      "Rue Cheikh Wade",
+      "SAM Notaire",
+      "Stade Amadou Barry",
+      "Lycée Canada",
+      "Route des Niayes",
+      "Rond-point de Cambérène (Casebi)",
+      "Route des Niayes prolongée (Police des Parcelles Assainies)",
+      "Avenue Hyacinthe Thiandoum",
+      "Giratoire Liberté 6",
+      "Allées Ababacar Sy (Dieuppeul/Derklé)",
+      "Allées Cheikh Sidaty Aïdara (Niaritally)",
+      "Rue El Hadj Amadou Malick Gaye (Bopp)",
+      "Avenue Cheikh Ahmadou Bamba (Cité Port)",
+      "Rocade Fann / Bel Air",
+      "Terminus Gare de Colobane"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-30/",
+    "note": "La fiche détaillée est conservée dans son ordre publié ; les horaires et temps de passage ne sont pas déduits de cette seule séquence."
   },
   {
     "network": "aftu",
@@ -207,11 +226,22 @@
     "origin": "Nord Foire",
     "destination": "Lat Dior",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-09",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Nord Foire",
+      "VDN",
+      "2 voies Liberté 6",
+      "Sacré-Cœur",
+      "Rue 10 Grand Dakar",
+      "Zone B",
+      "SHAM",
+      "Poste Médina",
+      "Avenue Blaise Diagne",
+      "Terminus Lat-Dior"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-34/",
+    "note": "La fiche détaillée ne fournit pas de date de publication exploitable ; l’ordre de l’itinéraire publié est conservé."
   },
   {
     "network": "aftu",
