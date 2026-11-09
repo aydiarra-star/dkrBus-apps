@@ -186,6 +186,17 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Boulevard de la République', 'Avenue Léopold Sédar Senghor',
     'Avenue Nelson Mandela', 'Palais 1',
   ]),
+  route('6', 'Cambérène 2', 'Palais 2', 'published_order', [
+    'Terminus Cambérène 2', 'Marché Jeudi', 'Hôpital Dalal Diam',
+    'Case PA', 'Police de Parcelles Assainies – Marché Grand Médine',
+    'Rond point 26', 'Foire', 'Sipres', 'Rond point Liberté 6',
+    'Terminus Liberté 5', 'Allées Khalifa Ababacar Sy', 'Jet d’Eau',
+    'Niary Tally', 'Eglise Sainte Thérèse', 'ENA',
+    'Boulevard Général de Gaulle', 'Allées Papa Guèye Fall',
+    'Avenue Faidherbe', 'Avenue Lamine Gueye',
+    'Avenue André Peytavin', 'Avenue Jean Jaurès',
+    'Boulevard de la République', 'Avenue Nelson Mandela', 'Palais 2',
+  ]),
   route('11', 'Keur Massar', 'Lat Dior', 'published_order', [
     'Terminus Keur Massar', 'Station Keur Massar', 'Croisement Keur Massar',
     'Fass Mbao', 'Diamaguène', 'Poste Thiaroye', 'Autoroute à péage',
@@ -273,6 +284,13 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Terminus Rufisque', 'Ville de Rufisque', 'Bargny', 'Diamniadio Yenne',
   ]),
   route('232', 'Baux Maraîchers', 'Aéroport LSS', 'published_order', [
+    'Baux Maraîchers', 'Yarakh', 'Cafétéria', 'Hann Maristes',
+    'Cours Sainte Marie de Hann', 'Sortie Mariste', 'Usine des eaux',
+    'Front de terre', 'Khar Yalla', 'Rond Point Liberté 6',
+    'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
+    'Terminus Aéroport LSS',
+  ]),
+  route('233', 'Baux Maraîchers', 'Palais 1', 'published_order', [
     'Baux Maraîchers', 'Yarakh', 'Cafétéria', 'Hann Maristes',
     'Cours Sainte Marie de Hann', 'Sortie Mariste', 'Usine des eaux',
     'Front de terre', 'Khar Yalla', 'Rond Point Liberté 6',
