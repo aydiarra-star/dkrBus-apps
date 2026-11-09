@@ -74,9 +74,12 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
     : network === 'tata'
       ? TATA_PUBLIC_LINE_CATALOG
       : AFTU_PUBLIC_LINE_CATALOG
+  // AFTU et TATA désignent ici le même réseau de minibus : faute de grille TATA
+  // distincte, on réutilise strictement les références AFTU, sans les présenter
+  // comme des mesures séparées. Le catalogue de lignes affiché reste celui du réseau choisi.
   const schedules = isDdd
     ? DDD_ESTIMATED_LINE_SCHEDULES
-    : network === 'aftu'
+    : network === 'aftu' || network === 'tata'
       ? AFTU_ESTIMATED_LINE_SCHEDULES
       : []
   const schedulesByLine = useMemo(
