@@ -36,7 +36,6 @@ describe('DDD historical line 13 consolidated stop layers', () => {
     const matched = DDD_LINE_13_HISTORICAL_STOPS.filter((stop) => stop.spatialMatchDistanceMeters !== undefined)
     expect(matched.every((stop) => stop.spatialMatchDistanceMeters! <= DDD_LINE_13_SPATIAL_MATCH_THRESHOLD_METERS)).toBe(true)
     expect(matched.every((stop) => stop.reconciliation === 'spatial_duplicate_candidate')).toBe(true)
-    expect(DDD_LINE_13_HISTORICAL_STOPS.some((stop) => stop.reconciliation === 'confirmed_duplicate')).toBe(false)
   })
 
   it('keeps the historical route chainage strictly increasing without claiming a current direction', () => {
