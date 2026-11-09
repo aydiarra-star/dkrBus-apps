@@ -111,7 +111,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                 const publishedStops = direction.id === 'outbound' ? route?.waypoints ?? [] : []
                 return (
                   <div key={direction.id} className="station-board-direction-detail">
-                    <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
+                    <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
                       <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                       <span className="station-board-direction-action">
                         <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{formatPassageCountdown(direction.minutes)}</strong></span>
