@@ -128,8 +128,8 @@ export function EstimatedLineScheduleBoard({ network }: { network: EstimatedSche
               {directions.map((direction) => (
                 <div key={direction.id} className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id}`}>
                   <span className="station-board-stop">
-                    <strong>{label} {line.line} · {direction.label}</strong>
-                    <small>{direction.from} → {direction.to}</small>
+                    <strong>{label} {line.line}</strong>
+                    <small>{direction.label} · {direction.from} → {direction.to}</small>
                   </span>
                   <span
                     className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`}
