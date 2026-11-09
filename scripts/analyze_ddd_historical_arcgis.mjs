@@ -3,9 +3,9 @@ import { join } from 'node:path'
 
 const root = 'artifacts/ddd-historical-arcgis'
 const files = (await (await import('node:fs/promises')).readdir(root))
-  .filter((name) => /^layer-\\d+-stops-line-.*\\.json$/.test(name))
+  .filter((name) => /^layer-\d+-stops-line-.*\.json$/.test(name))
 const routeFiles = (await (await import('node:fs/promises')).readdir(root))
-  .filter((name) => /^layer-\\d+-route-line-.*\\.json$/.test(name))
+  .filter((name) => /^layer-\d+-route-line-.*\.json$/.test(name))
 
 function projectPointOnSegment(point, a, b) {
   const dx = b[0] - a[0]
@@ -101,7 +101,7 @@ for (const name of files) {
     candidates: ordered,
   }
   const out = join(root, `ordered-candidates-layer-${layerId}-line-${line}.json`)
-  await writeFile(out, JSON.stringify(result, null, 2) + '\\n')
+  await writeFile(out, JSON.stringify(result, null, 2) + '\n')
   report.push({
     layerId, line, raw: candidates.length,
     mapped: result.geocodedFeatureCount, missingGeometry: result.missingGeometryCount,
@@ -121,4 +121,4 @@ await writeFile(join(root, 'ordered-candidates-summary.json'), JSON.stringify({
     missingGeometry: report.reduce((n, x) => n + x.missingGeometry, 0),
   },
   layers: report,
-}, null, 2) + '\\n')
+}, null, 2) + '\n')
