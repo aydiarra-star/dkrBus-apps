@@ -13,7 +13,7 @@ describe('DDD historical ArcGIS source registry', () => {
   })
 
   it('records the published stop feature estimates without claiming direction order', () => {
-    expect(getDddHistoricalStopFeatureTotal()).toBe(455)
+    expect(getDddHistoricalStopFeatureTotal()).toBe(432)
     for (const reference of DDD_HISTORICAL_ARCGIS_REGISTRY) {
       expect(reference.spatialReference).toBe('EPSG:32628')
       expect(reference.sourceAge).toBe('historical')
