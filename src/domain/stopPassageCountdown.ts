@@ -31,7 +31,7 @@ export function nextStopPassageCountdown(
     previousOffset = value
   }
   const offset = plan.cumulativeMinutesByStop[stopIndex]
-  if (!Number.isInteger(plan.headwayMinutes) || plan.headwayMinutes <= 0) return null
+  if (!Number.isFinite(plan.headwayMinutes) || plan.headwayMinutes <= 0) return null
 
   const parseClock = (value: string): number | null => {
     const match = /^(\d{2}):(\d{2})$/.exec(value)
