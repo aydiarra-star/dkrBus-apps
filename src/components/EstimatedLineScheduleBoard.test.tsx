@@ -40,7 +40,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(screen.getByText('DDD 6').closest('li')!).getByText('6 min')).toBeTruthy()
   })
 
-  it('affiche le catalogue TATA séparément et ne lui attribue aucune fréquence AFTU', () => {
+  it('affiche le catalogue TATA séparément et applique les références horaires AFTU communes', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
@@ -48,6 +48,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(screen.getByText('TATA 37')).toBeTruthy()
     expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
+    expect(within(screen.getByText('TATA 5').closest('li')!).getByText('10 min')).toBeTruthy()
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(60)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(60)
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
