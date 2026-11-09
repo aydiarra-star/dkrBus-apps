@@ -5,7 +5,8 @@ on:
     branches:
       - feat/bus-lines-bidirectional-stop-registry
     paths:
-      - 'scripts/extract_ddd_historical_arcgis.mjs'\n      - 'scripts/analyze_ddd_historical_arcgis.mjs'
+      - 'scripts/extract_ddd_historical_arcgis.mjs'
+      - 'scripts/analyze_ddd_historical_arcgis.mjs'
       - '.github/workflows/extract-ddd-arcgis.yml'
 
 permissions:
@@ -22,7 +23,9 @@ jobs:
           node-version: 22
       - name: Extract historical stop and route features from ArcGIS
         run: node scripts/extract_ddd_historical_arcgis.mjs
-      - name: Project stop points onto historical route geometries\n        run: node scripts/analyze_ddd_historical_arcgis.mjs\n      - name: Upload source snapshots
+      - name: Project stop points onto historical route geometries
+        run: node scripts/analyze_ddd_historical_arcgis.mjs
+      - name: Upload source snapshots
         uses: actions/upload-artifact@v4
         with:
           name: ddd-historical-arcgis-snapshots
