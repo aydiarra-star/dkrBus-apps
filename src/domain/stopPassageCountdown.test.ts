@@ -22,6 +22,11 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown(plan, 1, at(6, 17, 30))).toBe(10)
   })
 
+  it('supports the empirical AFTU/TATA headway of 11.6 minutes', () => {
+    const fractionalPlan = { ...plan, headwayMinutes: 11.6 }
+    expect(nextStopPassageCountdown(fractionalPlan, 1, at(6, 8, 30))).toBe(11)
+  })
+
   it('returns zero when the estimated passage is due now', () => {
     expect(nextStopPassageCountdown(plan, 1, at(6, 7))).toBe(0)
   })
@@ -34,6 +39,7 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown(null, 0, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown(plan, 9, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, headwayMinutes: 0 }, 0, at(6, 0))).toBeNull()
+    expect(nextStopPassageCountdown({ ...plan, headwayMinutes: Number.POSITIVE_INFINITY }, 0, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, -2] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, 19, 7] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, Number.NaN, 19] }, 1, at(6, 0))).toBeNull()
