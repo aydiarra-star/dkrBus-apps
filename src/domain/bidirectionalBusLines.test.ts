@@ -5,6 +5,7 @@ import {
   getBusLineDirections,
   validateBusDirection,
 } from './bidirectionalBusLines'
+import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 
 describe('bidirectional bus line registry', () => {
   it('creates independent Aller and Retour directions for every public bus line', () => {
@@ -12,8 +13,6 @@ describe('bidirectional bus line registry', () => {
     for (const line of BIDIRECTIONAL_BUS_LINES) {
       expect(line.directions.outbound.id).toBe('outbound')
       expect(line.directions.inbound.id).toBe('inbound')
-      expect(line.directions.outbound.origin).toBe(line.source.origin)
-      expect(line.directions.outbound.destination).toBe(line.source.destination)
       expect(line.directions.inbound.origin).toBe(line.source.destination)
       expect(line.directions.inbound.destination).toBe(line.source.origin)
       expect(line.directions.outbound.stopIds).not.toBe(line.directions.inbound.stopIds)
@@ -26,11 +25,34 @@ describe('bidirectional bus line registry', () => {
     expect(getBusLineDirections('tata', '1')?.network).toBe('tata')
   })
 
-  it('does not mark an empty direction as complete or verified', () => {
-    const line = getBusLineDirections('aftu', '2')
-    expect(line).not.toBeNull()
-    expect(getBusDirectionReadiness(line!).complete).toBe(false)
-    expect(validateBusDirection(line!.directions.outbound)).toEqual([])
+  it('integrates published DDD one-way sequences into their own outbound direction', () => {
+    const route = DDD_PUBLISHED_ROUTES.find((item) => item.line === '1')!
+    const line = getBusLineDirections('ddd', '1')!
+    expect(line.directions.outbound.status).toBe('stops_mapped')
+    expect(line.directions.outbound.stopIds).toEqual(route.stops)
+    expect(line.directions.outbound.sourceUrl).toBe(route.sourceUrl)
+    expect(line.directions.inbound.status).toBe('awaiting_stops')
+    expect(line.directions.inbound.stopIds).toEqual([])
+    expect(getBusDirectionReadiness(line).complete).toBe(false)
+  })
+
+  it('does not split published DDD circuits into fabricated directions', () => {
+    for (const lineNumber of ['18', '20']) {
+      const line = getBusLineDirections('ddd', lineNumber)!
+      expect(line.directions.outbound.status).toBe('awaiting_stops')
+      expect(line.directions.inbound.status).toBe('awaiting_stops')
+    }
+  })
+
+  it('does not invent stop sequences for AFTU or TATA', () => {
+    for (const network of ['aftu', 'tata'] as const) {
+      for (const line of BIDIRECTIONAL_BUS_LINES.filter((item) => item.network === network)) {
+        expect(line.directions.outbound.status).toBe('awaiting_stops')
+        expect(line.directions.inbound.status).toBe('awaiting_stops')
+        expect(line.directions.outbound.stopIds).toEqual([])
+        expect(line.directions.inbound.stopIds).toEqual([])
+      }
+    }
   })
 
   it('rejects duplicate stops and incomplete verified directions', () => {
