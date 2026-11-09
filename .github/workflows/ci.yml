@@ -32,7 +32,7 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Run frontend and GTFS tests
+      - name: Run frontend and local data tests (no GTFS feed required)
         run: npm run test:all
 
       - name: Audit dependencies
