@@ -1197,7 +1197,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const rows = [...board.querySelectorAll('.station-board-row')] as HTMLElement[]
     expect(rows.length).toBeGreaterThan(1)
     expect(rows.every((row) => row.querySelector('.station-board-stop') && row.querySelector('.station-board-passage strong'))).toBe(true)
-    expect(board.textContent).not.toMatch(/Estimation|Terminus|créneau théorique/i)
+    expect(board.textContent).not.toMatch(/Estimation|créneau théorique/i)
     expect(board.textContent).toMatch(/(?:6|8|10|15) min|—/)
     vi.useRealTimers()
   })
@@ -1237,13 +1237,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board).toBeTruthy()
       if (network === 'tata') {
         // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
-        expect(board.querySelectorAll('.station-board-row')).toHaveLength(60)
-        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(60)
+        expect(board.querySelectorAll('.station-board-row')).toHaveLength(120)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(120)
+        expect(board.querySelectorAll('.station-board-direction-outbound')).toHaveLength(60)
+        expect(board.querySelectorAll('.station-board-direction-inbound')).toHaveLength(60)
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
       }
-      expect(board.textContent).not.toMatch(/Estimation|Terminus|horaires non publiés/i)
+      expect(board.textContent).not.toMatch(/Estimation|horaires non publiés/i)
     }
     vi.useRealTimers()
   })
