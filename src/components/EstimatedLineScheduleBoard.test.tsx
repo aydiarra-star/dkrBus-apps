@@ -14,13 +14,16 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
-    const row = screen.getByText('AFTU 5').closest('li')!
+    const aftuFiveLabels = screen.getAllByText('AFTU 5')
+    expect(aftuFiveLabels).toHaveLength(2)
+    const row = aftuFiveLabels[0].closest('li')!
     expect(row).toBeTruthy()
     expect(within(row).getAllByText('10 min')).toHaveLength(2)
     expect(within(row).getByText(/Aller ·/)).toBeTruthy()
     expect(within(row).getByText(/Retour ·/)).toBeTruthy()
-    expect(screen.getByText('AFTU 91')).toBeTruthy()
-    expect(within(screen.getByText('AFTU 91').closest('li')!).getAllByText('5 min')).toHaveLength(2)
+    const aftuNinetyOneLabels = screen.getAllByText('AFTU 91')
+    expect(aftuNinetyOneLabels).toHaveLength(2)
+    expect(within(aftuNinetyOneLabels[0].closest('li')!).getAllByText('5 min')).toHaveLength(2)
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
@@ -28,7 +31,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getByText('9 min')).toBeTruthy()
+    expect(within(row).getAllByText('9 min')).toHaveLength(2)
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
