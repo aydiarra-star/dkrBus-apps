@@ -1,0 +1,31 @@
+name: Extract historical DDD ArcGIS layers
+
+on:
+  push:
+    branches:
+      - feat/bus-lines-bidirectional-stop-registry
+    paths:
+      - 'scripts/extract_ddd_historical_arcgis.mjs'
+      - '.github/workflows/extract-ddd-arcgis.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Extract historical stop and route features from ArcGIS
+        run: node scripts/extract_ddd_historical_arcgis.mjs
+      - name: Upload source snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-historical-arcgis-snapshots
+          path: artifacts/ddd-historical-arcgis/
+          if-no-files-found: error
+          retention-days: 14
