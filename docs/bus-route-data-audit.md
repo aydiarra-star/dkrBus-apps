@@ -101,3 +101,18 @@ La complétude d'une ligne exige que les deux sens soient `verified`. La présen
 ## Affichage passager
 
 Le compte à rebours est une couche distincte des données de parcours. Une fréquence de ligne ne prouve pas l'heure de passage à chaque arrêt. Tant qu'aucun horaire directionnel par arrêt n'est validé, l'application ne doit pas afficher de compte à rebours local fabriqué. Le rendu doit rester cohérent avec les panneaux TER/BRT et afficher uniquement le décompte lorsqu'une donnée de passage exploitable existe.
+
+
+## Séquences officielles publiées DDD — relevé du 9 novembre 2026
+
+La page [Réseau urbain de Dakar](https://demdikk.sn/reseau-urbain-dakar/) publie actuellement des listes ordonnées de repères pour les lignes 1, 4, 7, 8, 9, 10, 13, 18, 20, 23 et 121. Ces listes ont été transcrites dans `src/data/dddPublishedRoutes.ts`, avec l'URL de la source, la date de consultation et le statut de validation explicite.
+
+- Pour les lignes 1, 4, 7, 8, 9, 10, 13, 23 et 121, le fichier conserve l'ordre des repères tel qu'affiché entre les terminus de la page.
+- Les lignes 18 et 20 sont conservées comme circuits publiés : elles ne sont pas artificiellement découpées en deux sens indépendants.
+- Ces données sont des repères textuels publiés, pas des arrêts géolocalisés. Elles ne sont donc pas encore raccordées aux 455 entités ArcGIS historiques ni aux tableaux de compte à rebours.
+- La page ne fournit pas deux listes explicites Aller et Retour. Aucun parcours inverse n'est généré et aucun sens n'est marqué vérifié.
+- La ligne 23 est intitulée « Palais 1 » dans le catalogue d'information voyageurs, alors que sa liste de repères publiée termine par « Palais 2 ». Cette incohérence de source est conservée, sans correction par supposition.
+
+Les tests de `dddPublishedRoutes.test.ts` contrôlent la couverture des onze lignes, la présence des sources, le statut non certifié des coordonnées et directions, la conservation de la ligne 13 à 24 repères, ainsi que le statut de circuit des lignes 18 et 20.
+
+La page d'information voyageurs DDD [confirme le catalogue public et ses terminus](https://demdikk.sn/info-voyageurs/), mais elle ne remplace pas les listes d'arrêts directionnelles manquantes. Les lignes absentes de la page « Réseau urbain » restent en attente de source exploitable.
