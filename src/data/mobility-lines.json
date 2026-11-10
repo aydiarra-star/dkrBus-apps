@@ -1261,20 +1261,6 @@
     ],
     "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-1",
     "note": null,
-    "inboundWaypoints": [
-      "Espi",
-      "Gare Routiere De Rufisque",
-      "Zac Mbao",
-      "Carrefour Keur Massar",
-      "Carrefour Mbao",
-      "Poste De Santé Gueye",
-      "Sips",
-      "Tally Boumak, 191",
-      "Grand Mosquée De Pikine",
-      "Collége Serigne",
-      "Centre Sauvegarde De Pikine-Guediawaye",
-      "Bvard. Tall / Route Corniche"
-    ],
     "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-0"
   },
   {
@@ -1302,20 +1288,6 @@
     ],
     "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-1",
     "note": null,
-    "inboundWaypoints": [
-      "Terminus Jaxaay",
-      "Commune De Jaxaay",
-      "Police Jaxaay",
-      "Garage Keur Massar",
-      "Carrefour Keur Massar",
-      "Carrefour Mbao",
-      "Poste De Santé Gueye",
-      "Sips",
-      "Zoo",
-      "Cercle De L'Etrier",
-      "Camp Lemonier",
-      "Gare De Colobane"
-    ],
     "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-0"
   },
   {
