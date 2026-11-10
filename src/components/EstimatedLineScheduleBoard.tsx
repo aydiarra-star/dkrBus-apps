@@ -33,7 +33,7 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   saturday: { start: '06:00', end: '21:00', interval: '11.6 min' },
   sunday: { start: '06:00', end: '21:00', interval: '11.6 min' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
-  sourceLabel: 'Mesures AFTU 2023–2024 · CETUD',
+  sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
 }
 
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
@@ -41,7 +41,7 @@ const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
   weekday: { start: '05:30', end: '21:00', interval: '10 min' },
   saturday: { start: '05:30', end: '21:00', interval: '10 min' },
   sunday: { start: '06:00', end: '21:00', interval: '12 min' },
-  sourceUrl: 'https://demdikk.sn/info-voyageurs/',
+  sourceUrl: 'https://demdikk.sn/reseau-urbain-dakar/',
   sourceLabel: 'Dakar Dem Dikk · amplitude générale et intervalle de référence',
 }
 
