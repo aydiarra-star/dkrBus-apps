@@ -150,6 +150,7 @@ const tataSource = 'https://momove.app/guide'
  * de l'AFTU : les terminus sont des données de parcours, pas des horaires.
  */
 export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
+  ['3','Yoff-Village','Petersen'],
   ['1','Sandaga','Sud Foire'],
   ['2','Parcelles','Petersen'],
   ['4','Petersen','Yoff'],
@@ -169,6 +170,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['36','Guédiawaye','Ngor'],
   ['37','APIX','UCAD'],
   ['38','Cité Enseignant','Sandaga'],
+  ['39','Lat-Dior','Diamalaye'],
   ['40','Jaxaay','Petersen'],
   ['41','Guédiawaye','Rebeuss'],
   ['42','Gadaye','Ouakam'],
