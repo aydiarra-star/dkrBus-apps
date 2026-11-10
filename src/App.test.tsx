@@ -432,7 +432,7 @@ describe('structure en quatre piliers', () => {
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
-    expect(tataPassage?.querySelector('strong')?.textContent).toBe('En service')
+    expect(tataPassage?.querySelector('strong')?.textContent).toBe('12 min')
     expect(tataPassage?.querySelector('small')?.textContent).toBe('06:00–21:00')
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
@@ -986,7 +986,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     render(<App />)
 
     // TER et BRT conservent un compte à rebours numérique qui diminue avec le temps.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
       expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
@@ -1017,7 +1017,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toBe('06:00–21:00')
+      if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
       else expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
