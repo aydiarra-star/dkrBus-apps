@@ -318,6 +318,11 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Avenue Pompidou', 'Place de l’Indépendance',
     'Avenue Léopold Sédar Senghor', 'Avenue Nelson Mandela', 'Palais 2',
   ]),
+  route('501', 'Palais 2', 'Leclerc', 'published_order', [
+    'Terminus Palais 2', 'Avenue Nelson Mandela',
+    'Avenue Léopold Sédar Senghor', 'Place de l’Indépendance',
+    'Esso Port Embarcadère', 'Terminus Leclerc',
+  ], '2026-11-10'),
   route('319', 'Liberté 6', 'Ouakam', 'published_order', [
     'Terminus Liberté 6', 'Rond Point Liberté 6', 'Deux voies Liberté 6',
     'Rond point JVC', 'Boulangerie Jaune', 'Immeuble Mariama',

@@ -6,7 +6,7 @@ describe('DDD published route references', () => {
     expect(DDD_PUBLISHED_ROUTES.map((route) => route.line)).toEqual([
       '1', '4', '7', '8', '9', '10', '13', '18', '20', '23', '121',
       '2', '5', '6', '11', '12', '16A', '16B', '208', '213', '218', '219',
-      '220', '221', '227', '228', '232', '234', '217', '233', 'TO1', '319',
+      '220', '221', '227', '228', '232', '234', '217', '233', 'TO1', '319', '501',
     ])
     for (const route of DDD_PUBLISHED_ROUTES) {
       expect(route.stops.length).toBeGreaterThan(1)
