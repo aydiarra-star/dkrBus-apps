@@ -11,7 +11,8 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
-    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(80)
+    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(79)
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '62')?.waypoints).toHaveLength(0)
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {
