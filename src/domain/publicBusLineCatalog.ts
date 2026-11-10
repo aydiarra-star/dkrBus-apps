@@ -109,6 +109,7 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['11','Keur Massar','Lat Dior'],
   ['12','Guédiawaye','Palais 1'],
   ['13','Liberté 5','Palais 2'],
+  ['TO1','Ouakam','Palais 2'],
   ['15A','Rufisque','Palais 1'],
   ['15B','Rufisque','Palais 1'],
   ['16A','Malika','Palais 1'],
