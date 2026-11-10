@@ -47,7 +47,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
       ? 'La fiche mentionne la gare TER / gare de Dakar comme point de passage. Cela fournit un repère pour rejoindre le TER, mais l’arrêt bus précis, le chemin piéton, les horaires coordonnés et le billet combiné ne sont pas validés ici.'
       : 'Aucune correspondance garantie documentée. Un quartier commun ne confirme ni le même arrêt, ni un chemin piéton sûr, ni des horaires coordonnés.'
   } else if (/\b(prochain|prochaine|attente|passage|frequence|horaire|horaires|heure|depart)\b/.test(text) && !/\b(ou|arrets|itineraire|parcours)\b/.test(text)) {
-    detail = 'Prochain départ et fréquence non documentés : compte à rebours indisponible.'
+    detail = 'Aucun prochain départ fiable ni fréquence par ligne dans cette fiche. Je ne peux pas calculer un compte à rebours.'
   } else if (/\b(prix|tarif|ticket|cout|coute|payer)\b/.test(text)) {
     detail = 'Tarif de cette ligne non documenté dans la base consultée : à confirmer auprès du receveur ou de l’opérateur.'
   } else if (line.waypoints.length) {
@@ -113,7 +113,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
     const end = points.findIndex((point) => mentions(to, normalizeMobility(point)))
     return start >= 0 && end > start
   })
-  if (!matched.length) return networks.length ? { text: 'Je ne trouve pas de parcours direct dans le sens demandé parmi les fiches bus transcrites. Cela ne signifie pas qu’aucune ligne existe. Précisez le numéro, le quartier et le sens ; les correspondances bus et le sens retour ne sont pas encore validés.' } : null
+  if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
   return { text: `Pistes documentaires pour ${from} → ${to} :\n${matched.slice(0, 4).map((line) => `• ${label(line)}${line.waypoints.length ? '' : ' (terminus seulement)'}`).join('\n')}\nÀ confirmer auprès de l’opérateur avant le départ : ni arrêt d’embarquement précis, ni durée, ni prochain départ garanti. Demandez le numéro d’une ligne pour ses points de passage.${[...new Set(matched.slice(0, 4).map((line) => line.detailSourceUrl ?? line.sourceUrl))].map((url) => source(url)).join('')}`, ...(matched.length === 1 ? { lineId: key(matched[0]) } : {}) }
 }
 
