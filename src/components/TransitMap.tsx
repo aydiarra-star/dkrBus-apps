@@ -81,6 +81,11 @@ function MapController({ recenterTo, zoomAction }: Pick<TransitMapProps, 'recent
   const map = useMap()
 
   useEffect(() => {
+    // Retirer uniquement le préfixe de marque Leaflet ; conserver le crédit OSM requis.
+    map.attributionControl.setPrefix(false)
+  }, [map])
+
+  useEffect(() => {
     if (!recenterTo) return
     map.flyTo([recenterTo.lat, recenterTo.lng], Math.max(map.getZoom(), 15), { duration: 0.8 })
   }, [map, recenterTo])
