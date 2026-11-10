@@ -41,13 +41,38 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOneLabels = screen.getAllByText('DDD 1')
     expect(dddOneLabels).toHaveLength(2)
-    expect(within(dddOneLabels[0].closest('li')!).getAllByText('—')).toHaveLength(2)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('En service')).toHaveLength(2)
     const dddSixLabels = screen.getAllByText('DDD 6')
     expect(dddSixLabels).toHaveLength(2)
     expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
   })
 
-  it('affiche le catalogue TATA séparément avec la référence commune des minibus AFTU', () => {
+  it('annonce la reprise AFTU et TATA avant le premier départ, avec l’heure exacte', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-09T05:34:00.000Z'))
+
+    const aftu = render(<EstimatedLineScheduleBoard network="aftu" />)
+    const aftuFive = screen.getAllByText('AFTU 5')[0].closest('li')!
+    expect(within(aftuFive).getAllByText('Reprise dans 26 min')).toHaveLength(2)
+    expect(within(aftuFive).getAllByText('Reprise à 06:00')).toHaveLength(2)
+    aftu.unmount()
+
+    render(<EstimatedLineScheduleBoard network="tata" />)
+    const tataThirtySeven = screen.getAllByText('TATA 37')[0].closest('li')!
+    expect(within(tataThirtySeven).getAllByText('Reprise dans 26 min')).toHaveLength(2)
+    expect(within(tataThirtySeven).getAllByText('Reprise à 06:00')).toHaveLength(2)
+  })
+
+  it('annonce le début du service DDD comme actif à 05:34', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-09T05:34:00.000Z'))
+
+    render(<EstimatedLineScheduleBoard network="ddd" />)
+    const dddOne = screen.getAllByText('DDD 1')[0].closest('li')!
+    expect(within(dddOne).getAllByText('En service')).toHaveLength(2)
+  })
+
+  it('affiche le catalogue TATA séparément sans inventer de fréquence AFTU', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
@@ -59,7 +84,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(120)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(120)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
-    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getAllByText('En service')).toHaveLength(2)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
