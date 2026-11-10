@@ -45,7 +45,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   if (/\b(correspondance|correspondances|changer|transfert)\b/.test(text)) {
     detail = line.waypoints.some((point) => /gare (ter|de dakar)/i.test(point))
       ? 'La fiche mentionne la gare TER / gare de Dakar comme point de passage. Cela fournit un repère pour rejoindre le TER, mais l’arrêt bus précis, le chemin piéton, les horaires coordonnés et le billet combiné ne sont pas validés ici.'
-      : 'Aucune correspondance garantie n’est documentée pour cette ligne dans la mémoire. Un nom de quartier commun ne suffit pas à confirmer le même arrêt, un chemin piéton sûr ou des horaires coordonnés.'
+      : 'Aucune correspondance garantie documentée. Un quartier commun ne confirme ni le même arrêt, ni un chemin piéton sûr, ni des horaires coordonnés.'
   } else if (/\b(prochain|prochaine|attente|passage|frequence|horaire|horaires|heure|depart)\b/.test(text) && !/\b(ou|arrets|itineraire|parcours)\b/.test(text)) {
     detail = 'Aucun prochain départ fiable ni fréquence par ligne dans cette fiche. Je ne peux pas calculer un compte à rebours.'
   } else if (/\b(prix|tarif|ticket|cout|coute|payer)\b/.test(text)) {
@@ -53,7 +53,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else if (line.waypoints.length) {
     detail = `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
   } else {
-    detail = 'Les terminus sont documentés ; le détail des arrêts intermédiaires n’est pas encore transcrit dans la mémoire. Consultez la fiche de l’opérateur pour le parcours complet.'
+    detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
   }
   return { text: `${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
 }
@@ -113,7 +113,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
     const end = points.findIndex((point) => mentions(to, normalizeMobility(point)))
     return start >= 0 && end > start
   })
-  if (!matched.length) return networks.length ? { text: 'Je ne trouve pas de parcours direct dans le sens demandé parmi les fiches bus transcrites. Cela ne signifie pas qu’aucune ligne existe. Précisez le numéro, le quartier et le sens ; les correspondances bus et le sens retour ne sont pas encore validés.' } : null
+  if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
   return { text: `Pistes documentaires pour ${from} → ${to} :\n${matched.slice(0, 4).map((line) => `• ${label(line)}${line.waypoints.length ? '' : ' (terminus seulement)'}`).join('\n')}\nÀ confirmer auprès de l’opérateur avant le départ : ni arrêt d’embarquement précis, ni durée, ni prochain départ garanti. Demandez le numéro d’une ligne pour ses points de passage.${[...new Set(matched.slice(0, 4).map((line) => line.detailSourceUrl ?? line.sourceUrl))].map((url) => source(url)).join('')}`, ...(matched.length === 1 ? { lineId: key(matched[0]) } : {}) }
 }
 
