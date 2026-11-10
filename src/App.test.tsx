@@ -414,7 +414,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
     // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
     // DDD, AFTU et TATA utilisent les mêmes cartes : uniquement le nombre de minutes.
     for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min'], ['tata', '12 min']]) {
@@ -423,7 +423,7 @@ describe('structure en quatre piliers', () => {
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
       expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')).toBeNull()
+      expect(passage!.querySelector('small')?.textContent).toMatch(/créneau/)
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
@@ -978,7 +978,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     render(<App />)
 
     // Les cinq cartes possèdent un compte à rebours actif.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     expect(screen.getByText('6 min')).toBeTruthy()
     expect(screen.getByText('10 min')).toBeTruthy()
     expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
@@ -998,11 +998,12 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    const expected = { ddd: '2 min', aftu: '12 min', tata: '12 min' }
+    const expected = { ddd: '2 min', aftu: '12 min', tata: 'En service' }
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      expect(passage?.querySelector('small')).toBeNull()
+      if (network === 'tata') expect(passage?.querySelector('small')).toBeNull()
+      else expect(passage?.querySelector('small')?.textContent).toMatch(/créneau/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
