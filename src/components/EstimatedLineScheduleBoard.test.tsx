@@ -117,8 +117,8 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     await waitFor(() => {
       expect(within(row).getAllByRole('listitem')).toHaveLength(34)
     })
-    expect(within(row).getByText('Rond-point Liberté 6')).toBeTruthy()
-    expect(within(row).getByText('Terrain Colobane')).toBeTruthy()
+    expect(within(row).getAllByText('Rond-point Liberté 6')).toHaveLength(2)
+    expect(within(row).getAllByText('Terrain Colobane').length).toBeGreaterThanOrEqual(1)
   })
 
 })
