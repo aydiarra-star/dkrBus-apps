@@ -7,7 +7,7 @@ import { answerAssistant } from './assistant'
 const context = { publishedAvailable: false, adminOnline: false }
 function ask(question: string) { return answerMobilityKnowledge(question)?.text ?? '' }
 
-describe('mémoire documentaire actualisée le 9 novembre 2026', () => {
+describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
