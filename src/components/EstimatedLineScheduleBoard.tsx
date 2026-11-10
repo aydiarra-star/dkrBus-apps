@@ -147,12 +147,22 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundSchedule = route?.inboundSchedule ?? null
-          const inboundMinutes = inboundSchedule && serviceState.status === 'ACTIVE'
+          const inboundDayWindow = inboundSchedule
+            ? weekday === 0 ? inboundSchedule.sunday : weekday === 6 ? inboundSchedule.saturday : inboundSchedule.weekday
+            : scheduleWindow
+          const inboundHasExplicitNoService = Boolean(inboundSchedule && !inboundDayWindow)
+          const inboundServiceWindow = inboundSchedule
+            ? inboundDayWindow
+            : serviceWindow
+          const inboundServiceState = inboundServiceWindow
+            ? getServiceDisplayState(now, inboundServiceWindow.start, inboundServiceWindow.end)
+            : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
+          const inboundMinutes = inboundSchedule && inboundServiceState.status === 'ACTIVE'
             ? scheduleCountdownMinutes(inboundSchedule, now)
             : null
           const directions = [
-            { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes },
-            { id: 'inbound' as const, label: 'Retour', from: line.destination, to: line.origin, minutes: inboundMinutes },
+            { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes, serviceState, serviceWindow, hasExplicitNoService },
+            { id: 'inbound' as const, label: 'Retour', from: line.destination, to: line.origin, minutes: inboundMinutes, serviceState: inboundServiceState, serviceWindow: inboundServiceWindow, hasExplicitNoService: inboundHasExplicitNoService },
           ]
           return (
             <li key={line.line} className="station-board-line-group">
@@ -166,7 +176,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
                       <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                       <span className="station-board-direction-action">
-                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{serviceState.status === 'UPCOMING' ? serviceState.label : serviceState.status === 'FINISHED' ? (hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{serviceState.status !== 'ACTIVE' && <small>{serviceWindow ? `Reprise à ${serviceWindow.start}` : ''}</small>}</span>
+                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
                         <span aria-hidden="true">{selected ? '−' : '+'}</span>
                       </span>
                     </button>

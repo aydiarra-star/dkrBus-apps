@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within, act } from '@testing-library/react'
+import { cleanup, render, screen, within, act, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 
@@ -33,6 +33,18 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
       vi.advanceTimersByTime(60_000)
     })
     expect(within(row).getAllByText('9 min')).toHaveLength(1)
+  })
+
+  it('calcule le statut du retour selon sa propre plage de service', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
+    vi.setSystemTime(new Date('2026-11-09T20:47:00.000Z'))
+
+    render(<EstimatedLineScheduleBoard network="aftu" />)
+    const aftuSixtySix = screen.getAllByText('AFTU 66')[0].closest('li')!
+    await waitFor(() => {
+      expect(within(aftuSixtySix).getByText('Fin de service')).toBeTruthy()
+    })
+    expect(within(aftuSixtySix).getByText('En service')).toBeTruthy()
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
