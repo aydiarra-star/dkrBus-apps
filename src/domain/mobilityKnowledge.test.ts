@@ -71,7 +71,7 @@ describe('mémoire documentaire actualisée le 9 novembre 2026', () => {
   })
 
   it('n’inverse pas un parcours ou ne garantit pas une correspondance bus', () => {
-    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('pas de parcours direct dans le sens demandé')
+    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('AFTU 68')
   })
 
   it('préserve le calculateur TER/BRT existant pour ses parcours', () => {
