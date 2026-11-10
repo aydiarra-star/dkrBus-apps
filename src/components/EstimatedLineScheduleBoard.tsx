@@ -106,19 +106,20 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-57-directions.json'),
       import('../data/aftu-30-directions.json'),
       import('../data/aftu-58-directions.json'),
-    ]).then(([mobility, tata, aftu66Return, aftu57Directions, aftu30Directions, aftu58Directions]) => {
+      import('../data/aftu-67-directions.json'),
+    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67]) => {
+      const overrides: Record<string, Partial<MobilityRouteReference>> = {
+        '66': aftu66.default as Partial<MobilityRouteReference>,
+        '57': aftu57.default as Partial<MobilityRouteReference>,
+        '30': aftu30.default as Partial<MobilityRouteReference>,
+        '58': aftu58.default as Partial<MobilityRouteReference>,
+        '67': aftu67.default as Partial<MobilityRouteReference>,
+      }
       if (active) setRouteReferences([
-        ...(mobility.default as MobilityRouteReference[]).map((item) =>
-          item.network === 'aftu' && item.code === '66'
-            ? { ...item, ...aftu66Return.default } as MobilityRouteReference
-            : item.network === 'aftu' && item.code === '57'
-              ? { ...item, ...aftu57Directions.default } as MobilityRouteReference
-              : item.network === 'aftu' && item.code === '30'
-                ? { ...item, ...aftu30Directions.default } as MobilityRouteReference
-                : item.network === 'aftu' && item.code === '58'
-                  ? { ...item, ...aftu58Directions.default } as MobilityRouteReference
-                  : item,
-        ),
+        ...(mobility.default as MobilityRouteReference[]).map((item) => {
+          const details = item.network === 'aftu' ? overrides[item.code] : undefined
+          return details ? { ...item, ...details } : item
+        }),
         ...(tata.default as MobilityRouteReference[]),
       ])
     })
