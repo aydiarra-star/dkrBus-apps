@@ -2240,6 +2240,16 @@ function ReferenceNetworkSummary({
                     <strong>{serviceState.label}</strong>
                     <small>{`Reprise à ${refData?.serviceStart ?? '—'}`}</small>
                   </span>
+                ) : !hasEstimatedMinutes && showCountdown && passage ? (
+                  <span
+                    className="network-summary-passage"
+                    role="status"
+                    title={passage.note}
+                    aria-label={`${refData?.shortName ?? network.label} : prochain créneau théorique à ${passage.clockLabel}, dans ${passage.minutes} minute${passage.minutes > 1 ? 's' : ''}.`}
+                  >
+                    <strong>{formatPassageCountdown(passage.minutes)}</strong>
+                    <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
+                  </span>
                 ) : estimatedPassage ? (
                   <span className="network-summary-passage" role="status" title="Créneau théorique calculé depuis la fréquence de référence, sans suivi GPS.">
                     <strong>{formatPassageCountdown(estimatedPassage.minutes)}</strong>
