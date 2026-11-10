@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
-import mobilityLineReferences from '../data/mobility-lines.json'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
@@ -21,7 +20,6 @@ import {
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
 type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; detailSourceUrl: string | null; note: string | null }
-const routeReferences = mobilityLineReferences as MobilityRouteReference[]
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -88,6 +86,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
   const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
   const schedulesByLine = useMemo(() => new Map(schedules.map((schedule) => [schedule.line, schedule])), [schedules])
   const [now, setNow] = useState(() => Date.now())
+  const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
   const [openedDirection, setOpenedDirection] = useState<{ line: string; direction: DirectionId } | null>(null)
   const referenceStops = network === 'ddd' ? DDD_STOPS : network === 'tata' ? TATA_STOPS : AFTU_STOPS
   const nearestStop = useMemo(() => {
@@ -97,6 +96,14 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       return !nearest || distance < nearest.distance ? { stop, distance } : nearest
     }, null as { stop: (typeof referenceStops)[number]; distance: number } | null)
   }, [location, referenceStops])
+
+  useEffect(() => {
+    let active = true
+    import('../data/mobility-lines.json').then(({ default: data }) => {
+      if (active) setRouteReferences(data as MobilityRouteReference[])
+    })
+    return () => { active = false }
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1_000)
