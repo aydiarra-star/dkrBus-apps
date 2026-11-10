@@ -65,5 +65,182 @@
     "sourceUrl": "https://apps.apple.com/app/id6814449080",
     "sourceLabel": "CETUD Mobilités",
     "note": "Les plages horaires affichées sont uniquement la plage générale de service DDD du référentiel local, pas une amplitude propre à la ligne 102. Le prochain passage exact n’est pas calculé tant qu’une heure de départ vérifiée n’est pas disponible."
-  }
+  },
+  "observedPassages": [
+    {
+      "stopIndex": 1,
+      "stop": "Terminus Cambérène 2",
+      "time": "18:56"
+    },
+    {
+      "stopIndex": 2,
+      "stop": "Centre de Formation CPI Hamo",
+      "time": "18:45"
+    },
+    {
+      "stopIndex": 3,
+      "stop": "Serigne Mourtada",
+      "time": "18:52"
+    },
+    {
+      "stopIndex": 4,
+      "stop": "Restaurant Parcelloise P.A",
+      "time": null
+    },
+    {
+      "stopIndex": 5,
+      "stop": "Unité 7",
+      "time": "18:53"
+    },
+    {
+      "stopIndex": 6,
+      "stop": "Multiservice P.A Unité 7",
+      "time": "18:54"
+    },
+    {
+      "stopIndex": 7,
+      "stop": "Boutique Orange Unité 10",
+      "time": "18:55"
+    },
+    {
+      "stopIndex": 8,
+      "stop": "Stade municipal",
+      "time": "18:58"
+    },
+    {
+      "stopIndex": 9,
+      "stop": "Pharmacie Yacine",
+      "time": "18:45"
+    },
+    {
+      "stopIndex": 10,
+      "stop": "Police PA",
+      "time": "18:48"
+    },
+    {
+      "stopIndex": 11,
+      "stop": "Tally Bou Bess PA",
+      "time": "18:50"
+    },
+    {
+      "stopIndex": 12,
+      "stop": "Station Mobile Grand Médine",
+      "time": "18:51"
+    },
+    {
+      "stopIndex": 13,
+      "stop": "Face Église Saint-Paul",
+      "time": "18:44"
+    },
+    {
+      "stopIndex": 14,
+      "stop": "Marché Arafat Grand Yoff",
+      "time": "18:49"
+    },
+    {
+      "stopIndex": 15,
+      "stop": "SGBS Grand Yoff",
+      "time": "18:50"
+    },
+    {
+      "stopIndex": 16,
+      "stop": "Khar Yalla",
+      "time": "18:44"
+    },
+    {
+      "stopIndex": 17,
+      "stop": "Rond-point Liberté 6",
+      "time": "18:46"
+    },
+    {
+      "stopIndex": 18,
+      "stop": "Rond-point Liberté 6",
+      "time": null
+    },
+    {
+      "stopIndex": 19,
+      "stop": "Mairie Dieuppeul-Derklé",
+      "time": "18:47"
+    },
+    {
+      "stopIndex": 20,
+      "stop": "Pharmacie La Miséricorde",
+      "time": "18:49"
+    },
+    {
+      "stopIndex": 21,
+      "stop": "2 Voies Liberté 5",
+      "time": "18:52"
+    },
+    {
+      "stopIndex": 22,
+      "stop": "Camps Sapeur-Pompier de Dieuppeul",
+      "time": "18:44"
+    },
+    {
+      "stopIndex": 23,
+      "stop": "Terrain Niarry Tally",
+      "time": "18:48"
+    },
+    {
+      "stopIndex": 24,
+      "stop": "Biscuiterie",
+      "time": "18:49"
+    },
+    {
+      "stopIndex": 25,
+      "stop": "Coris Bank",
+      "time": "18:51"
+    },
+    {
+      "stopIndex": 26,
+      "stop": "Après Station Castor",
+      "time": "18:54"
+    },
+    {
+      "stopIndex": 27,
+      "stop": "Cours privés Madieye Sall",
+      "time": "18:56"
+    },
+    {
+      "stopIndex": 28,
+      "stop": "Mosquée",
+      "time": "18:58"
+    },
+    {
+      "stopIndex": 29,
+      "stop": "Police HLM II",
+      "time": "18:44"
+    },
+    {
+      "stopIndex": 30,
+      "stop": "Arc-en-Ciel Pressing",
+      "time": "18:46"
+    },
+    {
+      "stopIndex": 31,
+      "stop": "Bank of Africa HLM",
+      "time": "18:47"
+    },
+    {
+      "stopIndex": 32,
+      "stop": "Gouye Gui HLM",
+      "time": "18:47"
+    },
+    {
+      "stopIndex": 33,
+      "stop": "Massalikoul Djinane",
+      "time": "18:45"
+    },
+    {
+      "stopIndex": 34,
+      "stop": "Terrain Colobane",
+      "time": "18:47"
+    }
+  ],
+  "unassignedTimeTokens": [
+    "19:53",
+    "18:46"
+  ],
+  "observationContext": "Horaires relevés sur l’écran CETUD communiqué ; date et nature récurrente/non récurrente non établies. Les deux tokens non attribués ne sont affectés à aucun arrêt."
 }
