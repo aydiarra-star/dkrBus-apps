@@ -36,6 +36,15 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   sourceLabel: 'Mesures AFTU 2023–2024 · CETUD',
 }
 
+const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
+  line: '*',
+  weekday: { start: '05:30', end: '21:00', interval: '10 min' },
+  saturday: { start: '05:30', end: '21:00', interval: '10 min' },
+  sunday: { start: '06:00', end: '21:00', interval: '12 min' },
+  sourceUrl: 'https://demdikk.sn/info-voyageurs/',
+  sourceLabel: 'Dakar Dem Dikk · amplitude générale et intervalle de référence',
+}
+
 function parseClock(value: string): number | null {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim())
   if (!match) return null
