@@ -160,7 +160,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
+          const countdownSchedule = scheduleWindow && schedule ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundSchedule = route?.inboundSchedule ?? null
           const inboundDayWindow = inboundSchedule
