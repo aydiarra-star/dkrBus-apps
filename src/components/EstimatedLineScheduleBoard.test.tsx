@@ -41,7 +41,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOneLabels = screen.getAllByText('DDD 1')
     expect(dddOneLabels).toHaveLength(2)
-    expect(within(dddOneLabels[0].closest('li')!).getAllByText('—')).toHaveLength(2)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('En service')).toHaveLength(2)
     const dddSixLabels = screen.getAllByText('DDD 6')
     expect(dddSixLabels).toHaveLength(2)
     expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
