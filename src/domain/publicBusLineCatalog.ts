@@ -109,6 +109,7 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['11','Keur Massar','Lat Dior'],
   ['12','Guédiawaye','Palais 1'],
   ['13','Liberté 5','Palais 2'],
+  ['TO1','Ouakam','Palais 2'],
   ['15A','Rufisque','Palais 1'],
   ['15B','Rufisque','Palais 1'],
   ['16A','Malika','Palais 1'],
@@ -150,6 +151,7 @@ const tataSource = 'https://momove.app/guide'
  * de l'AFTU : les terminus sont des données de parcours, pas des horaires.
  */
 export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
+  ['3','Yoff-Village','Petersen'],
   ['1','Sandaga','Sud Foire'],
   ['2','Parcelles','Petersen'],
   ['4','Petersen','Yoff'],
@@ -169,6 +171,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['36','Guédiawaye','Ngor'],
   ['37','APIX','UCAD'],
   ['38','Cité Enseignant','Sandaga'],
+  ['39','Lat-Dior','Diamalaye'],
   ['40','Jaxaay','Petersen'],
   ['41','Guédiawaye','Rebeuss'],
   ['42','Gadaye','Ouakam'],
@@ -209,7 +212,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['80','Darou Thioub','Diamalaye'],
   ['81','Baux Maraîchers','Cité Tawfekh'],
   ['82','Rebeuss','Yeumbeul'],
-  ['84','Jaxaay','Terminus non précisé'],
+  ['84','Jaxaay','UCAD'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'tata' as const,
   sourceUrl: tataSource, sourceLabel: 'MoMove · lignes TATA à Dakar · 09/06/2026',
