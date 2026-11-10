@@ -22,6 +22,7 @@ describe('catalogues de lignes publiques indépendants', () => {
 
   it('conserve les réseaux DDD et AFTU dans leurs propres catalogues', () => {
     expect(DDD_PUBLIC_LINE_CATALOG.every((line) => line.network === 'ddd')).toBe(true)
+    expect(DDD_PUBLIC_LINE_CATALOG.some((line) => line.line === '102' && line.origin === 'Cambérène 2' && line.destination === 'Terrain Colobane')).toBe(true)
     expect(AFTU_PUBLIC_LINE_CATALOG.some((line) => line.line === '91' && line.origin === 'APIX' && line.destination === 'Dougar')).toBe(true)
   })
 })
