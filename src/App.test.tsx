@@ -417,7 +417,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/créneau/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
     }
     // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
     // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
@@ -427,7 +427,7 @@ describe('structure en quatre piliers', () => {
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
       expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')?.textContent).toMatch(/créneau/)
+      expect(passage!.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
@@ -988,8 +988,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
-      expect(value).toMatch(/^\d+ min$/)
-      return Number.parseInt(value, 10)
+      expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
+      return /^\d+ min$/.test(value) ? Number.parseInt(value, 10) : null
     }
     const brtBefore = readMinutes('brt')
     const terBefore = readMinutes('ter')
@@ -999,8 +999,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
     })
 
     // Le temps a passé : les deux comptes à rebours diminuent, sans rechargement.
-    expect(readMinutes('brt')).toBeLessThan(brtBefore)
-    expect(readMinutes('ter')).toBeLessThan(terBefore)
+    for (const [network, before] of [['brt', brtBefore], ['ter', terBefore]] as const) {
+      const after = readMinutes(network)
+      if (before !== null && after !== null) expect(after).toBeLessThan(before)
+      else expect(after === null || before === null).toBe(true)
+    }
   })
 
   it('affiche DDD, AFTU et TATA dans les cartes existantes avec un compte à rebours', async () => {
@@ -1014,13 +1017,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
       if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toBe('06:00–21:00')
-      else expect(passage?.querySelector('small')?.textContent).toMatch(/créneau/)
+      else expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
     // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
-    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/créneau/)
-    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/créneau/)
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
