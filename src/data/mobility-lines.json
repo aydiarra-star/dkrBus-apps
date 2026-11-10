@@ -1104,8 +1104,8 @@
   {
     "network": "aftu",
     "code": "57",
-    "origin": "Liberté 6",
-    "destination": "Rufisque",
+    "origin": "Rufisque Gouye Mouride",
+    "destination": "Rond-point Liberté 6",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
     "consultedAt": "2026-11-09",
     "publishedAt": "2026-07-07",
@@ -1126,7 +1126,7 @@
       "Terminus Rond-point Liberté 6"
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-57/",
-    "note": "La fiche détaillée décrit Rufisque Gouye Mouride vers Liberté 6, alors que la liste générale présente les terminus dans l’ordre inverse."
+    "note": null
   },
   {
     "network": "aftu",

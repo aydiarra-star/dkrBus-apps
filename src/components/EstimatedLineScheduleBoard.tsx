@@ -19,7 +19,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -103,12 +103,15 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/mobility-lines.json'),
       import('../data/tata-lines.json'),
       import('../data/aftu-66-return.json'),
-    ]).then(([mobility, tata, aftu66Return]) => {
+      import('../data/aftu-57-directions.json'),
+    ]).then(([mobility, tata, aftu66Return, aftu57Directions]) => {
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) =>
           item.network === 'aftu' && item.code === '66'
             ? { ...item, ...aftu66Return.default } as MobilityRouteReference
-            : item,
+            : item.network === 'aftu' && item.code === '57'
+              ? { ...item, ...aftu57Directions.default } as MobilityRouteReference
+              : item,
         ),
         ...(tata.default as MobilityRouteReference[]),
       ])
@@ -126,8 +129,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
       <ul className="station-board-list">
         {catalogue.map((line) => {
-          const lineSchedule = schedulesByLine.get(line.line)
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
