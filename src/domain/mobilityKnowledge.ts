@@ -27,8 +27,8 @@ const SOURCES = {
   traffic: 'https://cetud.sn/observatoire/indicateurs-de-trafic/',
 } as const
 
-function source(url: string, publishedAt?: string | null): string {
-  return `\nSource : ${url}\nConsultée le ${KNOWLEDGE_CHECKED_AT}${publishedAt ? ` · publication du ${publishedAt}` : ' · date de publication non précisée'}. Référence documentaire, pas un suivi en direct.`
+function source(url: string, publishedAt?: string | null, consultedAt = KNOWLEDGE_CHECKED_AT): string {
+  return `\nSource : ${url}\nConsultée le ${consultedAt}${publishedAt ? ` · publication du ${publishedAt}` : ' · date de publication non précisée'}. Référence documentaire, pas un suivi en direct.`
 }
 export function normalizeMobility(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -55,7 +55,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else {
     detail = 'Les terminus sont documentés ; le détail des arrêts intermédiaires n’est pas encore transcrit dans la mémoire. Consultez la fiche de l’opérateur pour le parcours complet.'
   }
-  return { text: `${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt)}`, lineId: key(line) }
+  return { text: `${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
 }
 
 export function busKnowledgeSummary(): string {
