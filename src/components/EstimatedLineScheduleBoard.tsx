@@ -159,6 +159,20 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           )
         })}
       </ul>
+      {(() => {
+        const linesWithoutAnyStops = catalogue.filter((line) => {
+          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const hasOutbound = Boolean(route?.waypoints?.length)
+            || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
+          return !hasOutbound
+        })
+        return linesWithoutAnyStops.length > 0 ? (
+          <div className="station-board-itinerary-pending station-board-pending-group">
+            <strong>Arrêts Aller et Retour à compléter</strong>
+            <p>{linesWithoutAnyStops.map((line) => line.line).join(' · ')}</p>
+          </div>
+        ) : null
+      })()}
     </section>
   )
 }
