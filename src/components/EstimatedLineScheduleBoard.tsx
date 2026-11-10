@@ -99,32 +99,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
 
   useEffect(() => {
     let active = true
-    Promise.all([
-      import('../data/mobility-lines.json'),
-      import('../data/tata-lines.json'),
-      import('../data/aftu-66-return.json'),
-      import('../data/aftu-57-directions.json'),
-      import('../data/aftu-30-directions.json'),
-      import('../data/aftu-58-directions.json'),
-      import('../data/aftu-67-directions.json'),
-    ]).then(([mobility, tata, aftu66Return, aftu57Directions, aftu30Directions, aftu58Directions, aftu67Directions]) => {
-      if (active) setRouteReferences([
-        ...(mobility.default as MobilityRouteReference[]).map((item) =>
-          item.network === 'aftu' && item.code === '66'
-            ? { ...item, ...aftu66Return.default } as MobilityRouteReference
-            : item.network === 'aftu' && item.code === '57'
-              ? { ...item, ...aftu57Directions.default } as MobilityRouteReference
-              : item.network === 'aftu' && item.code === '30'
-                ? { ...item, ...aftu30Directions.default } as MobilityRouteReference
-                : item.network === 'aftu' && item.code === '58'
-                  ? { ...item, ...aftu58Directions.default } as MobilityRouteReference
-                  : item.network === 'aftu' && item.code === '67'
-                    ? { ...item, ...aftu67Directions.default } as MobilityRouteReference
-                    : item,
-        ),
-        ...(tata.default as MobilityRouteReference[]),
-      ])
-    })
+    import('../data/mobilityRouteReferences')
+      .then(({ loadMobilityRouteReferences }) => loadMobilityRouteReferences())
+      .then((references) => { if (active) setRouteReferences(references) })
     return () => { active = false }
   }, [])
 
