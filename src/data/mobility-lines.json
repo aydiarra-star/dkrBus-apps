@@ -1256,7 +1256,7 @@
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-62/",
     "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-62-Dakar-5996-1618038-18051432-0",
-    "note": "Parcours résumé issu de la fiche cartographique officielle AFTU ; les horaires et le détail directionnel des arrêts sont chargés depuis les fiches Moovit."
+    "note": "Parcours AFTU ; horaires directionnels repris de Moovit."
   },
   {
     "network": "aftu",
@@ -1287,7 +1287,7 @@
       "Stade LSS"
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-63/",
-    "note": "Séquence officielle retranscrite dans le sens Camp Marchand vers Stade LSS ; la fiche ne publie pas une séquence retour séparée.",
+    "note": "Parcours AFTU ; séquence retour non publiée.",
     "inboundDetailSourceUrl": null
   },
   {
@@ -1300,16 +1300,7 @@
     "publishedAt": null,
     "waypoints": [
       "Bvard. Tall / Route Corniche",
-      "Centre Sauvegarde De Pikine-Guediawaye",
-      "Collége Serigne",
-      "Grand Mosquée De Pikine",
-      "Tally Boumak, 153",
-      "Sips",
-      "Poste De Santé Gueye",
-      "Carrefour Mbao",
-      "Carrefour Keur Massar",
-      "Zac Mbao",
-      "Gare Routiere De Rufisque"
+      "Gare Routière de Rufisque"
     ],
     "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-1",
     "note": null,
@@ -1324,18 +1315,7 @@
     "consultedAt": "2026-11-10",
     "publishedAt": null,
     "waypoints": [
-      "Gare De Colobane",
-      "Rocade Bel Air / Route De Rufisque",
-      "Camp Lemonier",
-      "Cercle De L'Etrier",
-      "Zoo",
-      "Cem De Hann",
-      "Sips",
-      "Poste De Santé Gueye",
-      "Carrefour Mbao",
-      "Carrefour Keur Massar",
-      "École Jaxaay",
-      "Commune De Jaxaay",
+      "Gare de Colobane",
       "Terminus Jaxaay"
     ],
     "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-1",
