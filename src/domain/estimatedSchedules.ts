@@ -48,9 +48,8 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '51', weekday: w('04:40', '21:56', 14), saturday: w('05:00', '22:00', 20), sunday: w('05:00', '22:00', 20), sourceUrl: aftuUrl('51'), sourceLabel: tb },
   { line: '53', weekday: w('05:50', '21:59', 17), saturday: w('06:05', '21:51', 22), sunday: w('06:05', '21:51', 22), sourceUrl: aftuUrl('53'), sourceLabel: tb, note: 'Le tracé actuellement enregistré dans l’application doit être réconcilié avec l’itinéraire AFTU avant d’utiliser cette fréquence dans le tableau par arrêt.' },
 
-  { line: '62', weekday: w('04:20', '21:50', 15), saturday: w('04:40', '22:10', 25), sunday: w('04:40', '22:10', 25), sourceUrl: aftuUrl('62'), sourceLabel: tb },
-  { line: '63', weekday: w('04:47', '21:54', 13), saturday: w('05:00', '21:00', 24), sunday: w('05:00', '21:00', 24), sourceUrl: aftuUrl('63'), sourceLabel: tb, note: 'Ligne circulaire selon l’index consulté.' },
-  { line: '64', weekday: w('04:20', '21:50', 15), saturday: w('04:30', '21:50', 20), sunday: w('04:30', '21:50', 20), sourceUrl: aftuUrl('64'), sourceLabel: tb },
+  { line: '63', weekday: w('04:10', '21:58', 12), saturday: w('04:25', '21:49', 18), sunday: w('04:25', '21:49', 18), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-1', sourceLabel: 'Moovit · sens Guédiawaye vers Rufisque' },
+  { line: '64', weekday: w('04:12', '22:57', 15), saturday: w('04:30', '22:50', 22), sunday: w('04:30', '22:50', 22), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-1', sourceLabel: 'Moovit · sens Colobane vers Jaxaay' },
   { line: '66', weekday: w('04:50', '20:50', 20), saturday: w('05:00', '21:00', 30), sunday: w('05:00', '21:00', 30), sourceUrl: aftuUrl('66'), sourceLabel: tb },
   { line: '67', weekday: w('05:10', '22:52', 9), saturday: w('05:20', '22:45', 19), sunday: w('05:20', '22:45', 19), sourceUrl: aftuUrl('67'), sourceLabel: tb },
   { line: '72', weekday: w('05:50', '21:50', 20), saturday: w('06:00', '21:50', 25), sunday: w('06:00', '21:50', 25), sourceUrl: aftuUrl('72'), sourceLabel: tb },
