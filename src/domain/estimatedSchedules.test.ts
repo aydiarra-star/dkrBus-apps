@@ -13,13 +13,19 @@ describe('affiches horaires estimatives des réseaux', () => {
   })
 
   it('recense les 9 lignes DDD dont l’identifiant concorde avec le catalogue et conserve la ligne 1 sans fréquence', () => {
-    expect(DDD_ESTIMATED_LINE_SCHEDULES).toHaveLength(9)
+    expect(DDD_ESTIMATED_LINE_SCHEDULES).toHaveLength(10)
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '1')).toMatchObject({
       weekday: null,
       saturday: null,
       sunday: null,
     })
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '218')?.sunday).toBeNull()
+    expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '319')).toMatchObject({
+      weekday: { start: '06:55', end: '21:48', interval: '19 min' },
+      saturday: { start: '07:05', end: '21:35', interval: '29 min' },
+      sunday: { start: '07:05', end: '21:35', interval: '29 min' },
+      sourceLabel: 'Moovit · horaires de la ligne 319',
+    })
     expect(DDD_ESTIMATED_LINE_SCHEDULES.some((line) => ['2A', '15', '403', '404B'].includes(line.line))).toBe(false)
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.some((line) => line.line === '2B')).toBe(false)
   })
