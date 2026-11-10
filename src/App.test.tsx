@@ -415,9 +415,13 @@ describe('structure en quatre piliers', () => {
     // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
-    expect(screen.getAllByText(/créneau \d{2}:\d{2} · \d+ min/)).toHaveLength(2)
-    // DDD, AFTU et TATA utilisent les mêmes cartes : uniquement le nombre de minutes.
-    for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min'], ['tata', '12 min']]) {
+    for (const network of ['ter', 'brt']) {
+      const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/créneau/)
+    }
+    // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
+    // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
+    for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min']]) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
       expect(passage).toBeTruthy()
@@ -426,6 +430,9 @@ describe('structure en quatre piliers', () => {
       expect(passage!.querySelector('small')?.textContent).toMatch(/créneau/)
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
+    const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
+    expect(tataPassage?.querySelector('strong')?.textContent).toBe('En service')
+    expect(tataPassage?.querySelector('small')?.textContent).toBe('06:00–21:00')
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
@@ -977,19 +984,23 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    // Les cinq cartes possèdent un compte à rebours actif.
+    // TER et BRT conservent un compte à rebours numérique qui diminue avec le temps.
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
-    expect(screen.getByText('6 min')).toBeTruthy()
-    expect(screen.getByText('10 min')).toBeTruthy()
-    expect(screen.getByText(/créneau 12:06 · 6 min/)).toBeTruthy()
+    const readMinutes = (network: string) => {
+      const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
+      expect(value).toMatch(/^\d+ min$/)
+      return Number.parseInt(value, 10)
+    }
+    const brtBefore = readMinutes('brt')
+    const terBefore = readMinutes('ter')
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
     })
 
-    // Le temps a passé : les minutes ont diminué, sans rechargement.
-    expect(screen.getByText('5 min')).toBeTruthy()
-    expect(screen.getByText('9 min')).toBeTruthy()
+    // Le temps a passé : les deux comptes à rebours diminuent, sans rechargement.
+    expect(readMinutes('brt')).toBeLessThan(brtBefore)
+    expect(readMinutes('ter')).toBeLessThan(terBefore)
   })
 
   it('affiche DDD, AFTU et TATA dans les cartes existantes avec un compte à rebours', async () => {
@@ -1002,7 +1013,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      if (network === 'tata') expect(passage?.querySelector('small')).toBeNull()
+      if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toBe('06:00–21:00')
       else expect(passage?.querySelector('small')?.textContent).toMatch(/créneau/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
