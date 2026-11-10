@@ -1235,8 +1235,7 @@
     "consultedAt": "2026-11-10",
     "publishedAt": null,
     "waypoints": [],
-    "detailSourceUrl": null,
-    "note": "La liste officielle actuelle confirme les terminus ; la fiche détaillée disponible est numérotée différemment et son sens aller-retour n’est pas suffisamment confirmé pour publier les arrêts."
+    "detailSourceUrl": null
   },
   {
     "network": "aftu",
