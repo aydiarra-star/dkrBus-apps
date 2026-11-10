@@ -141,8 +141,8 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['102','Cambérène 2','Terrain Colobane'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'ddd' as const,
-  sourceUrl: line === '102' ? 'https://apps.apple.com/app/id6814449080' : dddSource,
-  sourceLabel: line === '102' ? 'CETUD Mobilités · relevé officiel' : 'Dakar Dem Dikk · Info voyageurs',
+  sourceUrl: dddSource,
+  sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
 }))
 
 
