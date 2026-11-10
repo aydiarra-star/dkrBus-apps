@@ -150,9 +150,6 @@ button:disabled { cursor: not-allowed; }
   font-size: 9px !important;
   line-height: 1.2 !important;
   color: #517363 !important;
-  font-size: 8px !important;
-  line-height: 1.2 !important;
-  backdrop-filter: blur(5px);
 }
 .leaflet-control-attribution a { color: #146d44 !important; text-decoration: none; }
 .leaflet-control-container .leaflet-top, .leaflet-control-container .leaflet-bottom { z-index: 400; }
