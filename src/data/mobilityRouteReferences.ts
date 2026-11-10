@@ -13,9 +13,8 @@ type MobilityRouteReference = {
   note: string | null
 }
 
-export async function loadMobilityRouteReferences(): Promise<MobilityRouteReference[]> {
-  const [mobility, tata, aftu66Return, aftu57Directions, aftu30Directions, aftu58Directions, aftu67Directions] = await Promise.all([
-    import('./mobility-lines.json'),
+export async function loadMobilityRouteReferences(mobility: MobilityRouteReference[]): Promise<MobilityRouteReference[]> {
+  const [tata, aftu66Return, aftu57Directions, aftu30Directions, aftu58Directions, aftu67Directions] = await Promise.all([
     import('./tata-lines.json'),
     import('./aftu-66-return.json'),
     import('./aftu-57-directions.json'),
@@ -31,7 +30,7 @@ export async function loadMobilityRouteReferences(): Promise<MobilityRouteRefere
     '67': aftu67Directions.default as Partial<MobilityRouteReference>,
   }
   return [
-    ...(mobility.default as MobilityRouteReference[]).map((item) => {
+    ...mobility.map((item) => {
       const details = item.network === 'aftu' ? aftuOverrides[item.code] : undefined
       return details ? { ...item, ...details } : item
     }),
