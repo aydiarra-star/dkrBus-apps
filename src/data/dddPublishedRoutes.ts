@@ -20,7 +20,7 @@ export interface DddPublishedRoute {
   stops: readonly string[]
   sourceUrl: string
   sourceLabel: string
-  retrievedOn: '2026-11-09'
+  retrievedOn: '2026-11-09' | '2026-11-10'
   directionVerified: false
   coordinatesVerified: false
 }
@@ -34,9 +34,10 @@ const route = (
   destination: string,
   kind: DddPublishedRouteKind,
   stops: readonly string[],
+  retrievedOn: '2026-11-09' | '2026-11-10' = '2026-11-09',
 ): DddPublishedRoute => ({
   line, origin, destination, kind, stops,
-  sourceUrl, sourceLabel, retrievedOn: '2026-11-09',
+  sourceUrl, sourceLabel, retrievedOn,
   directionVerified: false,
   coordinatesVerified: false,
 })
@@ -317,6 +318,14 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Avenue Pompidou', 'Place de l’Indépendance',
     'Avenue Léopold Sédar Senghor', 'Avenue Nelson Mandela', 'Palais 2',
   ]),
+  route('319', 'Liberté 6', 'Ouakam', 'published_order', [
+    'Terminus Liberté 6', 'Rond Point Liberté 6', 'Deux voies Liberté 6',
+    'Rond point JVC', 'Boulangerie Jaune', 'Immeuble Mariama',
+    'Rond point Cheikh Béthio', 'Ancienne Piste', 'IHO', 'Entrée Ouakam',
+    'Pharmacie Cité Aviation', 'Pharmacie Mame Seynabou',
+    'Case des tout-petits', 'Station Shell', 'Lycée d’excellence privé',
+    'Boulangerie N’wely', 'Terminus Ouakam',
+  ], '2026-11-10'),
 ]
 
 export const getDddPublishedRoute = (line: string) =>

@@ -137,6 +137,7 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['503B','Colobane','Hydrocarbure'],
   ['504A','Gare Diamniadio','Sphère ministérielle'],
   ['504B','Sébikotane','Gare Diamniadio'],
+  ['319','Liberté 6','Ouakam'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'ddd' as const,
   sourceUrl: dddSource, sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
