@@ -19,7 +19,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; detailSourceUrl: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -122,6 +122,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const lineSchedule = schedulesByLine.get(line.line)
+          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
@@ -140,8 +141,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
           const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-          const inboundMinutes = outboundMinutes
-          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const inboundSchedule = route?.inboundSchedule ?? null
+          const inboundMinutes = inboundSchedule && serviceState.status === 'ACTIVE'
+            ? scheduleCountdownMinutes(inboundSchedule, now)
+            : null
           const directions = [
             { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes },
             { id: 'inbound' as const, label: 'Retour', from: line.destination, to: line.origin, minutes: inboundMinutes },
@@ -152,7 +155,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                 const selected = openedDirection?.line === line.line && openedDirection.direction === direction.id
                 const publishedStops = direction.id === 'outbound'
                   ? (route?.waypoints?.length ? route.waypoints : network === 'ddd' ? [...(dddPublishedStopsByLine.get(line.line) ?? [])] : [])
-                  : []
+                  : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
                 return (
                   <div key={direction.id} className="station-board-direction-detail">
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
@@ -165,7 +168,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                     {selected && (
                       <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} ligne ${line.line}`}>
                         {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
-                        {direction.id === 'outbound' && publishedStops.length > 0 ? (
+                        {publishedStops.length > 0 ? (
                           <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
                         ) : direction.id === 'inbound' ? (
                           <p className="station-board-itinerary-pending">Les arrêts de ce sens ne sont pas encore documentés séparément.</p>
