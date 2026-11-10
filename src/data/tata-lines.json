@@ -1545,5 +1545,26 @@
       "CTO"
     ],
     "note": "Séquence issue d’un document TATA historique republié par Xibaaru ; terminus recoupés avec le catalogue de lignes MoMove quand disponibles. Référence de recherche, à reconfirmer auprès de l’opérateur avant de considérer le parcours comme actuel."
+  },
+  {
+    "network": "tata",
+    "code": "84",
+    "origin": "Jaxaay",
+    "destination": "UCAD",
+    "sourceUrl": "https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/",
+    "detailSourceUrl": "https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/",
+    "consultedAt": "2026-11-10",
+    "publishedAt": null,
+    "waypoints": [
+      "Cité Assurance",
+      "Keur Mbaye Fall",
+      "Fass Mbao",
+      "Poste Thiaroye",
+      "Bountou Pikine",
+      "Dispensaire Nabil Choucair",
+      "CICES",
+      "Direction Sonatel"
+    ],
+    "note": "La fiche historique ne publie pas une liste complète d’arrêts ; seuls les paliers tarifaires entre UCAD et Jaxaay sont disponibles. Ces repères sont des étapes tarifaires, pas une séquence exhaustive d’arrêts. Terminus UCAD à confirmer avec l’opérateur."
   }
 ]
