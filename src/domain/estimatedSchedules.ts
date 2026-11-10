@@ -24,11 +24,11 @@ const w = (start: string, end: string, interval: number | string): EstimatedFreq
 })
 
 /**
- * Horaires estimatifs issus de TransitByCity et Moovit. La ligne 62 utilise
- * uniquement le repère moyen du réseau AFTU, pas une fréquence propre à cette ligne.
- * Les identifiants sont alignés sur le catalogue officiel actuel ; les données
- * tierces restent des repères de planification, jamais des horaires officiels
- * ni des prédictions de prochain véhicule.
+ * Horaires estimatifs issus de TransitByCity et Moovit. La ligne 62 dispose
+ * de fenêtres directionnelles propres à la ligne ; la ligne 63 conserve le
+ * repère moyen du réseau en l'absence d'une grille publique propre vérifiée.
+ * Les données tierces sont des repères de planification, pas des horaires
+ * certifiés par l'opérateur ni des prédictions de prochain véhicule.
  */
 export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '5', weekday: w('06:00', '23:00', 10), saturday: w('06:00', '23:00', 15), sunday: w('06:00', '23:00', 20), sourceUrl: aftuUrl('5'), sourceLabel: tb },
