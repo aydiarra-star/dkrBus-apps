@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
 import mobilityLineReferences from '../data/mobility-lines.json'
+import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
 import { getServiceDisplayState } from '../domain/serviceStatus'
@@ -21,6 +22,7 @@ type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
 type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; detailSourceUrl: string | null; note: string | null }
 const routeReferences = mobilityLineReferences as MobilityRouteReference[]
+const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
@@ -31,7 +33,16 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   saturday: { start: '06:00', end: '21:00', interval: '11.6 min' },
   sunday: { start: '06:00', end: '21:00', interval: '11.6 min' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
-  sourceLabel: 'Mesures AFTU 2023–2024 · CETUD',
+  sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
+}
+
+const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
+  line: '*',
+  weekday: { start: '05:30', end: '21:00', interval: '10 min' },
+  saturday: { start: '05:30', end: '21:00', interval: '10 min' },
+  sunday: { start: '06:00', end: '21:00', interval: '12 min' },
+  sourceUrl: 'https://demdikk.sn/reseau-urbain-dakar/',
+  sourceLabel: 'Dakar Dem Dikk · amplitude générale et intervalle de référence',
 }
 
 function parseClock(value: string): number | null {
@@ -98,12 +109,13 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const lineSchedule = schedulesByLine.get(line.line)
-          const schedule = isDdd ? lineSchedule : lineSchedule ?? (network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : undefined)
+          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
-          const scheduleWindow = schedule
+          const declaredWindow = schedule
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
-          const hasExplicitNoService = Boolean(schedule && !scheduleWindow && schedule.note?.toLowerCase().includes('pas de service'))
+          const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
+          const scheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
@@ -113,7 +125,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const outboundMinutes = schedule && scheduleWindow && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(schedule, now) : null
+          const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
+          const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundMinutes = outboundMinutes
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const directions = [
@@ -124,7 +137,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             <li key={line.line} className="station-board-line-group">
               {directions.map((direction) => {
                 const selected = openedDirection?.line === line.line && openedDirection.direction === direction.id
-                const publishedStops = direction.id === 'outbound' ? route?.waypoints ?? [] : []
+                const publishedStops = direction.id === 'outbound'
+                  ? (route?.waypoints?.length ? route.waypoints : network === 'ddd' ? [...(dddPublishedStopsByLine.get(line.line) ?? [])] : [])
+                  : []
                 return (
                   <div key={direction.id} className="station-board-direction-detail">
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
@@ -140,7 +155,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                         {direction.id === 'outbound' && publishedStops.length > 0 ? (
                           <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
                         ) : direction.id === 'inbound' ? (
-                          <p className="station-board-itinerary-pending">La séquence officielle des arrêts du retour n’est pas encore publiée dans les données disponibles. Elle sera affichée dès sa validation.</p>
+                          <p className="station-board-itinerary-pending">Les arrêts de ce sens ne sont pas encore documentés séparément.</p>
                         ) : (
                           <p className="station-board-itinerary-pending">Le détail des arrêts de cet aller n’est pas encore disponible.</p>
                         )}
@@ -154,6 +169,20 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           )
         })}
       </ul>
+      {(() => {
+        const linesWithoutAnyStops = catalogue.filter((line) => {
+          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const hasOutbound = Boolean(route?.waypoints?.length)
+            || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
+          return !hasOutbound
+        })
+        return linesWithoutAnyStops.length > 0 ? (
+          <div className="station-board-itinerary-pending station-board-pending-group">
+            <strong>Arrêts Aller et Retour à compléter</strong>
+            <p>{linesWithoutAnyStops.map((line) => line.line).join(' · ')}</p>
+          </div>
+        ) : null
+      })()}
     </section>
   )
 }
