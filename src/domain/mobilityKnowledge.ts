@@ -6,7 +6,7 @@
 import catalog from '../data/mobility-lines.json'
 import { searchCorridorStops } from './corridors'
 
-export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
+export const KNOWLEDGE_CHECKED_AT = '2026-11-10'
 export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number]
 export interface KnowledgeReply { text: string; lineId?: string }
