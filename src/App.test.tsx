@@ -417,7 +417,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
     }
     // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
     // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
@@ -1022,8 +1022,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
     // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
-    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
-    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
