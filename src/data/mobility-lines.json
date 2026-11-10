@@ -3661,5 +3661,49 @@
     ],
     "detailSourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/ligne/38/cite-enseignants/sham/",
     "note": "Séquence retranscrite depuis la fiche TATA publiée par Covoiturage.sn ; source indépendante non officielle. Le retour n’est pas détaillé séparément."
+  },
+  {
+    "network": "tata",
+    "code": "59",
+    "origin": "Cité Gendarmerie Keur Massar",
+    "destination": "Diamalaye",
+    "sourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/",
+    "consultedAt": "2026-11-10",
+    "publishedAt": null,
+    "waypoints": [
+      "Police Parcelles",
+      "Case-Ba",
+      "Pharmacie Golf",
+      "HLM Guédiawaye",
+      "Canada",
+      "Route des Niayes",
+      "Police Thiaroye",
+      "Tally Boumack",
+      "Route de Yeumbeul",
+      "Boune",
+      "MTOA",
+      "Zone de recasement"
+    ],
+    "detailSourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/ligne/59/stade-lss/mbarou-samba-deme-mbeubeuss/",
+    "note": "La fiche TATA Covoiturage.sn décrit Stade LSS–Mbarou Samba Dème (Mbeubeuss), tandis que le catalogue MoMove indique Cité Gendarmerie Keur Massar–Diamalaye : terminus à vérifier avant validation."
+  },
+  {
+    "network": "tata",
+    "code": "60",
+    "origin": "Bargny",
+    "destination": "Colobane",
+    "sourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/",
+    "consultedAt": "2026-11-10",
+    "publishedAt": null,
+    "waypoints": [
+      "Autoroute",
+      "Route Nationale",
+      "Diamaguène",
+      "Dioutyba",
+      "Sonadis",
+      "Sococim"
+    ],
+    "detailSourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/ligne/60/colobane/bargny/",
+    "note": "Séquence retranscrite depuis la fiche TATA Covoiturage.sn ; source indépendante non officielle. Le retour n’est pas détaillé séparément."
   }
 ]
