@@ -1013,12 +1013,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    const expected = { ddd: '2 min', aftu: '12 min', tata: 'En service' }
+    const expected = { ddd: '2 min', aftu: '12 min', tata: '12 min' }
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toBe('06:00–21:00')
-      else expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
@@ -1031,6 +1030,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     })
     expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
     expect(container.querySelector('.network-item-aftu .network-summary-passage strong')?.textContent).toBe('11 min')
+    expect(container.querySelector('.network-item-tata .network-summary-passage strong')?.textContent).toBe('11 min')
     vi.useRealTimers()
   })
 
