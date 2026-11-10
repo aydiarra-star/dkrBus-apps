@@ -2189,7 +2189,7 @@ function ReferenceNetworkSummary({
   const passages = networks.map((network) =>
     nextReferencePassage(network.referenceData?.officialFrequencies ?? [], now),
   )
-  /** État d’affichage par réseau : calculé à partir de l’heure de Dakar (UTC+0). */
+  /** Les limites horaires déclarées s'appliquent avant tout calcul de passage. */
   const serviceStates = networks.map((network): ServiceDisplayState => {
     const refData = network.referenceData
     if (!refData) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
@@ -2208,8 +2208,8 @@ function ReferenceNetworkSummary({
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
           const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
-          const estimatedPassage = hasEstimatedMinutes ? estimatedNextPassage(network.id, now) : null
-          const showCountdown = hasEstimatedMinutes ? estimatedPassage !== null : serviceState.showCountdown && passage
+          const estimatedPassage = hasEstimatedMinutes && network.id !== 'tata' ? estimatedNextPassage(network.id, now) : null
+          const showCountdown = serviceState.status === 'ACTIVE' && (hasEstimatedMinutes ? estimatedPassage !== null : serviceState.showCountdown && passage)
 
           return (
             <li
@@ -2230,46 +2230,30 @@ function ReferenceNetworkSummary({
                 {isMobilityId(network.id)
                   ? <MobilityBadge id={network.id}>{refData?.shortName ?? network.label}</MobilityBadge>
                   : <span className="network-summary-name">{refData?.shortName ?? network.label}</span>}
-                {hasEstimatedMinutes ? (
-                  <span
-                    className="network-summary-passage"
-                    role="status"
-                    aria-label={`${refData?.shortName ?? network.label} : ${estimatedPassage ? `prochain passage dans ${estimatedPassage.minutes} minutes` : 'aucun passage prévu'}.`}
-                  >
-                    <strong>{formatPassageCountdown(estimatedPassage?.minutes ?? null)}</strong>
-                  </span>
-                ) : serviceState.status === 'FINISHED' ? (
-                  <span
-                    className="network-summary-passage is-finished"
-                    role="status"
-                    aria-label={`${refData?.shortName ?? network.label} : fin de service.`}
-                  >
+                {serviceState.status === 'FINISHED' ? (
+                  <span className="network-summary-passage is-finished" role="status" aria-label={`${refData?.shortName ?? network.label} : fin de service.`}>
                     <strong>Fin de service</strong>
                     <small>{refData ? `Reprise à ${refData.serviceStart}` : networkMetaLabel(network)}</small>
                   </span>
                 ) : serviceState.status === 'UPCOMING' ? (
-                  <span
-                    className="network-summary-passage is-upcoming"
-                    role="status"
-                    aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}
-                  >
+                  <span className="network-summary-passage is-upcoming" role="status" aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}>
                     <strong>{serviceState.label}</strong>
-                    <small>{passage ? `créneau ${passage.clockLabel}` : `début ${refData?.serviceStart ?? '—'}`}</small>
+                    <small>{`Reprise à ${refData?.serviceStart ?? '—'}`}</small>
                   </span>
-                ) : showCountdown && passage ? (
-                  <span
-                    className="network-summary-passage"
-                    role="status"
-                    title={passage.note}
-                    aria-label={`${refData?.shortName ?? network.label} : prochain créneau théorique à ${passage.clockLabel}, dans ${passage.minutes} minute${passage.minutes > 1 ? 's' : ''}. Ce n’est pas du temps réel.`}
-                  >
-                    <strong>{formatPassageCountdown(passage.minutes)}</strong>
-                    <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
+                ) : estimatedPassage ? (
+                  <span className="network-summary-passage" role="status" title="Créneau théorique calculé depuis la fréquence de référence, sans suivi GPS.">
+                    <strong>{formatPassageCountdown(estimatedPassage.minutes)}</strong>
+                    <small>créneau {new Date(estimatedPassage.nextDepartureAt).toISOString().slice(11, 16)}</small>
+                  </span>
+                ) : network.id === 'tata' ? (
+                  <span className="network-summary-passage is-undeclared" role="status">
+                    <strong>En service</strong>
+                    <small>06:00–21:00</small>
                   </span>
                 ) : (
-                  <span className="network-summary-passage is-undeclared">
-                    <strong>Estimation</strong>
-                    <small>{estimatedWaitMinutes(network.id, now) === null ? '—' : `${estimatedWaitMinutes(network.id, now)} min`}</small>
+                  <span className="network-summary-passage is-undeclared" role="status">
+                    <strong>En service</strong>
+                    <small>{refData ? `${refData.serviceStart}–${refData.serviceEnd}` : '—'}</small>
                   </span>
                 )}
               </button>
@@ -2316,7 +2300,6 @@ function ReferenceNetworkSummary({
     </section>
   )
 }
-
 
 /** Cellule de passage : le même composant sert aux quatre réseaux.
  *  Une absence de fréquence ne doit jamais être présentée comme un terminus. */
