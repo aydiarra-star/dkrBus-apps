@@ -7,11 +7,11 @@ import { answerAssistant } from './assistant'
 const context = { publishedAvailable: false, adminOnline: false }
 function ask(question: string) { return answerMobilityKnowledge(question)?.text ?? '' }
 
-describe('mémoire documentaire actualisée le 9 novembre 2026', () => {
+describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
-    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(45)
+    expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(80)
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {
@@ -71,7 +71,7 @@ describe('mémoire documentaire actualisée le 9 novembre 2026', () => {
   })
 
   it('n’inverse pas un parcours ou ne garantit pas une correspondance bus', () => {
-    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('pas de parcours direct dans le sens demandé')
+    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('AFTU 68')
   })
 
   it('préserve le calculateur TER/BRT existant pour ses parcours', () => {
