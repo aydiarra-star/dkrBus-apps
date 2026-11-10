@@ -44,6 +44,26 @@
   "detailSourceUrl": null,
   "publishedIntervalMinutes": 13,
   "observedTimeRange": "18:44–18:58",
-  "suppressNetworkSchedule": true,
-  "note": "Parcours relevé dans CETUD Mobilités. 34 positions conservées dans l’ordre communiqué, y compris le second relevé « Rond-point Liberté 6 ». Intervalle communiqué : 13 min. Les horaires observés entre 18:44 et 18:58 ne sont pas convertis en grille récurrente car leur affectation et leur validité ne sont pas établies. Sens retour non relevé."
+  "note": "Parcours relevé dans CETUD Mobilités. 34 positions conservées dans l’ordre communiqué, y compris le second relevé « Rond-point Liberté 6 ». Intervalle communiqué : 13 min. Les horaires observés entre 18:44 et 18:58 ne sont pas convertis en grille récurrente car leur affectation et leur validité ne sont pas établies. Sens retour non relevé.",
+  "outboundSchedule": {
+    "line": "102",
+    "weekday": {
+      "start": "05:30",
+      "end": "21:00",
+      "interval": ""
+    },
+    "saturday": {
+      "start": "05:30",
+      "end": "21:00",
+      "interval": ""
+    },
+    "sunday": {
+      "start": "06:00",
+      "end": "21:00",
+      "interval": ""
+    },
+    "sourceUrl": "https://apps.apple.com/app/id6814449080",
+    "sourceLabel": "CETUD Mobilités",
+    "note": "Les plages horaires affichées sont uniquement la plage générale de service DDD du référentiel local, pas une amplitude propre à la ligne 102. Le prochain passage exact n’est pas calculé tant qu’une heure de départ vérifiée n’est pas disponible."
+  }
 }
