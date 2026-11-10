@@ -212,7 +212,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['80','Darou Thioub','Diamalaye'],
   ['81','Baux Maraîchers','Cité Tawfekh'],
   ['82','Rebeuss','Yeumbeul'],
-  ['84','Jaxaay','Terminus non précisé'],
+  ['84','Jaxaay','UCAD'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'tata' as const,
   sourceUrl: tataSource, sourceLabel: 'MoMove · lignes TATA à Dakar · 09/06/2026',
