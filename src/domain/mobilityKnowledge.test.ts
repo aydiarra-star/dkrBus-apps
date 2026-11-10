@@ -12,6 +12,11 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(80)
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '62')?.waypoints.length).toBeGreaterThan(0)
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '62')?.origin).toBe('Arrêt Chérif (Rufisque)')
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '63')?.destination).toBe('Stade LSS')
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '64')?.origin).toBe('Guédiawaye')
+    expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '65')?.destination).toBe('Jaxaay')
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
     for (const line of BUS_LINES) {

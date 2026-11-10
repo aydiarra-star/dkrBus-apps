@@ -1255,7 +1255,8 @@
       "Terminus Penc Mi (Gueule Tapée)"
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-62/",
-    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; aucun parcours complet distinct du sens retour n’est publié sur cette fiche."
+    "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-62-Dakar-5996-1618038-18051432-0",
+    "note": "Parcours AFTU ; horaires directionnels repris de Moovit."
   },
   {
     "network": "aftu",
@@ -1266,27 +1267,28 @@
     "consultedAt": "2026-11-10",
     "publishedAt": null,
     "waypoints": [
-      "Terminus Parcelles Dior",
-      "Route du Stade (Taliboubess)",
-      "Police des Parcelles Assainies",
-      "Rond-point Cambérène (Case Bi)",
-      "Croisement Cambérène",
-      "Bountou Pikine",
-      "Poste Thiaroye",
-      "Croisement Keur Massar",
-      "Keur Mbaye Fall",
-      "Rond-point Djouti Ba Rufisque",
-      "Route des HLM Rufisque",
-      "Stade de Rufisque",
-      "Rufisque Nord 73",
-      "Arrêt Khaar",
-      "Passage à niveau",
+      "Terminus Camp Marchand Rufisque",
       "Rond-point Arafat",
-      "Marché Mardi",
-      "Terminus Camp Marchand Rufisque"
+      "Passage à niveau",
+      "Arrêt Khaar",
+      "Rufisque Nord 73",
+      "Stade de Rufisque",
+      "Route des HLM Rufisque",
+      "Rond-point Djouti Ba Rufisque",
+      "Keur Mbaye Fall",
+      "Croisement Keur Massar",
+      "Poste Thiaroye",
+      "Bountou Pikine",
+      "Croisement Cambérène",
+      "Rond-point Cambérène (Case Bi)",
+      "Police des Parcelles Assainies",
+      "Route du Stade (Taliboubess)",
+      "Terminus Parcelles Dior",
+      "Stade LSS"
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-63/",
-    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; aucun parcours complet distinct du sens retour n’est publié sur cette fiche."
+    "note": "Parcours AFTU ; séquence retour non publiée.",
+    "inboundDetailSourceUrl": null
   },
   {
     "network": "aftu",
@@ -1297,25 +1299,12 @@
     "consultedAt": "2026-11-10",
     "publishedAt": null,
     "waypoints": [
-      "Terminus Diamniadio",
-      "Bargny",
-      "Thiawlène",
-      "Boulevard Maurice Guèye",
-      "Rond-point Dioutyba",
-      "Keur Mbaye Fall",
-      "Croisement Keur Massar",
-      "Poste Thiaroye",
-      "Bountou Pikine",
-      "Tally Boumack",
-      "Route des Niayes",
-      "Tribunal de Pikine",
-      "Croisement PAI",
-      "Terminus 72",
-      "Arrêt Dial Mbaye",
-      "Terminus Notaire"
+      "Bvard. Tall / Route Corniche",
+      "Gare Routière de Rufisque"
     ],
-    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-64/",
-    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; aucun parcours complet distinct du sens retour n’est publié sur cette fiche."
+    "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-1",
+    "note": null,
+    "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-0"
   },
   {
     "network": "aftu",
@@ -1326,21 +1315,12 @@
     "consultedAt": "2026-11-10",
     "publishedAt": null,
     "waypoints": [
-      "Terminus Gare routière de Colobane",
-      "Rocade Fann–Bel-Air",
-      "Place Bakou",
-      "Boulevard du Centenaire de la Commune de Dakar",
-      "Rond-point Seven Up",
-      "Poste Thiaroye",
-      "Croisement Keur Massar",
-      "Rond-point Station Shell Keur Massar",
-      "Route de Jaxaay",
-      "Collège La Liberté",
-      "Centre de Jaxaay",
-      "Terminus Jaxaay 2"
+      "Gare de Colobane",
+      "Terminus Jaxaay"
     ],
-    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-65/",
-    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; aucun parcours complet distinct du sens retour n’est publié sur cette fiche."
+    "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-1",
+    "note": null,
+    "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-0"
   },
   {
     "network": "aftu",
