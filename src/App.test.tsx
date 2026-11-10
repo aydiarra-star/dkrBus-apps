@@ -417,7 +417,7 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     }
     // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
     // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
@@ -427,7 +427,7 @@ describe('structure en quatre piliers', () => {
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
       expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+      expect(passage!.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
@@ -1017,13 +1017,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
       if (network === 'tata') expect(passage?.querySelector('small')?.textContent).toBe('06:00–21:00')
-      else expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+      else expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
     // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
-    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
-    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
