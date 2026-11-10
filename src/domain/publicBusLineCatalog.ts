@@ -148,8 +148,9 @@ const tataSource = 'https://momove.app/guide'
 
 /**
  * Lignes explicitement indexées comme TATA à Dakar par MoMove
- * (graphe de transport mis à jour le 09/06/2026). Ce catalogue est distinct
- * de l'AFTU : les terminus sont des données de parcours, pas des horaires.
+ * (graphe de transport mis à jour le 09/06/2026). La ligne 77 est corrigée
+ * depuis le document tarifaire TATA de juillet 2020 : Rufisque Cité Tacco–Liberté 5.
+ * Ce catalogue est distinct de l'AFTU : les terminus sont des données de parcours, pas des horaires.
  */
 export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['3','Yoff-Village','Petersen'],
@@ -207,7 +208,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['74','Bargny','Tivaouane Peulh'],
   ['75','Colobane','Malika'],
   ['76','Sipresse','Terminus non précisé'],
-  ['77','Cité Sofa','Liberté 5'],
+  ['77','Rufisque Cité Tacco','Liberté 5'],
   ['78','Liberté 5','Terminus non précisé'],
   ['79','Cambérène','Sangalkam'],
   ['80','Darou Thioub','Diamalaye'],
@@ -216,7 +217,8 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['84','Jaxaay','UCAD'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'tata' as const,
-  sourceUrl: tataSource, sourceLabel: 'MoMove · lignes TATA à Dakar · 09/06/2026',
+  sourceUrl: line === '77' ? 'https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf' : tataSource,
+  sourceLabel: line === '77' ? 'Document tarifaire TATA · juillet 2020' : 'MoMove · lignes TATA à Dakar · 09/06/2026',
 }))
 
 /** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
