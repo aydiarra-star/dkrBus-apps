@@ -1135,7 +1135,6 @@
     "destination": "Gueule Taupée",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
     "consultedAt": "2026-11-10",
-    "publishedAt": "2026-07-07",
     "waypoints": [
       "Terminus Fass Mbao (Rail-Ba)",
       "Route nationale 1",
@@ -1149,9 +1148,7 @@
       "École Normale",
       "UCAD",
       "Terminus SHAM"
-    ],
-    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-58/",
-    "note": null
+    ]
   },
   {
     "network": "aftu",
