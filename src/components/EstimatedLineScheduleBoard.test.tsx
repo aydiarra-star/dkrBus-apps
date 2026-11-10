@@ -82,7 +82,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(screen.queryByText('TATA 2B')).toBeNull()
     expect(screen.queryByText(/AFTU 2B/)).toBeNull()
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(124)
-    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(120)
+    expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(124)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
     expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
