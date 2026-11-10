@@ -1254,7 +1254,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       if (network === 'tata') {
         // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
         expect(board.querySelectorAll('.station-board-row')).toHaveLength(124)
-        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(120)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(124)
         expect(board.querySelectorAll('.station-board-direction-outbound')).toHaveLength(60)
         expect(board.querySelectorAll('.station-board-direction-inbound')).toHaveLength(60)
       } else {
