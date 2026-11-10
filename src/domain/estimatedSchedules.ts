@@ -71,4 +71,5 @@ export const DDD_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '218', weekday: w('05:45', '19:30', 25), saturday: w('06:30', '20:00', 20), sunday: null, sourceUrl: dddUrl('218'), sourceLabel: tb, note: 'Pas de service le dimanche selon la fiche consultée.' },
   { line: '219', weekday: w('06:40', '20:40', 20), saturday: w('07:00', '19:55', 25), sunday: w('08:30', '20:10', 25), sourceUrl: dddUrl('219'), sourceLabel: tb },
   { line: '227', weekday: w('06:30', '20:30', 30), saturday: w('06:30', '20:30', 30), sunday: w('07:00', '21:00', 30), sourceUrl: dddUrl('227'), sourceLabel: tb },
+  { line: '319', weekday: w('06:55', '21:48', 19), saturday: w('07:05', '21:35', 29), sunday: w('07:05', '21:35', 29), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-319-Dakar-5996-1618037-18051463-1', sourceLabel: 'Moovit · horaires de la ligne 319' },
 ]

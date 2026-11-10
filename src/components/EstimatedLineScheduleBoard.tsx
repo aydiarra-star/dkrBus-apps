@@ -19,7 +19,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -175,7 +175,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                         ) : (
                           <p className="station-board-itinerary-pending">Le détail des arrêts de cet aller n’est pas encore disponible.</p>
                         )}
-                        {route?.detailSourceUrl && <a className="station-board-itinerary-source" href={route.detailSourceUrl} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
+                        {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
                       </div>
                     )}
                   </div>
