@@ -104,14 +104,17 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/tata-lines.json'),
       import('../data/aftu-66-return.json'),
       import('../data/aftu-57-directions.json'),
-    ]).then(([mobility, tata, aftu66Return, aftu57Directions]) => {
+      import('../data/aftu-30-directions.json'),
+    ]).then(([mobility, tata, aftu66Return, aftu57Directions, aftu30Directions]) => {
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) =>
           item.network === 'aftu' && item.code === '66'
             ? { ...item, ...aftu66Return.default } as MobilityRouteReference
             : item.network === 'aftu' && item.code === '57'
               ? { ...item, ...aftu57Directions.default } as MobilityRouteReference
-              : item,
+              : item.network === 'aftu' && item.code === '30'
+                ? { ...item, ...aftu30Directions.default } as MobilityRouteReference
+                : item,
         ),
         ...(tata.default as MobilityRouteReference[]),
       ])
