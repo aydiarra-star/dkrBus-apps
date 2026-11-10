@@ -414,7 +414,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
     // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
@@ -432,8 +432,8 @@ describe('structure en quatre piliers', () => {
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
-    expect(tataPassage?.querySelector('strong')?.textContent).toBe('En service')
-    expect(tataPassage?.querySelector('small')?.textContent).toBe('06:00–21:00')
+    expect(tataPassage?.querySelector('strong')?.textContent).toBe('12 min')
+    expect(tataPassage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
@@ -986,7 +986,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     render(<App />)
 
     // TER et BRT conservent un compte à rebours numérique qui diminue avec le temps.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
       expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
@@ -1253,10 +1253,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board).toBeTruthy()
       if (network === 'tata') {
         // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
-        expect(board.querySelectorAll('.station-board-row')).toHaveLength(120)
-        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(120)
-        expect(board.querySelectorAll('.station-board-direction-outbound')).toHaveLength(60)
-        expect(board.querySelectorAll('.station-board-direction-inbound')).toHaveLength(60)
+        expect(board.querySelectorAll('.station-board-row')).toHaveLength(124)
+        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(124)
+        expect(board.querySelectorAll('.station-board-direction-outbound')).toHaveLength(62)
+        expect(board.querySelectorAll('.station-board-direction-inbound')).toHaveLength(62)
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
