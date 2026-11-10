@@ -24,12 +24,11 @@ const w = (start: string, end: string, interval: number | string): EstimatedFreq
 })
 
 /**
- * Horaires de service et fréquences estimatives de lignes indexées par
- * TransitByCity, dont la dernière actualisation affichée est le 28/05/2026.
- * Les lignes dont l'identifiant ne correspond pas exactement au catalogue
- * officiel actuellement affiché sont volontairement exclues des panneaux.
- * Ces données tierces sont des repères de planification, jamais des horaires
- * officiels ni des prédictions de prochain véhicule.
+ * Horaires estimatifs issus de TransitByCity et Moovit. La ligne 62 utilise
+ * uniquement le repère moyen du réseau AFTU, pas une fréquence propre à cette ligne.
+ * Les identifiants sont alignés sur le catalogue officiel actuel ; les données
+ * tierces restent des repères de planification, jamais des horaires officiels
+ * ni des prédictions de prochain véhicule.
  */
 export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '5', weekday: w('06:00', '23:00', 10), saturday: w('06:00', '23:00', 15), sunday: w('06:00', '23:00', 20), sourceUrl: aftuUrl('5'), sourceLabel: tb },
@@ -48,6 +47,7 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '51', weekday: w('04:40', '21:56', 14), saturday: w('05:00', '22:00', 20), sunday: w('05:00', '22:00', 20), sourceUrl: aftuUrl('51'), sourceLabel: tb },
   { line: '53', weekday: w('05:50', '21:59', 17), saturday: w('06:05', '21:51', 22), sunday: w('06:05', '21:51', 22), sourceUrl: aftuUrl('53'), sourceLabel: tb, note: 'Le tracé actuellement enregistré dans l’application doit être réconcilié avec l’itinéraire AFTU avant d’utiliser cette fréquence dans le tableau par arrêt.' },
 
+  { line: '62', weekday: w('06:00', '21:00', '11.6 min'), saturday: w('06:00', '21:00', '11.6 min'), sunday: w('06:00', '21:00', '11.6 min'), sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108', sourceLabel: 'AFTU · fréquence moyenne de référence réseau' },
   { line: '63', weekday: w('04:10', '21:58', 12), saturday: w('04:25', '21:49', 18), sunday: w('04:25', '21:49', 18), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-64-Dakar-5996-1618038-18051467-1', sourceLabel: 'Moovit · sens Guédiawaye vers Rufisque' },
   { line: '64', weekday: w('04:12', '22:57', 15), saturday: w('04:30', '22:50', 22), sunday: w('04:30', '22:50', 22), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-65-Dakar-5996-1618038-18051436-1', sourceLabel: 'Moovit · sens Colobane vers Jaxaay' },
   { line: '66', weekday: w('04:50', '20:50', 20), saturday: w('05:00', '21:00', 30), sunday: w('05:00', '21:00', 30), sourceUrl: aftuUrl('66'), sourceLabel: tb },
