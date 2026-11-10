@@ -36,7 +36,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
   })
 
   it('calcule le statut du retour selon sa propre plage de service', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T20:47:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="aftu" />)
