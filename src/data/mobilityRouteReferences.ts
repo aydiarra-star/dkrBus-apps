@@ -24,11 +24,11 @@ export async function loadMobilityRouteReferences(): Promise<MobilityRouteRefere
     import('./aftu-67-directions.json'),
   ])
   const aftuOverrides: Record<string, Partial<MobilityRouteReference>> = {
-    '66': aftu66Return.default,
-    '57': aftu57Directions.default,
-    '30': aftu30Directions.default,
-    '58': aftu58Directions.default,
-    '67': aftu67Directions.default,
+    '66': aftu66Return.default as Partial<MobilityRouteReference>,
+    '57': aftu57Directions.default as Partial<MobilityRouteReference>,
+    '30': aftu30Directions.default as Partial<MobilityRouteReference>,
+    '58': aftu58Directions.default as Partial<MobilityRouteReference>,
+    '67': aftu67Directions.default as Partial<MobilityRouteReference>,
   }
   return [
     ...(mobility.default as MobilityRouteReference[]).map((item) => {
