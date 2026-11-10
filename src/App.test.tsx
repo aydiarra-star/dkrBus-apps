@@ -1022,8 +1022,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
     // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
-    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
-    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^(?:\d{2}:\d{2}–\d{2}:\d{2}|créneau \d{2}:\d{2} · \d+ min)$/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^(?:\d{2}:\d{2}–\d{2}:\d{2}|créneau \d{2}:\d{2} · \d+ min)$/)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
