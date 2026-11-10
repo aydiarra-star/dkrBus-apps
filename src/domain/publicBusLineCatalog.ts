@@ -138,9 +138,11 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['504A','Gare Diamniadio','Sphère ministérielle'],
   ['504B','Sébikotane','Gare Diamniadio'],
   ['319','Liberté 6','Ouakam'],
+  ['102','Cambérène 2','Terrain Colobane'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'ddd' as const,
-  sourceUrl: dddSource, sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
+  sourceUrl: line === '102' ? 'https://apps.apple.com/app/id6814449080' : dddSource,
+  sourceLabel: line === '102' ? 'CETUD Mobilités · relevé officiel' : 'Dakar Dem Dikk · Info voyageurs',
 }))
 
 
