@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
 import mobilityLineReferences from '../data/mobility-lines.json'
+import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
 import { getServiceDisplayState } from '../domain/serviceStatus'
@@ -21,6 +22,7 @@ type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
 type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; detailSourceUrl: string | null; note: string | null }
 const routeReferences = mobilityLineReferences as MobilityRouteReference[]
+const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
@@ -125,7 +127,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             <li key={line.line} className="station-board-line-group">
               {directions.map((direction) => {
                 const selected = openedDirection?.line === line.line && openedDirection.direction === direction.id
-                const publishedStops = direction.id === 'outbound' ? route?.waypoints ?? [] : []
+                const publishedStops = direction.id === 'outbound'
+                  ? (route?.waypoints?.length ? route.waypoints : network === 'ddd' ? [...(dddPublishedStopsByLine.get(line.line) ?? [])] : [])
+                  : []
                 return (
                   <div key={direction.id} className="station-board-direction-detail">
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
@@ -141,7 +145,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                         {direction.id === 'outbound' && publishedStops.length > 0 ? (
                           <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
                         ) : direction.id === 'inbound' ? (
-                          <p className="station-board-itinerary-pending">La séquence officielle des arrêts du retour n’est pas encore publiée dans les données disponibles. Elle sera affichée dès sa validation.</p>
+                          <p className="station-board-itinerary-pending">Les arrêts de ce sens ne sont pas encore documentés séparément.</p>
                         ) : (
                           <p className="station-board-itinerary-pending">Le détail des arrêts de cet aller n’est pas encore disponible.</p>
                         )}
