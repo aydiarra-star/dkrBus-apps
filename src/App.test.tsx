@@ -433,7 +433,7 @@ describe('structure en quatre piliers', () => {
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
     expect(tataPassage?.querySelector('strong')?.textContent).toBe('12 min')
-    expect(tataPassage?.querySelector('small')?.textContent).toBe('06:00–21:00')
+    expect(tataPassage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
