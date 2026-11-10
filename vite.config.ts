@@ -45,6 +45,11 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             {
+              name: 'mobility-knowledge',
+              priority: 5,
+              test: /[\\/]src[\\/](domain[\\/]mobilityKnowledge\\.ts|data[\\/]mobility-lines\\.json)$/,
+            },
+            {
               name: 'react',
               priority: 20,
               // Sans cette priorité, le groupe Leaflet avale React via react-leaflet.
