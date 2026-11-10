@@ -125,7 +125,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const outboundMinutes = schedule && scheduleWindow && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(schedule, now) : null
+          const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
+          const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundMinutes = outboundMinutes
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const directions = [
