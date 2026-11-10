@@ -417,7 +417,8 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^\d{2}:\d{2}–\d{2}:\d{2}$/)
+      expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2} · \d+ min$/)
     }
     // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
     // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
