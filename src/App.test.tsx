@@ -414,7 +414,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
     // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
@@ -432,8 +432,8 @@ describe('structure en quatre piliers', () => {
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
-    expect(tataPassage?.querySelector('strong')?.textContent).toBe('En service')
-    expect(tataPassage?.querySelector('small')?.textContent).toBe('06:00–21:00')
+    expect(tataPassage?.querySelector('strong')?.textContent).toBe('12 min')
+    expect(tataPassage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
