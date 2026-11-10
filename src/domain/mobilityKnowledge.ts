@@ -53,7 +53,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else if (line.waypoints.length) {
     detail = `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
   } else {
-    detail = 'Terminaux documentés ; arrêts intermédiaires non transcrits. Consultez l’opérateur pour le parcours complet.'
+    detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
   }
   return { text: `${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
 }
