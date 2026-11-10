@@ -2208,7 +2208,7 @@ function ReferenceNetworkSummary({
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
           const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
-          const estimatedPassage = hasEstimatedMinutes && network.id !== 'tata' ? estimatedNextPassage(network.id, now) : null
+          const estimatedPassage = hasEstimatedMinutes ? estimatedNextPassage(network.id, now) : null
           const showCountdown = serviceState.status === 'ACTIVE' && (hasEstimatedMinutes ? estimatedPassage !== null : serviceState.showCountdown && passage)
 
           return (
