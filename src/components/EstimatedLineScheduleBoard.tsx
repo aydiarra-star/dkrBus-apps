@@ -99,8 +99,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
 
   useEffect(() => {
     let active = true
-    import('../data/mobilityRouteReferences')
-      .then(({ loadMobilityRouteReferences }) => loadMobilityRouteReferences())
+    Promise.all([
+      import('../data/mobility-lines.json'),
+      import('../data/mobilityRouteReferences'),
+    ])
+      .then(([mobility, routeLoader]) => routeLoader.loadMobilityRouteReferences(mobility.default as MobilityRouteReference[]))
       .then((references) => { if (active) setRouteReferences(references) })
     return () => { active = false }
   }, [])
