@@ -107,7 +107,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) =>
           item.network === 'aftu' && item.code === '66'
-            ? { ...item, ...aftu66Return.default }
+            ? { ...item, ...aftu66Return.default } as MobilityRouteReference
             : item,
         ),
         ...(tata.default as MobilityRouteReference[]),
