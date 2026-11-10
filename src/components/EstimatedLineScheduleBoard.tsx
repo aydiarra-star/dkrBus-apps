@@ -110,7 +110,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-62-directions.json'),
       import('../data/aftu-64-directions.json'),
       import('../data/aftu-65-directions.json'),
-     ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65]) => {
+      import('../data/ddd-102-cetud.json'),
+     ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, ddd102]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -127,6 +128,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           return details ? { ...item, ...details } : item
         }),
         ...(tata.default as MobilityRouteReference[]),
+        ddd102.default as MobilityRouteReference,
       ])
     })
     return () => { active = false }
