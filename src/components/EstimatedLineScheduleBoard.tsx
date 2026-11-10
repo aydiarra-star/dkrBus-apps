@@ -19,7 +19,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -129,8 +129,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
       <ul className="station-board-list">
         {catalogue.map((line) => {
-          const lineSchedule = schedulesByLine.get(line.line)
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule

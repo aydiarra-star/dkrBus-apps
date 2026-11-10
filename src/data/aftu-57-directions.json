@@ -139,5 +139,25 @@
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-1",
     "sourceLabel": "Moovit · horaires du sens Liberté 6 vers Rufisque"
   },
-  "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-1"
+  "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-1",
+  "outboundSchedule": {
+    "line": "57",
+    "weekday": {
+      "start": "04:40",
+      "end": "21:00",
+      "interval": "10 min"
+    },
+    "saturday": {
+      "start": "05:10",
+      "end": "20:55",
+      "interval": "15 min"
+    },
+    "sunday": {
+      "start": "05:10",
+      "end": "20:55",
+      "interval": "15 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-0",
+    "sourceLabel": "Moovit · sens Rufisque vers Liberté 6"
+  }
 }

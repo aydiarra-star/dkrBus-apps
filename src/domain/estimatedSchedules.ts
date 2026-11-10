@@ -47,7 +47,7 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '49', weekday: w('03:55', '20:59', 16), saturday: w('04:00', '21:00', 20), sunday: w('04:00', '21:00', 20), sourceUrl: aftuUrl('49'), sourceLabel: tb },
   { line: '51', weekday: w('04:40', '21:56', 14), saturday: w('05:00', '22:00', 20), sunday: w('05:00', '22:00', 20), sourceUrl: aftuUrl('51'), sourceLabel: tb },
   { line: '53', weekday: w('05:50', '21:59', 17), saturday: w('06:05', '21:51', 22), sunday: w('06:05', '21:51', 22), sourceUrl: aftuUrl('53'), sourceLabel: tb, note: 'Le tracé actuellement enregistré dans l’application doit être réconcilié avec l’itinéraire AFTU avant d’utiliser cette fréquence dans le tableau par arrêt.' },
-  { line: '57', weekday: w('04:40', '21:00', 10), saturday: w('05:10', '20:55', 15), sunday: w('05:10', '20:55', 15), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-0', sourceLabel: 'Moovit · horaires du sens Rufisque vers Liberté 6' },
+
   { line: '62', weekday: w('04:20', '21:50', 15), saturday: w('04:40', '22:10', 25), sunday: w('04:40', '22:10', 25), sourceUrl: aftuUrl('62'), sourceLabel: tb },
   { line: '63', weekday: w('04:47', '21:54', 13), saturday: w('05:00', '21:00', 24), sunday: w('05:00', '21:00', 24), sourceUrl: aftuUrl('63'), sourceLabel: tb, note: 'Ligne circulaire selon l’index consulté.' },
   { line: '64', weekday: w('04:20', '21:50', 15), saturday: w('04:30', '21:50', 20), sunday: w('04:30', '21:50', 20), sourceUrl: aftuUrl('64'), sourceLabel: tb },
