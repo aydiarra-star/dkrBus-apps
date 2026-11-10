@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within, act, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, within, act, waitFor, fireEvent } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 
@@ -102,4 +102,23 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
   })
+  it('affiche les 34 arrêts CETUD de la DDD 102 sans inventer un compte à rebours', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
+
+    render(<EstimatedLineScheduleBoard network="ddd" />)
+    const labels = screen.getAllByText('DDD 102')
+    expect(labels).toHaveLength(2)
+    const row = labels[0].closest('li')!
+    expect(within(row).getAllByText('En service')).toHaveLength(2)
+    expect(within(row).queryByText('10 min')).toBeNull()
+
+    fireEvent.click(within(row).getAllByRole('button')[0])
+    await waitFor(() => {
+      expect(within(row).getAllByRole('listitem')).toHaveLength(34)
+    })
+    expect(within(row).getByText('Rond-point Liberté 6')).toBeTruthy()
+    expect(within(row).getByText('Terrain Colobane')).toBeTruthy()
+  })
+
 })
