@@ -297,6 +297,26 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Grand Théâtre', 'Esso Port',
     'Place de l’Indépendance / Avenue Sarraut', 'Leclerc',
   ]),
+
+  route('217', 'Thiaroye', 'Ouakam', 'published_order', [
+    'Dépôt Thiaroye', 'SIPS', 'Bountou Pikine', 'Patte d’Oie', 'Foire',
+    'VDN', 'Sipres', 'Ancienne piste', 'Ouakam', 'Marché Ouakam',
+    'Terminus Ouakam', 'Route des Mamelles', 'Route des Almadies', 'Ngor',
+    'Terminus Aéroport LSS',
+  ]),
+  route('233', 'Baux Maraîchers', 'Palais 1', 'published_order', [
+    'Baux Maraîchers', 'Yarakh', 'Cafétéria', 'Hann Maristes',
+    'Cours Sainte Marie de Hann', 'Sortie Mariste', 'Usine des eaux',
+    'Front de terre', 'Khar Yalla', 'Rond Point Liberté 6',
+    'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
+    'Terminus Aéroport LSS',
+  ]),
+  route('TO1', 'Ouakam', 'Palais 2', 'published_order', [
+    'Terminus Ouakam', 'Brioche d’orée Ouakam',
+    'Monument de la Renaissance', 'Corniche Ouest', 'Avenue Peytavin',
+    'Avenue Pompidou', 'Place de l’Indépendance',
+    'Avenue Léopold Sédar Senghor', 'Avenue Nelson Mandela', 'Palais 2',
+  ]),
 ]
 
 export const getDddPublishedRoute = (line: string) =>
