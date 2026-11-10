@@ -41,7 +41,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOneLabels = screen.getAllByText('DDD 1')
     expect(dddOneLabels).toHaveLength(2)
-    expect(within(dddOneLabels[0].closest('li')!).getAllByText('En service')).toHaveLength(2)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('10 min')).toHaveLength(2)
     const dddSixLabels = screen.getAllByText('DDD 6')
     expect(dddSixLabels).toHaveLength(2)
     expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
@@ -69,7 +69,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOne = screen.getAllByText('DDD 1')[0].closest('li')!
-    expect(within(dddOne).getAllByText('En service')).toHaveLength(2)
+    expect(within(dddOne).getAllByText('6 min')).toHaveLength(2)
   })
 
   it('affiche le catalogue TATA séparément sans inventer de fréquence AFTU', () => {
@@ -84,7 +84,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(120)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(120)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
-    expect(within(tataThirtySevenRow).getAllByText('En service')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
