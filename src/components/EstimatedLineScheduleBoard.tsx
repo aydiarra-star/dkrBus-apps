@@ -19,7 +19,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null; suppressNetworkSchedule?: boolean }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -144,13 +144,13 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
-          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
+          const schedule = lineSchedule ?? (route?.suppressNetworkSchedule ? null : (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE))
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
           const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
-          const scheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
+          const scheduleWindow = declaredWindow ?? (hasExplicitNoService || route?.suppressNetworkSchedule ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
