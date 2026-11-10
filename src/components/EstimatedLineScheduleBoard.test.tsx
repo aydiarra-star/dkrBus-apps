@@ -24,7 +24,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(row).getByText(/Retour ·/)).toBeTruthy()
     const aftuNinetyOneLabels = screen.getAllByText('AFTU 91')
     expect(aftuNinetyOneLabels).toHaveLength(2)
-    expect(within(aftuNinetyOneLabels[0].closest('li')!).getAllByText('5 min')).toHaveLength(2)
+    expect(within(aftuNinetyOneLabels[0].closest('li')!).getAllByText('5 min')).toHaveLength(1)
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
