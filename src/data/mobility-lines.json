@@ -39,11 +39,30 @@
     "origin": "Route principale Parcelles",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Route principale des Parcelles Assainies",
+      "Croisement Dior",
+      "Route HLM Grand Médine",
+      "Route du marché des Parcelles Assainies",
+      "Route des Niayes",
+      "Pont de l’Émergence",
+      "Avenue Cardinal Hyacinthe Thiandoum",
+      "Giratoire Liberté VI",
+      "Route du Front de Terre",
+      "Rue P",
+      "Avenue Cheikh Amadou Bamba (rue 13 des HLM)",
+      "Boulevard du Général de Gaulle",
+      "Rue 39 (retour par rue 17)",
+      "Rue 22",
+      "Rue 25 (retour par rue 37)",
+      "Avenue Blaise Diagne",
+      "Avenue Émile Badiane",
+      "Terminus Gare Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-2/",
+    "note": "La fiche officielle mentionne des variantes de rues explicitement signalées « retour » ; la séquence complète du sens retour n’est pas publiée séparément."
   },
   {
     "network": "aftu",
@@ -51,11 +70,27 @@
     "origin": "Yoff",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Yoff-Village",
+      "Autoroute Seydina Limamoulaye",
+      "Aéroport Léopold Sédar Senghor",
+      "Route de Ngor",
+      "Village de Ngor",
+      "Route de l’Aéroport",
+      "Les Mamelles (Monument de la Renaissance)",
+      "Cité ASECNA",
+      "Village de Ouakam",
+      "Route de Ouakam",
+      "Avenue Cheikh Anta Diop",
+      "Avenue Blaise Diagne",
+      "Avenue Émile Badiane",
+      "Rue Mangin",
+      "Terminus Gare Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-3/",
+    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; la fiche ne fournit pas une séquence complète distincte pour le sens retour."
   },
   {
     "network": "aftu",
@@ -63,11 +98,22 @@
     "origin": "Yoff Village",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Yoff-Village",
+      "Autoroute Seydina Limamoulaye",
+      "Échangeur de la Foire",
+      "Voie de Dégagement Nord (VDN)",
+      "Carrefour Seydou Nourou Tall",
+      "Avenue Cheikh Anta Diop",
+      "Avenue Blaise Diagne",
+      "Avenue Émile Badiane",
+      "Rue Mangin",
+      "Terminus Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-4/",
+    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; la fiche ne fournit pas une séquence complète distincte pour le sens retour."
   },
   {
     "network": "aftu",
@@ -75,11 +121,29 @@
     "origin": "Parcelles Assainies",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Gare des Parcelles Assainies",
+      "Route de l’Église",
+      "Route des Niayes",
+      "Pont Stade LSS",
+      "Autoroute Seydina Limamoulaye",
+      "Route principale de Grand Yoff (par bassin de rétention)",
+      "Route de l’Hôpital Général de Grand Yoff (HOGGY)",
+      "Route du Front de Terre",
+      "Avenue Bourguiba",
+      "Avenue Cheikh Amadou Bamba (rue 13)",
+      "Rue 39 (retour rue 17)",
+      "Rue 22",
+      "Rue 25 (retour rue 37)",
+      "Avenue Blaise Diagne",
+      "Avenue Émile Badiane",
+      "Rue Mangin",
+      "Terminus Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-5/",
+    "note": "La fiche officielle mentionne des variantes de rues explicitement signalées « retour » ; la séquence complète du sens retour n’est pas publiée séparément."
   },
   {
     "network": "aftu",
@@ -87,11 +151,26 @@
     "origin": "UCAD",
     "destination": "Notaire Guédiawaye",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Notaire (Guédiawaye)",
+      "Sapeurs-pompiers de Guédiawaye",
+      "Prolongement rue 10",
+      "Route des Niayes",
+      "Tally Boubess",
+      "Sortie Pikine",
+      "Branche Est de l’autoroute",
+      "Autoroute",
+      "Échangeur de Hann",
+      "Route du Front de Terre",
+      "Avenue Bourguiba",
+      "Rond-point Seydou Nourou Tall",
+      "Avenue Cheikh Anta Diop",
+      "Terminus Université Cheikh Anta Diop"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-24/",
+    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; la fiche ne fournit pas une séquence complète distincte pour le sens retour."
   },
   {
     "network": "aftu",
@@ -99,11 +178,25 @@
     "origin": "Parcelles Assainies",
     "destination": "Petersen",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Gare des Parcelles Assainies",
+      "Route principale des Parcelles Assainies",
+      "École Dior",
+      "Carrefour HLM Grand Médine / Diamalaye",
+      "VDN prolongée",
+      "Échangeur de la Foire",
+      "Voie de Dégagement Nord (VDN)",
+      "Carrefour Seydou Nourou Tall",
+      "Avenue Cheikh Anta Diop",
+      "Avenue Blaise Diagne",
+      "Avenue Émile Badiane",
+      "Rue Mangin",
+      "Terminus Gare Petersen"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-25/",
+    "note": "Séquence retranscrite depuis la fiche cartographique officielle AFTU ; la fiche ne fournit pas une séquence complète distincte pour le sens retour."
   },
   {
     "network": "aftu",
@@ -111,11 +204,20 @@
     "origin": "Parcelles Assainies",
     "destination": "Poste Thiaroye",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-    "consultedAt": "2026-10-10",
+    "consultedAt": "2026-11-10",
     "publishedAt": null,
-    "waypoints": [],
-    "detailSourceUrl": null,
-    "note": null
+    "waypoints": [
+      "Terminus Gare des Parcelles Assainies",
+      "Groupement national des sapeurs-pompiers",
+      "Unités de voisinage 10, 11, 7 et 8",
+      "Case de Cambérène",
+      "Unités 5, 6, 4, 3 et 2",
+      "Route des Niayes (Guédiawaye)",
+      "Croisement Béthio",
+      "Terminus Guédiawaye"
+    ],
+    "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-26/",
+    "note": "La fiche cartographique AFTU consultée aboutit au terminus Guédiawaye, tandis que la liste générale indique Poste Thiaroye : terminus à faire confirmer ; l’itinéraire publié est conservé sans correction spéculative."
   },
   {
     "network": "aftu",
