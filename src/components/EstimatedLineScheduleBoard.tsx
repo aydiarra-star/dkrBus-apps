@@ -3,6 +3,8 @@ import { formatPassageCountdown } from '../domain/headways'
 import mobilityLineReferences from '../data/mobility-lines.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
+import { getServiceDisplayState } from '../domain/serviceStatus'
+import { NETWORK_REFERENCE_DATA } from '../domain/frequencies'
 import {
   AFTU_ESTIMATED_LINE_SCHEDULES,
   DDD_ESTIMATED_LINE_SCHEDULES,
@@ -96,9 +98,23 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const lineSchedule = schedulesByLine.get(line.line)
-          const schedule = isDdd ? lineSchedule : lineSchedule ?? AFTU_TATA_NETWORK_REFERENCE
-          const outboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
-          const inboundMinutes = schedule ? scheduleCountdownMinutes(schedule, now) : null
+          const schedule = isDdd ? lineSchedule : lineSchedule ?? (network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : undefined)
+          const weekday = new Date(now).getUTCDay()
+          const scheduleWindow = schedule
+            ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
+            : null
+          const hasExplicitNoService = Boolean(schedule && !scheduleWindow && schedule.note?.toLowerCase().includes('pas de service'))
+          const networkReference = NETWORK_REFERENCE_DATA[network]
+          const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
+            start: networkReference.serviceStart,
+            end: networkReference.serviceEnd,
+            interval: '',
+          })
+          const serviceState = serviceWindow
+            ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
+            : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
+          const outboundMinutes = schedule && scheduleWindow && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(schedule, now) : null
+          const inboundMinutes = outboundMinutes
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const directions = [
             { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes },
@@ -114,7 +130,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
                       <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                       <span className="station-board-direction-action">
-                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{formatPassageCountdown(direction.minutes)}</strong></span>
+                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{serviceState.status === 'UPCOMING' ? serviceState.label : serviceState.status === 'FINISHED' ? (hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{serviceState.status !== 'ACTIVE' && <small>{serviceWindow ? `Reprise à ${serviceWindow.start}` : ''}</small>}</span>
                         <span aria-hidden="true">{selected ? '−' : '+'}</span>
                       </span>
                     </button>
