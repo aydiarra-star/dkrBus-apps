@@ -228,6 +228,7 @@ button:disabled { cursor: not-allowed; }
 .popover-heading > div { display: grid; gap: 4px; }
 .popover-heading strong { color: #173929; font-family: Manrope, sans-serif; font-size: 15px; font-weight: 750; }
 .eyebrow { display: block; color: #728e81; font-size: 9px; font-weight: 700; letter-spacing: .11em; line-height: 1.4; }
+.eyebrow .realtime-arcs { display: inline-block; width: 14px; height: 9px; margin-right: 6px; vertical-align: -1px; fill: none; stroke: #198754; stroke-width: 1.8; stroke-linecap: round; }
 .popover-note { margin: 10px 0 13px; color: #688176; font-size: 11px; line-height: 1.5; }
 .layer-options { display: grid; gap: 3px; }
 .layer-option { display: flex; min-height: 42px; align-items: center; padding: 0 6px; border-radius: 11px; cursor: pointer; gap: 9px; }

@@ -1,7 +1,7 @@
 /**
  * Détection des mobilités de référence autour d’une position GPS.
  *
- * Le rayon est le même que le géofencing des alertes (1,5 km) : assez serré
+ * Le rayon strict de proximité demandé : 1 km : assez serré
  * pour « immédiatement autour », assez large pour croiser TER, BRT, DDD, AFTU
  * et TATA là où leurs arrêts de référence se rencontrent. Aucune position de
  * véhicule n’est inventée : seuls les arrêts déclarés du catalogue entrent
@@ -21,7 +21,7 @@ import {
 } from './corridors'
 import { MOBILITY_IDS, mobilityFromStopId, type MobilityId } from './mobilityColors'
 
-export const NEARBY_MOBILITY_RADIUS_M = 1500
+export const NEARBY_MOBILITY_RADIUS_M = 1000
 
 /** Ordre d’affichage demandé : TER, BRT, DDD, puis AFTU / TATA. */
 export const NEARBY_MOBILITY_ORDER = ['ter', 'brt', 'ddd', 'aftu', 'tata'] as const satisfies readonly MobilityId[]

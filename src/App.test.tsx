@@ -548,8 +548,8 @@ describe('structure en quatre piliers', () => {
     // L’assistant énumère les 23 stations officielles, dans l’ordre.
     expect(screen.getByText(/1\. Petersen – Papa Gueye Fall/)).toBeTruthy()
     expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
-    expect(screen.queryByRole('search')).toBeNull()
+expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
+expect(screen.queryByRole('search')).toBeNull()
   })
 
   it('range l’aide, les CGU, l’historique et la console technique dans Paramètres', async () => {
@@ -810,13 +810,21 @@ describe('published snapshot in the app', () => {
 
   it('reports a withdrawn publication instead of keeping the snapshot on screen', async () => {
     let published = true
+    // Ce scénario sélectionne D6 à Yoff : on simule donc le GPS à cet arrêt.
+    stubGeolocation(14.748, -17.49)
     stubApi([
       {
         match: '/api/network',
         respond: () => (published ? jsonResponse(NETWORK_PUBLISHED) : jsonResponse(NETWORK_EMPTY)),
       },
       { match: '/api/routes', respond: () => jsonResponse(ROUTES_PAYLOAD) },
-      { match: '/api/stops/near', respond: () => jsonResponse(NEARBY_PAYLOAD) },
+      { match: '/api/stops/near', respond: () => jsonResponse({
+        count: 2,
+        results: [
+          { ...NEARBY_PAYLOAD.results[0], distance_m: 4860 },
+          { ...NEARBY_PAYLOAD.results[1], distance_m: 0 },
+        ],
+      }) },
       { match: '/api/stops/D6', respond: () => (published ? jsonResponse(STOP_D6_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
     ])
     render(<App />)
@@ -1066,14 +1074,14 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(panel.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText(/Aucun arrêt BRT dans ce rayon/i)).toBeTruthy()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
     expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
-    fireEvent.click(within(panel).getByRole('button', { name: /Place de la Nation/ }))
-    expect(screen.getByTestId('map-recenter').textContent).toBe('14.6960909,-17.4506369')
+    fireEvent.click(within(panel).getByRole('button', { name: /Colobane.*TER/ }))
+    expect(screen.getByTestId('map-recenter').textContent).toBe('14.7003482,-17.4416523')
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
@@ -1087,10 +1095,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Ma position' }))
     const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText(/Aucun arrêt BRT dans ce rayon/i)).toBeTruthy()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
   })
 
@@ -1101,11 +1107,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const vibrateMock = vi.fn(() => true)
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrateMock })
     const { container } = render(<App />)
-
     const terItem = container.querySelector('.network-item-ter') as HTMLElement
     expect(terItem).toBeTruthy()
     expect(terItem.classList.contains('is-selected')).toBe(false)
-
     const terHeader = terItem.querySelector('.network-summary-header') as HTMLElement
     fireEvent.click(terHeader)
     expect(vibrateMock).toHaveBeenCalledWith(12)
@@ -1125,6 +1129,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    updatePreferences('privacy', { gps: 'never' })
     const { container } = render(<App />)
     const recenter = () => screen.getByTestId('map-recenter').textContent
 
@@ -1653,9 +1658,8 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
     const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
-    fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
-    fireEvent.submit(input.closest('form')!)
-    // Un second envoi avant la réponse ne duplique pas la question.
+fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
+    fireEvent.submit(input.closest('form')!)    // Un second envoi avant la réponse ne duplique pas la question.
     fireEvent.submit(input.closest('form')!)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
     const log = within(panel).getByRole('log')
@@ -1996,6 +2000,7 @@ describe('réglages appliqués réellement à l’application', () => {
   it('la géolocalisation refusée dans les réglages n’est jamais demandée au navigateur', async () => {
     const requested = vi.fn()
     Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: requested } })
+    updatePreferences('privacy', { gps: 'never' })
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     const section = openSettingsSection('privacy')

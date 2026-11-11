@@ -285,10 +285,10 @@ function readSavedDestinations(): Partial<Record<DestinationShortcutId, MapPoint
   }
 }
 
-/** Rayon demandé à l’API pour « autour de vous » : 5 km, la limite servie
- *  par /api/stops/near. Les arrêts sont classés du plus proche au plus loin. */
-const NEARBY_RADIUS_M = 5000
-const NEARBY_LIMIT = 12
+/** Rayon strict demandé pour « autour de vous » : 1 km. Les arrêts publiés
+ *  au-delà sont exclus, même si l’API renvoie un rayon plus large. */
+const NEARBY_RADIUS_M = 1000
+const NEARBY_LIMIT = 50
 /** Walking radius asked from the routing API: declared links only, never a shortcut. */
 const ROUTE_MAX_WALK_M = 900
 
@@ -490,9 +490,18 @@ function App() {
   const withdrawnPendingReports = useRef(new Set<string>())
   const pendingSharedReports = useRef(new Set<string>())
   const appMounted = useRef(true)
+  const initialLocationRequested = useRef(false)
   const locationAgeMs = locationObservedAt === null ? Infinity : Date.now() - locationObservedAt
   const trafficLocation = gpsState === 'ready' && locationAgeMs >= 0 && locationAgeMs < TRAFFIC_ALERT_TTL_MS ? location : null
   const traffic = useTrafficAlerts(trafficLocation, refreshTrafficGps)
+
+  // Au premier affichage, demander la position pour ouvrir directement les mobilités à 1 km.
+  // Le réglage de confidentialité de l’usager reste prioritaire.
+  useEffect(() => {
+    if (preferences.privacy.gps === 'never' || initialLocationRequested.current) return
+    initialLocationRequested.current = true
+    requestLocation('center')
+  }, [preferences.privacy.gps])
   const community = useCommunityReports()
   const [toast, setToast] = useState<string | null>(null)
   const [gpsMessage, setGpsMessage] = useState<string | null>(null)
@@ -1087,7 +1096,7 @@ function App() {
     // demande de position n'est envoyée au navigateur, et la raison est dite.
     if (preferences.privacy.gps === 'never') {
       setGpsState('denied')
-      setGpsMessage('La géolocalisation est refusée dans vos réglages. Autorisez-la dans Paramètres, section Confidentialité et position.')
+      setGpsMessage('La géolocalisation est désactivée. Autorisez-la dans Paramètres, section Confidentialité et position, puis dans les réglages de votre navigateur.')
       announce('Géolocalisation désactivée dans vos réglages.')
       return
     }
@@ -1133,7 +1142,7 @@ function App() {
         const denied = error.code === error.PERMISSION_DENIED
         setGpsState(denied ? 'denied' : 'error')
         const message = denied
-          ? 'Autorisez la localisation dans votre navigateur pour afficher votre position.'
+          ? 'Autorisez la localisation précise dans votre navigateur et sur votre appareil pour afficher les mobilités dans un rayon de 1 km.'
           : error.code === error.TIMEOUT
             ? 'La localisation a pris trop de temps. Réessayez lorsque le signal sera meilleur.'
             : 'Localisation indisponible. Vérifiez les réglages de votre appareil et réessayez.'
@@ -1966,9 +1975,10 @@ function ExplorerPanel({
   }, [proximityOpen, gpsState, location])
   const nearbyGroups = useMemo(() => groupNearbyMobilities(nearbyHits), [nearbyHits])
   const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
-  /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
-   *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
-  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready' ? nearby.stops : []
+  /** Arrêts publiés : garde-fou local strict à 1 km, même si l’API renvoie plus loin. */
+  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
+    ? nearby.stops.filter((stop) => typeof stop.distanceM === 'number' && Number.isFinite(stop.distanceM) && stop.distanceM <= NEARBY_RADIUS_M)
+    : []
 
   function revealNearby() {
     triggerHaptic(10)
@@ -3286,7 +3296,7 @@ function AlertsPanel({
     <section className="panel alerts-panel" aria-label="Alertes de service">
       <div className="panel-heading-row">
         <div>
-          <span className="eyebrow">INFORMATION VOYAGEUR · GPS &amp; TEMPS RÉEL</span>
+          <span className="eyebrow"><svg className="realtime-arcs" viewBox="0 0 20 12" aria-hidden="true" focusable="false"><path d="M2 10C6 5.5 14 5.5 18 10" /><path d="M6 10C8 8 12 8 14 10" /></svg>INFORMATION VOYAGEUR · GPS &amp; TEMPS RÉEL</span>
           <h2>Alertes</h2>
           <p>{hasGps ? `${nearbyCount} alerte(s) dans un rayon de ${formatDistanceMeters(ALERT_PROXIMITY_RADIUS_M)} autour de vous.` : 'Activez la localisation pour voir les perturbations autour de vous.'}</p>
         </div>
@@ -3601,7 +3611,7 @@ function ChangelogSection() {
       title: 'Bouton Mobilités à proximité',
       items: [
         'Explorer : l’indication passive sous la recherche est remplacée par le bouton vert compact « Mobilités à proximité » (1 cm de haut).',
-        'Au clic, ou dès que le GPS est connu, les arrêts TER, stations BRT et arrêts DDD, AFTU et TATA dans un rayon de 1,5 km s’affichent dans un espace dédié, défilant, sans modifier Mes destinations ni les réseaux de référence.',
+        'À l’ouverture, l’application demande l’autorisation GPS ; dès que la position est disponible, seuls les arrêts TER, stations BRT et arrêts DDD, AFTU et TATA situés à 1 km maximum s’affichent dans un espace dédié, sans modifier Mes destinations ni les réseaux de référence.',
         'La liste suit la position GPS. Ce sont des arrêts de référence, pas des positions de véhicules.',
       ],
     },
