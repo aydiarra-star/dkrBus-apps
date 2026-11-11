@@ -197,8 +197,16 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const inboundServiceState = inboundServiceWindow
             ? getServiceDisplayState(now, inboundServiceWindow.start, inboundServiceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const inboundMinutes = inboundSchedule && inboundServiceState.status === 'ACTIVE'
-            ? scheduleCountdownMinutes(inboundSchedule, now)
+          // When a route has a separately documented return stop sequence but no
+          // independent return timetable, reuse the line's published frequency
+          // window for the return board. This is a frequency-based countdown,
+          // not a vehicle-position prediction or a stop-by-stop arrival time.
+          const inboundMinutes = inboundServiceState.status === 'ACTIVE'
+            ? inboundSchedule
+              ? scheduleCountdownMinutes(inboundSchedule, now)
+              : route?.inboundWaypoints?.length && countdownSchedule
+                ? scheduleCountdownMinutes(countdownSchedule, now)
+                : null
             : null
           const directions = [
             { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes, serviceState, serviceWindow, hasExplicitNoService },
