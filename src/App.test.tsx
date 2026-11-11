@@ -1098,7 +1098,9 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const vibrateMock = vi.fn(() => true)
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrateMock })
-    const { container } = render(<App />)    const terItem = container.querySelector('.network-item-ter') as HTMLElement    expect(terItem).toBeTruthy()
+    const { container } = render(<App />)
+    const terItem = container.querySelector('.network-item-ter') as HTMLElement
+    expect(terItem).toBeTruthy()
     expect(terItem.classList.contains('is-selected')).toBe(false)
     const terHeader = terItem.querySelector('.network-summary-header') as HTMLElement
     fireEvent.click(terHeader)
@@ -1647,7 +1649,8 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
-    const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })    fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
+    const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
+fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(input.closest('form')!)    // Un second envoi avant la réponse ne duplique pas la question.
     fireEvent.submit(input.closest('form')!)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
