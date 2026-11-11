@@ -79,7 +79,7 @@ export const AFTU_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['78','Diamaguène','Liberté 5'],
   ['79','Sangalkam','Cambérène'],
   ['80','Diamalaye','Darou Thioub'],
-  ['81','Baux Maraîchers','Tivaouane Peul'],
+  ['81','Cité Tawfeex (Tivaouane Peul)','Baux Maraîchers'],
   ['82','Lat Dior','Comico Yeumbeul'],
   ['83','Rufisque Arafat','Zone de Captage'],
   ['84','UCAD','Jaxaay'],
