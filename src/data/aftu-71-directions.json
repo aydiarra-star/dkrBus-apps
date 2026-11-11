@@ -1,0 +1,86 @@
+{
+  "network": "aftu",
+  "code": "71",
+  "waypoints": [
+    "Terminus Keur Massar Extension",
+    "Station Keur Massar",
+    "Croisement Keur Massar",
+    "Petit Mbao",
+    "Fass Mbao",
+    "Poste Thiaroye",
+    "Bountou Pikine",
+    "Croisement Cambérène",
+    "Castors",
+    "HLM",
+    "Garage Guédiawaye",
+    "Bène Tally",
+    "Niary Tally",
+    "Grand Dakar",
+    "Rue 10",
+    "Poste Fann",
+    "Université",
+    "Terminus Claudel"
+  ],
+  "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-71-Dakar-5996-1618038-18051517-0",
+  "inboundWaypoints": [
+    "Terminus Claudel",
+    "Université",
+    "Poste Fann",
+    "Rue 10",
+    "Grand Dakar",
+    "Niary Tally",
+    "Bène Tally",
+    "Garage Guédiawaye",
+    "HLM",
+    "Castors",
+    "Croisement Cambérène",
+    "Bountou Pikine",
+    "Poste Thiaroye",
+    "Fass Mbao",
+    "Petit Mbao",
+    "Croisement Keur Massar",
+    "Station Keur Massar",
+    "Terminus Keur Massar Extension"
+  ],
+  "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-71-Dakar-5996-1618038-18051517-1",
+  "outboundSchedule": {
+    "line": "71",
+    "weekday": {
+      "start": "05:20",
+      "end": "22:30",
+      "interval": "10 min"
+    },
+    "saturday": {
+      "start": "05:30",
+      "end": "22:30",
+      "interval": "15 min"
+    },
+    "sunday": {
+      "start": "05:30",
+      "end": "22:30",
+      "interval": "15 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-71-Dakar-5996-1618038-18051517-0",
+    "sourceLabel": "Moovit · horaires du sens Keur Massar vers Claudel / Fann Hock"
+  },
+  "inboundSchedule": {
+    "line": "71",
+    "weekday": {
+      "start": "05:25",
+      "end": "22:25",
+      "interval": "12 min"
+    },
+    "saturday": {
+      "start": "05:35",
+      "end": "22:18",
+      "interval": "17 min"
+    },
+    "sunday": {
+      "start": "05:35",
+      "end": "22:18",
+      "interval": "17 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-71-Dakar-5996-1618038-18051517-1",
+    "sourceLabel": "Moovit · horaires du sens Claudel / Fann Hock vers Keur Massar"
+  }
+}
