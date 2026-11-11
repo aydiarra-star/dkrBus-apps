@@ -20,6 +20,10 @@ describe('catalogues de lignes publiques indépendants', () => {
     expect(TATA_REFERENCE_POLICY.independentScheduleAvailable).toBe(false)
   })
 
+  it('enregistre la ligne AFTU 84 dans le sens Jaxaay 2 vers UCAD', () => {
+    expect(AFTU_PUBLIC_LINE_CATALOG.some((line) => line.line === '84' && line.origin === 'Jaxaay 2' && line.destination === 'UCAD')).toBe(true)
+  })
+
   it('conserve les réseaux DDD et AFTU dans leurs propres catalogues', () => {
     expect(DDD_PUBLIC_LINE_CATALOG.every((line) => line.network === 'ddd')).toBe(true)
     expect(AFTU_PUBLIC_LINE_CATALOG.some((line) => line.line === '91' && line.origin === 'APIX' && line.destination === 'Dougar')).toBe(true)
