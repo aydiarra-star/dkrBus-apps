@@ -56,7 +56,6 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '72', weekday: w('05:55', '21:55', 24), saturday: w('06:05', '21:33', 29), sunday: w('06:05', '21:33', 29), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-1', sourceLabel: 'Moovit · sens Guédiawaye vers Kounoune' },
   { line: '73', weekday: w('05:50', '22:55', 25), saturday: w('06:00', '22:55', 35), sunday: w('06:00', '22:55', 35), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0', sourceLabel: 'Moovit · sens Lac Rose vers Poste Thiaroye' },
   { line: '76', weekday: w('04:55', '21:52', 9), saturday: w('05:05', '21:53', 14), sunday: w('05:05', '21:53', 14), sourceUrl: aftuUrl('76'), sourceLabel: tb },
-  { line: '80', weekday: w('04:50', '20:40', 25), saturday: w('05:00', '21:00', 30), sunday: w('05:00', '21:00', 30), sourceUrl: aftuUrl('80'), sourceLabel: tb },
   { line: '81', weekday: w('05:30', '22:00', 18), saturday: w('05:40', '21:46', 23), sunday: w('05:40', '21:46', 23), sourceUrl: aftuUrl('81'), sourceLabel: tb },
   { line: '84', weekday: w('03:50', '21:48', 14), saturday: w('04:00', '22:00', 18), sunday: w('04:00', '22:00', 18), sourceUrl: aftuUrl('84'), sourceLabel: tb },
 ]
