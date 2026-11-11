@@ -1978,7 +1978,7 @@ function ExplorerPanel({
   /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
    *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
   const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
-    ? nearby.stops.filter((stop) => Number.isFinite(stop.distanceM) && stop.distanceM <= NEARBY_RADIUS_M)
+    ? nearby.stops.filter((stop) => typeof stop.distanceM === 'number' && Number.isFinite(stop.distanceM) && stop.distanceM <= NEARBY_RADIUS_M)
     : []
 
   function revealNearby() {
