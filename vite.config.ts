@@ -51,6 +51,11 @@ export default defineConfig({
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             },
             {
+              name: 'schedule-board',
+              priority: 15,
+              test: /[\\/]src[\\/]components[\\/]EstimatedLineScheduleBoard\\.tsx$/,
+            },
+            {
               name: 'leaflet',
               priority: 10,
               includeDependenciesRecursively: false,
