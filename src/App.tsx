@@ -2349,6 +2349,17 @@ function StationPassageCell({
       </span>
     )
   }
+  // Le créneau peut appartenir au lendemain lorsque le dernier départ du jour
+  // est déjà passé. Ne jamais afficher cette heure future en vert comme un
+  // prochain passage du service courant.
+  if (passage.status === 'AFTER_SERVICE' || passage.status === 'LAST_PAST') {
+    return (
+      <span className="network-summary-passage is-finished station-board-passage" title={passage.note}>
+        <strong>Fin de service</strong>
+        <small>Reprise demain</small>
+      </span>
+    )
+  }
   return (
     <span className="network-summary-passage station-board-passage" title={passage.note}>
       <strong>{formatPassageCountdown(passage.minutes)}</strong>
