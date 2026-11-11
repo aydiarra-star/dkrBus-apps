@@ -1145,6 +1145,24 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
+  it('ne montre pas en vert le créneau du lendemain après le dernier passage TER', async () => {
+    vi.useFakeTimers()
+    // Jeudi 8 octobre 2026, 21:59 UTC : la dernière grille TER est passée.
+    vi.setSystemTime(new Date('2026-10-08T21:59:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    fireEvent.click(container.querySelector('.network-item-ter .network-summary-header')!)
+
+    const board = container.querySelector('.station-board') as HTMLElement
+    expect(board).toBeTruthy()
+    const firstOutboundRow = board.querySelector('.station-direction-outbound .station-board-row') as HTMLElement
+    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Fin de service')
+    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Reprise demain')
+    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).not.toMatch(/créneau|7 h/i)
+    vi.useRealTimers()
+  })
+
   it('décline les créneaux TER station par station et sens par sens', async () => {
     vi.useFakeTimers()
     // Jeudi 8 octobre 2026, 12:00 UTC : grille TER de 10 min en service.
