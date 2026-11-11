@@ -53,7 +53,7 @@ export default defineConfig({
             {
               name: 'schedule-board',
               priority: 15,
-              test: /[\\/]src[\\/]components[\\/]EstimatedLineScheduleBoard\\.tsx$/,
+              test: /EstimatedLineScheduleBoard/,
             },
             {
               name: 'leaflet',
