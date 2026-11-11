@@ -547,7 +547,10 @@ describe('structure en quatre piliers', () => {
     expect(await screen.findByText(/assistant mobilité/i)).toBeTruthy()
     // L’assistant énumère les 23 stations officielles, dans l’ordre.
     expect(screen.getByText(/1\. Petersen – Papa Gueye Fall/)).toBeTruthy()
-    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()    expect(screen.queryByRole('search')).toBeNull()  })
+    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()
+expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
+expect(screen.queryByRole('search')).toBeNull()
+  })
 
   it('range l’aide, les CGU, l’historique et la console technique dans Paramètres', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
