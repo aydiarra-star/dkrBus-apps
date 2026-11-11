@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
+import aftu84Directions from '../data/aftu-84-directions.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
 import { getServiceDisplayState } from '../domain/serviceStatus'
@@ -19,7 +20,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -138,6 +139,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '81': aftu81.default as Partial<MobilityRouteReference>,
         '70': aftu70.default as Partial<MobilityRouteReference>,
         '71': aftu71.default as Partial<MobilityRouteReference>,
+        '84': aftu84Directions as Partial<MobilityRouteReference>,
       }
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) => {
@@ -178,7 +180,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const countdownSchedule = scheduleWindow ? { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow } : null
+          const lineInterval = route?.frequency?.display
+          const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
+          const countdownSchedule = countdownWindow ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundSchedule = route?.inboundSchedule ?? null
           const inboundDayWindow = inboundSchedule
