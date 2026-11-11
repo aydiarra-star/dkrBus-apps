@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import aftu84Directions from '../data/aftu-84-directions.json'
+import aftu83Directions from '../data/aftu-83-directions.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
 import { getServiceDisplayState } from '../domain/serviceStatus'
@@ -139,6 +140,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '81': aftu81.default as Partial<MobilityRouteReference>,
         '70': aftu70.default as Partial<MobilityRouteReference>,
         '71': aftu71.default as Partial<MobilityRouteReference>,
+        '83': aftu83Directions as Partial<MobilityRouteReference>,
         '84': aftu84Directions as Partial<MobilityRouteReference>,
       }
       if (active) setRouteReferences([
