@@ -547,8 +547,9 @@ describe('structure en quatre piliers', () => {
     expect(await screen.findByText(/assistant mobilité/i)).toBeTruthy()
     // L’assistant énumère les 23 stations officielles, dans l’ordre.
     expect(screen.getByText(/1\. Petersen – Papa Gueye Fall/)).toBeTruthy()
-    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()    expect(screen.queryByRole('search')).toBeNull()
-  })
+    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
+    expect(screen.queryByRole('search')).toBeNull()  })
 
   it('range l’aide, les CGU, l’historique et la console technique dans Paramètres', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1070,7 +1071,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
-    fireEvent.click(within(panel).getByRole('button', { name: /ColobaneTER/ }))
+    fireEvent.click(within(panel).getByRole('button', { name: /Colobane.*TER/ }))
     expect(screen.getByTestId('map-recenter').textContent).toBe('14.7003482,-17.4416523')
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
@@ -1097,8 +1098,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const vibrateMock = vi.fn(() => true)
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrateMock })
     const { container } = render(<App />)
-    const terItem = container.querySelector('.network-item-ter') as HTMLElement
-    expect(terItem).toBeTruthy()
+    const terItem = container.querySelector('.network-item-ter') as HTMLElement    expect(terItem).toBeTruthy()
     expect(terItem.classList.contains('is-selected')).toBe(false)
 
     const terHeader = terItem.querySelector('.network-summary-header') as HTMLElement
@@ -1647,8 +1647,7 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
   it('une question affiche la réponse dans le panneau, sans double envoi', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
-    const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
+    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))    const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
     fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(input.closest('form')!)
     // Un second envoi avant la réponse ne duplique pas la question.
