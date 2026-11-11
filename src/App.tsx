@@ -3612,7 +3612,7 @@ function ChangelogSection() {
       title: 'Bouton Mobilités à proximité',
       items: [
         'Explorer : l’indication passive sous la recherche est remplacée par le bouton vert compact « Mobilités à proximité » (1 cm de haut).',
-        'Au clic, ou dès que le GPS est connu, les arrêts TER, stations BRT et arrêts DDD, AFTU et TATA dans un rayon de 1,5 km s’affichent dans un espace dédié, défilant, sans modifier Mes destinations ni les réseaux de référence.',
+        'À l’ouverture, l’application demande l’autorisation GPS ; dès que la position est disponible, seuls les arrêts TER, stations BRT et arrêts DDD, AFTU et TATA situés à 1 km maximum s’affichent dans un espace dédié, sans modifier Mes destinations ni les réseaux de référence.',
         'La liste suit la position GPS. Ce sont des arrêts de référence, pas des positions de véhicules.',
       ],
     },
