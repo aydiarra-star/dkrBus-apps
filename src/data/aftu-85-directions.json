@@ -198,5 +198,22 @@
   "sourceLabel": "Parcours transmis par l’utilisateur",
   "sourceStatus": "user-provided-route-reference",
   "detailSourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-  "note": null
+  "note": null,
+  "serviceWindow": {
+    "start": "06:00",
+    "end": "21:00"
+  },
+  "frequency": {
+    "intervalMinutes": 17.5,
+    "display": "10–15 min aux heures de pointe · 15–25 min en heures creuses",
+    "peakRangeMinutes": [
+      10,
+      15
+    ],
+    "offPeakRangeMinutes": [
+      15,
+      25
+    ],
+    "countdownBasis": "17.5 min (milieu des plages communiquées)"
+  }
 }
