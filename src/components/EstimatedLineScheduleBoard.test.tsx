@@ -19,6 +19,9 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     const row = aftuFiveLabels[0].closest('li')!
     expect(row).toBeTruthy()
     expect(within(row).getAllByText('10 min')).toHaveLength(1)
+    const arcIcons = row.querySelectorAll('.station-board-realtime-arcs')
+    expect(arcIcons.length).toBeGreaterThan(0)
+    arcIcons.forEach((icon) => expect(icon.querySelectorAll('path')).toHaveLength(2))
     expect(within(row).getByText('En service')).toBeTruthy()
     expect(within(row).getByText(/Aller ·/)).toBeTruthy()
     expect(within(row).getByText(/Retour ·/)).toBeTruthy()
