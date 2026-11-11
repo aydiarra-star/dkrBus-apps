@@ -547,8 +547,7 @@ describe('structure en quatre piliers', () => {
     expect(await screen.findByText(/assistant mobilité/i)).toBeTruthy()
     // L’assistant énumère les 23 stations officielles, dans l’ordre.
     expect(screen.getByText(/1\. Petersen – Papa Gueye Fall/)).toBeTruthy()
-    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
+    expect(screen.getByText(/23\. Préfecture de Guédiawaye/)).toBeTruthy()    expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
     expect(screen.queryByRole('search')).toBeNull()
   })
 
@@ -597,7 +596,8 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
 
     fireEvent.click(screen.getAllByRole('button', { name: /me localiser/i })[0])
-    expect(await screen.findByText('Démo — Plateau Sud')).toBeTruthy()    expect(screen.getByText(/à 24 m/)).toBeTruthy()
+    expect(await screen.findByText('Démo — Plateau Sud')).toBeTruthy()
+    expect(screen.getByText(/à 24 m/)).toBeTruthy()
     expect(screen.getByTestId('mapped-stops').textContent).toBe('Démo — Plateau Sud | Démo — Yoff Aéroport')
   })
 
@@ -1098,7 +1098,6 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const vibrateMock = vi.fn(() => true)
     Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrateMock })
     const { container } = render(<App />)
-
     const terItem = container.querySelector('.network-item-ter') as HTMLElement
     expect(terItem).toBeTruthy()
     expect(terItem.classList.contains('is-selected')).toBe(false)
@@ -1195,7 +1194,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
       })
     }
     expect(colobaneTimes()).toEqual(['3 min', '4 min'])
-    vi.useRealTimers()  })
+    vi.useRealTimers()
+  })
 
   it.each(['ddd', 'aftu'] as const)('affiche uniquement les lignes et les comptes à rebours %s', (networkId) => {
     vi.useFakeTimers()
@@ -1647,8 +1647,7 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
 
   it('une question affiche la réponse dans le panneau, sans double envoi', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
+    render(<App />)    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
     const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
     fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(input.closest('form')!)
@@ -1794,7 +1793,8 @@ describe('veille résiliente et Direct rue valorisé, onglets inchangés', () =>
     expect(document.querySelectorAll('.alerts-switch-button')).toHaveLength(2)
   })
 
-  it('GPS : masque les témoignages éloignés/non localisés dans Autour de moi, les trie dans Direct rue', async () => {    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
+  it('GPS : masque les témoignages éloignés/non localisés dans Autour de moi, les trie dans Direct rue', async () => {
+    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
       communityReport({ id: 'unknown', place: 'Repère sans GPS', lat: null, lng: null, shared: false }, Date.now()),
       communityReport({ id: 'far', place: 'Portion éloignée', lat: 14.81, lng: -17.3, shared: false }, Date.now()),
       communityReport({ id: 'near', place: 'Portion proche', shared: false }, Date.now() - 60_000),
