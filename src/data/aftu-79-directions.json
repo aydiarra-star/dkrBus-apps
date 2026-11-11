@@ -1,0 +1,81 @@
+{
+  "network": "aftu",
+  "code": "79",
+  "waypoints": [
+    "Terminus Sangalkam",
+    "Ndiakhirate",
+    "Croisement Niagues",
+    "Darou Thioub",
+    "Niacourab",
+    "Croisement Tivaouane Peulh",
+    "Station Keur Massar",
+    "Malika",
+    "VDN 3",
+    "Gadaye",
+    "Serigne Assane",
+    "Marché Boubess",
+    "Préfecture Guédiawaye",
+    "Cité Nations Unies (derrière hôpital Dalal Diam)",
+    "Terminus Cambérène"
+  ],
+  "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-79/",
+  "inboundWaypoints": [
+    "Terminus Cambérène",
+    "Cité Nations Unies (derrière hôpital Dalal Diam)",
+    "Préfecture Guédiawaye",
+    "Marché Boubess",
+    "Serigne Assane",
+    "Gadaye",
+    "VDN 3",
+    "Malika",
+    "Station Keur Massar",
+    "Croisement Tivaouane Peulh",
+    "Niacourab",
+    "Darou Thioub",
+    "Croisement Niagues",
+    "Ndiakhirate",
+    "Terminus Sangalkam"
+  ],
+  "inboundDetailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-79/",
+  "outboundSchedule": {
+    "line": "79",
+    "weekday": {
+      "start": "06:20",
+      "end": "22:20",
+      "interval": "20 min"
+    },
+    "saturday": {
+      "start": "06:30",
+      "end": "22:30",
+      "interval": "40 min"
+    },
+    "sunday": {
+      "start": "06:30",
+      "end": "22:30",
+      "interval": "40 min"
+    },
+    "sourceUrl": "https://transitbycity.com/fr/senegal/dakar/operators/aftu/routes/79/",
+    "sourceLabel": "TransitByCity · 28/05/2026 · sens vers Cambérène"
+  },
+  "inboundSchedule": {
+    "line": "79",
+    "weekday": {
+      "start": "06:25",
+      "end": "22:08",
+      "interval": "23 min"
+    },
+    "saturday": {
+      "start": "06:35",
+      "end": "21:59",
+      "interval": "42 min"
+    },
+    "sunday": {
+      "start": "06:35",
+      "end": "21:59",
+      "interval": "42 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-time-79-Dakar-5996-1618038-18051434-4256188-0",
+    "sourceLabel": "Moovit · sens vers Sangalkam"
+  },
+  "note": "Les 15 points de passage sont repris de la fiche officielle AFTU. Les horaires de départ et intervalles directionnels sont repris des tableaux Moovit ; les intervalles de week-end correspondent à l'espacement régulier des départs publiés. Les nombreux arrêts génériques Moovit ne sont pas transformés en noms supposés."
+}
