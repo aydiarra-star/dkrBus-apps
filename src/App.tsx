@@ -490,9 +490,18 @@ function App() {
   const withdrawnPendingReports = useRef(new Set<string>())
   const pendingSharedReports = useRef(new Set<string>())
   const appMounted = useRef(true)
+  const initialLocationRequested = useRef(false)
   const locationAgeMs = locationObservedAt === null ? Infinity : Date.now() - locationObservedAt
   const trafficLocation = gpsState === 'ready' && locationAgeMs >= 0 && locationAgeMs < TRAFFIC_ALERT_TTL_MS ? location : null
   const traffic = useTrafficAlerts(trafficLocation, refreshTrafficGps)
+
+  // Au premier affichage, demander la position pour ouvrir directement les mobilités à 1 km.
+  // Le réglage de confidentialité de l’usager reste prioritaire.
+  useEffect(() => {
+    if (initialLocationRequested.current) return
+    initialLocationRequested.current = true
+    if (preferences.privacy.gps !== 'never') requestLocation('center')
+  }, [preferences.privacy.gps])
   const community = useCommunityReports()
   const [toast, setToast] = useState<string | null>(null)
   const [gpsMessage, setGpsMessage] = useState<string | null>(null)
@@ -1087,7 +1096,7 @@ function App() {
     // demande de position n'est envoyée au navigateur, et la raison est dite.
     if (preferences.privacy.gps === 'never') {
       setGpsState('denied')
-      setGpsMessage('La géolocalisation est refusée dans vos réglages. Autorisez-la dans Paramètres, section Confidentialité et position.')
+      setGpsMessage('La géolocalisation est désactivée. Autorisez-la dans Paramètres, section Confidentialité et position, puis dans les réglages de votre navigateur.')
       announce('Géolocalisation désactivée dans vos réglages.')
       return
     }
@@ -1133,7 +1142,7 @@ function App() {
         const denied = error.code === error.PERMISSION_DENIED
         setGpsState(denied ? 'denied' : 'error')
         const message = denied
-          ? 'Autorisez la localisation dans votre navigateur pour afficher votre position.'
+          ? 'Autorisez la localisation précise dans votre navigateur et sur votre appareil pour afficher les mobilités dans un rayon de 1 km.'
           : error.code === error.TIMEOUT
             ? 'La localisation a pris trop de temps. Réessayez lorsque le signal sera meilleur.'
             : 'Localisation indisponible. Vérifiez les réglages de votre appareil et réessayez.'
