@@ -1,0 +1,70 @@
+{
+  "network": "aftu",
+  "code": "73",
+  "waypoints": [
+    "Terminus Lac Rose",
+    "Croisement Niagues",
+    "Darou Thioub",
+    "Niakourab",
+    "Cité SAFCO",
+    "Keur Massar",
+    "MTOA",
+    "Boune",
+    "Yeumbeul",
+    "Terminus Poste Thiaroye"
+  ],
+  "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0",
+  "inboundWaypoints": [
+    "Terminus Poste Thiaroye",
+    "Yeumbeul",
+    "Boune",
+    "MTOA",
+    "Keur Massar",
+    "Cité SAFCO",
+    "Niakourab",
+    "Darou Thioub",
+    "Croisement Niagues",
+    "Terminus Lac Rose"
+  ],
+  "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-1",
+  "outboundSchedule": {
+    "line": "73",
+    "weekday": {
+      "start": "05:50",
+      "end": "22:55",
+      "interval": "25 min"
+    },
+    "saturday": {
+      "start": "06:00",
+      "end": "22:55",
+      "interval": "35 min"
+    },
+    "sunday": {
+      "start": "06:00",
+      "end": "22:55",
+      "interval": "35 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0",
+    "sourceLabel": "Moovit · sens Lac Rose vers Poste Thiaroye"
+  },
+  "inboundSchedule": {
+    "line": "73",
+    "weekday": {
+      "start": "05:55",
+      "end": "22:43",
+      "interval": "28 min"
+    },
+    "saturday": {
+      "start": "06:05",
+      "end": "22:33",
+      "interval": "38 min"
+    },
+    "sunday": {
+      "start": "06:05",
+      "end": "22:33",
+      "interval": "38 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-1",
+    "sourceLabel": "Moovit · sens Poste Thiaroye vers Lac Rose"
+  }
+}
