@@ -810,13 +810,21 @@ describe('published snapshot in the app', () => {
 
   it('reports a withdrawn publication instead of keeping the snapshot on screen', async () => {
     let published = true
+    // Ce scénario sélectionne D6 à Yoff : on simule donc le GPS à cet arrêt.
+    stubGeolocation(14.748, -17.49)
     stubApi([
       {
         match: '/api/network',
         respond: () => (published ? jsonResponse(NETWORK_PUBLISHED) : jsonResponse(NETWORK_EMPTY)),
       },
       { match: '/api/routes', respond: () => jsonResponse(ROUTES_PAYLOAD) },
-      { match: '/api/stops/near', respond: () => jsonResponse(NEARBY_PAYLOAD) },
+      { match: '/api/stops/near', respond: () => jsonResponse({
+        count: 2,
+        results: [
+          { ...NEARBY_PAYLOAD.results[0], distance_m: 4860 },
+          { ...NEARBY_PAYLOAD.results[1], distance_m: 0 },
+        ],
+      }) },
       { match: '/api/stops/D6', respond: () => (published ? jsonResponse(STOP_D6_DETAIL) : errorResponse(404, 'NOT_PUBLISHED')) },
     ])
     render(<App />)
