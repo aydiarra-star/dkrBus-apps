@@ -1629,6 +1629,7 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: .025em;
 }
 .network-summary-passage { display: grid; justify-items: end; gap: 1px; text-align: right; }
+.station-board-realtime-arcs { display: inline-block; width: 14px; height: 9px; margin-right: 5px; vertical-align: -1px; fill: none; stroke: var(--passage-green); stroke-width: 1.8; stroke-linecap: round; }
 .network-summary-passage > strong {
   color: var(--passage-green);
   font-size: 14.5px;
