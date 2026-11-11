@@ -149,7 +149,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
-          const lineSchedule = route?.outboundSchedule ?? schedulesByLine.get(line.line)
+          const lineSchedule = line.line === '72' || line.line === '73'
+            ? route?.outboundSchedule ?? schedulesByLine.get(line.line)
+            : schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
