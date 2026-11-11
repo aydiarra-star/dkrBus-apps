@@ -39,17 +39,41 @@
   "inboundDetailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-79/",
   "outboundSchedule": {
     "line": "79",
-    "weekday": { "start": "06:20", "end": "22:20", "interval": "20 min" },
-    "saturday": { "start": "06:30", "end": "22:30", "interval": "40 min" },
-    "sunday": { "start": "06:30", "end": "22:30", "interval": "40 min" },
-    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-time-79-Dakar-5996-1618038-18051434-4256189-0",
-    "sourceLabel": "Moovit · sens vers Cambérène"
+    "weekday": {
+      "start": "06:20",
+      "end": "22:20",
+      "interval": "20 min"
+    },
+    "saturday": {
+      "start": "06:30",
+      "end": "22:30",
+      "interval": "40 min"
+    },
+    "sunday": {
+      "start": "06:30",
+      "end": "22:30",
+      "interval": "40 min"
+    },
+    "sourceUrl": "https://transitbycity.com/fr/senegal/dakar/operators/aftu/routes/79/",
+    "sourceLabel": "TransitByCity · 28/05/2026 · sens vers Cambérène"
   },
   "inboundSchedule": {
     "line": "79",
-    "weekday": { "start": "06:25", "end": "22:08", "interval": "23 min" },
-    "saturday": { "start": "06:35", "end": "21:59", "interval": "42 min" },
-    "sunday": { "start": "06:35", "end": "21:59", "interval": "42 min" },
+    "weekday": {
+      "start": "06:25",
+      "end": "22:08",
+      "interval": "23 min"
+    },
+    "saturday": {
+      "start": "06:35",
+      "end": "21:59",
+      "interval": "42 min"
+    },
+    "sunday": {
+      "start": "06:35",
+      "end": "21:59",
+      "interval": "42 min"
+    },
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-time-79-Dakar-5996-1618038-18051434-4256188-0",
     "sourceLabel": "Moovit · sens vers Sangalkam"
   },
