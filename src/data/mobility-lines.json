@@ -1752,8 +1752,8 @@
   {
     "network": "aftu",
     "code": "81",
-    "origin": "Baux Maraîchers",
-    "destination": "Tivaouane Peul",
+    "origin": "Tivaouane Peul (Cité Tawfeex)",
+    "destination": "Baux Maraîchers",
     "sourceUrl": "https://aftu-senegal.org/infos-pratiques/",
     "consultedAt": "2026-10-10",
     "publishedAt": "2026-07-14",
@@ -1776,7 +1776,7 @@
       "Gare des Baux Maraîchers"
     ],
     "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-81/",
-    "note": "La liste générale résume le terminus par Tivaouane Peul ; la fiche détaillée le situe à Tawfeex."
+    "note": "La fiche détaillée officielle présente le parcours de Cité Tawfeex vers les Baux Maraîchers. Les horaires directionnels proviennent des fiches Moovit correspondantes."
   },
   {
     "network": "aftu",

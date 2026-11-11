@@ -1,0 +1,83 @@
+{
+  "network": "aftu",
+  "code": "81",
+  "waypoints": [
+    "Terminus Tawfeex",
+    "Cité Socabeg",
+    "Tivaouane Peulh",
+    "Croisement Tivaouane Peulh",
+    "Terminus P11",
+    "Keur Massar",
+    "MTOA",
+    "Malika",
+    "Station Yeumbeul",
+    "Tournal Boune",
+    "Mbédou Fass",
+    "Fass Mbao",
+    "Diamaguène",
+    "Poste Thiaroye",
+    "SIPS",
+    "Gare des Baux Maraîchers"
+  ],
+  "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-81/",
+  "inboundWaypoints": [
+    "Gare des Baux Maraîchers",
+    "SIPS",
+    "Poste Thiaroye",
+    "Diamaguène",
+    "Fass Mbao",
+    "Mbédou Fass",
+    "Tournal Boune",
+    "Station Yeumbeul",
+    "Malika",
+    "MTOA",
+    "Keur Massar",
+    "Terminus P11",
+    "Croisement Tivaouane Peulh",
+    "Tivaouane Peulh",
+    "Cité Socabeg",
+    "Terminus Tawfeex"
+  ],
+  "inboundDetailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-81/",
+  "outboundSchedule": {
+    "line": "81",
+    "weekday": {
+      "start": "05:35",
+      "end": "21:35",
+      "interval": "20 min"
+    },
+    "saturday": {
+      "start": "05:45",
+      "end": "21:35",
+      "interval": "25 min"
+    },
+    "sunday": {
+      "start": "05:45",
+      "end": "21:35",
+      "interval": "25 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-81-Dakar-5996-1618038-18051489-1",
+    "sourceLabel": "Moovit · Cité Tawfekh"
+  },
+  "inboundSchedule": {
+    "line": "81",
+    "weekday": {
+      "start": "05:30",
+      "end": "22:00",
+      "interval": "18 min"
+    },
+    "saturday": {
+      "start": "05:40",
+      "end": "21:46",
+      "interval": "23 min"
+    },
+    "sunday": {
+      "start": "05:40",
+      "end": "21:46",
+      "interval": "23 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-81-Dakar-5996-1618038-18051489-0",
+    "sourceLabel": "Moovit · Baux Maraîchers"
+  },
+  "note": "Les heures et fréquences sont séparées selon les deux directions. La fiche AFTU donne le tracé Cité Tawfeex vers Baux Maraîchers ; Moovit publie les deux grilles correspondantes. TransitByCity confirme également la plage Baux Maraîchers."
+}
