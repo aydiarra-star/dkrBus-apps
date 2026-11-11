@@ -111,7 +111,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-64-directions.json'),
       import('../data/aftu-65-directions.json'),
       import('../data/aftu-75-directions.json'),
-     ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75]) => {
+      import('../data/aftu-72-directions.json'),
+      import('../data/aftu-73-directions.json'),
+     ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu72, aftu73]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -122,6 +124,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '64': aftu64.default as Partial<MobilityRouteReference>,
         '65': aftu65.default as Partial<MobilityRouteReference>,
         '75': aftu75.default as Partial<MobilityRouteReference>,
+        '72': aftu72.default as Partial<MobilityRouteReference>,
+        '73': aftu73.default as Partial<MobilityRouteReference>,
       }
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) => {
@@ -145,7 +149,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
-          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
+          const lineSchedule = route?.outboundSchedule ?? schedulesByLine.get(line.line)
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
