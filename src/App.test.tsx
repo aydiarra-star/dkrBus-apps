@@ -597,8 +597,7 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
 
     fireEvent.click(screen.getAllByRole('button', { name: /me localiser/i })[0])
-    expect(await screen.findByText('Démo — Plateau Sud')).toBeTruthy()
-    expect(screen.getByText(/à 24 m/)).toBeTruthy()
+    expect(await screen.findByText('Démo — Plateau Sud')).toBeTruthy()    expect(screen.getByText(/à 24 m/)).toBeTruthy()
     expect(screen.getByTestId('mapped-stops').textContent).toBe('Démo — Plateau Sud | Démo — Yoff Aéroport')
   })
 
@@ -810,7 +809,6 @@ describe('published snapshot in the app', () => {
 
   it('reports a withdrawn publication instead of keeping the snapshot on screen', async () => {
     let published = true
-    updatePreferences('privacy', { gps: 'never' })
     stubApi([
       {
         match: '/api/network',
@@ -1073,8 +1071,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
-    fireEvent.click(within(panel).getByRole('button', { name: /Place de la Nation/ }))
-    expect(screen.getByTestId('map-recenter').textContent).toBe('14.6960909,-17.4506369')
+    fireEvent.click(within(panel).getByRole('button', { name: /ColobaneTER/ }))
+    expect(screen.getByTestId('map-recenter').textContent).toBe('14.7003482,-17.4416523')
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Masquer' }))
     expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
@@ -1197,8 +1195,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       })
     }
     expect(colobaneTimes()).toEqual(['3 min', '4 min'])
-    vi.useRealTimers()
-  })
+    vi.useRealTimers()  })
 
   it.each(['ddd', 'aftu'] as const)('affiche uniquement les lignes et les comptes à rebours %s', (networkId) => {
     vi.useFakeTimers()
@@ -1797,8 +1794,7 @@ describe('veille résiliente et Direct rue valorisé, onglets inchangés', () =>
     expect(document.querySelectorAll('.alerts-switch-button')).toHaveLength(2)
   })
 
-  it('GPS : masque les témoignages éloignés/non localisés dans Autour de moi, les trie dans Direct rue', async () => {
-    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
+  it('GPS : masque les témoignages éloignés/non localisés dans Autour de moi, les trie dans Direct rue', async () => {    localStorage.setItem('dakar-bus:street-reports', JSON.stringify([
       communityReport({ id: 'unknown', place: 'Repère sans GPS', lat: null, lng: null, shared: false }, Date.now()),
       communityReport({ id: 'far', place: 'Portion éloignée', lat: 14.81, lng: -17.3, shared: false }, Date.now()),
       communityReport({ id: 'near', place: 'Portion proche', shared: false }, Date.now() - 60_000),
