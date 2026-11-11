@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { AFTU_ESTIMATED_LINE_SCHEDULES, DDD_ESTIMATED_LINE_SCHEDULES } from './estimatedSchedules'
 
 describe('affiches horaires estimatives des réseaux', () => {
-  it('recense les 26 horaires AFTU génériques, hors ligne 79 désormais gérée par direction', () => {
-    expect(AFTU_ESTIMATED_LINE_SCHEDULES).toHaveLength(26)
-    expect(AFTU_ESTIMATED_LINE_SCHEDULES.some((line) => line.line === '79')).toBe(false)
+  it('recense les 25 horaires AFTU génériques, hors lignes 79 et 80 gérées séparément', () => {
+    expect(AFTU_ESTIMATED_LINE_SCHEDULES).toHaveLength(25)
+    expect(AFTU_ESTIMATED_LINE_SCHEDULES.some((line) => ['79', '80'].includes(line.line))).toBe(false)
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '42')).toMatchObject({
       weekday: { start: '05:50', end: '21:50', interval: '15 min' },
       saturday: { start: '06:00', end: '21:50', interval: '25 min' },
