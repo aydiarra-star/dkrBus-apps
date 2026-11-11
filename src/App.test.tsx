@@ -810,6 +810,7 @@ describe('published snapshot in the app', () => {
 
   it('reports a withdrawn publication instead of keeping the snapshot on screen', async () => {
     let published = true
+    updatePreferences('privacy', { gps: 'never' })
     stubApi([
       {
         match: '/api/network',
@@ -1066,7 +1067,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(panel.compareDocumentPosition(destinations!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(destinations!.compareDocumentPosition(networks!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText(/Aucun arrêt BRT dans ce rayon/i)).toBeTruthy()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
     expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
     expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
@@ -1087,10 +1088,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    expect(screen.queryByRole('region', { name: 'Mobilités à proximité' })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Ma position' }))
     const panel = await screen.findByRole('region', { name: 'Mobilités à proximité' })
-    expect(within(panel).getByText('Stations BRT')).toBeTruthy()
+    expect(within(panel).getByText(/Aucun arrêt BRT dans ce rayon/i)).toBeTruthy()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
   })
 
@@ -1125,6 +1124,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    updatePreferences('privacy', { gps: 'never' })
     const { container } = render(<App />)
     const recenter = () => screen.getByTestId('map-recenter').textContent
 
@@ -1996,6 +1996,7 @@ describe('réglages appliqués réellement à l’application', () => {
   it('la géolocalisation refusée dans les réglages n’est jamais demandée au navigateur', async () => {
     const requested = vi.fn()
     Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: requested } })
+    updatePreferences('privacy', { gps: 'never' })
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     const section = openSettingsSection('privacy')
