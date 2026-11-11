@@ -1,0 +1,94 @@
+{
+  "network": "aftu",
+  "code": "72",
+  "waypoints": [
+    "Terminus Guédiawaye (Cité des Enseignants)",
+    "Avenue Oumar Foutiyou Tall (Golf Nord)",
+    "Route des Niayes",
+    "Police Thiaroye",
+    "Poste Thiaroye",
+    "Route nationale n° 1",
+    "Croisement Keur Massar",
+    "Keur Mbaye Fall",
+    "Croisement ZAC Mbao",
+    "ZAC Mbao",
+    "Allées Médina ZAC",
+    "Cité CAPEC",
+    "Route des HLM Rufisque",
+    "Rond-point Djouti Ba Rufisque",
+    "Boulevard Maurice Guèye",
+    "Sonadis Rufisque",
+    "Hôpital Youssou Mbargane Diop",
+    "Route de Sangalkam",
+    "Keur Daouda Sarr",
+    "Cité SAGEF",
+    "Cité Baba Guisse",
+    "Terminus Kounoune (Cité Cardinal Thiandoum)"
+  ],
+  "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-1",
+  "inboundWaypoints": [
+    "Terminus Kounoune (Cité Cardinal Thiandoum)",
+    "Cité Baba Guisse",
+    "Cité SAGEF",
+    "Keur Daouda Sarr",
+    "Route de Sangalkam",
+    "Hôpital Youssou Mbargane Diop",
+    "Sonadis Rufisque",
+    "Boulevard Maurice Guèye",
+    "Rond-point Djouti Ba Rufisque",
+    "Route des HLM Rufisque",
+    "Cité CAPEC",
+    "Allées Médina ZAC",
+    "ZAC Mbao",
+    "Croisement ZAC Mbao",
+    "Keur Mbaye Fall",
+    "Croisement Keur Massar",
+    "Route nationale n° 1",
+    "Poste Thiaroye",
+    "Police Thiaroye",
+    "Route des Niayes",
+    "Avenue Oumar Foutiyou Tall (Golf Nord)",
+    "Terminus Guédiawaye (Cité des Enseignants)"
+  ],
+  "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-0",
+  "outboundSchedule": {
+    "line": "72",
+    "weekday": {
+      "start": "05:55",
+      "end": "21:55",
+      "interval": "24 min"
+    },
+    "saturday": {
+      "start": "06:05",
+      "end": "21:33",
+      "interval": "29 min"
+    },
+    "sunday": {
+      "start": "06:05",
+      "end": "21:33",
+      "interval": "29 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-1",
+    "sourceLabel": "Moovit · horaires du sens aller"
+  },
+  "inboundSchedule": {
+    "line": "72",
+    "weekday": {
+      "start": "05:50",
+      "end": "21:50",
+      "interval": "20 min"
+    },
+    "saturday": {
+      "start": "06:00",
+      "end": "21:50",
+      "interval": "25 min"
+    },
+    "sunday": {
+      "start": "06:00",
+      "end": "21:50",
+      "interval": "25 min"
+    },
+    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-0",
+    "sourceLabel": "Moovit · horaires du sens retour"
+  }
+}
