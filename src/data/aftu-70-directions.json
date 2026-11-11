@@ -53,7 +53,7 @@
       "interval": "15 min"
     },
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-70-Dakar-5996-1618038-18051478-1",
-    "sourceLabel": "Moovit · sens Guédiawaye vers Jaxaay"
+    "sourceLabel": "Moovit · sens Daroukhane vers Jaxaay"
   },
   "inboundSchedule": {
     "line": "70",
@@ -73,7 +73,7 @@
       "interval": "12 min"
     },
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-70-Dakar-5996-1618038-18051478-0",
-    "sourceLabel": "Moovit · sens Jaxaay vers Guédiawaye"
+    "sourceLabel": "Moovit · sens Jaxaay vers Daroukhane"
   },
   "note": "Les 14 points de passage proviennent de la fiche officielle AFTU. Moovit recense 57 à 58 arrêts mais plusieurs sont publiés sous le nom générique « Arrêt de Bus » ; ils ne sont pas transformés en faux noms."
 }
