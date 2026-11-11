@@ -1,6 +1,6 @@
 {
   "network": "aftu",
-  "code": "85",
+  "code": "85-unverified",
   "origin": "Terminus De La Ligne 73",
   "destination": "Terminus Liberté 5",
   "waypoints": [
@@ -195,10 +195,10 @@
     "outbound": 89,
     "inbound": 95
   },
-  "sourceLabel": "Parcours transmis par l’utilisateur",
-  "sourceStatus": "user-provided-route-reference",
+  "sourceLabel": "Parcours transmis par l’utilisateur · attribution à vérifier",
+  "sourceStatus": "unassigned-route-reference",
   "detailSourceUrl": "https://aftu-senegal.org/infos-pratiques/",
-  "note": null,
+  "note": "Cette séquence de 89 arrêts aller et 95 arrêts retour est conservée, mais ses terminus (Terminus de la ligne 73 – Liberté 5) ne correspondent pas à la ligne AFTU 85 officielle (Banoba – Liberté 5). Elle est donc désattribuée jusqu’à identification de sa ligne réelle.",
   "serviceWindow": {
     "start": "06:00",
     "end": "21:00"
