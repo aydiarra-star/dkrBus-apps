@@ -285,10 +285,10 @@ function readSavedDestinations(): Partial<Record<DestinationShortcutId, MapPoint
   }
 }
 
-/** Rayon demandé à l’API pour « autour de vous » : 5 km, la limite servie
- *  par /api/stops/near. Les arrêts sont classés du plus proche au plus loin. */
-const NEARBY_RADIUS_M = 5000
-const NEARBY_LIMIT = 12
+/** Rayon strict demandé pour « autour de vous » : 1 km. Les arrêts publiés
+ *  au-delà sont exclus, même si l’API renvoie un rayon plus large. */
+const NEARBY_RADIUS_M = 1000
+const NEARBY_LIMIT = 50
 /** Walking radius asked from the routing API: declared links only, never a shortcut. */
 const ROUTE_MAX_WALK_M = 900
 
@@ -1968,7 +1968,9 @@ function ExplorerPanel({
   const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
   /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
    *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
-  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready' ? nearby.stops : []
+  const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
+    ? nearby.stops.filter((stop) => Number.isFinite(stop.distanceM) && stop.distanceM <= NEARBY_RADIUS_M)
+    : []
 
   function revealNearby() {
     triggerHaptic(10)
