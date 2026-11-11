@@ -498,9 +498,9 @@ function App() {
   // Au premier affichage, demander la position pour ouvrir directement les mobilités à 1 km.
   // Le réglage de confidentialité de l’usager reste prioritaire.
   useEffect(() => {
-    if (initialLocationRequested.current) return
+    if (preferences.privacy.gps === 'never' || initialLocationRequested.current) return
     initialLocationRequested.current = true
-    if (preferences.privacy.gps !== 'never') requestLocation('center')
+    requestLocation('center')
   }, [preferences.privacy.gps])
   const community = useCommunityReports()
   const [toast, setToast] = useState<string | null>(null)
@@ -1975,8 +1975,7 @@ function ExplorerPanel({
   }, [proximityOpen, gpsState, location])
   const nearbyGroups = useMemo(() => groupNearbyMobilities(nearbyHits), [nearbyHits])
   const missingNearby = absentNearbyLabel(absentNearbyNetworks(nearbyGroups))
-  /** Arrêts publiés : le rayon est celui déjà demandé à l’API (5 km), pas
-   *  resserré ici, pour ne pas faire disparaître une fiche déjà servie. */
+  /** Arrêts publiés : garde-fou local strict à 1 km, même si l’API renvoie plus loin. */
   const publishedNearby = proximityOpen && gpsState === 'ready' && nearby.status === 'ready'
     ? nearby.stops.filter((stop) => typeof stop.distanceM === 'number' && Number.isFinite(stop.distanceM) && stop.distanceM <= NEARBY_RADIUS_M)
     : []
