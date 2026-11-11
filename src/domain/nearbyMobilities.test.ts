@@ -35,8 +35,8 @@ describe('mobilités à proximité', () => {
   it('ne retient que les mobilités réellement situées dans le rayon de 1 km autour de Colobane', () => {
     const groups = groupNearbyMobilities(detectNearbyMobilities(COLOMBANE))
     expect(groups.map((group) => group.network)).toEqual(['ter', 'ddd', 'aftu', 'tata'])
-    expect(absentNearbyNetworks(groups)).toContain('brt')
-    expect(absentNearbyNetworks(groups)).toEqual([])
+    expect(absentNearbyNetworks(groups)).toEqual(['brt'])
+    expect(absentNearbyLabel(absentNearbyNetworks(groups))).toBe('Aucun arrêt BRT dans ce rayon.')
     expect(absentNearbyLabel([])).toBeNull()
     for (const group of groups) {
       const distances = group.hits.map((hit) => hit.distanceM)
