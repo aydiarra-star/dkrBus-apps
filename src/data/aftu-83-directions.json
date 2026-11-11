@@ -1,0 +1,22 @@
+{
+  "network": "aftu",
+  "code": "83",
+  "waypoints": [
+    "Terminus Rufisque Arafat",
+    "HLM Rufisque",
+    "Sedima",
+    "Station Keur Massar",
+    "Malika Plage",
+    "VDN 3",
+    "Rond-point Malibu",
+    "Cité Nations Unies",
+    "Case-Ba",
+    "Pont de l’Émergence",
+    "Grand-Yoff",
+    "Route de Front de Terre",
+    "CTO",
+    "Terminus Zone de Captage"
+  ],
+  "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-83/",
+  "note": "La fiche officielle AFTU publie ce parcours ordonné de Rufisque Arafat vers Zone de Captage. Aucun parcours retour distinct n’est publié dans cette fiche ; le retour reste donc non documenté et n’est pas reconstitué artificiellement."
+}
