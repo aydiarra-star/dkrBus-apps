@@ -15,7 +15,7 @@ const COLOMBANE = { lat: 14.7003482, lon: -17.4416523 }
 describe('mobilités à proximité', () => {
   it('couvre les cinq mobilités du catalogue, sans en inventer une sixième', () => {
     expect(nearbyMobilityCatalogCoversAllNetworks()).toBe(true)
-    expect(NEARBY_MOBILITY_RADIUS_M).toBe(1500)
+    expect(NEARBY_MOBILITY_RADIUS_M).toBe(1000)
   })
 
   it('détecte TER, BRT, DDD et AFTU à Petersen, pas le TATA de Colobane', () => {
