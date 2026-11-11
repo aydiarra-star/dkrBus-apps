@@ -3,6 +3,7 @@ import { formatPassageCountdown } from '../domain/headways'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import aftu84Directions from '../data/aftu-84-directions.json'
 import aftu83Directions from '../data/aftu-83-directions.json'
+import aftu85Directions from '../data/aftu-85-directions.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
 import { getServiceDisplayState } from '../domain/serviceStatus'
@@ -121,7 +122,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-73-directions.json'),
       import('../data/aftu-70-directions.json'),
       import('../data/aftu-71-directions.json'),
-    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71]) => {
+      import('../data/aftu-85-directions.json'),
+    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu85]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -142,6 +144,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '71': aftu71.default as Partial<MobilityRouteReference>,
         '83': aftu83Directions as Partial<MobilityRouteReference>,
         '84': aftu84Directions as Partial<MobilityRouteReference>,
+        '85': aftu85Directions as Partial<MobilityRouteReference>,
       }
       if (active) setRouteReferences([
         ...(mobility.default as MobilityRouteReference[]).map((item) => {
@@ -182,7 +185,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const lineInterval = route?.frequency?.display
+          const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
           const countdownSchedule = countdownWindow ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
