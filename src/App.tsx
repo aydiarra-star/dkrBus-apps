@@ -3296,7 +3296,7 @@ function AlertsPanel({
     <section className="panel alerts-panel" aria-label="Alertes de service">
       <div className="panel-heading-row">
         <div>
-          <span className="eyebrow">INFORMATION VOYAGEUR · GPS &amp; TEMPS RÉEL</span>
+          <span className="eyebrow"><svg className="realtime-arcs" viewBox="0 0 20 12" aria-hidden="true" focusable="false"><path d="M2 10C6 5.5 14 5.5 18 10" /><path d="M6 10C8 8 12 8 14 10" /></svg>INFORMATION VOYAGEUR · GPS &amp; TEMPS RÉEL</span>
           <h2>Alertes</h2>
           <p>{hasGps ? `${nearbyCount} alerte(s) dans un rayon de ${formatDistanceMeters(ALERT_PROXIMITY_RADIUS_M)} autour de vous.` : 'Activez la localisation pour voir les perturbations autour de vous.'}</p>
         </div>
