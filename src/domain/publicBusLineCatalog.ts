@@ -83,7 +83,7 @@ export const AFTU_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['82','Lat Dior','Comico Yeumbeul'],
   ['83','Rufisque Arafat','Zone de Captage'],
   ['84','Jaxaay 2','UCAD'],
-  ['85','Terminus De La Ligne 73','Terminus Liberté 5'],
+  ['85','Banoba','Liberté 5'],
   ['86','Tournalou Boune','Toubab Dialaw'],
   ['87','Bambilor','Mosquée Massalikou Djinane'],
   ['88','MTOA','Liberté 5'],
