@@ -267,7 +267,14 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else if (/\b(prix|tarif|ticket|cout|coute|payer)\b/.test(text)) {
     detail = 'Tarif de cette ligne non documenté dans la base consultée : à confirmer auprès du receveur ou de l’opérateur.'
   } else if (line.waypoints.length) {
-    detail = `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
+    const returnOnly = /\\bretour\\b/.test(text) && !/\\baller\\b|deux sens|aller retour/.test(text)
+    const hasGraphReturn = graphDirectionsFor(line).some((item) =>
+      isReturnDirection(item.direction.direction_code, item.direction.direction_method)
+    )
+    detail = returnOnly && hasGraphReturn
+      ? 'Séquence retour disponible dans le graphe central.'
+      : `Points de passage dans le sens publié :\\n${line.waypoints.join(' → ')}\\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
+
   } else {
     detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
   }
