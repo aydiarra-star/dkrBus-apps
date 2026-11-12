@@ -63,6 +63,10 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
   // Geofabrik PBF ingestion path: the batch is extracted by a controlled
   // GitHub Actions runner, then submitted with the same server-side token.
   // Only bus-stop/platform objects inside the Dakar bounding box are accepted.
+  if (requestBody.mode === "refresh_matches") {
+    return reply({ ok: true, source: "OpenStreetMap contributors", candidate_matches_created_or_refreshed: matches ?? 0 });
+  }
+
   if (requestBody.mode === "ingest_pbf_batch") {
     const elements = requestBody.elements;
     if (!Array.isArray(elements) || elements.length < 1 || elements.length > 100) {
@@ -112,7 +116,8 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       source: "OpenStreetMap contributors",
       dataset: "Geofabrik Senegal and Gambia PBF",
       imported_bus_stop_objects: rows.length,
-      candidate_matches_created_or_refreshed: matches ?? 0,
+      candidate_matches_created_or_refreshed: 0,
+      matches_refresh_deferred: true,
       policy: "Les positions restent candidates ; aucune coordonnée canonique n'est remplacée automatiquement.",
       imported_at: importedAt,
     });
