@@ -12,11 +12,13 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { id: 'ddd-id', code: 'ddd', name: 'DDD', status: 'candidate' },
     { id: 'aftu-id', code: 'aftu', name: 'AFTU', status: 'candidate' },
     { id: 'tata-id', code: 'tata', name: 'TATA', status: 'candidate' },
+    { id: 'brt-id', code: 'brt', name: 'BRT', status: 'candidate' },
   ],
   lines: [
     { id: 'ddd-228', network_id: 'ddd-id', code: '228', status: 'candidate' },
     { id: 'aftu-5', network_id: 'aftu-id', code: '5', status: 'candidate' },
     { id: 'tata-42', network_id: 'tata-id', code: '42', status: 'candidate' },
+    { id: 'brt-b2', network_id: 'brt-id', code: 'B2', status: 'candidate' },
   ],
   catalogue: [
     {
@@ -41,12 +43,16 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { id: 'ddd-228-return', line_id: 'ddd-228', direction_code: 'return_reverse_candidate', status: 'candidate', direction_method: 'reverse_derived' },
     { id: 'aftu-5-out', line_id: 'aftu-5', direction_code: 'outbound_candidate', status: 'candidate', direction_method: 'source_documented' },
     { id: 'tata-42-out', line_id: 'tata-42', direction_code: 'outbound_candidate', status: 'candidate', direction_method: 'source_documented' },
+    { id: 'brt-b2-schedule', line_id: 'brt-b2', direction_code: 'schedule_reference_only', status: 'candidate', direction_method: 'unknown', direction_notes: 'Horaires uniquement ; itinéraire non renseigné.' },
   ],
   ordered_line_stops: [
     { direction_id: 'ddd-228-out', stop_id: 's1', stop_sequence: 1, stop: { id: 's1', canonical_name: 'Rufisque' } },
     { direction_id: 'ddd-228-out', stop_id: 's2', stop_sequence: 2, stop: { id: 's2', canonical_name: 'Bargny' } },
     { direction_id: 'ddd-228-out', stop_id: 's3', stop_sequence: 3, stop: { id: 's3', canonical_name: 'Diamniadio' } },
     { direction_id: 'ddd-228-out', stop_id: 's4', stop_sequence: 4, stop: { id: 's4', canonical_name: 'Yenne' } },
+  ],
+  service_patterns: [
+    { direction_id: 'brt-b2-schedule', pattern_type: 'published_frequency', service_start: '06:00:00', service_end: '21:00:00', headway_minutes: 6, days_of_week: [1, 2, 3, 4, 5, 6], status: 'verified' },
   ],
   transfers: [
     { label: 'Dakar TER ↔ BRT Petersen', status: 'candidate', walking_distance_m: 1000 },
@@ -78,6 +84,13 @@ describe('mémoire Supabase distante Dakar Bus', () => {
 
   it('liste les lignes du réseau explicitement demandé', () => {
     expect(answerSupabaseMobilityKnowledge('liste des lignes DDD', snapshot)?.text).toContain('228')
+  })
+
+  it('expose la fréquence BRT B2 sans inventer son itinéraire ni ses arrêts', () => {
+    const reply = answerSupabaseMobilityKnowledge('BRT B2', snapshot)
+    expect(reply?.text).toContain('BRT B2 : itinéraire non renseigné')
+    expect(reply?.text).toContain('06:00:00–21:00:00 : 6 min')
+    expect(reply?.text).toContain('terminus et séquence d’arrêts non renseignés')
   })
 
   it('ne transforme pas une correspondance candidate en correspondance confirmée', () => {
