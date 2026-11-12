@@ -152,6 +152,8 @@ def process_one(client: SupabaseRest) -> str:
             text=True,
             timeout=600,
             check=False,
+            # Do not pass the Supabase service-role key to the validator subprocess.
+            env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"},
         )
         if completed.returncode not in (0, 1):
             raise WorkerError("VALIDATOR_EXECUTION_FAILED")
