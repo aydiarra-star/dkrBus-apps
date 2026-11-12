@@ -258,7 +258,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
         // dans la langue de la réponse. Sans voix installée, rien n'est annoncé.
         const accessibility = getPreferences().accessibility
         if (accessibility.voiceGuidance && !failed && speechSynthesisSupported()) {
-          const spoken = text.split('\\nSource : ')[0].slice(0, 420)
+          const spoken = text.split('\nSource : ')[0].slice(0, 420)
           const started = speak({ text: spoken, lang: reply?.language ?? 'fr' })
           if (started) setSpeakingId(nextMessageId - 1)
         }
