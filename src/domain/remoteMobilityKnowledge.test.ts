@@ -210,6 +210,20 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).toContain('AFTU 5')
   })
 
+  it('does not display archived embedded stops in a direction sequence', () => {
+    const archivedEmbeddedStop: MobilityBrainSnapshot = {
+      ...snapshot,
+      ordered_line_stops: snapshot.ordered_line_stops.map((row) =>
+        row.stop_id === 'stop-colobane'
+          ? { ...row, stop: { id: 'stop-colobane', canonical_name: 'Ancien Colobane', status: 'archived' } }
+          : row
+      ),
+    }
+    const answer = answerRemoteMobilityQuestion('AFTU 5', archivedEmbeddedStop)
+    expect(answer).not.toContain('Ancien Colobane')
+    expect(answer).not.toContain('Colobane →')
+  })
+
   it('does not match archived stop references', () => {
     const archivedStopSnapshot: MobilityBrainSnapshot = {
       ...snapshot,
