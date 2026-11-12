@@ -161,6 +161,43 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).not.toContain('Sens retour non documenté')
   })
 
+  it('does not expose archived lines or directions', () => {
+    const archivedSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      lines: [...snapshot.lines, {
+        id: 'line-aftu-archived', network_id: 'network-aftu', code: '88',
+        public_name: 'Ancienne ligne', status: 'archived',
+      }],
+      directions: [...snapshot.directions, {
+        id: 'direction-aftu-archived', line_id: 'line-aftu-5',
+        direction_code: 'old_return', origin_label: 'Rufisque',
+        destination_label: 'Petersen', status: 'archived', direction_method: 'unknown',
+      }],
+    }
+    const missingLine = answerRemoteMobilityQuestion('AFTU 88', archivedSnapshot)
+    const currentLine = answerRemoteMobilityQuestion('AFTU 5', archivedSnapshot)
+    expect(missingLine).toContain('Je ne trouve pas la ligne 88')
+    expect(missingLine).not.toContain('Ancienne ligne')
+    expect(currentLine).not.toContain('old_return')
+  })
+
+  it('labels candidate transfers as unverified candidates', () => {
+    const transferSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      transfers: [{
+        id: 'transfer-colobane-petersen',
+        from_stop_id: 'stop-colobane',
+        to_stop_id: 'stop-petersen',
+        walking_distance_m: 250,
+        status: 'candidate',
+        transfer_type: 'walking',
+      }],
+    }
+    const answer = answerRemoteMobilityQuestion('Quelles correspondances depuis Colobane ?', transferSnapshot)
+    expect(answer).toContain('candidate à vérifier')
+    expect(answer).toContain('250 m à pied')
+  })
+
   it('keeps TATA separate from AFTU when line codes overlap', () => {
     const answer = answerRemoteMobilityQuestion('TATA 5', snapshot)
     expect(answer).toContain('TATA 5')
