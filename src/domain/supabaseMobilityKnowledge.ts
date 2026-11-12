@@ -265,6 +265,9 @@ export function supabaseFetchOptionsForQuestion(
   if (/\b(trafic|circulation|bouchons?|embouteillages?|accidents?|perturbations?|routes? bloquees?)\b/.test(text)) {
     return { trafficOnly: true }
   }
+  if (/\b(correspondances?|transferts?|changer de bus|changer de ligne|changement de ligne)\b/.test(text)) {
+    return { transferOnly: true }
+  }
   let network = networkFromQuestion(text)
   let lineCode = /\b(?:ligne|bus|brt|ddd|aftu|tata)\s*(?:n(?:umero|°)?\s*)?([0-9]{1,3}[a-z]?|b[12]|to1)\b/i.exec(text)?.[1]?.toUpperCase()
   if (!network && lastLineId && /^(et |ses |les arrets|les horaires|son |elle passe)/.test(text)) {
