@@ -83,6 +83,8 @@ export interface SupabaseKnowledgeTransfer {
   transfer_type?: string | null
   walking_distance_m?: number | null
   notes?: string | null
+  from_network_codes?: string[]
+  to_network_codes?: string[]
   from_stop?: SupabaseKnowledgeStop | null
   to_stop?: SupabaseKnowledgeStop | null
 }
@@ -509,8 +511,13 @@ export function answerSupabaseMobilityKnowledge(
     const mentionedNetworks = ['ddd', 'aftu', 'tata', 'brt', 'ter'].filter((network) =>
       new RegExp(`\\b${network}\\b`).test(text),
     )
-    const confirmed = (snapshot.transfers ?? []).filter((transfer) => transfer.status === 'verified' || transfer.status === 'published')
-    const candidates = (snapshot.transfers ?? []).filter((transfer) => transfer.status !== 'verified' && transfer.status !== 'published')
+    const relevantTransfers = (snapshot.transfers ?? []).filter((transfer) => {
+      if (mentionedNetworks.length === 0) return true
+      const networks = new Set([...(transfer.from_network_codes ?? []), ...(transfer.to_network_codes ?? [])])
+      return mentionedNetworks.every((network) => networks.has(network))
+    })
+    const confirmed = relevantTransfers.filter((transfer) => transfer.status === 'verified' || transfer.status === 'published')
+    const candidates = relevantTransfers.filter((transfer) => transfer.status !== 'verified' && transfer.status !== 'published')
     const shared = (snapshot.shared_stops ?? []).filter((stop) =>
       mentionedNetworks.length === 0 || mentionedNetworks.every((network) => stop.network_codes.includes(network)),
     )
