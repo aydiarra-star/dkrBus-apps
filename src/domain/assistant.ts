@@ -37,6 +37,8 @@ import type { PlannerPriority } from './planner'
 import { trafficInstant } from './trafficFreshness'
 import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
 import type { MobilityBrainSnapshot } from './mobilityBrainApi'
+import { answerRemoteTrafficQuestion } from './remoteTrafficKnowledge'
+import type { RemoteTrafficSnapshot } from './trafficBrainApi'
 
 export interface AssistantContext {
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
@@ -62,6 +64,8 @@ export interface AssistantContext {
   /** Référentiel public des mobilités chargé en lecture seule depuis Supabase.
    *  Les questions et l'historique de conversation ne sont jamais envoyés. */
   remoteMobilityKnowledge?: MobilityBrainSnapshot | null
+  /** État des alertes Supabase, sans géolocalisation ni conversation utilisateur. */
+  remoteTrafficKnowledge?: RemoteTrafficSnapshot | null
   /** Date limite de la synthèse, bornée par la plus courte preuve source. */
   trafficSummaryValidUntil?: string | null
 }
@@ -488,6 +492,8 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
         : 'Voici l’état du trafic autour de vous : '
       return `${prefix}${context.trafficSummaryFr}${context.trafficSummaryWo ? `\n\n(Wolof · ${context.trafficSummaryWo})` : ''}`
     }
+    const remoteTrafficAnswer = answerRemoteTrafficQuestion(question, context.remoteTrafficKnowledge)
+    if (remoteTrafficAnswer) return remoteTrafficAnswer
     return `Je n’ai aucune alerte vérifiable à afficher : aucune synthèse trafic récente n’est disponible dans ce contexte, et l’absence d’alerte ne signifie pas que le service est normal. ${OFFICIAL_CHANNELS}${context.adminOnline ? ' Une API joignable ne garantit pas que les flux trafic soient configurés et vérifiés.' : ''} Activez le GPS dans l’onglet Alertes pour activer la détection des arrêts à proximité.`
   }
 
