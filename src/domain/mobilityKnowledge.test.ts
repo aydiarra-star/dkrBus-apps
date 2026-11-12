@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary, setRemoteCandidateLines, type BusLine } from './mobilityKnowledge'
+import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary, setRemoteCandidateLines, setRemoteTrafficSnapshot, type BusLine } from './mobilityKnowledge'
 import { copilotAnswer } from './copilot'
 import { createConversationMemory } from './conversation'
 import { answerAssistant } from './assistant'
@@ -154,6 +154,60 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(ask('DDD 38')).toContain('Colobane → Bargny → Diamniadio')
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     setRemoteCandidateLines([])
+  })
+
+
+  it('distingue une piste de presse non confirmée d’une alerte routière confirmée', () => {
+    setRemoteTrafficSnapshot({
+      generated_at: '2026-11-12T06:45:00.000Z',
+      realtime: false,
+      confirmed_traffic_incidents: [],
+      traffic_candidates: [{
+        id: 'news-1',
+        title: 'Travaux annoncés sur la VDN',
+        incident_type: 'roadworks',
+        severity: 'unknown',
+        status: 'unverified',
+        area_label: 'VDN',
+        observed_at: '2026-11-12T06:30:00.000Z',
+        source_published_at: '2026-11-12T06:30:00.000Z',
+        source_url: 'https://example.com/traffic-news',
+      }],
+      traffic_sources: [{
+        id: 'source-1',
+        name: 'Dakaractu · flux RSS',
+        source_type: 'local_news_rss',
+        status: 'partial',
+        last_checked_at: '2026-11-12T06:45:00.000Z',
+      }],
+    })
+    const candidateReply = ask('circulation à Dakar')
+    expect(candidateReply).toContain('Informations routières à vérifier')
+    expect(candidateReply).toContain('PAS des alertes confirmées')
+    expect(candidateReply).toContain('https://example.com/traffic-news')
+
+    setRemoteTrafficSnapshot({
+      generated_at: '2026-11-12T06:46:00.000Z',
+      realtime: false,
+      confirmed_traffic_incidents: [{
+        id: 'incident-1',
+        title: 'Accident confirmé',
+        incident_type: 'accident',
+        severity: 'high',
+        status: 'confirmed',
+        area_label: 'VDN',
+        observed_at: '2026-11-12T06:40:00.000Z',
+        source_url: 'https://example.com/confirmed-incident',
+      }],
+      traffic_candidates: [],
+      traffic_sources: [],
+    })
+    const confirmedReply = ask('circulation à Dakar')
+    expect(confirmedReply).toContain('Alertes routières confirmées')
+    expect(confirmedReply).toContain('Accident confirmé')
+    expect(confirmedReply).toContain('VDN')
+    expect(confirmedReply).toContain('https://example.com/confirmed-incident')
+    setRemoteTrafficSnapshot(null)
   })
 
   it('ne transforme pas une statistique CETUD ou une page institutionnelle en temps réel', () => {
