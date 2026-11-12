@@ -128,6 +128,39 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).toContain('06:00–23:00')
   })
 
+  it('does not expose rejected lines as available network lines', () => {
+    const rejectedSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      networks: [...snapshot.networks, { id: 'network-ddd', code: 'ddd', name: 'Dakar Dem Dikk', status: 'active' }],
+      lines: [...snapshot.lines, {
+        id: 'line-ddd-99', network_id: 'network-ddd', code: '99',
+        public_name: 'Ligne retirée', status: 'rejected',
+      }],
+    }
+    const answer = answerRemoteMobilityQuestion('DDD 99', rejectedSnapshot)
+    expect(answer).toContain('Je ne trouve pas la ligne 99')
+    expect(answer).not.toContain('Ligne retirée')
+  })
+
+  it('does not display a rejected direction in a line answer', () => {
+    const rejectedDirectionSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      directions: [...snapshot.directions, {
+        id: 'direction-aftu-5-rejected', line_id: 'line-aftu-5',
+        direction_code: 'rejected_return', origin_label: 'Rufisque',
+        destination_label: 'Petersen', status: 'rejected', direction_method: 'unknown',
+      }],
+      ordered_line_stops: [...snapshot.ordered_line_stops, {
+        direction_id: 'direction-aftu-5-rejected', stop_id: 'stop-rufisque',
+        stop_sequence: 1, stop: { id: 'stop-rufisque', canonical_name: 'Rufisque' },
+      }],
+    }
+    const answer = answerRemoteMobilityQuestion('AFTU 5', rejectedDirectionSnapshot)
+    expect(answer).toContain('Aller : Petersen')
+    expect(answer).not.toContain('rejected_return')
+    expect(answer).not.toContain('Sens retour non documenté')
+  })
+
   it('keeps TATA separate from AFTU when line codes overlap', () => {
     const answer = answerRemoteMobilityQuestion('TATA 5', snapshot)
     expect(answer).toContain('TATA 5')
