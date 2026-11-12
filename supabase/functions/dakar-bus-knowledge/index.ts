@@ -363,9 +363,11 @@ const readKnowledge = withSupabase(
       return json({ error: "KNOWLEDGE_DETAIL_READ_FAILED" }, 500);
     }
 
-    const orderedStops = lineStopsResult.data ?? [];
-    const stopIds = [...new Set(orderedStops.map((row) => row.stop_id))];
     const stopById = new Map((stopsResult.data ?? []).map((row) => [row.id, row]));
+    const orderedStops = (lineStopsResult.data ?? []).filter((row) =>
+      activeStatuses.includes(stopById.get(row.stop_id)?.status)
+    );
+    const stopIds = [...new Set(orderedStops.map((row) => row.stop_id))];
     const tripRows = tripsResult.data ?? [];
     const tripIds = tripRows.map((row) => row.id);
     const calendarRows = (calendarsResult.data ?? []).filter((row) => networkIds.has(row.network_id));
