@@ -188,3 +188,26 @@ Brancher les outils de consultation et de calcul sur les données publiées, tes
 ## 10. Hors périmètre de cette proposition
 
 Ce document ne crée aucun flux opérateur, ne déploie aucun capteur, n'active aucune collecte GPS serveur, ne modifie aucune table Supabase, n'installe aucune dépendance et ne change aucun écran ou horaire. C'est une spécification destinée à être revue avant implémentation.
+
+## 11. État opérationnel vérifié — 12 novembre 2026
+
+Cette section distingue les capacités préparées des sources réellement raccordées.
+
+- Aucun fournisseur GPS de flotte, capteur routier ou flux partenaire Waze for Cities n'est actuellement configuré dans le projet.
+- Le serveur possède un adaptateur JSON générique pour le canal routier, mais aucune URL de fournisseur ni aucun secret partenaire ne sont activés. Cela ne constitue donc pas une couverture trafic en direct.
+- Les sources institutionnelles sans API publique vérifiée restent en état « non configuré » ; les publications APS ne constituent pas un flux temps réel.
+- Les collectes automatiques Dakaractu et SeneNews sont désactivées : leurs tâches planifiées 7 et 8 sont inactives, leurs endpoints historiques répondent désormais avec un statut de source désactivée, et leurs archives restent conservées.
+- Les deux fiches de source correspondantes dans Supabase sont marquées « non configuré » avec une trace de désactivation par politique. Aucune observation ni archive n'a été supprimée.
+- Le contrôle de la base ne relève actuellement aucun incident routier actif confirmé ni candidat actif.
+
+**Conséquence produit :** Dakar Bus ne doit pas annoncer une surveillance GPS ou capteurs opérationnelle, ni afficher « trafic fluide » sur la seule base de l'absence de données. L'application doit continuer à présenter clairement une veille partielle ou indisponible tant qu'une source réelle n'a pas été raccordée et vérifiée.
+
+### Conditions avant raccordement d'un fournisseur
+
+1. Obtenir l'accord écrit du fournisseur ou de l'exploitant et documenter les finalités, champs, fréquence et durée de conservation.
+2. Recevoir un flux de test avec identifiants de véhicules pseudonymisés, horodatages, précision, vitesse, cap et identifiant de ligne uniquement si fourni par l'opérateur.
+3. Valider l'authentification serveur, la rotation des secrets, les quotas, l'anti-rejeu, les limites de taille et les journaux sans coordonnées personnelles.
+4. Tester le décalage d'horloge, les pertes de signal, les points aberrants, les doublons et les trajets hors réseau.
+5. Exécuter l'agrégation en mode silencieux et comparer les résultats à des observations terrain avant toute alerte publique.
+
+Aucun de ces prérequis ne doit être remplacé par une simulation ou des données inventées.
