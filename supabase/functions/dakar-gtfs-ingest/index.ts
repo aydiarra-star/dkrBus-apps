@@ -78,6 +78,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return reply(405, { error: "METHOD_NOT_ALLOWED" }, cors);
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
 
+  const declaredLength = Number(req.headers.get("Content-Length") ?? "0");
+  if (declaredLength > MAX_ARCHIVE_BYTES + 2 * 1024 * 1024) return reply(413, { error: "REQUEST_TOO_LARGE" }, cors);
+
   const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!bearer) return reply(401, { error: "AUTHENTICATION_REQUIRED" }, cors);
 
