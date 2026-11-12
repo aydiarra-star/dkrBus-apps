@@ -1,4 +1,5 @@
 import { answerMobilityKnowledge } from './mobilityKnowledge'
+import { answerSupabaseMobilityKnowledge } from './supabaseMobilityKnowledge'
 /**
  * Copilote de mobilité : interprétation des questions libres, récupération
  * dans le référentiel, calcul d'itinéraires et réponses honnêtes.
@@ -600,6 +601,18 @@ export function copilotAnswer(
 
   // Consultation documentaire avant le parseur de trajets TER/BRT : les noms
   // de quartiers et numéros bus ne doivent pas être interprétés comme du rail.
+  const remoteKnowledge = answerSupabaseMobilityKnowledge(question, context.remoteMobilityKnowledge, memory.lastKnowledgeLineId, now)
+  if (remoteKnowledge) {
+    memory.lastKnowledgeLineId = remoteKnowledge.lineId ?? null
+    memory.lastAnswer = remoteKnowledge.text
+    if (remoteKnowledge.lineId || /\\b(ddd|aftu|tata)\\b/.test(text)) {
+      memory.lastJourney = null
+      memory.lastOrigin = null
+      memory.lastDestination = null
+    }
+    return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteKnowledge.text : remoteKnowledge.text, language: 'fr' }
+  }
+
   const knowledge = answerMobilityKnowledge(question, memory.lastKnowledgeLineId)
   if (knowledge) {
     memory.lastKnowledgeLineId = knowledge.lineId ?? null
