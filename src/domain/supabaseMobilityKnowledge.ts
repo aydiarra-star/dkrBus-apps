@@ -59,6 +59,14 @@ export interface SupabaseKnowledgeServicePattern {
   notes?: string | null
 }
 
+export interface SupabaseKnowledgeAssertion {
+  subject_type: string
+  subject_id?: string | null
+  predicate: string
+  value_json: Record<string, unknown>
+  status: string
+}
+
 export interface SupabaseKnowledgeTransfer {
   label?: string | null
   status: string
@@ -92,6 +100,7 @@ export interface SupabaseMobilityKnowledgeSnapshot {
   reference_stops?: SupabaseKnowledgeStop[]
   service_patterns?: SupabaseKnowledgeServicePattern[]
   transfers?: SupabaseKnowledgeTransfer[]
+  data_assertions?: SupabaseKnowledgeAssertion[]
   confirmed_traffic_incidents?: SupabaseKnowledgeTrafficIncident[]
   unverified_traffic_candidates?: SupabaseKnowledgeTrafficIncident[]
   counts?: Record<string, number>
@@ -305,6 +314,24 @@ export function answerSupabaseMobilityKnowledge(
     matches = snapshot.lines.filter((line) => line.code.toUpperCase() === lineCode.toUpperCase()
       && (snapshot.networks?.find((item) => item.id === line.network_id)?.code
         ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code) === network)
+  }
+
+  if (code && matches.length === 0) {
+    const variant = (snapshot.data_assertions ?? []).find((assertion) =>
+      assertion.predicate === 'variant_service'
+      && (assertion.status === 'verified' || assertion.status === 'published')
+      && normalize(String(assertion.value_json.code ?? '')) === normalize(code)
+      && (!explicitNetwork || explicitNetwork === 'ddd'),
+    )
+    if (variant) {
+      const origin = String(variant.value_json.origin ?? 'Origine non précisée')
+      const destination = String(variant.value_json.destination ?? 'Destination non précisée')
+      const note = String(variant.value_json.note ?? 'Arrêts intermédiaires non renseignés.')
+      const source = String(variant.value_json.source_url ?? 'https://demdikk.sn/info-voyageurs/')
+      return {
+        text: `DDD ${code} : ${origin} ↔ ${destination}\nVariante listée sur la page officielle Info voyageurs.\n${note}\nSource : ${source}. Les arrêts propres à cette variante ne sont pas encore détaillés dans la mémoire.`,
+      }
+    }
   }
 
   if (code && matches.length > 1) {
