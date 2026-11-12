@@ -37,7 +37,7 @@ function lineCodeMention(text: string): string | null {
 
 function linesForNetwork(snapshot: MobilityBrainSnapshot, code: string): MobilityBrainLine[] {
   const networkIds = new Set(snapshot.networks.filter((item) => item.code === code).map((item) => item.id))
-  return snapshot.lines.filter((line) => networkIds.has(line.network_id))
+  return snapshot.lines.filter((line) => networkIds.has(line.network_id) && line.status !== 'rejected')
 }
 
 function catalogForLine(
@@ -114,7 +114,7 @@ function lineReply(
 ): string {
   const label = networkLabel(snapshot, networkCode)
   const catalog = catalogForLine(snapshot, line, networkCode)
-  const directions = snapshot.directions.filter((direction) => direction.line_id === line.id)
+  const directions = snapshot.directions.filter((direction) => direction.line_id === line.id && direction.status !== 'rejected')
   const blocks = directions.map((direction) => {
     const ordered = stopsForDirection(snapshot, direction.id)
     const names = ordered.map((row) => stopName(row.stop)).filter((name): name is string => Boolean(name))
@@ -214,7 +214,7 @@ function stopReply(
   const directionRows = snapshot.directions.filter((direction) =>
     directionIds.has(direction.id) && direction.status !== 'rejected'
   )
-  const lineById = new Map(snapshot.lines.map((line) => [line.id, line]))
+  const lineById = new Map(snapshot.lines.filter((line) => line.status !== 'rejected').map((line) => [line.id, line]))
   const networkById = new Map(snapshot.networks.map((network) => [network.id, network]))
   const uniqueLines = new Map<string, { network: string; code: string }>()
   for (const direction of directionRows) {
@@ -267,7 +267,8 @@ export function answerRemoteMobilityQuestion(
   const code = lineCodeMention(text)
   if (code) {
     const candidates = snapshot.lines.filter((line) =>
-      line.code.toLowerCase() === code && (!explicitNetwork
+      line.status !== 'rejected'
+      && line.code.toLowerCase() === code && (!explicitNetwork
         || snapshot.networks.some((network) => network.id === line.network_id && network.code === explicitNetwork))
     )
     if (candidates.length > 1) {
