@@ -4,10 +4,10 @@ import {
   type BusLine,
 } from './mobilityKnowledge'
 
-const KNOWLEDGE_ENDPOINT = 'https://mdmuxzaewqzqutkqdylo.supabase.co/functions/v1/dakar-bus-knowledge'
+export const SUPABASE_KNOWLEDGE_ENDPOINT = 'https://mdmuxzaewqzqutkqdylo.supabase.co/functions/v1/dakar-bus-knowledge'
 // Clé publishable publique : elle peut être utilisée dans le navigateur.
 // Ne jamais remplacer par une clé secret/service_role.
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
+export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
 const CACHE_KEY = 'dakar-bus:supabase-candidate-lines:v1'
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000
 
@@ -117,7 +117,7 @@ export async function refreshSupabaseKnowledge(
   const timeout = setTimeout(() => controller.abort(), 10_000)
 
   try {
-    const response = await fetcher(`${KNOWLEDGE_ENDPOINT}?catalogue_only=1`, {
+    const response = await fetcher(`${SUPABASE_KNOWLEDGE_ENDPOINT}?catalogue_only=1`, {
       method: 'GET',
       headers: {
         apikey: SUPABASE_PUBLISHABLE_KEY,
