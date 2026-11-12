@@ -200,7 +200,6 @@ function lineReply(
   const directions = snapshot.directions.filter((direction) => direction.line_id === line.id)
   const outbound = directions.find((direction) =>
     direction.direction_method !== 'reverse_derived'
-    && direction.direction_method !== 'unknown'
     && !direction.direction_code.includes('return'),
   )
   const ordered = outbound
@@ -215,12 +214,16 @@ function lineReply(
     ? textArray(raw.published_stops)
     : textArray(raw.waypoints)
   const waypoints = ordered.length ? ordered : rawStops
-  const origin = record?.origin_label || outbound?.origin_label || 'Origine à confirmer'
-  const destination = record?.destination_label || outbound?.destination_label || 'Destination à confirmer'
-  const label = `${network.toUpperCase()} ${line.code} : ${origin} ↔ ${destination}`
+  const origin = record?.origin_label || outbound?.origin_label || null
+  const destination = record?.destination_label || outbound?.destination_label || null
+  const label = origin && destination
+    ? `${network.toUpperCase()} ${line.code} : ${origin} ↔ ${destination}`
+    : `${network.toUpperCase()} ${line.code} : itinéraire non renseigné`
   const details = waypoints.length
     ? `Repères dans le sens publié :\n${waypoints.join(' → ')}\nCe sont des repères documentaires, pas nécessairement des arrêts géolocalisés.`
-    : 'Terminaux documentés ; séquence intermédiaire d’arrêts non disponible dans la mémoire actuelle.'
+    : outbound?.direction_code === 'schedule_reference_only'
+      ? 'Horaires de service enregistrés ; terminus et séquence d’arrêts non renseignés.'
+      : 'Terminaux documentés ; séquence intermédiaire d’arrêts non disponible dans la mémoire actuelle.'
   const returnDirection = directions.find((direction) => direction.direction_code.includes('return'))
   const returnNote = returnDirection?.direction_method === 'reverse_derived'
     ? 'Sens retour calculé par inversion de l’aller ; il n’est pas confirmé par une fiche retour opérateur.'
@@ -234,7 +237,11 @@ function lineReply(
         `${pattern.service_start || 'début non précisé'}–${pattern.service_end || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
       ).join('; ')}.`
     : ''
-  const status = line.status === 'published' ? 'Fiche publiée' : 'Fiche candidate, à confirmer avant utilisation comme itinéraire garanti'
+  const status = line.status === 'published'
+    ? 'Fiche publiée'
+    : verifiedPatterns.length
+      ? 'Horaires de référence vérifiés ; itinéraire et arrêts incomplets'
+      : 'Fiche candidate, à confirmer avant utilisation comme itinéraire garanti'
   const note = typeof raw.published_route_note === 'string'
     ? raw.published_route_note
     : typeof raw.note === 'string' ? raw.note : outbound?.direction_notes
