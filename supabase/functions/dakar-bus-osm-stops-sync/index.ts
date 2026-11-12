@@ -1,6 +1,6 @@
 import { withSupabase } from "npm:@supabase/server";
 
-const BBOX = "14.60,-17.56,14.84,-17.16";
+const BBOX = "14.60,-17.56,14.91,-17.12";
 const TILE_BBOXES: Record<string, string> = {
   central: "14.65,-17.50,14.78,-17.30",
   west: "14.60,-17.56,14.75,-17.40",
@@ -73,7 +73,7 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       if (!["node", "way"].includes(String(element.type)) || !Number.isSafeInteger(element.id)) return [];
       const lat = Number(element.lat), lon = Number(element.lon);
       if (!Number.isFinite(lat) || !Number.isFinite(lon)
-        || lat < 14.60 || lat > 14.84 || lon < -17.56 || lon > -17.16) return [];
+        || lat < 14.60 || lat > 14.91 || lon < -17.56 || lon > -17.12) return [];
       const rawTags = element.tags;
       if (!rawTags || typeof rawTags !== "object" || Array.isArray(rawTags)) return [];
       const tags = rawTags as Record<string, unknown>;
