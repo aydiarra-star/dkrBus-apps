@@ -5,7 +5,7 @@ import {
   type BusLine,
   type RemoteMobilityGraph,
 } from './mobilityKnowledge'
-import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabaseKnowledge'
+import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabaseConfig'
 
 const DATABASE_NAME = 'dakar-bus-supabase-memory'
 const STORE_NAME = 'snapshots'
