@@ -325,7 +325,7 @@ export function answerRemoteMobilityQuestion(
 
   const hits = stopMatches(snapshot, text)
   if (hits.length) {
-    return stopReply(snapshot, hits.slice(0, 2), null, /\b(correspondance|transfert)\b/.test(text))
+    return stopReply(snapshot, hits.slice(0, 2), null, /\b(correspondances?|transferts?)\b/.test(text))
   }
 
   return null
