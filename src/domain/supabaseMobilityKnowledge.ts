@@ -78,6 +78,13 @@ export interface SupabaseKnowledgeTransfer {
   to_stop?: SupabaseKnowledgeStop | null
 }
 
+export interface SupabaseKnowledgeTrafficSource {
+  name: string
+  status: string
+  last_checked_at?: string | null
+  metadata?: Record<string, unknown>
+}
+
 export interface SupabaseKnowledgeTrafficIncident {
   title: string
   description?: string | null
@@ -104,6 +111,7 @@ export interface SupabaseMobilityKnowledgeSnapshot {
   data_assertions?: SupabaseKnowledgeAssertion[]
   confirmed_traffic_incidents?: SupabaseKnowledgeTrafficIncident[]
   unverified_traffic_candidates?: SupabaseKnowledgeTrafficIncident[]
+  traffic_sources?: SupabaseKnowledgeTrafficSource[]
   counts?: Record<string, number>
 }
 
@@ -185,6 +193,9 @@ export async function fetchSupabaseMobilityKnowledge(
             : [],
           unverified_traffic_candidates: Array.isArray(payload.traffic_candidates)
             ? payload.traffic_candidates as SupabaseKnowledgeTrafficIncident[]
+            : [],
+          traffic_sources: Array.isArray(payload.traffic_sources)
+            ? payload.traffic_sources as SupabaseKnowledgeTrafficSource[]
             : [],
           realtime: false,
         }
@@ -384,6 +395,17 @@ function trafficReply(question: string, snapshot: SupabaseMobilityKnowledgeSnaps
       text: `Articles de circulation repérés, mais non confirmés :\n${candidates.slice(0, 5).map((incident) =>
         `• ${incident.area_label ? incident.area_label + ' — ' : ''}${incident.title} (${incident.source_url || 'source non disponible'})`,
       ).join('\n')}\nCe sont des pistes à vérifier, pas des alertes confirmées. La collecte RSS n’est pas un flux de trafic en temps réel.`,
+    }
+  }
+  const checkedRss = (snapshot.traffic_sources ?? []).filter((source) =>
+    source.status === 'partial' && Boolean(source.last_checked_at),
+  )
+  if (checkedRss.length) {
+    return {
+      text: `Aucune alerte routière confirmée ni aucun nouvel article candidat repéré dans les flux RSS accessibles.\nDerniers contrôles :\n${checkedRss.map((source) => {
+        const count = source.metadata?.last_feed_item_count
+        return `• ${source.name} : ${source.last_checked_at}${typeof count === 'number' ? ` (${count} articles lus)` : ''}`
+      }).join('\n')}\nCes flux de presse ne sont pas des capteurs de circulation en direct ; cela ne garantit pas que les routes soient fluides.`,
     }
   }
   return null
