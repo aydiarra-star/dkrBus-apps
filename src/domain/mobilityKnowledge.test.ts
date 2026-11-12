@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary } from './mobilityKnowledge'
+import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary, setRemoteCandidateLines, setRemoteTrafficSnapshot, setRemoteMobilityGraph, type BusLine, type RemoteMobilityGraph } from './mobilityKnowledge'
 import { copilotAnswer } from './copilot'
 import { createConversationMemory } from './conversation'
 import { answerAssistant } from './assistant'
@@ -131,6 +131,165 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(ask('horaires TER')).toContain('05h35 de Diamniadio, 05h45 de Dakar')
     expect(ask('horaires TER')).toContain('Dimanches et jours fériés')
     expect(ask('horaires TER')).toContain('ne sont pas celles de chaque gare intermédiaire')
+  })
+
+
+  it('complète le catalogue hors ligne avec une nouvelle fiche candidate Supabase sans remplacer les fiches validées', () => {
+    const candidate = {
+      network: 'ddd',
+      code: '999',
+      origin: 'Dakar',
+      destination: 'Diamniadio',
+      waypoints: ['Colobane', 'Bargny', 'Diamniadio'],
+      sourceUrl: 'https://example.com/ddd-38',
+      detailSourceUrl: 'https://example.com/ddd-38/details',
+      consultedAt: '2026-11-12',
+      publishedAt: null,
+      note: 'Fiche candidate de test.',
+    } as BusLine
+
+    expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
+    setRemoteCandidateLines([candidate])
+    expect(ask('DDD 999')).toContain('Fiche candidate de la mémoire centrale')
+    expect(ask('DDD 999')).toContain('Colobane → Bargny → Diamniadio')
+    expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
+    setRemoteCandidateLines([])
+  })
+
+
+
+  it('utilise le graphe Supabase pour les deux sens, les fréquences et les correspondances candidates', () => {
+    const candidate = {
+      network: 'ddd',
+      code: '999',
+      origin: 'Dakar',
+      destination: 'Rufisque',
+      waypoints: [],
+      sourceUrl: 'https://example.com/ddd-999',
+      detailSourceUrl: 'https://example.com/ddd-999/details',
+      consultedAt: '2026-11-12',
+      publishedAt: null,
+      note: 'Fiche candidate de test.',
+    } as BusLine
+    const graph = {
+      generated_at: '2026-11-12T07:00:00.000Z',
+      graph_only: true,
+      networks: [{ id: 'network-ddd', code: 'ddd', name: 'DDD' }, { id: 'network-aftu', code: 'aftu', name: 'AFTU' }],
+      lines: [{ id: 'line-ddd-999', network_id: 'network-ddd', code: '999', status: 'candidate' }],
+      directions: [
+        { id: 'direction-out', line_id: 'line-ddd-999', direction_code: 'outbound_candidate', origin_label: 'Dakar', destination_label: 'Rufisque', status: 'candidate' },
+        { id: 'direction-return', line_id: 'line-ddd-999', direction_code: 'return_reverse_candidate', origin_label: 'Rufisque', destination_label: 'Dakar', status: 'candidate', direction_method: 'reverse_order_candidate' },
+      ],
+      ordered_line_stops: [
+        { id: 'seq-1', direction_id: 'direction-out', stop_id: 'stop-dakar', stop_sequence: 1, stop: { id: 'stop-dakar', canonical_name: 'Dakar' } },
+        { id: 'seq-2', direction_id: 'direction-out', stop_id: 'stop-colobane', stop_sequence: 2, stop: { id: 'stop-colobane', canonical_name: 'Colobane' } },
+        { id: 'seq-3', direction_id: 'direction-out', stop_id: 'stop-rufisque', stop_sequence: 3, stop: { id: 'stop-rufisque', canonical_name: 'Rufisque' } },
+        { id: 'seq-4', direction_id: 'direction-return', stop_id: 'stop-rufisque', stop_sequence: 1, stop: { id: 'stop-rufisque', canonical_name: 'Rufisque' } },
+        { id: 'seq-5', direction_id: 'direction-return', stop_id: 'stop-colobane', stop_sequence: 2, stop: { id: 'stop-colobane', canonical_name: 'Colobane' } },
+        { id: 'seq-6', direction_id: 'direction-return', stop_id: 'stop-dakar', stop_sequence: 3, stop: { id: 'stop-dakar', canonical_name: 'Dakar' } },
+      ],
+      reference_stops: [
+        { id: 'stop-dakar', canonical_name: 'Dakar' },
+        { id: 'stop-colobane', canonical_name: 'Colobane' },
+        { id: 'stop-rufisque', canonical_name: 'Rufisque' },
+      ],
+      stop_network_memberships: [{
+        stop_id: 'stop-colobane',
+        canonical_name: 'Colobane',
+        network_codes: ['aftu', 'ddd'],
+        line_codes: ['AFTU 5', 'DDD 999'],
+        direction_codes: ['outbound_candidate'],
+        has_geolocation: false,
+        interchange_status: 'shared_name_reference_only',
+        physical_interchange_verified: false,
+      }],
+      service_patterns: [{
+        id: 'pattern-peak',
+        direction_id: 'direction-out',
+        pattern_type: 'estimated_frequency',
+        period_label: 'peak',
+        headway_min_minutes: 7,
+        headway_max_minutes: 10,
+        status: 'candidate',
+      }],
+      transfers: [{
+        id: 'transfer-1',
+        from_stop_id: 'stop-colobane',
+        to_stop_id: 'stop-rufisque',
+        walking_distance_m: 120,
+        status: 'candidate',
+        label: 'Colobane ↔ Rufisque',
+      }],
+      data_assertions: [],
+      mobility_sources: [],
+    } as RemoteMobilityGraph
+
+    setRemoteCandidateLines([candidate])
+    setRemoteMobilityGraph(graph)
+    const stopsReply = ask('arrêts aller retour DDD 999')
+    expect(stopsReply).toContain('Dakar → Colobane → Rufisque')
+    expect(stopsReply).toContain('Rufisque → Colobane → Dakar')
+    const frequencyReply = ask('fréquence DDD 999')
+    expect(frequencyReply).toContain('pointe : 7–10 min')
+    const transferReply = ask('correspondance DDD 999')
+    expect(transferReply).toContain('Correspondances potentielles')
+    expect(transferReply).toContain('Colobane (aftu/ddd)')
+    expect(transferReply).toContain('120 m')
+    setRemoteMobilityGraph(null)
+    setRemoteCandidateLines([])
+  })
+
+  it('distingue une piste de presse non confirmée d’une alerte routière confirmée', () => {
+    setRemoteTrafficSnapshot({
+      generated_at: '2026-11-12T06:45:00.000Z',
+      realtime: false,
+      confirmed_traffic_incidents: [],
+      traffic_candidates: [{
+        id: 'news-1',
+        title: 'Travaux annoncés sur la VDN',
+        incident_type: 'roadworks',
+        severity: 'unknown',
+        status: 'unverified',
+        area_label: 'VDN',
+        observed_at: '2026-11-12T06:30:00.000Z',
+        source_published_at: '2026-11-12T06:30:00.000Z',
+        source_url: 'https://example.com/traffic-news',
+      }],
+      traffic_sources: [{
+        id: 'source-1',
+        name: 'Dakaractu · flux RSS',
+        source_type: 'local_news_rss',
+        status: 'partial',
+        last_checked_at: '2026-11-12T06:45:00.000Z',
+      }],
+    })
+    const candidateReply = ask('circulation à Dakar')
+    expect(candidateReply).toContain('Informations routières à vérifier')
+    expect(candidateReply).toContain('PAS des alertes confirmées')
+    expect(candidateReply).toContain('https://example.com/traffic-news')
+
+    setRemoteTrafficSnapshot({
+      generated_at: '2026-11-12T06:46:00.000Z',
+      realtime: false,
+      confirmed_traffic_incidents: [{
+        id: 'incident-1',
+        title: 'Accident confirmé',
+        incident_type: 'accident',
+        severity: 'high',
+        status: 'confirmed',
+        area_label: 'VDN',
+        observed_at: '2026-11-12T06:40:00.000Z',
+        source_url: 'https://example.com/confirmed-incident',
+      }],
+      traffic_candidates: [],
+      traffic_sources: [],
+    })
+    const confirmedReply = ask('circulation à Dakar')
+    expect(confirmedReply).toContain('Alertes routières confirmées')
+    expect(confirmedReply).toContain('Accident confirmé')
+    expect(confirmedReply).toContain('VDN')
+    expect(confirmedReply).toContain('https://example.com/confirmed-incident')
+    setRemoteTrafficSnapshot(null)
   })
 
   it('ne transforme pas une statistique CETUD ou une page institutionnelle en temps réel', () => {

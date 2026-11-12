@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom/client'
 import 'leaflet/dist/leaflet.css'
 import App from './App'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
+import { hydrateSupabaseTrafficFromCache, refreshSupabaseTraffic } from './domain/supabaseTraffic'
+import { hydrateSupabaseGraphFromCache, refreshSupabaseGraph } from './domain/supabaseGraph'
+
+// Hydratation locale immédiate, puis synchronisation distante non bloquante.
+hydrateSupabaseTrafficFromCache()
+void refreshSupabaseTraffic()
+void hydrateSupabaseGraphFromCache().then(() => refreshSupabaseGraph())
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Dakar Bus : élément #root introuvable.')
