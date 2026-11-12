@@ -149,11 +149,11 @@ function trafficKnowledgeReply(): string {
   const monitoredNews = snapshot.traffic_sources.filter((item) =>
     item.status === 'partial' && /rss|news/i.test(item.source_type ?? '')
   )
-  const latestCheck = monitoredNews
+  const checkedTimes = monitoredNews
     .map((item) => item.last_checked_at)
     .filter((value): value is string => Boolean(value))
     .sort()
-    .at(-1)
+  const latestCheck = checkedTimes.length ? checkedTimes[checkedTimes.length - 1] : undefined
 
   return `Aucune alerte routière confirmée ni piste de presse pertinente n’est actuellement enregistrée.${monitoredNews.length ? ` Les flux d’actualités de ${monitoredNews.map((item) => item.name).join(' et ')} sont surveillés ; dernière vérification : ${formatTrafficDate(latestCheck)}.` : ''} Cela ne garantit pas que les routes soient libres : aucun capteur de circulation en temps réel n’est encore connecté. Les indicateurs CETUD disponibles sont historiques, pas l’état actuel d’une rue.${source(SOURCES.traffic)}`
 }
