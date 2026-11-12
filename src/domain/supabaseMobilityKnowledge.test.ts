@@ -66,6 +66,9 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { direction_id: 'ter-out', stop_id: 'ter-s1', stop_sequence: 1, stop: { id: 'ter-s1', canonical_name: 'Dakar' } },
     { direction_id: 'ter-out', stop_id: 'ter-s2', stop_sequence: 2, stop: { id: 'ter-s2', canonical_name: 'Colobane' } },
     { direction_id: 'ter-out', stop_id: 'ter-s3', stop_sequence: 3, stop: { id: 'ter-s3', canonical_name: 'Diamniadio' } },
+    { direction_id: 'ter-return', stop_id: 'ter-s3', stop_sequence: 1, stop: { id: 'ter-s3', canonical_name: 'Diamniadio' } },
+    { direction_id: 'ter-return', stop_id: 'ter-s2', stop_sequence: 2, stop: { id: 'ter-s2', canonical_name: 'Colobane' } },
+    { direction_id: 'ter-return', stop_id: 'ter-s1', stop_sequence: 3, stop: { id: 'ter-s1', canonical_name: 'Dakar' } },
   ],
   service_patterns: [
     { direction_id: 'brt-b2-schedule', pattern_type: 'published_frequency', service_start: '06:00:00', service_end: '21:00:00', headway_minutes: 6, days_of_week: [1, 2, 3, 4, 5, 6], status: 'verified' },
@@ -117,6 +120,8 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     const reply = answerSupabaseMobilityKnowledge('TER', snapshot)
     expect(reply?.text).toContain('TER TER')
     expect(reply?.text).toContain('Dakar → Colobane → Diamniadio')
+    expect(reply?.text).toContain('Diamniadio → Colobane → Dakar')
+    expect(reply?.text).toContain('Repères dans le sens retour')
     expect(reply?.text).toContain('05:30–21:00 : 10 min')
     expect(reply?.text).toContain('Sens retour calculé par inversion')
   })
