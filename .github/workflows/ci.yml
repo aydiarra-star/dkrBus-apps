@@ -38,12 +38,10 @@ jobs:
       - name: Import OSM Dakar stops (one-time collection branch)
         if: github.ref == 'refs/heads/osm-geofabrik-run-once'
         env:
-          SUPABASE_URL: ${{ secrets.DAKAR_BUS_SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.DAKAR_BUS_SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_URL: https://mdmuxzaewqzqutkqdylo.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J
           DAKAR_BUS_INGEST_TOKEN: ${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
         run: |
-          test -n "$SUPABASE_URL" || (echo "::error::Missing DAKAR_BUS_SUPABASE_URL" && exit 1)
-          test -n "$SUPABASE_PUBLISHABLE_KEY" || (echo "::error::Missing DAKAR_BUS_SUPABASE_PUBLISHABLE_KEY" && exit 1)
           test -n "$DAKAR_BUS_INGEST_TOKEN" || (echo "::error::Missing DAKAR_BUS_INGEST_TOKEN" && exit 1)
           python -m pip install --disable-pip-version-check osmium
           python scripts/import_osm_pbf.py
