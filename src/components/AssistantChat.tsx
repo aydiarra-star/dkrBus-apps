@@ -215,7 +215,8 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           // Même « répète » doit oublier une perturbation résolue/périmée.
           memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
         }
-        const needsRemoteKnowledge = /\\b(ddd|dakar dem dikk|aftu|tata|bus|lignes?|arrets?|réseau|reseau|mobilité|mobilite|mémoire|memoire|base de connaissances)\\b/i.test(trimmed)
+        const normalizedRemoteQuestion = trimmed.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+        const needsRemoteKnowledge = /\\b(ddd|dakar dem dikk|aftu|tata|bus|lignes?|arrets?|reseau|mobilite|memoire|base de connaissances)\\b/.test(normalizedRemoteQuestion)
         if (needsRemoteKnowledge && !remoteKnowledgeRef.current) {
           remoteKnowledgeRef.current = await loadMobilityBrainKnowledge()
         }
