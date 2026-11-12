@@ -222,6 +222,26 @@ function networkFromQuestion(text: string): string | null {
   return null
 }
 
+export function supabaseFetchOptionsForQuestion(
+  question: string,
+  lastLineId?: string | null,
+): SupabaseKnowledgeFetchOptions | null {
+  const text = normalize(question)
+  if (/\b(trafic|circulation|bouchon|embouteillage|accident|perturbation|route bloquee)\b/.test(text)) {
+    return { trafficOnly: true }
+  }
+  let network = networkFromQuestion(text)
+  let lineCode = /\b(?:ligne|bus|brt|ddd|aftu|tata)\s*(?:n(?:umero|°)?\s*)?([0-9]{1,3}[a-z]?|b[12]|to1)\b/i.exec(text)?.[1]?.toUpperCase()
+  if (!network && lastLineId && /^(et |ses |les arrets|les horaires|son |elle passe)/.test(text)) {
+    const [lastNetwork, lastCode] = lastLineId.split(':')
+    if (['ddd', 'aftu', 'tata', 'brt'].includes(lastNetwork)) {
+      network = lastNetwork
+      lineCode = lastCode?.toUpperCase()
+    }
+  }
+  return network ? { network, ...(lineCode ? { lineCode } : {}) } : null
+}
+
 function sourceLine(record: SupabaseKnowledgeCatalogRecord): string {
   const url = record.detail_source_url || record.source_url
   if (!url) return ''
