@@ -7,7 +7,7 @@ Les sources de toutes les fonctions Edge actuellement déployées sont versionn�
 | Fonction | Accès | Rôle |
 |---|---|---|
 | `dakar-bus-knowledge` | GET public, lecture seule | Référentiel des cinq mobilités et état trafic ; les métadonnées publiques sont filtrées. |
-| `dakar-bus-mobility-search` | GET public, lecture seule | Recherche ciblée de lignes, arrêts et directions. Endpoint préparé pour les appels ciblés. |
+| `dakar-bus-mobility-search` | GET public, lecture seule | Recherche ciblée DDD/AFTU/TATA uniquement ; TER/BRT sont exclus pour préserver le référentiel local validé. |
 | `dakar-bus-traffic-ingest` | JWT Supabase requis + jeton d'ingestion | Entrée d'administration pour l'ingestion trafic. |
 | `dakar-bus-traffic-ingest-senenews` | Jeton d'ingestion privé | Collecte périodique du flux RSS SeneNews. |
 | `dakar-bus-traffic-ingest-dakaractu` | Jeton d'ingestion privé | Collecte périodique du flux RSS Dakaractu. |
