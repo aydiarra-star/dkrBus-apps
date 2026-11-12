@@ -11,6 +11,40 @@ export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number]
 export interface KnowledgeReply { text: string; lineId?: string }
 
+export interface RemoteTrafficIncident {
+  id: string
+  title: string
+  description?: string | null
+  incident_type?: string | null
+  severity?: string | null
+  status: string
+  area_label?: string | null
+  observed_at?: string | null
+  expires_at?: string | null
+  source_url?: string | null
+  source_published_at?: string | null
+  traffic_source_id?: string | null
+}
+export interface RemoteTrafficSource {
+  id: string
+  name: string
+  source_type?: string | null
+  url?: string | null
+  status: string
+  last_checked_at?: string | null
+}
+export interface RemoteTrafficSnapshot {
+  generated_at: string
+  realtime: false
+  confirmed_traffic_incidents: RemoteTrafficIncident[]
+  traffic_candidates: RemoteTrafficIncident[]
+  traffic_sources: RemoteTrafficSource[]
+}
+let remoteTrafficSnapshot: RemoteTrafficSnapshot | null = null
+export function setRemoteTrafficSnapshot(snapshot: RemoteTrafficSnapshot | null): void {
+  remoteTrafficSnapshot = snapshot
+}
+
 /** Complément distant candidat : il ne remplace jamais les fiches locales validées. */
 let remoteCandidateLines: BusLine[] = []
 export function setRemoteCandidateLines(lines: readonly BusLine[]): void {
@@ -80,6 +114,50 @@ export function generalFareReply(): string {
   return `Tarifs de référence :\n• TER : 500 / 1 000 / 1 500 F CFA pour 1 / 2 / 3 zones en 2e classe ; 2 500 F CFA en 1re classe.\n• BRT : 400 F CFA dans une même zone ; 500 F CFA en franchissant une ou deux limites de zones.\n• DDD/AFTU : tarifs par ligne non documentés ici.\nCes tarifs ne permettent pas de calculer le coût complet d’une correspondance ni de garantir une promotion.${source(SOURCES.terFares)}${source(SOURCES.brtGuide)}`
 }
 
+function formatTrafficDate(value?: string | null): string {
+  if (!value) return 'date non précisée'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(date)
+}
+
+function trafficKnowledgeReply(): string {
+  const snapshot = remoteTrafficSnapshot
+  if (!snapshot) {
+    return `Aucun flux de circulation en temps réel n’est connecté. Les indicateurs CETUD consultés sont des statistiques historiques (2020–2024), pas l’état actuel d’une rue. Je ne peux pas annoncer qu’une route est fluide ni chiffrer un retard actuel. Les signalements de l’onglet Alertes restent des témoignages non vérifiés.${source(SOURCES.traffic)}`
+  }
+
+  const now = Date.now()
+  const active = (rows: RemoteTrafficIncident[]) => rows.filter((row) =>
+    !row.expires_at || new Date(row.expires_at).getTime() > now
+  )
+  const confirmed = active(snapshot.confirmed_traffic_incidents)
+  const candidates = active(snapshot.traffic_candidates)
+
+  if (confirmed.length) {
+    return `Alertes routières confirmées dans Dakar Bus :\\n${confirmed.slice(0, 5).map((incident) =>
+      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.observed_at)}${incident.source_url ? `\\nSource : ${incident.source_url}` : ''}`
+    ).join('\\n')}\\nCes alertes sont limitées aux incidents confirmés et non expirés dans la base.`
+  }
+
+  if (candidates.length) {
+    return `Informations routières à vérifier — elles ne sont PAS des alertes confirmées :\\n${candidates.slice(0, 5).map((incident) =>
+      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.source_published_at ?? incident.observed_at)}${incident.source_url ? `\\nSource : ${incident.source_url}` : ''}`
+    ).join('\\n')}\\nAucune alerte confirmée n’est actuellement enregistrée. Vérifiez la situation avant de partir.`
+  }
+
+  const monitoredNews = snapshot.traffic_sources.filter((item) =>
+    item.status === 'partial' && /rss|news/i.test(item.source_type ?? '')
+  )
+  const latestCheck = monitoredNews
+    .map((item) => item.last_checked_at)
+    .filter((value): value is string => Boolean(value))
+    .sort()
+    .at(-1)
+
+  return `Aucune alerte routière confirmée ni piste de presse pertinente n’est actuellement enregistrée.${monitoredNews.length ? ` Les flux d’actualités de ${monitoredNews.map((item) => item.name).join(' et ')} sont surveillés ; dernière vérification : ${formatTrafficDate(latestCheck)}.` : ''} Cela ne garantit pas que les routes soient libres : aucun capteur de circulation en temps réel n’est encore connecté. Les indicateurs CETUD disponibles sont historiques, pas l’état actuel d’une rue.${source(SOURCES.traffic)}`
+}
+
 /** Réponses courtes par thème, avec provenance au lieu de remplir le chat d'un guide entier. */
 function practicalReply(text: string): string | null {
   const brt = /\b(brt|sunubrt|b1|b2|b3)\b/.test(text)
@@ -104,7 +182,7 @@ function practicalReply(text: string): string | null {
     if (/\b(commerce|commerces|service|services|kiosque|senter)\b/.test(text)) return `SENTER indique 83 espaces commerciaux répartis sur 13 gares et haltes entre Dakar et Diamniadio, dont 58 kiosques sur les parvis. Contact : contact@senter.sn. Le site institutionnel présente aussi des chiffres de projet plus larges : je ne les transforme pas en desserte aujourd’hui confirmée vers l’AIBD.${source(SOURCES.terServices)}`
     if (/\b(aibd|aeroport|14 gares)\b/.test(text)) return `Le référentiel de trajet embarqué reste limité à Dakar–Diamniadio. Les présentations SENTER mentionnent 14 gares et l’AIBD, tandis que sa page Services en gare décrit 13 gares et haltes Dakar–Diamniadio. Ces pages seules ne suffisent pas à confirmer l’ouverture et les horaires d’une extension vers l’aéroport.${source(SOURCES.terStations)}`
   }
-  if (/\b(circulation|embouteillage|embouteillages|trafic routier)\b/.test(text)) return `Aucun flux de circulation en temps réel n’est connecté. Les indicateurs CETUD consultés sont des statistiques historiques (2020–2024), pas l’état actuel d’une rue. Je ne peux pas annoncer qu’une route est fluide ni chiffrer un retard actuel. Les signalements de l’onglet Alertes restent des témoignages non vérifiés.${source(SOURCES.traffic)}`
+  if (/\b(circulation|embouteillage|embouteillages|trafic routier|trafic|accident|travaux routiers|route fermée)\b/.test(text)) return trafficKnowledgeReply()
   return null
 }
 
