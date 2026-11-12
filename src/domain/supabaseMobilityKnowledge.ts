@@ -380,6 +380,16 @@ function lineReply(
     || direction.direction_method === 'reverse_derived'
     || /diamniadio\s*→\s*dakar/i.test(direction.direction_code),
   )
+  const returnOrdered = returnDirection
+    ? snapshot.ordered_line_stops
+      .filter((stop) => stop.direction_id === returnDirection.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+      .map((stop) => stop.stop?.canonical_name)
+      .filter((name): name is string => Boolean(name))
+    : []
+  const returnDetails = returnOrdered.length
+    ? `\nRepères dans le sens retour :\n${returnOrdered.join(' → ')}`
+    : ''
   const returnNote = returnDirection?.direction_method === 'reverse_derived'
     ? (network === 'ter' || network === 'brt'
       ? 'Sens retour présenté selon la séquence inverse de référence ; les horaires validés du réseau sont conservés.'
@@ -426,7 +436,7 @@ function lineReply(
     : typeof raw.note === 'string' ? raw.note : outbound?.direction_notes
   const source = record ? sourceLine(record) : ''
   return {
-    text: `${label}\n${status}.\n${details}\n${returnNote}${frequency}${note ? `\nRéserve : ${note}` : ''}${source}`,
+    text: `${label}\n${status}.\n${details}${returnDetails}\n${returnNote}${frequency}${note ? `\nRéserve : ${note}` : ''}${source}`,
     lineId: `${network}:${line.code}`,
   }
 }
