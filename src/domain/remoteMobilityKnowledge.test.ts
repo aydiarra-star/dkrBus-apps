@@ -241,6 +241,33 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).not.toContain('repère vérifié')
   })
 
+  it('does not expose archived or rejected service frequencies', () => {
+    const stalePatternSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      service_patterns: [
+        ...snapshot.service_patterns,
+        {
+          id: 'pattern-aftu-5-archived',
+          direction_id: 'direction-aftu-5-out',
+          pattern_type: 'estimated_frequency',
+          headway_minutes: 99,
+          status: 'archived',
+        },
+        {
+          id: 'pattern-aftu-5-rejected',
+          direction_id: 'direction-aftu-5-out',
+          pattern_type: 'estimated_frequency',
+          headway_minutes: 77,
+          status: 'rejected',
+        },
+      ],
+    }
+    const answer = answerRemoteMobilityQuestion('AFTU 5, quelle fréquence ?', stalePatternSnapshot)
+    expect(answer).toContain('intervalle 10 min')
+    expect(answer).not.toContain('99 min')
+    expect(answer).not.toContain('77 min')
+  })
+
   it('does not use a rejected catalogue record as a route fallback', () => {
     const rejectedCatalogue: MobilityBrainSnapshot = {
       ...snapshot,
