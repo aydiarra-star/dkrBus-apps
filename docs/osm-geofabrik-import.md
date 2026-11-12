@@ -11,7 +11,7 @@ Attribution obligatoire : © OpenStreetMap contributors, licence ODbL 1.0.
 ## Garde-fous
 
 - Les arrêts de bus, plateformes, positions d'arrêt bus, stations bus et gares routières OSM sont retenus comme candidats. Les plateformes ferroviaires peuvent rester dans le lot si OSM ne précise pas le mode ; le rapprochement avec les arrêts officiels sert à les écarter.
-- L'emprise est limitée à Dakar : latitude 14.60–14.91, longitude -17.56–-17.12.
+- L'emprise est limitée à Dakar : latitude 14.55–14.91, longitude -17.56–-17.12.
 - Les objets sont envoyés par lots de 100 à la fonction Supabase protégée par le jeton d'ingestion. Le rapprochement est calculé une seule fois après le dernier lot pour éviter de recalculer toute la table à chaque envoi.
 - Les coordonnées restent dans `mobility_osm_stops` comme candidates.
 - Le rapprochement crée des propositions ; aucune coordonnée de `mobility_stops` n'est remplacée.
