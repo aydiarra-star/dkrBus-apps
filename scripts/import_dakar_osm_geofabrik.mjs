@@ -79,7 +79,6 @@ for (let offset = 0; offset < elements.length; offset += 100) {
     headers: {
       "Content-Type": "application/json",
       "apikey": publishableKey,
-      "Authorization": `Bearer ${publishableKey}`,
       "x-dakar-bus-ingest-token": token,
     },
     body: JSON.stringify({ mode: "ingest_pbf_batch", elements: batch }),
