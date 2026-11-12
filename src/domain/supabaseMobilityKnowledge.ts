@@ -238,7 +238,7 @@ export function supabaseFetchOptionsForQuestion(
   lastLineId?: string | null,
 ): SupabaseKnowledgeFetchOptions | null {
   const text = normalize(question)
-  if (/\b(trafic|circulation|bouchon|embouteillage|accident|perturbation|route bloquee)\b/.test(text)) {
+  if (/\b(trafic|circulation|bouchons?|embouteillages?|accidents?|perturbations?|routes? bloquees?)\b/.test(text)) {
     return { trafficOnly: true }
   }
   let network = networkFromQuestion(text)
