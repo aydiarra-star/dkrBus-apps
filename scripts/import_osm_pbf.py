@@ -32,8 +32,9 @@ def in_dakar(lat: float, lon: float) -> bool:
 def relevant(tags: dict[str, str]) -> bool:
     return (
         tags.get("highway") == "bus_stop"
+        or tags.get("amenity") == "bus_station"
         or tags.get("public_transport") == "platform"
-        or (tags.get("public_transport") == "stop_position" and tags.get("bus") == "yes")
+        or (tags.get("public_transport") in {"stop_position", "station"} and tags.get("bus") == "yes")
     )
 
 
