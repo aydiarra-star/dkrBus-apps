@@ -126,7 +126,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
   })
 
   it('propose des correspondances à partir des arrêts partagés géolocalisés', () => {
-    const reply = answerSupabaseMobilityKnowledge('Correspondance entre DDD et BRT', snapshot)
+    const reply = answerSupabaseMobilityKnowledge('Liste des correspondances entre DDD et BRT', snapshot)
     expect(reply?.text).toContain('Croisement 22')
     expect(reply?.text).toContain('BRT / DDD')
     expect(reply?.text).toContain('restent à vérifier sur le terrain')
