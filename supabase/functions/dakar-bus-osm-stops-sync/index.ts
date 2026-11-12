@@ -64,6 +64,7 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
   try {
     let payload: any = null;
     let lastError = "No Overpass endpoint responded";
+    let selectedEndpoint: string | null = null;
     for (const endpoint of ENDPOINTS) {
       try {
         const response = await fetch(endpoint, {
@@ -81,6 +82,7 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
           continue;
         }
         payload = await response.json();
+        selectedEndpoint = endpoint;
         break;
       } catch (error) {
         lastError = new URL(endpoint).hostname + ": " + (error instanceof Error ? error.message : String(error));
@@ -136,7 +138,7 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       ok: true,
       source: "OpenStreetMap contributors",
       attribution: "© OpenStreetMap contributors · ODbL",
-      endpoint: ENDPOINT,
+      endpoint: selectedEndpoint,
       osm_base_timestamp: osmBaseTimestamp,
       fetched_elements: elements.length,
       imported_bus_stop_objects: rows.length,
