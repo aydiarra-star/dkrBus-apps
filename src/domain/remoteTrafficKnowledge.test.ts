@@ -8,6 +8,12 @@ const baseSnapshot: RemoteTrafficSnapshot = {
   realtime: false,
   traffic_only: true,
   alert_policy: 'Only confirmed incidents are alerts.',
+  traffic_data_status: {
+    status: 'unavailable',
+    reason_code: 'NO_CONFIGURED_REALTIME_SOURCE',
+    configured_realtime_sources: 0,
+    message: "Aucune source de circulation en temps réel n'est actuellement connectée. L'absence d'alerte ne signifie pas que la circulation est fluide.",
+  },
   confirmed_traffic_incidents: [],
   traffic_candidates: [],
   traffic_sources: [
@@ -37,6 +43,12 @@ describe('answerRemoteTrafficQuestion', () => {
     expect(answer).toContain('Cela ne signifie pas que la circulation est fluide')
     expect(answer).toContain('20 articles parcourus')
     expect(answer).toContain('accès refusé')
+  })
+
+  it('explains that no live traffic source is connected when the feed is unavailable', () => {
+    const answer = answerRemoteTrafficQuestion('Y a-t-il des embouteillages ?', baseSnapshot)
+    expect(answer).toContain("Aucune source de circulation en temps réel n'est actuellement connectée")
+    expect(answer).toContain("L'absence d'alerte ne signifie pas que la circulation est fluide")
   })
 
   it('labels press reports as unverified rather than confirmed alerts', () => {
