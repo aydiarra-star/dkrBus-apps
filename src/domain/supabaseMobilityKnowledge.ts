@@ -355,7 +355,7 @@ function lineReply(
   const verifiedPatterns = patternRows.filter((pattern) => pattern.status === 'verified' || pattern.status === 'published')
   const frequency = verifiedPatterns.length
     ? `\nFréquences de référence : ${verifiedPatterns.map((pattern) =>
-        `${pattern.service_start || 'début non précisé'}–${pattern.service_end || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
+        `${pattern.service_start?.slice(0, 5) || 'début non précisé'}–${pattern.service_end?.slice(0, 5) || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
       ).join('; ')}.`
     : ''
   const status = line.status === 'published'
