@@ -30,7 +30,7 @@ Dans GitHub, ouvrir le dépôt **Settings → Secrets and variables → Actions 
 
 Ne jamais mettre ces valeurs dans un fichier du dépôt, un commit, un journal ou un message. Ne pas utiliser la clé `service_role`.
 
-Après ajout des secrets : **Actions → Dakar Bus OSM import (Geofabrik) → Run workflow**. Le premier lancement doit être examiné avant toute programmation récurrente.
+Le workflow est en mode manuel uniquement. GitHub ne permet de lancer `workflow_dispatch` que lorsque le fichier du workflow existe aussi sur la branche par défaut. Il sera donc disponible après intégration contrôlée de cette modification dans `main`. Avant le premier lancement, la fonction Edge Supabase doit également être déployée avec le nouveau mode `ingest_pbf_batch`.\n\nAprès intégration, déploiement de la fonction et ajout des secrets : **Actions → Dakar Bus OSM import (Geofabrik) → Run workflow**. Le premier lancement doit être examiné avant toute programmation récurrente.
 
 ## Critères d'acceptation
 
