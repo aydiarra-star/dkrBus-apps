@@ -2,7 +2,7 @@ import {
   setRemoteTrafficSnapshot,
   type RemoteTrafficSnapshot,
 } from './mobilityKnowledge'
-import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabaseKnowledge'
+import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabaseConfig'
 
 const CACHE_KEY = 'dakar-bus:supabase-traffic:v1'
 const CACHE_MAX_AGE_MS = 30 * 60 * 1000
