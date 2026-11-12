@@ -149,6 +149,108 @@ function key(line: BusLine): string { return `${line.network}:${line.code}` }
 function isRemoteCandidate(line: BusLine): boolean {
   return remoteCandidateLines.some((candidate) => key(candidate) === key(line))
 }
+function graphLineFor(line: BusLine) {
+  if (!remoteMobilityGraph) return undefined
+  const network = remoteMobilityGraph.networks.find((item) => item.code === line.network)
+  if (!network) return undefined
+  return remoteMobilityGraph.lines.find((item) => item.network_id === network.id && item.code === line.code)
+}
+function graphDirectionsFor(line: BusLine) {
+  const graphLine = graphLineFor(line)
+  if (!remoteMobilityGraph || !graphLine) return []
+  const stopById = new Map(remoteMobilityGraph.reference_stops.map((stop) => [stop.id, stop]))
+  return remoteMobilityGraph.directions
+    .filter((direction) => direction.line_id === graphLine.id)
+    .map((direction) => {
+      const stops = remoteMobilityGraph!.ordered_line_stops
+        .filter((row) => row.direction_id === direction.id)
+        .sort((a, b) => a.stop_sequence - b.stop_sequence)
+        .map((row) => row.stop?.canonical_name ?? stopById.get(row.stop_id)?.canonical_name ?? '')
+        .filter(Boolean)
+      return { direction, stops }
+    })
+}
+function isReturnDirection(directionCode: string, method?: string | null): boolean {
+  return /return|inbound|retour/i.test(directionCode) || /return|reverse/i.test(method ?? '')
+}
+function formatPattern(pattern: RemoteMobilityGraph['service_patterns'][number]): string {
+  const period = pattern.period_label === 'peak' ? 'pointe'
+    : pattern.period_label === 'off_peak' ? 'hors pointe'
+      : pattern.period_label === 'network_average' ? 'moyenne réseau'
+        : 'service'
+  const interval = pattern.headway_min_minutes != null && pattern.headway_max_minutes != null
+    ? `${pattern.headway_min_minutes}–${pattern.headway_max_minutes} min`
+    : pattern.headway_minutes != null ? `${pattern.headway_minutes} min` : ''
+  const start = pattern.service_start_earliest && pattern.service_start_latest
+    ? `${pattern.service_start_earliest.slice(0, 5)}–${pattern.service_start_latest.slice(0, 5)}`
+    : ''
+  const end = pattern.service_end_earliest && pattern.service_end_latest
+    ? `${pattern.service_end_earliest.slice(0, 5)}–${pattern.service_end_latest.slice(0, 5)}`
+    : ''
+  const window = start || end ? ` ; fenêtre ${start || '—'} à ${end || '—'}` : ''
+  const wait = pattern.expected_wait_minutes != null ? ` ; attente de référence ${pattern.expected_wait_minutes} min` : ''
+  const status = pattern.status === 'verified' ? 'validé' : 'à confirmer'
+  return `${period} : ${interval || 'fréquence non précisée'}${window}${wait} (${status})`
+}
+function graphSupplement(line: BusLine, text: string): string {
+  if (!remoteMobilityGraph) return ''
+  const details = graphDirectionsFor(line)
+  if (!details.length) return ''
+  const sections: string[] = []
+  const asksStops = /\\b(arret|arrets|itineraire|parcours|aller|retour|sens)\\b/.test(text)
+  const asksFrequency = /\\b(prochain|attente|passage|frequence|horaire|horaires|heure|depart)\\b/.test(text)
+  const asksTransfer = /\\b(correspondance|correspondances|changer|transfert)\\b/.test(text)
+
+  if (asksStops) {
+    const returnOnly = /\\bretour\\b/.test(text) && !/\\baller\\b|deux sens|aller retour/.test(text)
+    const stopLines = details.flatMap(({ direction, stops }) => {
+      const isReturn = isReturnDirection(direction.direction_code, direction.direction_method)
+      if (returnOnly && !isReturn) return []
+      // La fiche locale validée reste prioritaire pour son sens aller.
+      if (!isRemoteCandidate(line) && line.waypoints.length && !isReturn) return []
+      if (!stops.length) return []
+      const label = isReturn ? 'Retour' : /outbound|aller/i.test(direction.direction_code) ? 'Aller' : direction.direction_code
+      const status = direction.status === 'verified' ? 'validé' : 'à confirmer'
+      const method = /reverse/i.test(direction.direction_method ?? '') ? ' — ordre inverse de référence' : ''
+      return [`${label} (${status}${method}) : ${stops.join(' → ')}`]
+    })
+    if (stopLines.length) sections.push(`Séquences d’arrêts du graphe central :\\n${stopLines.join('\\n')}`)
+  }
+
+  if (asksFrequency) {
+    const patternLines = details.flatMap(({ direction }) => {
+      const patterns = remoteMobilityGraph!.service_patterns.filter((pattern) => pattern.direction_id === direction.id)
+      const label = isReturnDirection(direction.direction_code, direction.direction_method) ? 'Retour' : 'Aller'
+      return patterns.map((pattern) => `${label} — ${formatPattern(pattern)}`)
+    })
+    if (patternLines.length) sections.push(`Repères de fréquence centralisés (ils ne donnent pas le prochain passage en direct) :\\n${patternLines.join('\\n')}`)
+  }
+
+  if (asksTransfer) {
+    const stopIds = new Set(details.flatMap(({ direction }) =>
+      remoteMobilityGraph!.ordered_line_stops.filter((row) => row.direction_id === direction.id).map((row) => row.stop_id)
+    ))
+    const shared = remoteMobilityGraph.stop_network_memberships.filter((item) =>
+      stopIds.has(item.stop_id) && item.network_codes.length > 1
+    )
+    const transfers = remoteMobilityGraph.transfers.filter((item) =>
+      stopIds.has(item.from_stop_id) || stopIds.has(item.to_stop_id)
+    )
+    const sharedText = shared.slice(0, 8).map((item) =>
+      `${item.canonical_name ?? item.stop_id} (${item.network_codes.join('/')})`
+    )
+    const transferText = transfers.slice(0, 5).map((item) =>
+      `${item.label ?? `${item.from_stop?.canonical_name ?? 'arrêt'} ↔ ${item.to_stop?.canonical_name ?? 'arrêt'}`} — ${item.walking_distance_m != null ? `${item.walking_distance_m} m` : 'distance non précisée'} (${item.status})`
+    )
+    if (sharedText.length || transferText.length) {
+      sections.push(`Correspondances potentielles, non confirmées sur le terrain :\\n${[...sharedText, ...transferText].join('\\n')}\\nUn nom partagé ou une distance indicative ne garantit pas un chemin piéton praticable.`)
+    } else {
+      sections.push('Aucune correspondance piétonne vérifiée dans le graphe central pour cette ligne.')
+    }
+  }
+
+  return sections.join('\\n\\n')
+}
 function label(line: BusLine): string { return `${line.network.toUpperCase()} ${line.code} : ${line.origin} ↔ ${line.destination}` }
 function explicitNetworks(text: string): string[] {
   return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\b(aftu|tata)\b/.test(text) ? 'aftu' : '')].filter(Boolean)
