@@ -253,6 +253,30 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).not.toContain('Colobane → Rufisque')
   })
 
+  it('does not expose transfers when either endpoint stop is archived', () => {
+    const archivedEndpointSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      reference_stops: [...snapshot.reference_stops, {
+        id: 'stop-archived-transfer',
+        canonical_name: 'Ancien arrêt',
+        aliases: [],
+        status: 'archived',
+      }],
+      transfers: [{
+        id: 'transfer-to-archived-stop',
+        from_stop_id: 'stop-colobane',
+        to_stop_id: 'stop-archived-transfer',
+        walking_distance_m: 120,
+        status: 'verified',
+        transfer_type: 'walking',
+      }],
+    }
+    const answer = answerRemoteMobilityQuestion('Quelles correspondances depuis Colobane ?', archivedEndpointSnapshot)
+    expect(answer).not.toContain('Ancien arrêt')
+    expect(answer).not.toContain('120 m à pied')
+    expect(answer).toContain('Aucune correspondance piétonne enregistrée')
+  })
+
   it('returns null when the remote snapshot is unavailable', () => {
     expect(answerRemoteMobilityQuestion('AFTU 5', null)).toBeNull()
   })
