@@ -223,7 +223,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           const latestRemoteKnowledge = await loadMobilityBrainKnowledge()
           if (latestRemoteKnowledge) remoteKnowledgeRef.current = latestRemoteKnowledge
         }
-        const needsRemoteTrafficKnowledge = /\b(trafic|circulation|bouchon|embouteillages?|accident|alerte|perturbation|retard|incident|route|actuel|maintenant|autour de moi|pres de moi|mon trajet|sur mon trajet)\b/.test(normalizedRemoteQuestion)
+        const needsRemoteTrafficKnowledge = /\b(trafic|circulation|bouchon|embouteillages?|accident|alerte|perturbation|retard|incident|route|actuel|maintenant|autour de moi|pres de moi|mon trajet|sur mon trajet|boul ma dige|ndaw)\b/.test(normalizedRemoteQuestion)
         const trafficSummaryValid = Boolean(
           contextRef.current.trafficSummaryFr
           && contextRef.current.trafficSummaryValidUntil
