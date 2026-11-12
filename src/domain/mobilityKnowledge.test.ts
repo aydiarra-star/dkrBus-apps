@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary } from './mobilityKnowledge'
+import { answerMobilityKnowledge, BUS_LINES, busKnowledgeSummary, setRemoteCandidateLines, type BusLine } from './mobilityKnowledge'
 import { copilotAnswer } from './copilot'
 import { createConversationMemory } from './conversation'
 import { answerAssistant } from './assistant'
@@ -131,6 +131,29 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(ask('horaires TER')).toContain('05h35 de Diamniadio, 05h45 de Dakar')
     expect(ask('horaires TER')).toContain('Dimanches et jours fériés')
     expect(ask('horaires TER')).toContain('ne sont pas celles de chaque gare intermédiaire')
+  })
+
+
+  it('complète le catalogue hors ligne avec une nouvelle fiche candidate Supabase sans remplacer les fiches validées', () => {
+    const candidate = {
+      network: 'ddd',
+      code: '38',
+      origin: 'Dakar',
+      destination: 'Diamniadio',
+      waypoints: ['Colobane', 'Bargny', 'Diamniadio'],
+      sourceUrl: 'https://example.com/ddd-38',
+      detailSourceUrl: 'https://example.com/ddd-38/details',
+      consultedAt: '2026-11-12',
+      publishedAt: null,
+      note: 'Fiche candidate de test.',
+    } as BusLine
+
+    expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
+    setRemoteCandidateLines([candidate])
+    expect(ask('DDD 38')).toContain('Fiche candidate de la mémoire centrale')
+    expect(ask('DDD 38')).toContain('Colobane → Bargny → Diamniadio')
+    expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
+    setRemoteCandidateLines([])
   })
 
   it('ne transforme pas une statistique CETUD ou une page institutionnelle en temps réel', () => {
