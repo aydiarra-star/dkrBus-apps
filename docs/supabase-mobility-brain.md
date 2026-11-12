@@ -8,7 +8,7 @@ Supabase conserve un référentiel durable et versionné pour les cinq réseaux 
 
 - Lecture complète : `GET /functions/v1/dakar-bus-knowledge`
 - État des alertes : `GET /functions/v1/dakar-bus-knowledge?traffic_only=1` (utilisé par le copilote lorsque la synthèse trafic locale est absente ou périmée).
-- Recherche ciblée préparée pour les appels directs : `GET /functions/v1/dakar-bus-mobility-search?q=Colobane&network=ter` (endpoint distinct, non utilisé par le client dans cette PR).
+- Recherche ciblée préparée pour les appels directs : `GET /functions/v1/dakar-bus-mobility-search?q=Colobane&network=aftu` (endpoint distinct, non utilisé par le client dans cette PR).
 - Le client web utilise uniquement la clé publique `sb_publishable_`. La clé `service_role` n'est jamais intégrée au navigateur.
 - Le client télécharge le référentiel complet au premier échange mobilité, le conserve en mémoire et le rafraîchit au plus toutes les cinq minutes.
 - La question, la conversation, la position GPS et les préférences de l'utilisateur ne sont pas envoyées à Supabase par cette intégration.
