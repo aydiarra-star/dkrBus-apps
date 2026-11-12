@@ -381,7 +381,9 @@ function lineReply(
     || /diamniadio\s*→\s*dakar/i.test(direction.direction_code),
   )
   const returnNote = returnDirection?.direction_method === 'reverse_derived'
-    ? 'Sens retour calculé par inversion de l’aller ; il n’est pas confirmé par une fiche retour opérateur.'
+    ? (network === 'ter' || network === 'brt'
+      ? 'Sens retour présenté selon la séquence inverse de référence ; les horaires validés du réseau sont conservés.'
+      : 'Sens retour calculé par inversion de l’aller ; il n’est pas confirmé par une fiche retour opérateur.')
     : returnDirection?.direction_method === 'unknown'
       ? 'Le parcours est un circuit ou son sens retour distinct n’est pas établi.'
       : 'Aucun sens retour distinct confirmé dans cette fiche.'
