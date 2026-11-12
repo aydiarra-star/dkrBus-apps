@@ -1,5 +1,8 @@
 import {
+  BUS_LINES,
+  setRemoteCandidateLines,
   setRemoteMobilityGraph,
+  type BusLine,
   type RemoteMobilityGraph,
 } from './mobilityKnowledge'
 import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabaseKnowledge'
@@ -61,6 +64,47 @@ function uniqueById<T extends { id: string }>(rows: T[]): T[] {
   const byId = new Map<string, T>()
   for (const row of rows) byId.set(row.id, row)
   return [...byId.values()]
+}
+
+function deriveCandidateLines(graph: RemoteMobilityGraph): BusLine[] {
+  const localKeys = new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`))
+  const networkById = new Map(graph.networks.map((network) => [network.id, network]))
+  return graph.lines.flatMap((line) => {
+    const network = networkById.get(line.network_id)?.code
+    if ((network !== 'ddd' && network !== 'aftu') || line.status !== 'candidate') return []
+    if (localKeys.has(`${network}:${line.code}`)) return []
+
+    const directions = graph.directions.filter((direction) => direction.line_id === line.id)
+    const outbound = directions.find((direction) =>
+      !/return|inbound|retour/i.test(direction.direction_code)
+      && !/return|reverse/i.test(direction.direction_method ?? '')
+    ) ?? directions[0]
+    if (!outbound) return []
+
+    const stops = graph.ordered_line_stops
+      .filter((row) => row.direction_id === outbound.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+      .map((row) => row.stop?.canonical_name ?? graph.reference_stops.find((stop) => stop.id === row.stop_id)?.canonical_name ?? '')
+      .filter(Boolean)
+    const origin = outbound.origin_label ?? stops[0] ?? ''
+    const destination = outbound.destination_label ?? stops[stops.length - 1] ?? ''
+    const source = graph.mobility_sources.find((item) => item.id === line.source_id)
+    const sourceUrl = source?.url ?? ''
+    if (!origin || !destination || !sourceUrl) return []
+
+    return [{
+      network,
+      code: line.code,
+      origin,
+      destination,
+      waypoints: stops,
+      sourceUrl,
+      detailSourceUrl: sourceUrl,
+      consultedAt: graph.generated_at.slice(0, 10),
+      publishedAt: null,
+      note: outbound.direction_notes || 'Fiche candidate du référentiel central ; le sens retour reste à confirmer.',
+    } as BusLine]
+  })
 }
 
 function mergeGraphs(graphs: RemoteMobilityGraph[]): RemoteMobilityGraph {
@@ -142,6 +186,7 @@ export async function hydrateSupabaseGraphFromCache(): Promise<boolean> {
     const cached = await readCache()
     if (!cached || Date.now() - cached.savedAt > CACHE_MAX_AGE_MS) return false
     setRemoteMobilityGraph(cached.graph)
+    setRemoteCandidateLines(deriveCandidateLines(cached.graph))
     return true
   } catch {
     return false
@@ -163,6 +208,7 @@ export async function refreshSupabaseGraph(
 
   const merged = mergeGraphs(graphs)
   setRemoteMobilityGraph(merged)
+  setRemoteCandidateLines(deriveCandidateLines(merged))
   try {
     await writeCache(merged)
   } catch {
