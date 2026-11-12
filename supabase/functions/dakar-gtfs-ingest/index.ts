@@ -178,7 +178,9 @@ Deno.serve(async (req: Request) => {
     valid_until: m.valid_until,
     confidence: m.confidence,
     service_status: m.service_status,
-    validity_status: "NOT_YET_VALID",
+    validity_status: Date.now() < Date.parse(String(m.valid_from))
+      ? "NOT_YET_VALID"
+      : Date.now() >= Date.parse(String(m.valid_until)) ? "STALE" : "CURRENT",
     archive_bucket: BUCKET,
     archive_object_path: archivePath,
     manifest_object_path: manifestPath,
