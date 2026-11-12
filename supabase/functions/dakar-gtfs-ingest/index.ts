@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
-import { readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
+import { inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -87,15 +87,12 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return reply(405, { error: "METHOD_NOT_ALLOWED" }, cors);
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
 
-  const declaredLengthHeader = req.headers.get("Content-Length");
-  if (declaredLengthHeader !== null) {
-    if (!/^\d+$/.test(declaredLengthHeader)) {
-      return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
-    }
-    const declaredLength = Number(declaredLengthHeader);
-    if (!Number.isSafeInteger(declaredLength) || declaredLength > MAX_REQUEST_BYTES) {
-      return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
-    }
+  const contentLength = inspectContentLength(req.headers.get("Content-Length"), MAX_REQUEST_BYTES);
+  if (!contentLength.valid) {
+    return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
+  }
+  if (contentLength.tooLarge) {
+    return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
   }
 
   const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
