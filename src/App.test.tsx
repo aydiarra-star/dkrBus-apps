@@ -64,11 +64,14 @@ function chooseStopInField(title: string, query: string, optionName: RegExp) {
 }
 
 function stubGeolocation(latitude = 14.7051, longitude = -17.4602) {
+  let watchId = 0
   Object.defineProperty(navigator, 'geolocation', {
     configurable: true,
     value: {
       getCurrentPosition: (success: (position: unknown) => void) =>
         success({ coords: { latitude, longitude, accuracy: 25 } }),
+      watchPosition: vi.fn(() => ++watchId),
+      clearWatch: vi.fn(),
     },
   })
 }
@@ -2027,6 +2030,24 @@ describe('réglages appliqués réellement à l’application', () => {
     fireEvent.click(screen.getByRole('button', { name: /utiliser ma position comme départ/i }))
     expect(await screen.findByText(/Géolocalisation désactivée dans vos réglages/i)).toBeTruthy()
     expect(requested).not.toHaveBeenCalled()
+  })
+
+  it('suspend le suivi GPS en arrière-plan et le reprend au premier plan', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const geo = navigator.geolocation
+    render(<App />)
+    expect(geo.watchPosition).toHaveBeenCalledTimes(1)
+
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
+    fireEvent(document, new Event('visibilitychange'))
+    expect(geo.clearWatch).toHaveBeenCalledWith(1)
+
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    fireEvent(document, new Event('visibilitychange'))
+    expect(geo.watchPosition).toHaveBeenCalledTimes(2)
+
+    cleanup()
+    expect(geo.clearWatch).toHaveBeenLastCalledWith(2)
   })
 
   it('le micro coupé dans les réglages refuse la dictée, sans masquer la saisie écrite', async () => {
