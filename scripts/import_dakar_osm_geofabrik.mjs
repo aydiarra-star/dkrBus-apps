@@ -1,5 +1,7 @@
-import { createReadStream } from "node:fs";
-import { readFile, rm } from "node:fs/promises";
+import { createWriteStream } from "node:fs";
+import { mkdir, readFile, rm } from "node:fs/promises";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { spawn } from "node:child_process";
 
 const bbox = "-17.56,14.55,-17.12,14.91";
@@ -22,21 +24,14 @@ async function run(command, args) {
 }
 
 await rm(work, { recursive: true, force: true });
-await (await import("node:fs/promises")).mkdir(work, { recursive: true });
+await mkdir(work, { recursive: true });
 
 console.log("Downloading the Geofabrik Senegal and Gambia extract...");
 const response = await fetch(pbfUrl, { headers: { "User-Agent": "DakarBusOSMImporter/1.0" } });
 if (!response.ok || !response.body) throw new Error(`Geofabrik download failed: HTTP ${response.status}`);
 const pbfPath = `${work}/senegal-gambia.osm.pbf`;
-const file = await import("node:fs");
-const output = file.createWriteStream(pbfPath);
-await new Promise(async (resolve, reject) => {
-  response.body.pipeTo(new WritableStream({
-    write(chunk) { return new Promise((res, rej) => output.write(Buffer.from(chunk), (err) => err ? rej(err) : res())); },
-    close() { output.end(); resolve(); },
-    abort(error) { output.destroy(error); reject(error); },
-  })).catch(reject);
-});
+// Wait for the file stream to finish before Osmium reads the downloaded PBF.
+await pipeline(Readable.fromWeb(response.body), createWriteStream(pbfPath));
 
 const regionPath = `${work}/dakar.osm.pbf`;
 const filteredPath = `${work}/dakar-stops.osm.pbf`;
@@ -45,9 +40,25 @@ const geojsonPath = `${work}/dakar-stops.geojson`;
 console.log("Extracting the Dakar bounding box...");
 await run("osmium", ["extract", "--bbox", bbox, "--strategy", "complete_ways", "-o", regionPath, pbfPath, "--overwrite"]);
 console.log("Filtering bus stops and platforms...");
-await run("osmium", ["tags-filter", regionPath, "-o", filteredPath, "nwr/highway=bus_stop", "nwr/public_transport=platform", "nwr/amenity=bus_station", "nwr/public_transport=stop_position,bus=yes", "--overwrite"]);
-console.log("Converting the filtered OSM data to GeoJSON...");
-await run("osmium", ["export", filteredPath, "-o", geojsonPath, "--overwrite"]);
+await run("osmium", [
+  "tags-filter",
+  regionPath,
+  "-o",
+  filteredPath,
+  "nw/highway=bus_stop",
+  "nw/public_transport=platform",
+  "nw/amenity=bus_station",
+  "--overwrite",
+]);
+console.log("Converting the filtered OSM data to GeoJSON with OSM identifiers...");
+await run("osmium", [
+  "export",
+  "--attributes=type,id,version,timestamp",
+  filteredPath,
+  "-o",
+  geojsonPath,
+  "--overwrite",
+]);
 
 const geo = JSON.parse(await readFile(geojsonPath, "utf8"));
 const flatten = (value, out = []) => {
@@ -66,7 +77,15 @@ for (const feature of geo.features ?? []) {
   const lat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
   if (lat < 14.55 || lat > 14.91 || lon < -17.56 || lon > -17.12) continue;
   const tags = Object.fromEntries(Object.entries(p).filter(([k, v]) => !k.startsWith("@") && typeof v === "string"));
-  elements.push({ type, id, lat, lon, tags, version: Number(p["@version"]) || undefined, timestamp: p["@timestamp"] || undefined });
+  elements.push({
+    type,
+    id,
+    lat,
+    lon,
+    tags,
+    version: Number(p["@version"]) || undefined,
+    timestamp: p["@timestamp"] || undefined,
+  });
 }
 
 if (!elements.length) throw new Error("No valid bus stop/platform objects found in the Dakar extract.");
