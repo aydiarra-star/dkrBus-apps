@@ -91,6 +91,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const memoryRef = useRef<ConversationMemory>(createConversationMemory())
   const lastTrafficQuestionRef = useRef<string | null>(null)
   const contextRef = useRef(context)
+  const remoteKnowledgeRef = useRef<Awaited<ReturnType<typeof loadMobilityBrainKnowledge>>>(null)
   const preferenceRef = useRef(preference)
   const pendingRef = useRef(false)
   const recognitionRef = useRef<SpeechRecognitionHandle | null>(null)
@@ -214,8 +215,14 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           // Même « répète » doit oublier une perturbation résolue/périmée.
           memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
         }
-        const remoteMobilityKnowledge = await loadMobilityBrainKnowledge()
-        const assistantContext = { ...contextRef.current, remoteMobilityKnowledge }
+        const needsRemoteKnowledge = /\\b(ddd|dakar dem dikk|aftu|tata|bus|lignes?|arrets?|réseau|reseau|mobilité|mobilite|mémoire|memoire|base de connaissances)\\b/i.test(trimmed)
+        if (needsRemoteKnowledge && !remoteKnowledgeRef.current) {
+          remoteKnowledgeRef.current = await loadMobilityBrainKnowledge()
+        }
+        const assistantContext = {
+          ...contextRef.current,
+          remoteMobilityKnowledge: remoteKnowledgeRef.current,
+        }
         reply = copilotAnswer(trimmed, assistantContext, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
       } catch {
