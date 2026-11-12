@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
 import { readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
