@@ -45,7 +45,47 @@ Application web / PWA (GitHub Pages)
 - **Render :** hébergement de l'API et des tâches de collecte planifiées. Le serveur ne doit pas exposer la console locale de gouvernance existante au public.
 - **IA :** fournisseur interchangeable derrière une interface serveur. Le modèle ne reçoit que les données nécessaires à la question.
 
-## 3. Modèle de données cible
+## 3. Référentiel de couverture et faits vérifiés (12 novembre 2026)
+
+Les nombres d'opérateurs sont des **indicateurs officiels publiés par le CETUD**, pas un comptage automatique des fiches importées dans l'application.
+
+| Réseau | Nombre de lignes publié | Couverture candidate constatée dans le dépôt | Écart / règle |
+|---|---:|---:|---|
+| DDD | 38 | 37 fiches | 1 ligne d'écart à identifier ; ne pas fabriquer une fiche |
+| AFTU | 72 | 72 fiches | Les fiches ne signifient pas que les 72 parcours aller-retour sont complets |
+| **Total DDD + AFTU** | **110** | **109** | **110 lignes annoncées officiellement, 109 fiches candidates actuellement** |
+
+Source DDD : https://cetud.sn/reseaux-de-transport/ddd/  
+Source AFTU : https://cetud.sn/reseaux-de-transport/aftu/ (72 lignes, 14 GIE, 2 300 bus).
+
+Le référentiel doit conserver séparément :
+- `official_line_count` : nombre publié par l'autorité, avec source et date d'observation ;
+- `catalogue_record_count` : nombre de fiches réellement présentes dans une version du catalogue ;
+- `verified_route_count` : nombre de lignes dont les parcours ont été contrôlés ;
+- `complete_bidirectional_route_count` : nombre de lignes dont les deux directions ont été vérifiées.
+
+Ces indicateurs ne doivent jamais être confondus.
+
+### Mise à jour majeure TER — phase 2 jusqu'à l'AIBD
+
+La mise en service commerciale de la section Diamniadio–AIBD est confirmée le **28 septembre 2026** par l'Agence de Presse Sénégalaise :
+- 19 km supplémentaires en double voie électrifiée ;
+- 55 km de linéaire total annoncé ;
+- nouvelle gare AIBD ;
+- fréquence annoncée par le ministre : 8 minutes entre Dakar et Diamniadio, 24 minutes entre Diamniadio et AIBD ;
+- gare voyageurs de Sébikotane encore à réaliser à la date de l'annonce ; une navette de bus vers Diamniadio est annoncée en attendant.
+
+Source : https://aps.sn/train-express-regional-la-phase-diamniadio-aibd-inauguree-un-investissement-de-plus-de-300-milliards-fcfa/ (28 septembre 2026, lignes 64–81). Le ministère a également communiqué un temps de parcours Dakar–AIBD d'environ 55 minutes : https://fr.linkedin.com/posts/ministere-des-transports-terrestres-aeriens_ter-aibd-diamniadio-activity-7510463677347717122--lfm.
+
+**Conséquence pour la migration :** l'ancien référentiel de 13 gares Dakar–Diamniadio est une base historique à préserver, mais il ne représente plus à lui seul le périmètre actuel du TER. La phase 2 doit être ajoutée comme nouvelle version de données, sans réécrire l'historique. Ne pas inventer les stations intermédiaires, horaires complets, tarifs, jours de service ou arrêts voyageurs non confirmés. Les tarifs 4 000/7 500 FCFA et l'amplitude 05:40–22:00 fournis dans une information secondaire restent **à vérifier** avant publication.
+
+### Extensibilité de la mémoire
+
+Le modèle doit accepter de nouveaux réseaux et catégories sans modification structurelle du code à chaque ajout : lignes ferroviaires, bus urbains, cars interurbains, navettes aéroport, transport maritime, mobilité partagée, marche et vélo. Il doit également accueillir des entités futures liées aux travaux routiers, arrêts temporaires, pôles d'échange, accessibilité, billettique, parkings, événements et équipements voyageurs.
+
+Ces catégories sont des capacités prévues du modèle, pas l'affirmation que ces services sont déjà exploités ou disponibles dans Dakar Bus.
+
+## 4. Modèle de données cible
 
 Les noms ci-dessous sont conceptuels. Ils ne constituent pas encore une migration SQL.
 
@@ -97,7 +137,7 @@ Tables séparées : `conversations`, `conversation_messages`, `journey_contexts`
 - Ne pas conserver l'audio brut par défaut.
 - Une session anonyme ne doit pas être transformée en profil durable sans information claire et consentement approprié.
 
-## 4. Recherche et calcul d'itinéraires
+## 5. Recherche et calcul d'itinéraires
 
 Le serveur expose des outils métiers limités, par exemple :
 
@@ -122,7 +162,7 @@ Le modèle IA ne peut pas :
 
 En cas d'absence de preuve, l'assistant répond qu'il ne sait pas et indique ce qui manque.
 
-## 5. Recherche documentaire et mémoire sémantique
+## 6. Recherche documentaire et mémoire sémantique
 
 La recherche exacte (code de ligne, nom d'arrêt, alias, numéro) passe d'abord par PostgreSQL et ses index classiques. La recherche géographique passe par PostGIS.
 
@@ -130,7 +170,7 @@ pgvector est une couche secondaire pour retrouver des documents par leur sens, p
 
 Les documents sources sont conservés avec leur empreinte, leur date et leurs droits de réutilisation. Le contenu de pages web ou de documents importés est traité comme une donnée non fiable, jamais comme une instruction adressée au modèle.
 
-## 6. Wolof et voix
+## 7. Wolof et voix
 
 La V1 doit d'abord améliorer la compréhension écrite français/wolof/mixte, avec un corpus validé par des locuteurs natifs :
 
@@ -143,7 +183,7 @@ Le calcul d'itinéraire reste identique quelle que soit la langue : seule la com
 
 La reconnaissance vocale wolof et la synthèse vocale wolof sont des capacités séparées. Elles ne seront annoncées comme disponibles qu'après choix d'un moteur qui prend réellement en charge le wolof et tests avec locuteurs natifs. Aucun faux repli « wolof vocal » ne doit masquer une transcription française approximative.
 
-## 7. Alertes et collecte
+## 8. Alertes et collecte
 
 Ordre de priorité :
 
@@ -156,7 +196,7 @@ Chaque connecteur a un état indépendant : `LIVE`, `PARTIAL`, `STALE`, `UNAVAIL
 
 Les collecteurs sont exécutés côté serveur, avec liste d'hôtes autorisés, délais, taille maximale, validation de schéma, absence de redirections vers des hôtes non approuvés et secrets dans les variables d'environnement. Les données périmées sont exclues des réponses actives.
 
-## 8. Sécurité et confidentialité
+## 9. Sécurité et confidentialité
 
 - Clés privilégiées Supabase et clés IA uniquement côté serveur.
 - RLS activé sur toutes les tables privées ; tests négatifs entre deux comptes.
@@ -167,7 +207,7 @@ Les collecteurs sont exécutés côté serveur, avec liste d'hôtes autorisés, 
 - Sauvegardes chiffrées et test de restauration avant toute migration importante.
 - Les actions d'administration du réseau exigent un rôle nominatif, une revue et un historique non destructif.
 
-## 9. Migration sans perte
+## 10. Migration sans perte
 
 ### Phase 0 — gel et inventaire
 - Épingler le commit de référence.
@@ -207,10 +247,12 @@ Les collecteurs sont exécutés côté serveur, avec liste d'hôtes autorisés, 
 - Valider le corpus wolof et la voix indépendamment.
 - Étendre la couverture seulement après preuves et tests.
 
-## 10. Tests et critères de sortie
+## 11. Tests et critères de sortie
 
 **Non-régression réseau**
-- 13 gares TER et 23 stations BRT de référence conservées.
+- Les 13 gares TER historiques restent conservées comme version antérieure ; la phase 2 jusqu'à l'AIBD est intégrée en version distincte après validation des arrêts voyageurs.
+- Les 23 stations BRT de référence restent inchangées.
+- Les indicateurs CETUD 38 DDD / 72 AFTU sont stockés séparément des fiches candidates (37 DDD / 72 AFTU).
 - Aucun changement non autorisé des horaires, fréquences, séquences ou comptes à rebours.
 - Les tests actuels TER/BRT continuent de passer.
 
@@ -239,7 +281,7 @@ Les collecteurs sont exécutés côté serveur, avec liste d'hôtes autorisés, 
 - Coûts et quotas mesurés avant activation générale.
 - Aucun secret dans les artefacts frontend.
 
-## 11. État de ce document
+## 12. État de ce document
 
 Ce document décrit la cible et l'ordre de réalisation. Il n'a créé ni base Supabase, ni table, ni service Render, ni clé, ni migration, ni connexion IA. Il n'a modifié aucune donnée de transport.
 
