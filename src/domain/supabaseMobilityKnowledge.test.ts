@@ -3,6 +3,8 @@ import {
   answerSupabaseMobilityKnowledge,
   type SupabaseMobilityKnowledgeSnapshot,
 } from './supabaseMobilityKnowledge'
+import { copilotAnswer } from './copilot'
+import { createConversationMemory } from './conversation'
 
 const snapshot: SupabaseMobilityKnowledgeSnapshot = {
   realtime: false,
@@ -97,6 +99,16 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     const reply = answerSupabaseMobilityKnowledge('Y a-t-il un accident sur la route ?', withCandidate)
     expect(reply?.text).toContain('non confirmés')
     expect(reply?.text).toContain('pas des alertes confirmées')
+  })
+
+  it('branche la mémoire Supabase dans le copilote sans remplacer son moteur local', () => {
+    const reply = copilotAnswer(
+      'DDD 228',
+      { publishedAvailable: false, adminOnline: false, remoteMobilityKnowledge: snapshot },
+      createConversationMemory(),
+      'fr',
+    )
+    expect(reply.text).toContain('Rufisque → Bargny → Diamniadio → Yenne')
   })
 
   it('retourne null quand aucune donnée distante ne peut répondre', () => {
