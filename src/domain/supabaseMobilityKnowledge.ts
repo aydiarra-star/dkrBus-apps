@@ -193,7 +193,6 @@ function textArray(value: unknown): string[] {
 function lineReply(
   line: SupabaseKnowledgeLine,
   snapshot: SupabaseMobilityKnowledgeSnapshot,
-  question: string,
 ): SupabaseKnowledgeReply {
   const network = snapshot.networks?.find((item) => item.id === line.network_id)?.code
     ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code
@@ -307,7 +306,7 @@ export function answerSupabaseMobilityKnowledge(
       return `• ${network.toUpperCase()} ${line.code} : ${record?.origin_label || '?'} ↔ ${record?.destination_label || '?'}`
     }).join('\n')}\nPrécisez le réseau pour éviter une confusion.` }
   }
-  if (code && matches.length === 1) return lineReply(matches[0], snapshot, question)
+  if (code && matches.length === 1) return lineReply(matches[0], snapshot)
 
   if (!code && explicitNetwork && /\b(liste|lignes|numeros|reseau|toutes)\b/.test(text)) {
     const codes = matches.map((line) => line.code).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
