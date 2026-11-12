@@ -6,6 +6,7 @@ import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { loadMobilityBrainKnowledge } from '../domain/mobilityBrainApi'
+import { loadTrafficBrainKnowledge } from '../domain/trafficBrainApi'
 import { copilotAnswer } from '../domain/copilot'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
 import { type AssistantLanguagePreference } from '../domain/language'
@@ -92,6 +93,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const lastTrafficQuestionRef = useRef<string | null>(null)
   const contextRef = useRef(context)
   const remoteKnowledgeRef = useRef<Awaited<ReturnType<typeof loadMobilityBrainKnowledge>>>(null)
+  const remoteTrafficRef = useRef<Awaited<ReturnType<typeof loadTrafficBrainKnowledge>>>(null)
   const preferenceRef = useRef(preference)
   const pendingRef = useRef(false)
   const recognitionRef = useRef<SpeechRecognitionHandle | null>(null)
@@ -221,9 +223,20 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           const latestRemoteKnowledge = await loadMobilityBrainKnowledge()
           if (latestRemoteKnowledge) remoteKnowledgeRef.current = latestRemoteKnowledge
         }
+        const needsRemoteTrafficKnowledge = /\b(trafic|circulation|bouchon|embouteillages?|accident|alerte|perturbation|retard|incident|route|autour de moi|pres de moi|mon trajet|sur mon trajet)\b/.test(normalizedRemoteQuestion)
+        const trafficSummaryValid = Boolean(
+          contextRef.current.trafficSummaryFr
+          && contextRef.current.trafficSummaryValidUntil
+          && new Date(contextRef.current.trafficSummaryValidUntil).getTime() > Date.now()
+        )
+        if (needsRemoteTrafficKnowledge && !trafficSummaryValid) {
+          const latestRemoteTraffic = await loadTrafficBrainKnowledge()
+          if (latestRemoteTraffic) remoteTrafficRef.current = latestRemoteTraffic
+        }
         const assistantContext = {
           ...contextRef.current,
           remoteMobilityKnowledge: remoteKnowledgeRef.current,
+          remoteTrafficKnowledge: remoteTrafficRef.current,
         }
         reply = copilotAnswer(trimmed, assistantContext, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
