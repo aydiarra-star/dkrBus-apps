@@ -50,7 +50,9 @@ function catalogForLine(
   networkCode: string,
 ): MobilityBrainCatalogRecord | undefined {
   return snapshot.catalogue.find((record) =>
-    record.network_code === networkCode && record.line_code.toLowerCase() === line.code.toLowerCase()
+    isUsableRecordStatus(record.status)
+    && record.network_code === networkCode
+    && record.line_code.toLowerCase() === line.code.toLowerCase()
   )
 }
 
@@ -94,7 +96,12 @@ function formatPattern(pattern: MobilityBrainServicePattern): string {
   const window = start && end ? ` · service ${start}–${end}` : ''
   const period = pattern.period_label ? `${pattern.period_label.replace(/_/g, ' ')} : ` : ''
   const waitText = wait !== null ? ` · attente de référence ${wait} min` : ''
-  return `${period}${interval}${window}${waitText}`
+  const evidenceLabel = pattern.status === 'candidate'
+    ? 'repère candidat'
+    : pattern.status === 'verified' || pattern.status === 'published'
+      ? 'repère vérifié'
+      : 'repère non confirmé'
+  return `${evidenceLabel} · ${period}${interval}${window}${waitText}`
 }
 
 function directionTitle(direction: MobilityBrainDirection): string {
@@ -174,7 +181,9 @@ function lineReply(
 
 function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: boolean, asksFrequency: boolean): string {
   const lines = linesForNetwork(snapshot, code).sort((a, b) => a.code.localeCompare(b.code, 'fr'))
-  const directions = snapshot.directions.filter((direction) => lines.some((line) => line.id === direction.line_id))
+  const directions = snapshot.directions.filter((direction) =>
+    lines.some((line) => line.id === direction.line_id) && isUsableRecordStatus(direction.status)
+  )
   const label = networkLabel(snapshot, code)
   const summary = `${label} : ${lines.length} lignes et ${directions.length} directions enregistrées dans la mémoire Supabase.`
   const codes = listAll
