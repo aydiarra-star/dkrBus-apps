@@ -14,12 +14,14 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { id: 'aftu-id', code: 'aftu', name: 'AFTU', status: 'candidate' },
     { id: 'tata-id', code: 'tata', name: 'TATA', status: 'candidate' },
     { id: 'brt-id', code: 'brt', name: 'BRT', status: 'candidate' },
+    { id: 'ter-id', code: 'ter', name: 'TER', status: 'candidate' },
   ],
   lines: [
     { id: 'ddd-228', network_id: 'ddd-id', code: '228', status: 'candidate' },
     { id: 'aftu-5', network_id: 'aftu-id', code: '5', status: 'candidate' },
     { id: 'tata-42', network_id: 'tata-id', code: '42', status: 'candidate' },
     { id: 'brt-b2', network_id: 'brt-id', code: 'B2', status: 'candidate' },
+    { id: 'ter-line', network_id: 'ter-id', code: 'TER', status: 'candidate' },
   ],
   catalogue: [
     {
@@ -38,6 +40,10 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
       source_url: 'https://www.covoiturage.sn/bus-tata-itineraire/',
       raw_record: { waypoints: ['Boutikou Diallo', 'Petersen'] },
     },
+    {
+      network_code: 'ter', line_code: 'TER', origin_label: 'Dakar', destination_label: 'Diamniadio',
+      raw_record: {},
+    },
   ],
   directions: [
     { id: 'ddd-228-out', line_id: 'ddd-228', direction_code: 'published_order_candidate', status: 'candidate', direction_method: 'source_documented' },
@@ -45,6 +51,8 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { id: 'aftu-5-out', line_id: 'aftu-5', direction_code: 'outbound_candidate', status: 'candidate', direction_method: 'source_documented' },
     { id: 'tata-42-out', line_id: 'tata-42', direction_code: 'outbound_candidate', status: 'candidate', direction_method: 'source_documented' },
     { id: 'brt-b2-schedule', line_id: 'brt-b2', direction_code: 'schedule_reference_only', status: 'candidate', direction_method: 'unknown', direction_notes: 'Horaires uniquement ; itinéraire non renseigné.' },
+    { id: 'ter-out', line_id: 'ter-line', direction_code: 'Dakar → Diamniadio', status: 'candidate', direction_method: 'source_documented' },
+    { id: 'ter-return', line_id: 'ter-line', direction_code: 'Diamniadio → Dakar', status: 'candidate', direction_method: 'reverse_derived' },
   ],
   reference_stops: [
     { id: 's1', canonical_name: 'Rufisque' },
@@ -55,12 +63,18 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
     { direction_id: 'ddd-228-out', stop_id: 's2', stop_sequence: 2, stop: { id: 's2', canonical_name: 'Bargny' } },
     { direction_id: 'ddd-228-out', stop_id: 's3', stop_sequence: 3, stop: { id: 's3', canonical_name: 'Diamniadio' } },
     { direction_id: 'ddd-228-out', stop_id: 's4', stop_sequence: 4, stop: { id: 's4', canonical_name: 'Yenne' } },
+    { direction_id: 'ter-out', stop_id: 'ter-s1', stop_sequence: 1, stop: { id: 'ter-s1', canonical_name: 'Dakar' } },
+    { direction_id: 'ter-out', stop_id: 'ter-s2', stop_sequence: 2, stop: { id: 'ter-s2', canonical_name: 'Colobane' } },
+    { direction_id: 'ter-out', stop_id: 'ter-s3', stop_sequence: 3, stop: { id: 'ter-s3', canonical_name: 'Diamniadio' } },
   ],
   service_patterns: [
     { direction_id: 'brt-b2-schedule', pattern_type: 'published_frequency', service_start: '06:00:00', service_end: '21:00:00', headway_minutes: 6, days_of_week: [1, 2, 3, 4, 5, 6], status: 'verified' },
     { direction_id: 'ddd-228-out', pattern_type: 'estimated_frequency', headway_minutes: null, status: 'candidate' },
     { direction_id: 'aftu-5-out', pattern_type: 'estimated_frequency', service_start: '06:00:00', service_end: '23:00:00', headway_minutes: 10, status: 'candidate' },
     { direction_id: 'tata-42-out', pattern_type: 'estimated_frequency', headway_minutes: 11.58, status: 'candidate' },
+    { direction_id: 'ter-out', pattern_type: 'published_frequency', service_start: '05:30:00', service_end: '21:00:00', headway_minutes: 10, status: 'verified' },
+    { direction_id: 'ter-out', pattern_type: 'published_frequency', service_start: '06:25:00', service_end: '22:05:00', headway_minutes: 20, status: 'verified' },
+    { direction_id: 'ter-out', pattern_type: 'published_frequency', service_start: '21:00:00', service_end: '22:00:00', headway_minutes: 20, status: 'verified' },
   ],
   transfers: [
     { label: 'Dakar TER ↔ BRT Petersen', status: 'candidate', walking_distance_m: 1000 },
@@ -83,6 +97,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(supabaseFetchOptionsForQuestion('ligne 228')).toEqual({ lineCode: '228' })
     expect(supabaseFetchOptionsForQuestion('TATA 42')).toEqual({ network: 'tata', lineCode: '42' })
     expect(supabaseFetchOptionsForQuestion('BRT B2')).toEqual({ network: 'brt', lineCode: 'B2' })
+    expect(supabaseFetchOptionsForQuestion('TER')).toEqual({ network: 'ter' })
     expect(supabaseFetchOptionsForQuestion('Et ses arrêts', 'ddd:228')).toEqual({ network: 'ddd', lineCode: '228' })
     expect(supabaseFetchOptionsForQuestion('Y a-t-il des embouteillages ?')).toEqual({ trafficOnly: true })
     expect(supabaseFetchOptionsForQuestion('Correspondance entre DDD et BRT')).toEqual({ transferOnly: true })
@@ -96,6 +111,14 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(reply?.text).toContain('Sens retour calculé par inversion')
     expect(reply?.text).toContain('demdikk.sn')
     expect(reply?.lineId).toBe('ddd:228')
+  })
+
+  it('consulte la référence TER sans modifier les horaires validés', () => {
+    const reply = answerSupabaseMobilityKnowledge('TER', snapshot)
+    expect(reply?.text).toContain('TER TER')
+    expect(reply?.text).toContain('Dakar → Colobane → Diamniadio')
+    expect(reply?.text).toContain('05:30–21:00 : 10 min')
+    expect(reply?.text).toContain('Sens retour calculé par inversion')
   })
 
   it('expose les repères de fréquence enregistrés sans les présenter comme des départs en direct', () => {
