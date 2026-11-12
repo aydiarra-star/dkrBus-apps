@@ -66,6 +66,10 @@ function stopsForDirection(
 ): MobilityBrainOrderedStop[] {
   return snapshot.ordered_line_stops
     .filter((row) => row.direction_id === directionId)
+    .filter((row) => !row.stop || (
+      row.stop.id === row.stop_id
+      && (!row.stop.status || isUsableRecordStatus(row.stop.status))
+    ))
     .sort((a, b) => a.stop_sequence - b.stop_sequence)
 }
 
@@ -234,6 +238,10 @@ function stopReply(
   const targetIds = new Set(matchedStops.map((stop) => stop.id))
   const directionIds = new Set(snapshot.ordered_line_stops
     .filter((row) => targetIds.has(row.stop_id))
+    .filter((row) => !row.stop || (
+      row.stop.id === row.stop_id
+      && (!row.stop.status || isUsableRecordStatus(row.stop.status))
+    ))
     .map((row) => row.direction_id))
   const directionRows = snapshot.directions.filter((direction) =>
     directionIds.has(direction.id) && isUsableRecordStatus(direction.status)
