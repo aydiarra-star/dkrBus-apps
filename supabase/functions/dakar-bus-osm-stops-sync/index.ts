@@ -8,11 +8,11 @@ const TILE_BBOXES: Record<string, string> = {
   south: "14.60,-17.40,14.75,-17.16",
 };
 const ENDPOINTS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
 ];
-const buildQuery = (bbox: string) => `[out:json][timeout:30];
+const buildQuery = (bbox: string) => `[out:json][timeout:18];
 (
   node["highway"="bus_stop"](${bbox});
   node["public_transport"="platform"](${bbox});
@@ -74,7 +74,7 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
             "User-Agent": "DakarBusMobilityData/1.0 (+https://github.com/aydiarra-star/dkrBus-apps)",
           },
           body: new URLSearchParams({ data: query }),
-          signal: AbortSignal.timeout(35_000),
+          signal: AbortSignal.timeout(20_000),
         });
         if (!response.ok) {
           lastError = "OVERPASS_HTTP_" + response.status + " at " + new URL(endpoint).hostname;
