@@ -133,4 +133,19 @@ for (let offset = 0; offset < uniqueElements.length; offset += 100) {
   if (!upload.ok || body.ok !== true) throw new Error(`Batch upload failed at offset ${offset}: HTTP ${upload.status} ${JSON.stringify(body)}`);
   total += Number(body.imported_bus_stop_objects ?? 0);
 }
-console.log(`Imported ${total} OSM candidate objects. Canonical stops and timetables were not changed.`);
+console.log(`Imported ${total} OSM candidate objects.`);
+const matchRefresh = await fetch(`${supabaseUrl}/functions/v1/dakar-bus-osm-stops-sync`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "apikey": publishableKey,
+    "x-github-oidc-token": oidcToken,
+  },
+  body: JSON.stringify({ mode: "refresh_matches" }),
+});
+const matchBody = await matchRefresh.json().catch(() => ({}));
+if (!matchRefresh.ok || matchBody.ok !== true) {
+  throw new Error(`OSM candidate match refresh failed: HTTP ${matchRefresh.status} ${JSON.stringify(matchBody)}`);
+}
+console.log(`Refreshed ${Number(matchBody.candidate_matches_created_or_refreshed ?? 0)} candidate matches. Canonical stops and timetables were not changed.`);
+
