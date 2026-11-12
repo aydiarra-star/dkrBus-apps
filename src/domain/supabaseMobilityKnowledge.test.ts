@@ -132,6 +132,22 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(reply?.text).toContain('chemin piéton')
   })
 
+  it('indique la fraîcheur des flux RSS quand aucune alerte n’est active', () => {
+    const withSources = {
+      ...snapshot,
+      traffic_sources: [{
+        name: 'Dakaractu · flux RSS',
+        status: 'partial',
+        last_checked_at: '2026-11-12T06:45:02Z',
+        metadata: { last_feed_item_count: 20, last_traffic_candidate_count: 0 },
+      }],
+    }
+    const reply = answerSupabaseMobilityKnowledge('Quel est le trafic ?', withSources)
+    expect(reply?.text).toContain('Aucune alerte routière confirmée')
+    expect(reply?.text).toContain('Dakaractu')
+    expect(reply?.text).toContain('ne garantit pas que les routes soient fluides')
+  })
+
   it('ne transforme pas un article non confirmé en alerte confirmée', () => {
     const withCandidate = {
       ...snapshot,
