@@ -57,6 +57,10 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
   transfers: [
     { label: 'Dakar TER ↔ BRT Petersen', status: 'candidate', walking_distance_m: 1000 },
   ],
+  data_assertions: [
+    { subject_type: 'line_variant', subject_id: 'ddd-502', predicate: 'variant_service', status: 'verified', value_json: { code: '502A', origin: 'Colobane', destination: 'UCAD', note: 'Séquence propre à la variante non publiée.', source_url: 'https://demdikk.sn/info-voyageurs/' } },
+    { subject_type: 'network', subject_id: 'ddd-id', predicate: 'variant_service', status: 'verified', value_json: { code: '504B', origin: 'Sébikotane', destination: 'Gare Diamniadio', note: 'Arrêts intermédiaires non renseignés.', source_url: 'https://demdikk.sn/info-voyageurs/' } },
+  ],
   confirmed_traffic_incidents: [],
   unverified_traffic_candidates: [],
 }
@@ -84,6 +88,15 @@ describe('mémoire Supabase distante Dakar Bus', () => {
 
   it('liste les lignes du réseau explicitement demandé', () => {
     expect(answerSupabaseMobilityKnowledge('liste des lignes DDD', snapshot)?.text).toContain('228')
+  })
+
+  it('reconnaît les variantes DDD officielles sans inventer leurs arrêts', () => {
+    const line502a = answerSupabaseMobilityKnowledge('DDD 502A', snapshot)
+    expect(line502a?.text).toContain('Colobane ↔ UCAD')
+    expect(line502a?.text).toContain('Séquence propre à la variante non publiée')
+
+    const line504b = answerSupabaseMobilityKnowledge('DDD 504B', snapshot)
+    expect(line504b?.text).toContain('Sébikotane ↔ Gare Diamniadio')
   })
 
   it('expose la fréquence BRT B2 sans inventer son itinéraire ni ses arrêts', () => {
