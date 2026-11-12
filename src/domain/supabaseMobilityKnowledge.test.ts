@@ -62,6 +62,10 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
   transfers: [
     { label: 'Dakar TER ↔ BRT Petersen', status: 'candidate', walking_distance_m: 1000 },
   ],
+  shared_stops: [
+    { stop_id: 'shared-22', canonical_name: 'Croisement 22', network_codes: ['brt', 'ddd'], line_codes: ['BRT B1', 'DDD 227'], geocoded: true, status: 'candidate' },
+  ],
+  counts: { unlocated_shared_stop_names: 329 },
   data_assertions: [
     { subject_type: 'line_variant', subject_id: 'ddd-502', predicate: 'variant_service', status: 'verified', value_json: { code: '502A', origin: 'Colobane', destination: 'UCAD', note: 'Séquence propre à la variante non publiée.', source_url: 'https://demdikk.sn/info-voyageurs/' } },
     { subject_type: 'network', subject_id: 'ddd-id', predicate: 'variant_service', status: 'verified', value_json: { code: '504B', origin: 'Sébikotane', destination: 'Gare Diamniadio', note: 'Arrêts intermédiaires non renseignés.', source_url: 'https://demdikk.sn/info-voyageurs/' } },
@@ -78,6 +82,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(supabaseFetchOptionsForQuestion('BRT B2')).toEqual({ network: 'brt', lineCode: 'B2' })
     expect(supabaseFetchOptionsForQuestion('Et ses arrêts', 'ddd:228')).toEqual({ network: 'ddd', lineCode: '228' })
     expect(supabaseFetchOptionsForQuestion('Y a-t-il des embouteillages ?')).toEqual({ trafficOnly: true })
+    expect(supabaseFetchOptionsForQuestion('Correspondance entre DDD et BRT')).toEqual({ transferOnly: true })
     expect(supabaseFetchOptionsForQuestion('Bonjour')).toBeNull()
   })
   it('répond avec la séquence DDD importée et signale le retour dérivé', () => {
@@ -98,6 +103,13 @@ describe('mémoire Supabase distante Dakar Bus', () => {
 
   it('retrouve une fiche AFTU par numéro', () => {
     expect(answerSupabaseMobilityKnowledge('AFTU ligne 5', snapshot)?.text).toContain('Lat Dior')
+  })
+
+  it('propose des correspondances à partir des arrêts partagés géolocalisés', () => {
+    const reply = answerSupabaseMobilityKnowledge('Correspondance entre DDD et BRT', snapshot)
+    expect(reply?.text).toContain('Croisement 22')
+    expect(reply?.text).toContain('BRT / DDD')
+    expect(reply?.text).toContain('restent à vérifier sur le terrain')
   })
 
   it('retrouve un arrêt et les lignes qui lui sont associées', () => {
