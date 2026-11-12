@@ -52,7 +52,7 @@ Aucune fréquence ne constitue l'heure du prochain véhicule. Aucun temps réel 
 - Waze for Cities nécessite un accès partenaire. Les applications ADS Mobilité et Sunu Autoroute ne fournissent pas, à ce stade, de flux public développeur vérifié.
 - Le copilote utilise d'abord la synthèse locale récente ; si elle est absente ou périmée, il consulte l'état trafic Supabase en lecture seule. Le système ne prétend donc pas disposer d'un capteur de circulation en direct. Aucune alerte confirmée n'est publiée sans preuve suffisante.
 
-## Sécurité
+Les six fonctions Edge déployées sont versionnées dans `supabase/functions/` et leurs modes JWT sont décrits dans `supabase/config.toml`. Les endpoints publics n'exposent pas les métadonnées internes des signalements ; seules les informations nécessaires à l'état des sources sont retournées.\n\n## Sécurité
 
 - Les tables du référentiel ont RLS activé et ne sont pas lisibles directement par les rôles `anon` et `authenticated`.
 - Les opérations d'ingestion utilisent les fonctions Edge et le rôle serveur.
