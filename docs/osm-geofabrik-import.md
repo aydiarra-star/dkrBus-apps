@@ -2,7 +2,7 @@
 
 ## Pourquoi cette voie
 
-L'accès Overpass depuis l'Edge Function a échoué avec des délais d'attente et un refus HTTP 406. Le chantier utilise donc un extrait PBF public Geofabrik Sénégal-Gambie, puis filtre localement les objets OSM dans l'emprise de Dakar. Cela évite de multiplier les requêtes sur des serveurs Overpass bénévoles.
+L'accès Overpass depuis l'Edge Function a échoué avec des délais d'attente et un refus HTTP 406. Le chantier utilise donc un extrait PBF public Geofabrik Sénégal-Gambie, puis filtre localement les objets OSM dans une emprise élargie couvrant la région de Dakar, y compris les secteurs de Sangalkam, Bambilor, Yène et Diamniadio. Cela évite de multiplier les requêtes sur des serveurs Overpass bénévoles.
 
 Source : https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
 
@@ -11,7 +11,7 @@ Attribution obligatoire : © OpenStreetMap contributors, licence ODbL 1.0.
 ## Garde-fous
 
 - Seuls les arrêts de bus, plateformes et positions d'arrêt bus OSM sont retenus.
-- L'emprise est limitée à Dakar : latitude 14.60–14.84, longitude -17.56–-17.16.
+- L'emprise est limitée à Dakar : latitude 14.60–14.91, longitude -17.56–-17.12.
 - Les objets sont envoyés par lots de 100 à la fonction Supabase protégée par le jeton d'ingestion.
 - Les coordonnées restent dans `mobility_osm_stops` comme candidates.
 - Le rapprochement crée des propositions ; aucune coordonnée de `mobility_stops` n'est remplacée.
