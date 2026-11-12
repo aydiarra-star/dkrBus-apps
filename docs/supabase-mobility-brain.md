@@ -7,6 +7,7 @@ Supabase conserve un référentiel durable et versionné pour les cinq réseaux 
 ## API utilisée par l'assistant
 
 - Lecture complète : `GET /functions/v1/dakar-bus-knowledge`
+- État des alertes : `GET /functions/v1/dakar-bus-knowledge?traffic_only=1` (utilisé par le copilote lorsque la synthèse trafic locale est absente ou périmée).
 - Recherche ciblée préparée pour les appels directs : `GET /functions/v1/dakar-bus-mobility-search?q=Colobane&network=ter` (endpoint distinct, non utilisé par le client dans cette PR).
 - Le client web utilise uniquement la clé publique `sb_publishable_`. La clé `service_role` n'est jamais intégrée au navigateur.
 - Le client télécharge le référentiel complet au premier échange mobilité, le conserve en mémoire et le rafraîchit au plus toutes les cinq minutes.
@@ -46,10 +47,10 @@ Aucune fréquence ne constitue l'heure du prochain véhicule. Aucun temps réel 
 ## Alertes et circulation
 
 - Dakaractu et SeneNews sont interrogés périodiquement comme sources de presse.
-- Les articles restent des candidats non vérifiés. Ils ne deviennent jamais automatiquement des alertes confirmées.
+- Les articles restent des candidats non vérifiés. Ils ne deviennent jamais automatiquement des alertes confirmées. Le copilote distingue les alertes confirmées des signalements à vérifier et précise qu'une absence d'alerte ne prouve pas que la circulation est fluide.
 - L'APS RSS a refusé l'accès automatisé ; Google News n'a pas fourni de réponse exploitable.
 - Waze for Cities nécessite un accès partenaire. Les applications ADS Mobilité et Sunu Autoroute ne fournissent pas, à ce stade, de flux public développeur vérifié.
-- Le système ne prétend donc pas disposer d'un capteur de circulation en direct. Aucune alerte confirmée n'est publiée sans preuve suffisante.
+- Le copilote utilise d'abord la synthèse locale récente ; si elle est absente ou périmée, il consulte l'état trafic Supabase en lecture seule. Le système ne prétend donc pas disposer d'un capteur de circulation en direct. Aucune alerte confirmée n'est publiée sans preuve suffisante.
 
 ## Sécurité
 
