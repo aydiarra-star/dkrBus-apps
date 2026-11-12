@@ -17,13 +17,13 @@ Supabase conserve un référentiel durable et versionné pour les cinq réseaux 
 
 | Réseau | Lignes / unités de référence | Directions | Séquences d'arrêts |
 |---|---:|---:|---:|
-| DDD | 38 lignes | 76 | 1 344 |
+| DDD | 38 lignes | 76 | 1 360 |
 | AFTU | 72 lignes | 144 | 1 972 |
 | TATA | 62 lignes | 124 | 1 500 |
 | BRT B1 | 23 stations | 2 sens | 46 |
 | TER | 13 gares | 2 sens | 26 |
 
-Les séquences sont enregistrées par sens. Les sens retour reconstruits sont identifiés comme tels et ne sont pas promus automatiquement. TATA reste un catalogue distinct d'AFTU.
+Les séquences sont enregistrées par sens. Sur DDD, 34 sens retour ont été reconstruits par inversion exacte de leur sens source et contrôlés sans divergence ; les lignes circulaires 18, 20, 502 et 503 conservent un retour non documenté, sans séquence inventée. Les anciennes séquences DDD de retour ont été sauvegardées dans une table privée d'audit avant correction. Les sens retour reconstruits restent identifiés et ne sont pas promus automatiquement. TATA reste un catalogue distinct d'AFTU.
 
 ### Fréquences
 
