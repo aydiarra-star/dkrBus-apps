@@ -101,7 +101,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
   })
 
   it('retrouve un arrêt et les lignes qui lui sont associées', () => {
-    const reply = answerSupabaseMobilityKnowledge('Arrêt Bargny', snapshot)
+    const reply = answerSupabaseMobilityKnowledge('Arrêt Bargny DDD', snapshot)
     expect(reply?.text).toContain('Bargny')
     expect(reply?.text).toContain('DDD 228')
   })
