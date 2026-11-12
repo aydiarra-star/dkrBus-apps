@@ -35,6 +35,8 @@ import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoi
 import type { PlannerPriority } from './planner'
 
 import { trafficInstant } from './trafficFreshness'
+import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
+import type { MobilityBrainSnapshot } from './mobilityBrainApi'
 
 export interface AssistantContext {
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
@@ -57,6 +59,9 @@ export interface AssistantContext {
   trafficSummaryFr?: string | null
   /** Version wolof du résumé, quand elle est disponible. */
   trafficSummaryWo?: string | null
+  /** Référentiel public des mobilités chargé en lecture seule depuis Supabase.
+   *  Les questions et l'historique de conversation ne sont jamais envoyés. */
+  remoteMobilityKnowledge?: MobilityBrainSnapshot | null
   /** Date limite de la synthèse, bornée par la plus courte preuve source. */
   trafficSummaryValidUntil?: string | null
 }
@@ -276,6 +281,14 @@ export function journeyReply(
 export function answerAssistant(question: string, context: AssistantContext, now = Date.now()): string {
   const text = normalize(question)
   if (!text) return 'Posez-moi une question sur les transports de Dakar : arrêts BRT, gares TER, itinéraires, fréquences ou perturbations.'
+
+  const remoteBusKnowledge = answerRemoteMobilityQuestion(question, context.remoteMobilityKnowledge)
+  if (remoteBusKnowledge) return remoteBusKnowledge
+
+  // Ne jamais rabattre TATA sur AFTU si la mémoire distante n'est pas disponible.
+  if (includesAny(text, ['tata']) && !context.remoteMobilityKnowledge) {
+    return 'Le catalogue TATA est distinct de celui de l’AFTU dans la mémoire centrale. La connexion au référentiel Supabase est momentanément indisponible ; je ne vais donc pas remplacer une ligne TATA par une ligne AFTU.'
+  }
 
   const knowledge = answerMobilityKnowledge(question)
   if (knowledge) return knowledge.text
