@@ -61,7 +61,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
 export function busKnowledgeSummary(): string {
   const ddd = BUS_LINES.filter((line) => line.network === 'ddd').length
   const aftu = BUS_LINES.filter((line) => line.network === 'aftu').length
-  return `Mémoire locale DDD/AFTU : ${ddd} fiches DDD et ${aftu} fiches AFTU, consultées le ${KNOWLEDGE_CHECKED_AT}. Le catalogue central Supabase conserve séparément 38 lignes DDD, 72 lignes AFTU et 62 lignes TATA. TATA n’est pas fusionné avec AFTU ; son repère de fréquence est partagé avec AFTU et ne constitue pas une mesure TATA autonome. Les arrêts géolocalisés et les correspondances garanties restent à compléter.`
+  return `Mémoire locale DDD/AFTU : ${ddd} fiches DDD et ${aftu} fiches AFTU, consultées le ${KNOWLEDGE_CHECKED_AT}. Ce relevé n’est pas exhaustif. Le catalogue central Supabase conserve séparément 38 lignes DDD, 72 lignes AFTU et 62 lignes TATA. TATA n’est pas fusionné avec AFTU ; son repère de fréquence est partagé avec AFTU et ne constitue pas une mesure TATA autonome. Les arrêts géolocalisés et les correspondances garanties restent à compléter.`
 }
 
 export function generalFareReply(): string {
