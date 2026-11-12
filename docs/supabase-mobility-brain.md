@@ -28,7 +28,7 @@ Les séquences sont enregistrées par sens. Sur DDD, 34 sens retour ont été re
 
 ### Fréquences
 
-- TER et BRT : les références validées sont conservées sans modification et rattachées à leurs versions. Leurs références de fréquence sont disponibles dans les deux sens.
+- TER et BRT B1 : les références validées sont conservées sans modification et rattachées à leurs versions ; les fréquences sont disponibles dans les deux sens. BRT B2 reste une référence d'horaire séparée, sans séquence d'arrêts ni fréquence dominicale.
 - BRT B2 : une référence de fréquence du lundi au samedi est enregistrée ; le dimanche reste inconnu.
 - DDD : repères de service et intervalles de référence stockés séparément des horaires exacts.
 - AFTU : référence moyenne de 11,6 minutes et attente de référence de 8 minutes ; les lignes ayant des horaires particuliers gardent leurs propres fiches.
