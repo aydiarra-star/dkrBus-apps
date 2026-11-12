@@ -1,4 +1,5 @@
 import {
+  inspectContentLength,
   readMultipartWithLimit,
   RequestBodyTooLargeError,
 } from "./multipart.ts";
@@ -49,4 +50,33 @@ Deno.test("rejects non-multipart requests", async () => {
     rejected = error instanceof TypeError;
   }
   if (!rejected) throw new Error("A non-multipart request was accepted");
+});
+
+Deno.test("accepts an omitted Content-Length because the stream limit remains authoritative", () => {
+  const result = inspectContentLength(null, 1024);
+  if (!result.valid || result.tooLarge || result.value !== null) {
+    throw new Error("An omitted Content-Length should be allowed");
+  }
+});
+
+Deno.test("accepts a valid decimal Content-Length", () => {
+  const result = inspectContentLength("512", 1024);
+  if (!result.valid || result.tooLarge || result.value !== 512) {
+    throw new Error("A valid decimal Content-Length was rejected");
+  }
+});
+
+Deno.test("rejects malformed and unsafe Content-Length values", () => {
+  for (const value of ["", "-1", "+1", "1.5", "12x", "9007199254740992"]) {
+    if (inspectContentLength(value, 1024).valid) {
+      throw new Error(`Malformed Content-Length was accepted: ${value}`);
+    }
+  }
+});
+
+Deno.test("flags a declared Content-Length above the request limit", () => {
+  const result = inspectContentLength("1025", 1024);
+  if (!result.valid || !result.tooLarge) {
+    throw new Error("An oversized Content-Length was not flagged");
+  }
 });
