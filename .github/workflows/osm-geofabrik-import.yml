@@ -2,6 +2,9 @@ name: Dakar Bus OSM import (Geofabrik)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - osm-geofabrik-run-once
 
 permissions:
   contents: read
