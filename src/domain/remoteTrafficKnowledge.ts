@@ -131,5 +131,8 @@ export function answerRemoteTrafficQuestion(
   const sourceSummary = sourceLines.length
     ? `\nÉtat des sources :\n${sourceLines.join('\n')}`
     : ''
-  return `${prefix}Aucune alerte confirmée ni aucun signalement actif n'est enregistré dans Supabase à la dernière lecture (${formatDate(snapshot.generated_at)}). Cela ne signifie pas que la circulation est fluide. Les sources de presse sont des signaux secondaires, pas des capteurs routiers ; aucune alerte n'est confirmée automatiquement.${sourceSummary}\n\nAucun flux public de circulation en direct n'est actuellement validé.`
+  const availabilityMessage = snapshot.traffic_data_status?.status === 'unavailable'
+    ? snapshot.traffic_data_status.message
+    : 'Aucun flux public de circulation en direct n’est actuellement validé.'
+  return `${prefix}Aucune alerte confirmée ni aucun signalement actif n'est enregistré dans Supabase à la dernière lecture (${formatDate(snapshot.generated_at)}). Cela ne signifie pas que la circulation est fluide. Les sources de presse sont des signaux secondaires, pas des capteurs routiers ; aucune alerte n'est confirmée automatiquement.${sourceSummary}\n\n${availabilityMessage}`
 }
