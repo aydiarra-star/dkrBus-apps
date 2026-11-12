@@ -6,7 +6,7 @@ import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { copilotAnswer } from '../domain/copilot'
-import { fetchSupabaseMobilityKnowledge, type SupabaseMobilityKnowledgeSnapshot } from '../domain/supabaseMobilityKnowledge'
+import { fetchSupabaseMobilityKnowledge, supabaseFetchOptionsForQuestion, type SupabaseMobilityKnowledgeSnapshot } from '../domain/supabaseMobilityKnowledge'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
 import { type AssistantLanguagePreference } from '../domain/language'
 import { getPreferences, updatePreferences, usePreferences } from '../domain/preferences'
@@ -102,19 +102,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     contextRef.current = assistantContext
   }, [assistantContext])
 
-  // La mémoire centrale est lue en arrière-plan. En cas de réseau indisponible,
-  // le copilote garde exactement son référentiel local et reste utilisable.
-  useEffect(() => {
-    const controller = new AbortController()
-    let active = true
-    void fetchSupabaseMobilityKnowledge(controller.signal).then((snapshot) => {
-      if (active && snapshot) setRemoteMobilityKnowledge(snapshot)
-    })
-    return () => {
-      active = false
-      controller.abort()
-    }
-  }, [])
+  // La mémoire Supabase est chargée à la demande, uniquement pour le réseau concerné.
   useEffect(() => {
     preferenceRef.current = preference
   }, [preference])
@@ -221,50 +209,60 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     // La question et l'état de chargement sont rendus avant le calcul de la
     // réponse : la fenêtre ne dépend plus du temps de traitement.
     window.setTimeout(() => {
-      let text: string
-      let failed = false
-      let reply: ReturnType<typeof copilotAnswer> | null = null
-      const repeatedTraffic = detectFollowUp(trimmed) === 'again' ? lastTrafficQuestionRef.current : null
-      try {
-        if (lastTrafficQuestionRef.current) {
-          // Même « répète » doit oublier une perturbation résolue/périmée.
-          memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
+      void (async () => {
+        let text: string
+        let failed = false
+        let reply: ReturnType<typeof copilotAnswer> | null = null
+        const repeatedTraffic = detectFollowUp(trimmed) === 'again' ? lastTrafficQuestionRef.current : null
+        try {
+          const fetchOptions = supabaseFetchOptionsForQuestion(trimmed, memoryRef.current.lastKnowledgeLineId)
+          if (fetchOptions) {
+            const snapshot = await fetchSupabaseMobilityKnowledge(fetchOptions)
+            if (snapshot) {
+              setRemoteMobilityKnowledge(snapshot)
+              contextRef.current = { ...contextRef.current, remoteMobilityKnowledge: snapshot }
+            }
+          }
+          if (lastTrafficQuestionRef.current) {
+            // Même « répète » doit oublier une perturbation résolue/périmée.
+            memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
+          }
+          reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
+          text = reply.text
+        } catch {
+          failed = true
+          text = 'Une erreur est survenue en préparant cette réponse. Réessayez : la carte, la recherche et le calcul de trajet restent disponibles pendant ce temps.'
         }
-        reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
-        text = reply.text
-      } catch {
-        failed = true
-        text = 'Une erreur est survenue en préparant cette réponse. Réessayez : la carte, la recherche et le calcul de trajet restent disponibles pendant ce temps.'
-      }
-      const trafficQuestion = failed ? undefined : repeatedTraffic ?? (contextRef.current.trafficSummaryFr && text.includes(contextRef.current.trafficSummaryFr) ? trimmed : undefined)
-      lastTrafficQuestionRef.current = trafficQuestion ?? null
-      const journey = reply ? reply.journey : extractJourneyRequest(trimmed) ?? undefined
-      const countdownMinutes = reply?.countdownMinutes
-        ?? getAssistantCountdownMinutes(trimmed, contextRef.current, Date.now())
-        ?? undefined
-      setExchanges((current) => [
-        ...current,
-        {
-          id: nextMessageId++,
-          role: 'assistant',
-          text,
-          lang: reply?.language ?? 'fr',
-          ...(failed ? { failed } : {}),
-          ...(trafficQuestion ? { trafficQuestion } : {}),
-          ...(journey ? { journey } : {}),
-          ...(countdownMinutes === undefined ? {} : { countdownMinutes }),
-        },
-      ])
-      pendingRef.current = false
-      setPending(false)
-      // Guidage vocal demandé dans Paramètres : la réponse est lue une fois,
-      // dans la langue de la réponse. Sans voix installée, rien n'est annoncé.
-      const accessibility = getPreferences().accessibility
-      if (accessibility.voiceGuidance && !failed && speechSynthesisSupported()) {
-        const spoken = text.split('\nSource : ')[0].slice(0, 420)
-        const started = speak({ text: spoken, lang: reply?.language ?? 'fr' })
-        if (started) setSpeakingId(nextMessageId - 1)
-      }
+        const trafficQuestion = failed ? undefined : repeatedTraffic ?? (contextRef.current.trafficSummaryFr && text.includes(contextRef.current.trafficSummaryFr) ? trimmed : undefined)
+        lastTrafficQuestionRef.current = trafficQuestion ?? null
+        const journey = reply ? reply.journey : extractJourneyRequest(trimmed) ?? undefined
+        const countdownMinutes = reply?.countdownMinutes
+          ?? getAssistantCountdownMinutes(trimmed, contextRef.current, Date.now())
+          ?? undefined
+        setExchanges((current) => [
+          ...current,
+          {
+            id: nextMessageId++,
+            role: 'assistant',
+            text,
+            lang: reply?.language ?? 'fr',
+            ...(failed ? { failed } : {}),
+            ...(trafficQuestion ? { trafficQuestion } : {}),
+            ...(journey ? { journey } : {}),
+            ...(countdownMinutes === undefined ? {} : { countdownMinutes }),
+          },
+        ])
+        pendingRef.current = false
+        setPending(false)
+        // Guidage vocal demandé dans Paramètres : la réponse est lue une fois,
+        // dans la langue de la réponse. Sans voix installée, rien n'est annoncé.
+        const accessibility = getPreferences().accessibility
+        if (accessibility.voiceGuidance && !failed && speechSynthesisSupported()) {
+          const spoken = text.split('\\nSource : ')[0].slice(0, 420)
+          const started = speak({ text: spoken, lang: reply?.language ?? 'fr' })
+          if (started) setSpeakingId(nextMessageId - 1)
+        }
+      })()
     }, 0)
     return true
   }, [])
