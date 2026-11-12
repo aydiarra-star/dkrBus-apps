@@ -7,7 +7,6 @@ import { hydrateSupabaseTrafficFromCache, refreshSupabaseTraffic } from './domai
 import { hydrateSupabaseGraphFromCache, refreshSupabaseGraph } from './domain/supabaseGraph'
 
 // Hydratation locale immédiate, puis synchronisation distante non bloquante.
-hydrateSupabaseKnowledgeFromCache()
 hydrateSupabaseTrafficFromCache()
 void refreshSupabaseTraffic()
 void hydrateSupabaseGraphFromCache().then(() => refreshSupabaseGraph())
