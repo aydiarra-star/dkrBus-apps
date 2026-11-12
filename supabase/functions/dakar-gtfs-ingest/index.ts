@@ -41,6 +41,13 @@ function validManifest(value: unknown, datasetId: string): value is Record<strin
   if (m.schema_version !== "1.0" || m.dataset_id !== datasetId) return false;
   if (m.publication_status !== "NOT_PUBLISHED" || m.publication_ready !== false) return false;
   if (m.review_status !== "PENDING_REVIEW") return false;
+  if (!isInstant(m.ingested_at) || Date.parse(String(m.verified_at)) > Date.parse(String(m.ingested_at))) return false;
+  if (!m.validation || typeof m.validation !== "object" || Array.isArray(m.validation) ||
+      (m.validation as Record<string, unknown>).status !== "STRUCTURALLY_VALID") return false;
+  if (!m.record_count || typeof m.record_count !== "object" || Array.isArray(m.record_count)) return false;
+  for (const count of Object.values(m.record_count as Record<string, unknown>)) {
+    if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return false;
+  }
   for (const key of ["dataset_version", "operator", "source"] as const) {
     if (typeof m[key] !== "string" || !m[key].trim()) return false;
   }
