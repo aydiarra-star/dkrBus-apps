@@ -118,9 +118,9 @@ export interface MobilityBrainSnapshot {
   transfers: MobilityBrainTransfer[]
 }
 
-const SUPABASE_URL = 'https://mdmuxzaewqzqutkqdylo.supabase.co'
+export const SUPABASE_URL = 'https://mdmuxzaewqzqutkqdylo.supabase.co'
 // Publishable key: intended for browser use. Never replace with a service_role key.
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
+export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
 
 const CACHE_TTL_MS = 5 * 60 * 1000
 let cachedSnapshot: MobilityBrainSnapshot | null = null
