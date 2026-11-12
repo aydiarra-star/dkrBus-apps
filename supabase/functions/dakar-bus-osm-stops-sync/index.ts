@@ -64,6 +64,8 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
   // GitHub Actions runner, then submitted with the same server-side token.
   // Only bus-stop/platform objects inside the Dakar bounding box are accepted.
   if (requestBody.mode === "refresh_matches") {
+    const { data: matches, error: matchError } = await db.rpc("refresh_mobility_osm_stop_matches");
+    if (matchError) return reply({ error: "MATCH_REFRESH_FAILED" }, 502);
     return reply({ ok: true, source: "OpenStreetMap contributors", candidate_matches_created_or_refreshed: matches ?? 0 });
   }
 
@@ -109,8 +111,6 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
     const { error } = await db.from("mobility_osm_stops")
       .upsert(rows, { onConflict: "osm_type,osm_id" });
     if (error) return reply({ error: "OSM_UPSERT_FAILED" }, 502);
-    const { data: matches, error: matchError } = await db.rpc("refresh_mobility_osm_stop_matches");
-    if (matchError) return reply({ error: "MATCH_REFRESH_FAILED" }, 502);
     return reply({
       ok: true,
       source: "OpenStreetMap contributors",
