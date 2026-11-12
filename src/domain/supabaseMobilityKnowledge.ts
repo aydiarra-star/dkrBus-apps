@@ -253,6 +253,7 @@ function normalize(value: string): string {
 
 function networkFromQuestion(text: string): string | null {
   if (/\bbrt\b/.test(text)) return 'brt'
+  if (/\bter\b/.test(text)) return 'ter'
   if (/\btata\b/.test(text)) return 'tata'
   if (/\baftu\b/.test(text)) return 'aftu'
   if (/\bddd\b|dem dikk/.test(text)) return 'ddd'
@@ -503,6 +504,10 @@ export function answerSupabaseMobilityKnowledge(
         text: `DDD ${code} : ${origin} ↔ ${destination}\nVariante listée sur la page officielle Info voyageurs.\n${note}\nSource : ${source}. Les arrêts propres à cette variante ne sont pas encore détaillés dans la mémoire.`,
       }
     }
+  }
+
+  if (!code && explicitNetwork === 'ter' && matches.length === 1) {
+    return lineReply(matches[0], snapshot)
   }
 
   if (code && matches.length > 1) {
