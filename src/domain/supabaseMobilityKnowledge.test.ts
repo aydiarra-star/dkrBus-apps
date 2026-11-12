@@ -122,7 +122,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
   it('expose la fréquence BRT B2 sans inventer son itinéraire ni ses arrêts', () => {
     const reply = answerSupabaseMobilityKnowledge('BRT B2', snapshot)
     expect(reply?.text).toContain('BRT B2 : itinéraire non renseigné')
-    expect(reply?.text).toContain('06:00:00–21:00:00 : 6 min')
+    expect(reply?.text).toContain('06:00–21:00 : 6 min')
     expect(reply?.text).toContain('terminus et séquence d’arrêts non renseignés')
   })
 
