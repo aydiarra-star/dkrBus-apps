@@ -86,6 +86,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(supabaseFetchOptionsForQuestion('Et ses arrêts', 'ddd:228')).toEqual({ network: 'ddd', lineCode: '228' })
     expect(supabaseFetchOptionsForQuestion('Y a-t-il des embouteillages ?')).toEqual({ trafficOnly: true })
     expect(supabaseFetchOptionsForQuestion('Correspondance entre DDD et BRT')).toEqual({ transferOnly: true })
+    expect(supabaseFetchOptionsForQuestion('Où changer de bus entre DDD et BRT ?')).toEqual({ transferOnly: true })
     expect(supabaseFetchOptionsForQuestion('Bonjour')).toBeNull()
   })
   it('répond avec la séquence DDD importée et signale le retour dérivé', () => {
