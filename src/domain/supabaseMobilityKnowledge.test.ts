@@ -123,6 +123,8 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(reply?.text).toContain('Diamniadio → Colobane → Dakar')
     expect(reply?.text).toContain('Repères dans le sens retour')
     expect(reply?.text).toContain('05:30–21:00 : 10 min')
+    expect(reply?.text).toContain('dimanche et jours fériés')
+    expect(reply?.text).toContain('hors jours fériés')
     expect(reply?.text).toContain('Sens retour calculé par inversion')
   })
 
