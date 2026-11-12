@@ -197,12 +197,12 @@ function graphSupplement(line: BusLine, text: string): string {
   const details = graphDirectionsFor(line)
   if (!details.length) return ''
   const sections: string[] = []
-  const asksStops = /\\b(arret|arrets|itineraire|parcours|aller|retour|sens)\\b/.test(text)
-  const asksFrequency = /\\b(prochain|attente|passage|frequence|horaire|horaires|heure|depart)\\b/.test(text)
-  const asksTransfer = /\\b(correspondance|correspondances|changer|transfert)\\b/.test(text)
+  const asksStops = /\b(arret|arrets|itineraire|parcours|aller|retour|sens)\b/.test(text)
+  const asksFrequency = /\b(prochain|attente|passage|frequence|horaire|horaires|heure|depart)\b/.test(text)
+  const asksTransfer = /\b(correspondance|correspondances|changer|transfert)\b/.test(text)
 
   if (asksStops) {
-    const returnOnly = /\\bretour\\b/.test(text) && !/\\baller\\b|deux sens|aller retour/.test(text)
+    const returnOnly = /\bretour\b/.test(text) && !/\baller\b|deux sens|aller retour/.test(text)
     const stopLines = details.flatMap(({ direction, stops }) => {
       const isReturn = isReturnDirection(direction.direction_code, direction.direction_method)
       if (returnOnly && !isReturn) return []
@@ -214,7 +214,7 @@ function graphSupplement(line: BusLine, text: string): string {
       const method = /reverse/i.test(direction.direction_method ?? '') ? ' — ordre inverse de référence' : ''
       return [`${label} (${status}${method}) : ${stops.join(' → ')}`]
     })
-    if (stopLines.length) sections.push(`Séquences d’arrêts du graphe central :\\n${stopLines.join('\\n')}`)
+    if (stopLines.length) sections.push(`Séquences d’arrêts du graphe central :\n${stopLines.join('\n')}`)
   }
 
   if (asksFrequency) {
@@ -223,7 +223,7 @@ function graphSupplement(line: BusLine, text: string): string {
       const label = isReturnDirection(direction.direction_code, direction.direction_method) ? 'Retour' : 'Aller'
       return patterns.map((pattern) => `${label} — ${formatPattern(pattern)}`)
     })
-    if (patternLines.length) sections.push(`Repères de fréquence centralisés (ils ne donnent pas le prochain passage en direct) :\\n${patternLines.join('\\n')}`)
+    if (patternLines.length) sections.push(`Repères de fréquence centralisés (ils ne donnent pas le prochain passage en direct) :\n${patternLines.join('\n')}`)
   }
 
   if (asksTransfer) {
@@ -243,13 +243,13 @@ function graphSupplement(line: BusLine, text: string): string {
       `${item.label ?? `${item.from_stop?.canonical_name ?? 'arrêt'} ↔ ${item.to_stop?.canonical_name ?? 'arrêt'}`} — ${item.walking_distance_m != null ? `${item.walking_distance_m} m` : 'distance non précisée'} (${item.status})`
     )
     if (sharedText.length || transferText.length) {
-      sections.push(`Correspondances potentielles, non confirmées sur le terrain :\\n${[...sharedText, ...transferText].join('\\n')}\\nUn nom partagé ou une distance indicative ne garantit pas un chemin piéton praticable.`)
+      sections.push(`Correspondances potentielles, non confirmées sur le terrain :\n${[...sharedText, ...transferText].join('\n')}\nUn nom partagé ou une distance indicative ne garantit pas un chemin piéton praticable.`)
     } else {
       sections.push('Aucune correspondance piétonne vérifiée dans le graphe central pour cette ligne.')
     }
   }
 
-  return sections.join('\\n\\n')
+  return sections.join('\n\n')
 }
 function label(line: BusLine): string { return `${line.network.toUpperCase()} ${line.code} : ${line.origin} ↔ ${line.destination}` }
 function explicitNetworks(text: string): string[] {
@@ -267,13 +267,13 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else if (/\b(prix|tarif|ticket|cout|coute|payer)\b/.test(text)) {
     detail = 'Tarif de cette ligne non documenté dans la base consultée : à confirmer auprès du receveur ou de l’opérateur.'
   } else if (line.waypoints.length) {
-    const returnOnly = /\\bretour\\b/.test(text) && !/\\baller\\b|deux sens|aller retour/.test(text)
+    const returnOnly = /\bretour\b/.test(text) && !/\baller\b|deux sens|aller retour/.test(text)
     const hasGraphReturn = graphDirectionsFor(line).some((item) =>
       isReturnDirection(item.direction.direction_code, item.direction.direction_method)
     )
     detail = returnOnly && hasGraphReturn
       ? 'Séquence retour disponible dans le graphe central.'
-      : `Points de passage dans le sens publié :\\n${line.waypoints.join(' → ')}\\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
+      : `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
 
   } else {
     detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
@@ -317,15 +317,15 @@ function trafficKnowledgeReply(): string {
   const candidates = active(snapshot.traffic_candidates)
 
   if (confirmed.length) {
-    return `Alertes routières confirmées dans Dakar Bus :\\n${confirmed.slice(0, 5).map((incident) =>
-      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.observed_at)}${incident.source_url ? `\\nSource : ${incident.source_url}` : ''}`
-    ).join('\\n')}\\nCes alertes sont limitées aux incidents confirmés et non expirés dans la base.`
+    return `Alertes routières confirmées dans Dakar Bus :\n${confirmed.slice(0, 5).map((incident) =>
+      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.observed_at)}${incident.source_url ? `\nSource : ${incident.source_url}` : ''}`
+    ).join('\n')}\nCes alertes sont limitées aux incidents confirmés et non expirés dans la base.`
   }
 
   if (candidates.length) {
-    return `Informations routières à vérifier — elles ne sont PAS des alertes confirmées :\\n${candidates.slice(0, 5).map((incident) =>
-      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.source_published_at ?? incident.observed_at)}${incident.source_url ? `\\nSource : ${incident.source_url}` : ''}`
-    ).join('\\n')}\\nAucune alerte confirmée n’est actuellement enregistrée. Vérifiez la situation avant de partir.`
+    return `Informations routières à vérifier — elles ne sont PAS des alertes confirmées :\n${candidates.slice(0, 5).map((incident) =>
+      `• ${incident.title} — ${incident.area_label || 'secteur non précisé'} — ${formatTrafficDate(incident.source_published_at ?? incident.observed_at)}${incident.source_url ? `\nSource : ${incident.source_url}` : ''}`
+    ).join('\n')}\nAucune alerte confirmée n’est actuellement enregistrée. Vérifiez la situation avant de partir.`
   }
 
   const monitoredNews = snapshot.traffic_sources.filter((item) =>
@@ -373,7 +373,7 @@ function mentions(place: string, question: string): boolean {
   return name.length >= 4 && ` ${question} `.includes(` ${name} `)
 }
 function busRouteReply(question: string, networks: string[]): KnowledgeReply | null {
-  const route = /\\b(?:de|depuis) (.+?) (?:a|vers|jusqu a) (.+?)(?: en bus| en ddd| en aftu| en tata| avec .*)?$/.exec(question)
+  const route = /\b(?:de|depuis) (.+?) (?:a|vers|jusqu a) (.+?)(?: en bus| en ddd| en aftu| en tata| avec .*)?$/.exec(question)
   if (!route) return null
   const [, from, to] = route
   // Préserver les parcours TER/BRT déjà calculables, sauf choix bus explicite.
@@ -411,13 +411,13 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
     ? localMatches
     : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.includes(line.network)))
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
-  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\\n'
+  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
   const rows = matched.slice(0, 4).map((match) =>
     `• ${label(match.line)} — ${match.directionLabel}${match.candidate ? ' (à confirmer)' : ''}`
   )
   const sourceLinks = [...new Set(matched.slice(0, 4).map((match) => match.line.detailSourceUrl ?? match.line.sourceUrl))]
   return {
-    text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\\n${rows.join('\\n')}\\nÀ confirmer avant le départ : ces résultats ne garantissent ni l’arrêt d’embarquement précis, ni la durée, ni le prochain départ.${sourceLinks.map((url) => source(url)).join('')}`,
+    text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\n${rows.join('\n')}\nÀ confirmer avant le départ : ces résultats ne garantissent ni l’arrêt d’embarquement précis, ni la durée, ni le prochain départ.${sourceLinks.map((url) => source(url)).join('')}`,
     ...(matched.length === 1 ? { lineId: key(matched[0].line) } : {}),
   }
 }
