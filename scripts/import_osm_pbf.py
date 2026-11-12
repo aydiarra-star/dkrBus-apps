@@ -83,7 +83,7 @@ def extract(pbf_path: str) -> list[dict[str, object]]:
                 self.add(node, node.location.lat, node.location.lon)
 
         def way(self, way: object) -> None:
-            if dict(way.tags).get("public_transport") != "platform":
+            if not relevant(dict(way.tags)):
                 return
             coords = [
                 (node.location.lat, node.location.lon)
