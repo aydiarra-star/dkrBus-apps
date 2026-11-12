@@ -117,7 +117,7 @@ for (let offset = 0; offset < elements.length; offset += 100) {
     headers: {
       "Content-Type": "application/json",
       "apikey": publishableKey,
-      "Authorization": `Bearer ${oidcToken}`,
+      "x-github-oidc-token": oidcToken,
     },
     body: JSON.stringify({ mode: "ingest_pbf_batch", elements: batch }),
   });
