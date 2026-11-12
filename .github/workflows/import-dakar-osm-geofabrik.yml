@@ -21,6 +21,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Temporary secure token fingerprint diagnostic
+        env:
+          DAKAR_BUS_INGEST_TOKEN: ${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { createHash } from "node:crypto";
+          const raw = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\\s+/g, "");
+          const normalized = /^[0-9a-fA-F]{144}$/.test(raw)
+            ? Buffer.from(raw, "hex").toString("utf8")
+            : raw;
+          const fingerprint = createHash("sha256").update(normalized, "utf8").digest("hex");
+          console.log("GitHub token present:", raw.length > 0);
+          console.log("GitHub token normalized length:", normalized.length);
+          console.log("GitHub token SHA-256:", fingerprint);
+          NODE
       - name: Install Osmium
         run: |
           sudo apt-get update
