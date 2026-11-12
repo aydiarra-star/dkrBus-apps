@@ -68,6 +68,15 @@ export interface SupabaseKnowledgeAssertion {
   status: string
 }
 
+export interface SupabaseKnowledgeSharedStop {
+  stop_id: string
+  canonical_name: string
+  network_codes: string[]
+  line_codes: string[]
+  geocoded: boolean
+  status: string
+}
+
 export interface SupabaseKnowledgeTransfer {
   label?: string | null
   status: string
@@ -108,6 +117,8 @@ export interface SupabaseMobilityKnowledgeSnapshot {
   reference_stops?: SupabaseKnowledgeStop[]
   service_patterns?: SupabaseKnowledgeServicePattern[]
   transfers?: SupabaseKnowledgeTransfer[]
+  shared_stops?: SupabaseKnowledgeSharedStop[]
+  counts?: { unlocated_shared_stop_names?: number }
   data_assertions?: SupabaseKnowledgeAssertion[]
   confirmed_traffic_incidents?: SupabaseKnowledgeTrafficIncident[]
   unverified_traffic_candidates?: SupabaseKnowledgeTrafficIncident[]
@@ -129,6 +140,7 @@ export interface SupabaseKnowledgeFetchOptions {
   network?: string
   lineCode?: string
   trafficOnly?: boolean
+  transferOnly?: boolean
 }
 
 const cachedSnapshots = new Map<string, { snapshot: SupabaseMobilityKnowledgeSnapshot; at: number }>()
@@ -152,7 +164,7 @@ export async function fetchSupabaseMobilityKnowledge(
 ): Promise<SupabaseMobilityKnowledgeSnapshot | null> {
   const cacheKey = options.trafficOnly
     ? 'traffic'
-    : `${options.network ?? 'all'}:${options.lineCode ?? ''}`
+    : options.transferOnly ? 'transfers' : `${options.network ?? 'all'}:${options.lineCode ?? ''}`
   const cached = cachedSnapshots.get(cacheKey)
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.snapshot
   const existing = inFlightRequests.get(cacheKey)
@@ -162,6 +174,7 @@ export async function fetchSupabaseMobilityKnowledge(
   if (options.network) url.searchParams.set('network', options.network)
   if (options.lineCode) url.searchParams.set('line', options.lineCode.toLowerCase())
   if (options.trafficOnly) url.searchParams.set('traffic_only', '1')
+  if (options.transferOnly) url.searchParams.set('transfer_only', '1')
 
   const controller = new AbortController()
   const abortFromCaller = () => controller.abort()
@@ -197,6 +210,17 @@ export async function fetchSupabaseMobilityKnowledge(
           traffic_sources: Array.isArray(payload.traffic_sources)
             ? payload.traffic_sources as SupabaseKnowledgeTrafficSource[]
             : [],
+          realtime: false,
+        }
+      } else if (isRecord(payload) && payload.transfer_only === true) {
+        snapshot = {
+          lines: [],
+          catalogue: [],
+          directions: [],
+          ordered_line_stops: [],
+          transfers: Array.isArray(payload.transfers) ? payload.transfers as SupabaseKnowledgeTransfer[] : [],
+          shared_stops: Array.isArray(payload.shared_stops) ? payload.shared_stops as SupabaseKnowledgeSharedStop[] : [],
+          counts: isRecord(payload.counts) ? payload.counts as { unlocated_shared_stop_names?: number } : undefined,
           realtime: false,
         }
       }
