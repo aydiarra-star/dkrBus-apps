@@ -11,6 +11,12 @@ export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number]
 export interface KnowledgeReply { text: string; lineId?: string }
 
+/** Complément distant candidat : il ne remplace jamais les fiches locales validées. */
+let remoteCandidateLines: BusLine[] = []
+export function setRemoteCandidateLines(lines: readonly BusLine[]): void {
+  remoteCandidateLines = [...lines]
+}
+
 const SOURCES = {
   ddd: 'https://cetud.sn/reseaux-de-transport/ddd/',
   aftu: 'https://cetud.sn/reseaux-de-transport/aftu/',
@@ -35,6 +41,9 @@ export function normalizeMobility(text: string): string {
     .replace(/[’']/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim()
 }
 function key(line: BusLine): string { return `${line.network}:${line.code}` }
+function isRemoteCandidate(line: BusLine): boolean {
+  return remoteCandidateLines.some((candidate) => key(candidate) === key(line))
+}
 function label(line: BusLine): string { return `${line.network.toUpperCase()} ${line.code} : ${line.origin} ↔ ${line.destination}` }
 function explicitNetworks(text: string): string[] {
   return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\b(aftu|tata)\b/.test(text) ? 'aftu' : '')].filter(Boolean)
@@ -55,7 +64,10 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else {
     detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
   }
-  return { text: `${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
+  const candidateNote = isRemoteCandidate(line)
+    ? 'Fiche candidate de la mémoire centrale : elle complète le catalogue hors ligne, sans remplacer les fiches déjà validées.\n'
+    : ''
+  return { text: `${candidateNote}${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
 }
 
 export function busKnowledgeSummary(): string {
@@ -107,14 +119,17 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
   // Préserver les parcours TER/BRT déjà calculables, sauf choix bus explicite.
   if (!networks.length && searchCorridorStops(from).length && searchCorridorStops(to).length) return null
   const candidates = BUS_LINES.filter((line) => (!networks.length || networks.includes(line.network)) && !line.note?.startsWith('Divergence'))
-  const matched = candidates.filter((line) => {
+  const findMatches = (pool: readonly BusLine[]) => pool.filter((line) => {
     const points = line.waypoints.length ? line.waypoints : [line.origin, line.destination]
     const start = points.findIndex((point) => mentions(from, normalizeMobility(point)))
     const end = points.findIndex((point) => mentions(to, normalizeMobility(point)))
     return start >= 0 && end > start
   })
+  const localMatches = findMatches(candidates)
+  const matched = localMatches.length ? localMatches : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.includes(line.network)))
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
-  return { text: `Pistes documentaires pour ${from} → ${to} :\n${matched.slice(0, 4).map((line) => `• ${label(line)}${line.waypoints.length ? '' : ' (terminus seulement)'}`).join('\n')}\nÀ confirmer auprès de l’opérateur avant le départ : ni arrêt d’embarquement précis, ni durée, ni prochain départ garanti. Demandez le numéro d’une ligne pour ses points de passage.${[...new Set(matched.slice(0, 4).map((line) => line.detailSourceUrl ?? line.sourceUrl))].map((url) => source(url)).join('')}`, ...(matched.length === 1 ? { lineId: key(matched[0]) } : {}) }
+  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
+  return { text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\n${matched.slice(0, 4).map((line) => `• ${label(line)}${line.waypoints.length ? '' : ' (terminus seulement)'}`).join('\n')}\nÀ confirmer auprès de l’opérateur avant le départ : ni arrêt d’embarquement précis, ni durée, ni prochain départ garanti. Demandez le numéro d’une ligne pour ses points de passage.${[...new Set(matched.slice(0, 4).map((line) => line.detailSourceUrl ?? line.sourceUrl))].map((url) => source(url)).join('')}`, ...(matched.length === 1 ? { lineId: key(matched[0]) } : {}) }
 }
 
 export function answerMobilityKnowledge(question: string, lastLineId?: string | null): KnowledgeReply | null {
@@ -122,7 +137,8 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   const networks = explicitNetworks(text)
   const code = /\b(?:ligne|bus|ddd|aftu|tata)\s*(?:numero\s*|n\s*)?0*(\d+[ab]?|to1)\b/.exec(text)?.[1]?.toUpperCase()
   if (code) {
-    const matches = BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.includes(line.network)))
+    const localMatches = BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.includes(line.network)))
+    const matches = localMatches.length ? localMatches : remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.includes(line.network)))
     if (matches.length > 1) return { text: `Ce numéro existe sur plusieurs réseaux :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez DDD ou AFTU pour éviter de vous orienter vers le mauvais bus.` }
     if (matches.length === 1) {
       const reply = lineReply(matches[0], question)
@@ -133,6 +149,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   }
   if (lastLineId && /^(et |ses |les horaires|les arrets|son |elle passe|le prix)/.test(text) && !networks.length && !/\b(ter|brt|train|meteo|temperature)\b/.test(text)) {
     const line = BUS_LINES.find((entry) => key(entry) === lastLineId)
+      ?? remoteCandidateLines.find((entry) => key(entry) === lastLineId)
     if (line) return lineReply(line, question)
   }
   const practical = practicalReply(text)
