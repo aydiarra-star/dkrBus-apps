@@ -9,7 +9,7 @@ import { SUPABASE_KNOWLEDGE_ENDPOINT, SUPABASE_PUBLISHABLE_KEY } from './supabas
 
 const DATABASE_NAME = 'dakar-bus-supabase-memory'
 const STORE_NAME = 'snapshots'
-const CACHE_KEY = 'mobility-graph-v1'
+const CACHE_KEY = 'mobility-graph-v2'
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000
 const NETWORKS_TO_SYNC = ['ddd', 'aftu'] as const
 

@@ -160,16 +160,30 @@ function graphDirectionsFor(line: BusLine) {
   const graphLine = graphLineFor(line)
   if (!remoteMobilityGraph || !graphLine) return []
   const stopById = new Map(remoteMobilityGraph.reference_stops.map((stop) => [stop.id, stop]))
-  return remoteMobilityGraph.directions
-    .filter((direction) => direction.line_id === graphLine.id)
-    .map((direction) => {
-      const stops = remoteMobilityGraph!.ordered_line_stops
-        .filter((row) => row.direction_id === direction.id)
-        .sort((a, b) => a.stop_sequence - b.stop_sequence)
-        .map((row) => row.stop?.canonical_name ?? stopById.get(row.stop_id)?.canonical_name ?? '')
-        .filter(Boolean)
-      return { direction, stops }
-    })
+  const directions = remoteMobilityGraph.directions.filter((direction) => direction.line_id === graphLine.id)
+  const outbound = directions.find((direction) => direction.direction_method === 'source_documented')
+  const outboundStopIds = outbound
+    ? remoteMobilityGraph.ordered_line_stops
+      .filter((row) => row.direction_id === outbound.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+      .map((row) => row.stop_id)
+    : []
+  return directions.map((direction) => {
+    const orderedRows = remoteMobilityGraph!.ordered_line_stops
+      .filter((row) => row.direction_id === direction.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+    const stopIds = orderedRows.map((row) => row.stop_id)
+    const stops = orderedRows
+      .map((row) => row.stop?.canonical_name ?? stopById.get(row.stop_id)?.canonical_name ?? '')
+      .filter(Boolean)
+    const isDerivedReturn = direction.direction_method === 'reverse_derived'
+    const valid = !isDerivedReturn || (
+      outboundStopIds.length > 0
+      && stopIds.length === outboundStopIds.length
+      && stopIds.every((stopId, index) => stopId === outboundStopIds[outboundStopIds.length - index - 1])
+    )
+    return { direction, stops, stopIds, valid }
+  })
 }
 function isReturnDirection(directionCode: string, method?: string | null): boolean {
   return /return|inbound|retour/i.test(directionCode) || /return|reverse/i.test(method ?? '')
@@ -204,9 +218,10 @@ function graphSupplement(line: BusLine, text: string): string {
 
   if (asksStops) {
     const returnOnly = /\bretour\b/.test(text) && !/\baller\b|deux sens|aller retour/.test(text)
-    const stopLines = details.flatMap(({ direction, stops }) => {
+    const stopLines = details.flatMap(({ direction, stops, valid }) => {
       const isReturn = isReturnDirection(direction.direction_code, direction.direction_method)
       if (returnOnly && !isReturn) return []
+      if (isReturn && !valid) return []
       // La fiche locale validée reste prioritaire pour son sens aller.
       if (line.waypoints.length && !isReturn) return []
       if (!stops.length) return []
@@ -216,6 +231,9 @@ function graphSupplement(line: BusLine, text: string): string {
       return [`${label} (${status}${method}) : ${stops.join(' → ')}`]
     })
     if (stopLines.length) sections.push(`Séquences d’arrêts du graphe central :\n${stopLines.join('\n')}`)
+    if (details.some((item) => isReturnDirection(item.direction.direction_code, item.direction.direction_method) && !item.valid)) {
+      sections.push('Sens retour masqué : sa séquence ne correspond pas exactement à l’inverse du sens source. Elle ne sera pas présentée comme un itinéraire.')
+    }
   }
 
   if (asksFrequency) {
@@ -228,9 +246,7 @@ function graphSupplement(line: BusLine, text: string): string {
   }
 
   if (asksTransfer) {
-    const stopIds = new Set(details.flatMap(({ direction }) =>
-      remoteMobilityGraph!.ordered_line_stops.filter((row) => row.direction_id === direction.id).map((row) => row.stop_id)
-    ))
+    const stopIds = new Set(details.filter((item) => item.valid).flatMap(({ stopIds }) => stopIds))
     const shared = remoteMobilityGraph.stop_network_memberships.filter((item) =>
       stopIds.has(item.stop_id) && item.network_codes.length > 1
     )
@@ -269,12 +285,18 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
     detail = 'Tarif de cette ligne non documenté dans la base consultée : à confirmer auprès du receveur ou de l’opérateur.'
   } else if (line.waypoints.length) {
     const returnOnly = /\bretour\b/.test(text) && !/\baller\b|deux sens|aller retour/.test(text)
-    const hasGraphReturn = graphDirectionsFor(line).some((item) =>
-      isReturnDirection(item.direction.direction_code, item.direction.direction_method)
+    const graphDetails = graphDirectionsFor(line)
+    const hasGraphReturn = graphDetails.some((item) =>
+      isReturnDirection(item.direction.direction_code, item.direction.direction_method) && item.valid
+    )
+    const hasInvalidGraphReturn = graphDetails.some((item) =>
+      isReturnDirection(item.direction.direction_code, item.direction.direction_method) && !item.valid
     )
     detail = returnOnly && hasGraphReturn
       ? 'Séquence retour disponible dans le graphe central.'
-      : `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
+      : returnOnly && hasInvalidGraphReturn
+        ? 'Aucune séquence retour cohérente n’est disponible dans le graphe central pour cette ligne.'
+        : `Points de passage dans le sens publié :\n${line.waypoints.join(' → ')}\nCe sont des repères d’itinéraire, pas une liste d’arrêts géolocalisés. Le détail du sens retour n’est pas confirmé.`
 
   } else {
     detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
@@ -390,6 +412,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
       const isReturn = isReturnDirection(item.direction.direction_code, item.direction.direction_method)
       // La fiche locale reste prioritaire pour le sens aller ; le graphe complète le retour.
       if (line.waypoints.length && !isReturn) continue
+      if (isReturn && !item.valid) continue
       if (!item.stops.length) continue
       sequences.push({
         label: isReturn ? 'retour' : 'sens de référence',
