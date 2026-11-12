@@ -13,10 +13,17 @@ const json = (body: unknown, status = 200) =>
 
 const allowedNetworks = new Set(["ter", "brt", "ddd", "aftu", "tata"]);
 const activeStatuses = ["candidate", "verified", "published"];
+// Historical press-feed rows stay in PostgreSQL for audit, but are not public mobility evidence.
+const excludedPublicTrafficSourceIds = new Set([
+  "df097e1d-ab7d-4d83-9ad9-9b48a2d5bddd", // Dakaractu RSS
+  "54dc0d2a-805f-4b6f-b5ec-22212503cded", // SeneNews RSS
+]);
+const isPublicTrafficSource = (sourceId: string | null | undefined) =>
+  !sourceId || !excludedPublicTrafficSourceIds.has(sourceId);
 const emptyResult = { data: [] as any[], error: null };
 
 function sanitizeTrafficSources(rows: any[]) {
-  return rows.map((source) => ({
+  return rows.filter((source) => isPublicTrafficSource(source.id)).map((source) => ({
     id: source.id,
     name: source.name,
     source_type: source.source_type,
@@ -85,8 +92,15 @@ const readKnowledge = withSupabase(
       const active = (rows: any[]) => rows.filter((row) =>
         !row.expires_at || new Date(row.expires_at).getTime() > now
       );
-      const confirmed = active(confirmedResult.data ?? []);
-      const candidates = active(candidatesResult.data ?? []);
+      const confirmed = active(confirmedResult.data ?? []).filter((row) =>
+        isPublicTrafficSource(row.traffic_source_id)
+      );
+      const candidates = active(candidatesResult.data ?? []).filter((row) =>
+        isPublicTrafficSource(row.traffic_source_id)
+      );
+      const publicSources = (trafficSourcesResult.data ?? []).filter((source) =>
+        isPublicTrafficSource(source.id)
+      );
       return json({
         generated_at: new Date().toISOString(),
         source_of_truth: "Supabase PostgreSQL",
@@ -95,11 +109,11 @@ const readKnowledge = withSupabase(
         alert_policy: "Seuls les incidents confirmés sont des alertes. Les articles de presse et signalements non vérifiés restent des pistes.",
         confirmed_traffic_incidents: confirmed,
         traffic_candidates: candidates,
-        traffic_sources: sanitizeTrafficSources(trafficSourcesResult.data ?? []),
+        traffic_sources: sanitizeTrafficSources(publicSources),
         counts: {
           confirmed_active_incidents: confirmed.length,
           unverified_traffic_candidates: candidates.length,
-          configured_sources: (trafficSourcesResult.data ?? []).length,
+          configured_sources: publicSources.length,
         },
       });
     }
@@ -264,6 +278,9 @@ const readKnowledge = withSupabase(
     }
 
     const networks = networksResult.data ?? [];
+    const publicTrafficSources = (trafficSourcesResult.data ?? []).filter((source) =>
+      isPublicTrafficSource(source.id)
+    );
     const selectedNetworks = networks.filter((row) => !network || row.code === network);
     const networkIds = new Set(selectedNetworks.map((row) => row.id));
     const lines = (linesResult.data ?? []).filter((row) =>
@@ -351,10 +368,12 @@ const readKnowledge = withSupabase(
             .select("id,from_stop_id,to_stop_id,walking_distance_m,walking_duration_seconds,accessibility_status,status,source_id,transfer_type,label,notes")
             .in("status", activeStatuses).limit(3000)
         : Promise.resolve(emptyResult),
-      (incidentsResult.data ?? []).length
+      (incidentsResult.data ?? []).filter((row) => isPublicTrafficSource(row.traffic_source_id)).length
         ? db.from("traffic_incident_impacts")
             .select("id,incident_id,network_id,line_id,impact_type,description")
-            .in("incident_id", (incidentsResult.data ?? []).map((row) => row.id))
+            .in("incident_id", (incidentsResult.data ?? [])
+              .filter((row) => isPublicTrafficSource(row.traffic_source_id))
+              .map((row) => row.id))
         : Promise.resolve(emptyResult),
     ]);
     const finalResults = [stopTimesResult, exceptionsResult, transfersResult, impactsResult];
@@ -428,10 +447,15 @@ const readKnowledge = withSupabase(
       to_stop: stopById.get(row.to_stop_id) ?? null,
     }));
     const incidents = (incidentsResult.data ?? []).filter((incident) =>
-      !incident.expires_at || new Date(incident.expires_at).getTime() > Date.now()
+      isPublicTrafficSource(incident.traffic_source_id)
+      && (!incident.expires_at || new Date(incident.expires_at).getTime() > Date.now())
     );
     const trafficCandidates = (candidateIncidentsResult.data ?? []).filter((incident) =>
-      !incident.expires_at || new Date(incident.expires_at).getTime() > Date.now()
+      isPublicTrafficSource(incident.traffic_source_id)
+      && (!incident.expires_at || new Date(incident.expires_at).getTime() > Date.now())
+    );
+    const publicTrafficObservations = (observationsResult.data ?? []).filter((observation) =>
+      isPublicTrafficSource(observation.traffic_source_id)
     );
     const snapshots = (snapshotsResult.data ?? []).filter((row) =>
       !network || (row.network_scope ?? []).includes(network)
@@ -494,8 +518,8 @@ const readKnowledge = withSupabase(
       network_statistics: (statsResult.data ?? []).filter((row) => networkIds.has(row.network_id)),
       data_assertions: assertions,
       mobility_sources: sourcesResult.data ?? [],
-      traffic_sources: sanitizeTrafficSources(trafficSourcesResult.data ?? []),
-      traffic_observations: observationsResult.data ?? [],
+      traffic_sources: sanitizeTrafficSources(publicTrafficSources),
+      traffic_observations: publicTrafficObservations,
       confirmed_traffic_incidents: incidents,
       traffic_candidates: trafficCandidates,
       traffic_incident_impacts: impactsResult.data ?? [],
