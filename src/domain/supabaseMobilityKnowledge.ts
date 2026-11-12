@@ -172,6 +172,7 @@ function normalize(value: string): string {
 }
 
 function networkFromQuestion(text: string): string | null {
+  if (/\bbrt\b/.test(text)) return 'brt'
   if (/\btata\b/.test(text)) return 'tata'
   if (/\baftu\b/.test(text)) return 'aftu'
   if (/\bddd\b|dem dikk/.test(text)) return 'ddd'
@@ -239,9 +240,11 @@ function lineReply(
     : ''
   const status = line.status === 'published'
     ? 'Fiche publiée'
-    : verifiedPatterns.length
-      ? 'Horaires de référence vérifiés ; itinéraire et arrêts incomplets'
-      : 'Fiche candidate, à confirmer avant utilisation comme itinéraire garanti'
+    : verifiedPatterns.length && waypoints.length
+      ? 'Horaires de référence vérifiés ; repères de parcours disponibles'
+      : verifiedPatterns.length
+        ? 'Horaires de référence vérifiés ; itinéraire et arrêts incomplets'
+        : 'Fiche candidate, à confirmer avant utilisation comme itinéraire garanti'
   const note = typeof raw.published_route_note === 'string'
     ? raw.published_route_note
     : typeof raw.note === 'string' ? raw.note : outbound?.direction_notes
@@ -289,7 +292,7 @@ export function answerSupabaseMobilityKnowledge(
   if (traffic) return traffic
 
   const explicitNetwork = networkFromQuestion(text)
-  const codeMatch = /\b(?:ligne|bus|ddd|aftu|tata)\s*(?:n(?:umero|°)?\s*)?([0-9]{1,3}[a-z]?|to1)\b/i.exec(text)
+  const codeMatch = /\b(?:ligne|bus|brt|ddd|aftu|tata)\s*(?:n(?:umero|°)?\s*)?([0-9]{1,3}[a-z]?|b[12]|to1)\b/i.exec(text)
   const code = codeMatch?.[1]?.toUpperCase()
   let matches = snapshot.lines.filter((line) => {
     const network = snapshot.networks?.find((item) => item.id === line.network_id)?.code
