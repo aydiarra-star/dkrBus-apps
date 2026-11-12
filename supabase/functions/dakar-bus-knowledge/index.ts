@@ -410,8 +410,13 @@ const readKnowledge = withSupabase(
     const stopTimes = stopTimesResult.data ?? [];
     const calendarIdSet = new Set(calendarRows.map((row) => row.id));
     const calendarExceptions = (exceptionsResult.data ?? []).filter((row) => calendarIdSet.has(row.calendar_id));
+    const activeStopIds = new Set((stopsResult.data ?? [])
+      .filter((row) => activeStatuses.includes(row.status))
+      .map((row) => row.id))
     const transferRows = (transfersResult.data ?? []).filter((row) =>
-      stopIds.includes(row.from_stop_id) || stopIds.includes(row.to_stop_id)
+      activeStopIds.has(row.from_stop_id)
+      && activeStopIds.has(row.to_stop_id)
+      && (stopIds.includes(row.from_stop_id) || stopIds.includes(row.to_stop_id))
     );
     const transferStopIds = new Set(transferRows.flatMap((row) => [row.from_stop_id, row.to_stop_id]));
     const activeStops = (stopsResult.data ?? []).filter((row) =>
