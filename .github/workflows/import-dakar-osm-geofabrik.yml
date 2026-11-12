@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "30 3 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/import_dakar_osm_geofabrik.mjs"
+      - ".github/workflows/import-dakar-osm-geofabrik.yml"
 
 permissions:
   contents: read
