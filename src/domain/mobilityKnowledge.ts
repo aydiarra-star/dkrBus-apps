@@ -160,16 +160,30 @@ function graphDirectionsFor(line: BusLine) {
   const graphLine = graphLineFor(line)
   if (!remoteMobilityGraph || !graphLine) return []
   const stopById = new Map(remoteMobilityGraph.reference_stops.map((stop) => [stop.id, stop]))
-  return remoteMobilityGraph.directions
-    .filter((direction) => direction.line_id === graphLine.id)
-    .map((direction) => {
-      const stops = remoteMobilityGraph!.ordered_line_stops
-        .filter((row) => row.direction_id === direction.id)
-        .sort((a, b) => a.stop_sequence - b.stop_sequence)
-        .map((row) => row.stop?.canonical_name ?? stopById.get(row.stop_id)?.canonical_name ?? '')
-        .filter(Boolean)
-      return { direction, stops }
-    })
+  const directions = remoteMobilityGraph.directions.filter((direction) => direction.line_id === graphLine.id)
+  const outbound = directions.find((direction) => direction.direction_method === 'source_documented')
+  const outboundStopIds = outbound
+    ? remoteMobilityGraph.ordered_line_stops
+      .filter((row) => row.direction_id === outbound.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+      .map((row) => row.stop_id)
+    : []
+  return directions.map((direction) => {
+    const orderedRows = remoteMobilityGraph!.ordered_line_stops
+      .filter((row) => row.direction_id === direction.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+    const stopIds = orderedRows.map((row) => row.stop_id)
+    const stops = orderedRows
+      .map((row) => row.stop?.canonical_name ?? stopById.get(row.stop_id)?.canonical_name ?? '')
+      .filter(Boolean)
+    const isDerivedReturn = direction.direction_method === 'reverse_derived'
+    const valid = !isDerivedReturn || (
+      outboundStopIds.length > 0
+      && stopIds.length === outboundStopIds.length
+      && stopIds.every((stopId, index) => stopId === outboundStopIds[outboundStopIds.length - index - 1])
+    )
+    return { direction, stops, stopIds, valid }
+  })
 }
 function isReturnDirection(directionCode: string, method?: string | null): boolean {
   return /return|inbound|retour/i.test(directionCode) || /return|reverse/i.test(method ?? '')
