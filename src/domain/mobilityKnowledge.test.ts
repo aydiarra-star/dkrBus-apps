@@ -137,7 +137,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('complète le catalogue hors ligne avec une nouvelle fiche candidate Supabase sans remplacer les fiches validées', () => {
     const candidate = {
       network: 'ddd',
-      code: '38',
+      code: '999',
       origin: 'Dakar',
       destination: 'Diamniadio',
       waypoints: ['Colobane', 'Bargny', 'Diamniadio'],
@@ -150,7 +150,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
 
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     setRemoteCandidateLines([candidate])
-    expect(ask('DDD 38')).toContain('Fiche candidate de la mémoire centrale')
+    expect(ask('DDD 999')).toContain('Fiche candidate de la mémoire centrale')
     expect(ask('DDD 38')).toContain('Colobane → Bargny → Diamniadio')
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     setRemoteCandidateLines([])
