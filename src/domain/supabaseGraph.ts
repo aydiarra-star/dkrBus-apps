@@ -11,7 +11,7 @@ const DATABASE_NAME = 'dakar-bus-supabase-memory'
 const STORE_NAME = 'snapshots'
 const CACHE_KEY = 'mobility-graph-v2'
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000
-const NETWORKS_TO_SYNC = ['ddd', 'aftu'] as const
+const NETWORKS_TO_SYNC = ['ddd', 'aftu', 'tata'] as const
 
 type CachedGraph = {
   savedAt: number
@@ -71,7 +71,7 @@ function deriveCandidateLines(graph: RemoteMobilityGraph): BusLine[] {
   const networkById = new Map(graph.networks.map((network) => [network.id, network]))
   return graph.lines.flatMap((line) => {
     const network = networkById.get(line.network_id)?.code
-    if ((network !== 'ddd' && network !== 'aftu') || line.status !== 'candidate') return []
+    if ((network !== 'ddd' && network !== 'aftu' && network !== 'tata') || line.status !== 'candidate') return []
     if (localKeys.has(`${network}:${line.code}`)) return []
 
     const directions = graph.directions.filter((direction) => direction.line_id === line.id)
