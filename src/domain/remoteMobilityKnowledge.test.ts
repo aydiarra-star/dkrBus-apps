@@ -210,6 +210,19 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).toContain('AFTU 5')
   })
 
+  it('does not match archived stop references', () => {
+    const archivedStopSnapshot: MobilityBrainSnapshot = {
+      ...snapshot,
+      reference_stops: [...snapshot.reference_stops, {
+        id: 'stop-old-colobane',
+        canonical_name: 'Ancien arrêt Colobane',
+        aliases: ['Ancien Colobane'],
+        status: 'archived',
+      }],
+    }
+    expect(answerRemoteMobilityQuestion('Quelles lignes desservent Ancien Colobane ?', archivedStopSnapshot)).toBeNull()
+  })
+
   it('does not replace the existing TER assistant', () => {
     expect(answerRemoteMobilityQuestion('Quel est le prochain TER ?', snapshot)).toBeNull()
   })
