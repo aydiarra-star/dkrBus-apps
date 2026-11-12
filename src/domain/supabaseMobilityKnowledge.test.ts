@@ -69,6 +69,7 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
 describe('mémoire Supabase distante Dakar Bus', () => {
   it('ne charge que le réseau et la ligne demandés', () => {
     expect(supabaseFetchOptionsForQuestion('DDD 228')).toEqual({ network: 'ddd', lineCode: '228' })
+    expect(supabaseFetchOptionsForQuestion('ligne 228')).toEqual({ lineCode: '228' })
     expect(supabaseFetchOptionsForQuestion('TATA 42')).toEqual({ network: 'tata', lineCode: '42' })
     expect(supabaseFetchOptionsForQuestion('BRT B2')).toEqual({ network: 'brt', lineCode: 'B2' })
     expect(supabaseFetchOptionsForQuestion('Et ses arrêts', 'ddd:228')).toEqual({ network: 'ddd', lineCode: '228' })
