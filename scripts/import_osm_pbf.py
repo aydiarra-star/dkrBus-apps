@@ -106,8 +106,8 @@ def extract(pbf_path: str) -> list[dict[str, object]]:
 
 
 def post_batch(url: str, publishable_key: str, ingest_token: str,
-               batch: list[dict[str, object]]) -> dict[str, object]:
-    body = json.dumps({"mode": "ingest_pbf_batch", "elements": batch}).encode("utf-8")
+               batch: list[dict[str, object]], mode: str = "ingest_pbf_batch") -> dict[str, object]:
+    body = json.dumps({"mode": mode, "elements": batch}).encode("utf-8")
     request = Request(
         url,
         data=body,
@@ -189,7 +189,8 @@ def main() -> int:
             "upserted": result.get("imported_bus_stop_objects", 0),
             "matches_refreshed": result.get("candidate_matches_created_or_refreshed", 0),
         }, ensure_ascii=False))
-    print(json.dumps({"complete": True, "total_upserted": total, "source": "OpenStreetMap contributors"}))
+    refreshed = post_batch(endpoint, publishable_key, ingest_token, [], mode="refresh_matches")
+    print(json.dumps({"complete": True, "total_upserted": total, "candidate_matches_created_or_refreshed": refreshed.get("candidate_matches_created_or_refreshed", 0), "source": "OpenStreetMap contributors"}, ensure_ascii=False))
     return 0
 
 
