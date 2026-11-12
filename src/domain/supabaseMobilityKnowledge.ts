@@ -520,7 +520,9 @@ export function answerSupabaseMobilityKnowledge(
     if (stop) return stop
   }
 
-  if (!code && explicitNetwork && /\b(liste|lignes|numeros|reseau|toutes)\b/.test(text)) {
+  if (!code && explicitNetwork
+    && /\b(liste|lignes|numeros|reseau|toutes)\b/.test(text)
+    && !/\b(correspondance|correspondances|transfert|transferts|changer de bus|changer de ligne)\b/.test(text)) {
     const codes = matches.map((line) => line.code).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
     return {
       text: `${explicitNetwork.toUpperCase()} : ${codes.length} fiches dans la mémoire centrale.\n${codes.join(', ')}\nLes fiches candidates sont conservées séparément des données confirmées ; un numéro présent n’est pas une garantie de passage en temps réel.`,
