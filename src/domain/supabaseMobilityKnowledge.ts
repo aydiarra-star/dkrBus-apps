@@ -527,7 +527,7 @@ export function answerSupabaseMobilityKnowledge(
     }
   }
 
-  if (/\b(correspondance|correspondances|transfert|transferts)\b/.test(text)) {
+  if (/\b(correspondance|correspondances|transfert|transferts|changer de bus|changer de ligne|changement de ligne)\b/.test(text)) {
     const mentionedNetworks = ['ddd', 'aftu', 'tata', 'brt', 'ter'].filter((network) =>
       new RegExp(`\\b${network}\\b`).test(text),
     )
