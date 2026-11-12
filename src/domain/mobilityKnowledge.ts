@@ -139,7 +139,8 @@ const SOURCES = {
 } as const
 
 function source(url: string, publishedAt?: string | null, consultedAt = KNOWLEDGE_CHECKED_AT): string {
-  return `\nSource : ${url}\nConsultée le ${consultedAt}${publishedAt ? ` · publication du ${publishedAt}` : ' · date de publication non précisée'}. Référence documentaire, pas un suivi en direct.`
+  const consultation = consultedAt ? `Consultée le ${consultedAt}` : 'Date de consultation non précisée'
+  return `\nSource : ${url}\n${consultation}${publishedAt ? ` · publication du ${publishedAt}` : ' · date de publication non précisée'}. Référence documentaire, pas un suivi en direct.`
 }
 export function normalizeMobility(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
