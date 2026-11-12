@@ -271,6 +271,8 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   } else {
     detail = 'Terminaux documentés ; arrêts intermédiaires pas encore transcrits. Consultez l’opérateur pour le parcours complet.'
   }
+  const supplement = graphSupplement(line, text)
+  if (supplement) detail += `\n\n${supplement}`
   const candidateNote = isRemoteCandidate(line)
     ? 'Fiche candidate de la mémoire centrale : elle complète le catalogue hors ligne, sans remplacer les fiches déjà validées.\n'
     : ''
