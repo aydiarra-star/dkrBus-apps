@@ -55,6 +55,7 @@ export interface SupabaseKnowledgeServicePattern {
   service_start?: string | null
   service_end?: string | null
   headway_minutes?: number | null
+  days_of_week?: number[]
   status: string
   notes?: string | null
 }
