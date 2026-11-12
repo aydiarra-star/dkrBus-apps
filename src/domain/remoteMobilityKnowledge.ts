@@ -148,8 +148,12 @@ function lineReply(
     : line.status === 'verified'
       ? 'Fiche vérifiée dans le référentiel.'
       : 'Fiche candidate du référentiel, conservée séparément des données publiées.'
+  const routeTitle = line.public_name
+    || (catalog?.origin_label && catalog?.destination_label
+      ? `${catalog.origin_label} ↔ ${catalog.destination_label}`
+      : 'fiche de ligne')
   return [
-    `${label} ${line.code} — ${line.public_name || catalog?.origin_label + ' ↔ ' + catalog?.destination_label || 'fiche de ligne'}.`,
+    `${label} ${line.code} — ${routeTitle}.`,
     lineStatus,
     blocks.length ? blocks.join('\n\n') : 'Aucun sens de circulation enregistré pour cette ligne.',
     sourceLine,
