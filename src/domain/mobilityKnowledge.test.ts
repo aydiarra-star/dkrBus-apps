@@ -151,7 +151,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     setRemoteCandidateLines([candidate])
     expect(ask('DDD 999')).toContain('Fiche candidate de la mémoire centrale')
-    expect(ask('DDD 38')).toContain('Colobane → Bargny → Diamniadio')
+    expect(ask('DDD 999')).toContain('Colobane → Bargny → Diamniadio')
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     setRemoteCandidateLines([])
   })
