@@ -382,11 +382,31 @@ function lineReply(
       : 'Aucun sens retour distinct confirmé dans cette fiche.'
   const patternRows = snapshot.service_patterns?.filter((pattern) => pattern.direction_id === outbound?.id) ?? []
   const verifiedPatterns = patternRows.filter((pattern) => pattern.status === 'verified' || pattern.status === 'published')
+  const candidatePatterns = patternRows.filter((pattern) => pattern.status === 'candidate')
+  let candidateFrequency = ''
+  if (!verifiedPatterns.length && candidatePatterns.length) {
+    if (network === 'ddd') {
+      candidateFrequency = '\nRepère réseau DDD enregistré : 7–10 min en pointe, 10–15 min hors pointe ; premières circulations généralement 05:30–06:00 et dernières 20:30–21:00. Ce n’est pas un horaire de passage propre à cette ligne.'
+    } else if (network === 'aftu') {
+      const specific = candidatePatterns.find((pattern) => Number(pattern.headway_minutes) > 0 && pattern.service_start && pattern.service_end)
+      const average = candidatePatterns.find((pattern) => Number(pattern.headway_minutes) > 0)
+      if (specific) {
+        candidateFrequency = `\nRéférence de service enregistrée : ${specific.service_start?.slice(0, 5)}–${specific.service_end?.slice(0, 5)}, intervalle ${Number(specific.headway_minutes).toLocaleString('fr-FR')} min. Attente moyenne de référence AFTU : 8 min.`
+      } else if (average) {
+        candidateFrequency = `\nRepère moyen du réseau AFTU : ${Number(average.headway_minutes).toLocaleString('fr-FR')} min entre véhicules ; attente moyenne de référence : 8 min. Plage horaire propre à cette ligne non renseignée.`
+      }
+    } else if (network === 'tata') {
+      const shared = candidatePatterns.find((pattern) => Number(pattern.headway_minutes) > 0)
+      if (shared) {
+        candidateFrequency = `\nRepère commun AFTU/TATA enregistré : ${Number(shared.headway_minutes).toLocaleString('fr-FR')} min. Ce n’est pas une mesure indépendante propre à TATA.`
+      }
+    }
+  }
   const frequency = verifiedPatterns.length
     ? `\nFréquences de référence : ${verifiedPatterns.map((pattern) =>
         `${pattern.service_start?.slice(0, 5) || 'début non précisé'}–${pattern.service_end?.slice(0, 5) || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
       ).join('; ')}.`
-    : ''
+    : candidateFrequency
   const status = line.status === 'published'
     ? 'Fiche publiée'
     : verifiedPatterns.length && waypoints.length
@@ -405,7 +425,7 @@ function lineReply(
 }
 
 function trafficReply(question: string, snapshot: SupabaseMobilityKnowledgeSnapshot, now: number): SupabaseKnowledgeReply | null {
-  if (!/\b(trafic|circulation|bouchon|embouteillage|accident|perturbation|route bloquee)\b/.test(normalize(question))) return null
+  if (!/\b(trafic|circulation|bouchons?|embouteillages?|accidents?|perturbations?|routes? bloquees?)\b/.test(normalize(question))) return null
   const active = (snapshot.confirmed_traffic_incidents ?? []).filter((incident) =>
     !incident.expires_at || new Date(incident.expires_at).getTime() > now,
   )
