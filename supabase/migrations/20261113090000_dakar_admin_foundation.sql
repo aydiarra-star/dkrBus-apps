@@ -58,6 +58,11 @@ create trigger dakar_admin_audit_events_no_update
   before update or delete on public.dakar_admin_audit_events
   for each row execute function public.dakar_admin_reject_audit_mutation();
 
+drop trigger if exists dakar_admin_audit_events_no_truncate on public.dakar_admin_audit_events;
+create trigger dakar_admin_audit_events_no_truncate
+  before truncate on public.dakar_admin_audit_events
+  for each statement execute function public.dakar_admin_reject_audit_mutation();
+
 -- The first confirmed Dakar Bus Auth identity is registered as reviewer.
 -- No publisher is created here; that requires a separate named person.
 insert into public.dakar_admin_actors (user_id, role, display_name)
