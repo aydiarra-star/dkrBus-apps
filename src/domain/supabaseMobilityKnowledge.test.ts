@@ -108,7 +108,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     const reply = answerSupabaseMobilityKnowledge('DDD 228', snapshot)
     expect(reply?.text).toContain('DDD 228')
     expect(reply?.text).toContain('Rufisque → Bargny → Diamniadio → Yenne')
-    expect(reply?.text).toContain('Sens retour calculé par inversion')
+    expect(reply?.text).toContain('les horaires validés du réseau sont conservés')
     expect(reply?.text).toContain('demdikk.sn')
     expect(reply?.lineId).toBe('ddd:228')
   })
