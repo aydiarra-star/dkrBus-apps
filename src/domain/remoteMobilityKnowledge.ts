@@ -35,9 +35,13 @@ function lineCodeMention(text: string): string | null {
   return network?.[1] ?? null
 }
 
+function isUsableRecordStatus(status: string | null | undefined): boolean {
+  return status === 'candidate' || status === 'verified' || status === 'published'
+}
+
 function linesForNetwork(snapshot: MobilityBrainSnapshot, code: string): MobilityBrainLine[] {
   const networkIds = new Set(snapshot.networks.filter((item) => item.code === code).map((item) => item.id))
-  return snapshot.lines.filter((line) => networkIds.has(line.network_id) && line.status !== 'rejected')
+  return snapshot.lines.filter((line) => networkIds.has(line.network_id) && isUsableRecordStatus(line.status))
 }
 
 function catalogForLine(
@@ -114,7 +118,7 @@ function lineReply(
 ): string {
   const label = networkLabel(snapshot, networkCode)
   const catalog = catalogForLine(snapshot, line, networkCode)
-  const directions = snapshot.directions.filter((direction) => direction.line_id === line.id && direction.status !== 'rejected')
+  const directions = snapshot.directions.filter((direction) => direction.line_id === line.id && isUsableRecordStatus(direction.status))
   const blocks = directions.map((direction) => {
     const ordered = stopsForDirection(snapshot, direction.id)
     const names = ordered.map((row) => stopName(row.stop)).filter((name): name is string => Boolean(name))
@@ -212,9 +216,9 @@ function stopReply(
     .filter((row) => targetIds.has(row.stop_id))
     .map((row) => row.direction_id))
   const directionRows = snapshot.directions.filter((direction) =>
-    directionIds.has(direction.id) && direction.status !== 'rejected'
+    directionIds.has(direction.id) && isUsableRecordStatus(direction.status)
   )
-  const lineById = new Map(snapshot.lines.filter((line) => line.status !== 'rejected').map((line) => [line.id, line]))
+  const lineById = new Map(snapshot.lines.filter((line) => isUsableRecordStatus(line.status)).map((line) => [line.id, line]))
   const networkById = new Map(snapshot.networks.map((network) => [network.id, network]))
   const uniqueLines = new Map<string, { network: string; code: string }>()
   for (const direction of directionRows) {
@@ -228,7 +232,8 @@ function stopReply(
     .sort((a, b) => a.network.localeCompare(b.network, 'fr') || a.code.localeCompare(b.code, 'fr'))
     .map((line) => `${line.network} ${line.code}`)
   const transferRows = snapshot.transfers.filter((transfer) =>
-    targetIds.has(transfer.from_stop_id) || targetIds.has(transfer.to_stop_id)
+    isUsableRecordStatus(transfer.status)
+    && (targetIds.has(transfer.from_stop_id) || targetIds.has(transfer.to_stop_id))
   )
   const transferText = asksTransfer
     ? transferRows.length
@@ -236,7 +241,7 @@ function stopReply(
         const from = snapshot.reference_stops.find((stop) => stop.id === transfer.from_stop_id)?.canonical_name ?? 'arrêt'
         const to = snapshot.reference_stops.find((stop) => stop.id === transfer.to_stop_id)?.canonical_name ?? 'arrêt'
         const distance = transfer.walking_distance_m ? ` · ${transfer.walking_distance_m} m à pied` : ''
-        return `${from} ↔ ${to}${distance}`
+        return `${from} ↔ ${to}${distance} · statut ${transfer.status === 'published' ? 'publiée' : transfer.status === 'verified' ? 'vérifiée' : 'candidate à vérifier'}`
       }).join(' ; ')}. Leur statut doit être vérifié avant de les présenter comme garanties.`
       : '\nAucune correspondance piétonne enregistrée pour cet arrêt ; je ne déduis pas une correspondance du seul voisinage.'
     : ''
@@ -267,7 +272,7 @@ export function answerRemoteMobilityQuestion(
   const code = lineCodeMention(text)
   if (code) {
     const candidates = snapshot.lines.filter((line) =>
-      line.status !== 'rejected'
+      isUsableRecordStatus(line.status)
       && line.code.toLowerCase() === code && (!explicitNetwork
         || snapshot.networks.some((network) => network.id === line.network_id && network.code === explicitNetwork))
     )
