@@ -253,7 +253,7 @@ export function answerRemoteMobilityQuestion(
 
   const explicitNetwork = networkMention(text)
   const busIntent = Boolean(explicitNetwork)
-    || /\b(bus|ligne|arret|station|dessert|desserte|passage|frequence|horaire|horaires|correspondance|transfert|terminus)\b/.test(text)
+    || /\b(bus|lignes?|arrets?|stations?|dessert|desserte|passage|frequence|horaire|horaires|correspondance|transfert|terminus)\b/.test(text)
   if (!busIntent) return null
 
   const code = lineCodeMention(text)
