@@ -5,6 +5,7 @@ import { extractJourneyRequest, getAssistantCountdownMinutes, type AssistantCont
 import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
+import { loadMobilityBrainKnowledge } from '../domain/mobilityBrainApi'
 import { copilotAnswer } from '../domain/copilot'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
 import { type AssistantLanguagePreference } from '../domain/language'
@@ -67,8 +68,8 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
 /**
  * Widget d'assistant : accès dans l’en-tête et panneau de discussion. Le cerveau est
  * local (`domain/copilot.ts` + `domain/assistant.ts`) : il s'appuie sur le
- * référentiel des mobilités, le calculateur de correspondances et l'état réel
- * des API — aucune conversation n'est envoyée à un service externe.
+ * référentiel local, le calculateur de correspondances et le référentiel public
+ * Supabase téléchargé en lecture seule. La question et l'historique restent locaux.
  *
  * Vie du panneau : il reste ouvert jusqu'à ce que l'usager le ferme ;
  * l’envoi manuel et la voix passent par le même chemin,
@@ -203,7 +204,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     setExchanges((current) => [...current, { id: nextMessageId++, role: 'user', text: trimmed }])
     // La question et l'état de chargement sont rendus avant le calcul de la
     // réponse : la fenêtre ne dépend plus du temps de traitement.
-    window.setTimeout(() => {
+    window.setTimeout(async () => {
       let text: string
       let failed = false
       let reply: ReturnType<typeof copilotAnswer> | null = null
@@ -213,7 +214,9 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           // Même « répète » doit oublier une perturbation résolue/périmée.
           memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
         }
-        reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
+        const remoteMobilityKnowledge = await loadMobilityBrainKnowledge()
+        const assistantContext = { ...contextRef.current, remoteMobilityKnowledge }
+        reply = copilotAnswer(trimmed, assistantContext, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
       } catch {
         failed = true
