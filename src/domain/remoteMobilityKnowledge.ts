@@ -97,7 +97,11 @@ function directionTitle(direction: MobilityBrainDirection): string {
   const origin = direction.origin_label?.trim()
   const destination = direction.destination_label?.trim()
   if (origin && destination) {
-    const label = direction.direction_method === 'reverse_derived' ? 'Retour' : 'Aller'
+    const label = direction.direction_code.includes('circuit')
+      ? 'Circuit candidat'
+      : direction.direction_method === 'reverse_derived' || direction.direction_code.includes('return')
+        ? 'Retour'
+        : 'Aller'
     return `${label} : ${origin} → ${destination}`
   }
   return direction.direction_code
@@ -123,9 +127,13 @@ function lineReply(
       : route.join(' → ')
     const directionStatus = direction.direction_method === 'reverse_derived'
       ? 'Sens retour reconstitué à partir du sens publié.'
-      : direction.direction_method === 'source_forward'
-        ? 'Sens aller issu de la fiche source.'
-        : 'Sens enregistré dans le référentiel.'
+      : direction.direction_code.includes('return') && direction.direction_method === 'unknown'
+        ? 'Sens retour non documenté : aucune séquence n’est inventée.'
+        : direction.direction_code.includes('circuit')
+          ? 'Parcours circulaire candidat issu de la fiche source ; aucun sens inverse n’est déduit.'
+          : direction.direction_method === 'source_documented' || direction.direction_code === 'source_forward'
+            ? 'Sens issu de la fiche source.'
+            : 'Sens enregistré dans le référentiel.'
     const patterns = snapshot.service_patterns.filter((pattern) => pattern.direction_id === direction.id)
     const frequency = patterns.length
       ? `Fréquence : ${patterns.map(formatPattern).join(' ; ')}.`
