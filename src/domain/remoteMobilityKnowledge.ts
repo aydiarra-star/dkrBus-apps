@@ -209,13 +209,20 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
 }
 
 function stopMatches(snapshot: MobilityBrainSnapshot, text: string): MobilityBrainStop[] {
-  return snapshot.reference_stops
-    .filter((stop) => isUsableRecordStatus(stop.status))
-    .filter((stop) => [stop.canonical_name, ...(stop.aliases ?? [])].some((name) => {
-      const candidate = normalize(name)
-      return candidate.length >= 3 && text.includes(candidate)
-    }))
-    .sort((a, b) => (b.canonical_name?.length ?? 0) - (a.canonical_name?.length ?? 0))
+  const matches = snapshot.reference_stops.flatMap((stop) => {
+    const matchedName = [stop.canonical_name, ...(stop.aliases ?? [])]
+      .map((name) => normalize(name))
+      .filter((name) => name.length >= 3 && text.includes(name))
+      .sort((a, b) => b.length - a.length)[0]
+    return matchedName ? [{ stop, matchedLength: matchedName.length }] : []
+  }).sort((a, b) => b.matchedLength - a.matchedLength)
+
+  // A longer archived name/alias must block fallback to a shorter active
+  // stop name contained inside it (for example "Ancien Colobane" -> "Colobane").
+  if (matches.length && !isUsableRecordStatus(matches[0].stop.status)) return []
+  return matches
+    .filter(({ stop }) => isUsableRecordStatus(stop.status))
+    .map(({ stop }) => stop)
 }
 
 function stopReply(
@@ -284,7 +291,7 @@ export function answerRemoteMobilityQuestion(
 
   const explicitNetwork = networkMention(text)
   const busIntent = Boolean(explicitNetwork)
-    || /\b(bus|lignes?|arrets?|stations?|dessert|desserte|passage|frequence|horaire|horaires|correspondance|transfert|terminus)\b/.test(text)
+    || /\b(bus|lignes?|arrets?|stations?|dessert|desserte|passage|frequence|horaire|horaires|correspondances?|transferts?|terminus)\b/.test(text)
   if (!busIntent) return null
 
   const code = lineCodeMention(text)
@@ -312,7 +319,7 @@ export function answerRemoteMobilityQuestion(
     const asksFrequency = /\b(frequence|attente|passage|horaire|horaires|cadence)\b/.test(text)
     const stopHits = stopMatches(snapshot, text)
       .filter((stop) => snapshot.ordered_line_stops.some((row) => row.stop_id === stop.id))
-    if (stopHits.length) return stopReply(snapshot, stopHits.slice(0, 2), explicitNetwork, /\b(correspondance|transfert)\b/.test(text))
+    if (stopHits.length) return stopReply(snapshot, stopHits.slice(0, 2), explicitNetwork, /\b(correspondances?|transferts?)\b/.test(text))
     return networkSummary(snapshot, explicitNetwork, listAll, asksFrequency)
   }
 
