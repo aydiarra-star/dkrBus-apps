@@ -108,10 +108,18 @@ for (const feature of geo.features ?? []) {
 }
 
 if (!elements.length) throw new Error("No valid bus stop/platform objects found in the Dakar extract.");
-console.log(`Uploading ${elements.length} candidate objects in batches of 100...`);
+
+// Osmium can emit the same OSM object more than once when several matching tags apply.
+// Keep one record per stable OSM identity before constructing database upsert batches.
+const uniqueElements = [...new Map(
+  elements.map((element) => [`${element.type}:${element.id}`, element]),
+).values()];
+const duplicatesRemoved = elements.length - uniqueElements.length;
+if (duplicatesRemoved > 0) console.log(`Removed ${duplicatesRemoved} duplicate OSM identities before upload.`);
+console.log(`Uploading ${uniqueElements.length} unique candidate objects in batches of 100...`);
 let total = 0;
-for (let offset = 0; offset < elements.length; offset += 100) {
-  const batch = elements.slice(offset, offset + 100);
+for (let offset = 0; offset < uniqueElements.length; offset += 100) {
+  const batch = uniqueElements.slice(offset, offset + 100);
   const upload = await fetch(`${supabaseUrl}/functions/v1/dakar-bus-osm-stops-sync`, {
     method: "POST",
     headers: {
