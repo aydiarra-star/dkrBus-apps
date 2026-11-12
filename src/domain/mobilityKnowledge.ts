@@ -40,6 +40,77 @@ export interface RemoteTrafficSnapshot {
   traffic_candidates: RemoteTrafficIncident[]
   traffic_sources: RemoteTrafficSource[]
 }
+export interface RemoteMobilityGraph {
+  generated_at: string
+  graph_only: true
+  networks: Array<{ id: string; code: string; name?: string | null }>
+  lines: Array<{ id: string; network_id: string; code: string; public_name?: string | null; status: string }>
+  directions: Array<{
+    id: string
+    line_id: string
+    direction_code: string
+    origin_label?: string | null
+    destination_label?: string | null
+    status: string
+    direction_method?: string | null
+    direction_notes?: string | null
+  }>
+  ordered_line_stops: Array<{
+    id: string
+    direction_id: string
+    stop_id: string
+    stop_sequence: number
+    stop?: { id: string; canonical_name: string; aliases?: string[] | null } | null
+  }>
+  reference_stops: Array<{ id: string; canonical_name: string; aliases?: string[] | null }>
+  stop_network_memberships: Array<{
+    stop_id: string
+    canonical_name?: string | null
+    network_codes: string[]
+    line_codes: string[]
+    direction_codes: string[]
+    has_geolocation: boolean
+    interchange_status: string
+    physical_interchange_verified: boolean
+  }>
+  service_patterns: Array<{
+    id: string
+    direction_id: string
+    pattern_type: string
+    period_label?: string | null
+    service_start?: string | null
+    service_end?: string | null
+    headway_minutes?: number | null
+    headway_min_minutes?: number | null
+    headway_max_minutes?: number | null
+    expected_wait_minutes?: number | null
+    service_start_earliest?: string | null
+    service_start_latest?: string | null
+    service_end_earliest?: string | null
+    service_end_latest?: string | null
+    status: string
+    notes?: string | null
+  }>
+  transfers: Array<{
+    id: string
+    from_stop_id: string
+    to_stop_id: string
+    walking_distance_m?: number | null
+    walking_duration_seconds?: number | null
+    accessibility_status?: string | null
+    status: string
+    label?: string | null
+    notes?: string | null
+    from_stop?: { id: string; canonical_name: string } | null
+    to_stop?: { id: string; canonical_name: string } | null
+  }>
+  data_assertions: Array<Record<string, unknown>>
+  mobility_sources: Array<{ id: string; name: string; url?: string | null; reliability_level?: string | null }>
+}
+let remoteMobilityGraph: RemoteMobilityGraph | null = null
+export function setRemoteMobilityGraph(graph: RemoteMobilityGraph | null): void {
+  remoteMobilityGraph = graph
+}
 let remoteTrafficSnapshot: RemoteTrafficSnapshot | null = null
 export function setRemoteTrafficSnapshot(snapshot: RemoteTrafficSnapshot | null): void {
   remoteTrafficSnapshot = snapshot
