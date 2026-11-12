@@ -375,7 +375,11 @@ function lineReply(
     : outbound?.direction_code === 'schedule_reference_only'
       ? 'Horaires de service enregistrés ; terminus et séquence d’arrêts non renseignés.'
       : 'Terminaux documentés ; séquence intermédiaire d’arrêts non disponible dans la mémoire actuelle.'
-  const returnDirection = directions.find((direction) => direction.direction_code.includes('return'))
+  const returnDirection = directions.find((direction) =>
+    direction.direction_code.includes('return')
+    || direction.direction_method === 'reverse_derived'
+    || /diamniadio\s*→\s*dakar/i.test(direction.direction_code),
+  )
   const returnNote = returnDirection?.direction_method === 'reverse_derived'
     ? 'Sens retour calculé par inversion de l’aller ; il n’est pas confirmé par une fiche retour opérateur.'
     : returnDirection?.direction_method === 'unknown'
