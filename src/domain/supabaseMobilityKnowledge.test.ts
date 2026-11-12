@@ -58,6 +58,9 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
   ],
   service_patterns: [
     { direction_id: 'brt-b2-schedule', pattern_type: 'published_frequency', service_start: '06:00:00', service_end: '21:00:00', headway_minutes: 6, days_of_week: [1, 2, 3, 4, 5, 6], status: 'verified' },
+    { direction_id: 'ddd-228-out', pattern_type: 'estimated_frequency', headway_minutes: null, status: 'candidate' },
+    { direction_id: 'aftu-5-out', pattern_type: 'estimated_frequency', service_start: '06:00:00', service_end: '23:00:00', headway_minutes: 10, status: 'candidate' },
+    { direction_id: 'tata-42-out', pattern_type: 'estimated_frequency', headway_minutes: 11.58, status: 'candidate' },
   ],
   transfers: [
     { label: 'Dakar TER ↔ BRT Petersen', status: 'candidate', walking_distance_m: 1000 },
@@ -92,6 +95,22 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(reply?.text).toContain('Sens retour calculé par inversion')
     expect(reply?.text).toContain('demdikk.sn')
     expect(reply?.lineId).toBe('ddd:228')
+  })
+
+  it('expose les repères de fréquence enregistrés sans les présenter comme des départs en direct', () => {
+    const ddd = answerSupabaseMobilityKnowledge('DDD 228', snapshot)
+    expect(ddd?.text).toContain('7–10 min en pointe')
+    expect(ddd?.text).toContain('10–15 min hors pointe')
+
+    const aftu = answerSupabaseMobilityKnowledge('AFTU 5', snapshot)
+    expect(aftu?.text).toContain('06:00–23:00')
+    expect(aftu?.text).toContain('10 min')
+    expect(aftu?.text).toContain('Attente moyenne de référence AFTU')
+
+    const tata = answerSupabaseMobilityKnowledge('TATA 42', snapshot)
+    expect(tata?.text).toContain('Repère commun AFTU/TATA')
+    expect(tata?.text).toContain('11,6 min')
+    expect(tata?.text).toContain('pas une mesure indépendante')
   })
 
   it('garde TATA distinct d’AFTU', () => {
