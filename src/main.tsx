@@ -3,14 +3,12 @@ import ReactDOM from 'react-dom/client'
 import 'leaflet/dist/leaflet.css'
 import App from './App'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
-import { hydrateSupabaseKnowledgeFromCache, refreshSupabaseKnowledge } from './domain/supabaseKnowledge'
 import { hydrateSupabaseTrafficFromCache, refreshSupabaseTraffic } from './domain/supabaseTraffic'
 import { hydrateSupabaseGraphFromCache, refreshSupabaseGraph } from './domain/supabaseGraph'
 
 // Hydratation locale immédiate, puis synchronisation distante non bloquante.
 hydrateSupabaseKnowledgeFromCache()
 hydrateSupabaseTrafficFromCache()
-void refreshSupabaseKnowledge()
 void refreshSupabaseTraffic()
 void hydrateSupabaseGraphFromCache().then(() => refreshSupabaseGraph())
 
