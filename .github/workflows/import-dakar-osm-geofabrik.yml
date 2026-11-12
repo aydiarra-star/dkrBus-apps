@@ -1,6 +1,11 @@
 name: Import Dakar OSM bus stops from Geofabrik
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/import-dakar-osm-geofabrik.yml"
   workflow_dispatch:
   schedule:
     - cron: "30 3 * * *"
