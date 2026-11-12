@@ -222,6 +222,9 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
               setRemoteMobilityKnowledge(snapshot)
               contextRef.current = { ...contextRef.current, remoteMobilityKnowledge: snapshot }
             }
+          } else {
+            setRemoteMobilityKnowledge(null)
+            contextRef.current = { ...contextRef.current, remoteMobilityKnowledge: null }
           }
           if (lastTrafficQuestionRef.current) {
             // Même « répète » doit oublier une perturbation résolue/périmée.
