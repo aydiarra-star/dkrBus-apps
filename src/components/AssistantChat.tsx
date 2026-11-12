@@ -6,6 +6,7 @@ import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { copilotAnswer } from '../domain/copilot'
+import { fetchSupabaseMobilityKnowledge, type SupabaseMobilityKnowledgeSnapshot } from '../domain/supabaseMobilityKnowledge'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
 import { type AssistantLanguagePreference } from '../domain/language'
 import { getPreferences, updatePreferences, usePreferences } from '../domain/preferences'
@@ -82,6 +83,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const [notice, setNotice] = useState<string | null>(null)
   const [listening, setListening] = useState(false)
   const [speakingId, setSpeakingId] = useState<number | null>(null)
+  const [remoteMobilityKnowledge, setRemoteMobilityKnowledge] = useState<SupabaseMobilityKnowledgeSnapshot | null>(null)
   // La langue de l'assistant est un réglage de l'appareil, partagé avec l'écran
   // Paramètres : le changer ici se voit là, et réciproquement.
   const preferences = usePreferences()
@@ -89,15 +91,30 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const listRef = useRef<HTMLDivElement | null>(null)
   const memoryRef = useRef<ConversationMemory>(createConversationMemory())
   const lastTrafficQuestionRef = useRef<string | null>(null)
-  const contextRef = useRef(context)
+  const assistantContext = useMemo(() => ({ ...context, remoteMobilityKnowledge }), [context, remoteMobilityKnowledge])
+  const contextRef = useRef(assistantContext)
   const preferenceRef = useRef(preference)
   const pendingRef = useRef(false)
   const recognitionRef = useRef<SpeechRecognitionHandle | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    contextRef.current = context
-  }, [context])
+    contextRef.current = assistantContext
+  }, [assistantContext])
+
+  // La mémoire centrale est lue en arrière-plan. En cas de réseau indisponible,
+  // le copilote garde exactement son référentiel local et reste utilisable.
+  useEffect(() => {
+    const controller = new AbortController()
+    let active = true
+    void fetchSupabaseMobilityKnowledge(controller.signal).then((snapshot) => {
+      if (active && snapshot) setRemoteMobilityKnowledge(snapshot)
+    })
+    return () => {
+      active = false
+      controller.abort()
+    }
+  }, [])
   useEffect(() => {
     preferenceRef.current = preference
   }, [preference])
@@ -109,13 +126,13 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     const current = exchanges.map((message) => {
       if (!message.trafficQuestion) return message
       try {
-        return { ...message, text: copilotAnswer(message.trafficQuestion, context, createConversationMemory(), message.lang ?? 'fr', Date.now()).text }
+        return { ...message, text: copilotAnswer(message.trafficQuestion, assistantContext, createConversationMemory(), message.lang ?? 'fr', Date.now()).text }
       } catch {
         return { ...message, text: 'Informations trafic indisponibles. Vérifiez auprès de votre opérateur.' }
       }
     })
     return current.every((message, index) => message.text === exchanges[index].text) ? exchanges : current
-  }, [exchanges, context])
+  }, [exchanges, assistantContext])
   const toggleRef = useRef<HTMLButtonElement | null>(null)
   const [position, setPosition] = useState({ top: 12, left: 12, width: 360, maxHeight: 360 })
 
