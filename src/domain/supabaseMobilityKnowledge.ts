@@ -239,7 +239,9 @@ export function supabaseFetchOptionsForQuestion(
       lineCode = lastCode?.toUpperCase()
     }
   }
-  return network ? { network, ...(lineCode ? { lineCode } : {}) } : null
+  return network
+    ? { network, ...(lineCode ? { lineCode } : {}) }
+    : lineCode ? { lineCode } : null
 }
 
 function sourceLine(record: SupabaseKnowledgeCatalogRecord): string {
