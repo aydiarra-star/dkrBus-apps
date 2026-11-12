@@ -44,7 +44,7 @@ export interface RemoteMobilityGraph {
   generated_at: string
   graph_only: true
   networks: Array<{ id: string; code: string; name?: string | null }>
-  lines: Array<{ id: string; network_id: string; code: string; public_name?: string | null; status: string }>
+  lines: Array<{ id: string; network_id: string; code: string; public_name?: string | null; status: string; source_id?: string | null }>
   directions: Array<{
     id: string
     line_id: string
@@ -207,7 +207,7 @@ function graphSupplement(line: BusLine, text: string): string {
       const isReturn = isReturnDirection(direction.direction_code, direction.direction_method)
       if (returnOnly && !isReturn) return []
       // La fiche locale validée reste prioritaire pour son sens aller.
-      if (!isRemoteCandidate(line) && line.waypoints.length && !isReturn) return []
+      if (line.waypoints.length && !isReturn) return []
       if (!stops.length) return []
       const label = isReturn ? 'Retour' : /outbound|aller/i.test(direction.direction_code) ? 'Aller' : direction.direction_code
       const status = direction.status === 'verified' ? 'validé' : 'à confirmer'
@@ -376,7 +376,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
     const graphDetails = graphDirectionsFor(line)
     const sequences: Array<{ label: string; stops: string[]; candidate: boolean }> = []
     if (line.waypoints.length) {
-      sequences.push({ label: 'sens publié', stops: line.waypoints, candidate: false })
+      sequences.push({ label: 'sens publié', stops: line.waypoints, candidate: isRemoteCandidate(line) })
     }
     for (const item of graphDetails) {
       const isReturn = isReturnDirection(item.direction.direction_code, item.direction.direction_method)
