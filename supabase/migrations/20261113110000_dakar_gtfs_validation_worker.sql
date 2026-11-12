@@ -98,8 +98,10 @@ begin
      and staged.validation_lease_until > now()
    for update;
 
-  if expected_sha is null or expected_sha <> p_archive_sha256
-     or p_report->'dataset'->>'sha256' <> expected_sha then
+  if expected_sha is null
+     or p_archive_sha256 is distinct from expected_sha
+     or jsonb_typeof(p_report->'dataset') is distinct from 'object'
+     or (p_report->'dataset'->>'sha256') is distinct from expected_sha then
     return false;
   end if;
 
