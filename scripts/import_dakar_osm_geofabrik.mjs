@@ -8,7 +8,11 @@ const bbox = "-17.56,14.55,-17.12,14.91";
 const pbfUrl = "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf";
 const work = "artifacts/osm";
 // GitHub secret copy/paste can introduce line breaks; remove whitespace before using it as an HTTP header.
-const token = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\s+/g, "");
+const rawToken = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\s+/g, "");
+// GitHub may contain either the decoded 72-character token or its 144-character hex form from Vault.
+const token = /^[0-9a-fA-F]{144}$/.test(rawToken)
+  ? Buffer.from(rawToken, "hex").toString("utf8")
+  : rawToken;
 const supabaseUrl = "https://mdmuxzaewqzqutkqdylo.supabase.co";
 const publishableKey = process.env.DAKAR_BUS_PUBLISHABLE_KEY;
 
