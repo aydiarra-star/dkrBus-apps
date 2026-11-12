@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
 
   const declaredLengthHeader = req.headers.get("Content-Length");
   if (declaredLengthHeader !== null) {
-    if (!/^\\d+$/.test(declaredLengthHeader)) {
+    if (!/^\d+$/.test(declaredLengthHeader)) {
       return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
     }
     const declaredLength = Number(declaredLengthHeader);
