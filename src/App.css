@@ -1629,7 +1629,14 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: .025em;
 }
 .network-summary-passage { display: grid; justify-items: end; gap: 1px; text-align: right; }
-.station-board-realtime-arcs { display: inline-block; width: 14px; height: 9px; margin-right: 5px; vertical-align: -1px; fill: none; stroke: var(--passage-green); stroke-width: 1.8; stroke-linecap: round; }
+.station-board-double-apostrophe { display: inline-block; width: 11px; height: 9px; margin-right: 5px; vertical-align: -1px; overflow: visible; fill: none; stroke: var(--passage-green); stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 1px color-mix(in srgb, var(--passage-green) 55%, transparent)); animation: station-board-apostrophe-twinkle 1.35s ease-in-out infinite; }
+@keyframes station-board-apostrophe-twinkle {
+  0%, 100% { opacity: .62; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--passage-green) 25%, transparent)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 2px color-mix(in srgb, var(--passage-green) 72%, transparent)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .station-board-double-apostrophe { animation: none; opacity: 1; }
+}
 .network-summary-passage > strong {
   color: var(--passage-green);
   font-size: 14.5px;
