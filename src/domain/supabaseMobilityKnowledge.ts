@@ -255,6 +255,50 @@ function textArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
 }
 
+function extractStopQuery(question: string): string | null {
+  const text = normalize(question)
+  if (!/\b(arret|station|gare)\b/.test(text)) return null
+  const name = text.replace(/\b(ou|est|se|trouve|l|le|la|les|un|une|arret|station|gare|du|de|des|dans|sur|reseau|ddd|aftu|tata|brt|ter|bus)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim()
+  return name.length >= 2 ? name : null
+}
+
+function stopReply(question: string, snapshot: SupabaseMobilityKnowledgeSnapshot): SupabaseKnowledgeReply | null {
+  const query = extractStopQuery(question)
+  if (!query) return null
+  const candidates = new Map<string, SupabaseKnowledgeStop>()
+  for (const stop of snapshot.reference_stops ?? []) {
+    const names = [stop.canonical_name, ...(stop.aliases ?? [])].map(normalize)
+    if (names.some((name) => name.includes(query) || query.includes(name))) candidates.set(stop.id, stop)
+  }
+  for (const row of snapshot.ordered_line_stops) {
+    const stop = row.stop
+    if (!stop) continue
+    const names = [stop.canonical_name, ...(stop.aliases ?? [])].map(normalize)
+    if (names.some((name) => name.includes(query) || query.includes(name))) candidates.set(stop.id, stop)
+  }
+  if (!candidates.size) return null
+
+  const directionById = new Map(snapshot.directions.map((direction) => [direction.id, direction]))
+  const lineById = new Map(snapshot.lines.map((line) => [line.id, line]))
+  const networkById = new Map((snapshot.networks ?? []).map((network) => [network.id, network.code]))
+  const serving = new Set<string>()
+  for (const row of snapshot.ordered_line_stops) {
+    if (!row.stop_id || !candidates.has(row.stop_id)) continue
+    const direction = directionById.get(row.direction_id)
+    const line = direction ? lineById.get(direction.line_id) : undefined
+    if (!line) continue
+    const network = networkById.get(line.network_id) ?? 'bus'
+    serving.add(`${network.toUpperCase()} ${line.code}`)
+  }
+  const names = [...candidates.values()].slice(0, 5).map((stop) => stop.canonical_name)
+  return {
+    text: `Arrêt(s) trouvé(s) dans la mémoire : ${names.join(', ')}.\n${serving.size
+      ? `Lignes associées aux séquences enregistrées : ${[...serving].sort().join(', ')}.`
+      : 'Aucune ligne n’est encore reliée à cet arrêt dans la mémoire.'}\nLes associations non publiées restent à confirmer avant de garantir un passage.`,
+  }
+}
+
 function lineReply(
   line: SupabaseKnowledgeLine,
   snapshot: SupabaseMobilityKnowledgeSnapshot,
@@ -399,6 +443,11 @@ export function answerSupabaseMobilityKnowledge(
     }).join('\n')}\nPrécisez le réseau pour éviter une confusion.` }
   }
   if (code && matches.length === 1) return lineReply(matches[0], snapshot)
+
+  if (!code) {
+    const stop = stopReply(question, snapshot)
+    if (stop) return stop
+  }
 
   if (!code && explicitNetwork && /\b(liste|lignes|numeros|reseau|toutes)\b/.test(text)) {
     const codes = matches.map((line) => line.code).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
