@@ -421,7 +421,7 @@ function lineReply(
   }
   const frequency = verifiedPatterns.length
     ? `\nFréquences de référence : ${verifiedPatterns.map((pattern) =>
-        `${pattern.service_start?.slice(0, 5) || 'début non précisé'}–${pattern.service_end?.slice(0, 5) || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
+        `${pattern.service_start?.slice(0, 5) || 'début non précisé'}–${pattern.service_end?.slice(0, 5) || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min${pattern.notes ? ` (${pattern.notes})` : ''}`,
       ).join('; ')}.`
     : candidateFrequency
   const status = line.status === 'published'
