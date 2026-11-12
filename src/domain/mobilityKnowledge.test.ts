@@ -239,6 +239,59 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     setRemoteCandidateLines([])
   })
 
+
+  it('masque un sens retour candidat dont la séquence ne correspond pas à l’inverse de l’aller', () => {
+    const candidate = {
+      network: 'ddd',
+      code: '999',
+      origin: 'Dakar',
+      destination: 'Rufisque',
+      waypoints: [],
+      sourceUrl: 'https://example.com/ddd-999',
+      detailSourceUrl: 'https://example.com/ddd-999/details',
+      consultedAt: '',
+      publishedAt: null,
+      note: 'Fiche candidate de test.',
+    } as BusLine
+    const graph = {
+      generated_at: '2026-11-12T07:00:00.000Z',
+      graph_only: true,
+      networks: [{ id: 'network-ddd', code: 'ddd' }],
+      lines: [{ id: 'line-ddd-999', network_id: 'network-ddd', code: '999', status: 'candidate' }],
+      directions: [
+        { id: 'direction-out', line_id: 'line-ddd-999', direction_code: 'outbound_candidate', origin_label: 'Dakar', destination_label: 'Rufisque', status: 'candidate', direction_method: 'source_documented' },
+        { id: 'direction-return', line_id: 'line-ddd-999', direction_code: 'return_reverse_candidate', origin_label: 'Rufisque', destination_label: 'Dakar', status: 'candidate', direction_method: 'reverse_derived' },
+      ],
+      ordered_line_stops: [
+        { id: 'out-1', direction_id: 'direction-out', stop_id: 'stop-dakar', stop_sequence: 1, stop: { id: 'stop-dakar', canonical_name: 'Dakar' } },
+        { id: 'out-2', direction_id: 'direction-out', stop_id: 'stop-colobane', stop_sequence: 2, stop: { id: 'stop-colobane', canonical_name: 'Colobane' } },
+        { id: 'out-3', direction_id: 'direction-out', stop_id: 'stop-rufisque', stop_sequence: 3, stop: { id: 'stop-rufisque', canonical_name: 'Rufisque' } },
+        { id: 'return-1', direction_id: 'direction-return', stop_id: 'stop-colobane', stop_sequence: 1, stop: { id: 'stop-colobane', canonical_name: 'Colobane' } },
+        { id: 'return-2', direction_id: 'direction-return', stop_id: 'stop-dakar', stop_sequence: 2, stop: { id: 'stop-dakar', canonical_name: 'Dakar' } },
+        { id: 'return-3', direction_id: 'direction-return', stop_id: 'stop-rufisque', stop_sequence: 3, stop: { id: 'stop-rufisque', canonical_name: 'Rufisque' } },
+      ],
+      reference_stops: [
+        { id: 'stop-dakar', canonical_name: 'Dakar' },
+        { id: 'stop-colobane', canonical_name: 'Colobane' },
+        { id: 'stop-rufisque', canonical_name: 'Rufisque' },
+      ],
+      stop_network_memberships: [],
+      service_patterns: [],
+      transfers: [],
+      data_assertions: [],
+      mobility_sources: [],
+    } as RemoteMobilityGraph
+
+    setRemoteCandidateLines([candidate])
+    setRemoteMobilityGraph(graph)
+    const reply = ask('arrêts aller retour DDD 999')
+    expect(reply).toContain('Dakar → Colobane → Rufisque')
+    expect(reply).not.toContain('Colobane → Dakar → Rufisque')
+    expect(reply).toContain('Sens retour masqué')
+    setRemoteMobilityGraph(null)
+    setRemoteCandidateLines([])
+  })
+
   it('distingue une piste de presse non confirmée d’une alerte routière confirmée', () => {
     setRemoteTrafficSnapshot({
       generated_at: '2026-11-12T06:45:00.000Z',
