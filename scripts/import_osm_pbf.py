@@ -17,7 +17,7 @@ from urllib.request import Request, urlopen
 PBF_URL = "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf"
 SUPABASE_FUNCTION = "/functions/v1/dakar-bus-osm-stops-sync"
 BATCH_SIZE = 100
-BOUNDS = (14.60, -17.56, 14.84, -17.16)  # south, west, north, east
+BOUNDS = (14.60, -17.56, 14.91, -17.12)  # south, west, north, east
 ALLOWED = {
     "highway": "bus_stop",
     "public_transport": "platform",
