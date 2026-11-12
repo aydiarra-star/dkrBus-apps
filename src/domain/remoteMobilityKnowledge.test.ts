@@ -222,6 +222,24 @@ describe('answerRemoteMobilityQuestion', () => {
     expect(answer).not.toContain('Sens retour reconstitué')
   })
 
+  it('labels estimated candidate frequencies instead of presenting them as verified', () => {
+    const answer = answerRemoteMobilityQuestion('Quels horaires pour AFTU 5 ?', snapshot)
+    expect(answer).toContain('repère candidat')
+    expect(answer).not.toContain('repère vérifié')
+  })
+
+  it('does not use a rejected catalogue record as a route fallback', () => {
+    const rejectedCatalogue: MobilityBrainSnapshot = {
+      ...snapshot,
+      catalogue: snapshot.catalogue.map((record) => ({ ...record, status: 'rejected' })),
+      directions: snapshot.directions.filter((direction) => direction.id === 'direction-aftu-5-out'),
+      ordered_line_stops: [],
+    }
+    const answer = answerRemoteMobilityQuestion('AFTU 5', rejectedCatalogue)
+    expect(answer).toContain('La séquence détaillée des arrêts n’est pas encore renseignée')
+    expect(answer).not.toContain('Colobane → Rufisque')
+  })
+
   it('returns null when the remote snapshot is unavailable', () => {
     expect(answerRemoteMobilityQuestion('AFTU 5', null)).toBeNull()
   })
