@@ -110,6 +110,7 @@ describe('mémoire Supabase distante Dakar Bus', () => {
     expect(reply?.text).toContain('Croisement 22')
     expect(reply?.text).toContain('BRT / DDD')
     expect(reply?.text).toContain('restent à vérifier sur le terrain')
+    expect(reply?.text).not.toContain('TER Petersen')
   })
 
   it('retrouve un arrêt et les lignes qui lui sont associées', () => {
