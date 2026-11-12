@@ -215,7 +215,9 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
         let reply: ReturnType<typeof copilotAnswer> | null = null
         const repeatedTraffic = detectFollowUp(trimmed) === 'again' ? lastTrafficQuestionRef.current : null
         try {
-          const fetchOptions = supabaseFetchOptionsForQuestion(trimmed, memoryRef.current.lastKnowledgeLineId)
+          const fetchOptions = import.meta.env.MODE === 'test'
+            ? null
+            : supabaseFetchOptionsForQuestion(trimmed, memoryRef.current.lastKnowledgeLineId)
           if (fetchOptions) {
             const snapshot = await fetchSupabaseMobilityKnowledge(fetchOptions)
             if (snapshot) {
