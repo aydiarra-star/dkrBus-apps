@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom/client'
 import 'leaflet/dist/leaflet.css'
 import App from './App'
 import { AppErrorBoundary } from './components/AppErrorBoundary'
+import { hydrateSupabaseKnowledgeFromCache, refreshSupabaseKnowledge } from './domain/supabaseKnowledge'
+
+// Hydratation locale immédiate, puis synchronisation distante non bloquante.
+hydrateSupabaseKnowledgeFromCache()
+void refreshSupabaseKnowledge()
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Dakar Bus : élément #root introuvable.')
