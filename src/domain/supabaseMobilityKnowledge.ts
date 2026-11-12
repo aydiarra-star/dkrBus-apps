@@ -135,7 +135,6 @@ export async function fetchSupabaseMobilityKnowledge(
   const timeout = window.setTimeout(() => controller.abort(), 9_000)
 
   inFlight = fetch(FUNCTION_URL, {
-    method: 'GET',
     headers: {
       apikey: SUPABASE_PUBLISHABLE_KEY,
       Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
