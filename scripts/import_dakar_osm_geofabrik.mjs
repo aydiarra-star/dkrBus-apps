@@ -48,6 +48,8 @@ await run("osmium", [
   "nw/highway=bus_stop",
   "nw/public_transport=platform",
   "nw/amenity=bus_station",
+  "n/public_transport=stop_position",
+  "n/public_transport=station",
   "--overwrite",
 ]);
 console.log("Converting the filtered OSM data to GeoJSON with OSM identifiers...");
@@ -73,6 +75,13 @@ for (const feature of geo.features ?? []) {
   const id = Number(p["@id"] ?? p.id);
   const coords = flatten(feature.geometry?.coordinates);
   if (!["node", "way"].includes(type) || !Number.isSafeInteger(id) || !coords.length) continue;
+  // Keep only bus-specific stop positions/stations; platforms and bus stops
+  // are already explicitly selected by Osmium tags-filter.
+  const isBusStop = p.highway === "bus_stop"
+    || p.amenity === "bus_station"
+    || p.public_transport === "platform"
+    || ((p.public_transport === "stop_position" || p.public_transport === "station") && p.bus === "yes");
+  if (!isBusStop) continue;
   const lon = coords.reduce((sum, c) => sum + c[0], 0) / coords.length;
   const lat = coords.reduce((sum, c) => sum + c[1], 0) / coords.length;
   if (lat < 14.55 || lat > 14.91 || lon < -17.56 || lon > -17.12) continue;
