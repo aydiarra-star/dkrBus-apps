@@ -78,8 +78,9 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       if (!rawTags || typeof rawTags !== "object" || Array.isArray(rawTags)) return [];
       const tags = rawTags as Record<string, unknown>;
       const relevant = tags.highway === "bus_stop"
+        || tags.amenity === "bus_station"
         || tags.public_transport === "platform"
-        || (tags.public_transport === "stop_position" && tags.bus === "yes");
+        || ((tags.public_transport === "stop_position" || tags.public_transport === "station") && tags.bus === "yes");
       if (!relevant) return [];
       const safeTags = Object.fromEntries(Object.entries(tags)
         .filter(([key, value]) => /^[a-zA-Z0-9:_-]{1,80}$/.test(key)
