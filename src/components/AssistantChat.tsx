@@ -103,7 +103,12 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     preferenceRef.current = preference
   }, [preference])
   useEffect(() => {
-    if (!preferences.privacy.keepPlaceHistory) clearConversationMemory()
+    if (!preferences.privacy.keepPlaceHistory) {
+      // Effacer aussi la mémoire en cours : la réactivation ultérieure
+      // ne doit pas réenregistrer un ancien trajet conservé en RAM.
+      memoryRef.current = createConversationMemory()
+      clearConversationMemory()
+    }
   }, [preferences.privacy.keepPlaceHistory])
 
   // Les réponses trafic suivent les preuves courantes : un accident résolu
