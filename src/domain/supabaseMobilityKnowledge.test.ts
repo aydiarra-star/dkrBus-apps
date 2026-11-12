@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   answerSupabaseMobilityKnowledge,
+  supabaseFetchOptionsForQuestion,
   type SupabaseMobilityKnowledgeSnapshot,
 } from './supabaseMobilityKnowledge'
 import { copilotAnswer } from './copilot'
@@ -66,6 +67,14 @@ const snapshot: SupabaseMobilityKnowledgeSnapshot = {
 }
 
 describe('mémoire Supabase distante Dakar Bus', () => {
+  it('ne charge que le réseau et la ligne demandés', () => {
+    expect(supabaseFetchOptionsForQuestion('DDD 228')).toEqual({ network: 'ddd', lineCode: '228' })
+    expect(supabaseFetchOptionsForQuestion('TATA 42')).toEqual({ network: 'tata', lineCode: '42' })
+    expect(supabaseFetchOptionsForQuestion('BRT B2')).toEqual({ network: 'brt', lineCode: 'B2' })
+    expect(supabaseFetchOptionsForQuestion('Et ses arrêts', 'ddd:228')).toEqual({ network: 'ddd', lineCode: '228' })
+    expect(supabaseFetchOptionsForQuestion('Y a-t-il des embouteillages ?')).toEqual({ trafficOnly: true })
+    expect(supabaseFetchOptionsForQuestion('Bonjour')).toBeNull()
+  })
   it('répond avec la séquence DDD importée et signale le retour dérivé', () => {
     const reply = answerSupabaseMobilityKnowledge('DDD 228', snapshot)
     expect(reply?.text).toContain('DDD 228')
