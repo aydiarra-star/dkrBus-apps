@@ -36,6 +36,12 @@ export interface RemoteTrafficSnapshot {
   realtime: false
   traffic_only: true
   alert_policy: string
+  traffic_data_status?: {
+    status: string
+    reason_code?: string
+    configured_realtime_sources?: number
+    message?: string
+  }
   confirmed_traffic_incidents: RemoteTrafficIncident[]
   traffic_candidates: RemoteTrafficIncident[]
   traffic_sources: RemoteTrafficSource[]
