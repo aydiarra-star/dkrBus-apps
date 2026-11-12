@@ -506,17 +506,38 @@ export function answerSupabaseMobilityKnowledge(
   }
 
   if (/\b(correspondance|correspondances|transfert|transferts)\b/.test(text)) {
+    const mentionedNetworks = ['ddd', 'aftu', 'tata', 'brt', 'ter'].filter((network) =>
+      new RegExp(`\\b${network}\\b`).test(text),
+    )
     const confirmed = (snapshot.transfers ?? []).filter((transfer) => transfer.status === 'verified' || transfer.status === 'published')
+    const candidates = (snapshot.transfers ?? []).filter((transfer) => transfer.status !== 'verified' && transfer.status !== 'published')
+    const shared = (snapshot.shared_stops ?? []).filter((stop) =>
+      mentionedNetworks.length === 0 || mentionedNetworks.every((network) => stop.network_codes.includes(network)),
+    )
+    const parts: string[] = []
     if (confirmed.length) {
-      return { text: `Correspondances confirmées :\n${confirmed.slice(0, 8).map((transfer) =>
+      parts.push(`Correspondances confirmées :\n${confirmed.slice(0, 8).map((transfer) =>
         `• ${transfer.label || `${transfer.from_stop?.canonical_name || '?'} ↔ ${transfer.to_stop?.canonical_name || '?'}`}`,
-      ).join('\n')}` }
+      ).join('\n')}`)
     }
-    const candidates = snapshot.transfers ?? []
     if (candidates.length) {
-      return { text: `Correspondances candidates à vérifier :\n${candidates.slice(0, 8).map((transfer) =>
+      parts.push(`Liaisons piétonnes candidates :\n${candidates.slice(0, 5).map((transfer) =>
         `• ${transfer.label || `${transfer.from_stop?.canonical_name || '?'} ↔ ${transfer.to_stop?.canonical_name || '?'}`}${transfer.walking_distance_m ? ` (environ ${transfer.walking_distance_m} m)` : ''}`,
-      ).join('\n')}\nLe chemin piéton et l’accessibilité ne sont pas confirmés.` }
+      ).join('\n')}`)
+    }
+    if (shared.length) {
+      parts.push(`Arrêts partagés géolocalisés — correspondances potentielles :\n${shared.slice(0, 8).map((stop) =>
+        `• ${stop.canonical_name} — ${stop.network_codes.map((network) => network.toUpperCase()).join(' / ')} ; lignes : ${stop.line_codes.slice(0, 6).join(', ')}`,
+      ).join('\n')}`)
+    }
+    if (parts.length) {
+      return {
+        text: `${parts.join('\n')}\nCes arrêts partagés sont des points potentiels issus du référentiel. Les cheminements piétons, la distance réelle et l’accessibilité restent à vérifier sur le terrain.`,
+      }
+    }
+    const unlocated = snapshot.counts?.unlocated_shared_stop_names ?? 0
+    return {
+      text: `Aucune correspondance géolocalisée ne correspond aux réseaux demandés dans la mémoire. ${unlocated ? `${unlocated} noms d’arrêts communs restent sans géolocalisation et ne sont pas proposés comme correspondances.` : 'Aucune liaison confirmée n’est enregistrée.'}`,
     }
   }
   return null
