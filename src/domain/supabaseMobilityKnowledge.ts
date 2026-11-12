@@ -152,7 +152,7 @@ export async function fetchSupabaseMobilityKnowledge(
 
   const url = new URL(FUNCTION_URL)
   if (options.network) url.searchParams.set('network', options.network)
-  if (options.lineCode) url.searchParams.set('q', options.lineCode.toLowerCase())
+  if (options.lineCode) url.searchParams.set('line', options.lineCode.toLowerCase())
   if (options.trafficOnly) url.searchParams.set('traffic_only', '1')
 
   const controller = new AbortController()
