@@ -366,23 +366,53 @@ function mentions(place: string, question: string): boolean {
   return name.length >= 4 && ` ${question} `.includes(` ${name} `)
 }
 function busRouteReply(question: string, networks: string[]): KnowledgeReply | null {
-  const route = /\b(?:de|depuis) (.+?) (?:a|vers|jusqu a) (.+?)(?: en bus| en ddd| en aftu| en tata| avec .*)?$/.exec(question)
+  const route = /\\b(?:de|depuis) (.+?) (?:a|vers|jusqu a) (.+?)(?: en bus| en ddd| en aftu| en tata| avec .*)?$/.exec(question)
   if (!route) return null
   const [, from, to] = route
   // Préserver les parcours TER/BRT déjà calculables, sauf choix bus explicite.
   if (!networks.length && searchCorridorStops(from).length && searchCorridorStops(to).length) return null
-  const candidates = BUS_LINES.filter((line) => (!networks.length || networks.includes(line.network)) && !line.note?.startsWith('Divergence'))
-  const findMatches = (pool: readonly BusLine[]) => pool.filter((line) => {
-    const points = line.waypoints.length ? line.waypoints : [line.origin, line.destination]
-    const start = points.findIndex((point) => mentions(from, normalizeMobility(point)))
-    const end = points.findIndex((point) => mentions(to, normalizeMobility(point)))
-    return start >= 0 && end > start
+  type RouteMatch = { line: BusLine; directionLabel: string; candidate: boolean }
+  const findMatches = (pool: readonly BusLine[]): RouteMatch[] => pool.flatMap((line) => {
+    const graphDetails = graphDirectionsFor(line)
+    const sequences: Array<{ label: string; stops: string[]; candidate: boolean }> = []
+    if (line.waypoints.length) {
+      sequences.push({ label: 'sens publié', stops: line.waypoints, candidate: false })
+    }
+    for (const item of graphDetails) {
+      const isReturn = isReturnDirection(item.direction.direction_code, item.direction.direction_method)
+      // La fiche locale reste prioritaire pour le sens aller ; le graphe complète le retour.
+      if (line.waypoints.length && !isReturn) continue
+      if (!item.stops.length) continue
+      sequences.push({
+        label: isReturn ? 'retour' : 'sens de référence',
+        stops: item.stops,
+        candidate: item.direction.status !== 'verified',
+      })
+    }
+    if (!sequences.length) sequences.push({ label: 'terminus uniquement', stops: [line.origin, line.destination], candidate: true })
+    return sequences.flatMap((sequence) => {
+      const startIndex = sequence.stops.findIndex((point) => mentions(from, normalizeMobility(point)))
+      const endIndex = sequence.stops.findIndex((point) => mentions(to, normalizeMobility(point)))
+      return startIndex >= 0 && endIndex > startIndex
+        ? [{ line, directionLabel: sequence.label, candidate: sequence.candidate }]
+        : []
+    })
   })
+  const candidates = BUS_LINES.filter((line) => (!networks.length || networks.includes(line.network)) && !line.note?.startsWith('Divergence'))
   const localMatches = findMatches(candidates)
-  const matched = localMatches.length ? localMatches : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.includes(line.network)))
+  const matched = localMatches.length
+    ? localMatches
+    : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.includes(line.network)))
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
-  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
-  return { text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\n${matched.slice(0, 4).map((line) => `• ${label(line)}${line.waypoints.length ? '' : ' (terminus seulement)'}`).join('\n')}\nÀ confirmer auprès de l’opérateur avant le départ : ni arrêt d’embarquement précis, ni durée, ni prochain départ garanti. Demandez le numéro d’une ligne pour ses points de passage.${[...new Set(matched.slice(0, 4).map((line) => line.detailSourceUrl ?? line.sourceUrl))].map((url) => source(url)).join('')}`, ...(matched.length === 1 ? { lineId: key(matched[0]) } : {}) }
+  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\\n'
+  const rows = matched.slice(0, 4).map((match) =>
+    `• ${label(match.line)} — ${match.directionLabel}${match.candidate ? ' (à confirmer)' : ''}`
+  )
+  const sourceLinks = [...new Set(matched.slice(0, 4).map((match) => match.line.detailSourceUrl ?? match.line.sourceUrl))]
+  return {
+    text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\\n${rows.join('\\n')}\\nÀ confirmer avant le départ : ces résultats ne garantissent ni l’arrêt d’embarquement précis, ni la durée, ni le prochain départ.${sourceLinks.map((url) => source(url)).join('')}`,
+    ...(matched.length === 1 ? { lineId: key(matched[0].line) } : {}),
+  }
 }
 
 export function answerMobilityKnowledge(question: string, lastLineId?: string | null): KnowledgeReply | null {
