@@ -37,3 +37,18 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
+
+  verify-gtfs-ingest:
+    name: Verify private GTFS ingest function
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check Supabase Edge Functions
+        run: deno check supabase/functions/dakar-admin/index.ts supabase/functions/dakar-gtfs-ingest/index.ts
