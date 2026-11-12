@@ -418,7 +418,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
   )
   const sourceLinks = [...new Set(matched.slice(0, 4).map((match) => match.line.detailSourceUrl ?? match.line.sourceUrl))]
   return {
-    text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\n${rows.join('\n')}\nÀ confirmer avant le départ : ces résultats ne garantissent ni l’arrêt d’embarquement précis, ni la durée, ni le prochain départ.${sourceLinks.map((url) => source(url)).join('')}`,
+    text: `${candidatePrefix}Pistes documentaires pour ${from} → ${to} :\n${rows.join('\n')}\nÀ confirmer avant le départ : l’arrêt d’embarquement précis n’est pas garanti ; ni durée, ni prochain départ garanti ne sont fournis.${sourceLinks.map((url) => source(url)).join('')}`,
     ...(matched.length === 1 ? { lineId: key(matched[0].line) } : {}),
   }
 }
