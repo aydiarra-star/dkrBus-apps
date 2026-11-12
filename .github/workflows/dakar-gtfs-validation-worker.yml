@@ -1,0 +1,35 @@
+name: Dakar Bus private GTFS validation worker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dakar-bus-private-gtfs-validation
+  cancel-in-progress: false
+
+jobs:
+  validate-one:
+    name: Validate one private staged GTFS archive
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: dakar-bus-private-validation
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Test worker safety checks
+        run: python -m unittest tests.test_process_gtfs_staging
+
+      - name: Process one queued archive
+        env:
+          DAKAR_BUS_SUPABASE_URL: ${{ secrets.DAKAR_BUS_SUPABASE_URL }}
+          DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/process_gtfs_staging.py

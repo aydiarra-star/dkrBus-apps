@@ -27,6 +27,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Run GTFS validator and worker unit tests
+        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging
+
       - name: Install dependencies
         run: npm ci
 
@@ -38,6 +41,36 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
+
+  verify-gtfs-worker-migration:
+    name: Verify private GTFS worker database migration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dakar_bus_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d dakar_bus_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply isolated Supabase schema fixtures and migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dakar_bus_test
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/bootstrap_supabase.sql -f supabase/migrations/20261113090000_dakar_admin_foundation.sql -f supabase/migrations/20261113100000_dakar_private_gtfs_staging.sql -f supabase/migrations/20261113110000_dakar_gtfs_validation_worker.sql -f tests/sql/test_gtfs_validation_worker.sql
 
   verify-gtfs-ingest:
     name: Verify private GTFS ingest function
