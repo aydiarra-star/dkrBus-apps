@@ -80,10 +80,11 @@ begin
   if coalesce(auth.role(), '') <> 'service_role' then
     raise exception 'service role required';
   end if;
-  if jsonb_typeof(p_report) <> 'object'
-     or jsonb_typeof(p_report->'structure_valid') <> 'boolean'
-     or jsonb_typeof(p_report->'counts') <> 'object'
-     or jsonb_typeof(p_report->'tables') <> 'object'
+  if jsonb_typeof(p_report) is distinct from 'object'
+     or jsonb_typeof(p_report->'dataset') is distinct from 'object'
+     or jsonb_typeof(p_report->'structure_valid') is distinct from 'boolean'
+     or jsonb_typeof(p_report->'counts') is distinct from 'object'
+     or jsonb_typeof(p_report->'tables') is distinct from 'object'
      or p_validator_version is null
      or length(btrim(p_validator_version)) = 0 then
     raise exception 'invalid trusted validation report';
