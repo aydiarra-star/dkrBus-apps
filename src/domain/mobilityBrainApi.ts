@@ -122,7 +122,9 @@ const SUPABASE_URL = 'https://mdmuxzaewqzqutkqdylo.supabase.co'
 // Publishable key: intended for browser use. Never replace with a service_role key.
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
 
+const CACHE_TTL_MS = 5 * 60 * 1000
 let cachedSnapshot: MobilityBrainSnapshot | null = null
+let cachedAt = 0
 let pendingLoad: Promise<MobilityBrainSnapshot | null> | null = null
 
 function isSnapshot(value: unknown): value is MobilityBrainSnapshot {
@@ -144,9 +146,10 @@ function isSnapshot(value: unknown): value is MobilityBrainSnapshot {
  * En cas d'absence de réseau, l'assistant conserve son moteur local habituel.
  */
 export function loadMobilityBrainKnowledge(): Promise<MobilityBrainSnapshot | null> {
-  if (cachedSnapshot) return Promise.resolve(cachedSnapshot)
+  if (cachedSnapshot && Date.now() - cachedAt < CACHE_TTL_MS) return Promise.resolve(cachedSnapshot)
   if (pendingLoad) return pendingLoad
 
+  const previousSnapshot = cachedSnapshot
   pendingLoad = fetch(`${SUPABASE_URL}/functions/v1/dakar-bus-knowledge`, {
     method: 'GET',
     mode: 'cors',
@@ -164,11 +167,12 @@ export function loadMobilityBrainKnowledge(): Promise<MobilityBrainSnapshot | nu
       const payload: unknown = await response.json()
       if (!isSnapshot(payload)) throw new Error('Supabase knowledge API: invalid snapshot')
       cachedSnapshot = payload
+      cachedAt = Date.now()
       return payload
     })
     .catch((error: unknown) => {
       console.warn('Dakar Bus: référentiel Supabase indisponible, repli local conservé.', error)
-      return null
+      return previousSnapshot
     })
     .finally(() => {
       pendingLoad = null
