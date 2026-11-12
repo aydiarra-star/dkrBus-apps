@@ -12,7 +12,7 @@ const ENDPOINTS = [
   "https://overpass.private.coffee/api/interpreter",
   "https://overpass-api.de/api/interpreter",
 ];
-const buildQuery = (bbox: string) => `[out:json][timeout:18];
+const buildQuery = (bbox: string) => `[out:json][timeout:35];
 (
   node["highway"="bus_stop"](${bbox});
   node["public_transport"="platform"](${bbox});
@@ -55,9 +55,10 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
   if (sourceError || !sources?.length) return reply({ error: "OSM_SOURCE_NOT_REGISTERED" }, 500);
   const sourceId = sources[0].id;
   const requestBody = await req.json().catch(() => ({})) as { tile?: string };
-  const tile = typeof requestBody.tile === "string" && Object.hasOwn(TILE_BBOXES, requestBody.tile)
-    ? requestBody.tile
-    : "full";
+  const requestedTile = typeof requestBody.tile === "string" ? requestBody.tile : "";
+  const tile = requestedTile === "full" || Object.hasOwn(TILE_BBOXES, requestedTile)
+    ? requestedTile
+    : "central";
   const bbox = tile === "full" ? BBOX : TILE_BBOXES[tile];
   const query = buildQuery(bbox);
 
@@ -73,12 +74,20 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             "Accept": "application/json",
             "User-Agent": "DakarBusMobilityData/1.0 (+https://github.com/aydiarra-star/dkrBus-apps)",
+            "Referer": "https://github.com/aydiarra-star/dkrBus-apps/",
           },
           body: new URLSearchParams({ data: query }),
-          signal: AbortSignal.timeout(20_000),
+          signal: AbortSignal.timeout(45_000),
         });
         if (!response.ok) {
-          lastError = "OVERPASS_HTTP_" + response.status + " at " + new URL(endpoint).hostname;
+          const responseText = (await response.text()).slice(0, 180).replace(/\s+/g, " ");
+          const retryAfter = response.headers.get("retry-after");
+          lastError = "OVERPASS_HTTP_" + response.status + " at " + new URL(endpoint).hostname
+            + (retryAfter ? " retry-after=" + retryAfter : "")
+            + (responseText ? " response=" + responseText : "");
+          // A 406 is an explicit access refusal; a 429 is a rate limit.
+          // Do not evade either by immediately querying another public instance.
+          if (response.status === 406 || response.status === 429) break;
           continue;
         }
         payload = await response.json();
