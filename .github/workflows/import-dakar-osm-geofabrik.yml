@@ -1,0 +1,32 @@
+name: Import Dakar OSM bus stops from Geofabrik
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dakar-bus-osm-geofabrik-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Osmium
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes osmium-tool
+      - name: Download, filter and import Dakar bus stops
+        env:
+          DAKAR_BUS_INGEST_TOKEN: ${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
+          DAKAR_BUS_PUBLISHABLE_KEY: ${{ secrets.DAKAR_BUS_PUBLISHABLE_KEY }}
+        run: node scripts/import_dakar_osm_geofabrik.mjs
