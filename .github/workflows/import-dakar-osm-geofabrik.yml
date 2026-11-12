@@ -41,7 +41,7 @@ jobs:
             headers: {
               "Content-Type": "application/json",
               "apikey": key,
-              "Authorization": `Bearer ${oidc.value}`
+              "x-github-oidc-token": oidc.value
             },
             body: JSON.stringify({ mode: "auth_check" })
           });
