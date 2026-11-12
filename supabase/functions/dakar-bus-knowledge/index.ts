@@ -145,7 +145,7 @@ const readKnowledge = withSupabase(
         db.from("mobility_lines").select("id,network_id,code,status").in("status", activeStatuses).limit(2000),
         db.from("mobility_directions").select("id,line_id,status").in("status", activeStatuses).limit(4000),
         fetchPaged(() => db.from("mobility_line_stops").select("direction_id,stop_id")),
-        fetchPaged(() => db.from("mobility_stops").select("id,canonical_name,location")),
+        fetchPaged(() => db.from("mobility_stops").select("id,canonical_name,location,status")),
         db.from("mobility_transfers")
           .select("id,from_stop_id,to_stop_id,walking_distance_m,walking_duration_seconds,accessibility_status,status")
           .in("status", activeStatuses).limit(200),
@@ -158,7 +158,9 @@ const readKnowledge = withSupabase(
       const networkById = new Map((networksResult.data ?? []).map((row: any) => [row.id, row]));
       const lineById = new Map((linesResult.data ?? []).map((row: any) => [row.id, row]));
       const directionById = new Map((directionsResult.data ?? []).map((row: any) => [row.id, row]));
-      const stopById = new Map((stopsResult.data ?? []).map((row: any) => [row.id, row]));
+      const stopById = new Map((stopsResult.data ?? [])
+        .filter((row: any) => activeStatuses.includes(row.status))
+        .map((row: any) => [row.id, row]));
       const shared = new Map<string, { stop_id: string; canonical_name: string; network_codes: Set<string>; line_codes: Set<string>; geocoded: boolean }>();
       for (const row of lineStopsResult.data ?? []) {
         const direction = directionById.get(row.direction_id);
@@ -189,7 +191,9 @@ const readKnowledge = withSupabase(
           status: "candidate",
         }))
         .sort((a, b) => a.canonical_name.localeCompare(b.canonical_name, "fr"));
-      const explicitTransfers = (transfersResult.data ?? []).map((row: any) => ({
+      const explicitTransfers = (transfersResult.data ?? [])
+        .filter((row: any) => stopById.has(row.from_stop_id) && stopById.has(row.to_stop_id))
+        .map((row: any) => ({
         id: row.id,
         from_stop: { id: row.from_stop_id, canonical_name: stopById.get(row.from_stop_id)?.canonical_name ?? "Arrêt non renseigné" },
         to_stop: { id: row.to_stop_id, canonical_name: stopById.get(row.to_stop_id)?.canonical_name ?? "Arrêt non renseigné" },
@@ -339,7 +343,7 @@ const readKnowledge = withSupabase(
         directionIds.length
           ? db.from("mobility_service_patterns")
               .select("id,direction_id,pattern_type,service_start,service_end,headway_minutes,headway_min_minutes,headway_max_minutes,expected_wait_minutes,period_label,service_start_earliest,service_start_latest,service_end_earliest,service_end_latest,days_of_week,source_id,status,valid_from,valid_until,notes")
-              .in("direction_id", directionIds).order("service_start").limit(3000)
+              .in("direction_id", directionIds).in("status", activeStatuses).order("service_start").limit(3000)
           : Promise.resolve(emptyResult),
         directionIds.length
           ? db.from("mobility_trips")
