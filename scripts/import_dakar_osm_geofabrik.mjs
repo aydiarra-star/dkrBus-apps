@@ -7,7 +7,8 @@ import { spawn } from "node:child_process";
 const bbox = "-17.56,14.55,-17.12,14.91";
 const pbfUrl = "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf";
 const work = "artifacts/osm";
-const token = process.env.DAKAR_BUS_INGEST_TOKEN;
+// GitHub secret copy/paste can introduce line breaks; remove whitespace before using it as an HTTP header.
+const token = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\s+/g, "");
 const supabaseUrl = "https://mdmuxzaewqzqutkqdylo.supabase.co";
 const publishableKey = process.env.DAKAR_BUS_PUBLISHABLE_KEY;
 
