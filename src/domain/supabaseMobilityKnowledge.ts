@@ -1,0 +1,334 @@
+/**
+ * Lecture distante de la mémoire publique Dakar Bus.
+ * La clé utilisée ici est une clé publishable (publique), jamais une service_role.
+ * Si Supabase est indisponible, le copilote conserve son référentiel local.
+ */
+
+export interface SupabaseKnowledgeLine {
+  id: string
+  network_id: string
+  code: string
+  public_name?: string | null
+  status: string
+}
+
+export interface SupabaseKnowledgeCatalogRecord {
+  network_code: string
+  line_code: string
+  origin_label?: string | null
+  destination_label?: string | null
+  source_url?: string | null
+  detail_source_url?: string | null
+  source_consulted_at?: string | null
+  source_published_at?: string | null
+  raw_record?: Record<string, unknown> | null
+  status?: string
+}
+
+export interface SupabaseKnowledgeDirection {
+  id: string
+  line_id: string
+  direction_code: string
+  origin_label?: string | null
+  destination_label?: string | null
+  status: string
+  direction_method?: string | null
+  direction_notes?: string | null
+}
+
+export interface SupabaseKnowledgeStop {
+  id: string
+  canonical_name: string
+  aliases?: string[]
+}
+
+export interface SupabaseKnowledgeOrderedStop {
+  direction_id: string
+  stop_id: string
+  stop_sequence: number
+  stop?: SupabaseKnowledgeStop | null
+}
+
+export interface SupabaseKnowledgeServicePattern {
+  direction_id: string
+  pattern_type: string
+  service_start?: string | null
+  service_end?: string | null
+  headway_minutes?: number | null
+  status: string
+  notes?: string | null
+}
+
+export interface SupabaseKnowledgeTransfer {
+  label?: string | null
+  status: string
+  transfer_type?: string | null
+  walking_distance_m?: number | null
+  notes?: string | null
+  from_stop?: SupabaseKnowledgeStop | null
+  to_stop?: SupabaseKnowledgeStop | null
+}
+
+export interface SupabaseKnowledgeTrafficIncident {
+  title: string
+  description?: string | null
+  incident_type?: string | null
+  severity?: string | null
+  status: string
+  area_label?: string | null
+  source_url?: string | null
+  observed_at?: string | null
+  expires_at?: string | null
+}
+
+export interface SupabaseMobilityKnowledgeSnapshot {
+  generated_at?: string
+  realtime?: boolean
+  networks?: Array<{ id: string; code: string; name: string; status: string }>
+  lines: SupabaseKnowledgeLine[]
+  catalogue: SupabaseKnowledgeCatalogRecord[]
+  directions: SupabaseKnowledgeDirection[]
+  ordered_line_stops: SupabaseKnowledgeOrderedStop[]
+  reference_stops?: SupabaseKnowledgeStop[]
+  service_patterns?: SupabaseKnowledgeServicePattern[]
+  transfers?: SupabaseKnowledgeTransfer[]
+  confirmed_traffic_incidents?: SupabaseKnowledgeTrafficIncident[]
+  unverified_traffic_candidates?: SupabaseKnowledgeTrafficIncident[]
+  counts?: Record<string, number>
+}
+
+export interface SupabaseKnowledgeReply {
+  text: string
+  lineId?: string
+}
+
+const SUPABASE_URL = 'https://mdmuxzaewqzqutkqdylo.supabase.co'
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J'
+const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/dakar-bus-knowledge`
+const CACHE_MS = 5 * 60 * 1000
+
+let cachedSnapshot: SupabaseMobilityKnowledgeSnapshot | null = null
+let cachedAt = 0
+let inFlight: Promise<SupabaseMobilityKnowledgeSnapshot | null> | null = null
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isSnapshot(value: unknown): value is SupabaseMobilityKnowledgeSnapshot {
+  if (!isRecord(value)) return false
+  return Array.isArray(value.lines)
+    && Array.isArray(value.catalogue)
+    && Array.isArray(value.directions)
+    && Array.isArray(value.ordered_line_stops)
+}
+
+export async function fetchSupabaseMobilityKnowledge(
+  signal?: AbortSignal,
+): Promise<SupabaseMobilityKnowledgeSnapshot | null> {
+  if (cachedSnapshot && Date.now() - cachedAt < CACHE_MS) return cachedSnapshot
+  if (inFlight) return inFlight
+
+  const controller = new AbortController()
+  const abortFromCaller = () => controller.abort()
+  signal?.addEventListener('abort', abortFromCaller, { once: true })
+  const timeout = window.setTimeout(() => controller.abort(), 9_000)
+
+  inFlight = fetch(FUNCTION_URL, {
+    method: 'GET',
+    headers: {
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      Accept: 'application/json',
+    },
+    signal: controller.signal,
+  })
+    .then(async (response) => {
+      if (!response.ok) throw new Error(`Supabase knowledge HTTP ${response.status}`)
+      const payload: unknown = await response.json()
+      if (!isSnapshot(payload)) throw new Error('Supabase knowledge payload invalid')
+      cachedSnapshot = payload
+      cachedAt = Date.now()
+      return payload
+    })
+    .catch(() => null)
+    .finally(() => {
+      window.clearTimeout(timeout)
+      signal?.removeEventListener('abort', abortFromCaller)
+      inFlight = null
+    })
+
+  return inFlight
+}
+
+export function clearSupabaseMobilityKnowledgeCache(): void {
+  cachedSnapshot = null
+  cachedAt = 0
+  inFlight = null
+}
+
+function normalize(value: string): string {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’']/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function networkFromQuestion(text: string): string | null {
+  if (/\btata\b/.test(text)) return 'tata'
+  if (/\baftu\b/.test(text)) return 'aftu'
+  if (/\bddd\b|dem dikk/.test(text)) return 'ddd'
+  return null
+}
+
+function sourceLine(record: SupabaseKnowledgeCatalogRecord): string {
+  const url = record.detail_source_url || record.source_url
+  if (!url) return ''
+  const date = record.source_published_at || record.source_consulted_at
+  return `\nSource : ${url}\nConsultée le ${date || 'date non précisée'}. Référence documentaire, pas un suivi en direct.`
+}
+
+function textArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
+function lineReply(
+  line: SupabaseKnowledgeLine,
+  snapshot: SupabaseMobilityKnowledgeSnapshot,
+  question: string,
+): SupabaseKnowledgeReply {
+  const network = snapshot.networks?.find((item) => item.id === line.network_id)?.code
+    ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code
+    ?? 'bus'
+  const record = snapshot.catalogue.find((item) => item.network_code === network && item.line_code === line.code)
+  const directions = snapshot.directions.filter((direction) => direction.line_id === line.id)
+  const outbound = directions.find((direction) =>
+    direction.direction_method !== 'reverse_derived'
+    && direction.direction_method !== 'unknown'
+    && !direction.direction_code.includes('return'),
+  )
+  const ordered = outbound
+    ? snapshot.ordered_line_stops
+      .filter((stop) => stop.direction_id === outbound.id)
+      .sort((a, b) => a.stop_sequence - b.stop_sequence)
+      .map((stop) => stop.stop?.canonical_name)
+      .filter((name): name is string => Boolean(name))
+    : []
+  const raw = record?.raw_record ?? {}
+  const rawStops = textArray(raw.published_stops).length
+    ? textArray(raw.published_stops)
+    : textArray(raw.waypoints)
+  const waypoints = ordered.length ? ordered : rawStops
+  const origin = record?.origin_label || outbound?.origin_label || 'Origine à confirmer'
+  const destination = record?.destination_label || outbound?.destination_label || 'Destination à confirmer'
+  const label = `${network.toUpperCase()} ${line.code} : ${origin} ↔ ${destination}`
+  const details = waypoints.length
+    ? `Repères dans le sens publié :\n${waypoints.join(' → ')}\nCe sont des repères documentaires, pas nécessairement des arrêts géolocalisés.`
+    : 'Terminaux documentés ; séquence intermédiaire d’arrêts non disponible dans la mémoire actuelle.'
+  const returnDirection = directions.find((direction) => direction.direction_code.includes('return'))
+  const returnNote = returnDirection?.direction_method === 'reverse_derived'
+    ? 'Sens retour calculé par inversion de l’aller ; il n’est pas confirmé par une fiche retour opérateur.'
+    : returnDirection?.direction_method === 'unknown'
+      ? 'Le parcours est un circuit ou son sens retour distinct n’est pas établi.'
+      : 'Aucun sens retour distinct confirmé dans cette fiche.'
+  const patternRows = snapshot.service_patterns?.filter((pattern) => pattern.direction_id === outbound?.id) ?? []
+  const verifiedPatterns = patternRows.filter((pattern) => pattern.status === 'verified' || pattern.status === 'published')
+  const frequency = verifiedPatterns.length
+    ? `\nFréquences de référence : ${verifiedPatterns.map((pattern) =>
+        `${pattern.service_start || 'début non précisé'}–${pattern.service_end || 'fin non précisée'} : ${pattern.headway_minutes ?? '?'} min`,
+      ).join('; ')}.`
+    : ''
+  const status = line.status === 'published' ? 'Fiche publiée' : 'Fiche candidate, à confirmer avant utilisation comme itinéraire garanti'
+  const note = typeof raw.published_route_note === 'string'
+    ? raw.published_route_note
+    : typeof raw.note === 'string' ? raw.note : outbound?.direction_notes
+  const source = record ? sourceLine(record) : ''
+  return {
+    text: `${label}\n${status}.\n${details}\n${returnNote}${frequency}${note ? `\nRéserve : ${note}` : ''}${source}`,
+    lineId: `${network}:${line.code}`,
+  }
+}
+
+function trafficReply(question: string, snapshot: SupabaseMobilityKnowledgeSnapshot, now: number): SupabaseKnowledgeReply | null {
+  if (!/\b(trafic|circulation|bouchon|embouteillage|accident|perturbation|route bloquee)\b/.test(normalize(question))) return null
+  const active = (snapshot.confirmed_traffic_incidents ?? []).filter((incident) =>
+    !incident.expires_at || new Date(incident.expires_at).getTime() > now,
+  )
+  if (active.length) {
+    return {
+      text: `Alertes routières confirmées dans la mémoire Dakar Bus :\n${active.slice(0, 5).map((incident) =>
+        `• ${incident.area_label ? incident.area_label + ' — ' : ''}${incident.title}. ${incident.description || ''}`,
+      ).join('\n')}\nCes alertes sont horodatées dans la base ; vérifiez leur fraîcheur avant de partir.`,
+    }
+  }
+  const candidates = (snapshot.unverified_traffic_candidates ?? []).filter((incident) =>
+    !incident.expires_at || new Date(incident.expires_at).getTime() > now,
+  )
+  if (candidates.length) {
+    return {
+      text: `Articles de circulation repérés, mais non confirmés :\n${candidates.slice(0, 5).map((incident) =>
+        `• ${incident.area_label ? incident.area_label + ' — ' : ''}${incident.title} (${incident.source_url || 'source non disponible'})`,
+      ).join('\n')}\nCe sont des pistes à vérifier, pas des alertes confirmées. La collecte RSS n’est pas un flux de trafic en temps réel.`,
+    }
+  }
+  return null
+}
+
+export function answerSupabaseMobilityKnowledge(
+  question: string,
+  snapshot: SupabaseMobilityKnowledgeSnapshot | null | undefined,
+  lastLineId?: string | null,
+  now = Date.now(),
+): SupabaseKnowledgeReply | null {
+  if (!snapshot) return null
+  const text = normalize(question)
+  const traffic = trafficReply(question, snapshot, now)
+  if (traffic) return traffic
+
+  const explicitNetwork = networkFromQuestion(text)
+  const codeMatch = /\b(?:ligne|bus|ddd|aftu|tata)\s*(?:n(?:umero|°)?\s*)?([0-9]{1,3}[a-z]?|to1)\b/i.exec(text)
+  const code = codeMatch?.[1]?.toUpperCase()
+  let matches = snapshot.lines.filter((line) => {
+    const network = snapshot.networks?.find((item) => item.id === line.network_id)?.code
+      ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code
+    return (!explicitNetwork || network === explicitNetwork) && (!code || line.code.toUpperCase() === code)
+  })
+
+  if (!code && lastLineId && /^(et |ses |les arrets|les horaires|son |elle passe)/.test(text)) {
+    const [network, lineCode] = lastLineId.split(':')
+    matches = snapshot.lines.filter((line) => line.code.toUpperCase() === lineCode.toUpperCase()
+      && (snapshot.networks?.find((item) => item.id === line.network_id)?.code
+        ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code) === network)
+  }
+
+  if (code && matches.length > 1) {
+    return { text: `Le numéro ${code} existe sur plusieurs réseaux :\n${matches.map((line) => {
+      const network = snapshot.networks?.find((item) => item.id === line.network_id)?.code
+        ?? snapshot.catalogue.find((item) => item.line_code === line.code)?.network_code ?? 'bus'
+      const record = snapshot.catalogue.find((item) => item.network_code === network && item.line_code === line.code)
+      return `• ${network.toUpperCase()} ${line.code} : ${record?.origin_label || '?'} ↔ ${record?.destination_label || '?'}`
+    }).join('\n')}\nPrécisez le réseau pour éviter une confusion.` }
+  }
+  if (code && matches.length === 1) return lineReply(matches[0], snapshot, question)
+
+  if (!code && explicitNetwork && /\b(liste|lignes|numeros|reseau|toutes)\b/.test(text)) {
+    const codes = matches.map((line) => line.code).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }))
+    return {
+      text: `${explicitNetwork.toUpperCase()} : ${codes.length} fiches dans la mémoire centrale.\n${codes.join(', ')}\nLes fiches candidates sont conservées séparément des données confirmées ; un numéro présent n’est pas une garantie de passage en temps réel.`,
+    }
+  }
+
+  if (/\b(correspondance|correspondances|transfert|transferts)\b/.test(text)) {
+    const confirmed = (snapshot.transfers ?? []).filter((transfer) => transfer.status === 'verified' || transfer.status === 'published')
+    if (confirmed.length) {
+      return { text: `Correspondances confirmées :\n${confirmed.slice(0, 8).map((transfer) =>
+        `• ${transfer.label || `${transfer.from_stop?.canonical_name || '?'} ↔ ${transfer.to_stop?.canonical_name || '?'}`}`,
+      ).join('\n')}` }
+    }
+    const candidates = snapshot.transfers ?? []
+    if (candidates.length) {
+      return { text: `Correspondances candidates à vérifier :\n${candidates.slice(0, 8).map((transfer) =>
+        `• ${transfer.label || `${transfer.from_stop?.canonical_name || '?'} ↔ ${transfer.to_stop?.canonical_name || '?'}`}${transfer.walking_distance_m ? ` (environ ${transfer.walking_distance_m} m)` : ''}`,
+      ).join('\n')}\nLe chemin piéton et l’accessibilité ne sont pas confirmés.` }
+    }
+  }
+  return null
+}
