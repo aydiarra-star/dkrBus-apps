@@ -8,7 +8,7 @@ export function inspectContentLength(header: string | null, maxBytes: number): C
     throw new RangeError("maxBytes must be a positive safe integer");
   }
   if (header === null) return { valid: true, tooLarge: false, value: null };
-  if (!/^\\d+$/.test(header)) return { valid: false, tooLarge: false, value: null };
+  if (!/^\d+$/.test(header)) return { valid: false, tooLarge: false, value: null };
   const value = Number(header);
   if (!Number.isSafeInteger(value)) return { valid: false, tooLarge: false, value: null };
   return { valid: true, tooLarge: value > maxBytes, value };
