@@ -100,7 +100,7 @@ function deriveCandidateLines(graph: RemoteMobilityGraph): BusLine[] {
       waypoints: stops,
       sourceUrl,
       detailSourceUrl: sourceUrl,
-      consultedAt: graph.generated_at.slice(0, 10),
+      consultedAt: '',
       publishedAt: null,
       note: outbound.direction_notes || 'Fiche candidate du référentiel central ; le sens retour reste à confirmer.',
     } as BusLine]
