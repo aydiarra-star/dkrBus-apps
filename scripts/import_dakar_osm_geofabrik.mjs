@@ -7,18 +7,23 @@ import { spawn } from "node:child_process";
 const bbox = "-17.56,14.55,-17.12,14.91";
 const pbfUrl = "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf";
 const work = "artifacts/osm";
-// GitHub secret copy/paste can introduce line breaks; remove whitespace before using it as an HTTP header.
-const rawToken = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\s+/g, "");
-// GitHub may contain either the decoded 72-character token or its 144-character hex form from Vault.
-const token = /^[0-9a-fA-F]{144}$/.test(rawToken)
-  ? Buffer.from(rawToken, "hex").toString("utf8")
-  : rawToken;
 const supabaseUrl = "https://mdmuxzaewqzqutkqdylo.supabase.co";
 const publishableKey = process.env.DAKAR_BUS_PUBLISHABLE_KEY;
+const oidcRequestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+const oidcRequestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
 
-if (!token || !publishableKey) {
-  throw new Error("Missing DAKAR_BUS_INGEST_TOKEN or DAKAR_BUS_PUBLISHABLE_KEY.");
+if (!publishableKey || !oidcRequestUrl || !oidcRequestToken) {
+  throw new Error("Missing GitHub OIDC or Supabase publishable credentials.");
 }
+
+const oidcUrl = new URL(oidcRequestUrl);
+oidcUrl.searchParams.set("audience", "dakar-bus-ingest");
+const oidcResponse = await fetch(oidcUrl, {
+  headers: { Authorization: `Bearer ${oidcRequestToken}` },
+});
+const oidcBody = await oidcResponse.json();
+if (!oidcResponse.ok || !oidcBody.value) throw new Error("GitHub OIDC token request failed.");
+const oidcToken = oidcBody.value;
 
 async function run(command, args) {
   await new Promise((resolve, reject) => {
@@ -112,7 +117,7 @@ for (let offset = 0; offset < elements.length; offset += 100) {
     headers: {
       "Content-Type": "application/json",
       "apikey": publishableKey,
-      "x-dakar-bus-ingest-token": token,
+      "Authorization": `Bearer ${oidcToken}`,
     },
     body: JSON.stringify({ mode: "ingest_pbf_batch", elements: batch }),
   });
