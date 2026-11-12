@@ -54,7 +54,69 @@ const sync = withSupabase({ auth: "publishable" }, async (req, ctx) => {
     .select("id").eq("name", "OpenStreetMap contributors").limit(1);
   if (sourceError || !sources?.length) return reply({ error: "OSM_SOURCE_NOT_REGISTERED" }, 500);
   const sourceId = sources[0].id;
-  const requestBody = await req.json().catch(() => ({})) as { tile?: string };
+  const requestBody = await req.json().catch(() => ({})) as {
+    tile?: string;
+    mode?: string;
+    elements?: Array<Record<string, unknown>>;
+  };
+
+  // Geofabrik PBF ingestion path: the batch is extracted by a controlled
+  // GitHub Actions runner, then submitted with the same server-side token.
+  // Only bus-stop/platform objects inside the Dakar bounding box are accepted.
+  if (requestBody.mode === "ingest_pbf_batch") {
+    const elements = requestBody.elements;
+    if (!Array.isArray(elements) || elements.length < 1 || elements.length > 100) {
+      return reply({ error: "INVALID_INGEST_BATCH", max_batch_size: 100 }, 400);
+    }
+    const importedAt = new Date().toISOString();
+    const rows = elements.flatMap((element) => {
+      if (!["node", "way"].includes(String(element.type)) || !Number.isSafeInteger(element.id)) return [];
+      const lat = Number(element.lat), lon = Number(element.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)
+        || lat < 14.60 || lat > 14.84 || lon < -17.56 || lon > -17.16) return [];
+      const rawTags = element.tags;
+      if (!rawTags || typeof rawTags !== "object" || Array.isArray(rawTags)) return [];
+      const tags = rawTags as Record<string, unknown>;
+      const relevant = tags.highway === "bus_stop"
+        || tags.public_transport === "platform"
+        || (tags.public_transport === "stop_position" && tags.bus === "yes");
+      if (!relevant) return [];
+      const safeTags = Object.fromEntries(Object.entries(tags)
+        .filter(([key, value]) => /^[a-zA-Z0-9:_-]{1,80}$/.test(key)
+          && typeof value === "string" && value.length <= 500)
+        .slice(0, 40)) as Record<string, string>;
+      const osmType = String(element.type);
+      const osmId = Number(element.id);
+      return [{
+        osm_type: osmType,
+        osm_id: osmId,
+        name: String(safeTags["name:fr"] ?? safeTags.name ?? safeTags.ref ?? "").trim() || null,
+        location: `POINT(${lon} ${lat})`,
+        tags: safeTags,
+        osm_version: Number.isSafeInteger(element.version) ? Number(element.version) : null,
+        osm_timestamp: typeof element.timestamp === "string" ? element.timestamp : null,
+        source_id: sourceId,
+        source_url: `https://www.openstreetmap.org/${osmType}/${osmId}`,
+        imported_at: importedAt,
+      }];
+    });
+    if (!rows.length) return reply({ error: "NO_VALID_OSM_BUS_STOPS_IN_BATCH" }, 400);
+    const { error } = await db.from("mobility_osm_stops")
+      .upsert(rows, { onConflict: "osm_type,osm_id" });
+    if (error) return reply({ error: "OSM_UPSERT_FAILED" }, 502);
+    const { data: matches, error: matchError } = await db.rpc("refresh_mobility_osm_stop_matches");
+    if (matchError) return reply({ error: "MATCH_REFRESH_FAILED" }, 502);
+    return reply({
+      ok: true,
+      source: "OpenStreetMap contributors",
+      dataset: "Geofabrik Senegal and Gambia PBF",
+      imported_bus_stop_objects: rows.length,
+      candidate_matches_created_or_refreshed: matches ?? 0,
+      policy: "Les positions restent candidates ; aucune coordonnée canonique n'est remplacée automatiquement.",
+      imported_at: importedAt,
+    });
+  }
+
   const requestedTile = typeof requestBody.tile === "string" ? requestBody.tile : "";
   const tile = requestedTile === "full" || Object.hasOwn(TILE_BBOXES, requestedTile)
     ? requestedTile
