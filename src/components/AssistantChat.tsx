@@ -217,8 +217,9 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
         }
         const normalizedRemoteQuestion = trimmed.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         const needsRemoteKnowledge = /\b(ddd|dakar dem dikk|aftu|tata|bus|lignes?|arrets?|reseaux?|mobilites?|memoire|base de connaissances)\b/.test(normalizedRemoteQuestion)
-        if (needsRemoteKnowledge && !remoteKnowledgeRef.current) {
-          remoteKnowledgeRef.current = await loadMobilityBrainKnowledge()
+        if (needsRemoteKnowledge) {
+          const latestRemoteKnowledge = await loadMobilityBrainKnowledge()
+          if (latestRemoteKnowledge) remoteKnowledgeRef.current = latestRemoteKnowledge
         }
         const assistantContext = {
           ...contextRef.current,
