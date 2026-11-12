@@ -207,6 +207,7 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
 
 function stopMatches(snapshot: MobilityBrainSnapshot, text: string): MobilityBrainStop[] {
   return snapshot.reference_stops
+    .filter((stop) => isUsableRecordStatus(stop.status))
     .filter((stop) => [stop.canonical_name, ...(stop.aliases ?? [])].some((name) => {
       const candidate = normalize(name)
       return candidate.length >= 3 && text.includes(candidate)
