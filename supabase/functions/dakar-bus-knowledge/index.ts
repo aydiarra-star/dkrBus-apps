@@ -42,6 +42,27 @@ function sanitizeTrafficSources(rows: any[]) {
   }));
 }
 
+function describeTrafficAvailability(rows: any[]) {
+  const configuredRealtimeSources = rows.filter((source) =>
+    ["active", "configured"].includes(String(source.status ?? "").toLowerCase())
+    && source.metadata?.public_realtime_api_verified === true
+  );
+  if (configuredRealtimeSources.length === 0) {
+    return {
+      status: "unavailable",
+      reason_code: "NO_CONFIGURED_REALTIME_SOURCE",
+      configured_realtime_sources: 0,
+      message: "Aucune source de circulation en temps réel n'est actuellement connectée. L'absence d'alerte ne signifie pas que la circulation est fluide.",
+    };
+  }
+  return {
+    status: "source_configured_freshness_unverified",
+    reason_code: "LIVE_FEED_FRESHNESS_NOT_VERIFIED",
+    configured_realtime_sources: configuredRealtimeSources.length,
+    message: "Une source temps réel est configurée, mais la fraîcheur des dernières données doit être vérifiée avant toute conclusion sur la circulation.",
+  };
+}
+
 async function fetchPaged(makeQuery: () => any, maxPages = 20) {
   const all: any[] = [];
   for (let page = 0; page < maxPages; page++) {
@@ -106,6 +127,7 @@ const readKnowledge = withSupabase(
         source_of_truth: "Supabase PostgreSQL",
         realtime: false,
         traffic_only: true,
+        traffic_data_status: describeTrafficAvailability(publicSources),
         alert_policy: "Seuls les incidents confirmés sont des alertes. Les articles de presse et signalements non vérifiés restent des pistes.",
         confirmed_traffic_incidents: confirmed,
         traffic_candidates: candidates,
@@ -500,6 +522,7 @@ const readKnowledge = withSupabase(
       generated_at: new Date().toISOString(),
       source_of_truth: "Supabase PostgreSQL / PostGIS",
       realtime: false,
+      traffic_data_status: describeTrafficAvailability(publicTrafficSources),
       publication_policy: "Les lignes et arrêts importés restent candidats jusqu'à validation. Les sens retour dérivés sont explicitement identifiés et ne doivent pas être traités comme des itinéraires confirmés.",
       networks: selectedNetworks,
       lines,
