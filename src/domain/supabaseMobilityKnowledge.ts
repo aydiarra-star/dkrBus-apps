@@ -117,9 +117,14 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_YsnzMxuSKWCLhtyMWhHncA_bDeWUt3J
 const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/dakar-bus-knowledge`
 const CACHE_MS = 5 * 60 * 1000
 
-let cachedSnapshot: SupabaseMobilityKnowledgeSnapshot | null = null
-let cachedAt = 0
-let inFlight: Promise<SupabaseMobilityKnowledgeSnapshot | null> | null = null
+export interface SupabaseKnowledgeFetchOptions {
+  network?: string
+  lineCode?: string
+  trafficOnly?: boolean
+}
+
+const cachedSnapshots = new Map<string, { snapshot: SupabaseMobilityKnowledgeSnapshot; at: number }>()
+const inFlightRequests = new Map<string, Promise<SupabaseMobilityKnowledgeSnapshot | null>>()
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -134,17 +139,28 @@ function isSnapshot(value: unknown): value is SupabaseMobilityKnowledgeSnapshot 
 }
 
 export async function fetchSupabaseMobilityKnowledge(
+  options: SupabaseKnowledgeFetchOptions = {},
   signal?: AbortSignal,
 ): Promise<SupabaseMobilityKnowledgeSnapshot | null> {
-  if (cachedSnapshot && Date.now() - cachedAt < CACHE_MS) return cachedSnapshot
-  if (inFlight) return inFlight
+  const cacheKey = options.trafficOnly
+    ? 'traffic'
+    : `${options.network ?? 'all'}:${options.lineCode ?? ''}`
+  const cached = cachedSnapshots.get(cacheKey)
+  if (cached && Date.now() - cached.at < CACHE_MS) return cached.snapshot
+  const existing = inFlightRequests.get(cacheKey)
+  if (existing) return existing
+
+  const url = new URL(FUNCTION_URL)
+  if (options.network) url.searchParams.set('network', options.network)
+  if (options.lineCode) url.searchParams.set('q', options.lineCode.toLowerCase())
+  if (options.trafficOnly) url.searchParams.set('traffic_only', '1')
 
   const controller = new AbortController()
   const abortFromCaller = () => controller.abort()
   signal?.addEventListener('abort', abortFromCaller, { once: true })
   const timeout = window.setTimeout(() => controller.abort(), 9_000)
 
-  inFlight = fetch(FUNCTION_URL, {
+  const request = fetch(url.toString(), {
     headers: {
       apikey: SUPABASE_PUBLISHABLE_KEY,
       Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
@@ -155,25 +171,42 @@ export async function fetchSupabaseMobilityKnowledge(
     .then(async (response) => {
       if (!response.ok) throw new Error(`Supabase knowledge HTTP ${response.status}`)
       const payload: unknown = await response.json()
-      if (!isSnapshot(payload)) throw new Error('Supabase knowledge payload invalid')
-      cachedSnapshot = payload
-      cachedAt = Date.now()
-      return payload
+      let snapshot: SupabaseMobilityKnowledgeSnapshot | null = null
+      if (isSnapshot(payload)) {
+        snapshot = payload
+      } else if (isRecord(payload) && payload.traffic_only === true) {
+        snapshot = {
+          lines: [],
+          catalogue: [],
+          directions: [],
+          ordered_line_stops: [],
+          confirmed_traffic_incidents: Array.isArray(payload.confirmed_traffic_incidents)
+            ? payload.confirmed_traffic_incidents as SupabaseKnowledgeTrafficIncident[]
+            : [],
+          unverified_traffic_candidates: Array.isArray(payload.traffic_candidates)
+            ? payload.traffic_candidates as SupabaseKnowledgeTrafficIncident[]
+            : [],
+          realtime: false,
+        }
+      }
+      if (!snapshot) throw new Error('Supabase knowledge payload invalid')
+      cachedSnapshots.set(cacheKey, { snapshot, at: Date.now() })
+      return snapshot
     })
     .catch(() => null)
     .finally(() => {
       window.clearTimeout(timeout)
       signal?.removeEventListener('abort', abortFromCaller)
-      inFlight = null
+      inFlightRequests.delete(cacheKey)
     })
 
-  return inFlight
+  inFlightRequests.set(cacheKey, request)
+  return request
 }
 
 export function clearSupabaseMobilityKnowledgeCache(): void {
-  cachedSnapshot = null
-  cachedAt = 0
-  inFlight = null
+  cachedSnapshots.clear()
+  inFlightRequests.clear()
 }
 
 function normalize(value: string): string {
