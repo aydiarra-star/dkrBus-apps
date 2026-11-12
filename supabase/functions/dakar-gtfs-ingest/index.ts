@@ -1,10 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "@supabase/supabase-js";
+import { inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const BUCKET = "dakar-gtfs-staging";
 const MAX_ARCHIVE_BYTES = 100 * 1024 * 1024;
+const MAX_REQUEST_BYTES = MAX_ARCHIVE_BYTES + 2 * 1024 * 1024;
 const ALLOWED_ORIGINS = new Set([
   "https://aydiarra-star.github.io",
   "http://localhost:5173",
@@ -85,8 +87,13 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return reply(405, { error: "METHOD_NOT_ALLOWED" }, cors);
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
 
-  const declaredLength = Number(req.headers.get("Content-Length") ?? "0");
-  if (declaredLength > MAX_ARCHIVE_BYTES + 2 * 1024 * 1024) return reply(413, { error: "REQUEST_TOO_LARGE" }, cors);
+  const contentLength = inspectContentLength(req.headers.get("Content-Length"), MAX_REQUEST_BYTES);
+  if (!contentLength.valid) {
+    return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
+  }
+  if (contentLength.tooLarge) {
+    return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
+  }
 
   const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!bearer) return reply(401, { error: "AUTHENTICATION_REQUIRED" }, cors);
@@ -112,8 +119,11 @@ Deno.serve(async (req: Request) => {
 
   let form: FormData;
   try {
-    form = await req.formData();
-  } catch {
+    form = await readMultipartWithLimit(req, MAX_REQUEST_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
+    }
     return reply(400, { error: "MULTIPART_FORM_REQUIRED" }, cors);
   }
 

@@ -11,6 +11,7 @@ jobs:
   verify:
     name: Build, tests and dependency audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +42,7 @@ jobs:
   verify-gtfs-ingest:
     name: Verify private GTFS ingest function
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +51,9 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+
+      - name: Test bounded multipart upload parsing
+        run: deno test supabase/functions/dakar-gtfs-ingest/multipart_test.ts
 
       - name: Type-check Supabase Edge Functions
         run: deno check supabase/functions/dakar-admin/index.ts supabase/functions/dakar-gtfs-ingest/index.ts
