@@ -326,6 +326,11 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Case des tout-petits', 'Station Shell', 'Lycée d’excellence privé',
     'Boulangerie N’wely', 'Terminus Ouakam',
   ], '2026-11-10'),
+  route('501', 'Palais 2', 'Leclerc', 'published_order', [
+    'Terminus Palais 2', 'Avenue Nelson Mandela',
+    'Avenue Léopold Sédar Senghor', 'Place de l’Indépendance',
+    'Esso Port Embarcadère', 'Terminus Leclerc',
+  ], '2026-11-10'),
 ]
 
 export const getDddPublishedRoute = (line: string) =>
