@@ -145,7 +145,9 @@ function lineReply(
           : direction.direction_method === 'source_documented' || direction.direction_code === 'source_forward'
             ? 'Sens issu de la fiche source.'
             : 'Sens enregistré dans le référentiel.'
-    const patterns = snapshot.service_patterns.filter((pattern) => pattern.direction_id === direction.id)
+    const patterns = snapshot.service_patterns.filter((pattern) =>
+      pattern.direction_id === direction.id && isUsableRecordStatus(pattern.status)
+    )
     const frequency = patterns.length
       ? `Fréquence : ${patterns.map(formatPattern).join(' ; ')}.`
       : 'Aucune fréquence par ligne enregistrée pour ce sens.'
@@ -196,7 +198,8 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
     return `${summary}${codes}${tail}`
   }
   const patterns = snapshot.service_patterns.filter((pattern) =>
-    directions.some((direction) => direction.id === pattern.direction_id)
+    isUsableRecordStatus(pattern.status)
+    && directions.some((direction) => direction.id === pattern.direction_id)
   )
   const uniquePatterns = [...new Map<string, string>(patterns.map((pattern) => [
     [pattern.period_label, pattern.headway_min_minutes, pattern.headway_max_minutes, pattern.headway_minutes, pattern.expected_wait_minutes].join('|'),
