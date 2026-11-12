@@ -241,8 +241,13 @@ function stopReply(
   const linesText = [...uniqueLines.values()]
     .sort((a, b) => a.network.localeCompare(b.network, 'fr') || a.code.localeCompare(b.code, 'fr'))
     .map((line) => `${line.network} ${line.code}`)
+  const usableStopIds = new Set(snapshot.reference_stops
+    .filter((stop) => isUsableRecordStatus(stop.status))
+    .map((stop) => stop.id))
   const transferRows = snapshot.transfers.filter((transfer) =>
     isUsableRecordStatus(transfer.status)
+    && usableStopIds.has(transfer.from_stop_id)
+    && usableStopIds.has(transfer.to_stop_id)
     && (targetIds.has(transfer.from_stop_id) || targetIds.has(transfer.to_stop_id))
   )
   const transferText = asksTransfer
