@@ -23,8 +23,8 @@ jobs:
           node-version: 22
       - name: Validate Supabase ingest authentication before OSM download
         env:
-          DAKAR_BUS_INGEST_TOKEN: \${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
-          DAKAR_BUS_PUBLISHABLE_KEY: \${{ secrets.DAKAR_BUS_PUBLISHABLE_KEY }}
+          DAKAR_BUS_INGEST_TOKEN: ${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
+          DAKAR_BUS_PUBLISHABLE_KEY: ${{ secrets.DAKAR_BUS_PUBLISHABLE_KEY }}
         run: |
           node --input-type=module <<'NODE'
           const raw = (process.env.DAKAR_BUS_INGEST_TOKEN ?? "").replace(/\s+/g, "");
@@ -55,6 +55,6 @@ jobs:
           sudo apt-get install --yes osmium-tool
       - name: Download, filter and import Dakar bus stops
         env:
-          DAKAR_BUS_INGEST_TOKEN: \${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
-          DAKAR_BUS_PUBLISHABLE_KEY: \${{ secrets.DAKAR_BUS_PUBLISHABLE_KEY }}
+          DAKAR_BUS_INGEST_TOKEN: ${{ secrets.DAKAR_BUS_INGEST_TOKEN }}
+          DAKAR_BUS_PUBLISHABLE_KEY: ${{ secrets.DAKAR_BUS_PUBLISHABLE_KEY }}
         run: node scripts/import_dakar_osm_geofabrik.mjs
