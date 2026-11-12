@@ -1,7 +1,7 @@
 import { withSupabase } from "npm:@supabase/server";
 
 const ACTIVE = ["candidate", "verified", "published"];
-const ALLOWED_NETWORKS = new Set(["ter", "brt", "ddd", "aftu", "tata"]);
+const ALLOWED_NETWORKS = new Set(["ddd", "aftu", "tata"]);
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -159,7 +159,7 @@ const search = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       source_of_truth: "Supabase PostgreSQL / PostGIS",
       realtime: false,
       query: { q, network: network || null },
-      policy: "Les données candidates et les sens retour dérivés restent explicitement identifiés. Les fréquences vérifiées TER/BRT ne sont pas modifiées. Aucun horaire temps réel n'est inventé.",
+      policy: "Les données candidates et les sens retour dérivés restent explicitement identifiés. TER/BRT sont exclus de cette recherche et restent traités par le référentiel local validé. Aucun horaire temps réel n'est inventé.",
       networks: selectedNetworks,
       lines: lineSummary,
       directions: directionSummary,
