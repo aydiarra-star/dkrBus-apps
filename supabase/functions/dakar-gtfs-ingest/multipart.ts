@@ -1,3 +1,19 @@
+export type ContentLengthInspection =
+  | { valid: true; tooLarge: boolean; value: number | null }
+  | { valid: false; tooLarge: false; value: null };
+
+/** Validate an optional HTTP Content-Length without trusting it as the stream limit. */
+export function inspectContentLength(header: string | null, maxBytes: number): ContentLengthInspection {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes <= 0) {
+    throw new RangeError("maxBytes must be a positive safe integer");
+  }
+  if (header === null) return { valid: true, tooLarge: false, value: null };
+  if (!/^\\d+$/.test(header)) return { valid: false, tooLarge: false, value: null };
+  const value = Number(header);
+  if (!Number.isSafeInteger(value)) return { valid: false, tooLarge: false, value: null };
+  return { valid: true, tooLarge: value > maxBytes, value };
+}
+
 export class RequestBodyTooLargeError extends Error {
   constructor() {
     super("REQUEST_TOO_LARGE");
