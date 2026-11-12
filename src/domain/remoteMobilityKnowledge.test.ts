@@ -75,6 +75,48 @@ const snapshot: MobilityBrainSnapshot = {
   transfers: [],
 }
 
+const dddCircuitSnapshot: MobilityBrainSnapshot = {
+  ...snapshot,
+  networks: [...snapshot.networks, { id: 'network-ddd', code: 'ddd', name: 'Dakar Dem Dikk', status: 'active' }],
+  lines: [...snapshot.lines, { id: 'line-ddd-18', network_id: 'network-ddd', code: '18', public_name: 'Dieuppeul ↔ Centre-ville', status: 'candidate' }],
+  catalogue: [...snapshot.catalogue, {
+    id: 'catalog-ddd-18',
+    network_code: 'ddd',
+    line_code: '18',
+    origin_label: 'Dieuppeul',
+    destination_label: 'Centre-ville',
+    source_url: 'https://example.test/ddd-18',
+  }],
+  reference_stops: [...snapshot.reference_stops,
+    { id: 'stop-dieuppeul', canonical_name: 'Dieuppeul', aliases: [], status: 'candidate' },
+    { id: 'stop-centre-ville', canonical_name: 'Centre-ville', aliases: [], status: 'candidate' },
+  ],
+  directions: [...snapshot.directions,
+    {
+      id: 'direction-ddd-18-circuit',
+      line_id: 'line-ddd-18',
+      direction_code: 'published_circuit_candidate',
+      origin_label: 'Dieuppeul',
+      destination_label: 'Centre-ville',
+      status: 'candidate',
+      direction_method: 'source_documented',
+    },
+    {
+      id: 'direction-ddd-18-return',
+      line_id: 'line-ddd-18',
+      direction_code: 'return_reverse_candidate',
+      origin_label: 'Centre-ville',
+      destination_label: 'Dieuppeul',
+      status: 'candidate',
+      direction_method: 'unknown',
+    },
+  ],
+  ordered_line_stops: [...snapshot.ordered_line_stops,
+    { direction_id: 'direction-ddd-18-circuit', stop_id: 'stop-dieuppeul', stop_sequence: 1, stop: { id: 'stop-dieuppeul', canonical_name: 'Dieuppeul' } },
+    { direction_id: 'direction-ddd-18-circuit', stop_id: 'stop-centre-ville', stop_sequence: 2, stop: { id: 'stop-centre-ville', canonical_name: 'Centre-ville' } },
+  ],
+}
+
 describe('answerRemoteMobilityQuestion', () => {
   it('returns both directions and the stored frequency for an AFTU line', () => {
     const answer = answerRemoteMobilityQuestion('AFTU 5, quels sont les arrêts et la fréquence ?', snapshot)
@@ -100,6 +142,14 @@ describe('answerRemoteMobilityQuestion', () => {
 
   it('does not replace the existing TER assistant', () => {
     expect(answerRemoteMobilityQuestion('Quel est le prochain TER ?', snapshot)).toBeNull()
+  })
+
+
+  it('does not invent a return sequence for a DDD circuit', () => {
+    const answer = answerRemoteMobilityQuestion('DDD 18', dddCircuitSnapshot)
+    expect(answer).toContain('Circuit candidat : Dieuppeul → Centre-ville')
+    expect(answer).toContain('Sens retour non documenté')
+    expect(answer).not.toContain('Sens retour reconstitué')
   })
 
   it('returns null when the remote snapshot is unavailable', () => {
