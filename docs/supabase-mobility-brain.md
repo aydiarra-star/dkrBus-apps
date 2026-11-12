@@ -59,7 +59,7 @@ Aucune fréquence ne constitue l'heure du prochain véhicule. Aucun temps réel 
 - Les données brutes du dépôt ne sont pas exposées par l'API publique de connaissance.
 - Les fonctions de lecture publique ne donnent aucun droit d'écriture sur les tables.
 
-## Règles de préservation
+- L'historique des 29 migrations déjà appliquées est archivé dans `docs/archives/supabase-migrations-2026-11-12.sql`. C'est une archive d'audit, pas un script à rejouer sur le projet existant ; les clés publiques littérales y sont masquées et aucun secret serveur n'est exporté.\n\n## Règles de préservation
 
 1. Ne jamais modifier les valeurs TER/BRT validées sans accord explicite.
 2. Ne jamais fusionner TATA dans AFTU.
