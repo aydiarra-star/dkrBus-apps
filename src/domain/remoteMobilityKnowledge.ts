@@ -177,10 +177,10 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
   const patterns = snapshot.service_patterns.filter((pattern) =>
     directions.some((direction) => direction.id === pattern.direction_id)
   )
-  const uniquePatterns = [...new Map(patterns.map((pattern) => [
+  const uniquePatterns = [...new Map<string, string>(patterns.map((pattern) => [
     [pattern.period_label, pattern.headway_min_minutes, pattern.headway_max_minutes, pattern.headway_minutes, pattern.expected_wait_minutes].join('|'),
     formatPattern(pattern),
-  ])).values()]
+  ] as [string, string])).values()]
   return `${summary}\nRepères de fréquence : ${uniquePatterns.slice(0, 5).join(' ; ') || 'non renseignés'}.${codes}\nUne fréquence de référence ne donne pas l’heure du prochain véhicule.`
 }
 
