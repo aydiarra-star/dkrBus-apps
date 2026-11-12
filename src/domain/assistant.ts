@@ -35,6 +35,7 @@ import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoi
 import type { PlannerPriority } from './planner'
 
 import { trafficInstant } from './trafficFreshness'
+import { answerSupabaseMobilityKnowledge, type SupabaseMobilityKnowledgeSnapshot } from './supabaseMobilityKnowledge'
 
 export interface AssistantContext {
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
@@ -57,6 +58,8 @@ export interface AssistantContext {
   trafficSummaryFr?: string | null
   /** Version wolof du résumé, quand elle est disponible. */
   trafficSummaryWo?: string | null
+  /** Snapshot public Supabase ; les conversations personnelles n'y sont jamais incluses. */
+  remoteMobilityKnowledge?: SupabaseMobilityKnowledgeSnapshot | null
   /** Date limite de la synthèse, bornée par la plus courte preuve source. */
   trafficSummaryValidUntil?: string | null
 }
@@ -276,6 +279,9 @@ export function journeyReply(
 export function answerAssistant(question: string, context: AssistantContext, now = Date.now()): string {
   const text = normalize(question)
   if (!text) return 'Posez-moi une question sur les transports de Dakar : arrêts BRT, gares TER, itinéraires, fréquences ou perturbations.'
+
+  const remoteKnowledge = answerSupabaseMobilityKnowledge(question, context.remoteMobilityKnowledge, null, now)
+  if (remoteKnowledge) return remoteKnowledge.text
 
   const knowledge = answerMobilityKnowledge(question)
   if (knowledge) return knowledge.text
