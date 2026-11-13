@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - "scripts/export_ddd_updated_arcgis_service.mjs"
+      - "scripts/compare_ddd_updated_arcgis_published_sequences.mjs"
+      - "src/data/dddSuburbanPublishedRoutesB.ts"
       - ".github/workflows/audit-ddd-updated-arcgis.yml"
 
 permissions:
@@ -17,7 +19,7 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,10 +27,14 @@ jobs:
           node-version: 22
       - name: Retrieve updated DDD stop and route layers
         run: node scripts/export_ddd_updated_arcgis_service.mjs
-      - name: Save read-only ArcGIS evidence
+      - name: Compare ArcGIS stop names with published DDD sequences
+        run: node scripts/compare_ddd_updated_arcgis_published_sequences.mjs
+      - name: Save read-only ArcGIS evidence and sequence cross-check
         uses: actions/upload-artifact@v4
         with:
-          name: ddd-updated-service-candidates
-          path: artifacts/arcgis/ddd-updated-service-candidates.json
+          name: ddd-updated-service-and-sequence-audit
+          path: |
+            artifacts/arcgis/ddd-updated-service-candidates.json
+            artifacts/arcgis/ddd-published-sequence-name-crosscheck.json
           if-no-files-found: error
           retention-days: 14
