@@ -4,7 +4,6 @@ import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import { AFTU_OFFICIAL_PAGE_AUDIT } from '../data/aftuOfficialPageAudit'
-import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_AUDIT_TOTALS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
@@ -29,11 +28,21 @@ export function CurrentBusRouteAuditPanel() {
   const report = useMemo(() => getCurrentBusRouteAudit(), [])
   const [filter, setFilter] = useState<Filter>('all')
   const [frequencyObservations, setFrequencyObservations] = useState<readonly CetudFrequencyObservation[]>([])
+  const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
+  const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
+  const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, geolocatedStopFeatures: 0 })
 
   useEffect(() => {
     let active = true
-    void import('../data/cetudFrequencyObservations').then(({ CETUD_FREQUENCY_OBSERVATIONS }) => {
-      if (active) setFrequencyObservations(CETUD_FREQUENCY_OBSERVATIONS)
+    void Promise.all([
+      import('../data/cetudFrequencyObservations'),
+      import('../data/dddBanlieueArcgisRegistry'),
+    ]).then(([frequencyData, gisData]) => {
+      if (!active) return
+      setFrequencyObservations(frequencyData.CETUD_FREQUENCY_OBSERVATIONS)
+      setDddBanlieueArcgisLayers(gisData.DDD_BANLIEUE_ARCGIS_LAYERS)
+      setDddUrbanArcgisStopLayers(gisData.DDD_URBAN_ARCGIS_STOP_LAYERS)
+      setDddUrbanArcgisTotals(gisData.DDD_URBAN_ARCGIS_AUDIT_TOTALS)
     })
     return () => { active = false }
   }, [])
@@ -82,10 +91,10 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Couches SIG DDD de banlieue · {DDD_BANLIEUE_ARCGIS_LAYERS.length} références historiques</summary>
+        <summary>Couches SIG DDD de banlieue · {dddBanlieueArcgisLayers.length} références historiques</summary>
         <p>Géométries de lignes ArcGIS en lecture seule. Elles servent à comparer les corridors ; elles ne contiennent pas de séquences d’arrêts validées ni d’horaires.</p>
         <ul>
-          {DDD_BANLIEUE_ARCGIS_LAYERS.map((layer) => (
+          {dddBanlieueArcgisLayers.map((layer) => (
             <li key={layer.line}>
               <strong>Ligne DDD {layer.line}</strong>
               <span>{layer.dataLastEditDate ? `Géométrie modifiée le ${layer.dataLastEditDate}` : 'Date de modification non relevée'} · historique</span>
@@ -96,10 +105,10 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Arrêts SIG DDD urbains · {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopFeatures} points · {DDD_URBAN_ARCGIS_AUDIT_TOTALS.geolocatedStopFeatures} géolocalisés</summary>
-        <p>Extraction en lecture seule des couches publiques DDD : {DDD_URBAN_ARCGIS_AUDIT_TOTALS.routeFeatures} tracés sur {DDD_URBAN_ARCGIS_AUDIT_TOTALS.routeLayers} couches et {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopFeatures} points d’arrêt sur {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopLayers} couches. {DDD_URBAN_ARCGIS_AUDIT_TOTALS.namedStopFeatures} points ont un nom et {DDD_URBAN_ARCGIS_AUDIT_TOTALS.geolocatedStopFeatures} ont des coordonnées. Ces données historiques servent à rapprocher les arrêts et les tracés ; elles ne prouvent pas les horaires actuels.</p>
+        <summary>Arrêts SIG DDD urbains · {dddUrbanArcgisTotals.stopFeatures} points · {dddUrbanArcgisTotals.geolocatedStopFeatures} géolocalisés</summary>
+        <p>Extraction en lecture seule des couches publiques DDD : {dddUrbanArcgisTotals.routeFeatures} tracés sur {dddUrbanArcgisTotals.routeLayers} couches et {dddUrbanArcgisTotals.stopFeatures} points d’arrêt sur {dddUrbanArcgisTotals.stopLayers} couches. {dddUrbanArcgisTotals.namedStopFeatures} points ont un nom et {dddUrbanArcgisTotals.geolocatedStopFeatures} ont des coordonnées. Ces données historiques servent à rapprocher les arrêts et les tracés ; elles ne prouvent pas les horaires actuels.</p>
         <ul>
-          {DDD_URBAN_ARCGIS_STOP_LAYERS.map((layer) => (
+          {dddUrbanArcgisStopLayers.map((layer) => (
             <li key={`${layer.line}-${layer.layerId}`}>
               <strong>DDD {layer.line} · {layer.featureCount} arrêts candidats</strong>
               <span>{layer.namedFeatureCount} nommés · {layer.geolocatedFeatureCount} géolocalisés</span>
