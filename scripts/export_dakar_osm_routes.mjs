@@ -54,7 +54,6 @@ async function main() {
 
   const routeIds = new Set();
   const routeMasters = [];
-  const routeErrors = [];
   for (const item of discovered.values()) {
     if (item.type === "route_master") routeMasters.push(item);
     else if (item.type === "route") routeIds.add(Number(item.id));
