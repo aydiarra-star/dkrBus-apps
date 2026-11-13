@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import unittest
+import urllib.request
+from unittest.mock import Mock, patch
 
 from scripts.process_gtfs_staging import (
     EXPECTED_VALIDATOR_LIMITS,
     MAX_ARCHIVE_BYTES,
+    NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
     SupabaseRest,
@@ -161,6 +165,32 @@ class GTFSWorkerTests(unittest.TestCase):
         ]:
             with self.subTest(url=url), self.assertRaises(WorkerError):
                 validate_supabase_url(url)
+
+    def test_redirect_handler_refuses_to_follow_external_targets(self) -> None:
+        request = urllib.request.Request(f"https://{SUPABASE_HOST}/rest/v1/rpc/claim")
+        handler = NoRedirectHandler()
+        self.assertIsNone(
+            handler.redirect_request(
+                request,
+                None,
+                302,
+                "Found",
+                {},
+                "https://attacker.invalid/collect",
+            )
+        )
+
+    def test_supabase_rest_requests_use_the_no_redirect_handler(self) -> None:
+        with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+            opener = Mock()
+            opener.open.return_value = io.BytesIO(b"[]")
+            build_opener.return_value = opener
+
+            client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+            client.request("/rest/v1/rpc/claim", method="POST", payload={})
+
+            build_opener.assert_called_once_with(NoRedirectHandler)
+            opener.open.assert_called_once()
 
     def test_storage_download_rejects_noncanonical_path_before_network_access(self) -> None:
         client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
