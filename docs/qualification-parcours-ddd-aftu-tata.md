@@ -116,3 +116,5 @@ La page CETUD « Système de données » confirme que le CETUD a créé des fich
 Les détails, liens directs et limites des sources sont consignés dans le relevé daté `docs/recherche-sources-itineraires-2026-11-13.md`. Ces constats restent dans le périmètre de la revue documentaire et ne changent pas le catalogue passager ni les horaires TER/BRT.
 
 - **DDD :** la transcription officielle du registre comprend maintenant 34 références de parcours, dont deux nouvelles entrées (311 et 327). La ligne 311 est conservée comme circuit avec un retour non détaillé ; la ligne 327 est conservée comme ordre publié. Les lignes 217 et 233 portent des notes de conflit de source.
+
+- **DDD banlieue :** un registre technique recense aussi 12 couches ArcGIS de géométrie de lignes (217, 218, 219, 227, 228, 232 et autres). Ces polylignes historiques servent au recoupement des corridors, pas à créer des arrêts ordonnés ou des horaires. Les métadonnées et limites sont consignées dans le relevé de recherche du 13 novembre.
