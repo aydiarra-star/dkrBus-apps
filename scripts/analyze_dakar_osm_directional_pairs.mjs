@@ -28,9 +28,15 @@ function stopSequence(route) {
     coordinates: stop.coordinates ?? null,
   }));
 }
+function normalizeEndpoint(value) {
+  // OSM uses "Terminus", "Termibus" and bare place names inconsistently.
+  // Remove only these leading transport-label prefixes; retain place qualifiers
+  // such as Palais 1 vs Palais 2 so genuine terminal conflicts remain visible.
+  return normalize(value).replace(/^(?:terminus|termibus)\\s+/, "").trim();
+}
 function sameEndpointsReversed(a, b) {
-  const aFrom = normalize(a.from), aTo = normalize(a.to);
-  const bFrom = normalize(b.from), bTo = normalize(b.to);
+  const aFrom = normalizeEndpoint(a.from), aTo = normalizeEndpoint(a.to);
+  const bFrom = normalizeEndpoint(b.from), bTo = normalizeEndpoint(b.to);
   return Boolean(aFrom && aTo && bFrom && bTo && aFrom === bTo && aTo === bFrom);
 }
 function commonStopIds(a, b) {
