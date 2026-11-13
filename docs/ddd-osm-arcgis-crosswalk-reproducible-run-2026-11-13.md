@@ -2,13 +2,13 @@
 
 Dépôt : `aydiarra-star/dkrBus-apps`  
 Branche : `feat/admin-stop-sequence-audit-phase-a`  
-Workflow : [Audit DDD OSM-ArcGIS stop crosswalk](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43479948817)  
-Artefact : `ddd-osm-arcgis-stop-crosswalk`, ID `14065136141`  
-SHA256 : `4276d69d16b83fbc45b034ed2e9806ccdc5feaf0d0c3d8aef67596b7f01bba75`
+Workflow : [Audit DDD OSM-ArcGIS stop crosswalk](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43480155081)  
+Artefact : `ddd-osm-arcgis-stop-crosswalk`, ID `14065011231`  
+SHA256 : `394ce58665d1cadacf3d777819aead3b364fe82400de7e4a5a9b06e49dbf1da0`
 
 ## Résultat global
 
-Le nouveau workflow a récupéré lui-même les relations OSM et les couches DDD ArcGIS, puis exécuté le script de rapprochement. Les trois étapes ont réussi.
+Le workflow a récupéré lui-même les relations OSM et les couches DDD ArcGIS, puis exécuté le script de rapprochement. Les trois étapes ont réussi. L'extraction ArcGIS optimisée à quatre requêtes simultanées a également réussi.
 
 | Indicateur | Résultat |
 |---|---:|
@@ -47,7 +47,7 @@ Le workflow `.github/workflows/audit-ddd-osm-arcgis-crosswalk.yml` :
 3. exécute `scripts/compare_ddd_osm_arcgis_stops.mjs` ;
 4. publie l'artefact JSON du rapprochement.
 
-Le script gère maintenant les références multiples sans les réduire silencieusement à une seule ligne, et conserve les identifiants ArcGIS voisins, les distances et les diagnostics d'ordre. L'extraction ArcGIS utilise désormais quatre requêtes simultanées au maximum, avec conservation de l'ordre déterministe des couches et les tentatives de reprise existantes.
+Le script gère maintenant les références multiples sans les réduire silencieusement à une seule ligne, et conserve les identifiants ArcGIS voisins, les distances et les diagnostics d'ordre. L'extraction ArcGIS utilise quatre requêtes simultanées au maximum, avec conservation de l'ordre déterministe des couches et les tentatives de reprise existantes. Cette nouvelle extraction et le rapprochement ont tous deux réussi dans le workflow référencé ci-dessus.
 
 ## Garde-fous
 
