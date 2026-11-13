@@ -51,10 +51,14 @@ function nearestOnSegment(point, start, end) {
     ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared));
   return { distance: Math.hypot(point.x - (start.x + t * dx), point.y - (start.y + t * dy)), t };
 }
-const projectedWays = ways.map((way) => ({
-  ...way,
-  points: way.geometry.map((point) => project(point.lat, point.lon)),
-}));
+const projectedWays = ways.map((way) => {
+  const points = way.geometry.map((point) => project(point.lat, point.lon));
+  const cumulative = [0];
+  for (let index = 1; index < points.length; index += 1) {
+    cumulative[index] = cumulative[index - 1] + Math.hypot(points[index].x - points[index - 1].x, points[index].y - points[index - 1].y);
+  }
+  return { ...way, points, cumulative };
+});
 const targetRef = String(route.ref ?? '').replace(/^L/i, '').trim().toLowerCase();
 const nodes = (osm.elements || []).filter((element) => {
   if (element.type !== 'node' || !element.tags || !Number.isFinite(element.lat) || !Number.isFinite(element.lon)) return false;
@@ -67,7 +71,7 @@ const nodes = (osm.elements || []).filter((element) => {
 const columns = [
   'operator', 'line', 'osm_relation_id', 'osm_route_name', 'osm_from', 'osm_to',
   'osm_node_id', 'osm_node_name', 'osm_operator', 'osm_network', 'osm_ref', 'osm_route_ref',
-  'public_transport', 'highway', 'nearest_way_sequence', 'nearest_way_id',
+  'public_transport', 'highway', 'nearest_way_sequence', 'nearest_way_id', 'nearest_way_along_m',
   'distance_m', 'classification', 'review_status',
 ];
 const cell = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
@@ -79,7 +83,8 @@ for (const node of nodes) {
     for (let index = 1; index < way.points.length; index += 1) {
       const match = nearestOnSegment(point, way.points[index - 1], way.points[index]);
       if (!nearest || match.distance < nearest.distance) {
-        nearest = { ...match, waySequence: way.sequence, wayId: way.ref };
+        nearest = { ...match, waySequence: way.sequence, wayId: way.ref,
+          alongWayMeters: way.cumulative[index - 1] + match.t * (way.cumulative[index] - way.cumulative[index - 1]) };
       }
     }
   }
@@ -96,12 +101,12 @@ for (const node of nodes) {
     osm_network: tags.network, osm_ref: tags.ref, osm_route_ref: tags.route_ref,
     public_transport: tags.public_transport, highway: tags.highway,
     nearest_way_sequence: nearest.waySequence, nearest_way_id: nearest.wayId,
-    distance_m: nearest.distance.toFixed(1), classification,
+    nearest_way_along_m: nearest.alongWayMeters.toFixed(1), distance_m: nearest.distance.toFixed(1), classification,
     review_status: 'UNVERIFIED_NODE_CANDIDATE',
   });
 }
 accepted.sort((left, right) => Number(left.nearest_way_sequence) - Number(right.nearest_way_sequence)
-  || Number(left.distance_m) - Number(right.distance_m));
+  || Number(left.nearest_way_along_m) - Number(right.nearest_way_along_m));
 const csv = [
   columns.map(cell).join(','),
   ...accepted.map((item) => columns.map((column) => cell(item[column])).join(',')),
