@@ -58,9 +58,9 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('shows the coverage of the full official AFTU page extraction', () => {
     render(<CurrentBusRouteAuditPanel />)
-    const pages = screen.getByText(/Fiches officielles AFTU parcourues · 63 pages · 62 itinéraires/)
+    const pages = screen.getByText(/Fiches officielles AFTU parcourues · 65 pages · 65 itinéraires/)
     fireEvent.click(pages)
-    expect(screen.getByText(/texte d’itinéraire a été récupéré sur 62 pages/)).toBeTruthy()
+    expect(screen.getByText(/65 textes d’itinéraire sont disponibles/)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Ouvrir la liste officielle des lignes AFTU' })).toBeTruthy()
   })
 
