@@ -119,3 +119,19 @@ Le même calcul de projection des membres OSM sur les polylignes ArcGIS permet d
 - Les séquences publiées DDD restent la référence documentaire. Les membres OSM anonymes restent anonymes, les références partagées restent ambiguës et aucune liste n'est importée automatiquement dans les données passagers.
 
 Rapports détaillés : `ddd-line-1-refreshed-osm-sequence-continuity-review-2026-11-13.md`, `ddd-line-23-two-direction-candidates-review-2026-11-13.md` et `ddd-line-121-osm-official-direction-review-2026-11-13.md`.
+
+
+## 2 quater. Extension aux lignes de banlieue 217, 218, 219, 227, 228 et 232
+
+La couche ArcGIS publique des itinéraires de banlieue contient six entités polylignes supplémentaires. Les attributs textuels successifs ont été extraits et documentés dans `ddd-suburban-lines-217-218-219-227-228-232-arcgis-corridor-review-2026-11-13.md`.
+
+| Ligne | Segments textuels ArcGIS | Géométrie |
+|---|---:|---|
+| 217 | 8 | polyligne |
+| 218 | 6 | polyligne |
+| 219 | 9 | polyligne |
+| 227 | 6 | polyligne |
+| 228 | 2 | polyligne |
+| 232 | 7 | polyligne |
+
+Cette extraction apporte les corridors textuels officiels/cartographiques et leurs géométries. Elle ne constitue pas une séquence exhaustive d'arrêts et ne sépare pas les deux sens. Les champs ArcGIS ne doivent donc pas être transformés en arrêts passagers ni inversés artificiellement pour fabriquer un retour. La ligne 228 est particulièrement incomplète (deux segments seulement). Les six lignes restent en revue documentaire avant toute publication.
