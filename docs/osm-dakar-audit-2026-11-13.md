@@ -193,3 +193,14 @@ OSM contient la relation 3982642 avec les tags `ref=40`, `operator=Aftu` et `net
 La relation OSM 1434825 (« ligne 36 ») n'a pas d'opérateur identifié et ne comporte aucun arrêt ordonné ; elle ne peut pas être rattachée à une fiche AFTU par le seul numéro. Les deux relations B1 continuent de contenir 50 occurrences d'arrêts par sens ; elles restent hors de toute modification des données ou horaires BRT déjà validés.
 
 Artefact de cette extraction : `dakar-osm-route-candidates.zip`, généré le 13/11/2026 à 08:10:05 UTC. Attribution : © OpenStreetMap contributors, ODbL.
+
+### Vérification complémentaire des fiches AFTU 36 et 40
+
+Les deux fiches officielles AFTU retrouvées dans l'extraction sont comparées aux relations OSM de même référence :
+
+| Ligne | Fiche officielle AFTU | Relation OSM candidate | Constat |
+|---|---|---|---|
+| 36 | Marché Ndiarème → Parc Lambaye → quartier Cheikh Wade → 2 voies Notaire → Dial Mbaye → Cité des Enseignants → Bethio → Golf → Case-Ba → Parcelles → Yoff Village → Aéroport → Ngor | 1434825, « ligne 36 » | Relation sans membre exploitable ni opérateur ; aucun sens, aucun arrêt et aucune géométrie de parcours permettant de corroborer la fiche. La simple référence 36 ne suffit pas au rapprochement. |
+| 40 | Grand Mbao → RN1 → Fass Mbao → Poste Thiaroye → Yarakh → Cafétéria → Maristes → échangeur Hann → autoroute → Colobane → Petersen | 3982642, « Ligne 40 », operator=Aftu, network=Tata | Identité de ligne et corridor compatibles au niveau des tags et du contexte, mais 35 ways géométriques sans arrêt ordonné ni terminus/sens OSM. Candidat de corridor uniquement ; aucun ordre d'arrêts passager ne peut en être tiré. |
+
+Les fiches officielles AFTU consultées sont [ligne 36](https://aftu-senegal.org/map/dakar-urbain-ligne-36/) et [ligne 40](https://aftu-senegal.org/map/dakar-urbain-ligne-40/). Elles décrivent chacune un seul corridor publié et ne donnent pas une séquence indépendante complète pour le retour. Les deux lignes restent donc en revue documentaire, sans fréquence ni compte à rebours ajouté.
