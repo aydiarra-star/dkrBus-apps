@@ -13,6 +13,7 @@ import csv
 import hashlib
 import io
 import json
+import lzma
 import math
 import re
 import sqlite3
@@ -20,6 +21,7 @@ import stat
 import sys
 import tempfile
 import zipfile
+import zlib
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -247,6 +249,18 @@ class GTFSValidator:
             if info.flag_bits & 0x1:
                 self.report.add("ERROR", "ENCRYPTED_ENTRY", f"L’entrée chiffrée « {info.filename} » ne peut pas être inspectée.")
                 continue
+            if info.compress_type not in {
+                zipfile.ZIP_STORED,
+                zipfile.ZIP_DEFLATED,
+                zipfile.ZIP_BZIP2,
+                zipfile.ZIP_LZMA,
+            }:
+                self.report.add(
+                    "ERROR",
+                    "UNSUPPORTED_COMPRESSION",
+                    f"L’entrée « {info.filename} » utilise une méthode de compression ZIP non prise en charge.",
+                )
+                continue
             if info.is_dir():
                 continue
             if info.file_size > self.limits.max_member_bytes:
@@ -375,7 +389,17 @@ class GTFSValidator:
                             self.report.add("ERROR", "CSV_MISSING_FIELDS", "La ligne contient moins de champs que l’en-tête.", filename, row_number)
                             continue
                         handler(row, row_number)
-        except (UnicodeDecodeError, csv.Error, OSError, RuntimeError, zipfile.BadZipFile) as error:
+        except (
+            UnicodeDecodeError,
+            csv.Error,
+            OSError,
+            RuntimeError,
+            zipfile.BadZipFile,
+            EOFError,
+            NotImplementedError,
+            lzma.LZMAError,
+            zlib.error,
+        ) as error:
             self.report.add("ERROR", "TABLE_READ_ERROR", f"Erreur de lecture CSV : {error}.", filename)
         self.report.tables[filename] = count
         if count == 0 and filename in REQUIRED_TABLES:
@@ -643,7 +667,7 @@ class GTFSValidator:
         for stop_id in self.stop_ids.difference(self.stop_time_stop_ids):
             self.report.add("WARNING", "STOP_WITHOUT_SERVICE", f"L’arrêt « {stop_id} » n’est référencé par aucun stop_time.", "stops.txt")
         for trip_id, line in self.unsorted_trip_lines.items():
-            self.report.add("WARNING", "STOP_TIMES_NOT_SORTED", f"Les lignes stop_times du trip « {trip_id} » ne sont pas ordonnées par stop_sequence ; le contrôle chronologique complet est limité.", "stop_times.txt", line)
+            self.report.add("WARNING", "STOP_TIMES_NOT_SORTED", f"Les lignes stop_times du trip « {trip_id} » ne sont pas ordonnées physiquement par stop_sequence ; le contrôle chronologique a été effectué après tri.", "stop_times.txt", line)
 
     def _warn_unsupported_tables(self) -> None:
         for filename in sorted(set(self.table_infos).difference(SUPPORTED_TABLES)):
