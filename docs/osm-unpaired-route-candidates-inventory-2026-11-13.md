@@ -33,6 +33,12 @@ Les relations 1434825, 2792903, 3982642, 3853555 et 14222002 ne peuvent pas êtr
 
 La relation 7499433 porte `ref=6`, mais son nom commence par `7`. Elle ne possède qu'un membre anonyme. Elle ne doit donc être attribuée ni à la ligne 6 ni à la ligne 7 dans l'application avant vérification.
 
+## Protection contre les rapprochements inter-lignes
+
+L'analyseur directionnel exclut désormais toute relation portant plusieurs références de ligne de ses groupes de paires. Par exemple, une relation `L23;L5` reste visible dans l'inventaire non apparié avec le motif `AMBIGUOUS_MULTIPLE_ROUTE_REFS_NOT_PAIRED`. Elle ne peut plus servir à créer une paire directionnelle sous la ligne 23 ou sous la ligne 5. Le résumé JSON compte séparément ces candidats ambigus. Cette règle évite qu'une référence composite soit silencieusement utilisée pour relier deux lignes différentes.
+
+Le CI contrôle maintenant aussi la syntaxe de `scripts/analyze_dakar_osm_directional_pairs.mjs`.
+
 ## Prochaines priorités
 
 1. DDD 1 : confronter les 38 membres ordonnés de la relation 6951328 aux séquences DDD officielles et aux arrêts ArcGIS.
