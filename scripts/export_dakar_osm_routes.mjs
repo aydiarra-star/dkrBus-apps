@@ -57,10 +57,16 @@ function assessDakarScope(tags = {}, members = []) {
     if (member.type === "node") return isInsideDakar({ lat: member.lat, lon: member.lon });
     return (member.geometry ?? []).some((point) => isInsideDakar(point));
   });
-  if (hasLocalHint || hasLocalGeometry) return "DAKAR_CANDIDATE";
-  if (tags.from && tags.to && !/dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye/i.test([tags.from, tags.to].join(" "))) {
-    return "OUTSIDE_DAKAR_SCOPE";
-  }
+  const endpointText = [tags.from, tags.to, tags.via].filter(Boolean).join(" ");
+  const hasExplicitLocalEndpoint = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|colobane|hann|mbao|diamniadio/i.test(endpointText);
+  const hasExplicitExternalEndpoints = Boolean(tags.from && tags.to)
+    && !hasExplicitLocalEndpoint
+    && !/dakar|dem.?dikk|aftu|tata|brt/i.test([tags.operator, tags.network, tags.name, tags.ref].filter(Boolean).join(" "));
+  // Contradictory distant endpoints and Dakar geometry must be audited,
+  // never counted automatically as a local route.
+  if (hasExplicitExternalEndpoints && hasLocalGeometry) return "SCOPE_CONFLICT";
+  if (hasExplicitExternalEndpoints) return "OUTSIDE_DAKAR_SCOPE";
+  if (hasLocalHint || hasExplicitLocalEndpoint || hasLocalGeometry) return "DAKAR_CANDIDATE";
   return "SCOPE_UNCONFIRMED";
 }
 
@@ -238,6 +244,7 @@ async function main() {
       dakarScopeCandidates: routeRows.filter((route) => route.scopeStatus === "DAKAR_CANDIDATE").length,
       scopeUnconfirmed: routeRows.filter((route) => route.scopeStatus === "SCOPE_UNCONFIRMED").length,
       outsideDakarScope: routeRows.filter((route) => route.scopeStatus === "OUTSIDE_DAKAR_SCOPE").length,
+      scopeConflicts: routeRows.filter((route) => route.scopeStatus === "SCOPE_CONFLICT").length,
       relationsWithOrderedStops: routeRows.filter((route) => route.stopMemberCount > 0).length,
       orderedStopMembers: routeRows.reduce((sum, route) => sum + route.stopMemberCount, 0),
       routeRelationsWithNoStops: routeRows.filter((route) => route.stopMemberCount === 0).length,
