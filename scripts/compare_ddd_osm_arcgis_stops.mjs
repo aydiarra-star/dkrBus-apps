@@ -33,10 +33,24 @@ function distanceMeters(a, b) {
 }
 
 const comparisons = []
+const unmatchedCandidateRoutes = []
 for (const route of osm.routes) {
-  const line = String(route.ref ?? '').replace(/^L\s*/i, '').trim()
+  if (route.scopeStatus !== 'DAKAR_CANDIDATE') continue
+  const rawRef = String(route.ref ?? '').trim()
+  const line = rawRef.replace(/^L\\s*/i, '').trim()
   const layerId = stopLayerByLine[line]
-  if (!layerId || route.scopeStatus !== 'DAKAR_CANDIDATE') continue
+  if (!layerId) {
+    unmatchedCandidateRoutes.push({
+      osmRelationId: route.osmRelationId,
+      ref: rawRef || null,
+      name: route.name,
+      stopMemberCount: route.orderedStopMembers.length,
+      reason: rawRef.includes(';')
+        ? 'MULTIPLE_LINE_REFERENCES_REQUIRE_MANUAL_REVIEW'
+        : 'NO_MATCHING_DDD_URBAN_STOP_LAYER',
+    })
+    continue
+  }
 
   const layer = stopLayers.get(layerId)
   if (!layer) continue
