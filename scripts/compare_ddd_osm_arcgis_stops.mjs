@@ -102,11 +102,13 @@ const report = {
   policy: 'Read-only proximity cross-check. Spatial proximity is not proof of stop identity, current service, direction correctness, or official route validation. No stop IDs are merged and no passenger data is changed.',
   summary: {
     routeComparisons: comparisons.length,
+    unmatchedCandidateRoutes: unmatchedCandidateRoutes.length,
     osmStopComparisons: comparisons.reduce((sum, item) => sum + item.stopComparisons.length, 0),
     comparisonsWithin50m: comparisons.reduce((sum, item) => sum + item.nearestArcgisStopWithin50m, 0),
     comparisonsWithin100m: comparisons.reduce((sum, item) => sum + item.nearestArcgisStopWithin100m, 0),
   },
   comparisons,
+  unmatchedCandidateRoutes,
 }
 await writeFile(outputPath, JSON.stringify(report, null, 2) + '\n')
 console.log(JSON.stringify(report.summary, null, 2))
