@@ -471,3 +471,29 @@ Les attributs ArcGIS et les géométries de tracé deviennent une troisième cou
 Le rapprochement doit utiliser les repères communs, les géométries, les terminus et les distances ; ne pas transformer les paires de secteurs en arrêts artificiels. Les entités ArcGIS restent des candidates jusqu'à validation. Les retours doivent être établis à partir d'une preuve de sens opposé, jamais en inversant mécaniquement une séquence. Aucun horaire, fréquence ou compte à rebours n'est produit par ces couches.
 
 Artefact : `ddd-arcgis-route-stop-candidates-latest.zip`, run ArcGIS 91 (ID 43400375123), extraction du 13/11/2026 à 09:20:06 UTC. Source : services publics ArcGIS DDD. Les géométries et descriptions sont conservées pour audit, sans modification du catalogue passager.
+
+
+## Vérification spatiale arrêts ArcGIS ↔ géométrie de ligne ArcGIS — 13 novembre 2026
+
+Un contrôle géométrique complémentaire a été exécuté localement sur l'extraction ArcGIS du run 94 (09:20:06 UTC). Pour chaque point d'arrêt, la distance minimale au segment le plus proche de la géométrie de ligne correspondante a été calculée en mètres. Les couches de points et de lignes sont toutes deux interrogées en EPSG:4326. Ce test mesure l'alignement spatial, pas l'ordre de passage.
+
+| Ligne DDD | Arrêts ArcGIS | Avec coordonnées | Arrêts à ≤25 m du tracé | Distance médiane | Distance maximale |
+|---|---:|---:|---:|---:|---:|
+| 1 | 44 | 44 | 44 | 6,8 m | 14,9 m |
+| 4 | 30 | 30 | 30 | 5,1 m | 23,0 m |
+| 6 | 60 | 60 | 60 | 6,7 m | 11,6 m |
+| 7 | 34 | 33 | 33 | 6,5 m | 14,3 m |
+| 8 | 49 | 49 | 49 | 6,1 m | 18,8 m |
+| 9 | 36 | 36 | 36 | 6,2 m | 15,4 m |
+| 10 | 26 | 26 | 26 | 6,2 m | 12,2 m |
+| 13 | 23 | 23 | 23 | 6,5 m | 10,5 m |
+| 18 | 44 | 44 | 44 | 5,0 m | 8,4 m |
+| 23 | 56 | 56 | 56 | 5,5 m | 10,5 m |
+| 121 | 31 | 31 | 31 | 5,8 m | 10,9 m |
+| **Total** | **433** | **432** | **432** | — | — |
+
+**Résultat : 432 des 432 arrêts géolocalisés (100 %) se trouvent à 25 mètres ou moins de la géométrie de leur ligne ArcGIS correspondante.** La ligne 7 comporte un arrêt sans géométrie. Le résultat confirme une forte cohérence spatiale interne entre les couches d'arrêts et les couches de tracés DDD pour ces onze lignes.
+
+Limites : ce contrôle n'établit ni l'ordre exact des arrêts, ni le sens de circulation, ni l'état actuel du service. La distance est mesurée au tracé de ligne, et non à un itinéraire routier OSM indépendant ; il ne s'agit donc pas d'une validation externe. Il ne résout pas les divergences textuelles entre les fiches Dem Dikk et les attributs ArcGIS (notamment les terminus des lignes 4, 7, 9 et 10). Les couches de banlieue ne disposent pas d'une couche d'arrêts appariée dans cette extraction, donc elles ne sont pas incluses dans ce test.
+
+**Décision :** les couples couche d'arrêts + géométrie ArcGIS des lignes 1, 4, 6, 7, 8, 9, 10, 13, 18, 23 et 121 sont maintenant classés « cohérents spatialement en interne ». Les séquences et terminus restent en attente de rapprochement documentaire et directionnel. Aucun arrêt n'est fusionné ou promu automatiquement au catalogue passager.
