@@ -378,3 +378,16 @@ Ces deux fichiers sont des références de travail à auditer séparément ; ce 
 L'IA doit effectuer elle-même la recherche documentaire, ouvrir les sources primaires et historiques, transcrire fidèlement les informations, comparer les variantes, vérifier séparément les deux sens et attribuer un statut traçable lorsque les critères sont remplis. Elle ne doit pas se limiter à produire une liste de tâches pour une revue humaine.
 
 La séparation de sécurité porte sur les écritures : l'analyse et la qualification documentaire par l'IA sont autorisées dans le périmètre du chantier ; elles n'autorisent pas une correction automatique des arrêts, une modification des données voyageurs, une écriture Supabase ou une publication. Toute donnée insuffisamment prouvée reste candidate ou en conflit.
+
+## 14. Complément utilisateur — retour AFTU 84
+
+Le 13 novembre 2026, l'utilisateur a transmis une séquence ordonnée pour le retour de la ligne 84, de Delafosse Commerce vers Jaxaay 2 Pénitence, avec des heures de passage.
+
+Cette transmission remplace le statut « retour non documenté » de la précédente revue. Le fichier `src/data/aftu-84-directions.json` conserve maintenant :
+- 73 arrêts avec horaires, de 05:49 à 07:09 ;
+- puis deux arrêts terminaux supplémentaires, « Jaxaay A Côté Pharmacie Marie Essentene Manga » et « Jaxaay 2 Pénitence », sans horaire fourni ;
+- soit 75 points au total dans la séquence reçue.
+
+Le décompte doit donc rester explicite : le texte annonce 73 arrêts, mais l'ajout final de deux arrêts après « Jaxaay2 Route Du 84 » porte la liste enregistrée à 75 points. Les deux heures manquantes restent nulles ; aucune heure n'est extrapolée.
+
+Statut : `USER_PROVIDED_PENDING_SOURCE`. La séquence est enregistrée fidèlement comme donnée fournie par l'utilisateur, sans la présenter comme publication officielle CETUD tant qu'une fiche ou un document primaire n'est pas rattaché. Le test `src/data/aftu-84-directions.test.ts` vérifie le nombre de points, les 73 horaires et les deux valeurs nulles finales.
