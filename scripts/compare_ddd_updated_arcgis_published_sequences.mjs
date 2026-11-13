@@ -24,9 +24,9 @@ function lineKey(value) {
   return String(value ?? "")
     .toUpperCase()
     .normalize("NFD")
-    .replace(/\\p{Diacritic}/gu, "")
-    .replace(/^\\s*LIGNE\\s*[_-]?\\s*/u, "")
-    .replace(/^\\s*L\\s*[_-]?\\s*(?=\\d)/u, "")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/^\s*LIGNE\s*[_-]?\s*/u, "")
+    .replace(/^\s*L\s*[_-]?\s*(?=\d)/u, "")
     .replace(/[^A-Z0-9]/gu, "");
 }
 
