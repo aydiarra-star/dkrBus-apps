@@ -190,3 +190,12 @@ La comparaison des deux fiches secondaires TATA déjà conservées avec les fich
 - TATA ligne 2 ↔ AFTU ligne 2 : Route principale des Parcelles ↔ Gare Petersen.
 
 Ces rapprochements sont enregistrés dans `src/data/tataPublishedRouteCandidates.ts` sous `possibleAftuLine` et `CORRIDOR_MATCH_NEEDS_REVIEW`. Ils signifient « correspondance probable à contrôler », pas validation de l'identité complète des parcours. Les différences de repères, les variantes de retour et les séquences complètes doivent encore être comparées. Les fiches secondaires TATA ne remplacent pas les fiches officielles AFTU.
+
+
+## Recoupement spatial DDD — OSM et ArcGIS, 13 novembre 2026
+
+Un rapprochement de proximité entre les arrêts ordonnés de 16 relations OSM DDD et les couches d'arrêts ArcGIS DDD a comparé 374 positions. Le point ArcGIS le plus proche se trouve à 50 m ou moins pour 230 positions, et à 100 m ou moins pour 282. Ce sont des correspondances de proximité non exclusives : elles ne prouvent ni l'identité de l'arrêt, ni l'ordre du parcours, ni l'exploitation actuelle.
+
+Les résultats sont contrastés selon la relation : ligne 1 (35/38 positions à 50 m), ligne 7 (30/34 dans un sens, 10/31 dans l'autre), ligne 4 (24/32 contre 6/34), ligne 9 (27/29 contre 15/32), ligne 10 (20/25 contre 10/30), ligne 23 (22/51) et ligne 121 (3/3, 24/27 et 4/7 sur trois relations distinctes). Les relations 6, 8 et 18 présentent des anomalies ou aucun arrêt ordonné exploitable. Les variantes restent séparées et les divergences doivent être résolues avant toute validation.
+
+Le détail relation par relation, la méthode et les limites sont conservés dans `docs/osm-dakar-audit-2026-11-13.md` ; le calcul est reproductible avec `npm run audit:ddd-osm-crosscheck`. Aucun statut `verified` n'est attribué par la seule proximité géographique.
