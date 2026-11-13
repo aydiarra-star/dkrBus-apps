@@ -393,6 +393,16 @@ Le responsable du projet a transmis le parcours retour de la ligne 84, de Delafo
 
 Le référentiel conserve donc exactement **73 arrêts à l'aller et 73 arrêts au retour**. Deux noms de points qui avaient été ajoutés après le 73e arrêt retour, sans horaire associé, ont été retirés du décompte et de la séquence : ils ne font pas partie des 73 arrêts confirmés pour ce sens. Aucune heure n'est extrapolée.
 
+### Recoupement secondaire à conserver séparément
+
+Deux agrégateurs de transport consultés donnent pour la ligne 84 un décompte de 86 arrêts, alors que le jeu CETUD transmis pour le projet contient 73 arrêts dans chacun des deux sens : TransitByCity (données traitées le 28 mai 2026) et Moovit. TransitByCity affiche aussi 14 minutes en semaine, mais 18 minutes le samedi et le dimanche. Ces pages sont des sources secondaires et leurs décomptes peuvent inclure des points d'arrêt supplémentaires ou une autre version du parcours.
+
+Références secondaires :
+- https://transitbycity.com/fr/senegal/dakar/operators/aftu/routes/84/
+- https://moovitapp.com/index/fr/transport_en_commun-line-84-Dakar-5996-1618038-18051515-0
+
+**Décision :** ne pas remplacer les 73 arrêts CETUD fournis par le responsable du projet et ne pas modifier la fréquence de 14 minutes. Conserver le chiffre secondaire de 86 comme piste de comparaison future (noms, variantes et granularité des arrêts), sans l'importer dans le parcours validé par la source CETUD.
+
 ## 15. Fréquence AFTU 84 — source CETUD transmise
 
 La fréquence de la ligne AFTU 84 est **un passage toutes les 14 minutes**, selon les données CETUD transmises par le responsable du projet. Elle est enregistrée dans `src/data/aftu-84-directions.json` avec `intervalMinutes: 14`, l'affichage `14 min` et le statut `CETUD_SOURCE_USER_SUPPLIED`. Le test de la ligne vérifie explicitement cette valeur et sa provenance.
