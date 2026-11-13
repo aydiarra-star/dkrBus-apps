@@ -48,6 +48,8 @@ Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décr
 
 La page [Réseau urbain Dakar](https://demdikk.sn/reseau-urbain-dakar/) publie des listes de points desservis, dans l'ordre affiché, pour les dessertes urbaines et de banlieue. Le script `scripts/export_ddd_official_route_candidates.mjs` en extrait les sections et produit un artefact d'audit. La page [Info voyageurs](https://demdikk.sn/info-voyageurs/) sert à recouper les identifiants de lignes et les variantes.
 
+L'extraction exécutée le 13 novembre 2026 a repéré **40 sections, soit 39 séquences uniques** après suppression d'une répétition strictement identique de la ligne 18. Les 39 séquences sont désormais conservées dans `src/data/dddOfficialUrbanPublishedRoutes.ts`, `src/data/dddSuburbanPublishedRoutesA.ts` et `src/data/dddSuburbanPublishedRoutesB.ts`, réunies par `src/data/dddOfficialPublishedRoutes.ts` et visibles dans le panneau d'audit administratif. Elles restent des preuves documentaires, non des horaires ou des séquences passager validées.
+
 Règles appliquées à cette extraction :
 - chaque liste est conservée dans son ordre publié, sans transformer automatiquement le sens inverse en retour ;
 - une flèche « ↔ » dans l'en-tête ne remplace pas deux listes d'arrêts distinctes ;
