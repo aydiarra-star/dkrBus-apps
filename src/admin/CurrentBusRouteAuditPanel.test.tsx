@@ -88,4 +88,13 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getByText(/Les retours ne sont pas inversés automatiquement/)).toBeTruthy()
   })
 
+  it('flags official DDD route header conflicts for lines 217 and 233', async () => {
+    render(<CurrentBusRouteAuditPanel />)
+    fireEvent.click(await screen.findByText(/Parcours DDD publiés par l’opérateur · 39 séquences/))
+    fireEvent.click(await screen.findByText(/DDD 217 · 15 repères publiés/))
+    expect(screen.getByText(/l’en-tête annonce Ouakam comme terminus/)).toBeTruthy()
+    fireEvent.click(await screen.findByText(/DDD 233 · 15 repères publiés/))
+    expect(screen.getByText(/l’en-tête annonce Palais 1/)).toBeTruthy()
+  })
+
 })
