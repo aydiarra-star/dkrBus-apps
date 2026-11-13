@@ -126,3 +126,50 @@ Quelques relations illustrent les limites à traiter avant rapprochement automat
 - la relation 7108131 est étiquetée comme un arrêt « Cité Soprim » mais contient 47 membres d'arrêt et des références L23/L5 ; son rôle de relation d'arrêt/route maître doit être examiné avant tout usage comme séquence de ligne.
 
 Ces cas confirment la règle : une relation OSM est une preuve cartographique candidate, pas une validation de l'identité de ligne. Les séquences restent isolées jusqu'au rapprochement des terminus, de l'opérateur, des rôles de membres et de la séquence officielle. Aucun sens retour, horaire ou intervalle n'est déduit automatiquement.
+
+
+## Recoupement spatial OSM ↔ arrêts ArcGIS DDD — extraction du 13 novembre 2026
+
+Un outil reproductible a été ajouté : `scripts/compare_ddd_osm_arcgis_stops.mjs`. Il prend les deux artefacts JSON (relations OSM et couches ArcGIS DDD), associe uniquement les références de lignes sans ambiguïté aux couches d'arrêts DDD correspondantes, puis calcule pour chaque arrêt OSM la distance au point ArcGIS le plus proche. Il ne fusionne aucun arrêt et ne modifie aucune donnée passager.
+
+Commande après téléchargement et décompression des deux artefacts :
+
+```bash
+npm run audit:ddd-osm-crosscheck -- dakar-osm-route-candidates.json ddd-route-stop-candidates.json ddd-osm-arcgis-crosscheck.json
+```
+
+Résultat calculé sur les extractions OSM du 13/11/2026 à 07:00:07 UTC et ArcGIS du 13/11/2026 à 06:57:10 UTC : **16 relations comparables**, **374 positions d'arrêts OSM comparées**, dont **230 ont un point ArcGIS le plus proche à 50 m ou moins** et **282 à 100 m ou moins**. Ce sont des rapprochements de proximité « plus proche voisin » : plusieurs arrêts OSM peuvent pointer vers le même point ArcGIS. Ces chiffres ne sont donc pas des correspondances uniques et ne constituent pas une validation de parcours.
+
+| Ligne DDD | Relation OSM | Arrêts OSM | Arrêts ArcGIS | Plus proche à ≤50 m | Plus proche à ≤100 m |
+|---|---:|---:|---:|---:|---:|
+| 1 | 6951328 | 38 | 44 | 35 | 36 |
+| 4 | 6990830 | 34 | 30 | 6 | 14 |
+| 4 | 7203970 | 32 | 30 | 24 | 24 |
+| 6 | 7499433 | 1 | 60 | 0 | 0 |
+| 7 | 6990669 | 31 | 33 | 10 | 17 |
+| 7 | 7500475 | 34 | 33 | 30 | 31 |
+| 8 | 7495137 | 0 | 49 | 0 | 0 |
+| 9 | 6996431 | 32 | 36 | 15 | 23 |
+| 9 | 7487218 | 29 | 36 | 27 | 28 |
+| 10 | 6990845 | 30 | 26 | 10 | 21 |
+| 10 | 7488283 | 25 | 26 | 20 | 22 |
+| 18 | 7499475 | 0 | 44 | 0 | 0 |
+| 23 | 7495279 | 51 | 56 | 22 | 32 |
+| 121 | 2792903 | 3 | 31 | 3 | 3 |
+| 121 | 6990794 | 27 | 31 | 24 | 26 |
+| 121 | 6999013 | 7 | 31 | 4 | 5 |
+
+### Anomalies et décisions de revue
+
+- **Ligne 1 :** correspondance spatiale forte entre la relation OSM et la couche d'arrêts ArcGIS. Les noms, l'ordre exact et l'actualité de chaque arrêt doivent encore être contrôlés ; cela ne prouve pas le retour.
+- **Ligne 7 :** la relation 7500475 (Ouakam → Palais 1) correspond spatialement à 30/34 points dans un rayon de 50 m. La relation 6990669 (Palais → Ouakam) n'en rapproche que 10/31 à 50 m. Conserver les deux séquences séparées ; vérifier si la relation 6990669 représente une variante, une ancienne cartographie ou un tracé divergent.
+- **Ligne 4 :** forte asymétrie : 24/32 points proches pour 7203970, mais seulement 6/34 pour 6990830. Ne pas considérer automatiquement ces deux relations comme des sens opposés du même parcours sans examiner les tracés et les arrêts éloignés.
+- **Ligne 9 :** rapprochement plutôt fort pour 7487218 (27/29 à 50 m), plus faible pour 6996431 (15/32). Garder les deux relations candidates et vérifier les variantes.
+- **Ligne 10 :** rapprochement partiel pour les deux relations ; 7488283 est plus proche de la couche ArcGIS que 6990845. La différence doit être examinée, pas effacée.
+- **Ligne 121 :** trois relations sont trouvées, avec 3, 27 et 7 arrêts. Les terminus et les séquences divergent ; elles ne doivent pas être agrégées sur le seul numéro 121.
+- **Ligne 23 :** la relation 7495279 compte 51 arrêts ordonnés, mais seulement 22/51 points à 50 m de la couche ArcGIS. Une autre relation 7108131 porte la référence combinée `L23;L5` et 47 arrêts ; elle est signalée comme référence multiple ambiguë et n'est pas rapprochée automatiquement.
+- **Ligne 6 :** la relation 7499433 porte la référence « 6 » mais son nom indique « 7 Palais 1 → Parcelles-Assainies » ; elle ne présente qu'un seul arrêt ordonné, éloigné de la couche 6 (211 m). Elle reste un conflit de métadonnées.
+- **Lignes 8 et 18 :** les relations 7495137 et 7499475 n'ont aucun arrêt ordonné exploitable malgré l'existence de couches ArcGIS de 49 et 44 arrêts.
+- **Références non rapprochées automatiquement :** 36, 40, les relations sans référence et B1 sont conservées dans `unmatchedCandidateRoutes`. La relation multi-référence `L23;L5` y est explicitement signalée, pas répartie artificiellement entre deux lignes.
+
+La couche ArcGIS DDD est une source géographique historique ; ses points et les relations OSM sont des preuves complémentaires. Les statuts de qualification restent donc candidats ou partiellement corroborés. Aucune séquence n'est marquée `verified` sur la seule base de ces distances, aucun retour n'est généré par inversion, et aucune fréquence n'est déduite de la géographie.
