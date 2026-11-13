@@ -50,6 +50,19 @@ class WorkerError(RuntimeError):
     pass
 
 
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Never forward the service-role credential through an HTTP redirect."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Returning None makes urllib raise HTTPError instead of following the target.
+        return None
+
+
+def open_without_redirect(request: urllib.request.Request, timeout: int):
+    opener = urllib.request.build_opener(NoRedirectHandler)
+    return opener.open(request, timeout=timeout)
+
+
 def validate_supabase_url(base_url: str) -> str:
     try:
         parsed = urllib.parse.urlsplit(base_url.strip())
@@ -223,7 +236,7 @@ class SupabaseRest:
             },
         )
         try:
-            with urllib.request.urlopen(request, timeout=90) as response:
+            with open_without_redirect(request, timeout=90) as response:
                 raw = response.read()
         except (urllib.error.URLError, TimeoutError) as error:
             raise WorkerError("SUPABASE_REQUEST_FAILED") from error
@@ -257,7 +270,7 @@ class SupabaseRest:
             headers={"apikey": self.service_key, "Authorization": "Bearer " + self.service_key},
         )
         try:
-            with urllib.request.urlopen(request, timeout=120) as response:
+            with open_without_redirect(request, timeout=120) as response:
                 payload = response.read(MAX_ARCHIVE_BYTES + 1)
         except (urllib.error.URLError, TimeoutError) as error:
             raise WorkerError("ARCHIVE_DOWNLOAD_FAILED") from error
