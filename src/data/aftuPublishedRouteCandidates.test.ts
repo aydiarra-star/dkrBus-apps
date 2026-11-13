@@ -32,7 +32,8 @@ describe('AFTU published route candidates', () => {
   it('reflects the latest complete extraction of all linked official AFTU pages', () => {
     expect(AFTU_OFFICIAL_PAGE_AUDIT).toMatchObject({
       linkedPages: 63,
-      itineraryTextsRetrieved: 63,
+      additionalOfficialPages: 2,
+      itineraryTextsRetrieved: 65,
       pagesWithoutExtractedItinerary: [],
     })
   })
