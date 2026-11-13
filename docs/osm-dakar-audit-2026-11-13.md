@@ -400,3 +400,27 @@ Les 39 séquences sont publiées dans un seul ordre. Le rapport les marque toute
 Ces écarts sont maintenant inscrits comme contrôles bloquants de validation, et non corrigés par supposition. Les libellés « Palais 1 », « Palais 2 » et « Palais de Justice » doivent être géolocalisés séparément et comparés aux terminus et aux séquences publiées.
 
 Artefact source : `ddd-official-published-route-candidates.zip`, run CI 2111 (ID 43400058529), fichier `ddd-official-published-route-candidates.json`, extrait le 13/11/2026 à 09:17:41 UTC. Source : Dakar Dem Dikk, réseau urbain Dakar ; consultation/extraction le 13/11/2026. Ces données restent en attente de rapprochement géographique et de revue avant toute publication passager.
+
+
+## Recoupement des fiches officielles AFTU avec OSM — 13 novembre 2026, 09:24 UTC
+
+L'index officiel AFTU `https://aftu-senegal.org/infos-pratiques/` a permis de récupérer **65 pages sur 65** : 63 fiches de lignes liées depuis l'index et 2 pages officielles supplémentaires. Les 65 pages contiennent un texte d'itinéraire ; aucune page n'est manquante et aucune erreur de récupération n'est signalée. Les dates publiées des fiches vont du 18 mai au 14 juillet 2026 dans l'artefact analysé.
+
+Les fiches AFTU décrivent des axes, routes, carrefours et terminus (ex. ligne 40 : « TERMINUS GRAND MBAO – ROUTE NATIONALE 1 – FASS MBAO – POSTE THIAROYE – ROUTE DE YARAKH – CAFETERIA – MARISTES – ECHANGEUR HANN – AUTOROUTE – COLOBANE – TERMINUS PETERSEN »). Ce sont des indications d'itinéraire officielles, pas nécessairement une liste exhaustive de points d'arrêt voyageurs. Elles doivent être normalisées et géocodées comme corridors, sans convertir automatiquement chaque nom de route en arrêt.
+
+### Correspondances AFTU ↔ OSM trouvées dans l'extraction actuelle
+
+- **AFTU ligne 40 :** une relation OSM candidate existe (relation 3982642, `operator=Aftu`, `network=Tata`, `ref=40`). Elle possède 35 membres de type way ordonnés, 307 coordonnées de géométrie et environ 7,83 km de géométrie cumulée, mais **zéro arrêt ou quai ordonné** et aucun terminus renseigné. Son emprise (lat. 14,69805–14,74227 ; lon. −17,44131 à −17,42430) ne couvre manifestement pas à elle seule tout le corridor publié Grand Mbao–Petersen. Elle est donc un fragment géométrique à contrôler, pas le tracé complet de la ligne 40.
+- Les relations DDD 1 et 4 correspondent aussi à des fiches de l'index AFTU par numéro, mais leurs tags opérateur et leurs terminus les identifient explicitement comme Dakar Dem Dikk : le numéro seul ne constitue jamais une correspondance AFTU.
+- La relation OSM 1434825 (ref 36) n'a ni opérateur ni séquence d'arrêts ; elle ne peut pas être attribuée à la fiche AFTU 36 sur la seule égalité du numéro.
+- Aucune autre relation OSM de l'extraction ne fournit une correspondance AFTU fiable avec une séquence d'arrêts.
+
+### Suite de traitement
+
+1. Conserver les 65 textes AFTU comme sources officielles de corridor, avec leur URL, date publiée et libellé d'origine.
+2. Découper les indications en segments routiers et repères géographiques, puis géocoder chaque segment dans OSM sans créer d'arrêts voyageurs fictifs.
+3. Utiliser la relation 3982642 comme fragment de comparaison uniquement ; vérifier sa couverture et ses extrémités avant toute association à la ligne 40.
+4. Ne pas affecter une relation à AFTU sur la seule base de son numéro ; exiger cohérence opérateur/réseau, corridor, terminus et ordre.
+5. Ne déduire aucun horaire ou fréquence des fiches d'itinéraire.
+
+Artefact : `aftu-official-route-pages.zip`, run AFTU 88 (ID 43400375097), généré le 13/11/2026 à 09:20:13 UTC. Attribution : Association de financement des professionnels du transport urbain (AFTU), pages officielles ; OSM © contributeurs OpenStreetMap (ODbL). Les fiches et géométries restent en audit documentaire, sans modification du catalogue passager.
