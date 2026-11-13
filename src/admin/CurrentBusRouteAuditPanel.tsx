@@ -32,6 +32,8 @@ export function CurrentBusRouteAuditPanel() {
   const [aftuCandidates, setAftuCandidates] = useState<readonly AftuPublishedRouteCandidate[]>([])
   const [tataCandidates, setTataCandidates] = useState<readonly TataPublishedRouteCandidate[]>([])
   const [dddPublishedDepartureWindows, setDddPublishedDepartureWindows] = useState<readonly DddPublishedDepartureWindow[]>([])
+  const [dddOfficialRoutes, setDddOfficialRoutes] = useState<readonly { line: string; stops: readonly string[]; codeSource?: string }[]>([])
+  const [dddOfficialRouteSource, setDddOfficialRouteSource] = useState({ url: 'https://demdikk.sn/reseau-urbain-dakar/', infoUrl: 'https://demdikk.sn/info-voyageurs/' })
   const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
   const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
   const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, geolocatedStopFeatures: 0 })
@@ -44,7 +46,8 @@ export function CurrentBusRouteAuditPanel() {
       import('../data/aftuPublishedRouteCandidates'),
       import('../data/tataPublishedRouteCandidates'),
       import('../data/dddPublishedDepartureWindows'),
-    ]).then(([frequencyData, gisData, aftuData, tataData, departureData]) => {
+      import('../data/dddOfficialPublishedRoutes'),
+    ]).then(([frequencyData, gisData, aftuData, tataData, departureData, officialRouteData]) => {
       if (!active) return
       setFrequencyObservations(frequencyData.CETUD_FREQUENCY_OBSERVATIONS)
       setDddBanlieueArcgisLayers(gisData.DDD_BANLIEUE_ARCGIS_LAYERS)
@@ -53,6 +56,8 @@ export function CurrentBusRouteAuditPanel() {
       setAftuCandidates(aftuData.AFTU_PUBLISHED_ROUTE_CANDIDATES)
       setTataCandidates(tataData.TATA_PUBLISHED_ROUTE_CANDIDATES)
       setDddPublishedDepartureWindows(departureData.DDD_PUBLISHED_DEPARTURE_WINDOWS)
+      setDddOfficialRoutes(officialRouteData.DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES)
+      setDddOfficialRouteSource({ url: officialRouteData.DDD_OFFICIAL_ROUTE_SOURCE.url, infoUrl: officialRouteData.DDD_OFFICIAL_ROUTE_SOURCE.infoUrl })
     })
     return () => { active = false }
   }, [])
@@ -126,6 +131,26 @@ export function CurrentBusRouteAuditPanel() {
             </li>
           ))}
         </ul>
+      </details>
+
+      <details className="bus-route-audit-sources">
+        <summary>Parcours DDD publiés par l’opérateur · {dddOfficialRoutes.length || 'chargement…'} séquences</summary>
+        <p>Ordre transcrit depuis le site officiel DDD. Chaque fiche présente le sens dans l’ordre publié ; les retours ne sont pas inversés automatiquement. Les arrêts ne sont pas encore associés aux identifiants et coordonnées SIG. Aucune fréquence ou minute de passage n’est déduite.</p>
+        <ul>
+          {dddOfficialRoutes.map((route) => (
+            <li key={route.line}>
+              <details>
+                <summary>DDD {route.line} · {route.stops.length} repères publiés</summary>
+                <ol>
+                  {route.stops.map((stop, index) => <li key={`${route.line}-${index}`}>{stop}</li>)}
+                </ol>
+                {route.codeSource === 'cross_reference_to_official_info_page' && <small>Numéro 228 recoupé avec la page officielle Info voyageurs.</small>}
+              </details>
+            </li>
+          ))}
+        </ul>
+        <a href={dddOfficialRouteSource.url} target="_blank" rel="noreferrer">Ouvrir les parcours DDD</a>
+        <a href={dddOfficialRouteSource.infoUrl} target="_blank" rel="noreferrer">Ouvrir Info voyageurs DDD</a>
       </details>
 
       <details className="bus-route-audit-sources">
