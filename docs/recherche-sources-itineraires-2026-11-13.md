@@ -288,3 +288,44 @@ La page officielle DDD « Info voyageurs » (https://demdikk.sn/info-voyageurs/)
 Or le registre textuel actuel du dépôt contient pour la ligne 217 une séquence se terminant à Aéroport LSS, et pour la ligne 233 une séquence qui se termine également à Aéroport LSS et ressemble à celle de la ligne 232. Ces deux écarts sont désormais des **anomalies prioritaires**. Ils ne doivent pas être corrigés en devinant les arrêts manquants : il faut retrouver les fiches détaillées propres aux lignes 217 et 233, puis recouper avec le service géographique et les autres sources opérateur disponibles.
 
 La page officielle de référence DDD confirme également 38 lignes et une amplitude générale annoncée de 6 h à 21 h ; cette amplitude réseau ne doit pas être transformée en horaire détaillé ou fréquence identique pour chaque ligne.
+
+
+## 8. Complément AFTU — lignes officiellement listées sans fiche détaillée accessible
+
+La page officielle AFTU « Infos pratiques » liste également les lignes suivantes, mais contrairement aux fiches 1 à 83, les entrées de ces lignes ne présentaient pas de lien individuel exploitable lors de la consultation (le texte « Voir itinéraire » apparaît sans URL) :
+
+| Ligne | Terminus affichés sur la page officielle | Ce qui est confirmé |
+|---|---|---|
+| 84 | UCAD – Jaxaay | Existence de la ligne et terminus seulement |
+| 85 | Banoba – Liberté 5 | Existence de la ligne et terminus seulement |
+| 86 | Tournalou Boune – Toubab Dialaw | Existence de la ligne et terminus seulement |
+| 87 | Bambilor – Mosquée Massalikou Djinane | Existence de la ligne et terminus seulement |
+| 88 | MTOA – Liberté 5 | Existence de la ligne et terminus seulement |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Existence de la ligne et terminus seulement |
+| 91 | APIX – Dougar | Existence de la ligne et terminus seulement |
+
+Source primaire : https://aftu-senegal.org/infos-pratiques/
+
+Ces sept lignes sont désormais repérées dans la liste officielle, mais elles ne sont **pas** ajoutées au registre des fiches détaillées : aucune séquence d'arrêts ni source individuelle vérifiable n'a été récupérée. Les données secondaires parfois trouvées pour la ligne 84 (horaires et nombreux arrêts génériques) ne remplacent pas une fiche AFTU exploitable et ne permettent pas de valider la ligne. Le numéro 90 n'apparaît pas dans la liste consultée ; aucune ligne 90 n'est inventée.
+
+## 9. Recoupement documentaire DDD — cahier des charges historique
+
+Une copie consultable sur Scribd d'un document intitulé « Cahier des charges – Dakar Dem Dikk Mars 2017/2022 » porte les mentions institutionnelles République du Sénégal, Ministère chargé des transports, CETUD et Dakar Dem Dikk. La copie est hébergée par un tiers et son authenticité/version applicable aujourd'hui n'a pas été confirmée ; elle est donc traitée comme **document historique secondaire à authentifier**, pas comme source actuelle opérateur.
+
+Elle contient néanmoins deux recoupements intéressants :
+- À la page de l'annexe réseau, la ligne 217 est décrite comme « Dépôt Thiaroye – Terminus Ouakam » avec un parcours se terminant à Ouakam.
+- La ligne 218 est décrite séparément comme « Dépôt Thiaroye – Terminus Aéroport ».
+- La même annexe décrit la ligne 233 comme « Baux Maraîchers – Palais 1 », ce qui concorde avec la page actuelle « Info voyageurs » DDD et contredit la séquence locale du dépôt qui finit à Aéroport LSS.
+- Une annexe présente un tableau d'intervalles minimaux/maximaux pour plusieurs lignes DDD, par sens et plages horaires, ainsi que les périodes de pointe du matin (6 h 30–9 h 30) et du soir (17 h–20 h).
+
+Référence consultée : https://fr.scribd.com/document/809401752/Cahier-Des-Charges-projet-2022
+
+Ce document renforce l'identification des incohérences des lignes 217 et 233, mais il ne suffit pas à valider les parcours actuels ni à importer ses fréquences historiques. Il faudra obtenir la version officielle applicable ou un horaire récent DDD avant d'utiliser ces intervalles dans l'application.
+
+## 10. Recoupement indépendant pour la ligne DDD 233
+
+Une fiche d'itinéraire tierce (TransitRun) décrit la ligne DDD 233 comme « Gare Palais – Gare Baux Maraîchers », avec 39 arrêts et un calendrier de service. Cette source secondaire concorde sur les terminus avec la page officielle DDD « Info voyageurs », mais ne remplace pas la source opérateur pour valider l'ordre complet ni les fréquences actuelles.
+
+Référence : https://transitrun.com/fr/public-transit-line_233_226860
+
+**Décision provisoire :** l'identité et les terminus actuels de la ligne 233 sont corroborés par la page opérateur et une source indépendante, et confortés par le document historique. La séquence actuellement stockée dans le dépôt, qui finit à Aéroport LSS, reste néanmoins en conflit et ne peut pas être validée. Les 39 arrêts tiers ne seront pas importés tant qu'ils n'auront pas été recoupés avec une source officielle actuelle.
