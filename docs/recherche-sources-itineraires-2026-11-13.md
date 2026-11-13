@@ -180,6 +180,24 @@ Cinq nouvelles fiches individuelles ont été ouvertes depuis la page officielle
 
 Le registre contient désormais **48 fiches officielles AFTU**. La ligne 72 était déjà présente. Les nouvelles fiches restent des descriptions à sens unique documentaire, sans validation de séquence retour.
 
+
+### Complément — fiches AFTU officielles des lignes 76 à 83
+
+Huit fiches supplémentaires ont été ouvertes directement depuis la page AFTU :
+
+| Ligne | Date affichée | Terminus affichés | Référence |
+|---|---|---|---|
+| 76 | 14 juillet 2026 | SIPRES – Cité Assurance | https://aftu-senegal.org/map/dakar-urbain-ligne-76/ |
+| 77 | 14 juillet 2026 | Rufisque Cité Tacco – Liberté 5 | https://aftu-senegal.org/map/dakar-urbain-ligne-77/ |
+| 78 | 14 juillet 2026 | Diamaguène – Liberté 5 | https://aftu-senegal.org/map/dakar-urbain-ligne-78/ |
+| 79 | 14 juillet 2026 | Sangalkam – Cambérène | https://aftu-senegal.org/map/dakar-urbain-ligne-79/ |
+| 80 | 14 juillet 2026 | Diamalaye – Darou Thioub | https://aftu-senegal.org/map/dakar-urbain-ligne-80/ |
+| 81 | 14 juillet 2026 | Tawfeex – Gare des Baux Maraîchers | https://aftu-senegal.org/map/dakar-urbain-ligne-81/ |
+| 82 | 14 juillet 2026 | Comico – Lat-Dior | https://aftu-senegal.org/map/dakar-urbain-ligne-82/ |
+| 83 | 14 juillet 2026 | Rufisque Arafat – Zone de Captage | https://aftu-senegal.org/map/dakar-urbain-ligne-83/ |
+
+Le registre compte désormais **56 fiches AFTU distinctes**. Elles restent des descriptions candidates à sens unique documentaire, pas des séquences Aller/Retour validées.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
