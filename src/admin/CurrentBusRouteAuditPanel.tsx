@@ -4,6 +4,7 @@ import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import { AFTU_OFFICIAL_PAGE_AUDIT } from '../data/aftuOfficialPageAudit'
+import { DDD_PUBLISHED_DEPARTURE_WINDOWS } from '../data/dddPublishedDepartureWindows'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
@@ -122,6 +123,20 @@ export function CurrentBusRouteAuditPanel() {
         <summary>Fiches officielles AFTU parcourues · {AFTU_OFFICIAL_PAGE_AUDIT.linkedPages + AFTU_OFFICIAL_PAGE_AUDIT.additionalOfficialPages} pages · {AFTU_OFFICIAL_PAGE_AUDIT.itineraryTextsRetrieved} itinéraires</summary>
         <p>La collecte a récupéré les 63 fiches liées depuis « Infos pratiques » et deux fiches officielles supplémentaires trouvées par URL directe (lignes 27 et 36). Les 65 textes d’itinéraire sont disponibles ; aucun n’est transformé automatiquement en séquence complète Aller/Retour.</p>
         <a href={AFTU_OFFICIAL_PAGE_AUDIT.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la liste officielle des lignes AFTU</a>
+      </details>
+
+      <details className="bus-route-audit-sources">
+        <summary>Départs officiels DDD · {DDD_PUBLISHED_DEPARTURE_WINDOWS.length} directions documentées</summary>
+        <p>Premiers et derniers départs publiés par terminus. Ces plages ne donnent pas d’intervalle entre bus : elles ne produisent aucun compte à rebours de fréquence.</p>
+        <ul>
+          {DDD_PUBLISHED_DEPARTURE_WINDOWS.map((departure) => (
+            <li key={`${departure.service}-${departure.origin}-${departure.destination}`}>
+              <strong>{departure.service} · {departure.origin} → {departure.destination}</strong>
+              <span>Premier départ : {departure.firstDeparture} · Dernier départ : {departure.lastDeparture}</span>
+              <a href={departure.sourceUrl} target="_blank" rel="noreferrer">Source officielle DDD</a>
+            </li>
+          ))}
+        </ul>
       </details>
 
       <details className="bus-route-audit-sources">
