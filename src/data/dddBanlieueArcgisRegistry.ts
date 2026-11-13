@@ -87,23 +87,26 @@ export const DDD_URBAN_ARCGIS_STOP_LAYERS: readonly DddUrbanArcgisStopLayerRefer
 ] as const
 
 export const DDD_URBAN_ARCGIS_ROUTE_LAYERS = [
-  { line: '121', layerId: 12, featureCount: 1 },
-  { line: '13', layerId: 13, featureCount: 1 },
-  { line: '18', layerId: 14, featureCount: 1 },
-  { line: '20', layerId: 15, featureCount: 1 },
-  { line: '23', layerId: 16, featureCount: 1 },
-  { line: '4', layerId: 17, featureCount: 1 },
-  { line: '6', layerId: 18, featureCount: 1 },
-  { line: '7', layerId: 19, featureCount: 1 },
-  { line: '8', layerId: 20, featureCount: 2 },
-  { line: '9', layerId: 21, featureCount: 1 },
-  { line: '10', layerId: 22, featureCount: 1 },
-  { line: '1', layerId: 23, featureCount: 1 },
+  { line: '121', layerId: 12, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '13', layerId: 13, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '18', layerId: 14, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '20', layerId: 15, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '23', layerId: 16, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '4', layerId: 17, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '6', layerId: 18, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '7', layerId: 19, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  // ArcGIS contains one real corridor plus one blank duplicate feature for line 8.
+  { line: '8', layerId: 20, featureCount: 2, nonEmptyFeatureCount: 1, emptyFeatureCount: 1 },
+  { line: '9', layerId: 21, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '10', layerId: 22, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
+  { line: '1', layerId: 23, featureCount: 1, nonEmptyFeatureCount: 1, emptyFeatureCount: 0 },
 ] as const
 
 export const DDD_URBAN_ARCGIS_AUDIT_TOTALS = {
   routeLayers: DDD_URBAN_ARCGIS_ROUTE_LAYERS.length,
   routeFeatures: DDD_URBAN_ARCGIS_ROUTE_LAYERS.reduce((sum, layer) => sum + layer.featureCount, 0),
+  nonEmptyRouteFeatures: DDD_URBAN_ARCGIS_ROUTE_LAYERS.reduce((sum, layer) => sum + layer.nonEmptyFeatureCount, 0),
+  emptyRouteFeatures: DDD_URBAN_ARCGIS_ROUTE_LAYERS.reduce((sum, layer) => sum + layer.emptyFeatureCount, 0),
   stopLayers: DDD_URBAN_ARCGIS_STOP_LAYERS.length,
   stopFeatures: DDD_URBAN_ARCGIS_STOP_LAYERS.reduce((sum, layer) => sum + layer.featureCount, 0),
   namedStopFeatures: DDD_URBAN_ARCGIS_STOP_LAYERS.reduce((sum, layer) => sum + layer.namedFeatureCount, 0),
