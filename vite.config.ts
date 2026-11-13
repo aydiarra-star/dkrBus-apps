@@ -51,6 +51,13 @@ export default defineConfig({
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             },
             {
+              name: 'lucide-icons',
+              priority: 18,
+              // Icons used by both the main console and lazy admin panels must
+              // live in a shared vendor chunk, never fall back into the entry.
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+            },
+            {
               name: 'bus-line-catalog',
               priority: 16,
               // Shared by the application and the lazily loaded route-audit panel.
