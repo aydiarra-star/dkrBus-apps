@@ -27,7 +27,8 @@ describe('official DDD published route sequences', () => {
       'Unités 09 10 15',
     ])
     expect(getDddOfficialPublishedRoute('18')?.stops.at(-1)).toBe('Terminus Liberté 5 (Dieuppeul).')
-    expect(getDddOfficialPublishedRoute('228')?.codeSource).toBe('cross_reference_to_official_info_page')
+    const line228 = getDddOfficialPublishedRoute('228')
+    expect(line228 && 'codeSource' in line228 ? line228.codeSource : null).toBe('cross_reference_to_official_info_page')
     expect(getDddOfficialPublishedRoute('504A')).toBeNull()
   })
 
