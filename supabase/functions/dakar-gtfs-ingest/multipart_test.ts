@@ -1,6 +1,8 @@
 import {
+  classifyStagingObjectReferences,
   cleanupUploadedObjects,
   getExactlyOneFormValue,
+  hasOnlyExpectedFormFields,
   inspectContentLength,
   readMultipartWithLimit,
   RequestBodyTooLargeError,
@@ -122,4 +124,64 @@ Deno.test("surfaces thrown storage cleanup failures", async () => {
     throw new Error("synthetic network failure");
   }, ["feed.zip"]);
   if (succeeded) throw new Error("A thrown cleanup failure was reported as success");
+});
+
+
+Deno.test("rejects unexpected multipart field names", () => {
+  const form = new FormData();
+  form.append("feed", new Blob(["synthetic"]));
+  form.append("manifest", new Blob(["{}"]));
+  form.append("dataset_id", "synthetic-feed");
+  if (!hasOnlyExpectedFormFields(form, ["feed", "manifest", "dataset_id"])) {
+    throw new Error("The expected multipart fields were rejected");
+  }
+  form.append("unexpected", "extra");
+  if (hasOnlyExpectedFormFields(form, ["feed", "manifest", "dataset_id"])) {
+    throw new Error("An unexpected multipart field was accepted");
+  }
+});
+
+Deno.test("does not keep a request body reader locked after an oversized stream", async () => {
+  const request = multipartRequest(
+    "--__BOUNDARY__\\r\\nContent-Disposition: form-data; name=\\"payload\\"\\r\\n\\r\\n" +
+      "x".repeat(2048) +
+      "\\r\\n--__BOUNDARY__--\\r\\n",
+  );
+  try {
+    await readMultipartWithLimit(request, 512);
+  } catch {
+    // Expected size rejection.
+  }
+  if (request.body?.locked) {
+    throw new Error("The request body reader remained locked after rejection");
+  }
+});
+
+Deno.test("classifies rows that may already reference uploaded objects", () => {
+  const archivePath = "synthetic-feed/" + "a".repeat(64) + "/feed.zip";
+  const manifestPath = "synthetic-feed/" + "a".repeat(64) + "/manifest.json";
+  if (classifyStagingObjectReferences(null, archivePath, manifestPath) !== "NONE") {
+    throw new Error("A missing row was treated as an object reference");
+  }
+  if (classifyStagingObjectReferences(
+    { archive_object_path: archivePath, manifest_object_path: manifestPath },
+    archivePath,
+    manifestPath,
+  ) !== "BOTH") {
+    throw new Error("A row referencing both uploaded objects was not recognized");
+  }
+  if (classifyStagingObjectReferences(
+    { archive_object_path: archivePath, manifest_object_path: "other/manifest.json" },
+    archivePath,
+    manifestPath,
+  ) !== "PARTIAL") {
+    throw new Error("A partial object reference was not recognized");
+  }
+  if (classifyStagingObjectReferences(
+    { archive_object_path: "other/feed.zip", manifest_object_path: "other/manifest.json" },
+    archivePath,
+    manifestPath,
+  ) !== "NONE") {
+    throw new Error("An unrelated row was treated as an object reference");
+  }
 });
