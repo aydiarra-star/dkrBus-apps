@@ -114,7 +114,7 @@ for (const route of osm.routes) {
     arcgisLayerId: layerId,
     arcgisLayerName: layer.layerName,
     arcgisStopCount: arcgisStops.length,
-    method: 'For each OSM stop member, find the nearest point in the corresponding DDD ArcGIS stop layer; nearest-neighbour counts are not one-to-one matches.',
+    method: 'Nearest-neighbour proximity counts plus maximum ordered one-to-one matching against ArcGIS response feature order in forward and reverse; ArcGIS response order is not certified as operational stop order.',
     nearestArcgisStopWithin25m: countWithin(25),
     nearestArcgisStopWithin50m: countWithin(50),
     nearestArcgisStopWithin100m: countWithin(100),
