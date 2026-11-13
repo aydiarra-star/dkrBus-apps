@@ -172,6 +172,23 @@ async function main() {
   const relations = elements.filter((element) => element.type === "relation");
   const routeMasters = relations.filter((relation) => relation.tags?.type === "route_master");
   const routeRelations = relations.filter((relation) => relation.tags?.type === "route");
+
+  // Preserve explicit route_master -> route membership so directional variants
+  // can be grouped by OSM evidence rather than inferred from matching line refs.
+  const routeMasterLinksByRouteId = new Map();
+  for (const master of routeMasters) {
+    for (const member of master.members ?? []) {
+      if (member.type !== "relation" || !Number.isFinite(member.ref)) continue;
+      const links = routeMasterLinksByRouteId.get(member.ref) ?? [];
+      links.push({
+        osmRelationId: master.id,
+        name: master.tags?.name ?? null,
+        ref: master.tags?.ref ?? null,
+        role: member.role ?? "",
+      });
+      routeMasterLinksByRouteId.set(member.ref, links);
+    }
+  }
   const routeRows = routeRelations.map((relation) => {
     const members = (relation.members ?? []).map((member, index) => {
       const role = member.role ?? "";
@@ -203,6 +220,7 @@ async function main() {
       via: relation.tags?.via ?? null,
       direction: relation.tags?.direction ?? null,
       route: relation.tags?.route ?? null,
+      routeMasterRelations: routeMasterLinksByRouteId.get(relation.id) ?? [],
       scopeStatus: assessDakarScope(relation.tags ?? {}, relation.members ?? []),
       tags: relation.tags ?? {},
       orderedStopMembers: stopMembers,
@@ -248,6 +266,7 @@ async function main() {
       relationsWithOrderedStops: routeRows.filter((route) => route.stopMemberCount > 0).length,
       orderedStopMembers: routeRows.reduce((sum, route) => sum + route.stopMemberCount, 0),
       routeRelationsWithNoStops: routeRows.filter((route) => route.stopMemberCount === 0).length,
+      routeRelationsLinkedToMaster: routeRows.filter((route) => route.routeMasterRelations.length > 0).length,
       distinctOperators: [...new Set(routeRows.map((route) => route.operator).filter(Boolean))],
       distinctNetworks: [...new Set(routeRows.map((route) => route.network).filter(Boolean))],
     },
