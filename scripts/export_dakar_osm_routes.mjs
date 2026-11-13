@@ -204,7 +204,7 @@ async function main() {
         message: "All configured Overpass instances were unavailable or overloaded. This is a source-availability failure, not an empty OSM dataset.",
       },
     };
-    await writeFile("artifacts/osm/dakar-osm-fetch-failure.json", JSON.stringify(failure, null, 2) + "\\n");
+    await writeFile("artifacts/osm/dakar-osm-fetch-failure.json", JSON.stringify(failure, null, 2) + "\n");
     console.error(JSON.stringify(failure.summary, null, 2));
     process.exitCode = 2;
     return;
