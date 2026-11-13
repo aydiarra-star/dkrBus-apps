@@ -6,6 +6,12 @@ Contrôle en lecture seule des fichiers directionnels AFTU présents dans `src/d
 
 Le contrôle mesure, pour chaque fichier, la longueur de chaque sens, les répétitions textuelles exactes après normalisation simple et les libellés génériques exacts. Une répétition de texte n'est pas une preuve de doublon géographique.
 
+## Recontrôle des pages officielles AFTU — 18:16 UTC
+
+Le workflow a récupéré 65 pages avec itinéraire sur les 65 pages traitées : 63 fiches liées depuis l'index « Infos pratiques » et 2 pages officielles supplémentaires (lignes 27 et 36). Sept URL directes supplémentaires (84, 85, 86, 87, 88, 89 et 91) ont répondu HTTP 404 ; ces erreurs ne signifient pas que les lignes n'existent pas. Elles restent repérées par leur présence sur la liste officielle, sans fiche individuelle exploitable dans cette extraction.
+
+Le statut de l'extraction reste PARTIAL_SOURCE_RESPONSE à cause de ces sept réponses 404. Les 65 itinéraires extraits sont des descriptions de corridor publiées : ils ne prouvent pas à eux seuls un ordre exhaustif d'arrêts, ni les deux sens. Ils ne doivent donc pas remplacer automatiquement les fichiers directionnels ni leurs positions anonymes.
+
 ## Résultats du contrôle
 
 | Ligne | Aller | Retour | Répétitions Aller | Répétitions Retour | « Arrêt de bus » Aller / Retour |
