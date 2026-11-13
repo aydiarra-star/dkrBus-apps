@@ -464,3 +464,56 @@ Sources primaires :
 La page officielle AFTU « Mot du Président » distingue le parc de minibus par marque : 505 minibus TATA et 402 King Long dans une phase de renouvellement, au sein du dispositif AFTU. TATA est donc une marque de véhicules présente dans le réseau AFTU, et non une preuve d'un opérateur ou d'un réseau de lignes autonome. Les lignes TATA conservées dans le projet restent un sous-ensemble candidat à rapprocher des lignes AFTU ; elles ne reçoivent pas de fréquence indépendante sans source d'exploitation spécifique.
 
 Source primaire : https://aftu-senegal.org/mot-du-president-2/
+
+
+## 4. Extraction cartographique vérifiée — ArcGIS DDD et OSM Dakar
+
+### Résultat de l'extraction ArcGIS
+
+Le téléchargement en lecture seule des deux FeatureServer DDD a réussi sans erreur :
+- 24 couches de tracés, avec 25 objets géographiques (la couche de la ligne 8 contient deux objets) ;
+- 12 couches d'arrêts urbains ;
+- 455 objets-arrêts, dont 454 géolocalisés et 384 nommés ;
+- aucune couche n'a dépassé la limite de transfert.
+
+Les 455 points ne sont pas 455 arrêts physiques uniques : certains peuvent être doublons, quais opposés ou points répétés entre couches. Ils sont conservés par couche et par identifiant ArcGIS, sans fusion par proximité. Les couches de lignes sont anciennes (principalement 2017, une couche 2019) ; elles servent de base de rapprochement historique.
+
+### Résultat de l'extraction OSM
+
+La première recherche par mots-clés dans l'API GeoJSON n'a rien trouvé. La méthode a été corrigée en interrogeant directement Overpass dans l'emprise de Dakar, avec les relations `type=route + route=bus` et `type=route_master + route_master=bus`.
+
+Résultat récupéré :
+- 25 relations de lignes de bus ;
+- 2 relations maîtres ;
+- 18 relations comportant des membres d'arrêts/quais ordonnés ;
+- 522 occurrences de membres d'arrêts/quais ;
+- 7 relations sans arrêt/quai renseigné.
+
+Les relations contiennent des données DDD, AFTU et TATA. Certaines étiquettes d'exploitant sont incohérentes (par exemple deux relations locales portent l'étiquette APSRTC) : elles ne sont pas supprimées, mais doivent être recoupées avec leur géométrie et leurs arrêts avant d'attribuer l'exploitant. Une relation AFTU est étiquetée `network=Tata`, ce qui donne une piste cartographique TATA à examiner, pas une preuve de fréquence.
+
+### Rapprochement OSM ↔ arrêts ArcGIS DDD
+
+Un rapprochement spatial de contrôle a été effectué entre les coordonnées des membres OSM et les points d'arrêt ArcGIS de la même ligne. Les résultats ci-dessous comptent les points OSM dont le point ArcGIS le plus proche est à 100 mètres ou moins ; ce sont des correspondances candidates, pas une fusion automatique.
+
+| Ligne / sens OSM | Arrêts OSM ordonnés | Correspondances ArcGIS ≤ 100 m |
+|---|---:|---:|
+| DDD 1 · Parcelles → Leclerc | 38 | 36 |
+| DDD 4 · Leclerc → Liberté 5 | 34 | 14 |
+| DDD 4 · Liberté 5 → Leclerc | 32 | 24 |
+| DDD 7 · Palais → Ouakam | 31 | 17 |
+| DDD 7 · Ouakam → Palais | 34 | 31 |
+| DDD 9 · Palais → Liberté 6 | 32 | 23 |
+| DDD 9 · Liberté 6 → Palais | 29 | 28 |
+| DDD 10 · Palais 1 → Liberté 5 | 30 | 21 |
+| DDD 10 · Liberté 5 → Palais 1 | 25 | 22 |
+| DDD 23 · Palais 1 → Parcelles | 51 | 32 |
+| DDD 121 · HLM Grand Yoff → Leclerc | 27 | 26 |
+| DDD 121 · Leclerc → HLM Grand Médine | 7 | 5 |
+
+Le rapprochement est particulièrement fort pour plusieurs retours des lignes 4, 7, 9, 10 et 121. Il est plus faible sur certains sens, notamment DDD 4 Leclerc → Liberté 5 et DDD 7 Palais → Ouakam. Les arrêts au-delà de 100 m restent sans nom rapproché ; on ne force pas une correspondance.
+
+### Conséquence pour le travail
+
+Ces extractions donnent désormais une base concrète pour compléter les deux sens des lignes DDD et retrouver les arrêts géolocalisés. Les séquences OSM conservent leur ordre propre ; les noms ArcGIS ne sont associés qu'en candidats par proximité et seront comparés au texte opérateur. Les directions manquantes ne sont jamais fabriquées.
+
+Les fréquences ne viennent pas d'OSM ni des géométries ArcGIS. Elles sont recherchées séparément dans les documents opérateur/CETUD et les observations de fréquence. Les observations par site restent des observations de site tant qu'une correspondance ligne-arrêt n'est pas établie.
