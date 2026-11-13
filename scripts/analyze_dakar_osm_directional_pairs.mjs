@@ -9,13 +9,19 @@ function normalize(value) {
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
-function routeRef(route) {
+function routeRefs(route) {
   const values = [route.ref, route.tags?.ref].filter(Boolean);
+  const refs = [];
   for (const value of values) {
-    const match = String(value).match(/(?:^|[^0-9])(\d{1,3})(?:$|[^0-9])/);
-    if (match) return match[1];
+    for (const token of String(value).split(/[;,]/)) {
+      const compact = token.trim().toUpperCase().replace(/\\s+/g, "");
+      // Strip only the conventional line prefix. Preserve alphanumeric
+      // identifiers such as B1 and 2B instead of collapsing them to 1 or 2.
+      const match = compact.match(/^L?([A-Z]?\\d{1,3}[A-Z]?)$/);
+      if (match && !refs.includes(match[1])) refs.push(match[1]);
+    }
   }
-  return null;
+  return refs;
 }
 function stopSequence(route) {
   return (route.orderedStopMembers ?? []).map((stop, index) => ({
@@ -48,11 +54,12 @@ function commonStopIds(a, b) {
 const routes = (report.routes ?? []).filter((r) => r.scopeStatus === "DAKAR_CANDIDATE");
 const groups = new Map();
 for (const route of routes) {
-  const ref = routeRef(route);
-  if (!ref) continue;
-  const group = groups.get(ref) ?? [];
-  group.push(route);
-  groups.set(ref, group);
+  const refs = routeRefs(route);
+  for (const ref of refs) {
+    const group = groups.get(ref) ?? [];
+    group.push(route);
+    groups.set(ref, group);
+  }
 }
 
 const pairs = [];
