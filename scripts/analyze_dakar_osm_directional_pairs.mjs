@@ -97,11 +97,15 @@ function nameOverlap(a, b) {
 const routes = (report.routes ?? []).filter((r) => r.scopeStatus === "DAKAR_CANDIDATE");
 const groups = new Map();
 for (const route of routes) {
-  for (const ref of routeRefs(route)) {
-    const group = groups.get(ref) ?? [];
-    group.push(route);
-    groups.set(ref, group);
-  }
+  const refs = routeRefs(route);
+  // Multi-reference relations (for example "L23;L5") are evidence candidates,
+  // not safe members of either line's pairing group. Keep them visible below
+  // as unpaired instead of allowing a cross-line false directional pair.
+  if (refs.length !== 1) continue;
+  const [ref] = refs;
+  const group = groups.get(ref) ?? [];
+  group.push(route);
+  groups.set(ref, group);
 }
 
 const pairs = [];
@@ -174,7 +178,7 @@ const unpairedRelations = routes.filter((route) => !pairedRelationIds.has(route.
     orderedMemberCount: (route.orderedStopMembers ?? []).length,
     namedMemberCount: (route.orderedStopMembers ?? []).filter((member) => normalize(member.name)).length,
     reason: refs.length > 1
-      ? "MULTIPLE_ROUTE_REFS"
+      ? "AMBIGUOUS_MULTIPLE_ROUTE_REFS_NOT_PAIRED"
       : !route.from || !route.to
         ? "MISSING_ENDPOINT_METADATA"
         : "NO_REVERSED_ENDPOINT_OR_SHARED_MASTER_MATCH",
@@ -192,6 +196,7 @@ const summary = {
   stopPlatformPairCandidatesAcrossPairDirections: pairs.reduce((sum, pair) =>
     sum + pair.relationA.stopPlatformPairCount + pair.relationB.stopPlatformPairCount, 0),
   unpairedCandidateRelations: unpairedRelations.length,
+  ambiguousMultiReferenceCandidates: unpairedRelations.filter((r) => r.refs.length > 1).length,
   routeReferenceMetadataConflicts: unpairedRelations.filter((r) => r.referenceConflict).length,
   lineRefsWithPairs: [...new Set(pairs.map((p) => p.lineRef))],
   explicitWarnings: [
