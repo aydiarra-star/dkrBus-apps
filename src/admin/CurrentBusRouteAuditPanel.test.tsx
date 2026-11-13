@@ -19,7 +19,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     render(<CurrentBusRouteAuditPanel />)
     expect(screen.getByText(/Couches SIG DDD de banlieue · 12 références historiques/)).toBeTruthy()
     expect(screen.getByText(/ne contiennent pas de séquences d’arrêts validées ni d’horaires/)).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Ouvrir la couche SIG' })).toBeTruthy()
+    expect(screen.getAllByRole('link', { name: 'Ouvrir la couche SIG' })).toHaveLength(12)
   })
 
   it('filters findings without changing the underlying report', () => {
