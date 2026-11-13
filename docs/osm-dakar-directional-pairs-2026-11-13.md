@@ -53,3 +53,21 @@ Même constat : terminus inversés, relations séparées et ordres d'arrêts dis
 
 Le script `scripts/analyze_dakar_osm_directional_pairs.mjs` génère `artifacts/osm/dakar-osm-directional-pairs.json`. Il compare les références, les terminus inversés et les liens explicites de relations maîtresses tout en préservant intégralement les membres ordonnés de chaque relation. Le workflow OSM lance ce contrôle après l'extraction et conserve les deux artefacts.
 
+## Rapprochement avec les séquences publiées DDD — lignes 9 et 10
+
+Contrôle croisé effectué avec `src/data/dddOfficialUrbanPublishedRoutes.ts` sur le même commit :
+
+| Ligne | Séquence DDD publiée | Relations OSM candidates | Point à résoudre |
+|---|---|---|---|
+| 9 | Liberté 6 → Palais 2, 24 repères | 6996431 Palais 1 → Liberté 6 (32 membres) ; 7487218 Liberté 6 → Palais 1 (29 membres) | Le terminus OSM « Palais 1 » ne correspond pas littéralement au « Palais 2 » publié par DDD ; les nombres de membres ne sont pas égaux aux repères publiés. |
+| 10 | Liberté 5 (Dieuppeul) → Palais 2, 29 repères | 6990845 Palais 1 → Liberté 5 (30 membres) ; 7488283 Liberté 5 → Palais 1 (25 membres) | Même divergence Palais 1 / Palais 2 ; la correspondance exacte des repères et l'ordre complet restent à vérifier. |
+
+### Conclusion opérationnelle
+
+- Les deux sources concordent sur le numéro de ligne et sur le terminus Liberté de chaque ligne.
+- Les relations OSM apportent deux sens géographiques distincts ; elles ne prouvent pas à elles seules que chaque membre correspond à un arrêt de la séquence DDD publiée.
+- Le terminus Palais 1 / Palais 2 est une divergence explicite à résoudre, pas une différence à normaliser automatiquement.
+- Les 24 et 29 repères publiés DDD restent inchangés. Les 32/29 et 30/25 membres OSM restent conservés séparément par relation.
+- Aucun appariement automatique, aucune suppression d'arrêt, aucune correction de terminus et aucune publication passager n'est déclenché par ce rapprochement.
+
+Cette étape transforme les paires OSM 9/10 en candidats directement comparables aux séquences officielles DDD, tout en isolant précisément les écarts qui empêchent une validation sans ambiguïté.
