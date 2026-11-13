@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import route from './aftu-84-directions.json'
 
-describe('parcours CETUD AFTU 84', () => {
+describe('parcours AFTU 84', () => {
   it('conserve les 73 arrêts transmis pour le sens Jaxaay 2 → UCAD', () => {
     expect(route.network).toBe('aftu')
     expect(route.code).toBe('84')
@@ -12,11 +12,24 @@ describe('parcours CETUD AFTU 84', () => {
     expect(route.directions.outbound.waypoints).toEqual(route.waypoints)
   })
 
-  it('ne fabrique pas le retour en inversant la séquence aller', () => {
-    expect(route.inboundStatus).toBe('NOT_DOCUMENTED')
-    expect(route.inboundNote).toContain('pas une preuve')
-    expect(route.inboundWaypoints).toEqual([])
-    expect(route.directions.inbound.waypoints).toEqual([])
-    expect(route.stopCount).toEqual({ outbound: 73, inbound: 0 })
+  it('conserve le retour transmis avec ses 73 horaires et ses deux arrêts terminaux', () => {
+    const inbound = route.directions.inbound
+    expect(route.inboundStatus).toBe('USER_PROVIDED_PENDING_SOURCE')
+    expect(inbound.origin).toBe('Delafosse Commerce')
+    expect(inbound.destination).toBe('Jaxaay 2 Pénitence')
+    expect(inbound.waypoints).toHaveLength(75)
+    expect(inbound.times).toHaveLength(75)
+    expect(inbound.times.filter(Boolean)).toHaveLength(73)
+    expect(inbound.times[0]).toBe('05:49')
+    expect(inbound.times[72]).toBe('07:09')
+    expect(inbound.times[73]).toBeNull()
+    expect(inbound.times[74]).toBeNull()
+    expect(inbound.waypoints.slice(-3)).toEqual([
+      'Jaxaay2 Route Du 84',
+      'Jaxaay A Côté Pharmacie Marie Essentene Manga',
+      'Jaxaay 2 Pénitence'
+    ])
+    expect(route.inboundWaypoints).toEqual(inbound.waypoints)
+    expect(route.stopCount).toEqual({ outbound: 73, inbound: 75 })
   })
 })
