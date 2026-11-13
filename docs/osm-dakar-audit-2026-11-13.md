@@ -337,3 +337,66 @@ Le script conserve également les métriques de plus proche voisin (230/374 à 5
 Une nouvelle extraction indépendante ArcGIS a terminé avec succès : 24/24 couches d'itinéraires, 12/12 couches d'arrêts, 25 entités de tracé, 455 entités d'arrêt, zéro erreur et aucun dépassement de limite de transfert. Comparée à l'extraction OSM de 09:06:27 UTC, elle redonne exactement les mêmes compteurs de proximité (374 positions comparées, 230 plus proches voisins à ≤50 m, 282 à ≤100 m) et les mêmes diagnostics un-à-un ordonnés par relation. Cette stabilité renforce la reproductibilité du rapprochement, mais ne lève pas la réserve sur l'ordre ArcGIS non documenté ni l'absence de noms dans les membres d'arrêts OSM.
 
 Artefact ArcGIS : run GitHub Actions 89, ID 43400058554, généré le 13/11/2026 à 09:18:15 UTC.
+
+
+## Séquences textuelles publiées par Dakar Dem Dikk — 13 novembre 2026, 09:17 UTC
+
+L'extraction du site officiel `https://demdikk.sn/reseau-urbain-dakar/` a produit **39 séquences distinctes** à partir de 40 sections brutes (1 doublon de section regroupé), couvrant 1 110 lignes de texte source. Les 39 séquences contiennent chacune au moins deux points publiés. Le workflow CI les a extraites et a réussi les tests de validation locale, sans GTFS.
+
+| Ligne publiée | Nombre de points dans l'ordre publié | Intitulé officiel extrait |
+|---|---:|---|
+| 1 | 22 | Parcelles Assainies – Place Leclerc |
+| 2 | 35 | Daroukhane – Place Leclerc |
+| 4 | 26 | Liberté 5 – Place Leclerc |
+| 5 | 15 | Guédiawaye – Palais 1 |
+| 6 | 25 | Guédiawaye – Palais 1 |
+| 7 | 21 | Ouakam – Palais 2 |
+| 8 | 28 | Aéroport LSS – Palais 2 |
+| 9 | 24 | Liberté 6 – Palais 2 |
+| 10 | 29 | Liberté 5 – Palais 2 |
+| 11 | 16 | Keur Massar – Lat Dior |
+| 12 | 20 | Guédiawaye – Palais 1 |
+| 13 | 24 | Liberté 5 – Palais 2 |
+| 15 | 18 | Rufisque – Palais 1 |
+| 16A | 19 | Malika – Palais 1 |
+| 16B | 27 | Malika – Palais 1 |
+| 18 | 41 | Dieuppeul – Centre-ville |
+| 20 | 42 | Dieuppeul – Centre-ville |
+| 23 | 40 | Parcelles Assainies – Palais 1 |
+| 121 | 25 | SCAT Urbam – Leclerc |
+| 208 | 7 | Bayakh – Rufisque |
+| 213 | 17 | Rufisque – Dieuppeul |
+| 217 | 15 | Thiaroye – Ouakam |
+| 218 | 15 | Thiaroye – Aéroport LSS |
+| 219 | 19 | Daroukhane – Ouakam |
+| 220 | 16 | Rufisque – Guédiawaye |
+| 221 | 15 | Gadaye – Almadies |
+| 227 | 16 | Keur Massar – Terminus Parcelles |
+| 228 | 4 | Terminus Rufisque – Yenne |
+| 232 | 15 | Baux Maraîchers – Aéroport LSS |
+| 233 | 15 | Baux Maraîchers – Palais 1 |
+| 234 | 13 | Jaxaay – Leclerc |
+| 311 | 6 | Lac Rose – Croisement Keur Massar |
+| 319 | 17 | Liberté 6 – Ouakam |
+| 327 | 11 | Keur Massar – Terminus Parcelles |
+| 501 | 6 | Palais 2 – Leclerc (libellé source : « Leclercl ») |
+| 502 | 8 | Section publiée sous « Gare de Gare » |
+| 503 | 8 | Section publiée sous « Gare de Gare » |
+| TAF TAF | 17 | TAF TAF |
+| TAF TAF TO1 | 10 | Ouakam – Palais 2 |
+
+### Sens et limites de l'extraction officielle
+
+Les 39 séquences sont publiées dans un seul ordre. Le rapport les marque toutes `NEEDS_HUMAN_REVIEW`, avec `directionCoverage=ONE_PUBLISHED_ORDER_ONLY`, `reverseSequenceVerified=false`, `stopIdsMatched=false` et aucune fréquence. Il ne faut donc **pas inverser automatiquement** la liste pour créer un retour, ni utiliser ces chaînes comme identifiants d'arrêts. Les 39 séquences sont une base textuelle officielle à géocoder et à rapprocher des arrêts nommés ArcGIS/OSM ; les sens retour doivent être établis indépendamment.
+
+### Conflits de terminus à traiter avant validation
+
+- **Ligne 7 :** la fiche Dem Dikk indique Ouakam → Palais 2 ; la relation OSM 7500475 annonce Ouakam → Palais 1, tandis que la couche ArcGIS de ligne 7 avait été observée avec un terminus « Palais de Justice ». Ces libellés ne sont pas interchangeables sans preuve géographique.
+- **Ligne 9 :** Dem Dikk indique Liberté 6 → Palais 2 ; la relation OSM 7487218 indique Liberté 6 → Palais 1 ; la couche ArcGIS candidate mentionnait Palais 1.
+- **Ligne 10 :** Dem Dikk indique Liberté 5 → Palais 2 ; la relation OSM 7488283 indique Liberté 5 → Palais 1 ; la couche ArcGIS candidate mentionnait Palais de Justice.
+- **Ligne 23 :** Dem Dikk publie Parcelles Assainies → Palais 1, alors que la relation OSM 7495279 annonce Palais 1 → Parcelles Assainies et la relation 7108131 porte deux références (`L23;L5`). Le sens et l'attribution OSM restent à résoudre.
+- **Ligne 121 :** Dem Dikk publie SCAT Urbam → Leclerc ; les deux relations OSM candidates n'ont pas des terminus identiques (HLM Grand Yoff → Leclerc et Leclerc → HLM Grand Médine).
+
+Ces écarts sont maintenant inscrits comme contrôles bloquants de validation, et non corrigés par supposition. Les libellés « Palais 1 », « Palais 2 » et « Palais de Justice » doivent être géolocalisés séparément et comparés aux terminus et aux séquences publiées.
+
+Artefact source : `ddd-official-published-route-candidates.zip`, run CI 2111 (ID 43400058529), fichier `ddd-official-published-route-candidates.json`, extrait le 13/11/2026 à 09:17:41 UTC. Source : Dakar Dem Dikk, réseau urbain Dakar ; consultation/extraction le 13/11/2026. Ces données restent en attente de rapprochement géographique et de revue avant toute publication passager.
