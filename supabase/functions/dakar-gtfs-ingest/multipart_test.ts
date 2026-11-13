@@ -1,4 +1,6 @@
 import {
+  cleanupUploadedObjects,
+  getExactlyOneFormValue,
   inspectContentLength,
   readMultipartWithLimit,
   RequestBodyTooLargeError,
@@ -79,4 +81,45 @@ Deno.test("flags a declared Content-Length above the request limit", () => {
   if (!result.valid || !result.tooLarge) {
     throw new Error("An oversized Content-Length was not flagged");
   }
+});
+
+
+Deno.test("requires exactly one multipart value for each named field", () => {
+  const form = new FormData();
+  form.append("dataset_id", "synthetic-feed");
+  if (getExactlyOneFormValue(form, "dataset_id") !== "synthetic-feed") {
+    throw new Error("A single multipart field was not returned");
+  }
+  if (getExactlyOneFormValue(form, "missing") !== null) {
+    throw new Error("A missing multipart field was accepted");
+  }
+  form.append("dataset_id", "second-feed");
+  if (getExactlyOneFormValue(form, "dataset_id") !== null) {
+    throw new Error("Duplicate multipart fields were accepted");
+  }
+});
+
+Deno.test("reports successful cleanup of objects created by the current request", async () => {
+  let removed: string[] = [];
+  const succeeded = await cleanupUploadedObjects(async (paths) => {
+    removed = paths;
+    return { error: null };
+  }, ["feed.zip", "manifest.json"]);
+  if (!succeeded || removed.join(",") !== "feed.zip,manifest.json") {
+    throw new Error("Successful object cleanup was not reported");
+  }
+});
+
+Deno.test("surfaces storage cleanup errors instead of hiding orphaned objects", async () => {
+  const succeeded = await cleanupUploadedObjects(async () => ({
+    error: new Error("synthetic storage cleanup failure"),
+  }), ["feed.zip"]);
+  if (succeeded) throw new Error("A storage cleanup error was reported as success");
+});
+
+Deno.test("surfaces thrown storage cleanup failures", async () => {
+  const succeeded = await cleanupUploadedObjects(async () => {
+    throw new Error("synthetic network failure");
+  }, ["feed.zip"]);
+  if (succeeded) throw new Error("A thrown cleanup failure was reported as success");
 });
