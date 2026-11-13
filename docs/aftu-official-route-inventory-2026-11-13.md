@@ -94,3 +94,22 @@ Chaque page a été récupérée depuis l'index ou une page officielle AFTU. Les
 Prochaine étape : découper les corridors officiels en points de passage distincts, comparer les noms aux arrêts OSM/ArcGIS, puis rechercher des éléments explicites pour les directions retour. Les voies de retour mentionnées sur les lignes 2 et 5 restent des segments locaux et ne doivent pas être étendues à l'ensemble du parcours.
 
 Aucune fréquence ou aucun horaire n'est publié dans cet inventaire ; aucune valeur n'est déduite de ces pages.
+
+
+## 7 lignes supplémentaires listées par l'index officiel mais sans lien d'itinéraire
+
+Le contrôle de la page officielle « Infos pratiques » (https://aftu-senegal.org/infos-pratiques/) permet d'identifier exactement les sept lignes non incluses dans les 65 pages de détail récupérées. Elles apparaissent bien dans la liste « Nos lignes sur Dakar », mais le bloc « Voir itinéraire » n'expose pas de lien exploitable pour ces entrées.
+
+| Ligne | Corridor affiché sur l'index officiel | État |
+|---:|---|---|
+| 84 | UCAD – Jaxaay | Ligne listée ; page détaillée non liée |
+| 85 | Banoba – Liberté 5 | Ligne listée ; page détaillée non liée |
+| 86 | Tournalou Boune – Toubab Dialaw | Ligne listée ; page détaillée non liée |
+| 87 | Bambilor – Mosquée Massalikou Djinane | Ligne listée ; page détaillée non liée |
+| 88 | MTOA – Liberté 5 | Ligne listée ; page détaillée non liée |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Ligne listée ; page détaillée non liée |
+| 91 | APIX – Dougar | Ligne listée ; page détaillée non liée |
+
+Le compte est désormais cohérent avec les 72 lignes AFTU annoncées par le CETUD : 65 pages détaillées récupérées + 7 lignes supplémentaires visibles dans l'index = 72 lignes listées. La ligne 90 n'apparaît pas dans l'index observé et n'est pas inventée.
+
+**Décision :** les sept corridors et leurs terminus sont maintenant connus officiellement, mais pas leur itinéraire détaillé. Il faut rechercher les tracés ou documents officiels complémentaires ; ne pas fabriquer les arrêts intermédiaires ni les retours.
