@@ -105,3 +105,24 @@ La première extraction a retourné 25 relations de bus, mais l'ensemble brut co
 ## Contradictions entre métadonnées et géométrie — contrôle renforcé
 
 L'extraction fraîche a révélé deux relations APSRTC dont les terminus déclarés sont Vijayawada et Hyderabad, alors que plusieurs géométries de membres se trouvent dans Dakar. La seule présence de coordonnées dans la bbox ne suffit donc pas à classer une relation comme dakaroise. Le collecteur attribue désormais le statut `SCOPE_CONFLICT` à ce type de contradiction, conserve les objets bruts et les exclut du compteur des candidates locales. Les relations dont les terminus sont explicitement extérieurs sans géométrie locale sont classées `OUTSIDE_DAKAR_SCOPE`. Elles restent consultables pour audit, sans être supprimées.
+
+
+## Résultat de l'extraction OSM fraîche — 13 novembre 2026, 07:00 UTC
+
+L'exécution du workflow de lecture seule a abouti et a produit un artefact JSON. Résumé vérifié dans cet artefact :
+- 27 éléments OSM bruts : 25 relations `route=bus` et 2 relations `route_master=bus` ;
+- 23 relations classées `DAKAR_CANDIDATE` ;
+- 2 relations classées `SCOPE_CONFLICT`, toutes deux APSRTC (relations 10123245 et 10123246), terminus déclarés Vijayawada ↔ Hyderabad malgré des géométries locales ;
+- 18 relations avec des membres d'arrêts ordonnés, soit 522 occurrences d'arrêts ;
+- 7 relations sans membre d'arrêt exploitable ;
+- aucune relation dans les catégories `SCOPE_UNCONFIRMED` ou `OUTSIDE_DAKAR_SCOPE` pour cette extraction.
+
+Le collecteur a dû abandonner une première tentative sur l'endpoint Overpass principal après un délai d'attente, puis l'extraction a abouti via le mécanisme de reprise. L'artefact conserve cet incident dans `endpointErrors`. Le résultat est donc exploitable pour la revue, mais les compteurs doivent rester attachés à la date de l'extraction et ne pas être présentés comme un inventaire exhaustif permanent d'OSM.
+
+Quelques relations illustrent les limites à traiter avant rapprochement automatique :
+- DDD : les relations 6951328 (ligne 1), 6990669 / 7500475 (ligne 7), 6990830 / 7203970 (ligne 4), 6990845 / 7488283 (ligne 10) et 6996431 / 7487218 (ligne 9) proposent des variantes directionnelles ou des séquences à comparer aux fiches DDD ;
+- la relation 6990794 (réf. 121) et la relation 6999013 (réf. 121) ont des volumes d'arrêts très différents (27 contre 7) et ne doivent pas être fusionnées sur le seul numéro ;
+- la relation 7499433 porte la référence « 6 » mais le nom « 7 Palais 1 → Parcelles-Assainies » : elle est conservée comme conflit de métadonnées, sans servir à valider la ligne 6 ou 7 ;
+- la relation 7108131 est étiquetée comme un arrêt « Cité Soprim » mais contient 47 membres d'arrêt et des références L23/L5 ; son rôle de relation d'arrêt/route maître doit être examiné avant tout usage comme séquence de ligne.
+
+Ces cas confirment la règle : une relation OSM est une preuve cartographique candidate, pas une validation de l'identité de ligne. Les séquences restent isolées jusqu'au rapprochement des terminus, de l'opérateur, des rôles de membres et de la séquence officielle. Aucun sens retour, horaire ou intervalle n'est déduit automatiquement.
