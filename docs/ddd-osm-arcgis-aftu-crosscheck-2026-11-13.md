@@ -70,3 +70,28 @@ Artefact : `aftu-official-route-pages`, workflow 43488411285.
 ## 5. Sécurité et limites
 
 Audit entièrement en lecture seule. Aucune donnée passager, horaire, fréquence, direction ou arrêt n'a été modifiée. Aucun appel d'écriture Supabase et aucun déploiement. TER et BRT restent intacts. GTFS n'est pas requis et ne bloque pas ce chantier.
+
+
+## 2 bis. Contrôle de l'ordre OSM sur les tracés ArcGIS
+
+Un contrôle géométrique supplémentaire a été effectué sur les tracés polylignes ArcGIS des lignes 4, 7, 9 et 10. Chaque arrêt OSM géolocalisé a été projeté sur la polyligne correspondante ; sa position le long du tracé (chaînage) a ensuite été comparée à l'ordre des membres dans la relation OSM.
+
+| Ligne | Relation OSM | Sens indiqué | Arrêts projetés | Médiane distance au tracé | À ≤50 m | Corrélation ordre / chaînage |
+|---|---:|---|---:|---:|---:|---:|
+| 4 | 6990830 | Leclerc → Liberté 5 | 34 | 19 m | 21/34 | -1,000 |
+| 4 | 7203970 | Liberté 5 → Leclerc | 32 | 6 m | 25/32 | +1,000 |
+| 7 | 6990669 | Palais → Ouakam | 31 | 9 m | 30/31 | -1,000 |
+| 7 | 7500475 | Ouakam → Palais 1 | 34 | 6 m | 33/34 | +1,000 |
+| 9 | 6996431 | Palais 1 → Liberté 6 | 32 | 8 m | 32/32 | -1,000 |
+| 9 | 7487218 | Liberté 6 → Palais 1 | 29 | 6 m | 29/29 | +1,000 |
+| 10 | 6990845 | Palais 1 → Liberté 5 | 30 | 6 m | 30/30 | -1,000 |
+| 10 | 7488283 | Liberté 5 → Palais 1 | 25 | 5 m | 25/25 | +1,000 |
+
+### Ce que ce contrôle établit
+
+- Pour les quatre paires, les deux relations OSM ont des séquences ordonnées indépendantes qui suivent la même géométrie ArcGIS dans des orientations opposées.
+- La corrélation de rang parfaite (+1 ou -1) signifie que l'ordre des membres OSM suit de façon monotone le chaînage du tracé dans un sens ou dans l'autre ; elle ne signifie pas que les arrêts sont tous exactement sur la ligne ni que la polyligne porte à elle seule une flèche de circulation.
+- Les distances médianes de 5 à 19 m et les proportions à 50 m rendent le rapprochement géographique particulièrement solide pour ces quatre paires.
+- Cette preuve croisée est nettement plus forte qu'une simple similitude de terminus ou de noms. Elle justifie de faire passer les paires 4, 7, 9 et 10 en priorité haute dans la revue des séquences directionnelles.
+- Elle ne suffit toujours pas à marquer les parcours comme officiellement validés : la correspondance avec les fiches opérateur publiées, les identifiants physiques des arrêts et les éventuelles variantes doit rester documentée séparément.
+
