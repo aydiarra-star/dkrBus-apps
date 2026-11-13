@@ -56,7 +56,8 @@ describe('CurrentBusRouteAuditPanel', () => {
     render(<CurrentBusRouteAuditPanel />)
     const urbanSources = await screen.findByText(/Arrêts SIG DDD urbains · 455 points · 454 géolocalisés/)
     fireEvent.click(urbanSources)
-    expect(screen.getByText(/384 points ont un nom/)).toBeTruthy()
+    expect(screen.getByText(/379 avec un nom exploitable, 76 sans nom exploitable/)).toBeTruthy()
+    expect(screen.getByText(/25 objets de tracé.*1 sans géométrie exploitable/)).toBeTruthy()
     expect(screen.getAllByRole('link', { name: 'Ouvrir la couche d’arrêts SIG' })).toHaveLength(12)
   })
 
