@@ -18,6 +18,8 @@ const QUERY = `[out:json][timeout:180];
   relation["type"="route_master"]["route_master"="bus"]${BBOX};
 );
 out body geom;
+>;
+out body;
 `;
 
 async function fetchOverpass(endpoint) {
@@ -192,22 +194,27 @@ async function main() {
       routeMasterLinksByRouteId.set(member.ref, links);
     }
   }
+  const elementByKey = new Map(elements.map((element) => [`${element.type}:${element.id}`, element]));
   const routeRows = routeRelations.map((relation) => {
     const members = (relation.members ?? []).map((member, index) => {
+      const referencedElement = elementByKey.get(`${member.type}:${member.ref}`);
+      const memberTags = member.tags ?? referencedElement?.tags ?? {};
+      const memberGeometry = member.geometry ?? referencedElement?.geometry ?? null;
       const role = member.role ?? "";
       const isStop = /^(stop|platform|stop_entry_only|stop_exit_only|platform_entry_only|platform_exit_only)$/i.test(role);
       const coordinates = member.type === "node"
-        ? { lat: member.lat ?? null, lon: member.lon ?? null }
-        : member.type === "way" ? representativePointOfWay(member.geometry) : null;
+        ? { lat: member.lat ?? referencedElement?.lat ?? null, lon: member.lon ?? referencedElement?.lon ?? null }
+        : member.type === "way" ? representativePointOfWay(memberGeometry) : null;
       return {
         sequence: index + 1,
         type: member.type,
         ref: member.ref,
         role,
         isStopOrPlatform: isStop,
-        name: member.tags?.name ?? null,
+        name: memberTags.name ?? null,
+        tags: memberTags,
         coordinates,
-        geometry: member.geometry ?? null,
+        geometry: memberGeometry,
       };
     });
     const stopMembers = members.filter((member) => member.isStopOrPlatform);
