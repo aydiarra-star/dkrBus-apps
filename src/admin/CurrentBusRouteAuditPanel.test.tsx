@@ -20,7 +20,7 @@ describe('CurrentBusRouteAuditPanel', () => {
   it('shows the return-route variants published by AFTU for lines 2 and 5', () => {
     render(<CurrentBusRouteAuditPanel />)
     fireEvent.click(screen.getByText(/Fiches AFTU récupérées/))
-    expect(screen.getByText('Retour : Rue 17 à la place de Rue 39')).toBeTruthy()
+    expect(screen.getAllByText('Retour : Rue 17 à la place de Rue 39')).toHaveLength(2)
     expect(screen.getAllByText('Retour : Rue 37 à la place de Rue 25')).toHaveLength(2)
   })
 
