@@ -360,18 +360,18 @@ La même page distingue les données d'exploitation des réseaux classiques AFTU
 
 ## 12. Vérification complémentaire des fiches AFTU 84 à 91
 
-La page officielle AFTU « Infos pratiques » a été rouverte le 13 novembre 2026. Elle confirme les entrées et terminus suivants : 84 (UCAD – Jaxaay), 85 (Banoba – Liberté 5), 86 (Tournalou Boune – Toubab Dialaw), 87 (Bambilor – Mosquée Massalikou Djinane), 88 (MTOA – Liberté 5), 89 (Bargny – Croisement Niague / Cité SICAP) et 91 (APIX – Dougar).
+La page officielle AFTU « Infos pratiques » confirme les entrées et terminus suivants : 84 (UCAD – Jaxaay), 85 (Banoba – Liberté 5), 86 (Tournalou Boune – Toubab Dialaw), 87 (Bambilor – Mosquée Massalikou Djinane), 88 (MTOA – Liberté 5), 89 (Bargny – Croisement Niague / Cité SICAP) et 91 (APIX – Dougar).
 
-Sur la page consultée, contrairement aux lignes 1 à 83, ces sept entrées affichent « Voir itinéraire » sans lien individuel cliquable. Elles confirment donc l'identité publiée et les terminus, pas les séquences intermédiaires ni les fréquences propres à chaque ligne.
+Sur la page consultée, ces entrées affichent « Voir itinéraire » sans lien individuel cliquable. La page confirme donc les identités publiées et les terminus, mais pas à elle seule les séquences intermédiaires ni les fréquences propres à chaque ligne.
 
-Source primaire consultée : https://aftu-senegal.org/infos-pratiques/
+Source primaire : https://aftu-senegal.org/infos-pratiques/
 
-### Contrôle de deux fichiers de parcours déjà présents dans le dépôt
+### Contrôle des lignes 84 et 85 dans le dépôt
 
-- `src/data/aftu-84-directions.json` contient 73 repères dans le sens Jaxaay 2 → UCAD. Le champ `inboundWaypoints` contient exactement les mêmes 73 éléments dans l'ordre inverse. Le fichier indique « CETUD — parcours transmis par l'utilisateur », mais ne fournit ni URL de fiche détaillée pour l'aller ni URL distincte pour le retour. **La séquence inversée ne constituait pas une preuve du retour**. Elle a été retirée des champs de parcours retour dans le chantier : les 73 repères de l'aller sont conservés, le retour est maintenant explicitement vide et marqué `NOT_DOCUMENTED`. Le fichier de test vérifie qu'aucune inversion automatique ne réapparaît. La fréquence de 14 minutes doit également rester rattachée à sa provenance exacte tant qu'une publication primaire la confirmant n'est pas référencée.
-- `src/data/aftu-85-directions.json` contient 89 repères à l'aller et 95 au retour, avec des listes distinctes. Toutefois, sa provenance est « Parcours transmis par l’utilisateur » et son URL pointe vers la liste générale AFTU, pas vers une fiche détaillée de la ligne 85. Les deux séquences restent donc des candidates à corroborer. La fréquence affichée (10–15 min en pointe, 15–25 min en creuse) et sa base de 17,5 minutes ne doivent pas être présentées comme une fréquence officielle propre à la ligne 85 sans document source correspondant.
+- **AFTU 84 :** le responsable du projet a transmis les données de parcours issues du CETUD pour les deux sens. Le fichier src/data/aftu-84-directions.json conserve désormais deux séquences distinctes de **73 arrêts à l'aller et 73 arrêts au retour**. Le retour, de Delafosse Commerce à Jaxaay2 Route Du 84, contient 73 horaires fournis de 05:49 à 07:09. La fréquence de 14 minutes est également attribuée aux données CETUD transmises par le responsable du projet. Les tests vérifient les deux décomptes, les horaires et la provenance. Aucun arrêt ni horaire n'est fabriqué.
+- **AFTU 85 :** le fichier src/data/aftu-85-directions.json contient 89 repères à l'aller et 95 au retour, avec des listes distinctes transmises par le responsable du projet. Ces séquences restent des candidates à recouper avec les informations publiées. La fréquence affichée (10–15 min en pointe, 15–25 min en creuse) ne doit pas être généralisée à d'autres lignes.
 
-Ces deux fichiers sont des références de travail à auditer séparément ; ce contrôle ne les injecte pas dans le catalogue passager et ne modifie aucun horaire.
+La fiche officielle AFTU de chaque ligne reste à exploiter lorsqu'un lien détaillé est disponible. Les données déjà fournies par le responsable du projet sont conservées et structurées ; l'absence de lien public cliquable sur la page de liste ne justifie pas de les effacer ni de les marquer comme inexistantes.
 
 ## 13. Rôle opérationnel de l'IA dans la revue
 
