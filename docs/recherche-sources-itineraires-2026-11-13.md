@@ -36,6 +36,15 @@ La ligne 233 est intitulée **Baux Maraîchers ↔ Palais 1**, mais la séquence
 La page « Info voyageurs » liste aussi les dessertes des gares TER et les lignes 501, 502A, 502B, 503A, 503B, 504A et 504B avec leurs terminus. Elles restent dans un périmètre DDD distinct ; cette recherche ne modifie ni les données ni les horaires TER.
 
 
+### Complément de transcription DDD — lignes 311 et 327
+
+La relecture de la page opérateur a également permis de transcrire deux parcours supplémentaires dans le registre officiel :
+
+- **Ligne 311 — Lac Rose ↔ Croisement Keur Massar :** la page publie Lac Rose / Croisement Niague, Croisement Tivaouane Peulh, Terminus Keur Massar, Station Keur Massar, Croisement Keur Massar, puis « Retour vers Lac Rose ». Cette dernière mention décrit un retour sans en donner les arrêts intermédiaires : la séquence est conservée comme circuit publié, pas comme deux sens détaillés.
+- **Ligne 327 — Keur Massar → Terminus Parcelles :** la page publie 11 repères ordonnés, de Terminus Keur Massar à Terminus Parcelles. Cette transcription reste un ordre publié par l'opérateur, pas deux séquences indépendantes Aller/Retour.
+
+Les deux entrées sont ajoutées à `src/data/dddPublishedRoutes.ts`, avec date de relecture du 13 novembre 2026. Les tests vérifient leurs séquences et leur type documentaire. Aucun retour inverse n'est généré.
+
 ## 2. AFTU
 
 **Source institutionnelle consultée :** https://cetud.sn/reseaux-de-transport/aftu/
