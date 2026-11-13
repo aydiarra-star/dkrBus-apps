@@ -10,7 +10,6 @@ const [osm, arcgis] = await Promise.all([
   readFile(arcgisPath, 'utf8').then(JSON.parse),
 ])
 
-// ArcGIS stop-layer IDs in the public DDD urban FeatureServer.
 const stopLayerByLine = {
   '1': 5, '6': 1, '7': 2, '8': 3, '9': 4, '10': 6, '121': 7, '13': 8, '18': 9, '23': 10, '4': 11,
 }
@@ -30,6 +29,18 @@ function distanceMeters(a, b) {
   const h = Math.sin(dLat / 2) ** 2
     + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2
   return 2 * earthRadius * Math.asin(Math.sqrt(h))
+}
+
+function parseRouteRefs(route) {
+  const rawValues = [route.ref, route.tags?.ref].filter(Boolean)
+  const refs = []
+  for (const rawValue of rawValues) {
+    for (const token of String(rawValue).split(/[;,]/)) {
+      const compact = token.trim().toUpperCase().replace(/\s+/g, '').replace(/^L/, '')
+      if (/^[A-Z]?\d{1,3}[A-Z]?$/.test(compact) && !refs.includes(compact)) refs.push(compact)
+    }
+  }
+  return refs
 }
 
 function orderedOneToOneMatches(osmMembers, arcgisStops, thresholdMeters, reverseArcgis = false) {
@@ -53,79 +64,119 @@ const comparisons = []
 const unmatchedCandidateRoutes = []
 for (const route of osm.routes) {
   if (route.scopeStatus !== 'DAKAR_CANDIDATE') continue
-  const rawRef = String(route.ref ?? '').trim()
-  const line = rawRef.replace(/^L\s*/i, '').trim()
-  const layerId = stopLayerByLine[line]
-  if (!layerId) {
+  const rawRef = String(route.ref ?? route.tags?.ref ?? '').trim()
+  const refs = parseRouteRefs(route)
+  const matchedRefs = refs.filter((line) => stopLayerByLine[line])
+  const missingLayerRefs = refs.filter((line) => !stopLayerByLine[line])
+
+  if (!matchedRefs.length) {
     unmatchedCandidateRoutes.push({
       osmRelationId: route.osmRelationId,
       ref: rawRef || null,
+      parsedRefs: refs,
       name: route.name,
       stopMemberCount: route.orderedStopMembers.length,
-      reason: rawRef.includes(';')
-        ? 'MULTIPLE_LINE_REFERENCES_REQUIRE_MANUAL_REVIEW'
+      reason: refs.length > 1
+        ? 'MULTIPLE_LINE_REFERENCES_WITHOUT_MATCHING_STOP_LAYER'
         : 'NO_MATCHING_DDD_URBAN_STOP_LAYER',
     })
     continue
   }
 
-  const layer = stopLayers.get(layerId)
-  if (!layer) continue
-  const arcgisStops = layer.features.flatMap((feature) => {
-    const geometry = feature.geometry
-    if (!Number.isFinite(geometry?.x) || !Number.isFinite(geometry?.y)) return []
-    return [{
-      name: feature.attributes?.Nom_Arret ?? null,
-      lat: geometry.y,
-      lon: geometry.x,
-    }]
-  })
+  // A multi-ref relation is compared against each available layer but remains
+  // explicitly ambiguous; it is never silently assigned to one line.
+  for (const line of matchedRefs) {
+    const layerId = stopLayerByLine[line]
+    const layer = stopLayers.get(layerId)
+    if (!layer) continue
+    const arcgisStops = layer.features.flatMap((feature) => {
+      const geometry = feature.geometry
+      if (!Number.isFinite(geometry?.x) || !Number.isFinite(geometry?.y)) return []
+      return [{
+        objectId: feature.attributes?.OBJECTID ?? null,
+        name: feature.attributes?.Nom_Arret ?? null,
+        lat: geometry.y,
+        lon: geometry.x,
+      }]
+    })
 
-  const comparisonsForRoute = route.orderedStopMembers.flatMap((member) => {
-    const point = member.coordinates
-    if (!Number.isFinite(point?.lat) || !Number.isFinite(point?.lon) || !arcgisStops.length) return []
-    let nearest = null
-    for (const stop of arcgisStops) {
-      const distance = distanceMeters({ lat: point.lat, lon: point.lon }, stop)
-      if (!nearest || distance < nearest.distanceMeters) {
-        nearest = { distanceMeters: Number(distance.toFixed(1)), arcgisStopName: stop.name }
+    const stopComparisons = route.orderedStopMembers.flatMap((member, index) => {
+      const point = member.coordinates
+      if (!Number.isFinite(point?.lat) || !Number.isFinite(point?.lon) || !arcgisStops.length) return []
+      let nearest = null
+      for (const stop of arcgisStops) {
+        const distance = distanceMeters({ lat: point.lat, lon: point.lon }, stop)
+        if (!nearest || distance < nearest.distanceMeters) {
+          nearest = {
+            objectId: stop.objectId,
+            name: stop.name,
+            distanceMeters: distance,
+          }
+        }
       }
-    }
-    return [{
-      osmSequence: member.sequence,
-      osmType: member.type,
-      osmRef: member.ref,
-      nearestArcgisStopName: nearest.arcgisStopName,
-      nearestDistanceMeters: nearest.distanceMeters,
-    }]
-  })
+      return [{
+        osmSequence: member.sequence ?? index + 1,
+        osmType: member.type,
+        osmRef: member.ref,
+        osmRole: member.role ?? null,
+        osmName: member.name ?? null,
+        nearestArcgisObjectId: nearest.objectId,
+        nearestArcgisStopName: nearest.name,
+        nearestDistanceMeters: Number(nearest.distanceMeters.toFixed(1)),
+      }]
+    })
 
-  const distances = comparisonsForRoute.map((item) => item.nearestDistanceMeters)
-  const countWithin = (threshold) => distances.filter((distance) => distance <= threshold).length
-  comparisons.push({
-    network: 'DDD',
-    line,
-    osmRelationId: route.osmRelationId,
-    osmName: route.name,
-    from: route.from,
-    to: route.to,
-    scopeStatus: route.scopeStatus,
-    osmOrderedStopCount: route.orderedStopMembers.length,
-    arcgisLayerId: layerId,
-    arcgisLayerName: layer.layerName,
-    arcgisStopCount: arcgisStops.length,
-    method: 'Nearest-neighbour proximity counts plus maximum ordered one-to-one matching against ArcGIS response feature order in forward and reverse; ArcGIS response order is not certified as operational stop order.',
-    nearestArcgisStopWithin25m: countWithin(25),
-    nearestArcgisStopWithin50m: countWithin(50),
-    nearestArcgisStopWithin100m: countWithin(100),
-    nearestArcgisStopWithin200m: countWithin(200),
-    // Ordered one-to-one diagnostic only: ArcGIS response order is not certified as operational stop order.
-    orderedOneToOneWithin50mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, false),
-    orderedOneToOneWithin50mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, true),
-    orderedOneToOneWithin100mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, false),
-    orderedOneToOneWithin100mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, true),
-    stopComparisons: comparisonsForRoute,
-  })
+    const distances = stopComparisons.map((item) => item.nearestDistanceMeters)
+    const nearestObjectIds = stopComparisons
+      .map((item) => item.nearestArcgisObjectId)
+      .filter((value) => Number.isFinite(value))
+    const countWithin = (threshold) => distances.filter((distance) => distance <= threshold).length
+    const sortedDistances = [...distances].sort((a, b) => a - b)
+    const medianDistanceMeters = sortedDistances.length
+      ? Number(sortedDistances[Math.floor(sortedDistances.length / 2)].toFixed(1))
+      : null
+    const meanDistanceMeters = distances.length
+      ? Number((distances.reduce((sum, distance) => sum + distance, 0) / distances.length).toFixed(1))
+      : null
+    const nondecreasingObjectIdTransitions = nearestObjectIds.slice(1)
+      .filter((id, index) => id >= nearestObjectIds[index]).length
+    const strictlyIncreasingObjectIdTransitions = nearestObjectIds.slice(1)
+      .filter((id, index) => id > nearestObjectIds[index]).length
+
+    comparisons.push({
+      network: 'DDD',
+      line,
+      rawRef: rawRef || null,
+      parsedRefs: refs,
+      referenceAmbiguous: refs.length > 1,
+      missingLayerRefs,
+      osmRelationId: route.osmRelationId,
+      osmName: route.name,
+      from: route.from,
+      to: route.to,
+      scopeStatus: route.scopeStatus,
+      osmOrderedStopCount: route.orderedStopMembers.length,
+      arcgisLayerId: layerId,
+      arcgisLayerName: layer.layerName,
+      arcgisStopCount: arcgisStops.length,
+      method: 'Nearest-neighbour proximity plus ordered one-to-one diagnostic. ArcGIS OBJECTID progression is measured separately and is not assumed to be an official operational sequence.',
+      nearestArcgisStopWithin15m: countWithin(15),
+      nearestArcgisStopWithin25m: countWithin(25),
+      nearestArcgisStopWithin50m: countWithin(50),
+      nearestArcgisStopWithin100m: countWithin(100),
+      nearestArcgisStopWithin200m: countWithin(200),
+      medianNearestDistanceMeters: medianDistanceMeters,
+      meanNearestDistanceMeters: meanDistanceMeters,
+      nondecreasingNearestObjectIdTransitions: nondecreasingObjectIdTransitions,
+      strictlyIncreasingNearestObjectIdTransitions: strictlyIncreasingObjectIdTransitions,
+      nearestObjectIdTransitions: Math.max(0, nearestObjectIds.length - 1),
+      orderedOneToOneWithin50mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, false),
+      orderedOneToOneWithin50mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, true),
+      orderedOneToOneWithin100mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, false),
+      orderedOneToOneWithin100mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, true),
+      stopComparisons,
+    })
+  }
 }
 
 const report = {
@@ -135,11 +186,13 @@ const report = {
     dddArcgis: arcgis.generatedAt,
   },
   attribution: '© OpenStreetMap contributors (ODbL); DDD public ArcGIS FeatureServer',
-  policy: 'Read-only proximity and ordered one-to-one diagnostic. ArcGIS response feature order is not certified as operational stop order; spatial proximity is not proof of stop identity, current service, direction correctness, or official route validation. No stop IDs are merged and no passenger data is changed.',
+  policy: 'Read-only proximity and ordered one-to-one diagnostic. Multi-reference OSM relations are compared against all available candidate layers but remain explicitly ambiguous. ArcGIS response order and OBJECTID are not certified as operational stop order; spatial proximity is not proof of stop identity, current service, direction correctness, or official route validation. No stop IDs are merged and no passenger data is changed.',
   summary: {
-    routeComparisons: comparisons.length,
+    routeLayerComparisons: comparisons.length,
+    ambiguousReferenceComparisons: comparisons.filter((item) => item.referenceAmbiguous).length,
     unmatchedCandidateRoutes: unmatchedCandidateRoutes.length,
     osmStopComparisons: comparisons.reduce((sum, item) => sum + item.stopComparisons.length, 0),
+    comparisonsWithin15m: comparisons.reduce((sum, item) => sum + item.nearestArcgisStopWithin15m, 0),
     comparisonsWithin50m: comparisons.reduce((sum, item) => sum + item.nearestArcgisStopWithin50m, 0),
     comparisonsWithin100m: comparisons.reduce((sum, item) => sum + item.nearestArcgisStopWithin100m, 0),
   },
