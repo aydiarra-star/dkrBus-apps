@@ -233,9 +233,9 @@ class GTFSValidatorTests(unittest.TestCase):
     def test_shape_point_sequence_must_increase_for_each_shape(self) -> None:
         tables = dict(VALID_TABLES)
         tables["shapes.txt"] = (
-            "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence\\n"
-            "SH1,14.7000,-17.4500,2\\n"
-            "SH1,14.7100,-17.4600,1\\n"
+            "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence\n"
+            "SH1,14.7000,-17.4500,2\n"
+            "SH1,14.7100,-17.4600,1\n"
         )
         report = validate_gtfs_archive(self.make_archive(tables))
         self.assertFalse(report["structure_valid"])
@@ -244,9 +244,9 @@ class GTFSValidatorTests(unittest.TestCase):
     def test_frequency_ranges_for_one_trip_must_not_overlap(self) -> None:
         tables = dict(VALID_TABLES)
         tables["frequencies.txt"] = (
-            "trip_id,start_time,end_time,headway_secs\\n"
-            "T1,08:00:00,09:00:00,600\\n"
-            "T1,08:30:00,09:30:00,600\\n"
+            "trip_id,start_time,end_time,headway_secs\n"
+            "T1,08:00:00,09:00:00,600\n"
+            "T1,08:30:00,09:30:00,600\n"
         )
         report = validate_gtfs_archive(self.make_archive(tables))
         self.assertFalse(report["structure_valid"])
@@ -266,7 +266,7 @@ class GTFSValidatorTests(unittest.TestCase):
     def test_duplicate_archive_member_names_are_rejected(self) -> None:
         archive = self.make_archive(VALID_TABLES)
         with zipfile.ZipFile(archive, "a") as zipped:
-            zipped.writestr("agency.txt", "duplicate\\n")
+            zipped.writestr("agency.txt", "duplicate\n")
         report = validate_gtfs_archive(archive)
         self.assertFalse(report["structure_valid"])
         self.assertIn("DUPLICATE_ARCHIVE_ENTRY", self.issue_codes(report))
