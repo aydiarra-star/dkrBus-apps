@@ -138,7 +138,7 @@ class GTFSValidator:
         self.calendar_ids: set[str] = set()
         self.calendar_date_ids: set[str] = set()
         self.calendar_date_keys: set[tuple[str, str]] = set()
-        self.trip_last_time: dict[str, tuple[int, int | None]] = {}
+        self.trip_last_sequence: dict[str, int] = {}
         self.unsorted_trip_lines: dict[str, int] = {}
         self.validation_db: sqlite3.Connection | None = None
         self.stop_time_trip_ids: set[str] = set()
@@ -155,7 +155,7 @@ class GTFSValidator:
                 self.validation_db.execute("PRAGMA journal_mode=OFF")
                 self.validation_db.execute("PRAGMA synchronous=OFF")
                 self.validation_db.execute("PRAGMA cache_size=-8192")
-                self.validation_db.execute("CREATE TABLE stop_sequences (trip_id TEXT NOT NULL, sequence INTEGER NOT NULL, PRIMARY KEY (trip_id, sequence))")
+                self.validation_db.execute("CREATE TABLE stop_sequences (trip_id TEXT NOT NULL, sequence INTEGER NOT NULL, arrival_time INTEGER, departure_time INTEGER, source_line INTEGER NOT NULL, PRIMARY KEY (trip_id, sequence))")
                 self.validation_db.execute("CREATE TABLE shape_sequences (shape_id TEXT NOT NULL, sequence INTEGER NOT NULL, PRIMARY KEY (shape_id, sequence))")
                 try:
                     return self._validate_archive()
@@ -238,6 +238,8 @@ class GTFSValidator:
                 member_path.is_absolute()
                 or ".." in member_path.parts
                 or "\\" in info.filename
+                or re.match(r"^[A-Za-z]:", info.filename) is not None
+                or "\x00" in info.filename
                 or stat.S_ISLNK(unix_mode)
             ):
                 self.report.add("ERROR", "UNSAFE_ARCHIVE_PATH", f"Chemin ZIP refusé : « {info.filename} ».")
@@ -517,11 +519,10 @@ class GTFSValidator:
         else:
             self.stop_time_stop_ids.add(stop_id)
 
-        if sequence is not None and trip_id and self._sequence_seen("stop_sequences", trip_id, sequence):
-            self.report.add("ERROR", "DUPLICATE_STOP_SEQUENCE", f"stop_sequence {sequence} répété pour le trip « {trip_id} ».", "stop_times.txt", line)
-
         arrival = self._time(self._value(row, "arrival_time"), "arrival_time", line)
         departure = self._time(self._value(row, "departure_time"), "departure_time", line)
+        if sequence is not None and trip_id and self._record_stop_time_sequence(trip_id, sequence, arrival, departure, line):
+            self.report.add("ERROR", "DUPLICATE_STOP_SEQUENCE", f"stop_sequence {sequence} répété pour le trip « {trip_id} ».", "stop_times.txt", line)
         timepoint = self._value(row, "timepoint")
         if timepoint and timepoint not in {"0", "1"}:
             self.report.add("ERROR", "INVALID_TIMEPOINT", "timepoint doit valoir 0 ou 1 lorsqu’il est renseigné.", "stop_times.txt", line)
@@ -531,17 +532,11 @@ class GTFSValidator:
             self.report.add("WARNING", "MISSING_STOP_TIME", "Aucun horaire à cet arrêt ; timepoint=0 est nécessaire pour indiquer une heure interpolée.", "stop_times.txt", line)
 
         if sequence is not None and trip_id:
-            previous = self.trip_last_time.get(trip_id)
-            if previous is None:
-                self.trip_last_time[trip_id] = (sequence, departure if departure is not None else arrival)
-            elif sequence < previous[0]:
+            previous_sequence = self.trip_last_sequence.get(trip_id)
+            if previous_sequence is None or sequence > previous_sequence:
+                self.trip_last_sequence[trip_id] = sequence
+            elif sequence < previous_sequence:
                 self.unsorted_trip_lines.setdefault(trip_id, line)
-            elif sequence > previous[0]:
-                current_arrival = arrival if arrival is not None else departure
-                if previous[1] is not None and current_arrival is not None and current_arrival < previous[1]:
-                    self.report.add("ERROR", "TIME_BEFORE_PREVIOUS_STOP", "L’heure du passage recule par rapport à l’arrêt précédent du même trip.", "stop_times.txt", line)
-                current_time = departure if departure is not None else arrival
-                self.trip_last_time[trip_id] = (sequence, current_time if current_time is not None else previous[1])
 
     def _frequency_row(self, row: dict[str, str | None], line: int) -> None:
         trip_id = self._value(row, "trip_id")
@@ -596,6 +591,7 @@ class GTFSValidator:
             self.report.add("ERROR", "INVALID_DATE_RANGE", "feed_end_date précède feed_start_date.", "feed_info.txt", line)
 
     def _check_references(self) -> None:
+        self._check_stop_time_chronology()
         if self.agency_rows > 1:
             for line in self.agency_missing_id_rows:
                 self.report.add("ERROR", "MISSING_AGENCY_ID", "agency_id est requis lorsque plusieurs agences sont définies.", "agency.txt", line)
@@ -652,6 +648,49 @@ class GTFSValidator:
     def _warn_unsupported_tables(self) -> None:
         for filename in sorted(set(self.table_infos).difference(SUPPORTED_TABLES)):
             self.report.add("WARNING", "OPTIONAL_TABLE_NOT_VALIDATED", f"La table optionnelle « {filename} » est présente mais n’est pas encore contrôlée par cet outil.", filename)
+
+    def _record_stop_time_sequence(
+        self,
+        trip_id: str,
+        sequence: int,
+        arrival_time: int | None,
+        departure_time: int | None,
+        source_line: int,
+    ) -> bool:
+        if self.validation_db is None:
+            raise RuntimeError("Validation index is not initialized")
+        cursor = self.validation_db.execute(
+            "INSERT OR IGNORE INTO stop_sequences "
+            "(trip_id, sequence, arrival_time, departure_time, source_line) VALUES (?, ?, ?, ?, ?)",
+            (trip_id, sequence, arrival_time, departure_time, source_line),
+        )
+        return cursor.rowcount == 0
+
+    def _check_stop_time_chronology(self) -> None:
+        if self.validation_db is None:
+            raise RuntimeError("Validation index is not initialized")
+        cursor = self.validation_db.execute(
+            "SELECT trip_id, arrival_time, departure_time, source_line "
+            "FROM stop_sequences ORDER BY trip_id, sequence"
+        )
+        current_trip: str | None = None
+        previous_departure: int | None = None
+        for trip_id, arrival_time, departure_time, source_line in cursor:
+            if trip_id != current_trip:
+                current_trip = trip_id
+                previous_departure = None
+            current_arrival = arrival_time if arrival_time is not None else departure_time
+            if previous_departure is not None and current_arrival is not None and current_arrival < previous_departure:
+                self.report.add(
+                    "ERROR",
+                    "TIME_BEFORE_PREVIOUS_STOP",
+                    "L’heure du passage recule par rapport à l’arrêt précédent selon stop_sequence.",
+                    "stop_times.txt",
+                    source_line,
+                )
+            current_departure = departure_time if departure_time is not None else arrival_time
+            if current_departure is not None:
+                previous_departure = current_departure
 
     def _sequence_seen(self, table: str, object_id: str, sequence: int) -> bool:
         if table not in {"stop_sequences", "shape_sequences"}:
