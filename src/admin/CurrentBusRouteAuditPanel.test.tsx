@@ -85,7 +85,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByText('Terminus Leclerc').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: 'Ouvrir les parcours DDD' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Ouvrir Info voyageurs DDD' })).toBeTruthy()
-    expect(screen.getByText(/Les retours ne sont pas inversés automatiquement/)).toBeTruthy()
+    expect(screen.getByText(/les retours ne sont pas inversés automatiquement/i)).toBeTruthy()
   })
 
   it('flags official DDD route header conflicts for lines 217 and 233', async () => {
