@@ -32,7 +32,7 @@ export function CurrentBusRouteAuditPanel() {
   const [aftuCandidates, setAftuCandidates] = useState<readonly AftuPublishedRouteCandidate[]>([])
   const [tataCandidates, setTataCandidates] = useState<readonly TataPublishedRouteCandidate[]>([])
   const [dddPublishedDepartureWindows, setDddPublishedDepartureWindows] = useState<readonly DddPublishedDepartureWindow[]>([])
-  const [dddOfficialRoutes, setDddOfficialRoutes] = useState<readonly { line: string; stops: readonly string[]; codeSource?: string }[]>([])
+  const [dddOfficialRoutes, setDddOfficialRoutes] = useState<readonly { line: string; stops: readonly string[]; codeSource?: string; conflictNote?: string }[]>([])
   const [dddOfficialRouteSource, setDddOfficialRouteSource] = useState({ url: 'https://demdikk.sn/reseau-urbain-dakar/', infoUrl: 'https://demdikk.sn/info-voyageurs/' })
   const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
   const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
@@ -145,6 +145,7 @@ export function CurrentBusRouteAuditPanel() {
                   {route.stops.map((stop, index) => <li key={`${route.line}-${index}`}>{stop}</li>)}
                 </ol>
                 {route.codeSource === 'cross_reference_to_official_info_page' && <small>Numéro 228 recoupé avec la page officielle Info voyageurs.</small>}
+                {route.conflictNote && <small role="note">Conflit de source : {route.conflictNote}</small>}
               </details>
             </li>
           ))}
