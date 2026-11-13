@@ -10,7 +10,7 @@ afterEach(() => {
 
 describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
   it('réserve le compte à rebours aux fréquences officielles documentées par ligne', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu" />)
@@ -23,7 +23,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(within(aftuNinetyOne).queryByText('5 min')).toBeNull()
 
     const aftuEightyFour = screen.getAllByText('AFTU 84')[0].closest('li')!
-    expect(within(aftuEightyFour).getAllByText('12 min')).toHaveLength(2)
+    await waitFor(() => expect(within(aftuEightyFour).getAllByText('12 min')).toHaveLength(2))
     const apostropheIcons = aftuEightyFour.querySelectorAll('.station-board-double-apostrophe')
     expect(apostropheIcons.length).toBe(2)
 
