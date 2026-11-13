@@ -58,3 +58,15 @@ La couche contient un tracé de 28,70 km nommé « Terminus Rufisque – ville d
 5. Ne publier aucun changement dans le catalogue passager avant revue.
 
 Aucune écriture Supabase, aucun déploiement et aucune modification des données TER/BRT.
+
+
+## Contrôle automatisé reproductible
+
+Le script `scripts/project_ddd_arcgis_stops_onto_routes.mjs` et le workflow `.github/workflows/audit-ddd-updated-arcgis.yml` exécutent maintenant cette projection et déposent le rapport `ddd-stop-route-spatial-projection.json` avec les extractions brutes et le rapprochement nominal.
+
+Exécution GitHub Actions du 13 novembre 2026 :
+- workflow « Audit updated DDD ArcGIS service (read only) » : **succès** ;
+- les étapes d'extraction, de comparaison nominale, de projection géométrique et de dépôt de l'artefact ont toutes réussi ;
+- artefact `ddd-updated-service-and-sequence-audit`, SHA-256 `6aaa528a46ccad8c9e493ad3ffea9fed3ad9988d2367f78135b4359081eb59d8`.
+
+Le rapport automatisé confirme 168 points examinés sur les six lignes, cinq tracés identifiés par leur numéro, 111 points à 25 m ou moins de leur propre tracé numéroté et 112 à 100 m ou moins. Le cas 218 reste le principal conflit : 33 groupes nom/coordonnées répétés et 69 enregistrements dont le tracé 219 est le plus proche à 25 m ou moins, contre 27 dont le tracé 218 est le plus proche à cette distance. Ces comptes automatiques ne changent pas l'étiquette de ligne des sources.
