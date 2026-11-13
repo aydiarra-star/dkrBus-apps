@@ -6,7 +6,7 @@ describe('DDD published route references', () => {
     expect(DDD_PUBLISHED_ROUTES.map((route) => route.line)).toEqual([
       '1', '4', '7', '8', '9', '10', '13', '18', '20', '23', '121',
       '2', '5', '6', '11', '12', '16A', '16B', '208', '213', '218', '219',
-      '220', '221', '227', '228', '232', '234', '217', '233', 'TO1', '319',
+      '220', '221', '227', '228', '232', '234', '217', '233', '311', '327', 'TO1', '319',
     ])
     for (const route of DDD_PUBLISHED_ROUTES) {
       expect(route.stops.length).toBeGreaterThan(1)
@@ -46,6 +46,19 @@ describe('DDD published route references', () => {
     expect(line233?.destination).toBe('Palais 1')
     expect(line233?.stops.at(-1)).toBe('Terminus Aéroport LSS')
     expect(line233?.sourceConflict).toContain('titre officiel annonce Palais 1')
+  })
+
+  it('preserves the newly transcribed DDD 311 and 327 sequences', () => {
+    const line311 = getDddPublishedRoute('311')
+    expect(line311?.kind).toBe('published_circuit')
+    expect(line311?.origin).toBe('Lac Rose')
+    expect(line311?.stops.at(-1)).toBe('Retour vers Lac Rose')
+
+    const line327 = getDddPublishedRoute('327')
+    expect(line327?.kind).toBe('published_order')
+    expect(line327?.origin).toBe('Keur Massar')
+    expect(line327?.destination).toBe('Terminus Parcelles')
+    expect(line327?.stops).toHaveLength(11)
   })
 
 })
