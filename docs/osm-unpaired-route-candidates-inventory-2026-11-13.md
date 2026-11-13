@@ -39,6 +39,19 @@ L'analyseur directionnel exclut désormais toute relation portant plusieurs réf
 
 Le CI contrôle maintenant aussi la syntaxe de `scripts/analyze_dakar_osm_directional_pairs.mjs`.
 
+## Recontrôle sur extraction fraîche — 18:16 UTC
+
+Le workflow en lecture seule du 13 novembre a récupéré 6 610 éléments OSM, 25 relations de lignes et 2 relations maîtres. Le périmètre Dakar retient 23 relations candidates, dont 18 avec membres d'arrêts/quais ordonnés (522 membres au total) et 7 relations sans séquence d'arrêts exploitable.
+
+L'analyseur directionnel a détecté 5 paires candidates : quatre par terminus inversés et une par relation maître partagée. Les références concernées sont 4, 7, 9, 10 et B1. Elles restent des candidates et non des lignes validées. Treize relations restent non appariées ; le résumé signale explicitement 1 référence multiple ambiguë et 1 conflit entre la référence et le nom.
+
+Contrôles ciblés confirmés dans l'inventaire :
+- Les trois relations portant la référence 121 restent séparées : deux fragments ont des terminus incompatibles entre eux et la troisième ne possède que trois membres anonymes.
+- La relation 7499433 reste en conflit (ref=6, nom commençant par 7) et ne rejoint aucune paire.
+- La relation L23;L5 reste ambiguë et exclue de tout appariement inter-lignes.
+
+Aucun trajet manquant, arrêt, sens ou horaire n'est créé à partir de ces éléments. L'extraction et l'analyse sont reproductibles via le workflow « Audit Dakar OSM bus routes (read only) ».
+
 ## Prochaines priorités
 
 1. DDD 1 : confronter les 38 membres ordonnés de la relation 6951328 aux séquences DDD officielles et aux arrêts ArcGIS.
