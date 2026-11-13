@@ -71,3 +71,11 @@ Contrôle croisé effectué avec `src/data/dddOfficialUrbanPublishedRoutes.ts` s
 - Aucun appariement automatique, aucune suppression d'arrêt, aucune correction de terminus et aucune publication passager n'est déclenché par ce rapprochement.
 
 Cette étape transforme les paires OSM 9/10 en candidats directement comparables aux séquences officielles DDD, tout en isolant précisément les écarts qui empêchent une validation sans ambiguïté.
+
+### Ligne 7 — rapprochement complémentaire
+
+La séquence DDD publiée pour la ligne 7 est Ouakam → Palais 2 et contient 21 repères. Les deux relations OSM reliées à la même relation maîtresse 7500597 sont 6990669 (Palais → Ouakam, 31 membres) et 7500475 (Ouakam → Palais, 34 membres).
+
+Le terminus OSM est libellé « Palais » sans précision 1/2 dans les éléments résumés ici ; il ne peut donc pas être assimilé à « Palais 2 » sans contrôle des arrêts terminaux et des identifiants OSM. La paire est mieux étayée structurellement grâce à la relation maîtresse commune, mais la séquence et les arrêts ne sont pas validés pour autant.
+
+Comme pour les lignes 9 et 10, les 21 repères DDD et les deux séquences OSM restent intacts et indépendants. La ligne 7 demeure un rapprochement candidat, pas une validation de parcours.
