@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'lucide-react'
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
-import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
-import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import { AFTU_OFFICIAL_PAGE_AUDIT } from '../data/aftuOfficialPageAudit'
-import { DDD_PUBLISHED_DEPARTURE_WINDOWS } from '../data/dddPublishedDepartureWindows'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
+import type { AftuPublishedRouteCandidate } from '../data/aftuPublishedRouteCandidates'
+import type { TataPublishedRouteCandidate } from '../data/tataPublishedRouteCandidates'
+import type { DddPublishedDepartureWindow } from '../data/dddPublishedDepartureWindows'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -29,6 +29,9 @@ export function CurrentBusRouteAuditPanel() {
   const report = useMemo(() => getCurrentBusRouteAudit(), [])
   const [filter, setFilter] = useState<Filter>('all')
   const [frequencyObservations, setFrequencyObservations] = useState<readonly CetudFrequencyObservation[]>([])
+  const [aftuCandidates, setAftuCandidates] = useState<readonly AftuPublishedRouteCandidate[]>([])
+  const [tataCandidates, setTataCandidates] = useState<readonly TataPublishedRouteCandidate[]>([])
+  const [dddPublishedDepartureWindows, setDddPublishedDepartureWindows] = useState<readonly DddPublishedDepartureWindow[]>([])
   const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
   const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
   const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, geolocatedStopFeatures: 0 })
@@ -38,12 +41,18 @@ export function CurrentBusRouteAuditPanel() {
     void Promise.all([
       import('../data/cetudFrequencyObservations'),
       import('../data/dddBanlieueArcgisRegistry'),
-    ]).then(([frequencyData, gisData]) => {
+      import('../data/aftuPublishedRouteCandidates'),
+      import('../data/tataPublishedRouteCandidates'),
+      import('../data/dddPublishedDepartureWindows'),
+    ]).then(([frequencyData, gisData, aftuData, tataData, departureData]) => {
       if (!active) return
       setFrequencyObservations(frequencyData.CETUD_FREQUENCY_OBSERVATIONS)
       setDddBanlieueArcgisLayers(gisData.DDD_BANLIEUE_ARCGIS_LAYERS)
       setDddUrbanArcgisStopLayers(gisData.DDD_URBAN_ARCGIS_STOP_LAYERS)
       setDddUrbanArcgisTotals(gisData.DDD_URBAN_ARCGIS_AUDIT_TOTALS)
+      setAftuCandidates(aftuData.AFTU_PUBLISHED_ROUTE_CANDIDATES)
+      setTataCandidates(tataData.TATA_PUBLISHED_ROUTE_CANDIDATES)
+      setDddPublishedDepartureWindows(departureData.DDD_PUBLISHED_DEPARTURE_WINDOWS)
     })
     return () => { active = false }
   }, [])
@@ -126,10 +135,10 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Départs officiels DDD · {DDD_PUBLISHED_DEPARTURE_WINDOWS.length} directions documentées</summary>
+        <summary>Départs officiels DDD · {dddPublishedDepartureWindows.length || 'chargement…'} directions documentées</summary>
         <p>Premiers et derniers départs publiés par terminus. Ces plages ne donnent pas d’intervalle entre bus : elles ne produisent aucun compte à rebours de fréquence.</p>
         <ul>
-          {DDD_PUBLISHED_DEPARTURE_WINDOWS.map((departure) => (
+          {dddPublishedDepartureWindows.map((departure) => (
             <li key={`${departure.service}-${departure.origin}-${departure.destination}`}>
               <strong>{departure.service} · {departure.origin} → {departure.destination}</strong>
               <span>Premier départ : {departure.firstDeparture} · Dernier départ : {departure.lastDeparture}</span>
@@ -140,10 +149,10 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Fiches AFTU récupérées · {AFTU_PUBLISHED_ROUTE_CANDIDATES.length} lignes</summary>
+        <summary>Fiches AFTU récupérées · {aftuCandidates.length || 'chargement…'} lignes</summary>
         <p>Descriptions publiées sur le site AFTU. Elles ne représentent pas encore deux séquences vérifiées Aller et Retour et restent hors du catalogue voyageurs.</p>
         <ul>
-          {AFTU_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => (
+          {aftuCandidates.map((candidate) => (
             <li key={candidate.line}>
               <strong>Ligne {candidate.line}</strong>
               <span>Publié le {candidate.publishedOn} · à valider humainement</span>
@@ -157,10 +166,10 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Fiches TATA candidates · {TATA_PUBLISHED_ROUTE_CANDIDATES.length} lignes · source secondaire</summary>
+        <summary>Fiches TATA candidates · {tataCandidates.length || 'chargement…'} lignes · source secondaire</summary>
         <p>Ces fiches proviennent d’un répertoire secondaire. Elles sont distinctes des fiches AFTU, même si un numéro ou un corridor se ressemble. Les variantes de retour citées ne constituent pas une séquence complète validée.</p>
         <ul>
-          {TATA_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => (
+          {tataCandidates.map((candidate) => (
             <li key={candidate.line}>
               <strong>Ligne TATA {candidate.line}</strong>
               <span>Source secondaire · à valider humainement</span>
