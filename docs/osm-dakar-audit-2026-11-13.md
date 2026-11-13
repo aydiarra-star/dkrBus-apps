@@ -330,3 +330,10 @@ Sur les artefacts OSM (09:06:27 UTC) et ArcGIS (08:58:31 UTC), les signaux à 50
 **Limite essentielle :** l'export ArcGIS interroge les entités sans champ `orderByFields` ni attribut de séquence documenté. L'ordre de retour des entités peut refléter les identifiants `OBJECTID`, mais il n'est pas certifié comme ordre opérationnel des arrêts. Ce diagnostic est donc un indice de cohérence géographique, pas une preuve de séquence officielle. Les points OSM n'ont aucun nom dans les 522 occurrences examinées ; aucun appariement d'identité n'est confirmé, aucun arrêt n'est fusionné, et aucune donnée n'est promue au catalogue passager.
 
 Le script conserve également les métriques de plus proche voisin (230/374 à 50 m ; 282/374 à 100 m) pour assurer la comparabilité avec les extractions antérieures. Les métriques un-à-un évitent de compter plusieurs fois une même entité ArcGIS dans une séquence, mais restent dépendantes de l'ordre de retour ArcGIS. Aucun horaire ni fréquence n'est déduit.
+
+
+### Répétition ArcGIS et stabilité du recoupement — 13 novembre 2026, 09:18 UTC
+
+Une nouvelle extraction indépendante ArcGIS a terminé avec succès : 24/24 couches d'itinéraires, 12/12 couches d'arrêts, 25 entités de tracé, 455 entités d'arrêt, zéro erreur et aucun dépassement de limite de transfert. Comparée à l'extraction OSM de 09:06:27 UTC, elle redonne exactement les mêmes compteurs de proximité (374 positions comparées, 230 plus proches voisins à ≤50 m, 282 à ≤100 m) et les mêmes diagnostics un-à-un ordonnés par relation. Cette stabilité renforce la reproductibilité du rapprochement, mais ne lève pas la réserve sur l'ordre ArcGIS non documenté ni l'absence de noms dans les membres d'arrêts OSM.
+
+Artefact ArcGIS : run GitHub Actions 89, ID 43400058554, généré le 13/11/2026 à 09:18:15 UTC.
