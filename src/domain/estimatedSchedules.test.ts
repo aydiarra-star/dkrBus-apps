@@ -23,6 +23,9 @@ describe('affiches horaires estimatives des réseaux', () => {
       weekday: null,
       saturday: null,
       sunday: null,
+      sourceUrl: 'https://demdikk.sn/',
+      sourceLabel: 'Dakar Dem Dikk · départs publiés',
+      note: expect.stringContaining('Parcelles Assainies, premier départ 05:30 et dernier 20:30'),
     })
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '218')?.sunday).toBeNull()
     expect(DDD_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '319')).toMatchObject({
