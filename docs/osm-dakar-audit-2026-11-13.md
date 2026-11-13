@@ -424,3 +424,50 @@ Les fiches AFTU décrivent des axes, routes, carrefours et terminus (ex. ligne 4
 5. Ne déduire aucun horaire ou fréquence des fiches d'itinéraire.
 
 Artefact : `aftu-official-route-pages.zip`, run AFTU 88 (ID 43400375097), généré le 13/11/2026 à 09:20:13 UTC. Attribution : Association de financement des professionnels du transport urbain (AFTU), pages officielles ; OSM © contributeurs OpenStreetMap (ODbL). Les fiches et géométries restent en audit documentaire, sans modification du catalogue passager.
+
+
+## Découverte des attributs de corridors ArcGIS DDD — 13 novembre 2026, 09:20 UTC
+
+L'inspection complète des 24 couches de tracés ArcGIS révèle une donnée plus riche que le seul résumé précédent : chaque couche contient une ou plusieurs entités avec une géométrie de ligne et des attributs décrivant des paires de quartiers, routes, carrefours ou repères. Il s'agit de descriptions de corridors et de tracés géographiques DDD, distinctes des couches de points d'arrêts.
+
+- **12 couches urbaines :** lignes 1, 4, 6, 7, 8, 9, 10, 13, 18, 20, 23 et 121.
+- **12 couches de banlieue :** lignes 2, 5, 11, 12, 16A, 16B, 217, 218, 219, 227, 228 et 232.
+- **25 entités de tracé** : une entité par couche, sauf la couche ligne 8 qui contient deux entités, dont une entièrement vide. Il reste donc 24 entités descriptives non vides.
+- Les champs `Itinérair...`, `Zone_de_pa...` ou variantes contiennent des repères textuels ordonnés ; les géométries contiennent les chemins correspondants.
+- Ces champs décrivent des secteurs et des axes, pas une liste exhaustive d'arrêts voyageurs avec identifiants. Ils ne renseignent pas les fréquences.
+
+### Contenu des corridors exploitable pour le rapprochement
+
+| Lignes | Description de corridor ArcGIS observée |
+|---|---|
+| 1 | Parcelles Assainies → Dior/Acapes → Grand Médine → VDN → UCAD/Blaise Diagne → Jean Jaurès/Peytavin → Pompidou/Indépendance → Embarcadère/Leclerc |
+| 4 | Dieuppeul/Derklé → Khar Yalla/Cité Marine → Sacré Cœur → Point E → HLM Fass/Gueule Tapée → Blaise Diagne/Jean Jaurès → République/Senghor → Esso Port |
+| 6 | Cambérène → Parcelles/Grand Médine → VDN/Sipres → Derklé → Liberté 5 → Niary Tally → Général de Gaulle → Faidherbe → Peytavin → Palais 2 |
+| 7 | Ouakam/Cité Assemblée → Comico → route de Ouakam/UCAD → Blaise Diagne → Peytavin/Pompidou → Indépendance/Senghor → Palais de Justice |
+| 8 | Aéroport/Cité ASECNA → Yoff/Stade LSS → Patte d'Oie/Grand Yoff → Cité des Eaux/Bourguiba → Zone B/Fann → UCAD → Palais de Justice |
+| 9 | Liberté 6/Sacré Cœur → Dieuppeul → Jet d'Eau/Niary Tally → Médina → Blaise Diagne/Jean Jaurès → Peytavin/Pompidou → Palais 2 |
+| 10 | Dieuppeul/Derklé → Khar Yalla/Cité Marine → Stade Marius Ndiaye → Bourguiba/UCAD → Corniche/Soubédioune → République/Senghor → Palais 2 |
+| 13, 18, 20, 23, 121 | Descriptions de corridors détaillées disponibles dans les attributs ArcGIS ; lignes 18 et 20 couvrent notamment Dieuppeul, Fann, Gueule Tapée, Colobane et Bel Air ; ligne 23 relie Parcelles Assainies, Front de Terre, Ouakam et le secteur Palais/Justice ; ligne 121 relie SCAT Urbam, Grand Yoff, Liberté 6, Point E, Médina et Leclerc. |
+| 2, 5, 11, 12, 16A, 16B, 217, 218, 219, 227, 228, 232 | Les douze couches de banlieue ont des géométries et des descriptions textuelles de corridors. Elles couvrent notamment Guédiawaye, Keur Massar, Malika, Thiaroye, Rufisque, Yenne, Ouakam, Ngor et l'aéroport. |
+
+### Divergences importantes entre sources DDD
+
+Les différences ci-dessous sont réelles dans les textes extraits et doivent rester visibles dans le registre de validation :
+
+- **Ligne 4 :** le site Dem Dikk publie Liberté 5 → Place Leclerc (26 points dans l'ordre publié) ; la couche ArcGIS décrit Dieuppeul/Derklé → Esso Port par Khar Yalla, Sacré Cœur, Point E, HLM Fass et Gueule Tapée. La couche de points contient 30 arrêts. Les trois représentations ne doivent pas être fusionnées sans vérifier leur version, leur sens et leur géométrie.
+- **Ligne 7 :** le site publie Ouakam → Palais 2 ; la couche ArcGIS décrit Ouakam → Palais de Justice. La couche de points contient 34 entités. L'OSM candidat indique Palais 1 : le terminus doit être localisé et désambiguïsé.
+- **Ligne 9 :** le site publie Liberté 6 → Palais 2 ; la couche ArcGIS commence par Liberté 6/Sacré Cœur puis décrit un corridor passant par Dieuppeul et Palais 2. L'OSM candidat indique Palais 1.
+- **Ligne 10 :** le site publie Liberté 5 → Palais 2 ; la couche ArcGIS décrit Dieuppeul/Derklé → Palais 2. L'OSM candidat commence à Liberté 5 et termine à Palais 1.
+- **Ligne 23 :** la couche ArcGIS décrit Parcelles Assainies → secteur Palais/Justice, cohérent à grande échelle avec le corridor du site (Parcelles → Palais 1), mais la relation OSM 7495279 est dans le sens opposé et la relation 7108131 est multi-référencée.
+- **Ligne 121 :** le site publie SCAT Urbam → Leclerc ; ArcGIS décrit SCAT Urbam/Grand Yoff jusqu'à Leclerc via Liberté 6, Point E, Médina et Indépendance. Cela constitue une concordance textuelle de corridor à approfondir, sans prouver la correspondance arrêt par arrêt.
+
+### Décision technique
+
+Les attributs ArcGIS et les géométries de tracé deviennent une troisième couche de preuve dans l'audit :
+1. fiche de ligne publiée sur le site DDD ;
+2. corridor et géométrie ArcGIS DDD ;
+3. points d'arrêts ArcGIS et séquences OSM indépendantes.
+
+Le rapprochement doit utiliser les repères communs, les géométries, les terminus et les distances ; ne pas transformer les paires de secteurs en arrêts artificiels. Les entités ArcGIS restent des candidates jusqu'à validation. Les retours doivent être établis à partir d'une preuve de sens opposé, jamais en inversant mécaniquement une séquence. Aucun horaire, fréquence ou compte à rebours n'est produit par ces couches.
+
+Artefact : `ddd-arcgis-route-stop-candidates-latest.zip`, run ArcGIS 91 (ID 43400375123), extraction du 13/11/2026 à 09:20:06 UTC. Source : services publics ArcGIS DDD. Les géométries et descriptions sont conservées pour audit, sans modification du catalogue passager.
