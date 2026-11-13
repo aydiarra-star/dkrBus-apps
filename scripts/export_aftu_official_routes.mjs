@@ -6,19 +6,38 @@ const headers = { "User-Agent": "DakarBus-official-route-audit/1.0" };
 const ADDITIONAL_OFFICIAL_PAGES = [
   { slug: "27", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-27/" },
   { slug: "36", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-36/" },
-  // The official index lists these lines and their termini but currently
-  // exposes no clickable itinerary URL for them. Probe the conventional
-  // official page URLs; failed probes are retained in the audit error list.
   ...["84", "85", "86", "87", "88", "89", "91"].map((slug) => ({
     slug,
     url: `https://aftu-senegal.org/map/dakar-urbain-ligne-${slug}/`,
   })),
 ];
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function fetchText(url) {
-  const response = await fetch(url, { headers, signal: AbortSignal.timeout(45000) });
-  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
-  return response.text();
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch(url, { headers, signal: AbortSignal.timeout(25000) });
+      if (!response.ok) {
+        const error = new Error(`${url}: HTTP ${response.status}`);
+        if (response.status < 500 && response.status !== 429) throw error;
+        lastError = error;
+      } else {
+        return await response.text();
+      }
+    } catch (error) {
+      lastError = error;
+      const code = error?.cause?.code ?? error?.code;
+      const retryable = error?.name === "TimeoutError"
+        || error?.name === "AbortError"
+        || ["ETIMEDOUT", "ECONNRESET", "ECONNREFUSED", "EAI_AGAIN", "ENETUNREACH", "UND_ERR_CONNECT_TIMEOUT"].includes(code)
+        || /HTTP 5\d\d|HTTP 429/.test(error.message);
+      if (!retryable) throw error;
+    }
+    if (attempt < 2) await wait([1000, 3000][attempt]);
+  }
+  throw lastError ?? new Error(`Unable to retrieve ${url}`);
 }
 function decode(text) {
   return text
@@ -40,8 +59,6 @@ async function extractRoute(slug, url, sourceIndexListed) {
   const upperText = text.toUpperCase();
   const itineraryIndex = upperText.indexOf("ITINERAIRE");
   const dateMatch = text.match(/\b\d{1,2}\s+[A-Za-zÀ-ÿ]+\s+20\d{2}\b/);
-  // Certaines fiches publient directement le corridor après la date sans
-  // intertitre « ITINERAIRE » ; conserver ce texte jusqu'à « Collection ».
   const fallbackStart = dateMatch
     ? text.lastIndexOf(dateMatch[0]) + dateMatch[0].length
     : -1;
@@ -66,9 +83,32 @@ async function extractRoute(slug, url, sourceIndexListed) {
   };
 }
 
+async function saveReport(report) {
+  await mkdir("artifacts/aftu", { recursive: true });
+  await writeFile(OUTPUT, JSON.stringify(report, null, 2) + "\n");
+  console.log(JSON.stringify(report.summary, null, 2));
+}
+
 async function main() {
   await mkdir("artifacts/aftu", { recursive: true });
-  const indexHtml = await fetchText(INDEX);
+  let indexHtml;
+  try {
+    indexHtml = await fetchText(INDEX);
+  } catch (error) {
+    // External-source outages must be visible in the artifact, not misreported
+    // as a code failure or silently replaced by stale route data.
+    await saveReport({
+      generatedAt: new Date().toISOString(),
+      sourceIndex: INDEX,
+      sourcePolicy: "Official AFTU pages only. If the source is unreachable, record the outage and do not substitute stale or inferred route data.",
+      status: "SOURCE_UNAVAILABLE",
+      summary: { linkedRoutePages: 0, additionalOfficialRoutePages: 0, pagesFetched: 0, pagesWithItinerary: 0, missingItinerary: [], errors: 1 },
+      routes: [],
+      errors: [{ url: INDEX, error: error.message }],
+    });
+    return;
+  }
+
   const anchors = [...indexHtml.matchAll(/<a\b[^>]*href=["']([^"']*\/map\/dakar-urbain-ligne-[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
   const pages = new Map();
   for (const match of anchors) {
@@ -76,9 +116,6 @@ async function main() {
     const slug = url.match(/dakar-urbain-ligne-([^/]+)/i)?.[1];
     if (slug) pages.set(slug, { url, sourceIndexListed: true });
   }
-
-  // Deux fiches officielles sont accessibles par URL directe mais absentes
-  // des liens extraits de la page « Infos pratiques » (lignes 27 et 36).
   for (const page of ADDITIONAL_OFFICIAL_PAGES) {
     if (!pages.has(page.slug)) pages.set(page.slug, { url: page.url, sourceIndexListed: false });
   }
@@ -91,16 +128,17 @@ async function main() {
     } catch (error) {
       errors.push({ slug, url: page.url, error: error.message });
     }
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await wait(250);
   }
 
   const linkedRoutePages = [...pages.values()].filter((page) => page.sourceIndexListed).length;
   const additionalOfficialRoutePages = [...pages.values()].filter((page) => !page.sourceIndexListed).length;
-  const report = {
+  await saveReport({
     generatedAt: new Date().toISOString(),
     sourceIndex: INDEX,
     additionalOfficialPages: ADDITIONAL_OFFICIAL_PAGES,
     sourcePolicy: "Official AFTU route pages are transcribed as published. Street/corridor descriptions are not converted into individual stop sequences without stop-level evidence. No frequency is inferred from route descriptions.",
+    status: errors.length ? "PARTIAL_SOURCE_RESPONSE" : "SUCCESS",
     summary: {
       linkedRoutePages,
       additionalOfficialRoutePages,
@@ -111,8 +149,6 @@ async function main() {
     },
     routes,
     errors,
-  };
-  await writeFile(OUTPUT, JSON.stringify(report, null, 2) + "\n");
-  console.log(JSON.stringify(report.summary, null, 2));
+  });
 }
 await main();
