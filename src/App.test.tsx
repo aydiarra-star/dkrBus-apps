@@ -1237,7 +1237,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(rows.length).toBeGreaterThan(1)
     expect(rows.every((row) => row.querySelector('.station-board-stop') && row.querySelector('.station-board-passage strong'))).toBe(true)
     expect(board.textContent).not.toMatch(/Estimation|créneau théorique/i)
-    expect(board.textContent).toMatch(/(?:6|8|10|15) min|—/)
+    expect(board.textContent).toContain('En service')
+    expect(board.textContent).not.toMatch(/(?:6|8|10|15) min/)
     vi.useRealTimers()
   })
 
