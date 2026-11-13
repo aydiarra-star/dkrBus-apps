@@ -143,6 +143,7 @@ Autres périmètres documentés :
 - DDD : la source institutionnelle de l'opérateur du 17 novembre 2021 décrit une planification générale de 20 à 30 minutes entre deux bus, sans ventilation par ligne.
 
 - **DDD ligne 1 :** le site officiel DDD publie des heures de premier et dernier départ par terminus : Parcelles Assainies 05:30–20:30 et Leclerc 06:30–21:00. Cette preuve permet de documenter l'amplitude de la ligne 1, mais ne donne pas d'intervalle entre bus ; elle ne crée donc aucun compte à rebours de fréquence.
+- **DDD TAF TAF :** la page officielle Info voyageurs publie quatre plages directionnelles : Ouakam → AIBD 06:00–21:00 ; Ouakam → Sphère ministérielle 05:45–21:00 ; AIBD → Ouakam 06:00–21:00 ; Sphère ministérielle → Ouakam 06:00–20:30. Le service TAF TAF est conservé comme desserte nommée distincte, sans l'assimiler automatiquement à la ligne urbaine TO1. Aucun intervalle entre bus n'est publié dans cette page, donc aucune fréquence ni compte à rebours n'en est déduit.
 - AFTU : la FAQ officielle donne une amplitude générale jusqu'à 21 h, variable selon les lignes, mais pas une fréquence par ligne.
 - AFTU 84 : les données CETUD transmises par le responsable du projet donnent 73 arrêts par sens et une fréquence de 14 minutes.
 - Les sources TATA actuellement enregistrées restent secondaires ; aucune fréquence officielle propre à une ligne TATA de Dakar n'est ajoutée sur cette seule base.
