@@ -173,3 +173,23 @@ Résultat calculé sur les extractions OSM du 13/11/2026 à 07:00:07 UTC et ArcG
 - **Références non rapprochées automatiquement :** 36, 40, les relations sans référence et B1 sont conservées dans `unmatchedCandidateRoutes`. La relation multi-référence `L23;L5` y est explicitement signalée, pas répartie artificiellement entre deux lignes.
 
 La couche ArcGIS DDD est une source géographique historique ; ses points et les relations OSM sont des preuves complémentaires. Les statuts de qualification restent donc candidats ou partiellement corroborés. Aucune séquence n'est marquée `verified` sur la seule base de ces distances, aucun retour n'est généré par inversion, et aucune fréquence n'est déduite de la géographie.
+
+## Nouvelle extraction OSM de confirmation — 13 novembre 2026, 08:10 UTC
+
+Une nouvelle exécution du workflow a récupéré le même jeu de 27 éléments (25 relations de lignes et 2 relations maîtres), sans erreur d'endpoint. Le contrôle de périmètre confirme :
+- 23 relations `DAKAR_CANDIDATE` ;
+- 2 relations `SCOPE_CONFLICT` (APSRTC 10123245 et 10123246), conservées dans les données brutes mais exclues des candidates locales ;
+- 18 relations avec 522 occurrences d'arrêts ordonnés ; 7 relations sans arrêt ordonné ;
+- mêmes identifiants de relations et mêmes volumes d'arrêts que l'extraction précédente de 06:30 UTC.
+
+Le recoupement reproductible avec l'artefact ArcGIS DDD donne à nouveau 16 relations comparables, 374 positions OSM comparées, 230 plus proches voisins à 50 m ou moins et 282 à 100 m ou moins. La stabilité des chiffres confirme la reproductibilité de cette extraction, pas l'actualité ni la validation des parcours.
+
+### Cas AFTU ligne 40
+
+La fiche officielle AFTU de la ligne 40, publiée le 29 juin 2026, décrit le corridor Grand Mbao → Route nationale 1 → Fass Mbao → Poste Thiaroye → Yarakh → Cafétéria → Maristes → Échangeur Hann → Autoroute → Colobane → Petersen ([fiche officielle AFTU ligne 40](https://aftu-senegal.org/map/dakar-urbain-ligne-40/)).
+
+OSM contient la relation 3982642 avec les tags `ref=40`, `operator=Aftu` et `network=Tata`. Elle comporte 35 membres de type way et 305 sommets géométriques, mais **aucun arrêt ordonné**, aucun terminus `from/to` et aucun sens renseigné. La référence, l'opérateur et le réseau concordent avec la fiche officielle ; la séquence d'arrêts et la couverture complète de la géométrie ne sont pas confirmées. La relation reste donc un candidat de corridor, jamais une séquence utilisable pour l'affichage passager.
+
+La relation OSM 1434825 (« ligne 36 ») n'a pas d'opérateur identifié et ne comporte aucun arrêt ordonné ; elle ne peut pas être rattachée à une fiche AFTU par le seul numéro. Les deux relations B1 continuent de contenir 50 occurrences d'arrêts par sens ; elles restent hors de toute modification des données ou horaires BRT déjà validés.
+
+Artefact de cette extraction : `dakar-osm-route-candidates.zip`, généré le 13/11/2026 à 08:10:05 UTC. Attribution : © OpenStreetMap contributors, ODbL.
