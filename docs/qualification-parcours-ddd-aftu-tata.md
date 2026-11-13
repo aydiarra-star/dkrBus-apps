@@ -37,7 +37,7 @@ Le contrôle est en lecture seule. Il ne modifie ni les lignes, ni les arrêts, 
 ## Registres documentaires ajoutés
 
 Au 13 novembre 2026, le dépôt conserve :
-- **56 fiches AFTU** issues des pages individuelles du site de l'opérateur, avec date, URL et description, dans `src/data/aftuPublishedRouteCandidates.ts`.
+- **65 fiches AFTU** issues des pages individuelles du site de l'opérateur, avec date, URL et description, dans `src/data/aftuPublishedRouteCandidates.ts`.
 - **2 fiches TATA** issues de Covoiturage.sn, explicitement marquées comme source secondaire, dans `src/data/tataPublishedRouteCandidates.ts`.
 
 Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les deux réseaux gardent des registres distincts, même lorsque des numéros de ligne ou des corridors se ressemblent. Aucun candidat n'est injecté dans le catalogue passager.
