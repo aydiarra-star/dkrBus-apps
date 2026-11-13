@@ -122,7 +122,7 @@ for (const line of [...routesToAudit].sort()) {
 const report = {
   generatedAt: new Date().toISOString(),
   source: {
-    service: arcgis.service,
+    attribution: arcgis.attribution ?? null,
     generatedAt: arcgis.generatedAt,
     layerId: stopLayer.layerId,
     layerName: stopLayer.layerName,
