@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 
 import { REQUIRED_ATTESTATIONS, formatTimestamp, type CatalogDataset } from './domain/review'
+import { CurrentBusRouteAuditPanel } from './admin/CurrentBusRouteAuditPanel'
 import {
   ACTOR_ID_PATTERN,
   ROLE_LABELS,
@@ -261,6 +262,8 @@ export function ConsolePanel({ datasets, onChanged }: { datasets: readonly Catal
               <LogOut size={14} />
             </button>
           </div>
+
+          <CurrentBusRouteAuditPanel />
 
           {actionable.length === 0 && (
             <div className="governance-empty">
