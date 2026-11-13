@@ -1,0 +1,30 @@
+name: Audit Dakar OSM bus routes (read only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dakar-bus-osm-route-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Retrieve OSM route relations and ordered stops
+        run: node scripts/export_dakar_osm_routes.mjs
+      - name: Save the read-only audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: dakar-osm-route-candidates
+          path: artifacts/osm/dakar-osm-route-candidates.json
+          if-no-files-found: error
+          retention-days: 14
