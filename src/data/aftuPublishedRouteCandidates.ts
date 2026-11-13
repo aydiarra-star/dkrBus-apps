@@ -65,7 +65,7 @@ export const AFTU_PUBLISHED_ROUTE_CANDIDATES: readonly AftuPublishedRouteCandida
     sourceLabel: aftuSource,
     publishedOn: '2026-06-27',
     retrievedOn: '2026-11-13',
-    description: 'Gadaye, Wakhinane Nimzatt, marché Ndiarème, rue Cheikh Wade, Sam Notaire, stade Amadou Barry, lycée Canada, route des Niayes, rond-point de Cambérène, Police Parcelles, avenue Hyacinthe Thiandoum, giratoire Liberté VI, allées Ababacar Sy, allées Cheikh Sidaty Aïdara, Bopp, cité Port, rocade Fann/Bel Air, terminus Gare de Colobane.',
+    description: 'TERMINUS GADAYE (GUÉDIAWAYE) – WAKHINANENIMZATT (RUE 212) - MARCHÉ NDIARÈME - RUE CHEIKH WADE - SAM NOTAIRE - STADE AMADOU BARRY - LYCÉE CANADA - ROUTE DES NIAYES – ROND-POINT DE CAMBÉRÈNE (CASEBI) - ROUTE DES NIAYES PROLONGÉE (POLICE DES P ASSAINIES) - AVENUE HYACINTHE THIANDOUM - GIRATOIRE LIBERTÉ VI - ALLÉES ABABACAR SY (DIEUPPEUL/DERKLÉ) - ALLÉES CHEIKH SIDATY AÏDARA (NIARITALLI) - RUE EL HADJ AMADOU MALICK GAYE (BOPP) - AV. CHEIKH AHMADOU BAMBA (CITE PORT) - ROCADE FANN / BEL AIR - TERMINUS GARE DE COLOBANE.',
     status: 'NEEDS_HUMAN_REVIEW',
     directionCoverage: 'SINGLE_DESCRIPTION_ONLY',
   },
