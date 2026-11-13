@@ -41,25 +41,50 @@ export async function readMultipartWithLimit(request: Request, maxBytes: number)
   const reader = request.body.getReader();
   let receivedBytes = 0;
   let exceeded = false;
+  let readerReleased = false;
+
+  const releaseReader = () => {
+    if (readerReleased) return;
+    try {
+      reader.releaseLock();
+      readerReleased = true;
+    } catch {
+      // A pending read is cancelled in finally before another release attempt.
+    }
+  };
+
+  const cancelReader = async (reason?: unknown) => {
+    if (readerReleased) return;
+    try {
+      await reader.cancel(reason);
+    } finally {
+      releaseReader();
+    }
+  };
+
   const boundedBody = new ReadableStream<Uint8Array>({
     async pull(controller) {
       const { done, value } = await reader.read();
       if (done) {
-        reader.releaseLock();
+        releaseReader();
         controller.close();
         return;
       }
       receivedBytes += value.byteLength;
       if (receivedBytes > maxBytes) {
         exceeded = true;
-        await reader.cancel();
+        try {
+          await cancelReader();
+        } catch {
+          // The size violation remains authoritative even if upstream cancellation fails.
+        }
         controller.error(new RequestBodyTooLargeError());
         return;
       }
       controller.enqueue(value);
     },
     cancel(reason) {
-      return reader.cancel(reason);
+      return cancelReader(reason);
     },
   });
 
@@ -70,6 +95,13 @@ export async function readMultipartWithLimit(request: Request, maxBytes: number)
   } catch (error) {
     if (exceeded) throw new RequestBodyTooLargeError();
     throw error;
+  } finally {
+    // Release the original request stream on malformed multipart bodies too.
+    try {
+      await cancelReader();
+    } catch {
+      releaseReader();
+    }
   }
 }
 
@@ -95,4 +127,32 @@ export async function cleanupUploadedObjects(
   } catch {
     return false;
   }
+}
+
+/** Reject multipart entries that are not part of the intake contract. */
+export function hasOnlyExpectedFormFields(form: FormData, expectedNames: readonly string[]): boolean {
+  const expected = new Set(expectedNames);
+  for (const [name] of form.entries()) {
+    if (!expected.has(name)) return false;
+  }
+  return true;
+}
+
+export type StagingObjectReferenceState = "NONE" | "BOTH" | "PARTIAL";
+
+/**
+ * Classify whether an existing staged row references either object from a
+ * failed insert. Never delete an object that may already be referenced by a row.
+ */
+export function classifyStagingObjectReferences(
+  existing: { archive_object_path?: unknown; manifest_object_path?: unknown } | null,
+  archivePath: string,
+  manifestPath: string,
+): StagingObjectReferenceState {
+  if (!existing) return "NONE";
+  const archiveReferenced = existing.archive_object_path === archivePath;
+  const manifestReferenced = existing.manifest_object_path === manifestPath;
+  if (archiveReferenced && manifestReferenced) return "BOTH";
+  if (archiveReferenced || manifestReferenced) return "PARTIAL";
+  return "NONE";
 }
