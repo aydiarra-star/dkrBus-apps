@@ -22,7 +22,7 @@ import {
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string; status?: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
 
 const MINUTE_MS = 60_000
@@ -30,20 +30,20 @@ const DAY_MS = 24 * 60 * MINUTE_MS
 
 const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   line: '*',
-  weekday: { start: '06:00', end: '21:00', interval: '' },
-  saturday: { start: '06:00', end: '21:00', interval: '' },
-  sunday: { start: '06:00', end: '21:00', interval: '' },
+  weekday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  saturday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  sunday: { start: '06:00', end: '21:00', interval: '11.6 min' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
-  sourceLabel: 'AFTU/TATA · amplitude générale, sans fréquence officielle par ligne',
+  sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
 }
 
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
   line: '*',
-  weekday: { start: '05:30', end: '21:00', interval: '' },
-  saturday: { start: '05:30', end: '21:00', interval: '' },
-  sunday: { start: '06:00', end: '21:00', interval: '' },
+  weekday: { start: '05:30', end: '21:00', interval: '10 min' },
+  saturday: { start: '05:30', end: '21:00', interval: '10 min' },
+  sunday: { start: '06:00', end: '21:00', interval: '12 min' },
   sourceUrl: 'https://demdikk.sn/reseau-urbain-dakar/',
-  sourceLabel: 'Dakar Dem Dikk · amplitude générale, fréquence non documentée par ligne',
+  sourceLabel: 'Dakar Dem Dikk · amplitude générale et intervalle de référence',
 }
 
 function parseClock(value: string): number | null {
@@ -82,18 +82,12 @@ export function scheduleCountdownMinutes(schedule: EstimatedLineSchedule, now = 
   return Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS))
 }
 
-function isOfficialSchedule(schedule: EstimatedLineSchedule | null | undefined): schedule is EstimatedLineSchedule {
-  if (!schedule) return false
-  return schedule.sourceLabel.includes('CETUD')
-    || schedule.sourceLabel.includes('Dakar Dem Dikk · départs publiés')
-}
-
 export function EstimatedLineScheduleBoard({ network, location = null }: { network: EstimatedScheduleNetwork; location?: UserLocation | null }) {
   const isDdd = network === 'ddd'
   const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA' : 'AFTU'
   const catalogue = isDdd ? DDD_PUBLIC_LINE_CATALOG : network === 'tata' ? TATA_PUBLIC_LINE_CATALOG : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : network === 'aftu' ? AFTU_ESTIMATED_LINE_SCHEDULES : []
-  const schedulesByLine = useMemo(() => new Map(schedules.filter(isOfficialSchedule).map((schedule) => [schedule.line, schedule])), [schedules])
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
+  const schedulesByLine = useMemo(() => new Map(schedules.map((schedule) => [schedule.line, schedule])), [schedules])
   const [now, setNow] = useState(() => Date.now())
   const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
   const [openedDirection, setOpenedDirection] = useState<{ line: string; direction: DirectionId } | null>(null)
@@ -173,7 +167,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
-          const lineSchedule = schedulesByLine.get(line.line) ?? (isOfficialSchedule(route?.outboundSchedule) ? route.outboundSchedule : null)
+          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
@@ -190,12 +184,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const hasOfficialRouteFrequency = route?.frequency?.status === 'OFFICIAL_REFERENCE' || route?.frequency?.status === 'CETUD_SOURCE_USER_SUPPLIED'
-          const lineInterval = hasOfficialRouteFrequency && route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : hasOfficialRouteFrequency ? route?.frequency?.display : undefined
+          const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
           const countdownSchedule = countdownWindow ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-          const inboundSchedule = isOfficialSchedule(route?.inboundSchedule) ? route.inboundSchedule : null
+          const inboundSchedule = route?.inboundSchedule ?? null
           const inboundDayWindow = inboundSchedule
             ? weekday === 0 ? inboundSchedule.sunday : weekday === 6 ? inboundSchedule.saturday : inboundSchedule.weekday
             : scheduleWindow
