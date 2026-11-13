@@ -55,7 +55,7 @@ export default defineConfig({
               priority: 16,
               // Shared by the application and the lazily loaded route-audit panel.
               // Keep it in its own chunk so the audit panel never imports the entry chunk.
-              test: /(bidirectionalBusLines|publicBusLineCatalog|dddPublishedRoutes)\\.ts(?:\\?.*)?$/,
+              test: /bidirectionalBusLines|publicBusLineCatalog|dddPublishedRoutes/,
             },
             {
               name: 'schedule-board',
