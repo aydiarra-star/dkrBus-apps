@@ -150,3 +150,13 @@ Le calcul ne doit jamais transformer une moyenne de passage observée à un site
 Le site officiel AFTU publie une fiche d'itinéraire pour de nombreuses lignes urbaines (liens « Voir itinéraire »). Le script `scripts/export_aftu_official_routes.mjs` récupère la liste de ces fiches et leur texte d'itinéraire, avec URL et date affichée lorsque présente. Il produit un artefact JSON de contrôle via `.github/workflows/audit-aftu-official-routes.yml`.
 
 Les descriptions de rues et de corridors sont conservées telles quelles : elles ne sont pas artificiellement transformées en arrêts intermédiaires. Une fiche décrivant un sens ne crée pas automatiquement le sens retour. Les fréquences ne sont pas déduites du texte de l'itinéraire ; les références de fréquence séparées restent la source pour le compte à rebours.
+
+
+### Extraction automatique de toutes les fiches AFTU reliées
+
+Une collecte automatisée en lecture seule a parcouru les liens de la page officielle « Infos pratiques » :
+- 63 fiches individuelles reliées ;
+- 62 textes d'itinéraire récupérés automatiquement ;
+- la fiche 30 a été ouverte, mais son bloc d'itinéraire n'a pas été extrait par le parseur ; la description déjà conservée dans le registre candidat reste à recouper.
+
+Le relevé complet est produit par `scripts/export_aftu_official_routes.mjs` et le workflow `audit-aftu-official-routes.yml`. Les descriptions restent des corridors publiés dans un seul sens, pas des séquences aller/retour indépendantes. Les pages n'ont pas été injectées automatiquement dans le catalogue passager.
