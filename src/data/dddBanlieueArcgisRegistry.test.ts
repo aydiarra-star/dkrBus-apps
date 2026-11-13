@@ -45,7 +45,8 @@ describe('DDD urban ArcGIS stop inventory', () => {
       emptyRouteFeatures: 1,
       stopLayers: 12,
       stopFeatures: 455,
-      namedStopFeatures: 384,
+      namedStopFeatures: 379,
+      missingNameStopFeatures: 76,
       geolocatedStopFeatures: 454,
     })
     expect(DDD_URBAN_ARCGIS_ROUTE_LAYERS.find((layer) => layer.line === '8')).toMatchObject({
