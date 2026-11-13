@@ -426,3 +426,23 @@ Références secondaires :
 
 La fréquence de la ligne AFTU 84 est **un passage toutes les 14 minutes**, selon les données CETUD transmises par le responsable du projet. Elle est enregistrée dans `src/data/aftu-84-directions.json` avec `intervalMinutes: 14`, l'affichage `14 min` et le statut `CETUD_SOURCE_USER_SUPPLIED`. Le test de la ligne vérifie explicitement cette valeur et sa provenance.
 
+## 16. Fréquences officielles observées par site et par sens — CETUD/CUREM
+
+Le rapport officiel CETUD/CUREM « Étude de la situation de référence du projet BRT », tome 2, publié en juillet 2020, contient des relevés d'intervalles de passage issus de l'EFOV 2016. Les tableaux 48 et 49 concernent AFTU (lundi–vendredi et samedi) ; les tableaux 52 et 53 concernent DDD (lundi–vendredi et samedi). Chaque tableau distingue les passages « vers ville » et « vers banlieue ».
+
+Ces données ont été transcrites dans `src/data/cetudFrequencyObservations.ts` et sont visibles dans la console d'audit :
+- AFTU : 21 sites en semaine et 8 sites le samedi.
+- DDD : 22 sites en semaine et 8 sites le samedi.
+- Les valeurs sont des intervalles moyens constatés sur un site et un sens, et non des fréquences attribuées à un numéro de ligne. Elles ne doivent donc pas être généralisées à toutes les lignes qui empruntent un secteur.
+- Les valeurs « nd » restent nulles ; elles ne sont pas remplacées par une moyenne.
+- La source de mesure est conservée comme EFOV 2016, avec le rapport CETUD publié en juillet 2020.
+
+Source primaire : https://cetud.sn/wp-content/uploads/2026/03/10-CETUD-ESRBRT-TOME-2_VF.pdf
+
+Autres informations officielles relevées :
+- DDD : une page institutionnelle de l'opérateur, datée du 17 novembre 2021, décrit un intervalle de planification général de 20 à 30 minutes entre deux bus. Cette indication concerne l'organisation générale et ne permet pas d'attribuer 20–30 minutes à chaque ligne. Source : https://portail.demdikk.sn/blog/ddd-1/roles-et-fonctions-des-directions-de-3d-7
+- DDD / TAF TAF : la page Info voyageurs publie un parcours et des premiers/derniers départs dans les deux sens entre Ouakam, AIBD et Sphère ministérielle. Elle ne publie pas d'intervalle de fréquence. Source : https://demdikk.sn/info-voyageurs/
+- AFTU : la FAQ officielle indique une circulation généralement du matin jusqu'à 21 h, avec des horaires variables selon les lignes et les zones ; elle ne publie pas de fréquence par ligne. Source : https://aftu-senegal.org/faq/
+- AFTU 84 : la fréquence de 14 minutes et les 73 arrêts dans chacun des deux sens restent les données CETUD transmises par le responsable du projet, conservées séparément des observations générales de site.
+
+Aucune fréquence observée à un carrefour ou sur un corridor n'est présentée comme une fréquence garantie à chaque arrêt d'une ligne. Pour le compte à rebours, seules les données horaires/fréquences réellement rattachées à la ligne et au sens concernés peuvent alimenter le calcul ; les autres relevés servent au recoupement et à la qualification.
