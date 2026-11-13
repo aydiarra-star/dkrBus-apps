@@ -62,3 +62,12 @@ La page CETUD affiche une plage générale de service de 6 h à 21 h pour l'AFTU
 5. Garder les fréquences séparées des corridors tant qu'une source ligne par ligne n'est pas trouvée.
 
 Aucune écriture de production, aucune modification TER/BRT, aucun déploiement et aucune fusion de PR dans cette étape.
+
+
+## Addendum AFTU — identification des sept lignes sans page détaillée
+
+La page officielle AFTU « Infos pratiques » a maintenant été examinée intégralement. Elle liste les lignes 84, 85, 86, 87, 88, 89 et 91, avec les corridors suivants : UCAD–Jaxaay ; Banoba–Liberté 5 ; Tournalou Boune–Toubab Dialaw ; Bambilor–Mosquée Massalikou Djinane ; MTOA–Liberté 5 ; Bargny–Croisement Niague (Cité SICAP) ; APIX–Dougar.
+
+Pour ces sept entrées, le bloc « Voir itinéraire » n'expose pas de lien vers une page détaillée. Le décompte de couverture est donc désormais précis : 65 pages détaillées + 7 lignes officiellement listées sans page détaillée = 72 lignes AFTU, cohérent avec le chiffre CETUD.
+
+Les corridors et terminus des sept lignes sont connus ; les arrêts intermédiaires, directions complètes et fréquences ne le sont pas encore. Ne pas les inventer.
