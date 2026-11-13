@@ -143,3 +143,10 @@ Le tableau passager ne doit utiliser que les intervalles rattachés à une ligne
 - AFTU (autres lignes) et TATA : les horaires secondaires restent hors du calcul passager tant qu'une fréquence officielle par ligne n'est pas établie.
 
 Le calcul ne doit jamais transformer une moyenne de passage observée à un site en fréquence propre à une ligne. Si la fréquence officielle manque, aucun compte à rebours numérique n'est affiché pour cette ligne.
+
+
+## AFTU — extraction des fiches officielles de lignes
+
+Le site officiel AFTU publie une fiche d'itinéraire pour de nombreuses lignes urbaines (liens « Voir itinéraire »). Le script `scripts/export_aftu_official_routes.mjs` récupère la liste de ces fiches et leur texte d'itinéraire, avec URL et date affichée lorsque présente. Il produit un artefact JSON de contrôle via `.github/workflows/audit-aftu-official-routes.yml`.
+
+Les descriptions de rues et de corridors sont conservées telles quelles : elles ne sont pas artificiellement transformées en arrêts intermédiaires. Une fiche décrivant un sens ne crée pas automatiquement le sens retour. Les fréquences ne sont pas déduites du texte de l'itinéraire ; les références de fréquence séparées restent la source pour le compte à rebours.
