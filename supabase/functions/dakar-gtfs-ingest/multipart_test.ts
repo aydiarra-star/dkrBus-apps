@@ -142,11 +142,11 @@ Deno.test("rejects unexpected multipart field names", () => {
 });
 
 Deno.test("does not keep a request body reader locked after an oversized stream", async () => {
-  const request = multipartRequest(
-    "--__BOUNDARY__\\r\\nContent-Disposition: form-data; name=\\"payload\\"\\r\\n\\r\\n" +
-      "x".repeat(2048) +
-      "\\r\\n--__BOUNDARY__--\\r\\n",
-  );
+  const request = new Request("https://example.invalid/upload", {
+    method: "POST",
+    headers: { "Content-Type": "multipart/form-data; boundary=dakar-bus-test" },
+    body: new Uint8Array(2048),
+  });
   try {
     await readMultipartWithLimit(request, 512);
   } catch {
