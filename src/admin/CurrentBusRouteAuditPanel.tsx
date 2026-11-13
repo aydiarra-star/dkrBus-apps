@@ -119,8 +119,8 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Fiches officielles AFTU parcourues · {AFTU_OFFICIAL_PAGE_AUDIT.linkedPages} pages · {AFTU_OFFICIAL_PAGE_AUDIT.itineraryTextsRetrieved} itinéraires</summary>
-        <p>La collecte a ouvert les 63 fiches reliées depuis la page officielle AFTU. Le texte d’itinéraire a été récupéré sur 62 pages ; la fiche 30 est conservée dans le registre existant et son texte sera recoupé séparément.</p>
+        <summary>Fiches officielles AFTU parcourues · {AFTU_OFFICIAL_PAGE_AUDIT.linkedPages + AFTU_OFFICIAL_PAGE_AUDIT.additionalOfficialPages} pages · {AFTU_OFFICIAL_PAGE_AUDIT.itineraryTextsRetrieved} itinéraires</summary>
+        <p>La collecte a récupéré les 63 fiches liées depuis « Infos pratiques » et deux fiches officielles supplémentaires trouvées par URL directe (lignes 27 et 36). Les 65 textes d’itinéraire sont disponibles ; aucun n’est transformé automatiquement en séquence complète Aller/Retour.</p>
         <a href={AFTU_OFFICIAL_PAGE_AUDIT.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la liste officielle des lignes AFTU</a>
       </details>
 
