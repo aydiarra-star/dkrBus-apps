@@ -277,18 +277,36 @@ Il expose deux couches utiles :
 
 Cette ressource est un **recoupement géographique complémentaire**, pas une preuve suffisante de l'exploitation actuelle : les dates de données sont anciennes et la page de service consultée ne suffit pas à certifier les deux sens ni les fréquences. Il faut comparer les attributs et géométries à la page opérateur actuelle et à des preuves plus récentes avant toute validation. Le service est en lecture seule dans ce chantier ; aucune opération d'édition n'est utilisée.
 
-## 7. Écarts DDD prioritaires à résoudre
+## 7. Lecture structurée des fiches DDD : distinguer le titre et la séquence publiée
 
-La page officielle DDD « Info voyageurs » (https://demdikk.sn/info-voyageurs/) affiche :
-- ligne 217 : Thiaroye ↔ Ouakam ;
-- ligne 218 : Thiaroye ↔ Aéroport LSS ;
-- ligne 233 : Baux Maraîchers ↔ Palais 1 ;
-- ligne 232 : Baux Maraîchers ↔ Aéroport LSS.
+La page officielle DDD « Réseau urbain de Dakar » publie pour chaque ligne un titre avec deux terminus et une liste ordonnée de repères. Pour certaines lignes, la liste continue après un repère nommé « Terminus » : cela peut correspondre à la description enchaînée des deux sens, à une variante ou à une incohérence de la fiche. Il ne faut donc ni tronquer automatiquement la liste au premier « Terminus », ni supposer que tout ce qui suit appartient au même sens. La séquence doit être segmentée en Aller et Retour à partir des repères et recoupements disponibles.
 
-Or le registre textuel actuel du dépôt contient pour la ligne 217 une séquence se terminant à Aéroport LSS, et pour la ligne 233 une séquence qui se termine également à Aéroport LSS et ressemble à celle de la ligne 232. Ces deux écarts sont désormais des **anomalies prioritaires**. Ils ne doivent pas être corrigés en devinant les arrêts manquants : il faut retrouver les fiches détaillées propres aux lignes 217 et 233, puis recouper avec le service géographique et les autres sources opérateur disponibles.
+### Ligne 217
 
-La page officielle de référence DDD confirme également 38 lignes et une amplitude générale annoncée de 6 h à 21 h ; cette amplitude réseau ne doit pas être transformée en horaire détaillé ou fréquence identique pour chaque ligne.
+Le titre officiel indique **Thiaroye ↔ Ouakam**. La liste détaillée publiée sur la même page commence à Dépôt Thiaroye, passe par Sipses, Bountou Pikine, Patte d'Oie, Foire, VDN, Sipres, Ancienne Piste, Ouakam et Marché Ouakam, puis mentionne « Terminus Ouakam ». Elle continue ensuite par Route des Mamelles, Route des Almadies, Ngor et « Terminus aéroport LSS ».
 
+La page officielle contient donc à la fois le terminus Ouakam du titre et une continuation de repères jusqu'à l'aéroport. Cette continuation ne doit pas être supprimée : elle constitue une donnée officielle publiée à structurer et à interpréter. Elle peut documenter le sens retour ou une extension/variante, mais la segmentation exacte des deux sens doit être recoupée avant de transformer cette séquence en deux listes d'arrêts définitives.
+
+### Ligne 218
+
+Le titre officiel indique **Thiaroye ↔ Aéroport LSS** et la liste détaillée reprend les mêmes repères jusqu'à Ngor puis Aéroport LSS. La proximité des descriptions 217 et 218 est un élément de recoupement à exploiter, et non une raison de fusionner les deux lignes.
+
+### Ligne 233
+
+Le titre officiel indique **Baux Maraîchers ↔ Palais 1**, tandis que la liste détaillée publiée sur la page « Réseau urbain » reprend les repères de Baux Maraîchers jusqu'à Yoff puis mentionne « Terminus Aéroport LSS ». Le titre et la séquence de la fiche ne concordent donc pas entièrement. La ligne 232 est également décrite Baux Maraîchers ↔ Aéroport LSS avec une séquence proche.
+
+La bonne démarche consiste à conserver les deux informations officielles, à rechercher la fiche horaire/téléchargeable et les autres documents DDD/CETUD, puis à déterminer si la ligne 233 comporte une variante, un retour distinct, une ancienne erreur de titre ou une erreur de transcription. Ne pas remplacer les repères publiés et ne pas inventer une fin de parcours.
+
+### Carte officielle CETUD
+
+Le CETUD publie également un plan des lignes DDD :
+https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-ddd.jpeg
+
+Cette carte constitue une preuve institutionnelle supplémentaire des corridors et numéros de lignes. Elle doit être rapprochée des listes textuelles DDD, sans tenter d'extraire à elle seule une séquence complète d'arrêts ou une fréquence.
+
+La page CETUD « Dem Dikk » comporte un bouton intitulé « Télécharger les lignes et horaires », mais le lien consulté ouvre actuellement le plan cartographique JPEG ci-dessus. Il faut conserver ce constat et poursuivre la recherche d'un fichier horaire distinct.
+
+La page officielle CETUD confirme une référence de 38 lignes DDD et une amplitude générale de 6 h à 21 h. Cette amplitude générale ne doit pas être recopiée comme un horaire précis identique à chaque ligne.
 
 ## 8. Complément AFTU — lignes officiellement listées sans fiche détaillée accessible
 
@@ -329,3 +347,13 @@ Une fiche d'itinéraire tierce (TransitRun) décrit la ligne DDD 233 comme « Ga
 Référence : https://transitrun.com/fr/public-transit-line_233_226860
 
 **Décision provisoire :** l'identité et les terminus actuels de la ligne 233 sont corroborés par la page opérateur et une source indépendante, et confortés par le document historique. La séquence actuellement stockée dans le dépôt, qui finit à Aéroport LSS, reste néanmoins en conflit et ne peut pas être validée. Les 39 arrêts tiers ne seront pas importés tant qu'ils n'auront pas été recoupés avec une source officielle actuelle.
+
+
+## 11. Référentiel institutionnel GTFS du CETUD
+
+La page officielle du système de données du CETUD indique explicitement que le CETUD a numérisé le réseau de transport collectif de Dakar au moyen de fichiers GTFS. Elle précise que ces fichiers comprennent les horaires, arrêts, itinéraires, trajets, tarifs et services :
+https://cetud.sn/observatoire/systeme-de-donnees/
+
+La même page distingue les données d'exploitation des réseaux classiques AFTU et DDD, issues notamment de plateformes CAPTRANS et/ou d'enquêtes auprès des opérateurs. C'est une piste institutionnelle prioritaire pour retrouver les jeux de données sources, et non une simple hypothèse.
+
+**État de récupération :** l'existence du référentiel GTFS est confirmée par le CETUD ; le fichier lui-même et son éventuelle version téléchargeable ne sont pas encore récupérés dans ce chantier. Continuer à chercher le lien de téléchargement, les archives ou les points de contact de l'Observatoire (observatoire@cetud.sn, 33 859 47 20). Ne pas dire que le GTFS n'existe pas ; dire uniquement qu'il n'a pas encore été obtenu par le dépôt.
