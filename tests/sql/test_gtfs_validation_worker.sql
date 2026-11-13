@@ -78,12 +78,12 @@ begin
   end if;
 
   select * into first_job from public.claim_dakar_gtfs_validation(900);
-  if first_job.dataset_id <> 'worker-valid-test' then
+  if not found or first_job.dataset_id is distinct from 'worker-valid-test' then
     raise exception 'Worker did not claim the oldest staged dataset';
   end if;
 
   select * into second_job from public.claim_dakar_gtfs_validation(900);
-  if second_job.dataset_id <> 'worker-invalid-test' or second_job.dataset_id = first_job.dataset_id then
+  if not found or second_job.dataset_id is distinct from 'worker-invalid-test' or second_job.dataset_id = first_job.dataset_id then
     raise exception 'Sequential claims did not reserve distinct staged datasets';
   end if;
 
@@ -133,7 +133,7 @@ begin
      set validation_lease_until = now() - interval '1 second'
    where dataset_id = first_job.dataset_id;
   select * into reclaimed_job from public.claim_dakar_gtfs_validation(900);
-  if reclaimed_job.dataset_id <> first_job.dataset_id
+  if not found or reclaimed_job.dataset_id is distinct from first_job.dataset_id
      or reclaimed_job.lease_token = first_job.lease_token then
     raise exception 'Expired validation lease was not safely reclaimed';
   end if;
