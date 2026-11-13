@@ -60,6 +60,23 @@ Stop-time chronology is now checked after sorting by trip_id and stop_sequence, 
 The new migration is exercised only against an isolated PostgreSQL 16 service in GitHub Actions. It is not applied to the active Supabase database by CI. The manual worker workflow is not dispatched as part of CI. No real GTFS archive is assumed, no staged row is created, and a structurally valid result still leaves human review pending and publication disabled.
 
 
+## Intake cleanup and activation boundary
+
+The intake function now accepts exactly one `feed`, `manifest`, and `dataset_id` multipart field. If a later upload or staging-row insert fails, it attempts to remove only the objects created by that request and returns a distinct error when Storage reports that cleanup was incomplete. Database error details are not returned to the caller.
+
+The multipart parser enforces the actual request-stream byte count even when `Content-Length` is absent. It still materializes the bounded `FormData` and archive bytes in the Edge Function before hashing; the 100 MiB archive limit is therefore a request cap, not proof that a 100 MiB upload fits the active Edge Function memory/CPU budget. Do not deploy or enable this intake path until its runtime resource behavior is verified in a dedicated non-production Supabase project, or the upload path is changed to a bounded direct-to-private-Storage flow. CI uses only synthetic in-memory multipart tests and does not upload files or write to Supabase.
+
+
+## Garde-fous complémentaires de réception (13 novembre 2026)
+
+Le formulaire multipart n'accepte que les trois champs contractuels `feed`, `manifest` et `dataset_id`, chacun présent exactement une fois. Le lecteur du flux d'origine est annulé puis libéré aussi bien après dépassement de taille qu'après erreur de parsing.
+
+Après une erreur de réponse lors de l'insertion Postgres, l'Edge Function relit la ligne par `dataset_id` avant tout nettoyage. Si la ligne référence les objets envoyés, ils sont conservés ; si la lecture de vérification échoue ou si la référence est partielle, aucun objet n'est supprimé et l'API renvoie un résultat indéterminé. Le nettoyage compensatoire n'est lancé que lorsque la lecture confirme qu'aucune ligne ne référence les chemins.
+
+Une erreur de téléversement Storage peut elle-même avoir une issue réseau ambiguë. Le chemin reste privé et non publié ; aucun nettoyage destructif n'est tenté sur un chemin dont l'appartenance à la requête n'est pas établie. Une réconciliation des objets privés orphelins reste une opération distincte, à concevoir et tester avant toute activation réelle.
+
+Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclenchent aucune écriture Supabase, migration active ou publication.
+
 ## Worker implémenté et garde opérationnel (13 novembre 2026)
 
 Le worker Python décrit ci-dessus est maintenant présent dans `scripts/process_gtfs_staging.py`. Il réutilise le validateur de référence et les fonctions SQL de réservation/finalisation. Son workflow GitHub Actions est manuel uniquement ; le job est désormais conditionné à la branche `main` et à une confirmation booléenne explicite dont la valeur par défaut est `false`.
