@@ -6,11 +6,11 @@ afterEach(() => cleanup())
 import { CurrentBusRouteAuditPanel } from './CurrentBusRouteAuditPanel'
 
 describe('CurrentBusRouteAuditPanel', () => {
-  it('shows the catalogue audit as read-only and exposes separate directions', () => {
+  it('shows the catalogue audit as read-only and exposes separate directions', async () => {
     render(<CurrentBusRouteAuditPanel />)
     expect(screen.getByRole('region', { name: 'Audit des lignes DDD AFTU TATA' })).toBeTruthy()
     expect(screen.getByText(/Lecture seule du catalogue actuel/)).toBeTruthy()
-    expect(screen.getByText(/Fiches TATA candidates/)).toBeTruthy()
+    expect(await screen.findByText(/Fiches TATA candidates · 2 lignes/)).toBeTruthy()
     expect(screen.getByText(/L’IA recherche et recoupe les sources pour qualifier les lignes/)).toBeTruthy()
     expect(screen.getByText(/Lignes examinées/)).toBeTruthy()
     expect(screen.getByText(/Sens examinés/)).toBeTruthy()
@@ -19,7 +19,7 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('shows the return-route variants published by AFTU for lines 2 and 5', () => {
     render(<CurrentBusRouteAuditPanel />)
-    fireEvent.click(screen.getByText(/Fiches AFTU récupérées/))
+    fireEvent.click(await screen.findByText(/Fiches AFTU récupérées · 65 lignes/))
     expect(screen.getAllByText('Retour : Rue 17 à la place de Rue 39')).toHaveLength(2)
     expect(screen.getAllByText('Retour : Rue 37 à la place de Rue 25')).toHaveLength(2)
   })
@@ -66,7 +66,7 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('shows official DDD terminal departure windows without inventing a frequency', () => {
     render(<CurrentBusRouteAuditPanel />)
-    const departures = screen.getByText(/Départs officiels DDD · 6 directions documentées/)
+    const departures = await screen.findByText(/Départs officiels DDD · 6 directions documentées/)
     fireEvent.click(departures)
     expect(screen.getByText(/Ligne 1 · Parcelles Assainies → Place Leclerc/)).toBeTruthy()
     expect(screen.getByText(/Premier départ : 05:30 · Dernier départ : 20:30/)).toBeTruthy()
