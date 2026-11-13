@@ -118,3 +118,19 @@ Les détails, liens directs et limites des sources sont consignés dans le relev
 - **DDD :** la transcription officielle du registre comprend maintenant 34 références de parcours, dont deux nouvelles entrées (311 et 327). La ligne 311 est conservée comme circuit avec un retour non détaillé ; la ligne 327 est conservée comme ordre publié. Les lignes 217 et 233 portent des notes de conflit de source.
 
 - **DDD banlieue :** un registre technique recense aussi 12 couches ArcGIS de géométrie de lignes (217, 218, 219, 227, 228, 232 et autres). Ces polylignes historiques servent au recoupement des corridors, pas à créer des arrêts ordonnés ou des horaires. Les métadonnées et limites sont consignées dans le relevé de recherche du 13 novembre.
+
+## Fréquences officielles transcrites
+
+Le registre `src/data/cetudFrequencyObservations.ts` contient les 59 relevés CETUD/CUREM des tableaux 48, 49, 52 et 53 du rapport de juillet 2020 (mesures EFOV 2016) :
+- AFTU : 21 sites du lundi au vendredi et 8 sites le samedi.
+- DDD : 22 sites du lundi au vendredi et 8 sites le samedi.
+- Chaque observation conserve le site, le sens vers ville / vers banlieue, la période, le tableau et la source.
+- Ces observations décrivent un intervalle moyen au point de mesure. Elles ne deviennent pas une fréquence par ligne sans preuve que la ligne concernée dessert ce point selon le même sens et la même période.
+
+Autres périmètres documentés :
+- DDD : la source institutionnelle de l'opérateur du 17 novembre 2021 décrit une planification générale de 20 à 30 minutes entre deux bus, sans ventilation par ligne.
+- AFTU : la FAQ officielle donne une amplitude générale jusqu'à 21 h, variable selon les lignes, mais pas une fréquence par ligne.
+- AFTU 84 : les données CETUD transmises par le responsable du projet donnent 73 arrêts par sens et une fréquence de 14 minutes.
+- Les sources TATA actuellement enregistrées restent secondaires ; aucune fréquence officielle propre à une ligne TATA de Dakar n'est ajoutée sur cette seule base.
+
+La console d'audit expose les 59 observations et leurs références. Elles servent au recoupement documentaire ; elles ne modifient pas les horaires passagers. Le compte à rebours ne doit utiliser que des heures ou intervalles rattachés de façon probante à la ligne, au sens et à la période concernés.
