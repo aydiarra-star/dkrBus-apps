@@ -32,6 +32,7 @@ interface RawDirection {
 
 interface RawSchedule {
   interval?: unknown
+  weekday?: { interval?: unknown }
   sourceUrl?: unknown
   sourceLabel?: unknown
 }
@@ -133,6 +134,7 @@ function adaptRoute(route: RawAftuRoute): AftuRouteEvidence | null {
 }
 
 export const AFTU_ROUTE_EVIDENCE: readonly AftuRouteEvidence[] = Object.values(routeModules)
+  .concat([aftu66Return as RawAftuRoute])
   .map(adaptRoute)
   .filter((route): route is AftuRouteEvidence => route !== null)
   .sort((a, b) => Number(a.line) - Number(b.line))
