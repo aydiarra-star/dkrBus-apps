@@ -27,6 +27,12 @@ Les lignes 1, 4, 7, 8, 9, 10, 13, 18, 20, 23, 121 et d’autres parcours sont d�
 
 La ligne 18 apparaît deux fois dans le contenu de la page avec un parcours de type boucle. Elle doit rester un circuit documentaire et faire l’objet d’une vérification avant toute interprétation.
 
+### Point de vigilance : lignes DDD 217 / 218 et dessertes TER
+
+La page officielle « Info voyageurs » consultée le 13 novembre 2026 présente la ligne 217 comme **Thiaroye ↔ Ouakam** et la ligne 218 comme **Thiaroye ↔ Aéroport LSS**. Dans le registre de repères du dépôt, les deux enregistrements comportent actuellement une séquence dont le dernier repère est « Terminus Aéroport LSS ». Il existe donc une incohérence à examiner pour la ligne 217 : la séquence publiée doit être confrontée à la fiche officielle avant toute utilisation. Aucun changement n’est fait automatiquement.
+
+La même page DDD sépare les dessertes des gares TER et liste les lignes 501, 502A, 502B, 503A, 503B, 504A et 504B avec leurs terminus. Ce sont des dessertes DDD associées au TER ; les terminus seuls ne suffisent pas à créer les séquences d’arrêts. Elles doivent rester dans un périmètre distinct et ne justifient aucune modification des données ni des horaires TER.
+
 ## 2. AFTU
 
 **Source institutionnelle consultée :** https://cetud.sn/reseaux-de-transport/aftu/
