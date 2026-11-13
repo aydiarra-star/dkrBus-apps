@@ -248,3 +248,55 @@ Ces rapprochements de terminus et de séquence sont des **correspondances candid
 Cette extraction fournit une séquence ArcGIS d'arrêts pour chaque ligne examinée, mais ne prouve pas à elle seule l'exhaustivité des deux sens. Aucun sens retour n'est créé par inversion. Les deux relations OSM restent indépendantes et les écarts spatiaux historiques restent à examiner avant toute promotion en parcours passager. Aucune fréquence n'est déduite de ces couches.
 
 L'artefact ArcGIS de cette exécution a été produit le 13/11/2026 à 08:53:46 UTC. Aucun catalogue passager, horaire TER/BRT, service Supabase ou déploiement n'a été modifié.
+
+
+## Extraction OSM confirmée — 13 novembre 2026, 09:06 UTC
+
+Le workflow `.github/workflows/audit-dakar-osm-routes.yml` a terminé avec succès sur le HEAD `6f33f88`. L'artefact `dakar-osm-route-candidates.zip` (généré à 09:06:27 UTC) confirme le résultat suivant :
+
+- **27 éléments bruts** : 25 relations `route=bus` et 2 relations `route_master=bus`.
+- **23 relations candidates dans le périmètre de Dakar** ; 2 relations `SCOPE_CONFLICT` (APSRTC 10123245 et 10123246, terminus Vijayawada ↔ Hyderabad).
+- **18 relations avec arrêts ordonnés**, totalisant **522 occurrences** ; 7 relations sans arrêt ordonné.
+- Les 522 occurrences possèdent des coordonnées, mais **aucune n'a de nom renseigné dans OSM** : 470 membres `platform` et 52 membres `stop`. Les identifiants OSM et les coordonnées doivent donc rester attachés à chaque point jusqu'au rapprochement avec les noms des fiches officielles et des couches ArcGIS.
+- 4 relations directionnelles sont liées à une relation maître : les deux directions DDD de la ligne 7 via la relation maître 7500597, et les deux relations candidates de la ligne 23 via la relation maître 7499003.
+- Les tentatives Overpass ont rencontré un timeout et des réponses 504/502 avant reprise réussie ; ces incidents sont conservés dans `endpointErrors`. Le workflow final est bien en succès, mais l'extraction reste datée et non exhaustive par nature.
+
+### Séquences directionnelles identifiées
+
+| Réseau / ligne | Relation OSM | Terminus déclarés | Membres d'arrêts ordonnés | Lecture |
+|---|---:|---|---:|---|
+| DDD 1 | 6951328 | Parcelles assainies → Leclerc | 38 | Un seul sens trouvé dans cette extraction. |
+| DDD 4 | 7203970 | Liberté 5 → Leclerc | 32 | Sens correspondant au sens ArcGIS candidat. |
+| DDD 4 | 6990830 | Leclerc → Liberté 5 | 34 | Sens opposé distinct ; écart spatial ArcGIS à revoir. |
+| DDD 7 | 7500475 | Ouakam → Palais 1 | 34 | Liée à la relation maître 7500597. |
+| DDD 7 | 6990669 | Palais → Ouakam | 31 | Liée à la relation maître 7500597. |
+| DDD 9 | 7487218 | Liberté 6 → Palais 1 | 29 | Sens correspondant au sens ArcGIS candidat. |
+| DDD 9 | 6996431 | Palais 1 → Liberté 6 | 32 | Sens opposé distinct. |
+| DDD 10 | 7488283 | Liberté 5 → Palais 1 | 25 | Sens correspondant au sens ArcGIS candidat. |
+| DDD 10 | 6990845 | Palais 1 → Liberté 5 | 30 | Sens opposé distinct. |
+| DDD 23 | 7495279 | Palais 1 → Parcelles-Assainies | 51 | Liée à la relation maître 7499003. |
+| DDD / référence multiple | 7108131 | Parcelles-Assainies → Palais 1 | 47 | Tags `ref=L23;L5`, liée à la relation maître 7499003 ; ne pas l'attribuer automatiquement à L23 ou L5. |
+| DDD 121 | 2792903 | Non renseignés | 3 | Trois plateformes sans nom ; relation à examiner. |
+| DDD 121 | 6990794 | HLM Grand Yoff → Leclerc | 27 | Candidate distincte. |
+| DDD 121 | 6999013 | Leclerc → HLM Grand Medine | 7 | Terminus et volume différents ; ne pas fusionner avec 6990794 sur le seul numéro. |
+| AFTU/TATA 40 | 3982642 | Non renseignés | 0 | 35 ways géométriques, `operator=Aftu`, `network=Tata`, mais aucun arrêt ordonné ni sens. |
+| DDD 36 | 1434825 | Non renseignés | 0 | Relation sans opérateur ni arrêts ; numéro seul insuffisant pour le rapprochement AFTU. |
+| B1 | 19961937 | Préfecture de Guédiawaye → Petersen | 50 | Relation BRT existante ; conservée hors de toute modification. |
+| B1 | 19961993 | Petersen → Préfecture de Guédiawaye | 50 | Sens opposé distinct ; données BRT protégées. |
+
+Autres anomalies conservées :
+- La relation 7499433 porte `ref=6` mais son nom indique « 7 Palais 1 → Parcelles-Assainies » et ne contient qu'un seul membre d'arrêt ; elle reste un conflit de métadonnées.
+- Les relations 7495137 (ligne 8) et 7499475 (ligne 18) ont des terminus textuels mais aucun arrêt ordonné.
+- La relation 3982642 (ligne 40) possède un tracé de ways mais aucune liste d'arrêts : elle peut servir de candidat de corridor, pas de séquence d'arrêts.
+- La relation 1434825 (ligne 36) n'a ni opérateur identifié, ni séquence d'arrêts, ni preuve suffisante pour être rapprochée d'une fiche officielle.
+
+### Décisions de consolidation
+
+1. Conserver les relations 4, 7, 9 et 10 comme paires de sens indépendantes, sans inversion de liste.
+2. Rapprocher les points OSM anonymes avec les points ArcGIS DDD et les repères textuels officiels uniquement par distance, ordre, terminus et cohérence de corridor combinés ; la proximité seule ne suffit pas.
+3. Garder la ligne 23 à l'état candidat en raison de la relation multi-référence `L23;L5`.
+4. Ne pas fusionner les relations 121 sur leur seul numéro.
+5. Ne pas fabriquer de séquence pour les lignes 36, 40, 8 ou 18 lorsque les arrêts ne sont pas cartographiés dans la relation.
+6. Ne déduire aucune fréquence ni horaire de ces relations.
+
+Artefact : `dakar-osm-route-candidates.zip`, run GitHub Actions 89 (ID 43397397595). Attribution : © OpenStreetMap contributors, données sous licence ODbL. Cette extraction est en lecture seule : aucun catalogue passager, horaire TER/BRT, stockage Supabase ou déploiement n'a été modifié.
