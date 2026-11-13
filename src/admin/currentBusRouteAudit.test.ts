@@ -15,7 +15,7 @@ describe('getCurrentBusRouteAudit', () => {
     expect(JSON.stringify(BIDIRECTIONAL_BUS_LINES)).toBe(before)
   })
 
-  it('does not infer inbound stops from outbound stops', () => {
+  it('exposes AFTU source evidence separately from the passenger catalogue audit', () => {\n    const report = getCurrentBusRouteAudit()\n    expect(report.aftuEvidence).toHaveLength(21)\n    expect(report.aftuEvidence.find((route) => route.line === '83')?.inbound.waypoints).toEqual([])\n    expect(report.aftuEvidence.find((route) => route.line === '84')?.inbound.timetableEntries).toBe(73)\n    expect(report.aftuEvidence.find((route) => route.line === '85')?.outbound.hasPerStopTimes).toBe(false)\n  })\n\n  it('does not infer inbound stops from outbound stops', () => {
     const report = getCurrentBusRouteAudit()
     const inboundFindings = report.findings.filter((finding) =>
       finding.direction === 'inbound' && finding.kind === 'MISSING_DIRECTION_STOPS',
