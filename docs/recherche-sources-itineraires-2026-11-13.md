@@ -165,6 +165,21 @@ Six nouvelles fiches ont été ouvertes depuis les liens de la page officielle �
 
 Le registre compte désormais **43 fiches officielles AFTU**. Les six nouvelles descriptions sont enregistrées comme candidates avec leur source et date. Elles ne constituent pas des séquences Aller et Retour vérifiées.
 
+
+### Complément — fiches AFTU officielles des lignes 70, 71 et 73 à 75
+
+Cinq nouvelles fiches individuelles ont été ouvertes depuis la page officielle de l'AFTU :
+
+| Ligne | Date affichée | Terminus affichés | Référence |
+|---|---|---|---|
+| 70 | 12 juillet 2026 | Daroukhane Keur Serigne Assane – Jaxaay 2 | https://aftu-senegal.org/map/dakar-urbain-ligne-70/ |
+| 71 | 13 juillet 2026 | Keur Massar Extension – Claudel | https://aftu-senegal.org/map/dakar-urbain-ligne-71/ |
+| 73 | 13 juillet 2026 | Poste Thiaroye – Lac Rose | https://aftu-senegal.org/map/dakar-urbain-ligne-73/ |
+| 74 | 13 juillet 2026 | Bargny (gare ferroviaire) – cité Cocehas | https://aftu-senegal.org/map/dakar-urbain-ligne-74/ |
+| 75 | 13 juillet 2026 | Malika (cité Sonatel) – Gare routière Colobane | https://aftu-senegal.org/map/dakar-urbain-ligne-75/ |
+
+Le registre contient désormais **48 fiches officielles AFTU**. La ligne 72 était déjà présente. Les nouvelles fiches restent des descriptions à sens unique documentaire, sans validation de séquence retour.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
