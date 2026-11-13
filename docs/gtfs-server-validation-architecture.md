@@ -58,3 +58,12 @@ Before a report can be stored, the worker verifies the validator schema version,
 Stop-time chronology is now checked after sorting by trip_id and stop_sequence, independently of the order in which rows appear in stop_times.txt. An unsorted file remains a warning, but it can no longer bypass chronological validation.
 
 The new migration is exercised only against an isolated PostgreSQL 16 service in GitHub Actions. It is not applied to the active Supabase database by CI. The manual worker workflow is not dispatched as part of CI. No real GTFS archive is assumed, no staged row is created, and a structurally valid result still leaves human review pending and publication disabled.
+
+
+## Worker implémenté et garde opérationnel (13 novembre 2026)
+
+Le worker Python décrit ci-dessus est maintenant présent dans `scripts/process_gtfs_staging.py`. Il réutilise le validateur de référence et les fonctions SQL de réservation/finalisation. Son workflow GitHub Actions est manuel uniquement ; le job est désormais conditionné à la branche `main` et à une confirmation booléenne explicite dont la valeur par défaut est `false`.
+
+Les secrets attendus restent exclusivement dans l'environnement GitHub `dakar-bus-private-validation` : `DAKAR_BUS_SUPABASE_URL` et `DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY`. Leur présence, la protection de cet environnement et l'obtention d'une approbation humaine ne sont pas présumées. Aucun secret n'a été créé ou modifié et le workflow n'a pas été déclenché.
+
+La CI teste uniquement le code du worker, le validateur et les migrations dans un PostgreSQL isolé avec des fixtures synthétiques. Elle ne lance jamais le worker opérationnel et n'écrit pas dans le projet Supabase Dakar Bus actif. L'activation réelle reste bloquée tant que l'accès sécurisé, la protection de l'environnement et les limites d'exécution ne sont pas vérifiés séparément.
