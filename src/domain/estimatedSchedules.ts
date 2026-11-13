@@ -61,7 +61,7 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
 ]
 
 export const DDD_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
-  { line: '1', weekday: null, saturday: null, sunday: null, sourceUrl: 'https://fr.linkedin.com/posts/dakar-dem-dikk_dakardemdikk-mobility-urbain-activity-7356651804501102593-rCq3', sourceLabel: 'Dakar Dem Dikk · départs publiés', note: 'Parcelles Assainies : premier départ 05:30, dernier 20:30 · Leclerc : premier départ 06:30, dernier 21:00.' },
+  { line: '1', weekday: null, saturday: null, sunday: null, sourceUrl: 'https://demdikk.sn/', sourceLabel: 'Dakar Dem Dikk · départs publiés', note: 'Source officielle DDD : Parcelles Assainies, premier départ 05:30 et dernier 20:30 ; terminus Leclerc, premier départ 06:30 et dernier 21:00. Aucun intervalle de fréquence par ligne n’est publié ici.' },
   { line: '6', weekday: w('04:30', '21:25', 7), saturday: w('05:00', '22:00', 12), sunday: w('05:00', '22:00', 17), sourceUrl: dddUrl('6'), sourceLabel: tb },
   { line: '12', weekday: w('06:00', '21:52', 17), saturday: w('06:00', '21:43', 23), sunday: w('06:00', '21:57', 33), sourceUrl: dddUrl('12'), sourceLabel: tb },
   { line: '16A', weekday: w('05:15', '21:58', 17), saturday: w('05:40', '22:00', 20), sunday: w('05:40', '22:00', 20), sourceUrl: dddUrl('16a'), sourceLabel: tb },
