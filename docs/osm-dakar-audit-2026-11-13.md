@@ -497,3 +497,15 @@ Un contrôle géométrique complémentaire a été exécuté localement sur l'ex
 Limites : ce contrôle n'établit ni l'ordre exact des arrêts, ni le sens de circulation, ni l'état actuel du service. La distance est mesurée au tracé de ligne, et non à un itinéraire routier OSM indépendant ; il ne s'agit donc pas d'une validation externe. Il ne résout pas les divergences textuelles entre les fiches Dem Dikk et les attributs ArcGIS (notamment les terminus des lignes 4, 7, 9 et 10). Les couches de banlieue ne disposent pas d'une couche d'arrêts appariée dans cette extraction, donc elles ne sont pas incluses dans ce test.
 
 **Décision :** les couples couche d'arrêts + géométrie ArcGIS des lignes 1, 4, 6, 7, 8, 9, 10, 13, 18, 23 et 121 sont maintenant classés « cohérents spatialement en interne ». Les séquences et terminus restent en attente de rapprochement documentaire et directionnel. Aucun arrêt n'est fusionné ou promu automatiquement au catalogue passager.
+
+
+## Anomalies de nommage des arrêts ArcGIS — lignes 8 et 13
+
+L'inspection des champs des couches de points révèle une limite de qualité importante :
+
+- **Ligne 8 :** 49 points géolocalisés, mais la couche ne contient pas de champ `Nom_Arret`. Le champ `Id` vaut 0 pour les 49 entités.
+- **Ligne 13 :** deux couches de points sont présentes (IDs de couche 0 et 8), avec respectivement 23 et 22 points. Elles n'ont pas de champ `Nom_Arret` et le champ `Id` vaut 0 pour toutes les entités. Les deux ensembles sont presque superposés : 22 des 23 points de la couche 0 ont un point de la couche 8 à moins de 10 mètres ; le point restant est à 26,3 mètres de son plus proche voisin. La couche 8 comporte 22/22 points à moins de 10 mètres d'un point de la couche 0.
+- Les coordonnées sont donc exploitables pour l'alignement géographique, mais pas pour identifier les arrêts à partir des attributs ArcGIS. Les identifiants GlobalID et OBJECTID restent des identifiants techniques, pas des noms ou codes d'arrêt métier.
+- La vérification spatiale précédente de la ligne 13 utilisait la couche 8 (22 points). La couche 0 constitue une seconde extraction quasi dupliquée et ne doit pas être ajoutée comme 23 nouveaux arrêts sans dédoublonnage géographique et validation de la couche de référence.
+
+**Décision :** conserver les coordonnées des lignes 8 et 13 comme points anonymes candidats ; ne pas fabriquer de noms et ne pas traiter `Id=0` comme un identifiant unique. Leur rapprochement avec les séquences textuelles officielles nécessite les repères de corridor, l'ordre géographique et une vérification manuelle des points ambigus.
