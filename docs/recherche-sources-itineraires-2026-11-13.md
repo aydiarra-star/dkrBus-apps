@@ -47,7 +47,7 @@ Le CETUD documente également des repositionnements et modifications de lignes A
 
 ## 3. AFTU — fiches détaillées récupérées
 
-Le site officiel AFTU ne se limite pas à une carte : les liens « Voir itinéraire » ouvrent des fiches individuelles datées. Sept fiches ont été consultées et leurs descriptions candidates sont conservées dans `src/data/aftuPublishedRouteCandidates.ts` :
+Le site officiel AFTU ne se limite pas à une carte : les liens « Voir itinéraire » ouvrent des fiches individuelles datées. La première collecte a porté sur sept fiches ; leurs descriptions candidates sont conservées dans `src/data/aftuPublishedRouteCandidates.ts` :
 
 | Ligne | Date affichée sur la fiche | Référence |
 |---|---|---|
@@ -61,7 +61,7 @@ Le site officiel AFTU ne se limite pas à une carte : les liens « Voir itinéra
 
 Ces fiches décrivent des axes et repères dans un seul texte d’itinéraire. Certaines mentionnent explicitement des variantes de retour (par exemple les rues 17 et 37 sur les lignes 2 et 5), mais aucune ne suffit à elle seule à établir une séquence complète indépendante de chaque sens. Les descriptions restent donc `NEEDS_HUMAN_REVIEW` avec `SINGLE_DESCRIPTION_ONLY`. Elles ne sont pas ajoutées au catalogue passager ni transformées en horaires.
 
-La console authentifiée affiche ces sept fiches dans une rubrique repliable « Fiches AFTU récupérées », avec un lien vers chaque source. Les liens permettent au relecteur humain d’ouvrir les fiches d’origine.
+La console authentifiée affiche maintenant l’ensemble du registre AFTU dans une rubrique repliable « Fiches AFTU récupérées », avec un lien vers chaque source. Les liens permettent au relecteur humain d’ouvrir les fiches d’origine.
 
 
 ### Complément — huit fiches AFTU supplémentaires consultées
