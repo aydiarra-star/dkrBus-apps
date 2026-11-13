@@ -34,4 +34,18 @@ describe('DDD published route references', () => {
     expect(getDddPublishedRoute('6')?.origin).toBe('Cambérène 2')
     expect(getDddPublishedRoute('6')?.destination).toBe('Palais 2')
   })
+  it('flags the official title/sequence conflicts on lines 217 and 233', () => {
+    const line217 = getDddPublishedRoute('217')
+    expect(line217?.retrievedOn).toBe('2026-11-13')
+    expect(line217?.destination).toBe('Ouakam')
+    expect(line217?.stops.at(-1)).toBe('Terminus Aéroport LSS')
+    expect(line217?.sourceConflict).toContain('titre officiel annonce Ouakam')
+
+    const line233 = getDddPublishedRoute('233')
+    expect(line233?.retrievedOn).toBe('2026-11-13')
+    expect(line233?.destination).toBe('Palais 1')
+    expect(line233?.stops.at(-1)).toBe('Terminus Aéroport LSS')
+    expect(line233?.sourceConflict).toContain('titre officiel annonce Palais 1')
+  })
+
 })
