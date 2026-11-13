@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
-import { cleanupUploadedObjects, getExactlyOneFormValue, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
+import { classifyStagingObjectReferences, cleanupUploadedObjects, getExactlyOneFormValue, hasOnlyExpectedFormFields, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -127,6 +127,10 @@ Deno.serve(async (req: Request) => {
     return reply(400, { error: "MULTIPART_FORM_REQUIRED" }, cors);
   }
 
+  if (!hasOnlyExpectedFormFields(form, ["feed", "manifest", "dataset_id"])) {
+    return reply(400, { error: "UNEXPECTED_MULTIPART_FIELD" }, cors);
+  }
+
   const archive = getExactlyOneFormValue(form, "feed");
   const manifestFile = getExactlyOneFormValue(form, "manifest");
   const datasetId = getExactlyOneFormValue(form, "dataset_id");
@@ -224,6 +228,26 @@ Deno.serve(async (req: Request) => {
   });
 
   if (insertError) {
+    // A network error can occur after Postgres committed the insert. Resolve the
+    // outcome before deleting any object that a committed row may reference.
+    const { data: existing, error: lookupError } = await admin
+      .from("dakar_admin_staged_datasets")
+      .select("archive_object_path, manifest_object_path")
+      .eq("dataset_id", datasetId)
+      .maybeSingle();
+
+    if (lookupError) {
+      return reply(503, { error: "STAGING_REGISTRATION_OUTCOME_UNKNOWN" }, cors);
+    }
+
+    const references = classifyStagingObjectReferences(existing, archivePath, manifestPath);
+    if (references === "BOTH") {
+      return reply(409, { error: "DATASET_ALREADY_REGISTERED" }, cors);
+    }
+    if (references === "PARTIAL") {
+      return reply(503, { error: "STAGING_REGISTRATION_OUTCOME_UNKNOWN" }, cors);
+    }
+
     const cleanupSucceeded = await cleanupUploadedObjects(
       (paths) => admin.storage.from(BUCKET).remove(paths),
       [archivePath, manifestPath],
