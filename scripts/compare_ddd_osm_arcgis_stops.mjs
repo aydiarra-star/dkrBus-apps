@@ -32,6 +32,23 @@ function distanceMeters(a, b) {
   return 2 * earthRadius * Math.asin(Math.sqrt(h))
 }
 
+function orderedOneToOneMatches(osmMembers, arcgisStops, thresholdMeters, reverseArcgis = false) {
+  const orderedStops = reverseArcgis ? [...arcgisStops].reverse() : arcgisStops
+  const rows = Array.from({ length: osmMembers.length + 1 }, () => new Uint16Array(orderedStops.length + 1))
+  for (let i = 1; i <= osmMembers.length; i++) {
+    const point = osmMembers[i - 1].coordinates
+    for (let j = 1; j <= orderedStops.length; j++) {
+      const stop = orderedStops[j - 1]
+      const distance = point && stop
+        ? distanceMeters({ lat: point.lat, lon: point.lon }, stop)
+        : Number.POSITIVE_INFINITY
+      const match = distance <= thresholdMeters ? rows[i - 1][j - 1] + 1 : 0
+      rows[i][j] = Math.max(rows[i - 1][j], rows[i][j - 1], match)
+    }
+  }
+  return rows[osmMembers.length][orderedStops.length]
+}
+
 const comparisons = []
 const unmatchedCandidateRoutes = []
 for (const route of osm.routes) {
@@ -102,6 +119,11 @@ for (const route of osm.routes) {
     nearestArcgisStopWithin50m: countWithin(50),
     nearestArcgisStopWithin100m: countWithin(100),
     nearestArcgisStopWithin200m: countWithin(200),
+    // Ordered one-to-one diagnostic only: ArcGIS response order is not certified as operational stop order.
+    orderedOneToOneWithin50mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, false),
+    orderedOneToOneWithin50mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 50, true),
+    orderedOneToOneWithin100mForward: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, false),
+    orderedOneToOneWithin100mReverse: orderedOneToOneMatches(route.orderedStopMembers, arcgisStops, 100, true),
     stopComparisons: comparisonsForRoute,
   })
 }
@@ -113,7 +135,7 @@ const report = {
     dddArcgis: arcgis.generatedAt,
   },
   attribution: '© OpenStreetMap contributors (ODbL); DDD public ArcGIS FeatureServer',
-  policy: 'Read-only proximity cross-check. Spatial proximity is not proof of stop identity, current service, direction correctness, or official route validation. No stop IDs are merged and no passenger data is changed.',
+  policy: 'Read-only proximity and ordered one-to-one diagnostic. ArcGIS response feature order is not certified as operational stop order; spatial proximity is not proof of stop identity, current service, direction correctness, or official route validation. No stop IDs are merged and no passenger data is changed.',
   summary: {
     routeComparisons: comparisons.length,
     unmatchedCandidateRoutes: unmatchedCandidateRoutes.length,
