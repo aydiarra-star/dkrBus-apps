@@ -75,4 +75,17 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByRole('link', { name: 'Source officielle DDD' })).toHaveLength(6)
   })
 
+  it('exposes the 39 official DDD route sequences in their published order', async () => {
+    render(<CurrentBusRouteAuditPanel />)
+    const routes = await screen.findByText(/Parcours DDD publiés par l’opérateur · 39 séquences/)
+    fireEvent.click(routes)
+    const lineOne = await screen.findByText(/DDD 1 · 22 repères publiés/)
+    fireEvent.click(lineOne)
+    expect(screen.getByText('Terminus Parcelles Assainies')).toBeTruthy()
+    expect(screen.getByText('Terminus Leclerc')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Ouvrir les parcours DDD' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Ouvrir Info voyageurs DDD' })).toBeTruthy()
+    expect(screen.getByText(/Les retours ne sont pas inversés automatiquement/)).toBeTruthy()
+  })
+
 })
