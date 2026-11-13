@@ -381,17 +381,9 @@ La séparation de sécurité porte sur les écritures : l'analyse et la qualific
 
 ## 14. Complément utilisateur — retour AFTU 84
 
-Le 13 novembre 2026, l'utilisateur a transmis une séquence ordonnée pour le retour de la ligne 84, de Delafosse Commerce vers Jaxaay 2 Pénitence, avec des heures de passage.
+Le responsable du projet a transmis le parcours retour de la ligne 84, de Delafosse Commerce à Jaxaay2 Route Du 84, avec **73 arrêts et 73 horaires**, de 05:49 à 07:09. Le parcours aller comporte également 73 arrêts.
 
-Cette transmission remplace le statut « retour non documenté » de la précédente revue. Le fichier `src/data/aftu-84-directions.json` conserve maintenant :
-- 73 arrêts avec horaires, de 05:49 à 07:09 ;
-- puis deux arrêts terminaux supplémentaires, « Jaxaay A Côté Pharmacie Marie Essentene Manga » et « Jaxaay 2 Pénitence », sans horaire fourni ;
-- soit 75 points au total dans la séquence reçue.
-
-Le décompte doit donc rester explicite : le texte annonce 73 arrêts, mais l'ajout final de deux arrêts après « Jaxaay2 Route Du 84 » porte la liste enregistrée à 75 points. Les deux heures manquantes restent nulles ; aucune heure n'est extrapolée.
-
-Statut : `USER_PROVIDED_PENDING_SOURCE`. La séquence est enregistrée fidèlement comme donnée fournie par l'utilisateur, sans la présenter comme publication officielle CETUD tant qu'une fiche ou un document primaire n'est pas rattaché. Le test `src/data/aftu-84-directions.test.ts` vérifie le nombre de points, les 73 horaires et les deux valeurs nulles finales.
-
+Le référentiel conserve donc exactement **73 arrêts à l'aller et 73 arrêts au retour**. Deux noms de points qui avaient été ajoutés après le 73e arrêt retour, sans horaire associé, ont été retirés du décompte et de la séquence : ils ne font pas partie des 73 arrêts confirmés pour ce sens. Aucune heure n'est extrapolée.
 
 ## 15. Fréquence AFTU 84 — source CETUD transmise
 
