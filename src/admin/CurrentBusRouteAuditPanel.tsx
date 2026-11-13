@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'l
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
-import { DDD_BANLIEUE_ARCGIS_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_AUDIT_TOTALS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
@@ -89,6 +89,20 @@ export function CurrentBusRouteAuditPanel() {
               <strong>Ligne DDD {layer.line}</strong>
               <span>{layer.dataLastEditDate ? `Géométrie modifiée le ${layer.dataLastEditDate}` : 'Date de modification non relevée'} · historique</span>
               <a href={layer.layerUrl} target="_blank" rel="noreferrer">Ouvrir la couche SIG</a>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      <details className="bus-route-audit-sources">
+        <summary>Arrêts SIG DDD urbains · {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopFeatures} points · {DDD_URBAN_ARCGIS_AUDIT_TOTALS.geolocatedStopFeatures} géolocalisés</summary>
+        <p>Extraction en lecture seule des couches publiques DDD : {DDD_URBAN_ARCGIS_AUDIT_TOTALS.routeFeatures} tracés sur {DDD_URBAN_ARCGIS_AUDIT_TOTALS.routeLayers} couches et {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopFeatures} points d’arrêt sur {DDD_URBAN_ARCGIS_AUDIT_TOTALS.stopLayers} couches. {DDD_URBAN_ARCGIS_AUDIT_TOTALS.namedStopFeatures} points ont un nom et {DDD_URBAN_ARCGIS_AUDIT_TOTALS.geolocatedStopFeatures} ont des coordonnées. Ces données historiques servent à rapprocher les arrêts et les tracés ; elles ne prouvent pas les horaires actuels.</p>
+        <ul>
+          {DDD_URBAN_ARCGIS_STOP_LAYERS.map((layer) => (
+            <li key={`${layer.line}-${layer.layerId}`}>
+              <strong>DDD {layer.line} · {layer.featureCount} arrêts candidats</strong>
+              <span>{layer.namedFeatureCount} nommés · {layer.geolocatedFeatureCount} géolocalisés</span>
+              <a href={layer.layerUrl} target="_blank" rel="noreferrer">Ouvrir la couche d’arrêts SIG</a>
             </li>
           ))}
         </ul>
