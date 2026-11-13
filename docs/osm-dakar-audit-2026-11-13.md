@@ -300,3 +300,33 @@ Autres anomalies conservées :
 6. Ne déduire aucune fréquence ni horaire de ces relations.
 
 Artefact : `dakar-osm-route-candidates.zip`, run GitHub Actions 89 (ID 43397397595). Attribution : © OpenStreetMap contributors, données sous licence ODbL. Cette extraction est en lecture seule : aucun catalogue passager, horaire TER/BRT, stockage Supabase ou déploiement n'a été modifié.
+
+
+## Contrôle d'ordre un-à-un OSM ↔ ArcGIS — 13 novembre 2026, 09:06 UTC
+
+Le contrôle de proximité précédent utilisait le point ArcGIS le plus proche pour chaque arrêt OSM. Cette méthode peut compter plusieurs fois le même arrêt ArcGIS. Le script `scripts/compare_ddd_osm_arcgis_stops.mjs` calcule désormais aussi un diagnostic complémentaire : le nombre maximal d'appariements **un-à-un et dans le même ordre**, en comparant la séquence OSM à l'ordre de retour des entités ArcGIS, puis à cet ordre inversé.
+
+Sur les artefacts OSM (09:06:27 UTC) et ArcGIS (08:58:31 UTC), les signaux à 50 m sont :
+
+| Ligne | Relation OSM | Membres OSM | Appariements ordonnés ≤50 m (ordre ArcGIS) | Appariements ordonnés ≤50 m (ordre ArcGIS inversé) |
+|---|---:|---:|---:|---:|
+| 1 | 6951328 | 38 | 34 | 1 |
+| 4 | 7203970 (Liberté 5 → Leclerc) | 32 | 24 | 1 |
+| 4 | 6990830 (Leclerc → Liberté 5) | 34 | 1 | 6 |
+| 7 | 7500475 (Ouakam → Palais 1) | 34 | 30 | 1 |
+| 7 | 6990669 (Palais → Ouakam) | 31 | 1 | 10 |
+| 9 | 7487218 (Liberté 6 → Palais 1) | 29 | 27 | 1 |
+| 9 | 6996431 (Palais 1 → Liberté 6) | 32 | 1 | 15 |
+| 10 | 7488283 (Liberté 5 → Palais 1) | 25 | 20 | 1 |
+| 10 | 6990845 (Palais 1 → Liberté 5) | 30 | 1 | 10 |
+| 23 | 7495279 (Palais 1 → Parcelles-Assainies) | 51 | 3 | 20 |
+| 121 | 6990794 (HLM Grand Yoff → Leclerc) | 27 | 24 | 1 |
+| 121 | 6999013 (Leclerc → HLM Grand Medine) | 7 | 1 | 4 |
+
+À 100 m, les appariements ordonnés passent notamment à 35/38 pour la ligne 1, 24/32 pour la ligne 4 relation 7203970, 30/34 pour la ligne 7 relation 7500475, 28/29 pour la ligne 9 relation 7487218 et 22/25 pour la ligne 10 relation 7488283. Pour les relations opposées, les valeurs restent plus faibles : 14/34 pour la ligne 4 (ordre inversé), 17/31 pour la ligne 7, 23/32 pour la ligne 9 et 21/30 pour la ligne 10.
+
+**Interprétation prudente :** les relations OSM 7203970, 7500475, 7487218 et 7488283 présentent un ordre géographique cohérent avec l'ordre de retour des entités ArcGIS ; les relations opposées présentent un signal plus faible mais orienté vers l'ordre ArcGIS inversé. Cela renforce les correspondances de sens déjà candidates pour les lignes 4, 7, 9 et 10. En revanche, la relation 23 (7495279) ne suit pas clairement la séquence ArcGIS dans l'un ou l'autre sens, et les relations 121 restent hétérogènes.
+
+**Limite essentielle :** l'export ArcGIS interroge les entités sans champ `orderByFields` ni attribut de séquence documenté. L'ordre de retour des entités peut refléter les identifiants `OBJECTID`, mais il n'est pas certifié comme ordre opérationnel des arrêts. Ce diagnostic est donc un indice de cohérence géographique, pas une preuve de séquence officielle. Les points OSM n'ont aucun nom dans les 522 occurrences examinées ; aucun appariement d'identité n'est confirmé, aucun arrêt n'est fusionné, et aucune donnée n'est promue au catalogue passager.
+
+Le script conserve également les métriques de plus proche voisin (230/374 à 50 m ; 282/374 à 100 m) pour assurer la comparabilité avec les extractions antérieures. Les métriques un-à-un évitent de compter plusieurs fois une même entité ArcGIS dans une séquence, mais restent dépendantes de l'ordre de retour ArcGIS. Aucun horaire ni fréquence n'est déduit.
