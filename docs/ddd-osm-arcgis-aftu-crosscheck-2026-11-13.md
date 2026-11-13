@@ -95,3 +95,27 @@ Un contrôle géométrique supplémentaire a été effectué sur les tracés pol
 - Cette preuve croisée est nettement plus forte qu'une simple similitude de terminus ou de noms. Elle justifie de faire passer les paires 4, 7, 9 et 10 en priorité haute dans la revue des séquences directionnelles.
 - Elle ne suffit toujours pas à marquer les parcours comme officiellement validés : la correspondance avec les fiches opérateur publiées, les identifiants physiques des arrêts et les éventuelles variantes doit rester documentée séparément.
 
+
+
+## 2 ter. Extension du contrôle géométrique aux lignes 1, 23 et 121
+
+Le même calcul de projection des membres OSM sur les polylignes ArcGIS permet de consolider trois dossiers supplémentaires :
+
+| Ligne | Relation OSM | Sens annoncé | Arrêts OSM | Médiane au tracé | Maximum | À ≤25 m | Corrélation ordre / chaînage | Qualification |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | 6951328 | Parcelles → Leclerc | 38 | 5,9 m | 12,5 m | 38/38 | +0,9879 | Un seul sens géographiquement fort |
+| 23 | 7108131 | Parcelles → Palais 1 | 47 | 5,8 m | 12,0 m | 47/47 | +0,9926 | Candidat aller, ref OSM mixte L23/L5 |
+| 23 | 7495279 | Palais 1 → Parcelles | 51 | 8,1 m | 62,4 m | 50/51 | -0,9988 | Candidat retour, forte corroboration |
+| 121 | 6990794 | HLM Grand Yoff → Leclerc | 27 | 5,4 m | 8,9 m | 27/27 | +0,9889 | Candidat partiel, terminus divergent |
+| 121 | 6999013 | Leclerc → HLM Grand Medine | 7 | 4,6 m | 70,3 m | 6/7 | -0,9814 | Candidat retour partiel, terminus divergent |
+| 121 | 2792903 | Fragment sans terminus | 3 | 5,4 m | 6,8 m | 3/3 | -0,9945 | Fragment partagé avec 6990794, pas une direction indépendante |
+
+### Décisions consolidées
+
+- **Ligne 1 :** le corridor et l'ordre du seul sens cartographié sont fortement corroborés ; le retour n'est pas présent dans les relations OSM disponibles.
+- **Ligne 23 :** les deux relations suivent le tracé ArcGIS dans des directions opposées. Les différences de terminus Palais 1 / Palais 2 et la référence mixte L23/L5 restent à résoudre avant validation opérateur.
+- **Ligne 121 :** deux relations partiellement ordonnées suivent le corridor en sens opposés, mais la couverture retour est incomplète et le terminus HLM Grand Medine ne correspond pas au terminus officiel Scat Urban. Le fragment 2792903 ne doit pas être compté comme une troisième direction.
+- Les corrélations proches de ±1 décrivent l'ordre géométrique le long de la polyligne ; elles ne certifient ni l'identité physique de chaque arrêt, ni le service actuel, ni la validation officielle de la fiche.
+- Les séquences publiées DDD restent la référence documentaire. Les membres OSM anonymes restent anonymes, les références partagées restent ambiguës et aucune liste n'est importée automatiquement dans les données passagers.
+
+Rapports détaillés : `ddd-line-1-refreshed-osm-sequence-continuity-review-2026-11-13.md`, `ddd-line-23-two-direction-candidates-review-2026-11-13.md` et `ddd-line-121-osm-official-direction-review-2026-11-13.md`.
