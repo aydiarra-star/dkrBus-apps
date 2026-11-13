@@ -49,6 +49,7 @@ interface RawAftuRoute {
   inboundSchedule?: RawSchedule
   sourceLabel?: unknown
   sourceStatus?: unknown
+  frequency?: { intervalMinutes?: unknown; display?: unknown; countdownBasis?: unknown }
   detailSourceUrl?: unknown
   inboundDetailSourceUrl?: unknown
 }
@@ -94,7 +95,7 @@ function directionEvidence(
     sourceLabel: nonEmptyString(schedule?.sourceLabel) ?? nonEmptyString(route.sourceLabel),
     timetableEntries: times.length,
     hasPerStopTimes: waypoints.length > 0 && times.length === waypoints.length,
-    scheduleInterval: nonEmptyString(schedule?.interval),
+    scheduleInterval: nonEmptyString(schedule?.interval)\n      ?? nonEmptyString(route.frequency?.display)\n      ?? (typeof route.frequency?.intervalMinutes === 'number' ? `${route.frequency.intervalMinutes} min` : null)\n      ?? nonEmptyString(route.frequency?.countdownBasis),
     genericStopLabels,
     repeatedLabels,
   }
