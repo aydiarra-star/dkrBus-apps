@@ -47,7 +47,7 @@ async function main() {
       // sans intertitre « ITINERAIRE » (ex. ligne 30). Dans ce cas, conserver
       // le texte entre la date de publication et « Collection ».
       const fallbackStart = dateMatch
-        ? text.indexOf(dateMatch[0]) + dateMatch[0].length
+        ? text.lastIndexOf(dateMatch[0]) + dateMatch[0].length
         : -1;
       const itineraryStart = itineraryIndex >= 0
         ? itineraryIndex + "ITINERAIRE".length
