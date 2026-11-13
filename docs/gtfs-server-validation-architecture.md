@@ -76,3 +76,11 @@ Après une erreur de réponse lors de l'insertion Postgres, l'Edge Function reli
 Une erreur de téléversement Storage peut elle-même avoir une issue réseau ambiguë. Le chemin reste privé et non publié ; aucun nettoyage destructif n'est tenté sur un chemin dont l'appartenance à la requête n'est pas établie. Une réconciliation des objets privés orphelins reste une opération distincte, à concevoir et tester avant toute activation réelle.
 
 Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclenchent aucune écriture Supabase, migration active ou publication.
+
+## Worker implémenté et garde opérationnel (13 novembre 2026)
+
+Le worker Python décrit ci-dessus est maintenant présent dans `scripts/process_gtfs_staging.py`. Il réutilise le validateur de référence et les fonctions SQL de réservation/finalisation. Son workflow GitHub Actions est manuel uniquement ; le job est désormais conditionné à la branche `main` et à une confirmation booléenne explicite dont la valeur par défaut est `false`.
+
+Les secrets attendus restent exclusivement dans l'environnement GitHub `dakar-bus-private-validation` : `DAKAR_BUS_SUPABASE_URL` et `DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY`. Leur présence, la protection de cet environnement et l'obtention d'une approbation humaine ne sont pas présumées. Aucun secret n'a été créé ou modifié et le workflow n'a pas été déclenché.
+
+La CI teste uniquement le code du worker, le validateur et les migrations dans un PostgreSQL isolé avec des fixtures synthétiques. Elle ne lance jamais le worker opérationnel et n'écrit pas dans le projet Supabase Dakar Bus actif. L'activation réelle reste bloquée tant que l'accès sécurisé, la protection de l'environnement et les limites d'exécution ne sont pas vérifiés séparément.
