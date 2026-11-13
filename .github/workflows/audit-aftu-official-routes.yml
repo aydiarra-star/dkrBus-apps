@@ -1,0 +1,30 @@
+name: Audit official AFTU route pages
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/export_aftu_official_routes.mjs"
+      - ".github/workflows/audit-aftu-official-routes.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Retrieve official AFTU route pages
+        run: node scripts/export_aftu_official_routes.mjs
+      - name: Save route audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-official-route-pages
+          path: artifacts/aftu/aftu-official-route-pages.json
+          if-no-files-found: error
+          retention-days: 14
