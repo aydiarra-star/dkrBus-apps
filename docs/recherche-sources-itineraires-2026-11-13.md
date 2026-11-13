@@ -149,6 +149,22 @@ La page officielle « Infos pratiques » a permis d'ouvrir les fiches des lignes
 
 Le registre contient désormais **37 fiches officielles AFTU distinctes**. Ces fiches décrivent un seul ordre d'itinéraire ; elles ne constituent pas deux séquences indépendantes Aller/Retour. Elles restent hors du catalogue voyageurs.
 
+
+### Complément — fiches AFTU officielles des lignes 64 à 69
+
+Six nouvelles fiches ont été ouvertes depuis les liens de la page officielle « Infos pratiques » :
+
+| Ligne | Date affichée | Terminus affichés | Référence |
+|---|---|---|---|
+| 64 | 8 juillet 2026 | Diamniadio – Notaire | https://aftu-senegal.org/map/dakar-urbain-ligne-64/ |
+| 65 | 8 juillet 2026 | Gare routière de Colobane – Jaxaay 2 | https://aftu-senegal.org/map/dakar-urbain-ligne-65/ |
+| 66 | 8 juillet 2026 | Yoff – Gorom 1 | https://aftu-senegal.org/map/dakar-urbain-ligne-66/ |
+| 67 | 8 juillet 2026 | Thiawlène – Boutique Diallo (Ouakam) | https://aftu-senegal.org/map/dakar-urbain-ligne-67/ |
+| 68 | 9 juillet 2026 | Sébikhotane – station Yeumbeul | https://aftu-senegal.org/map/dakar-urbain-ligne-68/ |
+| 69 | 9 juillet 2026 | Diamalaye – Namora | https://aftu-senegal.org/map/dakar-urbain-ligne-69/ |
+
+Le registre compte désormais **43 fiches officielles AFTU**. Les six nouvelles descriptions sont enregistrées comme candidates avec leur source et date. Elles ne constituent pas des séquences Aller et Retour vérifiées.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
