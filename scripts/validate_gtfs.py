@@ -146,6 +146,8 @@ class GTFSValidator:
         self.stop_time_trip_ids: set[str] = set()
         self.stop_time_stop_ids: set[str] = set()
         self.frequency_trip_ids: list[tuple[int, str]] = []
+        self.frequency_ranges: dict[str, list[tuple[int, int, int]]] = {}
+        self.shape_last_sequence: dict[str, int] = {}
         self.shape_ids: set[str] = set()
         self.trip_shape_ids: list[tuple[int, str, str]] = []
         self.transfer_stop_ids: list[tuple[int, str, str]] = []
@@ -576,6 +578,8 @@ class GTFSValidator:
             self.report.add("ERROR", "EMPTY_REQUIRED_VALUE", "end_time est vide.", "frequencies.txt", line)
         if start is not None and end is not None and end <= start:
             self.report.add("ERROR", "INVALID_FREQUENCY_RANGE", "end_time doit être postérieur à start_time.", "frequencies.txt", line)
+        if trip_id and start is not None and end is not None and end > start:
+            self.frequency_ranges.setdefault(trip_id, []).append((start, end, line))
         headway = self._integer(self._value(row, "headway_secs"), "headway_secs", "frequencies.txt", line, required=True)
         if headway is not None and headway <= 0:
             self.report.add("ERROR", "INVALID_HEADWAY", "headway_secs doit être strictement positif.", "frequencies.txt", line)
@@ -596,6 +600,10 @@ class GTFSValidator:
             self.shape_ids.add(shape_id)
             if self._sequence_seen("shape_sequences", shape_id, sequence):
                 self.report.add("ERROR", "DUPLICATE_SHAPE_SEQUENCE", f"shape_pt_sequence {sequence} répété pour « {shape_id} ».", "shapes.txt", line)
+            previous_sequence = self.shape_last_sequence.get(shape_id)
+            if previous_sequence is not None and sequence < previous_sequence:
+                self.report.add("ERROR", "SHAPE_SEQUENCE_NOT_INCREASING", f"shape_pt_sequence recule pour « {shape_id} ».", "shapes.txt", line)
+            self.shape_last_sequence[shape_id] = sequence
 
     def _transfer_row(self, row: dict[str, str | None], line: int) -> None:
         from_stop = self._value(row, "from_stop_id")
@@ -616,6 +624,7 @@ class GTFSValidator:
 
     def _check_references(self) -> None:
         self._check_stop_time_chronology()
+        self._check_frequency_ranges()
         if self.agency_rows > 1:
             for line in self.agency_missing_id_rows:
                 self.report.add("ERROR", "MISSING_AGENCY_ID", "agency_id est requis lorsque plusieurs agences sont définies.", "agency.txt", line)
@@ -689,6 +698,20 @@ class GTFSValidator:
             (trip_id, sequence, arrival_time, departure_time, source_line),
         )
         return cursor.rowcount == 0
+
+    def _check_frequency_ranges(self) -> None:
+        for trip_id, ranges in self.frequency_ranges.items():
+            previous_end: int | None = None
+            for start, end, line in sorted(ranges):
+                if previous_end is not None and start < previous_end:
+                    self.report.add(
+                        "ERROR",
+                        "OVERLAPPING_FREQUENCY_RANGES",
+                        f"Les plages de frequencies.txt se chevauchent pour le trip « {trip_id} ».",
+                        "frequencies.txt",
+                        line,
+                    )
+                previous_end = end if previous_end is None else max(previous_end, end)
 
     def _check_stop_time_chronology(self) -> None:
         if self.validation_db is None:
