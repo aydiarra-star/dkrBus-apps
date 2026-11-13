@@ -14,10 +14,10 @@ function routeRefs(route) {
   const refs = [];
   for (const value of values) {
     for (const token of String(value).split(/[;,]/)) {
-      const compact = token.trim().toUpperCase().replace(/\\s+/g, "");
+      const compact = token.trim().toUpperCase().replace(/\s+/g, "");
       // Strip only the conventional line prefix. Preserve alphanumeric
       // identifiers such as B1 and 2B instead of collapsing them to 1 or 2.
-      const match = compact.match(/^L?([A-Z]?\\d{1,3}[A-Z]?)$/);
+      const match = compact.match(/^L?([A-Z]?\d{1,3}[A-Z]?)$/);
       if (match && !refs.includes(match[1])) refs.push(match[1]);
     }
   }
@@ -38,7 +38,7 @@ function normalizeEndpoint(value) {
   // OSM uses "Terminus", "Termibus" and bare place names inconsistently.
   // Remove only these leading transport-label prefixes; retain place qualifiers
   // such as Palais 1 vs Palais 2 so genuine terminal conflicts remain visible.
-  return normalize(value).replace(/^(?:terminus|termibus)\\s+/, "").replace(/\\s+/g, "").trim();
+  return normalize(value).replace(/^(?:terminus|termibus)\\s+/, "").replace(/\s+/g, "").trim();
 }
 function sameEndpointsReversed(a, b) {
   const aFrom = normalizeEndpoint(a.from), aTo = normalizeEndpoint(a.to);
