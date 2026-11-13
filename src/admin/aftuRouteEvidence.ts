@@ -53,7 +53,7 @@ interface RawAftuRoute {
   inboundDetailSourceUrl?: unknown
 }
 
-const routeModules = import.meta.glob('../data/aftu-*-directions.json', {
+import aftu66Return from '../data/aftu-66-return.json'\n\nconst routeModules = import.meta.glob('../data/aftu-*-directions.json', {
   eager: true,
   import: 'default',
 }) as Record<string, RawAftuRoute>
