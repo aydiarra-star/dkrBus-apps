@@ -103,6 +103,22 @@ Le registre comprend désormais **23 fiches AFTU distinctes** : lignes 2, 5, 24,
 
 Les fiches donnent une description d'itinéraire publiée dans un seul ordre. Elles ne constituent pas deux séquences indépendantes Aller et Retour. Elles restent toutes marquées `NEEDS_HUMAN_REVIEW` / `SINGLE_DESCRIPTION_ONLY`, séparées du catalogue voyageur et sans horaires calculés.
 
+
+### Complément — fiches AFTU officielles des lignes 53 à 56
+
+Quatre fiches supplémentaires ont été ouvertes directement sur le site AFTU. Elles portent toutes la date de publication affichée du **6 juillet 2026** :
+
+| Ligne | Terminus affichés par la source | Référence |
+|---|---|---|
+| 53 | Keur Massar (marché) – Sébikotane | https://aftu-senegal.org/map/dakar-urbain-ligne-53/ |
+| 54 | Keur Massar (MTOA) – UCAD | https://aftu-senegal.org/map/dakar-urbain-ligne-54/ |
+| 55 | Rufisque Sonadis – Petersen | https://aftu-senegal.org/map/dakar-urbain-ligne-55/ |
+| 56 | Jaxaay 1 – Petersen | https://aftu-senegal.org/map/dakar-urbain-ligne-56/ |
+
+Le registre contient maintenant **27 fiches officielles AFTU** : lignes 2, 5, 24, 26, 29 à 33, 37 à 48 et 53 à 57, ainsi que 72. Les lignes 49 à 52 ne sont pas ajoutées à ce stade : les sources secondaires disponibles ne remplacent pas une fiche primaire AFTU.
+
+Comme les autres fiches, ces quatre descriptions restent candidates, en statut `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY`. Elles ne sont pas injectées dans le catalogue voyageur et ne produisent aucun horaire.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
