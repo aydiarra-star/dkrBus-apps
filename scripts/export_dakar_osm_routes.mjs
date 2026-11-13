@@ -72,10 +72,14 @@ async function main() {
   }
 
   const routes = [];
-  const ids = [...routeIds];
-  for (let offset = 0; offset < ids.length; offset += 4) {
-    const batch = ids.slice(offset, offset + 4);
+  const routeErrors = [];
+  const fetchedRouteIds = new Set();
+  let pendingRouteIds = [...routeIds];
+  while (pendingRouteIds.length) {
+    const batch = pendingRouteIds.splice(0, 4).filter((id) => !fetchedRouteIds.has(id));
+    if (!batch.length) continue;
     const results = await Promise.all(batch.map(async (id) => {
+      fetchedRouteIds.add(id);
       try {
         const detail = await getJson(`${API}/route/${id}`, `route ${id}`);
         if (detail.notFound) return null;
@@ -101,7 +105,16 @@ async function main() {
         return null;
       }
     }));
-    routes.push(...results.filter(Boolean));
+    for (const route of results.filter(Boolean)) {
+      routes.push(route);
+      for (const sibling of route.siblingDirections) {
+        const siblingId = Number(sibling.id);
+        if (Number.isSafeInteger(siblingId) && !fetchedRouteIds.has(siblingId)) {
+          routeIds.add(siblingId);
+          pendingRouteIds.push(siblingId);
+        }
+      }
+    }
     await sleep(500);
   }
 
