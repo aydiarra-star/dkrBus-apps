@@ -114,3 +114,5 @@ La page CETUD « Système de données » confirme que le CETUD a créé des fich
 - **GTFS CETUD :** l'existence du référentiel est officiellement confirmée. Aucun lien direct de téléchargement du fichier GTFS n'a été trouvé sur la page Système de données ni dans les deux boutons de téléchargement des plans AFTU/DDD. Le fichier lui-même n'est pas encore dans le dépôt ; la recherche continue.
 
 Les détails, liens directs et limites des sources sont consignés dans le relevé daté `docs/recherche-sources-itineraires-2026-11-13.md`. Ces constats restent dans le périmètre de la revue documentaire et ne changent pas le catalogue passager ni les horaires TER/BRT.
+
+- **DDD :** la transcription officielle du registre comprend maintenant 34 références de parcours, dont deux nouvelles entrées (311 et 327). La ligne 311 est conservée comme circuit avec un retour non détaillé ; la ligne 327 est conservée comme ordre publié. Les lignes 217 et 233 portent des notes de conflit de source.
