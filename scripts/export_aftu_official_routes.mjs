@@ -40,8 +40,19 @@ async function main() {
     try {
       const html = await fetchText(url);
       const text = plain(html);
-      const itineraryIndex = text.toUpperCase().indexOf("ITINERAIRE");
-      let itinerary = itineraryIndex >= 0 ? text.slice(itineraryIndex + "ITINERAIRE".length).trim() : "";
+      const upperText = text.toUpperCase();
+      const itineraryIndex = upperText.indexOf("ITINERAIRE");
+      const dateMatch = text.match(/\\b\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+20\\d{2}\\b/);
+      // Certaines fiches AFTU publient directement le corridor après la date,
+      // sans intertitre « ITINERAIRE » (ex. ligne 30). Dans ce cas, conserver
+      // le texte entre la date de publication et « Collection ».
+      const fallbackStart = dateMatch
+        ? text.indexOf(dateMatch[0]) + dateMatch[0].length
+        : -1;
+      const itineraryStart = itineraryIndex >= 0
+        ? itineraryIndex + "ITINERAIRE".length
+        : fallbackStart;
+      let itinerary = itineraryStart >= 0 ? text.slice(itineraryStart).trim() : "";
       const collectionIndex = itinerary.toUpperCase().indexOf("COLLECTION");
       if (collectionIndex >= 0) itinerary = itinerary.slice(0, collectionIndex).trim();
       const lineNumber = slug.match(/^[0-9]+[a-z]?/i)?.[0]?.toUpperCase() ?? slug.toUpperCase();
