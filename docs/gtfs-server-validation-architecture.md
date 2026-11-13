@@ -47,3 +47,14 @@ Until a secure worker identity and credential path are approved, do not deploy a
 - Worker crash/timeout: lease expires and the same job can be retried without duplicate rows.
 - Repeated execution: idempotent report for the same dataset/hash.
 - No test fixture is ever inserted into the live dataset.
+
+
+## Hardening follow-up
+
+The private worker is pinned to the dedicated Dakar Bus Supabase project reference mdmuxzaewqzqutkqdylo; it rejects any other host, URL path, credentials, query string, or non-HTTPS endpoint. It accepts only the private dakar-gtfs-staging bucket and the canonical object path <dataset_id>/<sha256>/feed.zip.
+
+Before a report can be stored, the worker verifies the validator schema version, archive filename, exact byte count and SHA-256, fixed production resource limits, non-negative table counts, bounded issue objects, and the consistency rule structure_valid == (errors == 0). A report cannot set production_ready to true. The database RPC independently checks the hash, size, core report shape, fixed limits and status/count consistency; it rejects stale lease tokens and appends a server-validation audit event in the same transaction.
+
+Stop-time chronology is now checked after sorting by trip_id and stop_sequence, independently of the order in which rows appear in stop_times.txt. An unsorted file remains a warning, but it can no longer bypass chronological validation.
+
+The new migration is exercised only against an isolated PostgreSQL 16 service in GitHub Actions. It is not applied to the active Supabase database by CI. The manual worker workflow is not dispatched as part of CI. No real GTFS archive is assumed, no staged row is created, and a structurally valid result still leaves human review pending and publication disabled.

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.validate_gtfs import ValidationLimits, validate_gtfs_archive
 
@@ -159,6 +160,85 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertFalse(report["structure_valid"])
         self.assertIn("INVALID_ZIP", self.issue_codes(report))
 
+
+    def test_non_monotonic_times_are_rejected_when_rows_are_out_of_order(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"
+            "T1,08:00:00,08:00:00,S2,2\n"
+            "T1,08:10:00,08:10:00,S1,1\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        codes = self.issue_codes(report)
+        self.assertIn("TIME_BEFORE_PREVIOUS_STOP", codes)
+        self.assertIn("STOP_TIMES_NOT_SORTED", codes)
+        self.assertFalse(report["structure_valid"])
+
+    def test_chronological_times_in_out_of_order_file_are_not_false_positive(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"
+            "T1,08:10:00,08:10:00,S2,2\n"
+            "T1,08:00:00,08:00:00,S1,1\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertTrue(report["structure_valid"])
+        self.assertIn("STOP_TIMES_NOT_SORTED", self.issue_codes(report))
+        self.assertNotIn("TIME_BEFORE_PREVIOUS_STOP", self.issue_codes(report))
+        unsorted_issue = next(
+            issue for issue in report["issues"] if issue["code"] == "STOP_TIMES_NOT_SORTED"
+        )
+        self.assertIn("après tri", unsorted_issue["message"])
+
+    def test_windows_drive_archive_paths_are_rejected(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["C:/outside.txt"] = "must not be accepted\n"
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSAFE_ARCHIVE_PATH", self.issue_codes(report))
+
+    def test_archive_entry_expansion_and_row_limits_are_enforced(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        entries_report = validate_gtfs_archive(archive, ValidationLimits(max_entries=1))
+        self.assertIn("TOO_MANY_ENTRIES", self.issue_codes(entries_report))
+
+        member_report = validate_gtfs_archive(archive, ValidationLimits(max_member_bytes=8))
+        self.assertIn("ENTRY_TOO_LARGE", self.issue_codes(member_report))
+
+        total_report = validate_gtfs_archive(archive, ValidationLimits(max_total_uncompressed_bytes=32))
+        self.assertIn("FEED_TOO_LARGE", self.issue_codes(total_report))
+
+        rows_report = validate_gtfs_archive(archive, ValidationLimits(max_rows_per_table=1))
+        self.assertIn("TOO_MANY_ROWS", self.issue_codes(rows_report))
+
+    def test_invalid_calendar_dates_and_times_are_reported(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["calendar.txt"] = (
+            "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n"
+            "WK,2,1,1,1,1,0,0,20260230,20261231\n"
+        )
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"
+            "T1,25:60:00,25:60:00,S1,1\n"
+            "T1,25:20:00,25:20:00,S2,2\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        codes = self.issue_codes(report)
+        self.assertIn("INVALID_CALENDAR_DAY", codes)
+        self.assertIn("INVALID_DATE", codes)
+        self.assertIn("INVALID_TIME", codes)
+        self.assertFalse(report["structure_valid"])
+
+    def test_unsupported_zip_compression_is_rejected_before_member_read(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        unsupported = zipfile.ZipInfo("agency.txt")
+        unsupported.compress_type = 99
+
+        with patch.object(zipfile.ZipFile, "infolist", return_value=[unsupported]):
+            report = validate_gtfs_archive(archive)
+
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSUPPORTED_COMPRESSION", self.issue_codes(report))
 
 if __name__ == "__main__":
     unittest.main()
