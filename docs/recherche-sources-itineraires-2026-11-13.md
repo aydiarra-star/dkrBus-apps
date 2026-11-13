@@ -357,3 +357,24 @@ https://cetud.sn/observatoire/systeme-de-donnees/
 La même page distingue les données d'exploitation des réseaux classiques AFTU et DDD, issues notamment de plateformes CAPTRANS et/ou d'enquêtes auprès des opérateurs. C'est une piste institutionnelle prioritaire pour retrouver les jeux de données sources, et non une simple hypothèse.
 
 **État de récupération :** l'existence du référentiel GTFS est confirmée par le CETUD ; le fichier lui-même et son éventuelle version téléchargeable ne sont pas encore récupérés dans ce chantier. Continuer à chercher le lien de téléchargement, les archives ou les points de contact de l'Observatoire (observatoire@cetud.sn, 33 859 47 20). Ne pas dire que le GTFS n'existe pas ; dire uniquement qu'il n'a pas encore été obtenu par le dépôt.
+
+## 12. Vérification complémentaire des fiches AFTU 84 à 91
+
+La page officielle AFTU « Infos pratiques » a été rouverte le 13 novembre 2026. Elle confirme les entrées et terminus suivants : 84 (UCAD – Jaxaay), 85 (Banoba – Liberté 5), 86 (Tournalou Boune – Toubab Dialaw), 87 (Bambilor – Mosquée Massalikou Djinane), 88 (MTOA – Liberté 5), 89 (Bargny – Croisement Niague / Cité SICAP) et 91 (APIX – Dougar).
+
+Sur la page consultée, contrairement aux lignes 1 à 83, ces sept entrées affichent « Voir itinéraire » sans lien individuel cliquable. Elles confirment donc l'identité publiée et les terminus, pas les séquences intermédiaires ni les fréquences propres à chaque ligne.
+
+Source primaire consultée : https://aftu-senegal.org/infos-pratiques/
+
+### Contrôle de deux fichiers de parcours déjà présents dans le dépôt
+
+- `src/data/aftu-84-directions.json` contient 73 repères dans le sens Jaxaay 2 → UCAD. Le champ `inboundWaypoints` contient exactement les mêmes 73 éléments dans l'ordre inverse. Le fichier indique « CETUD — parcours transmis par l'utilisateur », mais ne fournit ni URL de fiche détaillée pour l'aller ni URL distincte pour le retour. **La séquence inversée ne constitue donc pas une preuve du retour** : elle doit rester non validée et ne peut pas être présentée comme un retour documenté. La fréquence de 14 minutes doit également rester rattachée à sa provenance exacte tant qu'une publication primaire la confirmant n'est pas référencée.
+- `src/data/aftu-85-directions.json` contient 89 repères à l'aller et 95 au retour, avec des listes distinctes. Toutefois, sa provenance est « Parcours transmis par l’utilisateur » et son URL pointe vers la liste générale AFTU, pas vers une fiche détaillée de la ligne 85. Les deux séquences restent donc des candidates à corroborer. La fréquence affichée (10–15 min en pointe, 15–25 min en creuse) et sa base de 17,5 minutes ne doivent pas être présentées comme une fréquence officielle propre à la ligne 85 sans document source correspondant.
+
+Ces deux fichiers sont des références de travail à auditer séparément ; ce contrôle ne les injecte pas dans le catalogue passager et ne modifie aucun horaire.
+
+## 13. Rôle opérationnel de l'IA dans la revue
+
+L'IA doit effectuer elle-même la recherche documentaire, ouvrir les sources primaires et historiques, transcrire fidèlement les informations, comparer les variantes, vérifier séparément les deux sens et attribuer un statut traçable lorsque les critères sont remplis. Elle ne doit pas se limiter à produire une liste de tâches pour une revue humaine.
+
+La séparation de sécurité porte sur les écritures : l'analyse et la qualification documentaire par l'IA sont autorisées dans le périmètre du chantier ; elles n'autorisent pas une correction automatique des arrêts, une modification des données voyageurs, une écriture Supabase ou une publication. Toute donnée insuffisamment prouvée reste candidate ou en conflit.
