@@ -6,6 +6,8 @@ describe('parcours AFTU 84', () => {
     expect(route.network).toBe('aftu')
     expect(route.code).toBe('84')
     expect(route.frequency.intervalMinutes).toBe(14)
+    expect(route.frequency.display).toBe('14 min')
+    expect(route.frequency.status).toBe('USER_CONFIRMED')
     expect(route.waypoints).toHaveLength(73)
     expect(route.waypoints[0]).toBe('Jaxaay 2 Pénitence')
     expect(route.waypoints.at(-1)).toBe('Terminus 84_54Derrière Ucad En Face Canal 4')
