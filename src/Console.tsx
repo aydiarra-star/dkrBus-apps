@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AlertTriangle,
   Ban,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 
 import { REQUIRED_ATTESTATIONS, formatTimestamp, type CatalogDataset } from './domain/review'
-import { CurrentBusRouteAuditPanel } from './admin/CurrentBusRouteAuditPanel'
+const CurrentBusRouteAuditPanel = lazy(() => import('./admin/CurrentBusRouteAuditPanel').then((module) => ({ default: module.CurrentBusRouteAuditPanel })))
 import {
   ACTOR_ID_PATTERN,
   ROLE_LABELS,
@@ -263,7 +263,9 @@ export function ConsolePanel({ datasets, onChanged }: { datasets: readonly Catal
             </button>
           </div>
 
-          <CurrentBusRouteAuditPanel />
+          <Suspense fallback={<div className="console-state" role="status">Chargement de l’audit des parcours…</div>}>
+            <CurrentBusRouteAuditPanel />
+          </Suspense>
 
           {actionable.length === 0 && (
             <div className="governance-empty">
