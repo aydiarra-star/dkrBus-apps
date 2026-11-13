@@ -132,6 +132,20 @@ Ces pages contiennent des repères intermédiaires utiles pour préparer une rev
 
 **Limite importante :** il s’agit d’une source secondaire, non d’une publication de l’opérateur ou d’une validation CETUD. Les séquences TATA relevées doivent rester des candidates non vérifiées, avec leur URL et leur date, jusqu’à confirmation par une source primaire ou par une revue terrain documentée.
 
+
+### Fiches TATA détaillées — registre séparé de l'AFTU
+
+Deux fiches ont été ouvertes sur Covoiturage.sn, qui se présente comme un répertoire d'itinéraires TATA. Elles sont conservées dans `src/data/tataPublishedRouteCandidates.ts`, dans un registre distinct de l'AFTU :
+
+| Réseau | Ligne | Terminus affichés | Source |
+|---|---:|---|---|
+| TATA | 1 | Lat-Dior – HLM Grand Yoff | https://www.covoiturage.sn/bus-tata-itineraire/ligne/1/lat-dior/hlm-grand-yoff/ |
+| TATA | 2 | Route Principale des Parcelles Assainies – Gare Petersen | https://www.covoiturage.sn/bus-tata-itineraire/ligne/2/route-principale-des-parcelles-assainies/gare-petersen/ |
+
+La fiche TATA 2 mentionne explicitement des variantes : retour par rue 17 au lieu de rue 39, et par rue 37 au lieu de rue 25. Cela confirme qu'une inversion mécanique de la liste ne suffit pas pour reconstruire le sens retour. La fiche TATA 1 décrit un seul ordre de repères et ne détaille pas de séquence retour indépendante.
+
+**Statut :** source secondaire, `NEEDS_HUMAN_REVIEW`. Les numéros de ligne TATA ne sont jamais fusionnés avec les mêmes numéros AFTU. Les deux fiches sont affichées séparément dans la console d'administration, sans ajout au catalogue voyageurs et sans calcul d'horaires.
+
 ## 4. Décision de qualification
 
 | Réseau | Résultat utile | Statut de travail |
