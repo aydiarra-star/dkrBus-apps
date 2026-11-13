@@ -44,6 +44,27 @@ Au 13 novembre 2026, le dépôt conserve :
 
 Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les fiches AFTU et les fiches secondaires intitulées « TATA » restent dans deux registres documentaires distincts pour conserver leur provenance, mais elles ne constituent pas deux réseaux d'exploitation automatiquement distincts. Les numéros identiques ne prouvent pas à eux seuls qu'il s'agit de la même ligne ; les terminus, le corridor et le GIE doivent être comparés. Aucun candidat n'est injecté dans le catalogue passager.
 
+## Nouvelle source officielle DDD : séquences publiées sur le site opérateur
+
+La page [Réseau urbain Dakar](https://demdikk.sn/reseau-urbain-dakar/) publie des listes de points desservis, dans l'ordre affiché, pour les dessertes urbaines et de banlieue. Le script `scripts/export_ddd_official_route_candidates.mjs` en extrait les sections et produit un artefact d'audit. La page [Info voyageurs](https://demdikk.sn/info-voyageurs/) sert à recouper les identifiants de lignes et les variantes.
+
+Règles appliquées à cette extraction :
+- chaque liste est conservée dans son ordre publié, sans transformer automatiquement le sens inverse en retour ;
+- une flèche « ↔ » dans l'en-tête ne remplace pas deux listes d'arrêts distinctes ;
+- les arrêts ne sont pas encore fusionnés avec les points ArcGIS/OSM : chaque correspondance exige un rapprochement géographique et textuel ;
+- aucune fréquence, heure de passage intermédiaire ou minute de compte à rebours n'est déduite d'une séquence d'arrêts ;
+- la ligne 18 apparaît deux fois avec la même séquence sur la page : le scraper dédoublonne les copies strictement identiques ;
+- l'en-tête « Terminus Rufisque ↔ Yenne » est rapproché de la ligne 228 uniquement parce que la page Info voyageurs officielle identifie cette desserte comme ligne 228 ; le rapprochement reste traçable comme tel.
+
+### Divergences officielles à ne pas masquer
+
+- La page détaillée présente une ligne 15, tandis que la page Info voyageurs mentionne 15A et 15B. Ne pas scinder la fiche 15 sans preuve de deux séquences distinctes.
+- La page détaillée présente 502 et 503, tandis que la page Info voyageurs mentionne 502A/502B et 503A/503B. Les sous-lignes ne sont pas reconstituées à partir d'un seul parcours générique.
+- La page Info voyageurs liste 504A et 504B, mais la page détaillée consultée ne fournit pas leurs séquences d'arrêts : elles restent à l'état « identifiant et terminus à documenter ».
+- Le service TAF TAF Ouakam (TO1), limité au corridor Ouakam–Palais 2, reste distinct de la desserte TAF TAF Ouakam–AIBD/Sphère ministérielle.
+- Le tracé ArcGIS historique de la ligne 6 urbaine (Cambérène 2–Cambérène village) ne correspond pas à l'identité publiée actuellement pour la ligne 6 de banlieue (Guédiawaye–Palais 1). Conserver les deux preuves et traiter l'ancienne géométrie comme variante historique, pas comme tracé actuel.
+- Les couches ArcGIS sont anciennes (métadonnées de mise à jour principalement 2017, certaines 2019) : elles servent à confronter la géographie, pas à remplacer les séquences opérateur plus récentes.
+
 ## Rôle de l'IA et responsabilité de qualification
 
 À la demande explicite du responsable du projet, l'assistant IA mène lui-même les recherches approfondies, les recoupements et la qualification documentaire des lignes. Il ne se limite pas à préparer un dossier pour qu'une autre personne fasse toute la vérification.
