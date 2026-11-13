@@ -26,8 +26,7 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('exposes the historical DDD GIS layers without presenting them as stop sequences', () => {
     render(<CurrentBusRouteAuditPanel />)
-    const gisSources = screen.getByText(/Couches SIG DDD de banlieue · 12 références historiques/)
-    expect(gisSources).toBeTruthy()
+    const gisSources = await screen.findByText(/Couches SIG DDD de banlieue · 12 références historiques/)
     fireEvent.click(gisSources)
     expect(screen.getByText(/ne contiennent pas de séquences d’arrêts validées ni d’horaires/)).toBeTruthy()
     expect(screen.getAllByRole('link', { name: 'Ouvrir la couche SIG' })).toHaveLength(12)
@@ -51,7 +50,7 @@ describe('CurrentBusRouteAuditPanel', () => {
   })
   it('exposes extracted urban DDD stop-point layers and their coverage', () => {
     render(<CurrentBusRouteAuditPanel />)
-    const urbanSources = screen.getByText(/Arrêts SIG DDD urbains · 455 points · 454 géolocalisés/)
+    const urbanSources = await screen.findByText(/Arrêts SIG DDD urbains · 455 points · 454 géolocalisés/)
     fireEvent.click(urbanSources)
     expect(screen.getByText(/384 points ont un nom/)).toBeTruthy()
     expect(screen.getAllByRole('link', { name: 'Ouvrir la couche d’arrêts SIG' })).toHaveLength(12)
