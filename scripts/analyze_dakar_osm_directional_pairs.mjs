@@ -34,6 +34,42 @@ function stopSequence(route) {
     coordinates: stop.coordinates ?? null,
   }));
 }
+function haversineMeters(a, b) {
+  const radians = (value) => value * Math.PI / 180;
+  const dLat = radians(b.lat - a.lat);
+  const dLon = radians(b.lon - a.lon);
+  const lat1 = radians(a.lat), lat2 = radians(b.lat);
+  const h = Math.sin(dLat / 2) ** 2
+    + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 6371000 * 2 * Math.asin(Math.sqrt(h));
+}
+
+// Some OSM route relations list each boarding location twice: once as a
+// public-transport=stop member and once as a public-transport=platform member.
+// Preserve both raw members, but expose a separate paired candidate only when
+// adjacent roles, names, and coordinates corroborate the same location.
+function stopPlatformPairs(stops) {
+  const pairs = [];
+  for (let index = 0; index < stops.length - 1; index += 1) {
+    const stop = stops[index];
+    const platform = stops[index + 1];
+    if (stop.role !== "stop" || platform.role !== "platform") continue;
+    if (!stop.normalizedName || stop.normalizedName !== platform.normalizedName) continue;
+    const a = stop.coordinates, b = platform.coordinates;
+    if (![a?.lat, a?.lon, b?.lat, b?.lon].every(Number.isFinite)) continue;
+    const distanceMeters = haversineMeters(a, b);
+    if (distanceMeters > 30) continue;
+    pairs.push({
+      sequence: pairs.length + 1,
+      name: stop.name,
+      stopMember: { order: stop.order, osmType: stop.osmType, osmId: stop.osmId },
+      platformMember: { order: platform.order, osmType: platform.osmType, osmId: platform.osmId },
+      distanceMeters: Math.round(distanceMeters * 100) / 100,
+    });
+    index += 1;
+  }
+  return pairs;
+}
 function normalizeEndpoint(value) {
   // OSM uses "Terminus", "Termibus" and bare place names inconsistently.
   // Remove only these leading transport-label prefixes; retain place qualifiers
@@ -68,6 +104,8 @@ for (const [ref, members] of groups) {
     for (let j = i + 1; j < members.length; j += 1) {
       const a = members[i], b = members[j];
       const aStops = stopSequence(a), bStops = stopSequence(b);
+      const aStopPlatformPairs = stopPlatformPairs(aStops);
+      const bStopPlatformPairs = stopPlatformPairs(bStops);
       const reversedEndpoints = sameEndpointsReversed(a, b);
       const sharedMasterIds = (a.routeMasterRelations ?? [])
         .map((m) => m.osmRelationId)
@@ -78,13 +116,19 @@ for (const [ref, members] of groups) {
         lineRef: ref,
         relationA: {
           osmRelationId: a.osmRelationId, name: a.name, from: a.from, to: a.to,
-          operator: a.operator, network: a.network, stopCount: aStops.length,
+          operator: a.operator, network: a.network,
+          stopMemberCount: aStops.length,
+          stopPlatformPairCount: aStopPlatformPairs.length,
           orderedStops: aStops,
+          orderedStopPlatformPairs: aStopPlatformPairs,
         },
         relationB: {
           osmRelationId: b.osmRelationId, name: b.name, from: b.from, to: b.to,
-          operator: b.operator, network: b.network, stopCount: bStops.length,
+          operator: b.operator, network: b.network,
+          stopMemberCount: bStops.length,
+          stopPlatformPairCount: bStopPlatformPairs.length,
           orderedStops: bStops,
+          orderedStopPlatformPairs: bStopPlatformPairs,
         },
         evidence: {
           reversedEndpoints,
@@ -111,10 +155,14 @@ const summary = {
   candidateDirectionalPairs: pairs.length,
   reversedEndpointPairs: pairs.filter((p) => p.evidence.reversedEndpoints).length,
   sharedRouteMasterPairs: pairs.filter((p) => p.evidence.sharedRouteMasterRelationIds.length).length,
+  stopPlatformPairCandidatesAcrossPairDirections: pairs.reduce((sum, pair) =>
+    sum + pair.relationA.stopPlatformPairCount + pair.relationB.stopPlatformPairCount, 0),
   lineRefsWithPairs: [...new Set(pairs.map((p) => p.lineRef))],
   explicitWarnings: [
     "A pair is a candidate, not a validated operator route.",
     "Relation member order is preserved independently for each direction.",
+    "Raw OSM stop and platform members are preserved; adjacent same-name pairs within 30 m are separately identified to avoid counting both as two physical stops.",
+    "Stop/platform pairs are geometric candidates, not proof of an operator's official stop inventory.",
     "No missing direction, stop, frequency, or timetable is invented.",
     "No OSM relation is merged, reassigned, or used to overwrite DDD operator data.",
   ],
