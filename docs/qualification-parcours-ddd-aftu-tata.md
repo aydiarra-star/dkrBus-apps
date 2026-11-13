@@ -42,23 +42,39 @@ Au 13 novembre 2026, le dépôt conserve :
 
 Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les deux réseaux gardent des registres distincts, même lorsque des numéros de ligne ou des corridors se ressemblent. Aucun candidat n'est injecté dans le catalogue passager.
 
-## Rôle autorisé de l'IA
+## Rôle de l'IA et responsabilité de qualification
 
-L'IA agit comme **copilote de contrôle et d'aide à la décision**, pas comme autorité de validation :
-- comparer les fiches et les données existantes, en conservant les sources et les dates ;
-- repérer les anomalies de nom, de séquence, de sens, de doublon potentiel ou de coordonnées ;
-- proposer des rapprochements entre repères et arrêts sous forme de candidats argumentés ;
-- expliquer les écarts, signaler les preuves manquantes et classer les dossiers à examiner ;
-- préparer une fiche de revue claire pour le validateur humain.
+À la demande explicite du responsable du projet, l'assistant IA mène lui-même les recherches approfondies, les recoupements et la qualification documentaire des lignes. Il ne se limite pas à préparer un dossier pour qu'une autre personne fasse toute la vérification.
 
-L'IA ne peut pas :
-- créer ou corriger automatiquement un arrêt, un identifiant ou des coordonnées ;
-- fusionner deux arrêts parce que leurs noms se ressemblent ;
-- fabriquer le Retour en inversant l'Aller, ou inventer des passages horaires ;
-- déclarer un parcours « vérifié », remplacer une source ou publier une modification ;
-- modifier les données TER/BRT protégées.
+L'assistant peut attribuer un statut **VALIDÉ DOCUMENTAIREMENT** à une ligne ou à un sens uniquement après avoir vérifié les critères ci-dessous et conservé les preuves. Cette validation signifie que les informations de parcours sont suffisamment corroborées par les sources consultées ; elle ne signifie pas qu'un horaire temps réel ou une fréquence non publiée est garantie.
 
-Toute proposition IA doit être traçable, réversible et marquée `NEEDS_HUMAN_REVIEW`. Seul un humain autorisé peut accepter une proposition et déclencher une éventuelle mise à jour ultérieure.
+### Conditions obligatoires avant validation d'une ligne
+
+1. **Identité de la ligne :** réseau et numéro confirmés par une source primaire actuelle (opérateur ou CETUD).
+2. **Aller et Retour :** chaque sens doit être décrit et contrôlé séparément. Le retour ne peut jamais être créé par inversion automatique de l'aller.
+3. **Ordre des arrêts :** la séquence de chaque sens doit être corroborée par une fiche opérateur, un plan exploitable, un jeu de données géographiques pertinent ou plusieurs sources indépendantes cohérentes.
+4. **Recoupement :** comparer les terminus, repères intermédiaires, variantes, dates d'effet et éventuelles divergences entre sources. Une source secondaire seule ne suffit pas pour valider une ligne.
+5. **Fréquence et horaires :** rechercher les informations publiées par l'opérateur/CETUD. Si aucune fréquence fiable n'est publiée, conserver « non documentée » dans les données de référence ; ne pas inventer de minutes ni transformer une moyenne réseau en fréquence propre à la ligne.
+6. **Arrêts et GPS :** associer les identifiants et coordonnées seulement si le rapprochement est suffisamment probant. Les noms proches ne suffisent pas à fusionner deux arrêts.
+7. **Traçabilité :** enregistrer pour chaque preuve l'URL, l'organisme, la date de publication ou de mise à jour si connue, la date de consultation et les éléments précis qu'elle confirme ou contredit.
+
+### Statuts de validation
+
+- `CANDIDATE` : une fiche ou une mention a été retrouvée, mais les preuves sont insuffisantes.
+- `PARTIALLY_CORROBORATED` : certains éléments sont confirmés, mais un sens, une partie des arrêts ou la fréquence manque.
+- `VALIDATED_ROUTE` : identité, Aller et Retour, ordre des arrêts et cohérence des sources sont recoupés.
+- `VALIDATED_WITH_LIMITS` : le parcours est recoupé, mais une donnée comme la fréquence ou certaines coordonnées reste explicitement non publiée/non confirmée. Les limites restent visibles dans les métadonnées, jamais maquillées en faits.
+- `CONFLICTING_SOURCES` : les sources se contredisent ; la ligne ne peut pas être déclarée validée tant que l'écart n'est pas résolu.
+
+L'assistant est responsable de l'analyse et de l'attribution de ces statuts sur la base des preuves. En revanche, une modification du catalogue passager, de Supabase ou de l'application publiée reste une opération séparée, traçable et réversible ; elle ne doit pas être confondue avec la validation documentaire.
+
+### Rôle opérationnel de l'IA
+
+L'IA doit comparer les sources, chercher des recoupements officiels et indépendants, identifier les variantes Aller/Retour, repérer les incohérences, documenter les fréquences réellement trouvées et expliquer précisément ce qui manque. Elle peut valider les lignes qui satisfont les critères ci-dessus.
+
+L'IA ne peut pas créer ou corriger automatiquement un arrêt, un identifiant ou des coordonnées sans preuve ; fusionner des arrêts sur la seule ressemblance de nom ; fabriquer un retour en inversant l'aller ; inventer des passages horaires ou des fréquences ; ni modifier les données TER/BRT protégées.
+
+Toute proposition et toute validation doivent rester traçables et réversibles. Les données non confirmées restent candidates et ne sont pas présentées comme officielles.
 
 ## Limites
 
