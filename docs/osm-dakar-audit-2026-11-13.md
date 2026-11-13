@@ -96,3 +96,8 @@ Les tracés géographiques peuvent aider à contrôler les conflits de terminus 
 ## Qualité des coordonnées OSM — correction du 13 novembre 2026
 
 Le collecteur des relations OSM ne prend plus la moyenne arithmétique des sommets pour représenter un membre `way`. Il conserve tous les sommets et calcule un point représentatif géométrique : centroïde surfacique pour les ways fermés, point à mi-longueur pour les ways ouverts. Les membres `node` gardent leurs coordonnées natives. Ces points servent au rapprochement cartographique, sans remplacer les coordonnées d'un arrêt vérifié.
+
+
+## Contrôle de périmètre géographique des relations OSM — 13 novembre 2026
+
+La première extraction a retourné 25 relations de bus, mais l'ensemble brut contenait aussi deux relations APSRTC dont les terminus indiqués sont Vijayawada et Hyderabad, hors du réseau dakarois. Le collecteur classe désormais chaque relation en trois catégories sans supprimer les objets bruts : `DAKAR_CANDIDATE` (indices géographiques ou opérateur/réseau local), `OUTSIDE_DAKAR_SCOPE` (terminus explicitement hors zone et sans indice local), et `SCOPE_UNCONFIRMED` (preuves insuffisantes). Les compteurs bruts restent disponibles pour audit ; les statistiques dakaroises doivent être calculées sur les candidates, sans considérer les relations non confirmées comme des lignes locales.
