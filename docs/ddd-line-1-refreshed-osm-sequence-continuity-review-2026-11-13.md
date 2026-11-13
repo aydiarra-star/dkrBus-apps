@@ -68,3 +68,17 @@ Les sauts de 2 295 m, 1 551 m et 1 201 m méritent une revue géographique prior
 ## Périmètre
 
 Rapport d'audit en lecture seule. Pas de modification de la production, de Supabase, des données TER/BRT ni de déploiement. Aucun GTFS utilisé.
+
+
+## Contrôle complémentaire sur la polyligne ArcGIS de la ligne 1
+
+Sur la nouvelle extraction ArcGIS, la relation OSM 6951328 a été projetée sur la polyligne de l'itinéraire DDD ligne 1.
+
+- 38/38 arrêts géolocalisés à moins de 25 m du tracé.
+- Distance médiane au tracé : 5,9 m ; maximum : 12,5 m.
+- Corrélation entre l'ordre des membres OSM et le chaînage du tracé : +0,9879.
+- Le premier et le dernier arrêt OSM se projettent respectivement près du début et de la fin de la géométrie ArcGIS.
+
+Ce contrôle confirme une très forte cohérence spatiale et directionnelle de la relation 6951328 avec le corridor ArcGIS de la ligne 1. Il complète les alertes de continuité entre coordonnées successives : les grands sauts à vol d'oiseau signalent des segments à examiner dans la séquence OSM, mais ne signifient pas que les points sont hors du corridor.
+
+La relation ne documente toujours qu'un seul sens et ne possède pas de relation maître associée. **Le retour reste absent de la preuve disponible** : il ne doit pas être fabriqué par inversion. Les 24 membres anonymes restent anonymes et les 38 membres ne sont pas automatiquement assimilés aux 22 repères voyageurs publiés.
