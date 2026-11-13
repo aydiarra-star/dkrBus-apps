@@ -63,6 +63,26 @@ Ces fiches décrivent des axes et repères dans un seul texte d’itinéraire. C
 
 La console authentifiée affiche ces sept fiches dans une rubrique repliable « Fiches AFTU récupérées », avec un lien vers chaque source. Les liens permettent au relecteur humain d’ouvrir les fiches d’origine.
 
+
+### Complément — huit fiches AFTU supplémentaires consultées
+
+La page « Infos pratiques » de l'opérateur AFTU a permis d'ouvrir huit fiches supplémentaires. Les descriptions ci-dessous sont transcrites dans le registre candidat, avec la date de publication affichée par chaque fiche :
+
+| Ligne | Date affichée | Référence |
+|---|---|---|
+| 24 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-24/ |
+| 26 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-26/ |
+| 31 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-31/ |
+| 32 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-32/ |
+| 33 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-33/ |
+| 38 | 29 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-38/ |
+| 39 | 29 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-39/ |
+| 40 | 29 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-40/ |
+
+Le registre contient maintenant **15 fiches AFTU** (lignes 2, 5, 24, 26, 29, 30, 31, 32, 33, 37, 38, 39, 40, 57 et 72). Une fiche de la ligne 25 n'a pas pu être récupérée pendant cette consultation ; elle n'est pas reconstituée.
+
+Comme pour les sept premières fiches, chaque description reste `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY`. Une description publiée dans un seul ordre ne prouve pas la séquence indépendante du retour. Les huit nouvelles fiches sont affichées dans la rubrique repliable de la console via le registre commun ; elles ne sont pas injectées dans le catalogue voyageur et ne génèrent aucun horaire.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
