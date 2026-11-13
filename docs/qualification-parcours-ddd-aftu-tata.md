@@ -134,3 +134,12 @@ Autres périmètres documentés :
 - Les sources TATA actuellement enregistrées restent secondaires ; aucune fréquence officielle propre à une ligne TATA de Dakar n'est ajoutée sur cette seule base.
 
 La console d'audit expose les 59 observations et leurs références. Elles servent au recoupement documentaire ; elles ne modifient pas les horaires passagers. Le compte à rebours ne doit utiliser que des heures ou intervalles rattachés de façon probante à la ligne, au sens et à la période concernés.
+
+## Règle du compte à rebours voyageurs
+
+Le tableau passager ne doit utiliser que les intervalles rattachés à une ligne par une source officielle ou une donnée CETUD transmise et qualifiée. Les plages TransitByCity / Moovit restent des références de recherche et ne pilotent plus le compte à rebours.
+- AFTU 84 : fréquence CETUD transmise de 14 minutes, amplitude générale AFTU 06:00–21:00 ; le compte à rebours est calculé séparément sur Aller et Retour, à partir des séquences propres à chaque sens.
+- DDD : l'amplitude générale officielle sert à afficher l'état de service, mais aucune fréquence officielle par ligne n'est actuellement rattachée au compte à rebours.
+- AFTU (autres lignes) et TATA : les horaires secondaires restent hors du calcul passager tant qu'une fréquence officielle par ligne n'est pas établie.
+
+Le calcul ne doit jamais transformer une moyenne de passage observée à un site en fréquence propre à une ligne. Si la fréquence officielle manque, aucun compte à rebours numérique n'est affiché pour cette ligne.
