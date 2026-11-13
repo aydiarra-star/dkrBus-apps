@@ -92,9 +92,9 @@ describe('CurrentBusRouteAuditPanel', () => {
     render(<CurrentBusRouteAuditPanel />)
     fireEvent.click(await screen.findByText(/Parcours DDD publiés par l’opérateur · 39 séquences/))
     fireEvent.click(await screen.findByText(/DDD 217 · 15 repères publiés/))
-    expect(screen.getByText(/l’en-tête annonce Ouakam comme terminus/)).toBeTruthy()
+    expect(screen.getByText(/L’en-tête annonce Ouakam comme terminus/i)).toBeTruthy()
     fireEvent.click(await screen.findByText(/DDD 233 · 15 repères publiés/))
-    expect(screen.getByText(/l’en-tête annonce Palais 1/)).toBeTruthy()
+    expect(screen.getByText(/L’en-tête annonce Palais 1/i)).toBeTruthy()
   })
 
 })
