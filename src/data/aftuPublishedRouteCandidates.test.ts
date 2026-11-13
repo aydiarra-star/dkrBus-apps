@@ -1,3 +1,4 @@
+import { AFTU_OFFICIAL_PAGE_AUDIT } from './aftuOfficialPageAudit'
 import { describe, expect, it } from 'vitest'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from './aftuPublishedRouteCandidates'
 
@@ -27,4 +28,13 @@ describe('AFTU published route candidates', () => {
     const lines = AFTU_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => candidate.line)
     expect(new Set(lines).size).toBe(lines.length)
   })
+
+  it('reflects the latest complete extraction of all linked official AFTU pages', () => {
+    expect(AFTU_OFFICIAL_PAGE_AUDIT).toMatchObject({
+      linkedPages: 63,
+      itineraryTextsRetrieved: 63,
+      pagesWithoutExtractedItinerary: [],
+    })
+  })
+
 })
