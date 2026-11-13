@@ -64,4 +64,15 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getByRole('link', { name: 'Ouvrir la liste officielle des lignes AFTU' })).toBeTruthy()
   })
 
+  it('shows official DDD terminal departure windows without inventing a frequency', () => {
+    render(<CurrentBusRouteAuditPanel />)
+    const departures = screen.getByText(/Départs officiels DDD · 6 directions documentées/)
+    fireEvent.click(departures)
+    expect(screen.getByText(/Ligne 1 · Parcelles Assainies → Place Leclerc/)).toBeTruthy()
+    expect(screen.getByText(/Premier départ : 05:30 · Dernier départ : 20:30/)).toBeTruthy()
+    expect(screen.getByText(/TAF TAF · Sphère ministérielle → Ouakam/)).toBeTruthy()
+    expect(screen.getByText(/ne donnent pas d’intervalle entre bus/)).toBeTruthy()
+    expect(screen.getAllByRole('link', { name: 'Source officielle DDD' })).toHaveLength(6)
+  })
+
 })
