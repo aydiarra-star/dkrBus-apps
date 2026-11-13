@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
-import { inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
+import { cleanupUploadedObjects, getExactlyOneFormValue, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -127,9 +127,9 @@ Deno.serve(async (req: Request) => {
     return reply(400, { error: "MULTIPART_FORM_REQUIRED" }, cors);
   }
 
-  const archive = form.get("feed");
-  const manifestFile = form.get("manifest");
-  const datasetId = form.get("dataset_id");
+  const archive = getExactlyOneFormValue(form, "feed");
+  const manifestFile = getExactlyOneFormValue(form, "manifest");
+  const datasetId = getExactlyOneFormValue(form, "dataset_id");
   if (!(archive instanceof File) || !(manifestFile instanceof File) || typeof datasetId !== "string" || !DATASET_ID_RE.test(datasetId)) {
     return reply(400, { error: "FEED_MANIFEST_AND_VALID_DATASET_ID_REQUIRED" }, cors);
   }
@@ -172,7 +172,7 @@ Deno.serve(async (req: Request) => {
     upsert: false,
   });
   if (archiveUploadError) {
-    return reply(409, { error: "ARCHIVE_UPLOAD_FAILED", detail: archiveUploadError.message }, cors);
+    return reply(409, { error: "ARCHIVE_UPLOAD_FAILED" }, cors);
   }
 
   const { error: manifestUploadError } = await admin.storage.from(BUCKET).upload(manifestPath, manifestBytes, {
@@ -180,8 +180,13 @@ Deno.serve(async (req: Request) => {
     upsert: false,
   });
   if (manifestUploadError) {
-    await admin.storage.from(BUCKET).remove([archivePath]);
-    return reply(500, { error: "MANIFEST_UPLOAD_FAILED" }, cors);
+    const cleanupSucceeded = await cleanupUploadedObjects(
+      (paths) => admin.storage.from(BUCKET).remove(paths),
+      [archivePath],
+    );
+    return cleanupSucceeded
+      ? reply(500, { error: "MANIFEST_UPLOAD_FAILED" }, cors)
+      : reply(500, { error: "MANIFEST_UPLOAD_FAILED_CLEANUP_INCOMPLETE" }, cors);
   }
 
   const m = manifest as Record<string, unknown>;
@@ -219,8 +224,13 @@ Deno.serve(async (req: Request) => {
   });
 
   if (insertError) {
-    await admin.storage.from(BUCKET).remove([archivePath, manifestPath]);
-    return reply(409, { error: "STAGING_REGISTRATION_FAILED", detail: insertError.message }, cors);
+    const cleanupSucceeded = await cleanupUploadedObjects(
+      (paths) => admin.storage.from(BUCKET).remove(paths),
+      [archivePath, manifestPath],
+    );
+    return cleanupSucceeded
+      ? reply(409, { error: "STAGING_REGISTRATION_FAILED" }, cors)
+      : reply(500, { error: "STAGING_REGISTRATION_FAILED_CLEANUP_INCOMPLETE" }, cors);
   }
 
   return reply(202, {
