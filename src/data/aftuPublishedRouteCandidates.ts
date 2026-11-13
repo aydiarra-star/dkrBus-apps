@@ -89,7 +89,7 @@ export const AFTU_PUBLISHED_ROUTE_CANDIDATES: readonly AftuPublishedRouteCandida
     description: 'Guédiawaye Cité des Enseignants, avenue Oumar Foutiyou Tall, Golf Nord, route des Niayes, Police Thiaroye, Poste Thiaroye, route nationale 1, croisement Keur Massar, Keur Mbaye Fall, ZAC Mbao, allées Médina ZAC, cité Capec, HLM Rufisque, rond-point Djouti Ba, boulevard Maurice Gueye, Sonadis Rufisque, hôpital Youssou Mbargane Diop, route de Sangalkam, Keur Daouda Sarr, cité Sagef, cité Baba Guisse, terminus Kounoune.',
     status: 'NEEDS_HUMAN_REVIEW',
     directionCoverage: 'SINGLE_DESCRIPTION_ONLY',
-  },,
+  },
 
   {
     line: '24',
