@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   DDD_BANLIEUE_ARCGIS_LAYERS,
+  DDD_URBAN_ARCGIS_AUDIT_TOTALS,
+  DDD_URBAN_ARCGIS_ROUTE_LAYERS,
+  DDD_URBAN_ARCGIS_STOP_LAYERS,
   getDddBanlieueArcgisLayer,
 } from './dddBanlieueArcgisRegistry'
 
@@ -29,5 +32,29 @@ describe('DDD suburban ArcGIS route references', () => {
 
   it('does not invent a GIS layer for line 233', () => {
     expect(getDddBanlieueArcgisLayer('233')).toBeNull()
+  })
+})
+
+describe('DDD urban ArcGIS stop inventory', () => {
+  it('records the 12 urban stop layers and the extracted point totals', () => {
+    expect(DDD_URBAN_ARCGIS_STOP_LAYERS).toHaveLength(12)
+    expect(DDD_URBAN_ARCGIS_AUDIT_TOTALS).toEqual({
+      routeLayers: 12,
+      routeFeatures: 13,
+      stopLayers: 12,
+      stopFeatures: 455,
+      namedStopFeatures: 384,
+      geolocatedStopFeatures: 454,
+    })
+    expect(DDD_URBAN_ARCGIS_ROUTE_LAYERS.find((layer) => layer.line === '8')?.featureCount).toBe(2)
+  })
+
+  it('keeps unnamed line 8 and line 13 stop layers as geographic candidates', () => {
+    expect(DDD_URBAN_ARCGIS_STOP_LAYERS.find((layer) => layer.layerId === 3)).toMatchObject({
+      line: '8', featureCount: 49, namedFeatureCount: 0, geolocatedFeatureCount: 49,
+    })
+    expect(DDD_URBAN_ARCGIS_STOP_LAYERS.find((layer) => layer.layerId === 8)).toMatchObject({
+      line: '13', featureCount: 22, namedFeatureCount: 0, geolocatedFeatureCount: 22,
+    })
   })
 })
