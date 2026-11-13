@@ -14,7 +14,8 @@ export interface AftuPublishedRouteCandidate {
   retrievedOn: '2026-11-13'
   description: string
   status: 'NEEDS_HUMAN_REVIEW'
-  directionCoverage: 'SINGLE_DESCRIPTION_ONLY'
+  directionCoverage: 'SINGLE_DESCRIPTION_ONLY' | 'SINGLE_DESCRIPTION_WITH_RETURN_VARIANTS'
+  returnVariants?: readonly { outboundSegment: string; inboundSegment: string }[]
 }
 
 const aftuSource = 'AFTU-Sénégal · Fiche itinéraire officielle'
@@ -26,9 +27,13 @@ export const AFTU_PUBLISHED_ROUTE_CANDIDATES: readonly AftuPublishedRouteCandida
     sourceLabel: aftuSource,
     publishedOn: '2026-05-19',
     retrievedOn: '2026-11-13',
-    description: 'Route principale des Parcelles Assainies, Croisement Dior, HLM Grand Médine, marché des Parcelles, route des Niayes, Pont de l’Émergence, giratoire Liberté VI, Front de Terre, rues P et 13, boulevard du Général de Gaulle, rues 39/17 et 22/25/37, avenue Blaise Diagne, avenue Émile Badiane, terminus Petersen. La page mentionne des variantes de retour par certaines rues.',
+    description: 'Route principale des Parcelles Assainies, Croisement Dior, HLM Grand Médine, marché des Parcelles, route des Niayes, Pont de l’Émergence, giratoire Liberté VI, Front de Terre, rues P et 13, boulevard du Général de Gaulle, rues 39/17 et 22/25/37, avenue Blaise Diagne, avenue Émile Badiane, terminus Petersen. La fiche officielle précise deux variantes de retour.',
+    returnVariants: [
+      { outboundSegment: 'Rue 39', inboundSegment: 'Rue 17' },
+      { outboundSegment: 'Rue 25', inboundSegment: 'Rue 37' },
+    ],
     status: 'NEEDS_HUMAN_REVIEW',
-    directionCoverage: 'SINGLE_DESCRIPTION_ONLY',
+    directionCoverage: 'SINGLE_DESCRIPTION_WITH_RETURN_VARIANTS',
   },
   {
     line: '5',
@@ -36,9 +41,13 @@ export const AFTU_PUBLISHED_ROUTE_CANDIDATES: readonly AftuPublishedRouteCandida
     sourceLabel: aftuSource,
     publishedOn: '2026-05-21',
     retrievedOn: '2026-11-13',
-    description: 'Gare des Parcelles Assainies, route de l’Église, route des Niayes, Pont Stade LSS, autoroute Seydina L, Grand Yoff, HOGGY, Front de Terre, avenue Bourguiba, avenue Cheikh Amadou Bamba, rues 39/17, 22/25/37, avenue Blaise Diagne, avenue Émile Badiane, rue Mangin, terminus Petersen.',
+    description: 'Gare des Parcelles Assainies, route de l’Église, route des Niayes, Pont Stade LSS, autoroute Seydina L, Grand Yoff, HOGGY, Front de Terre, avenue Bourguiba, avenue Cheikh Amadou Bamba, rues 39/17, 22/25/37, avenue Blaise Diagne, avenue Émile Badiane, rue Mangin, terminus Petersen. La fiche officielle précise les retours par les rues 17 et 37.',
+    returnVariants: [
+      { outboundSegment: 'Rue 39', inboundSegment: 'Rue 17' },
+      { outboundSegment: 'Rue 25', inboundSegment: 'Rue 37' },
+    ],
     status: 'NEEDS_HUMAN_REVIEW',
-    directionCoverage: 'SINGLE_DESCRIPTION_ONLY',
+    directionCoverage: 'SINGLE_DESCRIPTION_WITH_RETURN_VARIANTS',
   },
   {
     line: '29',
