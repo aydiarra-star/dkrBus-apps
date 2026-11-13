@@ -22,27 +22,56 @@ out body geom;
 out body;
 `;
 
-async function fetchOverpass(endpoint) {
+async function fetchOverpass(endpoint, signal) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      "User-Agent": "DakarBus-readonly-route-audit/1.2",
+      "User-Agent": "DakarBus-readonly-route-audit/1.3",
     },
     body: new URLSearchParams({ data: QUERY }),
-    signal: AbortSignal.timeout(210000),
+    signal,
   });
   const body = await response.text();
   if (!response.ok) {
-    throw new Error(`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)}`);
+    throw new Error(\`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)'}\`);
   }
   try {
-    return JSON.parse(body);
-  } catch {
-    throw new Error(`${endpoint}: invalid JSON response ${body.slice(0, 240)}`);
+    const parsed = JSON.parse(body);
+    if (!Array.isArray(parsed.elements)) throw new Error("missing elements array");
+    return parsed;
+  } catch (error) {
+    throw new Error(\`${endpoint}: invalid Overpass JSON response: ${error.message}\`);
   }
 }
 
+// Query three independent public instances concurrently. The first complete,
+// valid response wins; losing requests are aborted immediately.
+async function fetchOverpassFromBatch(endpoints, errors, batchNumber) {
+  const controllers = endpoints.map(() => new AbortController());
+  const requests = endpoints.map(async (endpoint, index) => {
+    try {
+      console.log(\`Querying OSM via ${endpoint} (batch ${batchNumber})\`);
+      const timeout = setTimeout(() => controllers[index].abort(), 150000);
+      try {
+        const data = await fetchOverpass(endpoint, controllers[index].signal);
+        return { data, endpoint };
+      } finally {
+        clearTimeout(timeout);
+      }
+    } catch (error) {
+      errors.push({ endpoint, batch: batchNumber, error: error.message });
+      throw error;
+    }
+  });
+  try {
+    const winner = await Promise.any(requests);
+    controllers.forEach((controller) => controller.abort());
+    return winner;
+  } catch {
+    return null;
+  }
+}
 function isInsideDakar(point) {
   return point
     && Number.isFinite(point.lat)
@@ -151,27 +180,17 @@ async function main() {
   let data;
   let usedEndpoint;
   const errors = [];
-  for (const endpoint of ENDPOINTS) {
-    // Public Overpass instances can temporarily shed load. Retry once before
-    // switching providers; never treat a partial/invalid response as success.
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
-      try {
-        console.log(`Querying OSM bus relations via ${endpoint} (attempt ${attempt}/2)`);
-        data = await fetchOverpass(endpoint);
-        usedEndpoint = endpoint;
-        break;
-      } catch (error) {
-        errors.push({ endpoint, attempt, error: error.message });
-        if (attempt < 2) {
-          const delayMs = 4000 * attempt;
-          console.warn(`Overpass request failed; retrying in ${delayMs}ms`);
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
-        }
-      }
+  // Two waves of three instances: roughly five minutes worst case, rather
+  // than serially waiting through six long endpoint timeouts.
+  for (let offset = 0; offset < ENDPOINTS.length && !data; offset += 3) {
+    const batch = ENDPOINTS.slice(offset, offset + 3);
+    const winner = await fetchOverpassFromBatch(batch, errors, Math.floor(offset / 3) + 1);
+    if (winner) {
+      data = winner.data;
+      usedEndpoint = winner.endpoint;
     }
-    if (data) break;
   }
-  if (!data) throw new Error(`All Overpass endpoints failed: ${JSON.stringify(errors)}`);
+  if (!data) throw new Error(\`All Overpass endpoints failed: ${JSON.stringify(errors)}\`);
 
   const elements = data.elements ?? [];
   const relations = elements.filter((element) => element.type === "relation");
