@@ -1,0 +1,43 @@
+name: Audit updated DDD ArcGIS against published sequences
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/export_ddd_updated_arcgis_service.mjs"
+      - "scripts/compare_ddd_updated_arcgis_published_sequences.mjs"
+      - "src/data/dddSuburbanPublishedRoutesB.ts"
+      - ".github/workflows/audit-ddd-updated-arcgis-sequences.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ddd-updated-arcgis-sequence-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Extract DDD ArcGIS stops and route geometries
+        run: node scripts/export_ddd_updated_arcgis_service.mjs
+      - name: Compare stop names with published DDD sequences
+        run: node --experimental-strip-types scripts/compare_ddd_updated_arcgis_published_sequences.mjs
+      - name: Validate audit JSON outputs
+        run: |
+          node -e "const fs=require('node:fs'); for (const p of ['artifacts/arcgis/ddd-updated-service-candidates.json','artifacts/arcgis/ddd-published-sequence-name-crosscheck.json']) { const x=JSON.parse(fs.readFileSync(p,'utf8')); if (!x || typeof x !== 'object') throw new Error('Invalid JSON: '+p); }"
+      - name: Upload extraction and comparison evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-updated-arcgis-sequence-audit
+          path: |
+            artifacts/arcgis/ddd-updated-service-candidates.json
+            artifacts/arcgis/ddd-published-sequence-name-crosscheck.json
+          if-no-files-found: error
+          retention-days: 14
