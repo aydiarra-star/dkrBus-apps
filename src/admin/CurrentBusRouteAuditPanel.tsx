@@ -121,12 +121,12 @@ export function CurrentBusRouteAuditPanel() {
 
       <details className="bus-route-audit-sources">
         <summary>Arrêts SIG DDD urbains · {dddUrbanArcgisTotals.stopFeatures} points · {dddUrbanArcgisTotals.geolocatedStopFeatures} géolocalisés</summary>
-        <p>Extraction en lecture seule des couches publiques DDD : {dddUrbanArcgisTotals.routeFeatures} tracés sur {dddUrbanArcgisTotals.routeLayers} couches et {dddUrbanArcgisTotals.stopFeatures} points d’arrêt sur {dddUrbanArcgisTotals.stopLayers} couches. {dddUrbanArcgisTotals.namedStopFeatures} points ont un nom et {dddUrbanArcgisTotals.geolocatedStopFeatures} ont des coordonnées. Ces données historiques servent à rapprocher les arrêts et les tracés ; elles ne prouvent pas les horaires actuels.</p>
+        <p>Extraction en lecture seule des couches publiques DDD : {dddUrbanArcgisTotals.routeFeatures} objets de tracé sur {dddUrbanArcgisTotals.routeLayers} couches, dont {dddUrbanArcgisTotals.nonEmptyRouteFeatures} avec géométrie et {dddUrbanArcgisTotals.emptyRouteFeatures} sans géométrie exploitable ; {dddUrbanArcgisTotals.stopFeatures} points d’arrêt sur {dddUrbanArcgisTotals.stopLayers} couches, dont {dddUrbanArcgisTotals.namedStopFeatures} avec un nom exploitable, {dddUrbanArcgisTotals.missingNameStopFeatures} sans nom exploitable et {dddUrbanArcgisTotals.geolocatedStopFeatures} géolocalisés. Ces données historiques servent à rapprocher les arrêts et les tracés ; elles ne prouvent pas les horaires actuels.</p>
         <ul>
           {dddUrbanArcgisStopLayers.map((layer) => (
             <li key={`${layer.line}-${layer.layerId}`}>
               <strong>DDD {layer.line} · {layer.featureCount} arrêts candidats</strong>
-              <span>{layer.namedFeatureCount} nommés · {layer.geolocatedFeatureCount} géolocalisés</span>
+              <span>{layer.namedFeatureCount} noms exploitables · {layer.featureCount - layer.namedFeatureCount} sans nom · {layer.geolocatedFeatureCount} géolocalisés</span>
               <a href={layer.layerUrl} target="_blank" rel="noreferrer">Ouvrir la couche d’arrêts SIG</a>
             </li>
           ))}
