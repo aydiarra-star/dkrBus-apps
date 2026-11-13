@@ -180,7 +180,7 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
         if not isinstance(issue, dict):
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
         severity = issue.get("severity")
-        if severity not in {"ERROR", "WARNING"}:
+        if not isinstance(severity, str) or severity not in {"ERROR", "WARNING"}:
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
         if not isinstance(issue.get("code"), str) or not issue["code"].strip():
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
