@@ -142,7 +142,7 @@ async function main() {
   const lines = htmlToLines(html);
   const extracted = extractCandidates(lines);
   const routes = deduplicate(extracted);
-  const required = ["1", "4", "7", "8", "9", "10", "13", "18", "20", "23", "121", "319", "2", "5", "6", "11", "12", "16A", "16B", "208", "213", "217", "218", "219", "220", "221", "227", "232", "233", "234", "311", "327", "TAF_TAF", "TAF_TAF_TO1"];
+  const required = ["1", "4", "7", "8", "9", "10", "13", "18", "20", "23", "121", "319", "501", "502", "503", "2", "5", "6", "11", "12", "15", "16A", "16B", "208", "213", "217", "218", "219", "220", "221", "227", "228", "232", "233", "234", "311", "327", "TAF_TAF", "TAF_TAF_TO1"];
   const present = new Set(routes.map((route) => route.line));
   const missingRequired = required.filter((line) => !present.has(line));
   const report = {
