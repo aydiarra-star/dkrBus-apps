@@ -13,6 +13,8 @@ export interface TataPublishedRouteCandidate {
   description: string
   status: 'NEEDS_HUMAN_REVIEW'
   directionCoverage: 'SINGLE_DESCRIPTION_WITH_RETURN_VARIANTS'
+  possibleAftuLine?: string
+  crossReferenceStatus?: 'CORRIDOR_MATCH_NEEDS_REVIEW'
 }
 
 const tataSource = 'Covoiturage.sn · source secondaire'
@@ -20,6 +22,8 @@ const tataSource = 'Covoiturage.sn · source secondaire'
 export const TATA_PUBLISHED_ROUTE_CANDIDATES: readonly TataPublishedRouteCandidate[] = [
   {
     line: '1',
+    possibleAftuLine: '1',
+    crossReferenceStatus: 'CORRIDOR_MATCH_NEEDS_REVIEW',
     sourceUrl: 'https://www.covoiturage.sn/bus-tata-itineraire/ligne/1/lat-dior/hlm-grand-yoff/',
     sourceLabel: tataSource,
     retrievedOn: '2026-11-13',
@@ -29,6 +33,8 @@ export const TATA_PUBLISHED_ROUTE_CANDIDATES: readonly TataPublishedRouteCandida
   },
   {
     line: '2',
+    possibleAftuLine: '2',
+    crossReferenceStatus: 'CORRIDOR_MATCH_NEEDS_REVIEW',
     sourceUrl: 'https://www.covoiturage.sn/bus-tata-itineraire/ligne/2/route-principale-des-parcelles-assainies/gare-petersen/',
     sourceLabel: tataSource,
     retrievedOn: '2026-11-13',
