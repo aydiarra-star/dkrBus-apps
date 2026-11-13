@@ -37,7 +37,7 @@ const unmatchedCandidateRoutes = []
 for (const route of osm.routes) {
   if (route.scopeStatus !== 'DAKAR_CANDIDATE') continue
   const rawRef = String(route.ref ?? '').trim()
-  const line = rawRef.replace(/^L\\s*/i, '').trim()
+  const line = rawRef.replace(/^L\s*/i, '').trim()
   const layerId = stopLayerByLine[line]
   if (!layerId) {
     unmatchedCandidateRoutes.push({
