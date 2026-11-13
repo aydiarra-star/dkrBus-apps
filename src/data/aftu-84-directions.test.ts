@@ -16,7 +16,7 @@ describe('parcours AFTU 84', () => {
 
   it('conserve le retour transmis avec exactement 73 arrêts horaires', () => {
     const inbound = route.directions.inbound
-    expect(route.inboundStatus).toBe('USER_PROVIDED_PENDING_SOURCE')
+    expect(route.inboundStatus).toBe('CETUD_SOURCE_USER_SUPPLIED')
     expect(inbound.origin).toBe('Delafosse Commerce')
     expect(inbound.destination).toBe('Jaxaay2 Route Du 84')
     expect(inbound.waypoints).toHaveLength(73)
