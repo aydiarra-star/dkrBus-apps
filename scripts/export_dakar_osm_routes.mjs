@@ -3,6 +3,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 const BBOX = "(14.55,-17.56,14.91,-17.12)";
 const ENDPOINTS = [
   "https://overpass.private.coffee/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+  "https://z.overpass-api.de/api/interpreter",
   "https://overpass-api.de/api/interpreter",
   "https://overpass.nchc.org.tw/api/interpreter",
 ];
