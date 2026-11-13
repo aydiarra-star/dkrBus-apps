@@ -69,7 +69,7 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
-        <summary>Fiches TATA candidates · ${TATA_PUBLISHED_ROUTE_CANDIDATES.length} lignes · source secondaire</summary>
+        <summary>Fiches TATA candidates · {TATA_PUBLISHED_ROUTE_CANDIDATES.length} lignes · source secondaire</summary>
         <p>Ces fiches proviennent d’un répertoire secondaire. Elles sont distinctes des fiches AFTU, même si un numéro ou un corridor se ressemble. Les variantes de retour citées ne constituent pas une séquence complète validée.</p>
         <ul>
           {TATA_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => (
