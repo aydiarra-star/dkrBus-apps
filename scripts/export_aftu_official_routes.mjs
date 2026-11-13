@@ -6,6 +6,13 @@ const headers = { "User-Agent": "DakarBus-official-route-audit/1.0" };
 const ADDITIONAL_OFFICIAL_PAGES = [
   { slug: "27", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-27/" },
   { slug: "36", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-36/" },
+  // The official index lists these lines and their termini but currently
+  // exposes no clickable itinerary URL for them. Probe the conventional
+  // official page URLs; failed probes are retained in the audit error list.
+  ...["84", "85", "86", "87", "88", "89", "91"].map((slug) => ({
+    slug,
+    url: `https://aftu-senegal.org/map/dakar-urbain-ligne-${slug}/`,
+  })),
 ];
 
 async function fetchText(url) {
