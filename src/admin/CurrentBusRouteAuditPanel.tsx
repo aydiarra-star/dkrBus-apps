@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'lucide-react'
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import { DDD_BANLIEUE_ARCGIS_LAYERS } from '../data/dddBanlieueArcgisRegistry'
-import { CETUD_FREQUENCY_OBSERVATIONS } from '../data/cetudFrequencyObservations'
+import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -27,6 +27,15 @@ function findingLabel(finding: DirectionAuditFinding): string {
 export function CurrentBusRouteAuditPanel() {
   const report = useMemo(() => getCurrentBusRouteAudit(), [])
   const [filter, setFilter] = useState<Filter>('all')
+  const [frequencyObservations, setFrequencyObservations] = useState<readonly CetudFrequencyObservation[]>([])
+
+  useEffect(() => {
+    let active = true
+    void import('../data/cetudFrequencyObservations').then(({ CETUD_FREQUENCY_OBSERVATIONS }) => {
+      if (active) setFrequencyObservations(CETUD_FREQUENCY_OBSERVATIONS)
+    })
+    return () => { active = false }
+  }, [])
   const visibleFindings = report.findings.filter((finding) => {
     if (filter === 'all') return true
     if (filter === 'missing') return finding.kind === 'MISSING_DIRECTION_STOPS'
@@ -57,10 +66,10 @@ export function CurrentBusRouteAuditPanel() {
       </div>
 
       <details className="bus-route-audit-sources">
-        <summary>Fréquences observées par site · CETUD · {CETUD_FREQUENCY_OBSERVATIONS.length} relevés</summary>
+        <summary>Fréquences observées par site · CETUD · {frequencyObservations.length || 'chargement…'} relevés</summary>
         <p>Rapport CETUD/CUREM (EFOV 2016, publié en juillet 2020), tableaux 48, 49, 52 et 53. Ces valeurs décrivent l’intervalle moyen observé à un site et dans un sens donné ; elles ne sont pas des fréquences propres à chaque numéro de ligne et ne doivent pas être recopiées telles quelles sur toutes les lignes qui passent à proximité.</p>
         <ul>
-          {CETUD_FREQUENCY_OBSERVATIONS.map((observation, index) => (
+          {frequencyObservations.map((observation, index) => (
             <li key={`${observation.network}-${observation.period}-${observation.table}-${index}`}>
               <strong>{observation.network} · {observation.period === 'weekday' ? 'Lundi–vendredi' : 'Samedi'}</strong>
               <span>{observation.site}</span>
