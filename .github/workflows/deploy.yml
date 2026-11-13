@@ -1,9 +1,13 @@
 name: Deploy Dakar Bus to GitHub Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: "Confirmer explicitement la publication GitHub Pages"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -16,6 +20,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ inputs.confirm_publish == true }}
     name: Build Dakar Bus
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +41,7 @@ jobs:
           path: ./dist
 
   deploy:
+    if: ${{ inputs.confirm_publish == true }}
     name: Publish Dakar Bus
     needs: build
     runs-on: ubuntu-latest
