@@ -17,7 +17,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByText(/Aller|Retour/).length).toBeGreaterThan(0)
   })
 
-  it('shows the return-route variants published by AFTU for lines 2 and 5', () => {
+  it('shows the return-route variants published by AFTU for lines 2 and 5', async () => {
     render(<CurrentBusRouteAuditPanel />)
     fireEvent.click(await screen.findByText(/Fiches AFTU récupérées · 65 lignes/))
     expect(screen.getAllByText('Retour : Rue 17 à la place de Rue 39')).toHaveLength(2)
@@ -64,7 +64,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getByRole('link', { name: 'Ouvrir la liste officielle des lignes AFTU' })).toBeTruthy()
   })
 
-  it('shows official DDD terminal departure windows without inventing a frequency', () => {
+  it('shows official DDD terminal departure windows without inventing a frequency', async () => {
     render(<CurrentBusRouteAuditPanel />)
     const departures = await screen.findByText(/Départs officiels DDD · 6 directions documentées/)
     fireEvent.click(departures)
