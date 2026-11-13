@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'lucide-react'
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
+import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -62,6 +63,20 @@ export function CurrentBusRouteAuditPanel() {
               <strong>Ligne {candidate.line}</strong>
               <span>Publié le {candidate.publishedOn} · à valider humainement</span>
               <a href={candidate.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la fiche AFTU</a>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      <details className="bus-route-audit-sources">
+        <summary>Fiches TATA candidates · ${TATA_PUBLISHED_ROUTE_CANDIDATES.length} lignes · source secondaire</summary>
+        <p>Ces fiches proviennent d’un répertoire secondaire. Elles sont distinctes des fiches AFTU, même si un numéro ou un corridor se ressemble. Les variantes de retour citées ne constituent pas une séquence complète validée.</p>
+        <ul>
+          {TATA_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => (
+            <li key={candidate.line}>
+              <strong>Ligne TATA {candidate.line}</strong>
+              <span>Source secondaire · à valider humainement</span>
+              <a href={candidate.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la fiche TATA</a>
             </li>
           ))}
         </ul>
