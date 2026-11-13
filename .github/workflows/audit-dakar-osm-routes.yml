@@ -2,6 +2,10 @@ name: Audit Dakar OSM bus routes (read only)
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/export_dakar_osm_routes.mjs"
+      - ".github/workflows/audit-dakar-osm-routes.yml"
 
 permissions:
   contents: read
