@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { AFTU_ESTIMATED_LINE_SCHEDULES, DDD_ESTIMATED_LINE_SCHEDULES } from './estimatedSchedules'
 
 describe('affiches horaires estimatives des réseaux', () => {
-  it('recense les 24 horaires AFTU génériques, hors lignes 79, 80 et 81 gérées séparément', () => {
+  it('conserve les 24 horaires candidats AFTU mais identifie la seule référence CETUD utilisable pour le compte à rebours', () => {
     expect(AFTU_ESTIMATED_LINE_SCHEDULES).toHaveLength(24)
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.some((line) => ['79', '80', '81'].includes(line.line))).toBe(false)
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '42')).toMatchObject({
@@ -11,6 +11,10 @@ describe('affiches horaires estimatives des réseaux', () => {
       sunday: { start: '06:00', end: '21:50', interval: '25 min' },
     })
     expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '5')?.sunday?.interval).toBe('20 min')
+    expect(AFTU_ESTIMATED_LINE_SCHEDULES.find((line) => line.line === '84')).toMatchObject({
+      weekday: { start: '06:00', end: '21:00', interval: '14 min' },
+      sourceLabel: 'CETUD · fréquence 14 min transmise par le responsable',
+    })
   })
 
   it('recense les 9 lignes DDD dont l’identifiant concorde avec le catalogue et conserve la ligne 1 sans fréquence', () => {
