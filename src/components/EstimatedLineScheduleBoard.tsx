@@ -34,7 +34,7 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   saturday: { start: '06:00', end: '21:00', interval: '' },
   sunday: { start: '06:00', end: '21:00', interval: '' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
-  sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
+  sourceLabel: 'AFTU/TATA · amplitude générale, sans fréquence officielle par ligne',
 }
 
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
@@ -43,7 +43,7 @@ const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
   saturday: { start: '05:30', end: '21:00', interval: '' },
   sunday: { start: '06:00', end: '21:00', interval: '' },
   sourceUrl: 'https://demdikk.sn/reseau-urbain-dakar/',
-  sourceLabel: 'Dakar Dem Dikk · amplitude générale et intervalle de référence',
+  sourceLabel: 'Dakar Dem Dikk · amplitude générale, fréquence non documentée par ligne',
 }
 
 function parseClock(value: string): number | null {
