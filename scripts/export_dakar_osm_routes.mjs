@@ -190,7 +190,25 @@ async function main() {
       usedEndpoint = winner.endpoint;
     }
   }
-  if (!data) throw new Error(`All Overpass endpoints failed: ${JSON.stringify(errors)}`);
+  if (!data) {
+    const failure = {
+      generatedAt: new Date().toISOString(),
+      retrievalStatus: "UNAVAILABLE",
+      geographicBounds: BBOX,
+      attribution: "© OpenStreetMap contributors, ODbL",
+      method: "Read-only Overpass retrieval; no route data was changed or inferred.",
+      endpointErrors: errors,
+      summary: {
+        retrievalStatus: "UNAVAILABLE",
+        endpointsAttempted: errors.length,
+        message: "All configured Overpass instances were unavailable or overloaded. This is a source-availability failure, not an empty OSM dataset.",
+      },
+    };
+    await writeFile("artifacts/osm/dakar-osm-fetch-failure.json", JSON.stringify(failure, null, 2) + "\\n");
+    console.error(JSON.stringify(failure.summary, null, 2));
+    process.exitCode = 2;
+    return;
+  }
 
   const elements = data.elements ?? [];
   const relations = elements.filter((element) => element.type === "relation");
