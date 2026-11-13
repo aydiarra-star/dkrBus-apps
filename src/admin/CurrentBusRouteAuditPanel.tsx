@@ -93,6 +93,9 @@ export function CurrentBusRouteAuditPanel() {
             <li key={candidate.line}>
               <strong>Ligne {candidate.line}</strong>
               <span>Publié le {candidate.publishedOn} · à valider humainement</span>
+              {candidate.returnVariants?.map((variant, index) => (
+                <span key={index}>Retour : {variant.inboundSegment} à la place de {variant.outboundSegment}</span>
+              ))}
               <a href={candidate.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la fiche AFTU</a>
             </li>
           ))}
