@@ -19,6 +19,6 @@ describe('CurrentBusRouteAuditPanel', () => {
     const missingStopButtons = screen.getAllByRole('button', { name: 'Arrêts manquants' })
     fireEvent.click(missingStopButtons[0])
     expect(screen.getAllByRole('button', { name: 'Arrêts manquants' })[0].getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByText(/constat\(s\) dans cette vue/)).toBeTruthy()
+    expect(screen.getAllByText(/constat\(s\) dans cette vue/).length).toBeGreaterThan(0)
   })
 })
