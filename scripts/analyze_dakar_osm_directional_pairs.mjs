@@ -15,12 +15,15 @@ function routeRefs(route) {
   for (const value of values) {
     for (const token of String(value).split(/[;,]/)) {
       const compact = token.trim().toUpperCase().replace(/\s+/g, "");
-      // Preserve alphanumeric identifiers such as B1 and 2B.
       const match = compact.match(/^L?([A-Z]?\d{1,3}[A-Z]?)$/);
       if (match && !refs.includes(match[1])) refs.push(match[1]);
     }
   }
   return refs;
+}
+function leadingNameRef(route) {
+  const match = String(route.name ?? "").match(/^\s*(?:ligne\s*)?(\d{1,3}[A-Z]?)\b/i);
+  return match?.[1]?.toUpperCase() ?? null;
 }
 function stopSequence(route) {
   return (route.orderedStopMembers ?? []).map((stop, index) => ({
@@ -42,9 +45,6 @@ function haversineMeters(a, b) {
     + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
   return 6371000 * 2 * Math.asin(Math.sqrt(h));
 }
-
-// Preserve raw OSM stop/platform members. Pair only adjacent same-name roles
-// whose coordinates corroborate a shared physical boarding location.
 function stopPlatformPairs(stops) {
   const pairs = [];
   for (let index = 0; index < stops.length - 1; index += 1) {
@@ -105,6 +105,7 @@ for (const route of routes) {
 }
 
 const pairs = [];
+const pairedRelationIds = new Set();
 for (const [ref, members] of groups) {
   for (let i = 0; i < members.length; i += 1) {
     for (let j = i + 1; j < members.length; j += 1) {
@@ -118,6 +119,8 @@ for (const [ref, members] of groups) {
         .filter((id) => (b.routeMasterRelations ?? []).some((m) => m.osmRelationId === id));
       const sharedStopIds = commonStopIds(aStops, bStops);
       if (!reversedEndpoints && !sharedMasterIds.length) continue;
+      pairedRelationIds.add(a.osmRelationId);
+      pairedRelationIds.add(b.osmRelationId);
       pairs.push({
         lineRef: ref,
         relationA: {
@@ -143,9 +146,7 @@ for (const [ref, members] of groups) {
           sameOperator: normalize(a.operator) !== "" && normalize(a.operator) === normalize(b.operator),
           normalizedStopNameOverlap: nameOverlap(aStops, bStops),
         },
-        assessment: reversedEndpoints
-          ? "REVERSED_ENDPOINT_CANDIDATE"
-          : "SHARED_ROUTE_MASTER_CANDIDATE",
+        assessment: reversedEndpoints ? "REVERSED_ENDPOINT_CANDIDATE" : "SHARED_ROUTE_MASTER_CANDIDATE",
         warning: "OSM directional evidence only; endpoint agreement alone does not validate stop sequence, operator identity, current service, or timetable.",
       });
     }
@@ -154,6 +155,32 @@ for (const [ref, members] of groups) {
 pairs.sort((a, b) => Number(b.evidence.reversedEndpoints) - Number(a.evidence.reversedEndpoints)
   || Number(b.evidence.sharedRouteMasterRelationIds.length > 0) - Number(a.evidence.sharedRouteMasterRelationIds.length > 0)
   || Number(a.lineRef) - Number(b.lineRef));
+
+// Keep candidate relations visible even when no safe inverse pair can be formed.
+// This is especially important for partial/contradictory ref and endpoint metadata.
+const unpairedRelations = routes.filter((route) => !pairedRelationIds.has(route.osmRelationId)).map((route) => {
+  const refs = routeRefs(route);
+  const nameRef = leadingNameRef(route);
+  return {
+    osmRelationId: route.osmRelationId,
+    name: route.name ?? null,
+    refs,
+    nameLeadingRouteRef: nameRef,
+    referenceConflict: Boolean(nameRef && refs.length && !refs.includes(nameRef)),
+    from: route.from ?? null,
+    to: route.to ?? null,
+    operator: route.operator ?? null,
+    network: route.network ?? null,
+    orderedMemberCount: (route.orderedStopMembers ?? []).length,
+    namedMemberCount: (route.orderedStopMembers ?? []).filter((member) => normalize(member.name)).length,
+    reason: refs.length > 1
+      ? "MULTIPLE_ROUTE_REFS"
+      : !route.from || !route.to
+        ? "MISSING_ENDPOINT_METADATA"
+        : "NO_REVERSED_ENDPOINT_OR_SHARED_MASTER_MATCH",
+    warning: "Unpaired OSM candidate only; not an operator-validated direction or complete route.",
+  };
+});
 
 const summary = {
   source: "OpenStreetMap contributors via Overpass; © OSM contributors, ODbL",
@@ -164,6 +191,8 @@ const summary = {
   sharedRouteMasterPairs: pairs.filter((p) => p.evidence.sharedRouteMasterRelationIds.length).length,
   stopPlatformPairCandidatesAcrossPairDirections: pairs.reduce((sum, pair) =>
     sum + pair.relationA.stopPlatformPairCount + pair.relationB.stopPlatformPairCount, 0),
+  unpairedCandidateRelations: unpairedRelations.length,
+  routeReferenceMetadataConflicts: unpairedRelations.filter((r) => r.referenceConflict).length,
   lineRefsWithPairs: [...new Set(pairs.map((p) => p.lineRef))],
   explicitWarnings: [
     "A pair is a candidate, not a validated operator route.",
@@ -171,11 +200,12 @@ const summary = {
     "Distinct normalized stop-name overlap is a comparison metric, not proof of physical stop identity.",
     "Relation member order is preserved independently for each direction.",
     "Raw OSM stop and platform members are preserved; adjacent same-name pairs within 30 m are separately identified.",
+    "Unpaired candidates and route-ref/name conflicts remain visible in a separate diagnostic list.",
     "No missing direction, stop, frequency, or timetable is invented.",
     "No OSM relation is merged, reassigned, or used to overwrite operator data.",
   ],
 };
 await mkdir("artifacts/osm", { recursive: true });
-await writeFile(output, JSON.stringify({ summary, pairs }, null, 2) + "\n");
+await writeFile(output, JSON.stringify({ summary, pairs, unpairedRelations }, null, 2) + "\n");
 console.log(JSON.stringify(summary, null, 2));
 console.log("Directional pair audit saved to " + output);
