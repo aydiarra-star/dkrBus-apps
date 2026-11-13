@@ -83,6 +83,26 @@ Le registre contient maintenant **15 fiches AFTU** (lignes 2, 5, 24, 26, 29, 30,
 
 Comme pour les sept premières fiches, chaque description reste `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY`. Une description publiée dans un seul ordre ne prouve pas la séquence indépendante du retour. Les huit nouvelles fiches sont affichées dans la rubrique repliable de la console via le registre commun ; elles ne sont pas injectées dans le catalogue voyageur et ne génèrent aucun horaire.
 
+
+### Complément — huit fiches AFTU supplémentaires (lignes 41 à 48)
+
+Huit nouvelles fiches individuelles ont été consultées sur le site officiel AFTU et ajoutées au registre candidat :
+
+| Ligne | Date affichée | Référence |
+|---|---|---|
+| 41 | 30 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-41/ |
+| 42 | 30 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-42/ |
+| 43 | 30 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-43/ |
+| 44 | 30 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-44/ |
+| 45 | 1 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-45/ |
+| 46 | 1 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-46/ |
+| 47 | 2 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-47/ |
+| 48 | 2 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-48/ |
+
+Le registre comprend désormais **23 fiches AFTU distinctes** : lignes 2, 5, 24, 26, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 57 et 72.
+
+Les fiches donnent une description d'itinéraire publiée dans un seul ordre. Elles ne constituent pas deux séquences indépendantes Aller et Retour. Elles restent toutes marquées `NEEDS_HUMAN_REVIEW` / `SINGLE_DESCRIPTION_ONLY`, séparées du catalogue voyageur et sans horaires calculés.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
