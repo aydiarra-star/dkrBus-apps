@@ -14,24 +14,18 @@ describe('parcours AFTU 84', () => {
     expect(route.directions.outbound.waypoints).toEqual(route.waypoints)
   })
 
-  it('conserve le retour transmis avec ses 73 horaires et ses deux arrêts terminaux', () => {
+  it('conserve le retour transmis avec exactement 73 arrêts horaires', () => {
     const inbound = route.directions.inbound
     expect(route.inboundStatus).toBe('USER_PROVIDED_PENDING_SOURCE')
     expect(inbound.origin).toBe('Delafosse Commerce')
-    expect(inbound.destination).toBe('Jaxaay 2 Pénitence')
-    expect(inbound.waypoints).toHaveLength(75)
-    expect(inbound.times).toHaveLength(75)
+    expect(inbound.destination).toBe('Jaxaay2 Route Du 84')
+    expect(inbound.waypoints).toHaveLength(73)
+    expect(inbound.times).toHaveLength(73)
     expect(inbound.times.filter(Boolean)).toHaveLength(73)
     expect(inbound.times[0]).toBe('05:49')
     expect(inbound.times[72]).toBe('07:09')
-    expect(inbound.times[73]).toBeNull()
-    expect(inbound.times[74]).toBeNull()
-    expect(inbound.waypoints.slice(-3)).toEqual([
-      'Jaxaay2 Route Du 84',
-      'Jaxaay A Côté Pharmacie Marie Essentene Manga',
-      'Jaxaay 2 Pénitence'
-    ])
+    expect(inbound.waypoints.at(-1)).toBe('Jaxaay2 Route Du 84')
     expect(route.inboundWaypoints).toEqual(inbound.waypoints)
-    expect(route.stopCount).toEqual({ outbound: 73, inbound: 75 })
+    expect(route.stopCount).toEqual({ outbound: 73, inbound: 73 })
   })
 })
