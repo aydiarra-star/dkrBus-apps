@@ -4,6 +4,7 @@ import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
 import { DDD_BANLIEUE_ARCGIS_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { CETUD_FREQUENCY_OBSERVATIONS } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -54,6 +55,21 @@ export function CurrentBusRouteAuditPanel() {
         <ShieldCheck size={15} />
         <span>L’IA recherche et recoupe les sources pour qualifier les lignes. Aucune correction des arrêts ni publication dans le catalogue voyageurs n’est automatique.</span>
       </div>
+
+      <details className="bus-route-audit-sources">
+        <summary>Fréquences observées par site · CETUD · {CETUD_FREQUENCY_OBSERVATIONS.length} relevés</summary>
+        <p>Rapport CETUD/CUREM (EFOV 2016, publié en juillet 2020), tableaux 48, 49, 52 et 53. Ces valeurs décrivent l’intervalle moyen observé à un site et dans un sens donné ; elles ne sont pas des fréquences propres à chaque numéro de ligne et ne doivent pas être recopiées telles quelles sur toutes les lignes qui passent à proximité.</p>
+        <ul>
+          {CETUD_FREQUENCY_OBSERVATIONS.map((observation, index) => (
+            <li key={`${observation.network}-${observation.period}-${observation.table}-${index}`}>
+              <strong>{observation.network} · {observation.period === 'weekday' ? 'Lundi–vendredi' : 'Samedi'}</strong>
+              <span>{observation.site}</span>
+              <span>Vers ville : {observation.towardCityMinutes === null ? 'non desservi / non relevé' : `${observation.towardCityMinutes} min`} · Vers banlieue : {observation.towardSuburbsMinutes === null ? 'non desservi / non relevé' : `${observation.towardSuburbsMinutes} min`}</span>
+              <a href={observation.sourceUrl} target="_blank" rel="noreferrer">Rapport CETUD · tableau {observation.table}</a>
+            </li>
+          ))}
+        </ul>
+      </details>
 
       <details className="bus-route-audit-sources">
         <summary>Couches SIG DDD de banlieue · {DDD_BANLIEUE_ARCGIS_LAYERS.length} références historiques</summary>
