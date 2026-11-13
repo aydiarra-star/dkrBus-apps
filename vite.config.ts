@@ -51,6 +51,13 @@ export default defineConfig({
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             },
             {
+              name: 'bus-line-catalog',
+              priority: 16,
+              // Shared by the application and the lazily loaded route-audit panel.
+              // Keep it in its own chunk so the audit panel never imports the entry chunk.
+              test: /[\\/]src[\\/](domain[\\/](bidirectionalBusLines|publicBusLineCatalog)|data[\\/]dddPublishedRoutes)\\.ts$/,
+            },
+            {
               name: 'schedule-board',
               priority: 15,
               test: /EstimatedLineScheduleBoard/,
