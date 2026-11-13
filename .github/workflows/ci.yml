@@ -36,6 +36,9 @@ jobs:
       - name: Check read-only DDD OSM ArcGIS reconciliation script
         run: node --check scripts/compare_ddd_osm_arcgis_stops.mjs
 
+      - name: Check read-only OSM way to ArcGIS stop proximity exporter
+        run: node --check scripts/export_ddd_osm_way_arcgis_stop_proximity.mjs
+
       - name: Check official DDD route exporter
         run: node --check scripts/export_ddd_official_route_candidates.mjs
 
