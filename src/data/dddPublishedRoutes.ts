@@ -314,6 +314,17 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
     'Terminus Aéroport LSS',
   ], '2026-11-13', 'CONFLIT SOURCE : le titre officiel annonce Palais 1, mais la séquence publiée se termine à Aéroport LSS. La page officielle Info voyageurs confirme le titre Baux Maraîchers ↔ Palais 1 sans fournir une séquence détaillée permettant de résoudre le conflit. Ne pas remplacer le terminus sans nouvelle preuve.'),
+  route('311', 'Lac Rose', 'Croisement Keur Massar', 'published_circuit', [
+    'Lac Rose / Croisement Niague', 'Croisement Tivaouane Peulh',
+    'Terminus Keur Massar', 'Station Keur Massar',
+    'Croisement Keur Massar', 'Retour vers Lac Rose',
+  ], '2026-11-13'),
+  route('327', 'Keur Massar', 'Terminus Parcelles', 'published_order', [
+    'Terminus Keur Massar', 'Tolou Abdoulaye Wade',
+    'Croisement Tivaouane Peulh', 'APIX', 'Malika Plage', 'Malibu',
+    'Hôpital Dalal Diam', 'Case bi', 'Croisement 22', 'Eglise PA',
+    'Terminus Parcelles',
+  ], '2026-11-13'),
   route('TO1', 'Ouakam', 'Palais 2', 'published_order', [
     'Terminus Ouakam', 'Brioche d’orée Ouakam',
     'Monument de la Renaissance', 'Corniche Ouest', 'Avenue Peytavin',
