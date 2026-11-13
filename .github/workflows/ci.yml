@@ -45,6 +45,9 @@ jobs:
       - name: Check official DDD route exporter
         run: node --check scripts/export_ddd_official_route_candidates.mjs
 
+      - name: Check OSM directional pair and ambiguity audit
+        run: node --check scripts/analyze_dakar_osm_directional_pairs.mjs
+
       - name: Extract official DDD published route sequences
         id: ddd_official
         continue-on-error: true
