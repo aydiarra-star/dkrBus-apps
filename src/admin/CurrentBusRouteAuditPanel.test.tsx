@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+// The panel intentionally lazy-loads six evidence modules; allow the first
+// isolated test worker enough time for those imports before asserting the data.
+configure({ asyncUtilTimeout: 5000 })
 import { afterEach, describe, expect, it } from 'vitest'
 
 afterEach(() => cleanup())
