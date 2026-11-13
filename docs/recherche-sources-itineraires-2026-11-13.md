@@ -119,6 +119,20 @@ Le registre contient maintenant **27 fiches officielles AFTU** : lignes 2, 5, 24
 
 Comme les autres fiches, ces quatre descriptions restent candidates, en statut `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY`. Elles ne sont pas injectées dans le catalogue voyageur et ne produisent aucun horaire.
 
+
+### Complément — récupération des fiches AFTU 49 à 52
+
+La liste officielle « Infos pratiques » de l'AFTU relie désormais directement aux quatre fiches individuelles suivantes. Les dates et les descriptions ont été relevées sur ces fiches :
+
+| Ligne | Date affichée | Terminus décrits | Référence |
+|---|---|---|---|
+| 49 | 3 juillet 2026 | Gadaye – Ngor | https://aftu-senegal.org/map/dakar-urbain-ligne-49/ |
+| 50 | 4 juillet 2026 | Petersen – Malika Plage | https://aftu-senegal.org/map/dakar-urbain-ligne-50/ |
+| 51 | 6 juillet 2026 | Jaxaay – Gare des Baux Maraîchers | https://aftu-senegal.org/map/dakar-urbain-ligne-51/ |
+| 52 | 6 juillet 2026 | Beaux Maraîchers – Jaxaay | https://aftu-senegal.org/map/dakar-urbain-ligne-52/ |
+
+Ces quatre fiches portent le registre à **31 lignes AFTU documentées**. Les lignes 49 à 52 sont ajoutées comme fiches primaires AFTU, et non à partir des horaires ou listes secondaires de transit. Elles restent néanmoins `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY` : elles ne prouvent pas deux séquences complètes indépendantes Aller/Retour.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
