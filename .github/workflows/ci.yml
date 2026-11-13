@@ -39,6 +39,9 @@ jobs:
       - name: Check read-only OSM way to ArcGIS stop proximity exporter
         run: node --check scripts/export_ddd_osm_way_arcgis_stop_proximity.mjs
 
+      - name: Check read-only OSM stop-node candidate exporter
+        run: node --check scripts/export_ddd_osm_way_stop_node_candidates.mjs
+
       - name: Check official DDD route exporter
         run: node --check scripts/export_ddd_official_route_candidates.mjs
 
