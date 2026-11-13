@@ -37,7 +37,7 @@ Le contrôle est en lecture seule. Il ne modifie ni les lignes, ni les arrêts, 
 ## Registres documentaires ajoutés
 
 Au 13 novembre 2026, le dépôt conserve :
-- **65 fiches AFTU détaillées** issues des pages individuelles du site de l'opérateur, avec date, URL et description, dans `src/data/aftuPublishedRouteCandidates.ts`.
+- **65 fiches AFTU détaillées** sont conservées dans `src/data/aftuPublishedRouteCandidates.ts` : 63 fiches liées depuis la page « Infos pratiques » et deux fiches officielles supplémentaires (lignes 27 et 36) retrouvées par leurs URL directes.
 - La page officielle AFTU liste aussi les lignes 84, 85, 86, 87, 88, 89 et 91 avec leurs terminus, mais les liens individuels ne sont pas exploitables dans la page consultée ; elles restent donc des lignes repérées, sans fiche détaillée ni séquence vérifiée.
 - **2 fiches TATA** issues de Covoiturage.sn, explicitement marquées comme source secondaire, dans `src/data/tataPublishedRouteCandidates.ts`.
 
@@ -112,6 +112,18 @@ La page CETUD « Système de données » confirme que le CETUD a créé des fich
 - **DDD 233 :** le titre publié est Baux Maraîchers ↔ Palais 1, tandis que la séquence détaillée se termine à Aéroport LSS. La page officielle Info voyageurs confirme le titre mais ne fournit pas la séquence permettant de résoudre le conflit. Le registre conserve les deux informations publiées et signale l'ambiguïté.
 - **AFTU :** le plan téléchargeable du CETUD est une carte JPEG des corridors, pas un fichier d'horaires. Il est ajouté aux sources de recoupement cartographique, sans servir à fabriquer l'ordre des arrêts.
 - **GTFS CETUD :** l'existence du référentiel est officiellement confirmée. Aucun lien direct de téléchargement du fichier GTFS n'a été trouvé sur la page Système de données ni dans les deux boutons de téléchargement des plans AFTU/DDD. Le fichier lui-même n'est pas encore dans le dépôt ; la recherche continue.
+
+
+
+### Extension de l'extraction AFTU aux fiches officielles non reliées — 13 novembre 2026
+
+La page officielle « Infos pratiques » relie 63 fiches. La recherche directe sur le site AFTU a aussi retrouvé les pages officielles des lignes 27 et 36, accessibles par URL mais absentes des liens extraits de cette page. Le collecteur les récupère désormais explicitement, sans les confondre avec les 63 liens de l'index.
+
+Le registre automatique distingue donc **63 pages reliées + 2 pages officielles supplémentaires**, soit **65 pages récupérées**, avec 65 descriptions d'itinéraire et aucune page manquante dans la dernière exécution attendue. Les pages 27 et 36 ont été ouvertes et leur texte de corridor vérifié sur le site AFTU. Les descriptions restent des parcours publiés à un seul ordre ; elles ne fabriquent pas le sens opposé.
+
+Sources directes :
+- Ligne 27 : https://aftu-senegal.org/map/dakar-urbain-ligne-27/
+- Ligne 36 : https://aftu-senegal.org/map/dakar-urbain-ligne-36/
 
 Les détails, liens directs et limites des sources sont consignés dans le relevé daté `docs/recherche-sources-itineraires-2026-11-13.md`. Ces constats restent dans le périmètre de la revue documentaire et ne changent pas le catalogue passager ni les horaires TER/BRT.
 
