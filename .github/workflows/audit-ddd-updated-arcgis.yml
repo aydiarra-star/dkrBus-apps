@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/export_ddd_updated_arcgis_service.mjs"
       - "scripts/compare_ddd_updated_arcgis_published_sequences.mjs"
+      - "scripts/project_ddd_arcgis_stops_onto_routes.mjs"
       - "src/data/dddSuburbanPublishedRoutesB.ts"
       - ".github/workflows/audit-ddd-updated-arcgis.yml"
 
@@ -31,6 +32,8 @@ jobs:
         run: node scripts/export_ddd_updated_arcgis_service.mjs
       - name: Compare ArcGIS stop names with published DDD sequences
         run: node scripts/compare_ddd_updated_arcgis_published_sequences.mjs
+      - name: Project DDD stops onto matching route geometries
+        run: node scripts/project_ddd_arcgis_stops_onto_routes.mjs
       - name: Save read-only ArcGIS evidence and sequence cross-check
         uses: actions/upload-artifact@v4
         with:
@@ -38,5 +41,6 @@ jobs:
           path: |
             artifacts/arcgis/ddd-updated-service-candidates.json
             artifacts/arcgis/ddd-published-sequence-name-crosscheck.json
+            artifacts/arcgis/ddd-stop-route-spatial-projection.json
           if-no-files-found: error
           retention-days: 14
