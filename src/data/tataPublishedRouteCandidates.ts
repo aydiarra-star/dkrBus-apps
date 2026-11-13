@@ -1,7 +1,9 @@
 /**
- * Itinéraires TATA recensés sur une source secondaire.
- * À conserver séparément des fiches AFTU même lorsque les numéros de ligne
- * ou les corridors se ressemblent. Aucun usage dans le catalogue voyageur.
+ * Fiches secondaires publiées sous l'appellation « TATA ».
+ * Le CETUD indique que les minibus AFTU sont couramment appelés Tata à Dakar.
+ * Ces fiches restent séparées par provenance pour comparaison, mais ne
+ * constituent pas un réseau opérateur distinct ni une preuve officielle.
+ * Aucun usage direct dans le catalogue voyageur.
  */
 export interface TataPublishedRouteCandidate {
   line: string
