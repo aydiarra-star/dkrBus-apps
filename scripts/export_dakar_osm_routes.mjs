@@ -34,14 +34,14 @@ async function fetchOverpass(endpoint, signal) {
   });
   const body = await response.text();
   if (!response.ok) {
-    throw new Error(\`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)}\`);
+    throw new Error(`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)}`);
   }
   try {
     const parsed = JSON.parse(body);
     if (!Array.isArray(parsed.elements)) throw new Error("missing elements array");
     return parsed;
   } catch (error) {
-    throw new Error(\`${endpoint}: invalid Overpass JSON response: ${error.message}\`);
+    throw new Error(`${endpoint}: invalid Overpass JSON response: ${error.message}`);
   }
 }
 
@@ -51,7 +51,7 @@ async function fetchOverpassFromBatch(endpoints, errors, batchNumber) {
   const controllers = endpoints.map(() => new AbortController());
   const requests = endpoints.map(async (endpoint, index) => {
     try {
-      console.log(\`Querying OSM via ${endpoint} (batch ${batchNumber})\`);
+      console.log(`Querying OSM via ${endpoint} (batch ${batchNumber})`);
       const timeout = setTimeout(() => controllers[index].abort(), 150000);
       try {
         const data = await fetchOverpass(endpoint, controllers[index].signal);
@@ -190,7 +190,7 @@ async function main() {
       usedEndpoint = winner.endpoint;
     }
   }
-  if (!data) throw new Error(\`All Overpass endpoints failed: ${JSON.stringify(errors)}\`);
+  if (!data) throw new Error(`All Overpass endpoints failed: ${JSON.stringify(errors)}`);
 
   const elements = data.elements ?? [];
   const relations = elements.filter((element) => element.type === "relation");
