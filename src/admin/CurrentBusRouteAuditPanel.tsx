@@ -51,7 +51,7 @@ export function CurrentBusRouteAuditPanel() {
 
       <div className="bus-route-audit-safety" role="note">
         <ShieldCheck size={15} />
-        <span>Les constats sont des demandes de vérification humaine. L’IA ne valide et ne publie rien automatiquement.</span>
+        <span>L’IA recherche et recoupe les sources pour qualifier les lignes. Aucune correction des arrêts ni publication dans le catalogue voyageurs n’est automatique.</span>
       </div>
 
       <details className="bus-route-audit-sources">
