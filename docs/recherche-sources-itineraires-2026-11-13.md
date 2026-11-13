@@ -27,23 +27,25 @@ Les lignes 1, 4, 7, 8, 9, 10, 13, 18, 20, 23, 121 et d’autres parcours sont d�
 
 La ligne 18 apparaît deux fois dans le contenu de la page avec un parcours de type boucle. Elle doit rester un circuit documentaire et faire l’objet d’une vérification avant toute interprétation.
 
-### Point de vigilance : lignes DDD 217 / 218 et dessertes TER
+### Point de vigilance : lignes DDD 217 / 218 / 233 et dessertes TER
 
-La page officielle « Info voyageurs » consultée le 13 novembre 2026 présente la ligne 217 comme **Thiaroye ↔ Ouakam** et la ligne 218 comme **Thiaroye ↔ Aéroport LSS**. Dans le registre de repères du dépôt, les deux enregistrements comportent actuellement une séquence dont le dernier repère est « Terminus Aéroport LSS ». Il existe donc une incohérence à examiner pour la ligne 217 : la séquence publiée doit être confrontée à la fiche officielle avant toute utilisation. Aucun changement n’est fait automatiquement.
+La page opérateur « Réseau urbain de Dakar », relue le 13 novembre 2026, donne pour la ligne 217 le titre **Thiaroye ↔ Ouakam**, mais sa séquence se poursuit après « Terminus Ouakam » par la route des Mamelles, la route des Almadies, Ngor et « Terminus Aéroport LSS ». La ligne 218, intitulée **Thiaroye ↔ Aéroport LSS**, publie presque la même séquence. C'est un conflit interne à la source opérateur : le registre conserve le texte publié et ajoute maintenant une note de conflit explicite ; il ne tronque pas la séquence et ne la réattribue pas à la ligne 218.
 
-La même page DDD sépare les dessertes des gares TER et liste les lignes 501, 502A, 502B, 503A, 503B, 504A et 504B avec leurs terminus. Ce sont des dessertes DDD associées au TER ; les terminus seuls ne suffisent pas à créer les séquences d’arrêts. Elles doivent rester dans un périmètre distinct et ne justifient aucune modification des données ni des horaires TER.
+La ligne 233 est intitulée **Baux Maraîchers ↔ Palais 1**, mais la séquence détaillée publiée sur la même page finit à « Terminus Aéroport LSS ». La page officielle « Info voyageurs » confirme également le titre Baux Maraîchers ↔ Palais 1, sans donner de séquence détaillée permettant de résoudre la divergence. Le registre conserve donc les repères tels que publiés et signale le conflit dans le champ sourceConflict. Aucun terminus n'est corrigé par supposition.
+
+La page « Info voyageurs » liste aussi les dessertes des gares TER et les lignes 501, 502A, 502B, 503A, 503B, 504A et 504B avec leurs terminus. Elles restent dans un périmètre DDD distinct ; cette recherche ne modifie ni les données ni les horaires TER.
+
 
 ## 2. AFTU
 
 **Source institutionnelle consultée :** https://cetud.sn/reseaux-de-transport/aftu/
 
-Le CETUD confirme sur cette page la structure AFTU (14 GIE, 2 300 bus et 72 lignes) et met à disposition un plan téléchargeable :
+Le CETUD confirme sur cette page la structure AFTU (14 GIE, 2 300 bus et 72 lignes) et met à disposition un plan cartographique officiel :
 
 https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg
 
-Le plan est une carte schématique de lignes numérotées sur la région de Dakar. Il constitue une bonne source pour repérer des corridors et préparer des vérifications, mais il ne fournit pas une liste textuelle ordonnée de tous les arrêts pour chaque sens. Il ne suffit donc pas à remplir les séquences Aller et Retour.
+La page présente ce fichier sous « Télécharger le plan des lignes ». Le lien mène à une image JPEG du plan, pas à un tableau d'horaires, pas à une liste détaillée d'arrêts et pas au fichier GTFS. La carte est une preuve visuelle des corridors et des identifiants de lignes ; elle ne fournit pas à elle seule l'ordre complet des arrêts de chaque sens. Elle sert donc au recoupement cartographique, pas à inventer les séquences Aller/Retour.
 
-Le CETUD documente également des repositionnements et modifications de lignes AFTU liés à la restructuration du réseau autour du BRT et du TER. Une carte ancienne ne doit pas être considérée comme preuve de la desserte actuelle sans contrôle de date et de validité.
 
 ## 3. AFTU — fiches détaillées récupérées
 
@@ -351,12 +353,18 @@ Référence : https://transitrun.com/fr/public-transit-line_233_226860
 
 ## 11. Référentiel institutionnel GTFS du CETUD
 
-La page officielle du système de données du CETUD indique explicitement que le CETUD a numérisé le réseau de transport collectif de Dakar au moyen de fichiers GTFS. Elle précise que ces fichiers comprennent les horaires, arrêts, itinéraires, trajets, tarifs et services :
+La page officielle du système de données du CETUD confirme que le CETUD a créé des fichiers GTFS pour le réseau de transport collectif de Dakar. Le CETUD indique que ces fichiers contiennent les horaires, arrêts, itinéraires, trajets, tarifs et services :
 https://cetud.sn/observatoire/systeme-de-donnees/
 
-La même page distingue les données d'exploitation des réseaux classiques AFTU et DDD, issues notamment de plateformes CAPTRANS et/ou d'enquêtes auprès des opérateurs. C'est une piste institutionnelle prioritaire pour retrouver les jeux de données sources, et non une simple hypothèse.
+La même page précise que les données d'exploitation des réseaux classiques AFTU et DDD proviennent de plateformes dédiées (CAPTRANS) et/ou d'enquêtes auprès des opérateurs. Cela confirme l'existence d'un référentiel GTFS institutionnel, mais la page consultée ne donne pas de lien direct de téléchargement du fichier GTFS.
 
-**État de récupération :** l'existence du référentiel GTFS est confirmée par le CETUD ; le fichier lui-même et son éventuelle version téléchargeable ne sont pas encore récupérés dans ce chantier. Continuer à chercher le lien de téléchargement, les archives ou les points de contact de l'Observatoire (observatoire@cetud.sn, 33 859 47 20). Ne pas dire que le GTFS n'existe pas ; dire uniquement qu'il n'a pas encore été obtenu par le dépôt.
+**Contrôle des boutons « Je télécharge » sur les pages réseau du CETUD (13 novembre 2026) :**
+- AFTU : https://cetud.sn/reseaux-de-transport/aftu/ → le bouton « Je télécharge » ouvre le plan cartographique JPEG https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg.
+- DDD : https://cetud.sn/reseaux-de-transport/ddd/ → le bouton « Je télécharge » ouvre le plan cartographique JPEG https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-ddd.jpeg.
+
+Ces deux téléchargements sont des cartes de lignes, pas le GTFS. Il ne faut donc pas les enregistrer ni les annoncer comme des fichiers horaires GTFS. Les cartes sont néanmoins des sources institutionnelles utiles pour le contrôle visuel des corridors et des identifiants de lignes.
+
+**État de récupération :** l'existence du GTFS est confirmée par le CETUD ; le fichier lui-même n'est pas encore récupéré dans le dépôt. La recherche continue sur les espaces de données, publications et canaux institutionnels du CETUD. Ne pas dire que le GTFS n'existe pas ; dire uniquement qu'il n'a pas encore été obtenu.
 
 ## 12. Vérification complémentaire des fiches AFTU 84 à 91
 
