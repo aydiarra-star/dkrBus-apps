@@ -160,3 +160,8 @@ Une collecte automatisée en lecture seule a parcouru les liens de la page offic
 - la fiche 30 a été ouverte, mais son bloc d'itinéraire n'a pas été extrait par le parseur ; la description déjà conservée dans le registre candidat reste à recouper.
 
 Le relevé complet est produit par `scripts/export_aftu_official_routes.mjs` et le workflow `audit-aftu-official-routes.yml`. Les descriptions restent des corridors publiés dans un seul sens, pas des séquences aller/retour indépendantes. Les pages n'ont pas été injectées automatiquement dans le catalogue passager.
+
+
+### Actualisation de l'extraction automatique — 13 novembre 2026
+
+Le parseur des pages AFTU a été corrigé pour les fiches qui publient directement le corridor après la date sans intertitre « ITINERAIRE ». Une nouvelle exécution a récupéré les **63 pages reliées sur 63**, sans erreur et sans itinéraire manquant. La fiche de la ligne 30, auparavant non extraite par le parseur, est désormais incluse. Cette extraction documentaire ne change pas le statut de qualification des séquences : chaque fiche reste une description publiée à rapprocher des deux sens et des arrêts géolocalisés.
