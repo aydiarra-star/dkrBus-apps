@@ -52,3 +52,21 @@ Le script gère maintenant les références multiples sans les réduire silencie
 ## Garde-fous
 
 Proximité et correspondance ordonnée ne prouvent pas l'identité physique de chaque arrêt, l'exploitation actuelle ni les horaires. Aucun arrêt n'est fusionné, supprimé ou renommé. Aucun sens retour n'est fabriqué. Aucune fréquence n'est déduite. Aucun GTFS utilisé. Aucune écriture Supabase, aucun déploiement, aucune modification TER/BRT ou de l'affichage passager.
+
+## Re-exécution indépendante du 13 novembre 2026 — 18:29 UTC
+
+Le workflow en lecture seule a été relancé sur le commit `0e674518f34ea82488b6fa0277fa6eae348e4772` et a terminé avec succès (artefact GitHub Actions `14066751074`).
+
+Résultats de cette extraction :
+
+- 17 comparaisons relation OSM / couche d'itinéraire DDD ;
+- 421 membres d'arrêts OSM comparés ;
+- 218 correspondances les plus proches à 15 m ou moins ;
+- 270 à 50 m ou moins ;
+- 326 à 100 m ou moins ;
+- 1 comparaison portant une référence multi-ligne ambiguë ;
+- 6 relations candidates sans couche d'arrêts DDD correspondante.
+
+Les relations OSM 1434825 (réf. 36) et 3982642 (réf. 40) restent des candidates sans couche DDD correspondante, et non des itinéraires validés à importer. Les relations B1 19961937 et 19961993 ont chacune 50 membres d'arrêts OSM ; elles ne doivent pas être attribuées au réseau DDD. Les deux autres candidats n'ont pas de référence exploitable.
+
+Cette ré-exécution confirme la reproductibilité du rapprochement spatial. Elle ne transforme pas une proximité géographique en validation d'exploitant et ne modifie aucune séquence passager.
