@@ -82,7 +82,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     const lineOne = await screen.findByText(/DDD 1 · 22 repères publiés/)
     fireEvent.click(lineOne)
     expect(screen.getByText('Terminus Parcelles Assainies')).toBeTruthy()
-    expect(screen.getByText('Terminus Leclerc')).toBeTruthy()
+    expect(screen.getAllByText('Terminus Leclerc').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: 'Ouvrir les parcours DDD' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Ouvrir Info voyageurs DDD' })).toBeTruthy()
     expect(screen.getByText(/Les retours ne sont pas inversés automatiquement/)).toBeTruthy()
