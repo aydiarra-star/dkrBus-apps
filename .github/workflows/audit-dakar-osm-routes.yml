@@ -1,4 +1,5 @@
 name: Audit Dakar OSM bus routes (read only)
+# Directional pair extraction is retained as a separate, read-only artifact.
 
 on:
   workflow_dispatch:
