@@ -26,15 +26,20 @@ jobs:
         with:
           node-version: 22
       - name: Retrieve OSM route relations and ordered stops
+        id: osm_export
+        continue-on-error: true
         run: node scripts/export_dakar_osm_routes.mjs
       - name: Analyze directional route pairs without merging directions
+        if: steps.osm_export.outcome == 'success'
         run: node scripts/analyze_dakar_osm_directional_pairs.mjs
-      - name: Save the read-only audit
+      - name: Save the read-only audit or source outage diagnostic
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dakar-osm-route-candidates
           path: |
             artifacts/osm/dakar-osm-route-candidates.json
             artifacts/osm/dakar-osm-directional-pairs.json
-          if-no-files-found: error
+            artifacts/osm/dakar-osm-fetch-failure.json
+          if-no-files-found: warn
           retention-days: 14
