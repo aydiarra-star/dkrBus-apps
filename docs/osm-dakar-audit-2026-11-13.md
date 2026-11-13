@@ -37,7 +37,7 @@ Il dédoublonne les objets par identité OSM stable (`type:id`) avant d'envoyer 
 
 1. **Les relations de lignes ne sont pas extraites.** Le filtre actuel ne récupère pas les relations `route=bus` / `route_master=bus`. Il ne peut donc pas reconstituer à lui seul l'ordre des arrêts Aller/Retour.
 2. **Les `stop_position` sans `bus=yes` sont ignorés.** Ils ne doivent pas être ajoutés aveuglément, mais doivent être examinés via leurs tags et leurs relations membres afin d'éviter de perdre des données pertinentes.
-3. **Le centre des objets de type way est calculé par moyenne des sommets.** Pour les plateformes surfaciques, ce n'est pas nécessairement le centroïde géométrique. Il faut conserver la géométrie d'origine et calculer un point représentatif avec une méthode géométrique correcte.
+3. **Coordonnée représentative des objets `way` :** le collecteur a été corrigé. Pour un polygone fermé, il calcule le centroïde surfacique dans une projection locale ; pour un way ouvert, il prend le point situé à mi-longueur du tracé. La géométrie complète reste conservée. Ce point reste un repère géométrique candidat, pas une preuve de position exacte de montée voyageurs.
 4. **Le dédoublonnage par `type:id` ne dédoublonne que les répétitions techniques du même objet OSM.** Il ne fusionne pas les nœuds, ways et relations distincts, ce qui est souhaitable à ce stade.
 5. **Les objets OSM ne sont pas regroupés en arrêt physique.** Une plateforme, un stop_position et un stop_area doivent être liés par les relations OSM et la proximité, puis soumis à contrôle ; la proximité seule ne suffit pas.
 6. **Le pipeline écrit dans Supabase.** Le script vise un projet Supabase codé en dur et un endpoint distant `dakar-bus-osm-stops-sync`. L'endpoint et le projet doivent être vérifiés contre la configuration officielle actuelle avant toute exécution. Aucune importation ni écriture Supabase n'est lancée dans le cadre de cet audit.
@@ -91,3 +91,8 @@ La recherche a révélé deux FeatureServer publics décrivant des couches DDD :
 Le script `scripts/export_ddd_arcgis_layers.mjs` récupère les métadonnées, attributs, géométries et dates de mise à jour des couches listées. Le workflow `.github/workflows/audit-ddd-arcgis.yml` produit un artefact JSON pour revue. Les couches cartographiques anciennes (certaines mises à jour en 2017) restent utilisables comme références historiques à comparer aux pages DDD actuelles ; elles ne prouvent pas seules qu'une ligne circule encore aujourd'hui et ne fournissent pas de fréquence.
 
 Les tracés géographiques peuvent aider à contrôler les conflits de terminus et les correspondances entre arrêts textuels et coordonnées. Aucun horaire ni compte à rebours n'est déduit de ces géométries.
+
+
+## Qualité des coordonnées OSM — correction du 13 novembre 2026
+
+Le collecteur des relations OSM ne prend plus la moyenne arithmétique des sommets pour représenter un membre `way`. Il conserve tous les sommets et calcule un point représentatif géométrique : centroïde surfacique pour les ways fermés, point à mi-longueur pour les ways ouverts. Les membres `node` gardent leurs coordonnées natives. Ces points servent au rapprochement cartographique, sans remplacer les coordonnées d'un arrêt vérifié.
