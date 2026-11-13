@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'l
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
+import { AFTU_OFFICIAL_PAGE_AUDIT } from '../data/aftuOfficialPageAudit'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_AUDIT_TOTALS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
@@ -106,6 +107,12 @@ export function CurrentBusRouteAuditPanel() {
             </li>
           ))}
         </ul>
+      </details>
+
+      <details className="bus-route-audit-sources">
+        <summary>Fiches officielles AFTU parcourues · {AFTU_OFFICIAL_PAGE_AUDIT.linkedPages} pages · {AFTU_OFFICIAL_PAGE_AUDIT.itineraryTextsRetrieved} itinéraires</summary>
+        <p>La collecte a ouvert les 63 fiches reliées depuis la page officielle AFTU. Le texte d’itinéraire a été récupéré sur 62 pages ; la fiche 30 est conservée dans le registre existant et son texte sera recoupé séparément.</p>
+        <a href={AFTU_OFFICIAL_PAGE_AUDIT.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la liste officielle des lignes AFTU</a>
       </details>
 
       <details className="bus-route-audit-sources">
