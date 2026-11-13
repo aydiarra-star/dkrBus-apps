@@ -7,6 +7,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.validate_gtfs import ValidationLimits, validate_gtfs_archive
 
@@ -184,6 +185,10 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertTrue(report["structure_valid"])
         self.assertIn("STOP_TIMES_NOT_SORTED", self.issue_codes(report))
         self.assertNotIn("TIME_BEFORE_PREVIOUS_STOP", self.issue_codes(report))
+        unsorted_issue = next(
+            issue for issue in report["issues"] if issue["code"] == "STOP_TIMES_NOT_SORTED"
+        )
+        self.assertIn("après tri", unsorted_issue["message"])
 
     def test_windows_drive_archive_paths_are_rejected(self) -> None:
         tables = dict(VALID_TABLES)
@@ -223,6 +228,17 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertIn("INVALID_DATE", codes)
         self.assertIn("INVALID_TIME", codes)
         self.assertFalse(report["structure_valid"])
+
+    def test_unsupported_zip_compression_is_rejected_before_member_read(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        unsupported = zipfile.ZipInfo("agency.txt")
+        unsupported.compress_type = 99
+
+        with patch.object(zipfile.ZipFile, "infolist", return_value=[unsupported]):
+            report = validate_gtfs_archive(archive)
+
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSUPPORTED_COMPRESSION", self.issue_codes(report))
 
 if __name__ == "__main__":
     unittest.main()
