@@ -3,7 +3,7 @@ import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from './aftuPublishedRouteCandidates'
 
 describe('AFTU published route candidates', () => {
   it('keeps official route descriptions as human-review candidates only', () => {
-    expect(AFTU_PUBLISHED_ROUTE_CANDIDATES.length).toBe(31)
+    expect(AFTU_PUBLISHED_ROUTE_CANDIDATES.length).toBe(37)
     for (const candidate of AFTU_PUBLISHED_ROUTE_CANDIDATES) {
       expect(candidate.sourceUrl).toContain('aftu-senegal.org/map/')
       expect(candidate.status).toBe('NEEDS_HUMAN_REVIEW')
