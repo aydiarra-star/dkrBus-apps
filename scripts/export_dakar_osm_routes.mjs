@@ -6,6 +6,8 @@ const ENDPOINTS = [
   "https://overpass.kumi.systems/api/interpreter",
 ];
 const OUTPUT = "artifacts/osm/dakar-osm-route-candidates.json";
+const DAKAR_BOUNDS = { south: 14.55, west: -17.56, north: 14.91, east: -17.12 };
+const DAKAR_HINTS = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|sunu.?brt|dem.?dikk|aftu|tata/i;
 const QUERY = `[out:json][timeout:180];
 (
   relation["type"="route"]["route"="bus"]${BBOX};
@@ -26,6 +28,32 @@ async function fetchOverpass(endpoint) {
   });
   if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`);
   return response.json();
+}
+
+function isInsideDakar(point) {
+  return point
+    && Number.isFinite(point.lat)
+    && Number.isFinite(point.lon)
+    && point.lat >= DAKAR_BOUNDS.south
+    && point.lat <= DAKAR_BOUNDS.north
+    && point.lon >= DAKAR_BOUNDS.west
+    && point.lon <= DAKAR_BOUNDS.east;
+}
+
+function assessDakarScope(tags = {}, members = []) {
+  const text = [
+    tags.name, tags.ref, tags.operator, tags.network, tags.from, tags.to, tags.via,
+  ].filter(Boolean).join(" ");
+  const hasLocalHint = DAKAR_HINTS.test(text);
+  const hasLocalGeometry = members.some((member) => {
+    if (member.type === "node") return isInsideDakar({ lat: member.lat, lon: member.lon });
+    return (member.geometry ?? []).some((point) => isInsideDakar(point));
+  });
+  if (hasLocalHint || hasLocalGeometry) return "DAKAR_CANDIDATE";
+  if (tags.from && tags.to && !/dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye/i.test([tags.from, tags.to].join(" "))) {
+    return "OUTSIDE_DAKAR_SCOPE";
+  }
+  return "SCOPE_UNCONFIRMED";
 }
 
 function representativePointOfWay(geometry = []) {
@@ -151,6 +179,7 @@ async function main() {
       via: relation.tags?.via ?? null,
       direction: relation.tags?.direction ?? null,
       route: relation.tags?.route ?? null,
+      scopeStatus: assessDakarScope(relation.tags ?? {}, relation.members ?? []),
       tags: relation.tags ?? {},
       orderedStopMembers: stopMembers,
       stopMemberCount: stopMembers.length,
@@ -188,6 +217,9 @@ async function main() {
       totalOsmElements: elements.length,
       routeRelations: routeRows.length,
       routeMasterRelations: routeMasters.length,
+      dakarScopeCandidates: routeRows.filter((route) => route.scopeStatus === "DAKAR_CANDIDATE").length,
+      scopeUnconfirmed: routeRows.filter((route) => route.scopeStatus === "SCOPE_UNCONFIRMED").length,
+      outsideDakarScope: routeRows.filter((route) => route.scopeStatus === "OUTSIDE_DAKAR_SCOPE").length,
       relationsWithOrderedStops: routeRows.filter((route) => route.stopMemberCount > 0).length,
       orderedStopMembers: routeRows.reduce((sum, route) => sum + route.stopMemberCount, 0),
       routeRelationsWithNoStops: routeRows.filter((route) => route.stopMemberCount === 0).length,
