@@ -8,7 +8,7 @@ Document de travail établi à partir des registres versionnés dans le dépôt.
 |---|---|---|
 | DDD | Un catalogue de lignes et terminus ; des séquences de repères publiées pour certaines lignes, avec URL, date de consultation et type « ordre publié » ou « circuit publié » | Séquences distinctes Aller et Retour vérifiées ; correspondance certaine de chaque repère textuel avec un identifiant d’arrêt ; validation des coordonnées |
 | AFTU | Catalogue de lignes et terminus avec une source de référence | Séquences ordonnées propres à chaque sens, vérifiées sur une source exploitable |
-| TATA | Catalogue distinct de lignes et terminus, avec provenance déclarée | Séquences ordonnées propres à chaque sens ; horaires et fréquences autonomes vérifiés |
+| TATA (appellation des minibus AFTU) | Fiches secondaires de parcours conservées comme preuves de comparaison ; rattachement à une ligne AFTU à établir par terminus, corridor et GIE | Correspondance certaine avec l'identifiant AFTU, variantes par sens et éventuelles lignes historiques/non concordantes |
 
 ## Règles de qualification
 
@@ -30,7 +30,7 @@ Le contrôle est en lecture seule. Il ne modifie ni les lignes, ni les arrêts, 
 
 - **DDD :** exploiter les fiches itinéraires publiées ligne par ligne ; transcrire séparément les sens lorsqu'ils sont réellement décrits ; garder les boucles comme telles.
 - **AFTU :** récupérer les fiches de parcours par ligne auprès de l'opérateur ou de sources identifiables ; ne pas déduire les arrêts depuis les seuls terminus.
-- **TATA :** conserver son catalogue distinct ; confirmer les séquences et les horaires auprès de sources TATA/AFTU pertinentes, sans lui attribuer automatiquement les données AFTU.
+- **TATA :** traiter « Tata » comme une appellation courante des minibus du réseau AFTU, et non comme un opérateur automatiquement distinct. Conserver les fiches secondaires TATA comme preuves de comparaison ; les rattacher à une ligne AFTU seulement après rapprochement des terminus, du corridor, du GIE et des variantes. Ne pas compter deux fois une même desserte.
 - **Tous réseaux :** associer chaque arrêt à un identifiant stable uniquement après rapprochement documenté, puis contrôler l'ordre, les doublons et la géographie.
 
 
@@ -41,7 +41,7 @@ Au 13 novembre 2026, le dépôt conserve :
 - La page officielle AFTU liste aussi les lignes 84, 85, 86, 87, 88, 89 et 91 avec leurs terminus, mais les liens individuels ne sont pas exploitables dans la page consultée ; elles restent donc des lignes repérées, sans fiche détaillée ni séquence vérifiée.
 - **2 fiches TATA** issues de Covoiturage.sn, explicitement marquées comme source secondaire, dans `src/data/tataPublishedRouteCandidates.ts`.
 
-Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les deux réseaux gardent des registres distincts, même lorsque des numéros de ligne ou des corridors se ressemblent. Aucun candidat n'est injecté dans le catalogue passager.
+Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les fiches AFTU et les fiches secondaires intitulées « TATA » restent dans deux registres documentaires distincts pour conserver leur provenance, mais elles ne constituent pas deux réseaux d'exploitation automatiquement distincts. Les numéros identiques ne prouvent pas à eux seuls qu'il s'agit de la même ligne ; les terminus, le corridor et le GIE doivent être comparés. Aucun candidat n'est injecté dans le catalogue passager.
 
 ## Rôle de l'IA et responsabilité de qualification
 
@@ -165,3 +165,20 @@ Le relevé complet est produit par `scripts/export_aftu_official_routes.mjs` et 
 ### Actualisation de l'extraction automatique — 13 novembre 2026
 
 Le parseur des pages AFTU a été corrigé pour les fiches qui publient directement le corridor après la date sans intertitre « ITINERAIRE ». Une nouvelle exécution a récupéré les **63 pages reliées sur 63**, sans erreur et sans itinéraire manquant. La fiche de la ligne 30, auparavant non extraite par le parseur, est désormais incluse. Cette extraction documentaire ne change pas le statut de qualification des séquences : chaque fiche reste une description publiée à rapprocher des deux sens et des arrêts géolocalisés.
+
+
+## Clarification du périmètre TATA / AFTU — 13 novembre 2026
+
+Le CETUD précise dans son rapport d'enquête mobilité que les « minibus AFTU » sont couramment appelés « Tata » par les Dakarois. Le CETUD décrit également l'AFTU comme l'association regroupant les opérateurs privés organisés en 14 GIE. La documentation institutionnelle historique indique que les minibus de marque TATA ont été mis en circulation dans le cadre du programme AFTU, aux côtés d'autres marques de véhicules.
+
+Conséquence pour le modèle de données Dakar Bus :
+- le réseau opérateur de référence est **AFTU** ;
+- « TATA » est conservé comme appellation/alias usuel du mode de minibus AFTU, pas comme un second opérateur à additionner automatiquement ;
+- les pages « lignes TATA » de sources secondaires restent des pièces de comparaison avec leur provenance, mais ne deviennent pas des fiches officielles ;
+- une fiche TATA secondaire n'est rattachée à une ligne AFTU qu'après rapprochement des terminus, du corridor, du GIE et des variantes ;
+- les éventuelles différences de parcours sont conservées comme variantes ou conflits à examiner, jamais écrasées par un simple numéro identique.
+
+Sources institutionnelles :
+- [CETUD — rapport EMTASUD, définition des modes de transport](https://cetud.sn/wp-content/uploads/2026/03/9-CETUD-EMTASUD_RAPPORT-VF.pdf) : minibus AFTU couramment appelés « Tata ».
+- [CETUD — présentation de l'AFTU](https://cetud.sn/reseaux-de-transport/aftu/) : organisation de l'AFTU et ses 14 GIE.
+- [CETUD — historique du renouvellement des minibus AFTU](https://cetud.sn/l-aftu-est-la-fierte-des-transporteurs-urbains-du-senegal/) : minibus TATA et KING LONG dans le programme AFTU.
