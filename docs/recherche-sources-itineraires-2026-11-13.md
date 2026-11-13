@@ -458,3 +458,9 @@ Ces variantes sont désormais structurées dans `src/data/aftuPublishedRouteCand
 Sources primaires :
 - Ligne 2 : https://aftu-senegal.org/map/dakar-urbain-ligne-2/
 - Ligne 5 : https://aftu-senegal.org/map/dakar-urbain-ligne-5/
+
+## 18. Qualification du périmètre TATA
+
+La page officielle AFTU « Mot du Président » distingue le parc de minibus par marque : 505 minibus TATA et 402 King Long dans une phase de renouvellement, au sein du dispositif AFTU. TATA est donc une marque de véhicules présente dans le réseau AFTU, et non une preuve d'un opérateur ou d'un réseau de lignes autonome. Les lignes TATA conservées dans le projet restent un sous-ensemble candidat à rapprocher des lignes AFTU ; elles ne reçoivent pas de fréquence indépendante sans source d'exploitation spécifique.
+
+Source primaire : https://aftu-senegal.org/mot-du-president-2/
