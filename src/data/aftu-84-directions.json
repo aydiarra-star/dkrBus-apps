@@ -401,7 +401,7 @@
   ],
   "detailSourceUrl": null,
   "inboundDetailSourceUrl": null,
-  "inboundStatus": "USER_PROVIDED_PENDING_SOURCE",
-  "inboundNote": "Parcours retour transmis par le responsable du projet : 73 arrêts avec horaires de 05:49 à 07:09. Les deux points non horodatés ajoutés au-delà de cette séquence de 73 arrêts ne font pas partie du décompte confirmé.",
-  "inboundSourceLabel": "Parcours retour transmis par l’utilisateur"
+  "inboundStatus": "CETUD_SOURCE_USER_SUPPLIED",
+  "inboundNote": "Parcours retour de la ligne AFTU 84 transmis depuis les données CETUD par le responsable du projet : 73 arrêts et 73 horaires, de 05:49 à 07:09. Les deux sens sont enregistrés séparément, avec 73 arrêts chacun.",
+  "inboundSourceLabel": "CETUD — parcours transmis par le responsable du projet"
 }
