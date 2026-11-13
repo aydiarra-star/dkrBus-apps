@@ -33,6 +33,33 @@ Le contrôle est en lecture seule. Il ne modifie ni les lignes, ni les arrêts, 
 - **TATA :** conserver son catalogue distinct ; confirmer les séquences et les horaires auprès de sources TATA/AFTU pertinentes, sans lui attribuer automatiquement les données AFTU.
 - **Tous réseaux :** associer chaque arrêt à un identifiant stable uniquement après rapprochement documenté, puis contrôler l'ordre, les doublons et la géographie.
 
+
+## Registres documentaires ajoutés
+
+Au 13 novembre 2026, le dépôt conserve :
+- **56 fiches AFTU** issues des pages individuelles du site de l'opérateur, avec date, URL et description, dans `src/data/aftuPublishedRouteCandidates.ts`.
+- **2 fiches TATA** issues de Covoiturage.sn, explicitement marquées comme source secondaire, dans `src/data/tataPublishedRouteCandidates.ts`.
+
+Ces registres servent de preuves de travail pour la revue. Les fiches AFTU décrivent un seul ordre d'itinéraire ; les fiches TATA peuvent mentionner des variantes de retour, mais ne constituent pas des séquences complètes validées. Les deux réseaux gardent des registres distincts, même lorsque des numéros de ligne ou des corridors se ressemblent. Aucun candidat n'est injecté dans le catalogue passager.
+
+## Rôle autorisé de l'IA
+
+L'IA agit comme **copilote de contrôle et d'aide à la décision**, pas comme autorité de validation :
+- comparer les fiches et les données existantes, en conservant les sources et les dates ;
+- repérer les anomalies de nom, de séquence, de sens, de doublon potentiel ou de coordonnées ;
+- proposer des rapprochements entre repères et arrêts sous forme de candidats argumentés ;
+- expliquer les écarts, signaler les preuves manquantes et classer les dossiers à examiner ;
+- préparer une fiche de revue claire pour le validateur humain.
+
+L'IA ne peut pas :
+- créer ou corriger automatiquement un arrêt, un identifiant ou des coordonnées ;
+- fusionner deux arrêts parce que leurs noms se ressemblent ;
+- fabriquer le Retour en inversant l'Aller, ou inventer des passages horaires ;
+- déclarer un parcours « vérifié », remplacer une source ou publier une modification ;
+- modifier les données TER/BRT protégées.
+
+Toute proposition IA doit être traçable, réversible et marquée `NEEDS_HUMAN_REVIEW`. Seul un humain autorisé peut accepter une proposition et déclencher une éventuelle mise à jour ultérieure.
+
 ## Limites
 
 Le GTFS CETUD n'est pas disponible dans le dépôt à ce stade et n'est pas une condition préalable à ces contrôles. Une future livraison GTFS pourra être comparée aux sources existantes ; elle ne remplacera les données qu'après validation. Les horaires TER/BRT ne sont pas concernés par ce chantier.
