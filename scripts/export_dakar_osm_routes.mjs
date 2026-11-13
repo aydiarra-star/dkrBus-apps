@@ -34,7 +34,7 @@ async function fetchOverpass(endpoint, signal) {
   });
   const body = await response.text();
   if (!response.ok) {
-    throw new Error(\`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)'}\`);
+    throw new Error(\`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)}\`);
   }
   try {
     const parsed = JSON.parse(body);
