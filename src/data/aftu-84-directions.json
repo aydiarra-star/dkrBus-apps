@@ -89,7 +89,7 @@
     },
     "inbound": {
       "origin": "Delafosse Commerce",
-      "destination": "Jaxaay 2 Pénitence",
+      "destination": "Jaxaay2 Route Du 84",
       "waypoints": [
         "Delafosse Commerce",
         "Delafosse Industrie",
@@ -163,9 +163,7 @@
         "Wakeur Serigne Fallou",
         "Terminus La Linguère",
         "Jaxaay 2 A Côté De Boutique Soxna Maï Ahad Karim",
-        "Jaxaay2 Route Du 84",
-        "Jaxaay A Côté Pharmacie Marie Essentene Manga",
-        "Jaxaay 2 Pénitence"
+        "Jaxaay2 Route Du 84"
       ],
       "times": [
         "05:49",
@@ -240,15 +238,13 @@
         "07:06",
         "07:07",
         "07:08",
-        "07:09",
-        null,
-        null
+        "07:09"
       ]
     }
   },
   "stopCount": {
     "outbound": 73,
-    "inbound": 75
+    "inbound": 73
   },
   "sourceLabel": "CETUD — parcours transmis par l'utilisateur",
   "sourceStatus": "user-provided-cetud-reference",
@@ -401,13 +397,11 @@
     "Wakeur Serigne Fallou",
     "Terminus La Linguère",
     "Jaxaay 2 A Côté De Boutique Soxna Maï Ahad Karim",
-    "Jaxaay2 Route Du 84",
-    "Jaxaay A Côté Pharmacie Marie Essentene Manga",
-    "Jaxaay 2 Pénitence"
+    "Jaxaay2 Route Du 84"
   ],
   "detailSourceUrl": null,
   "inboundDetailSourceUrl": null,
   "inboundStatus": "USER_PROVIDED_PENDING_SOURCE",
-  "inboundNote": "Parcours retour transmis par l’utilisateur : 75 arrêts au total, dont 73 horaires fournis de 05:49 à 07:09 et 2 arrêts terminaux ajoutés sans horaire. Source documentaire primaire à rattacher avant validation officielle.",
+  "inboundNote": "Parcours retour transmis par le responsable du projet : 73 arrêts avec horaires de 05:49 à 07:09. Les deux points non horodatés ajoutés au-delà de cette séquence de 73 arrêts ne font pas partie du décompte confirmé.",
   "inboundSourceLabel": "Parcours retour transmis par l’utilisateur"
 }
