@@ -36,3 +36,16 @@ Le contrôle est en lecture seule. Il ne modifie ni les lignes, ni les arrêts, 
 ## Limites
 
 Le GTFS CETUD n'est pas disponible dans le dépôt à ce stade et n'est pas une condition préalable à ces contrôles. Une future livraison GTFS pourra être comparée aux sources existantes ; elle ne remplacera les données qu'après validation. Les horaires TER/BRT ne sont pas concernés par ce chantier.
+
+
+## Sources publiques retrouvées le 13 novembre 2026
+
+Un relevé séparé consigne les sources et leurs limites dans `docs/recherche-sources-itineraires-2026-11-13.md` :
+
+- DDD : page opérateur avec des séquences textuelles publiées pour plusieurs lignes, sans séquence indépendante de retour pour chaque ligne.
+- AFTU : page institutionnelle CETUD et plan cartographique des lignes ; la carte ne donne pas les arrêts ordonnés par sens.
+- TATA : pages secondaires décrivant certaines lignes et variantes ; elles restent des candidates non vérifiées tant qu’une source primaire ne les confirme pas.
+
+## Console de revue
+
+La console authentifiée affiche désormais le tableau de bord de `getCurrentBusRouteAudit()` via `src/admin/CurrentBusRouteAuditPanel.tsx`. Il présente les lignes et les deux sens séparément, les séquences absentes, les statuts non vérifiés et les éventuelles séquences invalides. Les filtres ne changent que l’affichage. Aucun bouton de correction ou de publication n’est ajouté à cet audit.
