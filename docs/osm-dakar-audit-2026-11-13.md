@@ -509,3 +509,12 @@ L'inspection des champs des couches de points révèle une limite de qualité im
 - La vérification spatiale précédente de la ligne 13 utilisait la couche 8 (22 points). La couche 0 constitue une seconde extraction quasi dupliquée et ne doit pas être ajoutée comme 23 nouveaux arrêts sans dédoublonnage géographique et validation de la couche de référence.
 
 **Décision :** conserver les coordonnées des lignes 8 et 13 comme points anonymes candidats ; ne pas fabriquer de noms et ne pas traiter `Id=0` comme un identifiant unique. Leur rapprochement avec les séquences textuelles officielles nécessite les repères de corridor, l'ordre géographique et une vérification manuelle des points ambigus.
+
+
+## Rectification du comptage des fiches AFTU — extraction CI du 13 novembre 2026, 15:10 UTC
+
+Le nouvel artefact du workflow « Audit official AFTU route pages » (run 170, ID 43449887923 ; artefact `aftu-official-route-pages`, ID 14050495154) a été téléchargé et inspecté directement. Il confirme 65 fiches avec un texte d'itinéraire, mais le détail de récupération révèle une nuance absente du précédent rapport : les 63 pages liées depuis l'index et les deux pages supplémentaires 27 et 36 ont été récupérées ; les sept URL complémentaires 84, 85, 86, 87, 88, 89 et 91 ont chacune renvoyé HTTP 404. Ces sept lignes avaient été repérées sur l'index avec leurs terminus, mais ne disposent pas d'une fiche détaillée exploitable dans cet artefact.
+
+Le résumé de l'artefact annonce 65 pages récupérées et 65 avec itinéraire, sans page manquante parmi les pages effectivement obtenues. Il faut donc lire le résultat comme **65 fiches détaillées récupérées + 7 URL complémentaires en 404**, et non comme 72 fiches détaillées ou comme une récupération réussie des lignes 84–89 et 91. Les numéros, terminus éventuellement visibles dans l'index et erreurs HTTP sont conservés séparément ; aucune séquence ni fréquence n'est extrapolée pour ces sept lignes.
+
+Empreinte SHA-256 de l'artefact : `c78098115ed555a5cf6bb3acbafbe0e0affbe51db2df23dc9ac1a12d965d799c`. Source index : https://aftu-senegal.org/infos-pratiques/ ; les fiches récupérées restent des descriptions de corridor, pas des listes exhaustives d'arrêts ni des preuves de sens retour.
