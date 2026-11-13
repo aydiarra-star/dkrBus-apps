@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - "scripts/export_dakar_osm_routes.mjs"
+      - "scripts/analyze_dakar_osm_directional_pairs.mjs"
       - ".github/workflows/audit-dakar-osm-routes.yml"
 
 permissions:
