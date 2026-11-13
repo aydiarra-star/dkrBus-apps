@@ -161,6 +161,35 @@ export function CurrentBusRouteAuditPanel() {
       </details>
 
       <details className="bus-route-audit-sources">
+        <summary>Parcours détaillés AFTU raccordés · {report.aftuEvidence.length} lignes</summary>
+        <p>Les séquences sont lues séparément pour chaque sens depuis les fichiers de parcours. Les libellés restent des preuves textuelles : ils ne deviennent pas des identifiants d’arrêts, et aucune séquence absente n’est reconstituée. Les fréquences et horaires par arrêt sont affichés séparément.</p>
+        <ul>
+          {report.aftuEvidence.map((route) => (
+            <li key={route.line}>
+              <details>
+                <summary>AFTU {route.line} · Aller {route.outbound.waypoints.length} repères · Retour {route.inbound.waypoints.length} repères</summary>
+                {(['outbound', 'inbound'] as const).map((direction) => {
+                  const evidence = route[direction]
+                  return (
+                    <div key={direction}>
+                      <strong>{direction === 'outbound' ? 'Aller' : 'Retour'}</strong>
+                      <span>{evidence.waypoints.length} repères · {evidence.timetableEntries} horaires par arrêt{evidence.hasPerStopTimes ? ' (correspondance complète)' : ''}</span>
+                      {evidence.scheduleInterval && <span>Intervalle publié : {evidence.scheduleInterval}</span>}
+                      {evidence.genericStopLabels > 0 && <span>{evidence.genericStopLabels} repères génériques « Arrêt de bus »</span>}
+                      {evidence.repeatedLabels.length > 0 && <span>{evidence.repeatedLabels.length} libellé(s) répété(s), conservés dans l’ordre</span>}
+                      {evidence.sourceUrl && <a href={evidence.sourceUrl} target="_blank" rel="noreferrer">Source de ce sens</a>}
+                      {evidence.waypoints.length > 0 && <ol>{evidence.waypoints.map((waypoint, index) => <li key={index}>{waypoint}</li>)}</ol>}
+                      {evidence.waypoints.length === 0 && <em>Séquence de ce sens absente de la fiche récupérée.</em>}
+                    </div>
+                  )
+                })}
+              </details>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      <details className="bus-route-audit-sources">
         <summary>Départs officiels DDD · {dddPublishedDepartureWindows.length || 'chargement…'} directions documentées</summary>
         <p>Premiers et derniers départs publiés par terminus. Ces plages ne donnent pas d’intervalle entre bus : elles ne produisent aucun compte à rebours de fréquence.</p>
         <ul>
