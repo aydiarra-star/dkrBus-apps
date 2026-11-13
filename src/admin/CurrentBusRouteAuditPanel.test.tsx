@@ -15,8 +15,9 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('filters findings without changing the underlying report', () => {
     render(<CurrentBusRouteAuditPanel />)
-    fireEvent.click(screen.getByRole('button', { name: 'Arrêts manquants' }))
-    expect(screen.getByRole('button', { name: 'Arrêts manquants' }).getAttribute('aria-pressed')).toBe('true')
+    const missingStopButtons = screen.getAllByRole('button', { name: 'Arrêts manquants' })
+    fireEvent.click(missingStopButtons[0])
+    expect(screen.getAllByRole('button', { name: 'Arrêts manquants' })[0].getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByText(/constat\(s\) dans cette vue/)).toBeTruthy()
   })
 })
