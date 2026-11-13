@@ -28,7 +28,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging
+        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow
 
       - name: Install dependencies
         run: npm ci
