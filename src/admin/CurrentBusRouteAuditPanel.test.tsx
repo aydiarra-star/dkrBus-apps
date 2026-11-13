@@ -24,7 +24,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByText('Retour : Rue 37 à la place de Rue 25')).toHaveLength(2)
   })
 
-  it('exposes the historical DDD GIS layers without presenting them as stop sequences', () => {
+  it('exposes the historical DDD GIS layers without presenting them as stop sequences', async () => {
     render(<CurrentBusRouteAuditPanel />)
     const gisSources = await screen.findByText(/Couches SIG DDD de banlieue · 12 références historiques/)
     fireEvent.click(gisSources)
@@ -48,7 +48,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByRole('button', { name: 'Arrêts manquants' })[0].getAttribute('aria-pressed')).toBe('true')
     expect(screen.getAllByText(/constat\(s\) dans cette vue/).length).toBeGreaterThan(0)
   })
-  it('exposes extracted urban DDD stop-point layers and their coverage', () => {
+  it('exposes extracted urban DDD stop-point layers and their coverage', async () => {
     render(<CurrentBusRouteAuditPanel />)
     const urbanSources = await screen.findByText(/Arrêts SIG DDD urbains · 455 points · 454 géolocalisés/)
     fireEvent.click(urbanSources)
