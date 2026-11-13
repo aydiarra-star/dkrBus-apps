@@ -264,3 +264,27 @@ Aucune séquence nouvellement repérée dans cette recherche n’est injectée d
 6. Faire valider séparément chaque sens par un humain avant toute activation du calculateur ou affichage de passages.
 
 Les horaires TER/BRT protégés restent hors périmètre. Le GTFS CETUD n’a pas été reçu et n’est pas requis pour continuer cette collecte documentaire.
+
+
+## 6. Source géographique complémentaire — service ArcGIS DDD
+
+Un service ArcGIS public intitulé **« Dem_dikk_mise_a_jour »** a été retrouvé :
+https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer
+
+Il expose deux couches utiles :
+- `Arrets_Ligne_Dakar_Dem_Dikk` : points d'arrêts, avec notamment les champs `Nom_Arret`, `Nom_Ligne` et `Id`. La couche indique une dernière mise à jour des données au 24 septembre 2024.
+- `Itinéraire_lignes_Dakar_Dem_Dikk` : lignes géographiques (polylignes), avec plusieurs champs de description d'itinéraire. La couche indique une dernière mise à jour des données au 11 janvier 2019.
+
+Cette ressource est un **recoupement géographique complémentaire**, pas une preuve suffisante de l'exploitation actuelle : les dates de données sont anciennes et la page de service consultée ne suffit pas à certifier les deux sens ni les fréquences. Il faut comparer les attributs et géométries à la page opérateur actuelle et à des preuves plus récentes avant toute validation. Le service est en lecture seule dans ce chantier ; aucune opération d'édition n'est utilisée.
+
+## 7. Écarts DDD prioritaires à résoudre
+
+La page officielle DDD « Info voyageurs » (https://demdikk.sn/info-voyageurs/) affiche :
+- ligne 217 : Thiaroye ↔ Ouakam ;
+- ligne 218 : Thiaroye ↔ Aéroport LSS ;
+- ligne 233 : Baux Maraîchers ↔ Palais 1 ;
+- ligne 232 : Baux Maraîchers ↔ Aéroport LSS.
+
+Or le registre textuel actuel du dépôt contient pour la ligne 217 une séquence se terminant à Aéroport LSS, et pour la ligne 233 une séquence qui se termine également à Aéroport LSS et ressemble à celle de la ligne 232. Ces deux écarts sont désormais des **anomalies prioritaires**. Ils ne doivent pas être corrigés en devinant les arrêts manquants : il faut retrouver les fiches détaillées propres aux lignes 217 et 233, puis recouper avec le service géographique et les autres sources opérateur disponibles.
+
+La page officielle de référence DDD confirme également 38 lignes et une amplitude générale annoncée de 6 h à 21 h ; cette amplitude réseau ne doit pas être transformée en horaire détaillé ou fréquence identique pour chaque ligne.
