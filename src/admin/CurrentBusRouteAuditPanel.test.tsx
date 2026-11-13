@@ -9,6 +9,7 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getByRole('region', { name: 'Audit des lignes DDD AFTU TATA' })).toBeTruthy()
     expect(screen.getByText(/Lecture seule du catalogue actuel/)).toBeTruthy()
     expect(screen.getByText(/Fiches TATA candidates/)).toBeTruthy()
+    expect(screen.getByText(/L’IA recherche et recoupe les sources pour qualifier les lignes/)).toBeTruthy()
     expect(screen.getByText(/Lignes examinées/)).toBeTruthy()
     expect(screen.getByText(/Sens examinés/)).toBeTruthy()
     expect(screen.getAllByText(/Aller|Retour/).length).toBeGreaterThan(0)
