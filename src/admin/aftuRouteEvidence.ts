@@ -95,7 +95,7 @@ function directionEvidence(
     sourceLabel: nonEmptyString(schedule?.sourceLabel) ?? nonEmptyString(route.sourceLabel),
     timetableEntries: times.length,
     hasPerStopTimes: waypoints.length > 0 && times.length === waypoints.length,
-    scheduleInterval: nonEmptyString(schedule?.interval)\n      ?? nonEmptyString(route.frequency?.display)\n      ?? (typeof route.frequency?.intervalMinutes === 'number' ? `${route.frequency.intervalMinutes} min` : null)\n      ?? nonEmptyString(route.frequency?.countdownBasis),
+    scheduleInterval: nonEmptyString(schedule?.interval)\n      ?? nonEmptyString(schedule?.weekday?.interval)\n      ?? nonEmptyString(route.frequency?.display)\n      ?? (typeof route.frequency?.intervalMinutes === 'number' ? `${route.frequency.intervalMinutes} min` : null)\n      ?? nonEmptyString(route.frequency?.countdownBasis),
     genericStopLabels,
     repeatedLabels,
   }
