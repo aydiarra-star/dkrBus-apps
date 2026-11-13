@@ -45,6 +45,16 @@ La relecture de la page opérateur a également permis de transcrire deux parcou
 
 Les deux entrées sont ajoutées à `src/data/dddPublishedRoutes.ts`, avec date de relecture du 13 novembre 2026. Les tests vérifient leurs séquences et leur type documentaire. Aucun retour inverse n'est généré.
 
+### Sources géographiques ArcGIS DDD retrouvées
+
+Un service ArcGIS public distinct recense **12 couches de géométrie de lignes DDD de banlieue** : 227, 219, 218, 217, 2, 16B, 16A, 12, 232, 5, 11 et 228. Les couches sont des polylignes en EPSG:3857 ; elles permettent de comparer des corridors géographiques, mais ne sont pas des listes d'arrêts ordonnées et ne prouvent pas à elles seules le sens de circulation.
+
+Service : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Itin%C3%A9raire_ligne_de_Banlieue_Dakar_Dem_Dikk/FeatureServer
+
+Les métadonnées consultées indiquent notamment des données de géométrie mises à jour le 6 décembre 2017 pour les lignes 217, 218, 228 et 232, et le 25 mars 2019 pour la ligne 227. Ces couches sont donc conservées comme références historiques, pas comme preuve d'exploitation actuelle. Les couches 217 et 218 sont distinctes dans le SIG : elles pourront être comparées géométriquement sans supposer que leurs séquences textuelles sont identiques.
+
+Le registre technique est conservé dans `src/data/dddBanlieueArcgisRegistry.ts` et ses tests dans `src/data/dddBanlieueArcgisRegistry.test.ts`. Il inventorie les 12 couches et leurs métadonnées vérifiées ; il ne télécharge pas encore les géométries et n'importe aucun arrêt dans le catalogue.
+
 ## 2. AFTU
 
 **Source institutionnelle consultée :** https://cetud.sn/reseaux-de-transport/aftu/
