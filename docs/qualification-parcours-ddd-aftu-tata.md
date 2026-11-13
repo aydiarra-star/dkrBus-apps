@@ -182,3 +182,11 @@ Sources institutionnelles :
 - [CETUD — rapport EMTASUD, définition des modes de transport](https://cetud.sn/wp-content/uploads/2026/03/9-CETUD-EMTASUD_RAPPORT-VF.pdf) : minibus AFTU couramment appelés « Tata ».
 - [CETUD — présentation de l'AFTU](https://cetud.sn/reseaux-de-transport/aftu/) : organisation de l'AFTU et ses 14 GIE.
 - [CETUD — historique du renouvellement des minibus AFTU](https://cetud.sn/l-aftu-est-la-fierte-des-transporteurs-urbains-du-senegal/) : minibus TATA et KING LONG dans le programme AFTU.
+
+### Premier rapprochement des fiches secondaires TATA avec AFTU
+
+La comparaison des deux fiches secondaires TATA déjà conservées avec les fiches officielles AFTU fait apparaître deux correspondances de corridor :
+- TATA ligne 1 ↔ AFTU ligne 1 : Lat-Dior ↔ HLM Grand Yoff ;
+- TATA ligne 2 ↔ AFTU ligne 2 : Route principale des Parcelles ↔ Gare Petersen.
+
+Ces rapprochements sont enregistrés dans `src/data/tataPublishedRouteCandidates.ts` sous `possibleAftuLine` et `CORRIDOR_MATCH_NEEDS_REVIEW`. Ils signifient « correspondance probable à contrôler », pas validation de l'identité complète des parcours. Les différences de repères, les variantes de retour et les séquences complètes doivent encore être comparées. Les fiches secondaires TATA ne remplacent pas les fiches officielles AFTU.
