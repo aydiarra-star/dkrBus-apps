@@ -17,7 +17,9 @@ describe('CurrentBusRouteAuditPanel', () => {
 
   it('exposes the historical DDD GIS layers without presenting them as stop sequences', () => {
     render(<CurrentBusRouteAuditPanel />)
-    expect(screen.getByText(/Couches SIG DDD de banlieue · 12 références historiques/)).toBeTruthy()
+    const gisSources = screen.getByText(/Couches SIG DDD de banlieue · 12 références historiques/)
+    expect(gisSources).toBeTruthy()
+    fireEvent.click(gisSources)
     expect(screen.getByText(/ne contiennent pas de séquences d’arrêts validées ni d’horaires/)).toBeTruthy()
     expect(screen.getAllByRole('link', { name: 'Ouvrir la couche SIG' })).toHaveLength(12)
   })
