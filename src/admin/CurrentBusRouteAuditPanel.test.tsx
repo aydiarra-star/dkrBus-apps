@@ -49,4 +49,12 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByRole('button', { name: 'Arrêts manquants' })[0].getAttribute('aria-pressed')).toBe('true')
     expect(screen.getAllByText(/constat\(s\) dans cette vue/).length).toBeGreaterThan(0)
   })
+  it('exposes extracted urban DDD stop-point layers and their coverage', () => {
+    render(<CurrentBusRouteAuditPanel />)
+    const urbanSources = screen.getByText(/Arrêts SIG DDD urbains · 455 points · 454 géolocalisés/)
+    fireEvent.click(urbanSources)
+    expect(screen.getByText(/384 points ont un nom/)).toBeTruthy()
+    expect(screen.getAllByRole('link', { name: 'Ouvrir la couche d’arrêts SIG' })).toHaveLength(12)
+  })
+
 })
