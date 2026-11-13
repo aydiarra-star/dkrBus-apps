@@ -48,6 +48,6 @@ describe('AFTU direction integrity', () => {
     expect(route.waypoints).toHaveLength(89)
     expect(route.inboundWaypoints).toHaveLength(95)
     expect(route.waypoints).not.toEqual(route.inboundWaypoints)
-    expect(route.waypoints.filter((stop: string) => stop === 'Terminus De La Ligne 73')).toHaveLength(2)
+    expect(route.inboundWaypoints.filter((stop: string) => stop === 'Terminus De La Ligne 73')).toHaveLength(2)
   })
 })
