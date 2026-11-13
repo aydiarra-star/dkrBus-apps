@@ -79,3 +79,17 @@ La séquence DDD publiée pour la ligne 7 est Ouakam → Palais 2 et contient 21
 Le terminus OSM est libellé « Palais » sans précision 1/2 dans les éléments résumés ici ; il ne peut donc pas être assimilé à « Palais 2 » sans contrôle des arrêts terminaux et des identifiants OSM. La paire est mieux étayée structurellement grâce à la relation maîtresse commune, mais la séquence et les arrêts ne sont pas validés pour autant.
 
 Comme pour les lignes 9 et 10, les 21 repères DDD et les deux séquences OSM restent intacts et indépendants. La ligne 7 demeure un rapprochement candidat, pas une validation de parcours.
+
+### Ligne 4 — paire à terminus inversés, sans relation maîtresse commune
+
+La séquence DDD publiée commence à Liberté 5 (Dieuppeul) et se termine à Leclerc, avec 26 repères. Les relations OSM candidates sont 6990830 (Leclerc → Liberté 5, 34 membres) et 7203970 (Liberté 5 → Leclerc, 32 membres).
+
+Les terminus sont inversés et concordent avec les extrémités DDD, mais les relations ne sont pas reliées à une relation maîtresse commune dans l'extraction. La paire est donc un candidat directionnel fondé sur les terminus, moins étayé structurellement que la ligne 7. Les membres OSM restent distincts ; aucun des 26 repères DDD n'est remplacé.
+
+### Ligne 23 — relation maîtresse avec référence composée
+
+La séquence DDD publiée est Parcelles → Palais 2 et contient 40 repères. La relation maîtresse OSM 7499003 référence la relation 7495279 (Palais 1 → Parcelles-Assainies, 51 membres) et la relation 7108131 (Parcelles-Assainies → Palais 1, 47 membres).
+
+La relation 7108131 porte toutefois la référence composée « L23;L5 ». Elle ne constitue donc pas une preuve exclusive d'appartenance à la ligne 23. De plus, les terminus OSM indiquent Palais 1 tandis que DDD indique Palais 2. La relation maîtresse apporte un lien structurel, mais le rapprochement de ligne et les terminus restent à confirmer.
+
+**Décision conservatoire :** ne pas compter la relation 7108131 comme un retour L23 validé, ne pas réaffecter sa référence composée et ne pas utiliser la paire pour publier une séquence passager. Les 40 repères DDD et les deux listes OSM sont préservés séparément.
