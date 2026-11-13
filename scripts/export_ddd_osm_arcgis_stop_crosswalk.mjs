@@ -42,7 +42,7 @@ const rows = []
 for (const route of osm.routes) {
   if (route.scopeStatus !== 'DAKAR_CANDIDATE') continue
   const rawRef = String(route.ref ?? '').trim()
-  const line = rawRef.replace(/^L\\s*/i, '').trim()
+  const line = rawRef.replace(/^L\s*/i, '').trim()
   const layerId = stopLayerByLine[line]
   if (!layerId) continue
   const layer = stopLayers.get(layerId)
@@ -100,12 +100,12 @@ for (const route of osm.routes) {
 
 const escapeCsv = (value) => {
   const text = String(value ?? '')
-  return /[",\\n\\r]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text
+  return /[",\n\r]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text
 }
 const csv = [
   columns.join(','),
   ...rows.map((row) => columns.map((column) => escapeCsv(row[column])).join(',')),
-].join('\\n') + '\\n'
+].join('\n') + '\n'
 await writeFile(outputPath, csv, 'utf8')
 console.log(JSON.stringify({
   generatedAt: new Date().toISOString(),
