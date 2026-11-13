@@ -42,7 +42,7 @@ async function main() {
       const text = plain(html);
       const upperText = text.toUpperCase();
       const itineraryIndex = upperText.indexOf("ITINERAIRE");
-      const dateMatch = text.match(/\\b\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+20\\d{2}\\b/);
+      const dateMatch = text.match(/\b\d{1,2}\s+[A-Za-zÀ-ÿ]+\s+20\d{2}\b/);
       // Certaines fiches AFTU publient directement le corridor après la date,
       // sans intertitre « ITINERAIRE » (ex. ligne 30). Dans ce cas, conserver
       // le texte entre la date de publication et « Collection ».
