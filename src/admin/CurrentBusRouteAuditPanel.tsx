@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'l
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import { TATA_PUBLISHED_ROUTE_CANDIDATES } from '../data/tataPublishedRouteCandidates'
+import { DDD_BANLIEUE_ARCGIS_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -53,6 +54,20 @@ export function CurrentBusRouteAuditPanel() {
         <ShieldCheck size={15} />
         <span>L’IA recherche et recoupe les sources pour qualifier les lignes. Aucune correction des arrêts ni publication dans le catalogue voyageurs n’est automatique.</span>
       </div>
+
+      <details className="bus-route-audit-sources">
+        <summary>Couches SIG DDD de banlieue · {DDD_BANLIEUE_ARCGIS_LAYERS.length} références historiques</summary>
+        <p>Géométries de lignes ArcGIS en lecture seule. Elles servent à comparer les corridors ; elles ne contiennent pas de séquences d’arrêts validées ni d’horaires.</p>
+        <ul>
+          {DDD_BANLIEUE_ARCGIS_LAYERS.map((layer) => (
+            <li key={layer.line}>
+              <strong>Ligne DDD {layer.line}</strong>
+              <span>{layer.dataLastEditDate ? `Géométrie modifiée le ${layer.dataLastEditDate}` : 'Date de modification non relevée'} · historique</span>
+              <a href={layer.layerUrl} target="_blank" rel="noreferrer">Ouvrir la couche SIG</a>
+            </li>
+          ))}
+        </ul>
+      </details>
 
       <details className="bus-route-audit-sources">
         <summary>Fiches AFTU récupérées · {AFTU_PUBLISHED_ROUTE_CANDIDATES.length} lignes</summary>
