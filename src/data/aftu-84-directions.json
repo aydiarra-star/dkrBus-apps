@@ -3,7 +3,9 @@
   "code": "84",
   "frequency": {
     "intervalMinutes": 14,
-    "display": "14 min"
+    "display": "14 min",
+    "status": "USER_CONFIRMED",
+    "sourceLabel": "Confirmation du responsable du projet"
   },
   "directions": {
     "outbound": {
