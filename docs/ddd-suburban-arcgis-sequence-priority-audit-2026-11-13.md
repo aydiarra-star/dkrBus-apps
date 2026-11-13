@@ -59,3 +59,19 @@ Décision : conserver la séquence publiée comme source distincte ; ne pas cons
 ## Garde-fous
 
 Les géométries ArcGIS et les noms sont des preuves de rapprochement, pas une validation automatique du sens, de l'exploitation actuelle ou des horaires. Aucun arrêt n'est supprimé ou fusionné. Aucun sens retour n'est fabriqué. Aucune fréquence n'est déduite. Aucun GTFS utilisé. Aucune écriture Supabase, aucun déploiement, aucun changement des données TER/BRT ni de l'affichage passager.
+
+
+## Addendum géospatial — extraction actualisée de 19:13 UTC
+
+Le workflow ArcGIS actualisé `43490066005` a permis de lever une partie de la lacune de la ligne 219, sans modifier les attributs sources.
+
+- **Ligne 219 :** toujours aucun point explicitement étiqueté `ligne_219` dans le champ source. En revanche, 33 points uniques parmi les 103 enregistrements étiquetés 218 (OBJECTID 54–86) se projettent tous à 9,8 m ou moins du tracé Ligne 219 (médiane 7,3 m). Leur chaînage suit Daroukhane → Ouakam. Les mêmes 33 positions et noms sont présents une seconde fois (OBJECTID 293–325), soit 33 paires exactes à conserver. Ce bloc est donc un candidat d'attribution 219 très fortement corroboré géographiquement, mais aucune réécriture de `Nom_Ligne` n'est autorisée sans confirmation DDD.
+- **Ligne 218 :** un bloc distinct de 37 points (OBJECTID 87–123) est à 25 m ou moins du tracé 218 (médiane 6,9 m, maximum 16,1 m) et suit le corridor Dépôt Thiaroye → Aéroport LSS. La série 218 de 103 enregistrements doit donc être traitée comme deux ensembles géographiques distincts, avec la répétition exacte des 33 positions du bloc 219.
+- **Ligne 217 :** 29/30 points à 25 m ou moins du tracé, médiane 6,2 m ; le point restant est à 62,3 m. Des voisinages avec les tracés 227/232 imposent une revue du point et des limites de corridor.
+- **Ligne 227 :** 8/8 points à 25 m ou moins du tracé (médiane 6,1 m), mais couverture très partielle et proximité de certains points avec le tracé 217.
+- **Ligne 228 :** quatre points seulement ; rapprochement candidat avec un tracé anonyme de 28,70 km, trois points à 25 m ou moins et un à 85,5 m.
+- **Ligne 232 :** 23/23 points à 25 m ou moins du tracé (médiane 5,9 m, maximum 9,8 m), forte cohérence du groupe, sans preuve autonome du retour.
+
+Rapport détaillé : `docs/ddd-suburban-lines-217-218-219-227-228-232-geospatial-followup-2026-11-13.md`.
+
+Cette mise à jour nuance l'ancienne mention « aucune entité d'arrêt ligne 219 » : elle reste vraie pour le champ d'attribution source, mais il existe désormais un bloc de 33 positions candidates identifiées sous la ligne 218. Les points, leurs identifiants, les répétitions et les attributs d'origine restent inchangés.
