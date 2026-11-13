@@ -39,6 +39,24 @@ Le plan est une carte schématique de lignes numérotées sur la région de Daka
 
 Le CETUD documente également des repositionnements et modifications de lignes AFTU liés à la restructuration du réseau autour du BRT et du TER. Une carte ancienne ne doit pas être considérée comme preuve de la desserte actuelle sans contrôle de date et de validité.
 
+## 3. AFTU — fiches détaillées récupérées
+
+Le site officiel AFTU ne se limite pas à une carte : les liens « Voir itinéraire » ouvrent des fiches individuelles datées. Sept fiches ont été consultées et leurs descriptions candidates sont conservées dans `src/data/aftuPublishedRouteCandidates.ts` :
+
+| Ligne | Date affichée sur la fiche | Référence |
+|---|---|---|
+| 2 | 19 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-2/ |
+| 5 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-5/ |
+| 29 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-29/ |
+| 30 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-30/ |
+| 37 | 29 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-37/ |
+| 57 | 7 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-57/ |
+| 72 | 13 juillet 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-72/ |
+
+Ces fiches décrivent des axes et repères dans un seul texte d’itinéraire. Certaines mentionnent explicitement des variantes de retour (par exemple les rues 17 et 37 sur les lignes 2 et 5), mais aucune ne suffit à elle seule à établir une séquence complète indépendante de chaque sens. Les descriptions restent donc `NEEDS_HUMAN_REVIEW` avec `SINGLE_DESCRIPTION_ONLY`. Elles ne sont pas ajoutées au catalogue passager ni transformées en horaires.
+
+La console authentifiée affiche ces sept fiches dans une rubrique repliable « Fiches AFTU récupérées », avec un lien vers chaque source. Les liens permettent au relecteur humain d’ouvrir les fiches d’origine.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
