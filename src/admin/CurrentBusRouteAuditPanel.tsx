@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'lucide-react'
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
+import './CurrentBusRouteAuditPanel.css'
 
 type Filter = 'all' | 'missing' | 'unverified' | 'invalid'
 
