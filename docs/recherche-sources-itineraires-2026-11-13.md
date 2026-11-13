@@ -133,6 +133,22 @@ La liste officielle « Infos pratiques » de l'AFTU relie désormais directement
 
 Ces quatre fiches portent le registre à **31 lignes AFTU documentées**. Les lignes 49 à 52 sont ajoutées comme fiches primaires AFTU, et non à partir des horaires ou listes secondaires de transit. Elles restent néanmoins `NEEDS_HUMAN_REVIEW` et `SINGLE_DESCRIPTION_ONLY` : elles ne prouvent pas deux séquences complètes indépendantes Aller/Retour.
 
+
+### Complément — fiches AFTU officielles des lignes 58 à 63
+
+La page officielle « Infos pratiques » a permis d'ouvrir les fiches des lignes 58 à 63. Les dates et descriptions ci-dessous proviennent des fiches AFTU :
+
+| Ligne | Date affichée | Terminus affichés | Référence |
+|---|---|---|---|
+| 58 | 7 juillet 2026 | Fass Mbao (Rail-Ba) – SHAM | https://aftu-senegal.org/map/dakar-urbain-ligne-58/ |
+| 59 | 7 juillet 2026 | Diamalaye – Cité Gendarmerie | https://aftu-senegal.org/map/dakar-urbain-ligne-59/ |
+| 60 | 7 juillet 2026 | Colobane – Bargny | https://aftu-senegal.org/map/dakar-urbain-ligne-60/ |
+| 61 | 7 juillet 2026 | Keur Massar – Almadies | https://aftu-senegal.org/map/dakar-urbain-ligne-61/ |
+| 62 | 7 juillet 2026 | Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) | https://aftu-senegal.org/map/dakar-urbain-ligne-62/ |
+| 63 | 8 juillet 2026 | Parcelles Dior – Camp Marchand Rufisque | https://aftu-senegal.org/map/dakar-urbain-ligne-63/ |
+
+Le registre contient désormais **37 fiches officielles AFTU distinctes**. Ces fiches décrivent un seul ordre d'itinéraire ; elles ne constituent pas deux séquences indépendantes Aller/Retour. Elles restent hors du catalogue voyageurs.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
