@@ -222,3 +222,29 @@ La ligne 1 (relation 6951328, Parcelles assainies → Leclerc, 38 membres d'arr�
 **Ce que cela permet :** conserver séparément les deux ordres de membres OSM des lignes 4, 7, 9 et 10 comme candidats de sens, avec leurs identifiants de relation et leurs terminus. **Ce que cela ne permet pas encore :** déclarer les arrêts validés, les afficher comme parcours voyageurs, ni attribuer une fréquence. Les membres sont surtout des plateformes OSM sans nom ; les écarts de rapprochement avec l'ArcGIS historique imposent une revue des coordonnées, des noms d'arrêts et des divergences de tracé avant toute promotion.
 
 Les deux directions B1 restent intactes. Aucune donnée TER/BRT, aucun catalogue passager et aucune donnée Supabase n'ont été modifiés par ce rapprochement.
+
+
+### Nouvelle extraction ArcGIS DDD — 13 novembre 2026, 08:53 UTC
+
+Une nouvelle exécution en lecture seule a récupéré les **36 couches attendues** (24 couches d'itinéraires et 12 couches d'arrêts), sans erreur, sans dépassement de limite de transfert : **25 entités d'itinéraire et 455 entités d'arrêts**. Les couches de points contiennent des noms d'arrêts et des coordonnées exploitables ; elles permettent un rapprochement plus précis que la seule proximité géométrique. Attribution : couches publiques ArcGIS des services cartographiques DDD.
+
+Pour les quatre lignes déjà repérées dans OSM, les couches d'arrêts DDD donnent les séquences candidates suivantes :
+
+| Ligne | Couche ArcGIS | Entités | Coordonnées présentes | Noms renseignés | Terminus observés |
+|---|---|---:|---:|---:|---|
+| 4 | Arrets_LIgne_4_Dakar_Dem_Dikk | 30 | 30 | 29 | Liberté 5 → Leclerc |
+| 7 | Arret_ligne_7_Dakar_Dem_Dikk | 34 | 33 | 33 | Ouakam → Palais de Justice |
+| 9 | Arret_ligne_9_Dem_Dikk | 36 | 36 | 36 | Liberté 6 → Palais 1 |
+| 10 | Arrets_LIgne_10_Dakar_Dem_Dikk | 26 | 26 | 26 | Liberté 5 → Palais de Justice |
+
+**Rapprochement directionnel à conserver :**
+- La séquence ArcGIS de la ligne 4 correspond au sens Liberté 5 → Leclerc, soit le sens inverse de la relation OSM 6990830 (Leclerc → Liberté 5). La relation OSM 7203970 fournit le candidat de même sens.
+- La séquence ArcGIS de la ligne 7 va d'Ouakam au Palais de Justice ; elle correspond au sens général de la relation OSM 7500475 (Ouakam → Palais 1). L'autre sens reste une relation distincte, 6990669.
+- La séquence ArcGIS de la ligne 9 va de Liberté 6 à Palais 1 et correspond au sens de la relation OSM 7487218 ; la relation 6996431 reste le sens opposé.
+- La séquence ArcGIS de la ligne 10 va de Liberté 5 à Palais de Justice et correspond au sens général de la relation OSM 7488283 ; la relation 6990845 reste le sens opposé.
+
+Ces rapprochements de terminus et de séquence sont des **correspondances candidates**, pas une validation automatique de chaque arrêt OSM. La ligne 4 comporte un arrêt sans nom mais géolocalisé ; la ligne 7 comporte une entité sans nom et sans géométrie. Les couches ArcGIS présentent parfois des libellés génériques (« Arret Ouakam », « Avenue Cheikh Anta Diop ») ou des arrêts successifs sur le même axe : garder l'ordre OBJECTID, les noms source et les coordonnées sans fusionner les arrêts proches.
+
+Cette extraction fournit une séquence ArcGIS d'arrêts pour chaque ligne examinée, mais ne prouve pas à elle seule l'exhaustivité des deux sens. Aucun sens retour n'est créé par inversion. Les deux relations OSM restent indépendantes et les écarts spatiaux historiques restent à examiner avant toute promotion en parcours passager. Aucune fréquence n'est déduite de ces couches.
+
+L'artefact ArcGIS de cette exécution a été produit le 13/11/2026 à 08:53:46 UTC. Aucun catalogue passager, horaire TER/BRT, service Supabase ou déploiement n'a été modifié.
