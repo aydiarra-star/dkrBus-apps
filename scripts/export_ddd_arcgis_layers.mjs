@@ -24,7 +24,9 @@ const SERVICES = [
   },
 ];
 
+const CONCURRENCY = 4;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function json(url, label) {
   let error;
   for (let attempt = 1; attempt <= 4; attempt++) {
@@ -51,10 +53,17 @@ async function json(url, label) {
 
 async function main() {
   await mkdir("artifacts/arcgis", { recursive: true });
-  const layers = [];
-  const errors = [];
-  for (const service of SERVICES) {
-    for (const layer of service.layers) {
+  const tasks = SERVICES.flatMap((service) =>
+    service.layers.map((layer) => ({ service, layer })),
+  );
+  const results = new Array(tasks.length);
+  let cursor = 0;
+
+  async function worker() {
+    while (true) {
+      const index = cursor++;
+      if (index >= tasks.length) return;
+      const { service, layer } = tasks[index];
       const base = `${service.url}/${layer.id}`;
       try {
         const metadata = await json(`${base}?f=json`, `layer metadata ${layer.id}`);
@@ -66,27 +75,34 @@ async function main() {
           f: "json",
         });
         const data = await json(`${base}/query?${params}`, `layer query ${layer.id}`);
-        layers.push({
-          operator: service.operator,
-          group: service.group,
-          kind: layer.kind,
-          layerId: layer.id,
-          layerName: metadata.name ?? null,
-          geometryType: metadata.geometryType ?? null,
-          spatialReference: metadata.extent?.spatialReference ?? null,
-          lastEditDate: metadata.editingInfo?.lastEditDate ?? null,
-          fields: (metadata.fields ?? []).map((f) => ({ name: f.name, alias: f.alias, type: f.type })),
-          features: data.features ?? [],
-          exceededTransferLimit: Boolean(data.exceededTransferLimit),
-          sourceUrl: base,
-        });
+        results[index] = {
+          layer: {
+            operator: service.operator,
+            group: service.group,
+            kind: layer.kind,
+            layerId: layer.id,
+            layerName: metadata.name ?? null,
+            geometryType: metadata.geometryType ?? null,
+            spatialReference: metadata.extent?.spatialReference ?? null,
+            lastEditDate: metadata.editingInfo?.lastEditDate ?? null,
+            fields: (metadata.fields ?? []).map((f) => ({ name: f.name, alias: f.alias, type: f.type })),
+            features: data.features ?? [],
+            exceededTransferLimit: Boolean(data.exceededTransferLimit),
+            sourceUrl: base,
+          },
+        };
       } catch (error) {
-        errors.push({ service: service.group, layerId: layer.id, error: error.message });
+        results[index] = {
+          error: { service: service.group, layerId: layer.id, error: error.message },
+        };
       }
       await sleep(300);
     }
   }
 
+  await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+  const layers = results.flatMap((result) => result?.layer ? [result.layer] : []);
+  const errors = results.flatMap((result) => result?.error ? [result.error] : []);
   const routeLayers = layers.filter((layer) => layer.kind === "route");
   const stopLayers = layers.filter((layer) => layer.kind === "stops");
   const summary = {
@@ -98,6 +114,7 @@ async function main() {
     stopFeatures: stopLayers.reduce((sum, layer) => sum + layer.features.length, 0),
     layersWithTransferLimit: layers.filter((layer) => layer.exceededTransferLimit).map((layer) => layer.layerName),
     errors: errors.length,
+    extractionConcurrency: CONCURRENCY,
   };
   const report = {
     generatedAt: new Date().toISOString(),
