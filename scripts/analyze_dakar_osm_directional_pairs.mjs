@@ -32,7 +32,7 @@ function normalizeEndpoint(value) {
   // OSM uses "Terminus", "Termibus" and bare place names inconsistently.
   // Remove only these leading transport-label prefixes; retain place qualifiers
   // such as Palais 1 vs Palais 2 so genuine terminal conflicts remain visible.
-  return normalize(value).replace(/^(?:terminus|termibus)\\s+/, "").trim();
+  return normalize(value).replace(/^(?:terminus|termibus)\\s+/, "").replace(/\\s+/g, "").trim();
 }
 function sameEndpointsReversed(a, b) {
   const aFrom = normalizeEndpoint(a.from), aTo = normalizeEndpoint(a.to);
