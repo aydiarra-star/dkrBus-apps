@@ -446,3 +446,15 @@ Autres informations officielles relevées :
 - AFTU 84 : la fréquence de 14 minutes et les 73 arrêts dans chacun des deux sens restent les données CETUD transmises par le responsable du projet, conservées séparément des observations générales de site.
 
 Aucune fréquence observée à un carrefour ou sur un corridor n'est présentée comme une fréquence garantie à chaque arrêt d'une ligne. Pour le compte à rebours, seules les données horaires/fréquences réellement rattachées à la ligne et au sens concernés peuvent alimenter le calcul ; les autres relevés servent au recoupement et à la qualification.
+
+## 17. Détails Aller/Retour explicitement publiés par AFTU — lignes 2 et 5
+
+La consultation directe des fiches individuelles officielles AFTU permet de relever deux variantes de retour sans reconstruire le parcours par inversion :
+- **Ligne 2 — Parcelles Assainies ↔ Petersen :** la fiche indique « Rue 39 (retour par Rue 17) » et « Rue 25 (retour par Rue 37) ».
+- **Ligne 5 — Gare des Parcelles Assainies ↔ Petersen :** la fiche indique également les retours par Rue 17 et Rue 37, en regard des segments Rue 39 et Rue 25.
+
+Ces variantes sont désormais structurées dans `src/data/aftuPublishedRouteCandidates.ts` et affichées dans la console d'audit. Elles ne constituent pas encore la liste complète de tous les arrêts du retour ; les deux lignes restent donc candidates à la vérification de leur séquence complète.
+
+Sources primaires :
+- Ligne 2 : https://aftu-senegal.org/map/dakar-urbain-ligne-2/
+- Ligne 5 : https://aftu-senegal.org/map/dakar-urbain-ligne-5/
