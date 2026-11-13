@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown, ArrowUp, ClipboardList, ShieldCheck } from 'lucide-react'
 import { getCurrentBusRouteAudit } from './currentBusRouteAudit'
+import { AFTU_PUBLISHED_ROUTE_CANDIDATES } from '../data/aftuPublishedRouteCandidates'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
 import './CurrentBusRouteAuditPanel.css'
 
@@ -51,6 +52,20 @@ export function CurrentBusRouteAuditPanel() {
         <ShieldCheck size={15} />
         <span>Les constats sont des demandes de vérification humaine. L’IA ne valide et ne publie rien automatiquement.</span>
       </div>
+
+      <details className="bus-route-audit-sources">
+        <summary>Fiches AFTU récupérées · {AFTU_PUBLISHED_ROUTE_CANDIDATES.length} lignes</summary>
+        <p>Descriptions publiées sur le site AFTU. Elles ne représentent pas encore deux séquences vérifiées Aller et Retour et restent hors du catalogue voyageurs.</p>
+        <ul>
+          {AFTU_PUBLISHED_ROUTE_CANDIDATES.map((candidate) => (
+            <li key={candidate.line}>
+              <strong>Ligne {candidate.line}</strong>
+              <span>Publié le {candidate.publishedOn} · à valider humainement</span>
+              <a href={candidate.sourceUrl} target="_blank" rel="noreferrer">Ouvrir la fiche AFTU</a>
+            </li>
+          ))}
+        </ul>
+      </details>
 
       <div className="bus-route-audit-filters" aria-label="Filtrer les anomalies">
         {(Object.keys(FILTER_LABELS) as Filter[]).map((key) => (
