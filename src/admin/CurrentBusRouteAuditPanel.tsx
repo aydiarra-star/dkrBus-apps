@@ -36,7 +36,7 @@ export function CurrentBusRouteAuditPanel() {
   const [dddOfficialRouteSource, setDddOfficialRouteSource] = useState({ url: 'https://demdikk.sn/reseau-urbain-dakar/', infoUrl: 'https://demdikk.sn/info-voyageurs/' })
   const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
   const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
-  const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, geolocatedStopFeatures: 0 })
+  const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, nonEmptyRouteFeatures: 0, emptyRouteFeatures: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, missingNameStopFeatures: 0, geolocatedStopFeatures: 0 })
 
   useEffect(() => {
     let active = true
