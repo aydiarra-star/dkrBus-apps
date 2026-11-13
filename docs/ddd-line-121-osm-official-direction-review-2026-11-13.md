@@ -47,3 +47,20 @@ Priorités :
 4. laisser la fréquence non renseignée tant qu'une source officielle ne la confirme pas.
 
 Aucune écriture Supabase, aucun déploiement, aucune modification TER/BRT et aucune fusion de PR.
+
+
+## Contrôle complémentaire sur la polyligne ArcGIS de la ligne 121
+
+La nouvelle extraction ArcGIS comprend une polyligne continue de la ligne 121. La projection des membres OSM sur cette géométrie précise le niveau de corroboration directionnelle :
+
+| Relation | Sens OSM | Arrêts géolocalisés | Médiane | Maximum | À ≤25 m | Corrélation ordre / chaînage |
+|---|---|---:|---:|---:|---:|---:|
+| 6990794 | HLM Grand Yoff → Leclerc | 27 | 5,4 m | 8,9 m | 27/27 | +0,9889 |
+| 6999013 | Leclerc → HLM Grand Medine | 7 | 4,6 m | 70,3 m | 6/7 | -0,9814 |
+| 2792903 | Fragment sans terminus | 3 | 5,4 m | 6,8 m | 3/3 | -0,9945 |
+
+La relation 6990794 suit très proprement une partie du tracé dans le sens croissant. La relation 6999013 suit le tracé dans le sens opposé, mais ne couvre qu'un segment partiel et annonce HLM Grand Medine plutôt que le terminus officiel Scat Urban. Un point de cette relation est à 70,3 m de la polyligne ; les six autres sont à 25 m ou moins.
+
+Le fragment 2792903 est bien proche de la géométrie, mais ses trois nœuds sont également présents dans la relation 6990794 : il ne constitue pas une troisième direction indépendante.
+
+**Conclusion actualisée :** la ligne 121 dispose maintenant d'une preuve géographique forte de deux séquences OSM partielles qui suivent le même corridor dans des sens opposés. Cela ne résout pas le terminus HLM Grand Medine / Scat Urban, ni l'absence d'une séquence complète de retour. Conserver les deux relations séparément et les qualifier de candidats directionnels partiels ; ne pas les promouvoir en itinéraires voyageurs validés.
