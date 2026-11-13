@@ -48,3 +48,19 @@ Le terminus officiel publié est « Palais 2 », alors que les deux relations OS
 4. Rechercher une source de fréquence officielle ; laisser `frequencyMinutes=null` en attendant.
 
 Aucune écriture Supabase, aucun déploiement, aucune modification TER/BRT et aucune fusion de PR.
+
+
+## Contrôle complémentaire sur la géométrie de l'itinéraire ArcGIS (extraction rafraîchie)
+
+La nouvelle extraction OSM et ArcGIS du commit `a125ea84647eb626215edbd032ffc84de2572137` permet de projeter chaque point d'arrêt OSM sur la polyligne ArcGIS officielle de la ligne 23, au lieu de comparer uniquement les points à la couche d'arrêts.
+
+| Relation | Sens OSM | Arrêts géolocalisés | Distance médiane à la polyligne | Maximum | À ≤25 m | Corrélation ordre / chaînage |
+|---|---|---:|---:|---:|---:|---:|
+| 7108131 | Parcelles Assainies → Palais 1 | 47 | 5,8 m | 12,0 m | 47/47 | +0,9926 |
+| 7495279 | Palais 1 → Parcelles Assainies | 51 | 8,1 m | 62,4 m | 50/51 | -0,9988 |
+
+Les deux séquences OSM suivent donc la polyligne ArcGIS dans des directions opposées, avec une progression quasi monotone. Pour la relation 7495279, un seul point est à plus de 25 m (62,4 m), et il reste à moins de 100 m. Cette vérification renforce fortement l'hypothèse d'un aller et d'un retour OSM distincts sur le corridor ArcGIS de la ligne 23.
+
+La différence de terminus publiée reste non résolue : DDD publie « Palais 2 », alors que les relations OSM et le tracé ArcGIS se terminent au secteur « Palais 1 » / « Palais de Justice ». De plus, la relation 7108131 porte la référence mixte `L23;L5`. Le résultat autorise donc une qualification de **candidats aller/retour à forte corroboration géographique**, pas une validation officielle complète ni une publication automatique.
+
+Cette mesure sur la polyligne est plus probante pour le corridor que l'ancien décompte de proximité aux points d'arrêt, car elle compare les séquences aux géométries continues du tracé. Les deux contrôles restent conservés et ne sont pas confondus.
