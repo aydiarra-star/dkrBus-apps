@@ -28,14 +28,75 @@ async function fetchOverpass(endpoint) {
   return response.json();
 }
 
-function centerOfWay(geometry = []) {
-  if (!geometry.length) return null;
-  const points = geometry.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
+function representativePointOfWay(geometry = []) {
+  const points = geometry.filter((point) =>
+    Number.isFinite(point.lat) && Number.isFinite(point.lon)
+  );
   if (!points.length) return null;
-  return {
-    lat: points.reduce((sum, p) => sum + p.lat, 0) / points.length,
-    lon: points.reduce((sum, p) => sum + p.lon, 0) / points.length,
-  };
+  if (points.length === 1) return { lat: points[0].lat, lon: points[0].lon };
+
+  // For a closed platform polygon, use its planar area centroid in a local
+  // equirectangular projection. For an open way, use the halfway point by
+  // segment length rather than the biased arithmetic mean of its vertices.
+  const first = points[0];
+  const last = points[points.length - 1];
+  const closed = points.length >= 4
+    && Math.abs(first.lat - last.lat) < 1e-9
+    && Math.abs(first.lon - last.lon) < 1e-9;
+  if (closed) {
+    const cosLat = Math.cos(first.lat * Math.PI / 180);
+    const projected = points.map((point) => ({
+      x: point.lon * cosLat,
+      y: point.lat,
+    }));
+    let twiceArea = 0;
+    let cx = 0;
+    let cy = 0;
+    for (let i = 0; i < projected.length - 1; i += 1) {
+      const a = projected[i];
+      const b = projected[i + 1];
+      const cross = a.x * b.y - b.x * a.y;
+      twiceArea += cross;
+      cx += (a.x + b.x) * cross;
+      cy += (a.y + b.y) * cross;
+    }
+    if (Math.abs(twiceArea) > 1e-12) {
+      return {
+        lat: cy / (3 * twiceArea),
+        lon: (cx / (3 * twiceArea)) / cosLat,
+      };
+    }
+  }
+
+  const segmentLengths = [];
+  let totalLength = 0;
+  for (let i = 1; i < points.length; i += 1) {
+    const a = points[i - 1];
+    const b = points[i];
+    const meanLat = (a.lat + b.lat) / 2 * Math.PI / 180;
+    const dx = (b.lon - a.lon) * Math.cos(meanLat);
+    const dy = b.lat - a.lat;
+    const length = Math.hypot(dx, dy);
+    segmentLengths.push(length);
+    totalLength += length;
+  }
+  if (!totalLength) return { lat: first.lat, lon: first.lon };
+
+  let remaining = totalLength / 2;
+  for (let i = 0; i < segmentLengths.length; i += 1) {
+    const length = segmentLengths[i];
+    if (remaining <= length || i === segmentLengths.length - 1) {
+      const ratio = length ? remaining / length : 0;
+      const a = points[i];
+      const b = points[i + 1];
+      return {
+        lat: a.lat + (b.lat - a.lat) * ratio,
+        lon: a.lon + (b.lon - a.lon) * ratio,
+      };
+    }
+    remaining -= length;
+  }
+  return { lat: first.lat, lon: first.lon };
 }
 
 async function main() {
@@ -65,7 +126,7 @@ async function main() {
       const isStop = /^(stop|platform|stop_entry_only|stop_exit_only|platform_entry_only|platform_exit_only)$/i.test(role);
       const coordinates = member.type === "node"
         ? { lat: member.lat ?? null, lon: member.lon ?? null }
-        : member.type === "way" ? centerOfWay(member.geometry) : null;
+        : member.type === "way" ? representativePointOfWay(member.geometry) : null;
       return {
         sequence: index + 1,
         type: member.type,
