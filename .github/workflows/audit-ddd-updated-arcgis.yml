@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check sequence comparison script syntax
+        run: node --check scripts/compare_ddd_updated_arcgis_published_sequences.mjs
       - name: Retrieve updated DDD stop and route layers
         run: node scripts/export_ddd_updated_arcgis_service.mjs
       - name: Compare ArcGIS stop names with published DDD sequences
