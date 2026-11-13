@@ -198,6 +198,25 @@ Huit fiches supplémentaires ont été ouvertes directement depuis la page AFTU 
 
 Le registre compte désormais **56 fiches AFTU distinctes**. Elles restent des descriptions candidates à sens unique documentaire, pas des séquences Aller/Retour validées.
 
+
+### Complément — neuf fiches AFTU officielles supplémentaires
+
+Les fiches des lignes 1, 3, 4, 25, 27, 28, 34, 35 et 36 ont été récupérées via les liens « Voir itinéraire » de la page AFTU :
+
+| Ligne | Date affichée | Référence |
+|---|---|---|
+| 1 | 18 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-1/ |
+| 3 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-3/ |
+| 4 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-4/ |
+| 25 | 21 mai 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-25/ |
+| 27 | 24 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-27/ |
+| 28 | 25 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-28/ |
+| 34 | 27 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-34/ |
+| 35 | 28 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-35/ |
+| 36 | 29 juin 2026 | https://aftu-senegal.org/map/dakar-urbain-ligne-36/ |
+
+Le registre compte désormais **65 fiches AFTU**. La fiche de la ligne 1 reproduit deux fois « rue 34 » dans son texte publié : cette répétition est conservée comme dans la source, sans suppression automatique. Elle devra être examinée par le validateur humain.
+
 ## 3. TATA
 
 **Source secondaire consultée :** https://www.covoiturage.sn/bus-tata-itineraire/
