@@ -76,3 +76,8 @@ Après une erreur de réponse lors de l'insertion Postgres, l'Edge Function reli
 Une erreur de téléversement Storage peut elle-même avoir une issue réseau ambiguë. Le chemin reste privé et non publié ; aucun nettoyage destructif n'est tenté sur un chemin dont l'appartenance à la requête n'est pas établie. Une réconciliation des objets privés orphelins reste une opération distincte, à concevoir et tester avant toute activation réelle.
 
 Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclenchent aucune écriture Supabase, migration active ou publication.
+
+
+## Compléments de validation structurelle (13 novembre 2026)
+
+Le validateur vérifie maintenant aussi l'ordre croissant des points de chaque forme (`shapes.txt`) et refuse les plages de fréquence qui se chevauchent pour un même trajet. Les tests synthétiques couvrent ces deux cas, ainsi que les entrées ZIP dupliquées, les liens symboliques et les entrées chiffrées. Ces contrôles restent structurels : ils ne valident ni l'autorité de la source ni l'actualité d'un service.
