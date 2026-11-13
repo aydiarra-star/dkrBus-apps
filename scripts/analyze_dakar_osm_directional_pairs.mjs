@@ -15,8 +15,7 @@ function routeRefs(route) {
   for (const value of values) {
     for (const token of String(value).split(/[;,]/)) {
       const compact = token.trim().toUpperCase().replace(/\s+/g, "");
-      // Strip only the conventional line prefix. Preserve alphanumeric
-      // identifiers such as B1 and 2B instead of collapsing them to 1 or 2.
+      // Preserve alphanumeric identifiers such as B1 and 2B.
       const match = compact.match(/^L?([A-Z]?\d{1,3}[A-Z]?)$/);
       if (match && !refs.includes(match[1])) refs.push(match[1]);
     }
@@ -44,15 +43,12 @@ function haversineMeters(a, b) {
   return 6371000 * 2 * Math.asin(Math.sqrt(h));
 }
 
-// Some OSM route relations list each boarding location twice: once as a
-// public-transport=stop member and once as a public-transport=platform member.
-// Preserve both raw members, but expose a separate paired candidate only when
-// adjacent roles, names, and coordinates corroborate the same location.
+// Preserve raw OSM stop/platform members. Pair only adjacent same-name roles
+// whose coordinates corroborate a shared physical boarding location.
 function stopPlatformPairs(stops) {
   const pairs = [];
   for (let index = 0; index < stops.length - 1; index += 1) {
-    const stop = stops[index];
-    const platform = stops[index + 1];
+    const stop = stops[index], platform = stops[index + 1];
     if (stop.role !== "stop" || platform.role !== "platform") continue;
     if (!stop.normalizedName || stop.normalizedName !== platform.normalizedName) continue;
     const a = stop.coordinates, b = platform.coordinates;
@@ -71,9 +67,6 @@ function stopPlatformPairs(stops) {
   return pairs;
 }
 function normalizeEndpoint(value) {
-  // OSM uses "Terminus", "Termibus" and bare place names inconsistently.
-  // Remove only these leading transport-label prefixes; retain place qualifiers
-  // such as Palais 1 vs Palais 2 so genuine terminal conflicts remain visible.
   return normalize(value).replace(/^(?:terminus|termibus)\s+/, "").replace(/\s+/g, "").trim();
 }
 function sameEndpointsReversed(a, b) {
@@ -86,12 +79,25 @@ function commonStopIds(a, b) {
   return b.filter((s) => idsA.has(s.osmType + ":" + s.osmId))
     .map((s) => s.osmType + ":" + s.osmId);
 }
+function nameOverlap(a, b) {
+  const namesA = [...new Set(a.map((s) => s.normalizedName).filter(Boolean))];
+  const namesB = [...new Set(b.map((s) => s.normalizedName).filter(Boolean))];
+  const setB = new Set(namesB);
+  const shared = namesA.filter((name) => setB.has(name)).sort();
+  const union = new Set([...namesA, ...namesB]);
+  return {
+    distinctNamedStopsA: namesA.length,
+    distinctNamedStopsB: namesB.length,
+    sharedDistinctNormalizedNames: shared,
+    sharedDistinctNormalizedNameCount: shared.length,
+    jaccardSimilarity: union.size ? Math.round(shared.length / union.size * 1000) / 1000 : 0,
+  };
+}
 
 const routes = (report.routes ?? []).filter((r) => r.scopeStatus === "DAKAR_CANDIDATE");
 const groups = new Map();
 for (const route of routes) {
-  const refs = routeRefs(route);
-  for (const ref of refs) {
+  for (const ref of routeRefs(route)) {
     const group = groups.get(ref) ?? [];
     group.push(route);
     groups.set(ref, group);
@@ -135,11 +141,12 @@ for (const [ref, members] of groups) {
           sharedRouteMasterRelationIds: sharedMasterIds,
           sharedStopMemberIds: sharedStopIds,
           sameOperator: normalize(a.operator) !== "" && normalize(a.operator) === normalize(b.operator),
+          normalizedStopNameOverlap: nameOverlap(aStops, bStops),
         },
         assessment: reversedEndpoints
           ? "REVERSED_ENDPOINT_CANDIDATE"
           : "SHARED_ROUTE_MASTER_CANDIDATE",
-        warning: "OSM directional evidence only; not operator validation, current service confirmation, or timetable evidence.",
+        warning: "OSM directional evidence only; endpoint agreement alone does not validate stop sequence, operator identity, current service, or timetable.",
       });
     }
   }
@@ -160,11 +167,12 @@ const summary = {
   lineRefsWithPairs: [...new Set(pairs.map((p) => p.lineRef))],
   explicitWarnings: [
     "A pair is a candidate, not a validated operator route.",
+    "Endpoint agreement alone does not establish that the ordered stop sequences match.",
+    "Distinct normalized stop-name overlap is a comparison metric, not proof of physical stop identity.",
     "Relation member order is preserved independently for each direction.",
-    "Raw OSM stop and platform members are preserved; adjacent same-name pairs within 30 m are separately identified to avoid counting both as two physical stops.",
-    "Stop/platform pairs are geometric candidates, not proof of an operator's official stop inventory.",
+    "Raw OSM stop and platform members are preserved; adjacent same-name pairs within 30 m are separately identified.",
     "No missing direction, stop, frequency, or timetable is invented.",
-    "No OSM relation is merged, reassigned, or used to overwrite DDD operator data.",
+    "No OSM relation is merged, reassigned, or used to overwrite operator data.",
   ],
 };
 await mkdir("artifacts/osm", { recursive: true });
