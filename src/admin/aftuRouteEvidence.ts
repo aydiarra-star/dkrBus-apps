@@ -54,7 +54,9 @@ interface RawAftuRoute {
   inboundDetailSourceUrl?: unknown
 }
 
-import aftu66Return from '../data/aftu-66-return.json'\n\nconst routeModules = import.meta.glob('../data/aftu-*-directions.json', {
+import aftu66Return from '../data/aftu-66-return.json'
+
+const routeModules = import.meta.glob('../data/aftu-*-directions.json', {
   eager: true,
   import: 'default',
 }) as Record<string, RawAftuRoute>
@@ -95,7 +97,11 @@ function directionEvidence(
     sourceLabel: nonEmptyString(schedule?.sourceLabel) ?? nonEmptyString(route.sourceLabel),
     timetableEntries: times.length,
     hasPerStopTimes: waypoints.length > 0 && times.length === waypoints.length,
-    scheduleInterval: nonEmptyString(schedule?.interval)\n      ?? nonEmptyString(schedule?.weekday?.interval)\n      ?? nonEmptyString(route.frequency?.display)\n      ?? (typeof route.frequency?.intervalMinutes === 'number' ? `${route.frequency.intervalMinutes} min` : null)\n      ?? nonEmptyString(route.frequency?.countdownBasis),
+    scheduleInterval: nonEmptyString(schedule?.interval)
+      ?? nonEmptyString(schedule?.weekday?.interval)
+      ?? nonEmptyString(route.frequency?.display)
+      ?? (typeof route.frequency?.intervalMinutes === 'number' ? `${route.frequency.intervalMinutes} min` : null)
+      ?? nonEmptyString(route.frequency?.countdownBasis),
     genericStopLabels,
     repeatedLabels,
   }
