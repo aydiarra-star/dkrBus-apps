@@ -104,3 +104,13 @@ La validation doit d'abord porter sur la fidélité de la transcription et la st
 Quand une même page officielle contient un titre de ligne et une liste d'arrêts qui semblent diverger, conserver les deux faits publiés. Examiner la séquence complète : la continuation après un repère « Terminus » peut représenter le sens opposé, une boucle ou une variante. Il ne faut ni tronquer la liste ni l'inverser automatiquement. Le rôle de l'IA est de reconstruire la structure la plus fidèle possible à partir des éléments publiés et de marquer seulement les ambiguïtés qui restent réellement irrésolues.
 
 La page CETUD « Système de données » confirme que le CETUD a créé des fichiers GTFS couvrant horaires, arrêts, itinéraires, trajets, tarifs et services. La recherche de ces fichiers devient une piste prioritaire. Leur absence actuelle du dépôt ne signifie pas qu'ils n'existent pas.
+
+
+## Mise à jour de la revue documentaire — 13 novembre 2026
+
+- **DDD 217 :** la page opérateur donne le titre Thiaroye ↔ Ouakam, mais la séquence publiée continue jusqu'à Aéroport LSS et ressemble à celle de la ligne 218. Le registre conserve les repères de la page et marque explicitement le conflit ; aucun arrêt n'est supprimé et aucun sens n'est fabriqué.
+- **DDD 233 :** le titre publié est Baux Maraîchers ↔ Palais 1, tandis que la séquence détaillée se termine à Aéroport LSS. La page officielle Info voyageurs confirme le titre mais ne fournit pas la séquence permettant de résoudre le conflit. Le registre conserve les deux informations publiées et signale l'ambiguïté.
+- **AFTU :** le plan téléchargeable du CETUD est une carte JPEG des corridors, pas un fichier d'horaires. Il est ajouté aux sources de recoupement cartographique, sans servir à fabriquer l'ordre des arrêts.
+- **GTFS CETUD :** l'existence du référentiel est officiellement confirmée. Aucun lien direct de téléchargement du fichier GTFS n'a été trouvé sur la page Système de données ni dans les deux boutons de téléchargement des plans AFTU/DDD. Le fichier lui-même n'est pas encore dans le dépôt ; la recherche continue.
+
+Les détails, liens directs et limites des sources sont consignés dans le relevé daté `docs/recherche-sources-itineraires-2026-11-13.md`. Ces constats restent dans le périmètre de la revue documentaire et ne changent pas le catalogue passager ni les horaires TER/BRT.
