@@ -204,3 +204,21 @@ Les deux fiches officielles AFTU retrouvées dans l'extraction sont comparées a
 | 40 | Grand Mbao → RN1 → Fass Mbao → Poste Thiaroye → Yarakh → Cafétéria → Maristes → échangeur Hann → autoroute → Colobane → Petersen | 3982642, « Ligne 40 », operator=Aftu, network=Tata | Identité de ligne et corridor compatibles au niveau des tags et du contexte, mais 35 ways géométriques sans arrêt ordonné ni terminus/sens OSM. Candidat de corridor uniquement ; aucun ordre d'arrêts passager ne peut en être tiré. |
 
 Les fiches officielles AFTU consultées sont [ligne 36](https://aftu-senegal.org/map/dakar-urbain-ligne-36/) et [ligne 40](https://aftu-senegal.org/map/dakar-urbain-ligne-40/). Elles décrivent chacune un seul corridor publié et ne donnent pas une séquence indépendante complète pour le retour. Les deux lignes restent donc en revue documentaire, sans fréquence ni compte à rebours ajouté.
+
+
+### Relations directionnelles DDD : lignes 4, 7, 9 et 10
+
+Le contrôle de l'extraction OSM fraîche confirme plusieurs paires de relations DDD avec terminus inversés. Il s'agit d'un progrès pour identifier les deux sens sans inverser artificiellement une seule liste :
+
+| Ligne | Sens 1 (relation OSM) | Sens 2 (relation OSM) | Membres d'arrêts ordonnés | Qualification |
+|---|---|---|---:|---|
+| 4 | Leclerc → Liberté 5 (6990830) | Liberté 5 → Leclerc (7203970) | 34 / 32 | Paire directionnelle candidate ; correspondance spatiale très asymétrique avec les couches ArcGIS historiques (6/34 contre 24/32 à ≤50 m). |
+| 7 | Palais → Ouakam (6990669) | Ouakam → Palais 1 (7500475) | 31 / 34 | Paire directionnelle candidate ; les deux relations sont aussi membres de la relation maître OSM 7500597 (« Ligne 7 »). La proximité ArcGIS est très différente (10/31 contre 30/34 à ≤50 m). |
+| 9 | Palais 1 → Liberté 6 (6996431) | Liberté 6 → Palais 1 (7487218) | 32 / 29 | Paire directionnelle candidate ; proximité ArcGIS plus forte pour la seconde relation (15/32 contre 27/29 à ≤50 m). |
+| 10 | Palais 1 → Liberté 5 (6990845) | Liberté 5 → Palais 1 (7488283) | 30 / 25 | Paire directionnelle candidate ; rapprochement ArcGIS partiel (10/30 contre 20/25 à ≤50 m). |
+
+La ligne 1 (relation 6951328, Parcelles assainies → Leclerc, 38 membres d'arrêts ordonnés) n'a qu'une relation directionnelle identifiée dans cet extrait. La ligne 121 reste ambiguë : les relations 2792903, 6990794 et 6999013 ne forment pas une paire propre sur le seul numéro, et leurs terminus/volumes divergent.
+
+**Ce que cela permet :** conserver séparément les deux ordres de membres OSM des lignes 4, 7, 9 et 10 comme candidats de sens, avec leurs identifiants de relation et leurs terminus. **Ce que cela ne permet pas encore :** déclarer les arrêts validés, les afficher comme parcours voyageurs, ni attribuer une fréquence. Les membres sont surtout des plateformes OSM sans nom ; les écarts de rapprochement avec l'ArcGIS historique imposent une revue des coordonnées, des noms d'arrêts et des divergences de tracé avant toute promotion.
+
+Les deux directions B1 restent intactes. Aucune donnée TER/BRT, aucun catalogue passager et aucune donnée Supabase n'ont été modifiés par ce rapprochement.
