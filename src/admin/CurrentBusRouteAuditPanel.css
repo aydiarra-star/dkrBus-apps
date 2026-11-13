@@ -1,4 +1,5 @@
-.bus-route-audit {\n  --bus-audit-warning: #91631c;
+.bus-route-audit {
+  --bus-audit-warning: #91631c;
   margin: 14px 0 18px;
   padding: 14px;
   border: 1px solid var(--line-strong);
@@ -17,8 +18,8 @@
 .bus-route-audit-safety { display: flex; align-items: flex-start; gap: 7px; padding: 9px; border-radius: 9px; background: var(--surface-sunken); color: var(--muted); font-size: 9px; line-height: 1.5; }
 .bus-route-audit-safety svg { flex: 0 0 auto; margin-top: 1px; }
 .bus-route-audit-filters { display: flex; flex-wrap: wrap; gap: 5px; margin: 11px 0 8px; }
-.bus-route-audit-filters button { padding: 6px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-card); color: #60786b; font-size: 9px; cursor: pointer; }
-.bus-route-audit-filters button.is-active { border-color: #a9d9bd; background: #eaf6ef; color: var(--green-700); font-weight: 750; }
+.bus-route-audit-filters button { padding: 6px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-card); color: var(--muted); font-size: 9px; cursor: pointer; }
+.bus-route-audit-filters button.is-active { border-color: var(--green-400); background: var(--green-50); color: var(--green-700); font-weight: 750; }
 .bus-route-audit-count { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 9px; }
 .bus-route-audit-list { display: grid; gap: 7px; max-height: 360px; margin: 8px 0 0; padding: 0; overflow: auto; list-style: none; }
 .bus-route-audit-list li { display: grid; gap: 4px; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-card); }
@@ -37,7 +38,6 @@
   .bus-route-audit-summary div { padding: 7px; }
   .bus-route-audit-summary span { font-size: 8px; }
 }
-
 .bus-route-audit-sources { margin: 11px 0; padding: 9px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-card); }
 .bus-route-audit-sources summary { color: var(--green-700); font-size: 10px; font-weight: 750; cursor: pointer; }
 .bus-route-audit-sources > p { margin: 7px 0; color: var(--muted); font-size: 9px; line-height: 1.45; }
@@ -51,4 +51,4 @@
   .bus-route-audit-sources li span { grid-column: 1; }
   .bus-route-audit-sources li a { grid-column: 2; grid-row: 1 / span 2; }
 }
-\n.theme-dark .bus-route-audit { --bus-audit-warning: #e9c16f; }\n
+.theme-dark .bus-route-audit { --bus-audit-warning: #e9c16f; }
