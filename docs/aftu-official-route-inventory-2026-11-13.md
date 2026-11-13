@@ -113,3 +113,17 @@ Le contrôle de la page officielle « Infos pratiques » (https://aftu-senegal.o
 Le compte est désormais cohérent avec les 72 lignes AFTU annoncées par le CETUD : 65 pages détaillées récupérées + 7 lignes supplémentaires visibles dans l'index = 72 lignes listées. La ligne 90 n'apparaît pas dans l'index observé et n'est pas inventée.
 
 **Décision :** les sept corridors et leurs terminus sont maintenant connus officiellement, mais pas leur itinéraire détaillé. Il faut rechercher les tracés ou documents officiels complémentaires ; ne pas fabriquer les arrêts intermédiaires ni les retours.
+
+
+## Addendum de collecte actualisée — workflow du 13 novembre 2026
+
+L'artefact de collecte actualisé (`aftu-official-route-pages`, workflow `43490065945`) confirme :
+- 63 pages d'itinéraire liées depuis l'index officiel ;
+- 9 URL officielles supplémentaires testées directement ;
+- 2 pages supplémentaires récupérées (lignes 27 et 36) ;
+- 65 pages récupérées avec texte d'itinéraire ;
+- 7 URL candidates en erreur HTTP 404 : lignes 84, 85, 86, 87, 88, 89 et 91.
+
+La mention « 0 erreur » du contrôle initial s'applique aux 65 pages effectivement récupérées ; elle ne signifie pas que les 7 URL supplémentaires ont répondu. Les sept lignes restent bien présentes dans l'index officiel, avec leurs corridors, mais leurs fiches détaillées ne sont pas disponibles par ces URL candidates. Le compte de réseau reste 72 lignes listées (65 fiches récupérées + 7 lignes d'index sans fiche détaillée).
+
+Les pages officielles extraites ne mentionnent explicitement des variantes de retour que pour les lignes 2 et 5 (Rue 39/Rue 17 et Rue 25/Rue 37). Ces mentions ne constituent pas un parcours retour complet.
