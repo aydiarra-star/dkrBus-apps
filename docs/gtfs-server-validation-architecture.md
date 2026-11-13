@@ -58,3 +58,10 @@ Before a report can be stored, the worker verifies the validator schema version,
 Stop-time chronology is now checked after sorting by trip_id and stop_sequence, independently of the order in which rows appear in stop_times.txt. An unsorted file remains a warning, but it can no longer bypass chronological validation.
 
 The new migration is exercised only against an isolated PostgreSQL 16 service in GitHub Actions. It is not applied to the active Supabase database by CI. The manual worker workflow is not dispatched as part of CI. No real GTFS archive is assumed, no staged row is created, and a structurally valid result still leaves human review pending and publication disabled.
+
+
+## Intake cleanup and activation boundary
+
+The intake function now accepts exactly one `feed`, `manifest`, and `dataset_id` multipart field. If a later upload or staging-row insert fails, it attempts to remove only the objects created by that request and returns a distinct error when Storage reports that cleanup was incomplete. Database error details are not returned to the caller.
+
+The multipart parser enforces the actual request-stream byte count even when `Content-Length` is absent. It still materializes the bounded `FormData` and archive bytes in the Edge Function before hashing; the 100 MiB archive limit is therefore a request cap, not proof that a 100 MiB upload fits the active Edge Function memory/CPU budget. Do not deploy or enable this intake path until its runtime resource behavior is verified in a dedicated non-production Supabase project, or the upload path is changed to a bounded direct-to-private-Storage flow. CI uses only synthetic in-memory multipart tests and does not upload files or write to Supabase.

@@ -72,3 +72,27 @@ export async function readMultipartWithLimit(request: Request, maxBytes: number)
     throw error;
   }
 }
+
+
+/** Return a multipart field only when it occurs exactly once. */
+export function getExactlyOneFormValue(form: FormData, name: string): FormDataEntryValue | null {
+  const values = form.getAll(name);
+  return values.length === 1 ? values[0] : null;
+}
+
+/**
+ * Best-effort cleanup for objects created by the current request.
+ * A failed or throwing removal is surfaced to the caller instead of being hidden.
+ */
+export async function cleanupUploadedObjects(
+  remove: (paths: string[]) => Promise<{ error: unknown | null }>,
+  paths: string[],
+): Promise<boolean> {
+  if (paths.length === 0) return true;
+  try {
+    const result = await remove(paths);
+    return result.error === null;
+  } catch {
+    return false;
+  }
+}
