@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { CurrentBusRouteAuditPanel } from './CurrentBusRouteAuditPanel'
 
@@ -31,13 +31,13 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByRole('link', { name: 'Ouvrir la couche SIG' })).toHaveLength(12)
   })
 
-  it('exposes CETUD frequency observations by site and direction without assigning them to individual lines', () => {
+  it('exposes CETUD frequency observations by site and direction without assigning them to individual lines', async () => {
     render(<CurrentBusRouteAuditPanel />)
-    const frequencySources = screen.getByText(/Fréquences observées par site · CETUD · 59 relevés/)
+    const frequencySources = await screen.findByText(/Fréquences observées par site · CETUD · 59 relevés/)
     fireEvent.click(frequencySources)
     expect(screen.getByText(/ne sont pas des fréquences propres à chaque numéro de ligne/)).toBeTruthy()
     expect(screen.getByText(/Vers ville : 9 min · Vers banlieue : 7 min/)).toBeTruthy()
-    expect(screen.getAllByRole('link', { name: /Rapport CETUD · tableau/ }).length).toBe(59)
+    await waitFor(() => expect(screen.getAllByRole('link', { name: /Rapport CETUD · tableau/ }).length).toBe(59))
   })
 
   it('filters findings without changing the underlying report', () => {
