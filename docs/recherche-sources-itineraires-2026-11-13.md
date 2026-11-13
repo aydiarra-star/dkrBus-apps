@@ -391,3 +391,10 @@ Cette transmission remplace le statut « retour non documenté » de la précéd
 Le décompte doit donc rester explicite : le texte annonce 73 arrêts, mais l'ajout final de deux arrêts après « Jaxaay2 Route Du 84 » porte la liste enregistrée à 75 points. Les deux heures manquantes restent nulles ; aucune heure n'est extrapolée.
 
 Statut : `USER_PROVIDED_PENDING_SOURCE`. La séquence est enregistrée fidèlement comme donnée fournie par l'utilisateur, sans la présenter comme publication officielle CETUD tant qu'une fiche ou un document primaire n'est pas rattaché. Le test `src/data/aftu-84-directions.test.ts` vérifie le nombre de points, les 73 horaires et les deux valeurs nulles finales.
+
+
+## 15. Confirmation de fréquence — AFTU 84
+
+Le responsable du projet confirme que la fréquence de la ligne AFTU 84 est **un passage toutes les 14 minutes**. La donnée est enregistrée dans `src/data/aftu-84-directions.json` avec `intervalMinutes: 14`, l'affichage `14 min` et le statut `USER_CONFIRMED`. Le test de la ligne vérifie désormais explicitement ces trois éléments.
+
+Cette confirmation valide la valeur dans le référentiel de travail du projet. Elle est distinguée d'une publication officielle AFTU/CETUD : aucune URL documentaire primaire propre à la fréquence de la ligne 84 n'est actuellement rattachée au fichier. Si une fiche officielle ou un horaire opérateur est retrouvé, il pourra être ajouté comme corroboration sans changer la valeur confirmée, sauf preuve contraire.
