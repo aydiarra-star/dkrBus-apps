@@ -15,6 +15,13 @@ describe('CurrentBusRouteAuditPanel', () => {
     expect(screen.getAllByText(/Aller|Retour/).length).toBeGreaterThan(0)
   })
 
+  it('exposes the historical DDD GIS layers without presenting them as stop sequences', () => {
+    render(<CurrentBusRouteAuditPanel />)
+    expect(screen.getByText(/Couches SIG DDD de banlieue · 12 références historiques/)).toBeTruthy()
+    expect(screen.getByText(/ne contiennent pas de séquences d’arrêts validées ni d’horaires/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Ouvrir la couche SIG' })).toBeTruthy()
+  })
+
   it('filters findings without changing the underlying report', () => {
     render(<CurrentBusRouteAuditPanel />)
     const missingStopButtons = screen.getAllByRole('button', { name: 'Arrêts manquants' })
