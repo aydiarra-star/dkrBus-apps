@@ -2,8 +2,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 const BBOX = "(14.55,-17.56,14.91,-17.12)";
 const ENDPOINTS = [
+  "https://overpass.private.coffee/api/interpreter",
   "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.nchc.org.tw/api/interpreter",
 ];
 const OUTPUT = "artifacts/osm/dakar-osm-route-candidates.json";
 const DAKAR_BOUNDS = { south: 14.55, west: -17.56, north: 14.91, east: -17.12 };
@@ -21,13 +22,20 @@ async function fetchOverpass(endpoint) {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      "User-Agent": "DakarBus-readonly-route-audit/1.1",
+      "User-Agent": "DakarBus-readonly-route-audit/1.2",
     },
     body: new URLSearchParams({ data: QUERY }),
     signal: AbortSignal.timeout(210000),
   });
-  if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`);
-  return response.json();
+  const body = await response.text();
+  if (!response.ok) {
+    throw new Error(`${endpoint}: HTTP ${response.status} ${body.slice(0, 240)}`);
+  }
+  try {
+    return JSON.parse(body);
+  } catch {
+    throw new Error(`${endpoint}: invalid JSON response ${body.slice(0, 240)}`);
+  }
 }
 
 function isInsideDakar(point) {
@@ -133,14 +141,24 @@ async function main() {
   let usedEndpoint;
   const errors = [];
   for (const endpoint of ENDPOINTS) {
-    try {
-      console.log(`Querying OSM bus relations via ${endpoint}`);
-      data = await fetchOverpass(endpoint);
-      usedEndpoint = endpoint;
-      break;
-    } catch (error) {
-      errors.push({ endpoint, error: error.message });
+    // Public Overpass instances can temporarily shed load. Retry once before
+    // switching providers; never treat a partial/invalid response as success.
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        console.log(`Querying OSM bus relations via ${endpoint} (attempt ${attempt}/2)`);
+        data = await fetchOverpass(endpoint);
+        usedEndpoint = endpoint;
+        break;
+      } catch (error) {
+        errors.push({ endpoint, attempt, error: error.message });
+        if (attempt < 2) {
+          const delayMs = 4000 * attempt;
+          console.warn(`Overpass request failed; retrying in ${delayMs}ms`);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
     }
+    if (data) break;
   }
   if (!data) throw new Error(`All Overpass endpoints failed: ${JSON.stringify(errors)}`);
 
