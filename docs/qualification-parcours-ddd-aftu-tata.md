@@ -93,3 +93,14 @@ Un relevé séparé consigne les sources et leurs limites dans `docs/recherche-s
 ## Console de revue
 
 La console authentifiée affiche désormais le tableau de bord de `getCurrentBusRouteAudit()` via `src/admin/CurrentBusRouteAuditPanel.tsx`. Il présente les lignes et les deux sens séparément, les séquences absentes, les statuts non vérifiés et les éventuelles séquences invalides. Les filtres ne changent que l’affichage. Aucun bouton de correction ou de publication n’est ajouté à cet audit.
+
+
+## Principe de traitement des sources officielles et de leur date
+
+Une donnée publiée par le CETUD, un opérateur public ou l'organisme responsable du réseau est une preuve officielle de ce que cet organisme a publié. Elle ne doit pas être rejetée simplement parce que sa date est ancienne. La date est conservée comme métadonnée de provenance et sert à comprendre les versions, les changements de réseau et les éventuelles coexistences de variantes.
+
+La validation doit d'abord porter sur la fidélité de la transcription et la structuration de la donnée officielle. Les autres sources (cartes institutionnelles, fiches d'opérateur, documents d'exploitation, données SIG, archives, publications d'autres organismes) servent à compléter et à expliquer les séquences, pas à disqualifier automatiquement une source officielle.
+
+Quand une même page officielle contient un titre de ligne et une liste d'arrêts qui semblent diverger, conserver les deux faits publiés. Examiner la séquence complète : la continuation après un repère « Terminus » peut représenter le sens opposé, une boucle ou une variante. Il ne faut ni tronquer la liste ni l'inverser automatiquement. Le rôle de l'IA est de reconstruire la structure la plus fidèle possible à partir des éléments publiés et de marquer seulement les ambiguïtés qui restent réellement irrésolues.
+
+La page CETUD « Système de données » confirme que le CETUD a créé des fichiers GTFS couvrant horaires, arrêts, itinéraires, trajets, tarifs et services. La recherche de ces fichiers devient une piste prioritaire. Leur absence actuelle du dépôt ne signifie pas qu'ils n'existent pas.
