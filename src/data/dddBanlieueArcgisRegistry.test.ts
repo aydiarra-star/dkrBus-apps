@@ -41,12 +41,18 @@ describe('DDD urban ArcGIS stop inventory', () => {
     expect(DDD_URBAN_ARCGIS_AUDIT_TOTALS).toEqual({
       routeLayers: 12,
       routeFeatures: 13,
+      nonEmptyRouteFeatures: 12,
+      emptyRouteFeatures: 1,
       stopLayers: 12,
       stopFeatures: 455,
       namedStopFeatures: 384,
       geolocatedStopFeatures: 454,
     })
-    expect(DDD_URBAN_ARCGIS_ROUTE_LAYERS.find((layer) => layer.line === '8')?.featureCount).toBe(2)
+    expect(DDD_URBAN_ARCGIS_ROUTE_LAYERS.find((layer) => layer.line === '8')).toMatchObject({
+      featureCount: 2,
+      nonEmptyFeatureCount: 1,
+      emptyFeatureCount: 1,
+    })
   })
 
   it('keeps unnamed line 8 and line 13 stop layers as geographic candidates', () => {
