@@ -48,8 +48,8 @@ La PR #109 contient une archive de migrations présentée comme l'historique app
 ## État réel de l'IA côté application
 
 - Sur `main`, l'assistant visible est encore piloté par le moteur local de règles et le référentiel local.
-- Le branchement du navigateur sur les Edge Functions Supabase apparaît dans la PR #109, pas dans `main`.
-- Les fonctions serveur sont donc actives dans Supabase, mais cela ne prouve pas que l'application publiée les interroge.
+- Le branchement du navigateur sur les Edge Functions Supabase est maintenant intégré dans la branche de travail de la PR #154 ; il n'est pas encore fusionné ni déployé.
+- Les sources des Edge Functions actives ont été récupérées dans cette même PR. Leur présence dans GitHub et leur statut actif dans Supabase ne prouvent pas encore que l'application publiée les interroge.
 - Aucun GPS de flotte, capteur routier ou flux temps réel opérateur n'a été vérifié comme actif.
 
 ## Correctif de compatibilité des clés
@@ -58,8 +58,9 @@ L'ancienne branche #109 envoyait la clé `sb_publishable_` à la fois dans `apik
 
 ## Décision pour la PR de référence #154
 
-1. Reprendre sélectivement le client de lecture Supabase de #109, après comparaison de son contrat JSON avec la fonction déjà déployée.
-2. Garder les appels en lecture seule et le repli local si Supabase est indisponible.
-3. Ne jamais envoyer au serveur la question, le texte de conversation, la position GPS ou les préférences personnelles.
-4. Ne faire aucune migration et aucun changement de données pendant cette phase de connexion.
-5. Avant de dire « IA connectée », vérifier un appel réel depuis l'application et l'affichage d'une réponse fondée sur le snapshot.
+1. Le client de lecture Supabase de #109 est repris dans la PR #154 et branché au copilote ; son appel utilise uniquement l'en-tête `apikey`.
+2. Les appels sont en lecture seule et le moteur local reste disponible si Supabase ne répond pas.
+3. La question, le texte de conversation, la position GPS et les préférences personnelles ne sont jamais envoyés au serveur.
+4. Aucune migration et aucun changement de données ne sont faits pendant cette phase de connexion.
+5. Avant de dire « IA connectée en production », vérifier un appel réel depuis l'application publiée et l'affichage d'une réponse fondée sur le snapshot.
+6. Le workflow/script d'import OSM de l'ancienne PR #109 est reporté hors de cette phase ; l'archive SQL datée du 12 novembre est écartée car elle ne couvre pas les 36 migrations actuelles.
