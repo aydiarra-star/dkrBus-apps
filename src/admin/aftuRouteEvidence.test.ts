@@ -12,6 +12,30 @@ describe('adaptateur de preuves AFTU', () => {
     expect(AFTU_ROUTE_EVIDENCE.every((route) => route.network === 'aftu')).toBe(true)
   })
 
+  it('maintient les heures invalidées de la ligne 86 hors des horaires exploitables', () => {
+    const route = getAftuRouteEvidence('86')
+    expect(route?.outbound.waypoints).toHaveLength(68)
+    expect(route?.inbound.waypoints).toHaveLength(64)
+    expect(route?.outbound.timetableEntries).toBe(0)
+    expect(route?.inbound.timetableEntries).toBe(0)
+    expect(route?.outbound.hasPerStopTimes).toBe(false)
+    expect(route?.inbound.hasPerStopTimes).toBe(false)
+    expect(route?.sourceStatus).toBe('user-provided-cetud-reference')
+    expect(route?.outbound.waypoints.filter((name) => name === 'En Face Camp Lgi Mbao Près De La Station Total')).toHaveLength(1)
+    expect(route?.outbound.waypoints.some((name) => name.includes('(doublon présent dans la source)'))).toBe(true)
+  })
+
+  it('conserve les deux sens de la ligne 87 sans transformer les départs théoriques en horaires par arrêt', () => {
+    const route = getAftuRouteEvidence('87')
+    expect(route?.outbound.waypoints).toHaveLength(68)
+    expect(route?.inbound.waypoints).toHaveLength(71)
+    expect(route?.outbound.timetableEntries).toBe(0)
+    expect(route?.inbound.timetableEntries).toBe(0)
+    expect(route?.outbound.hasPerStopTimes).toBe(false)
+    expect(route?.inbound.hasPerStopTimes).toBe(false)
+    expect(route?.sourceStatus).toBe('user-provided-cetud-reference')
+  })
+
   it('charge les quatre séquences directionnelles AFTU 88 à 91 sans les fusionner', () => {
     const expected = [
       { line: '88', outbound: 78, inbound: 81, origin: 'Terminus 88', returnOrigin: 'Terminus Liberté 5' },
