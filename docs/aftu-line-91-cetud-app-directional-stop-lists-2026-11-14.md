@@ -177,3 +177,10 @@ La capture ou l'URL de la fiche CETUD pourra être ajoutée ultérieurement pour
 ## Garde-fous
 
 Aucune donnée passager n'est modifiée. Aucune écriture Supabase, aucun déploiement et aucune fusion du PR ne sont effectués. Les données TER/BRT restent intactes.
+
+
+## Rapprochement avec l'index public AFTU — 14 novembre 2026
+
+La page publique AFTU-Sénégal affiche actuellement la ligne 91 avec le corridor **APIX – DOUGAR**. Les listes de l'application CETUD transmises et validées dans ce dossier décrivent cependant l'aller **Losso → Terminus 91** et le retour **Chez Lo électricien → Losso**. Cette différence de terminus est enregistrée comme divergence entre sources officielles/publications ; elle ne remet pas en cause la validation explicite des 70 occurrences de chaque sens par le responsable du projet et ne justifie aucune réécriture de la liste CETUD.
+
+La ligne reste identifiée AFTU 91 dans le suivi du projet sur la base de la fiche CETUD transmise. Le statut de rapprochement avec le corridor APIX–Dougar est **à résoudre** ; aucun arrêt n'est déplacé, supprimé ou réaffecté à une autre ligne.
