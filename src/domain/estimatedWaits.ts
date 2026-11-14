@@ -142,7 +142,7 @@ export function estimatedNextPassage(network: string | null, now = Date.now()): 
     const slotIndex = now < startAt ? 0 : Math.floor((now - startAt) / intervalMs) + 1
     const nextAt = startAt + slotIndex * intervalMs
     // Le dernier créneau exactement à la fin du service reste affichable.
-    const finalAt = Math.min(nextAt, endAt)
+    const finalAt = nextAt + intervalMs > endAt ? endAt : nextAt
     if (finalAt <= now) continue
 
     return {
