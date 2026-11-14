@@ -28,6 +28,6 @@ describe('initial transport catalogue', () => {
     const unified = NETWORK_SOURCES.filter((network) => network.id === 'aftu_tata')
     expect(unified).toHaveLength(1)
     expect(unified[0]).toMatchObject({ label: 'AFTU / TATA', referenceData: { lineCount: 72, vehicleCount: 2300, gieCount: 14, serviceStart: '06:00', serviceEnd: '22:50' } })
-    expect(NETWORK_SOURCES.some((network) => network.id === 'aftu' || network.id === 'tata')).toBe(false)
+    expect(NETWORK_SOURCES.map((network) => network.id)).toEqual(['ter', 'brt', 'ddd', 'aftu_tata'])
   })
 })
