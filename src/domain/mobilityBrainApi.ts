@@ -146,6 +146,7 @@ function isSnapshot(value: unknown): value is MobilityBrainSnapshot {
  * En cas d'absence de réseau, l'assistant conserve son moteur local habituel.
  */
 export function loadMobilityBrainKnowledge(): Promise<MobilityBrainSnapshot | null> {
+  if (import.meta.env.MODE === 'test') return Promise.resolve(null)
   if (cachedSnapshot && Date.now() - cachedAt < CACHE_TTL_MS) return Promise.resolve(cachedSnapshot)
   if (pendingLoad) return pendingLoad
 
