@@ -12,6 +12,32 @@ describe('adaptateur de preuves AFTU', () => {
     expect(AFTU_ROUTE_EVIDENCE.every((route) => route.network === 'aftu')).toBe(true)
   })
 
+  it('charge les quatre séquences directionnelles AFTU 88 à 91 sans les fusionner', () => {
+    const expected = [
+      { line: '88', outbound: 78, inbound: 81, origin: 'Terminus 88', returnOrigin: 'Terminus Liberté 5' },
+      { line: '89', outbound: 55, inbound: 53, origin: 'Terminus 89', returnOrigin: 'Poste Courant Bargny Près De La Gare Ter' },
+      { line: '90', outbound: 82, inbound: 82, origin: 'Terminus 90 (Départ)', returnOrigin: 'Deni Birame Ndao Nord (Départ)' },
+      { line: '91', outbound: 70, inbound: 70, origin: 'Losso (Départ)', returnOrigin: 'Chez Lo électricien (Départ)' },
+    ]
+
+    for (const item of expected) {
+      const route = getAftuRouteEvidence(item.line)
+      expect(route?.outbound.waypoints).toHaveLength(item.outbound)
+      expect(route?.inbound.waypoints).toHaveLength(item.inbound)
+      expect(route?.outbound.waypoints[0]).toBe(item.origin)
+      expect(route?.inbound.waypoints[0]).toBe(item.returnOrigin)
+      expect(route?.outbound.direction).toBe('outbound')
+      expect(route?.inbound.direction).toBe('inbound')
+      expect(route?.outbound.timetableEntries).toBe(0)
+      expect(route?.inbound.timetableEntries).toBe(0)
+    }
+  })
+
+  it('préserve les statuts de validation des séquences 90 et 91', () => {
+    expect(getAftuRouteEvidence('90')?.sourceStatus).toBe('user-validated-directional-sequences')
+    expect(getAftuRouteEvidence('91')?.sourceStatus).toBe('user-validated-cetud-sequences')
+  })
+
   it('conserve le retour absent de la fiche 83', () => {
     const route = getAftuRouteEvidence('83')
     expect(route?.outbound.waypoints).toHaveLength(14)
