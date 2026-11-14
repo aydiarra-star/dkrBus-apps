@@ -96,23 +96,14 @@ export const FARE_GRIDS: Record<MobilityId, FareGrid> = {
     sourceLabel: 'CETUD — réseaux de transport',
     note: 'Aucun tarif ligne par ligne dans les fiches consultées : le montant reste non déclaré plutôt qu’estimé.',
   },
-  aftu: {
-    network: 'aftu',
-    label: 'AFTU',
+  aftu_tata: {
+    network: 'aftu_tata',
+    label: 'AFTU / TATA',
     basis: 'NOT_PUBLISHED',
-    rows: NOT_PUBLISHED_ROWS('AFTU'),
+    rows: NOT_PUBLISHED_ROWS('AFTU / TATA'),
     sourceUrl: SOURCES.cetud,
     sourceLabel: 'CETUD — réseaux de transport',
-    note: 'Tarif non publié dans les fiches consultées : à confirmer au receveur ou auprès d’AFTU.',
-  },
-  tata: {
-    network: 'tata',
-    label: 'TATA',
-    basis: 'NOT_PUBLISHED',
-    rows: NOT_PUBLISHED_ROWS('TATA'),
-    sourceUrl: SOURCES.cetud,
-    sourceLabel: 'CETUD — réseaux de transport',
-    note: 'Les minibus TATA ne publient pas de grille dans la mémoire du dépôt : aucun montant n’est supposé.',
+    note: 'Tarif non publié dans les fiches consultées : à confirmer auprès de l’opérateur ou du receveur.',
   },
 }
 
