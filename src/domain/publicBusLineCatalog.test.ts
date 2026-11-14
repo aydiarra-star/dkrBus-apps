@@ -8,6 +8,7 @@ import {
   TATA_PUBLIC_LINE_CATALOG,
   TATA_REFERENCE_POLICY,
   groupPublicBusLinesByCode,
+  sameDetailedRouteDirection,
 } from './publicBusLineCatalog'
 
 describe('catalogues sources et réseau unifié AFTU / TATA', () => {
@@ -37,6 +38,17 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     expect(AFTU_PUBLIC_LINE_CATALOG.every((line) => line.network === 'aftu')).toBe(true)
     expect(TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'APIX' && line.destination === 'UCAD')).toBe(true)
     expect(TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '53' && line.origin === 'Keur Massar' && line.destination === 'Sébikotane')).toBe(true)
+  })
+
+  it('ne partage jamais deux fiches dont le sens des terminus est inversé', () => {
+    expect(sameDetailedRouteDirection(
+      { origin: 'Colobane', destination: 'Jaxaay' },
+      { origin: 'Jaxaay', destination: 'Colobane' },
+    )).toBe(false)
+    expect(sameDetailedRouteDirection(
+      { origin: 'Colobane', destination: 'Jaxaay' },
+      { origin: 'Colobane', destination: 'Jaxaay' },
+    )).toBe(true)
   })
 
   it('ne duplique aucun numéro dans chaque mobilité source', () => {
