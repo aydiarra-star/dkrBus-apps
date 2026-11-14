@@ -97,7 +97,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
   const isDdd = network === 'ddd'
   const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA' : 'AFTU'
   const catalogue = isDdd ? DDD_PUBLIC_LINE_CATALOG : network === 'tata' ? TATA_PUBLIC_LINE_CATALOG : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : network === 'aftu' ? AFTU_ESTIMATED_LINE_SCHEDULES : []
   const schedulesByLine = useMemo(() => new Map(schedules.map((schedule) => [schedule.line, schedule])), [schedules])
   const [now, setNow] = useState(() => Date.now())
   const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
@@ -179,18 +179,18 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
-          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
+          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : null)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
           const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
-          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
+          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE.weekday : null)
           const scheduleWindow = capAftuTataServiceWindow(rawScheduleWindow, network)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
-            end: networkReference.serviceEnd,
+            end: network === 'tata' ? '22:50' : networkReference.serviceEnd,
             interval: '',
           })
           const serviceState = serviceWindow
@@ -198,7 +198,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
           const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
-          const countdownSchedule = countdownWindow ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
+          const countdownSchedule = countdownWindow && schedule ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundSchedule = route?.inboundSchedule ?? null
           const inboundDayWindow = inboundSchedule
