@@ -38,6 +38,9 @@ declare
   valid_report jsonb;
   invalid_report jsonb;
   bad_report jsonb;
+  audit_state public.dakar_admin_audit_chain_state%rowtype;
+  latest_audit public.dakar_admin_audit_events%rowtype;
+  appended_audit public.dakar_admin_audit_events%rowtype;
 begin
   if has_function_privilege('anon', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
      or has_function_privilege('authenticated', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
@@ -112,7 +115,7 @@ begin
   begin
     perform public.complete_dakar_gtfs_validation(
       first_job.dataset_id, first_job.lease_token, first_job.archive_sha256,
-      bad_report, 'dakar-gtfs-validator-v1'
+      bad_report, 'dakar-gtfs-validator-v2'
     );
   exception when others then
     rejected := true;
@@ -123,7 +126,7 @@ begin
 
   completed := public.complete_dakar_gtfs_validation(
     first_job.dataset_id, first_job.lease_token, repeat('e', 64),
-    valid_report, 'dakar-gtfs-validator-v1'
+    valid_report, 'dakar-gtfs-validator-v2'
   );
   if completed is true then
     raise exception 'A report with a mismatched archive hash was accepted';
@@ -140,7 +143,7 @@ begin
 
   completed := public.complete_dakar_gtfs_validation(
     first_job.dataset_id, first_job.lease_token, first_job.archive_sha256,
-    valid_report, 'dakar-gtfs-validator-v1'
+    valid_report, 'dakar-gtfs-validator-v2'
   );
   if completed is true then
     raise exception 'A stale worker finalized a reclaimed validation job';
@@ -148,7 +151,7 @@ begin
 
   completed := public.complete_dakar_gtfs_validation(
     reclaimed_job.dataset_id, reclaimed_job.lease_token, reclaimed_job.archive_sha256,
-    valid_report, 'dakar-gtfs-validator-v1'
+    valid_report, 'dakar-gtfs-validator-v2'
   );
   if completed is not true then
     raise exception 'A valid hash- and size-bound report was not finalized';
@@ -177,7 +180,7 @@ begin
   );
   completed := public.complete_dakar_gtfs_validation(
     second_job.dataset_id, second_job.lease_token, second_job.archive_sha256,
-    invalid_report, 'dakar-gtfs-validator-v1'
+    invalid_report, 'dakar-gtfs-validator-v2'
   );
   if completed is not true then
     raise exception 'A structurally invalid report was not stored as INVALID';
@@ -205,6 +208,173 @@ begin
   if (select count(*) from public.dakar_admin_audit_events
       where action = 'GTFS_SERVER_VALIDATION_COMPLETED') <> 2 then
     raise exception 'Server validation audit events were not recorded atomically';
+  end if;
+
+  if not (
+    select relrowsecurity
+      from pg_class
+     where oid = 'public.dakar_admin_audit_chain_state'::regclass
+  ) then
+    raise exception 'Audit chain state must have RLS enabled';
+  end if;
+  if has_table_privilege('anon', 'public.dakar_admin_audit_chain_state', 'SELECT')
+     or has_table_privilege('authenticated', 'public.dakar_admin_audit_chain_state', 'SELECT')
+     or has_table_privilege('service_role', 'public.dakar_admin_audit_chain_state', 'SELECT') then
+    raise exception 'Audit chain state must not be directly readable by application roles';
+  end if;
+  if has_function_privilege('anon', 'public.dakar_admin_sha256(text)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.dakar_admin_sha256(text)', 'EXECUTE')
+     or not has_function_privilege('service_role', 'public.dakar_admin_sha256(text)', 'EXECUTE') then
+    raise exception 'Audit SHA-256 helper permissions are incorrect';
+  end if;
+
+  if exists (
+    with ordered as (
+      select chain_sequence,
+             previous_hash,
+             lag(event_hash) over (order by chain_sequence) as prior_event_hash
+        from public.dakar_admin_audit_events
+    )
+    select 1
+      from ordered
+     where previous_hash is distinct from coalesce(prior_event_hash, repeat('0', 64))
+  ) then
+    raise exception 'Audit hash-chain links are not continuous';
+  end if;
+
+  if not exists (
+    select 1
+      from public.dakar_admin_audit_events
+     where action = 'LEGACY_AUDIT_BACKFILL_TEST'
+       and chain_sequence = 1
+       and previous_hash = repeat('0', 64)
+       and event_hash ~ '^[a-f0-9]{64}$'
+  ) then
+    raise exception 'A pre-existing legacy audit event was not backfilled into the hash chain';
+  end if;
+
+  if exists (
+    select 1
+      from public.dakar_admin_audit_events as event
+     where event.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', event.chain_sequence,
+         'id', event.id,
+         'actor_id', event.actor_id,
+         'action', event.action,
+         'target_type', event.target_type,
+         'target_id', event.target_id,
+         'details', event.details,
+         'created_at_epoch_microseconds',
+         (extract(epoch from event.created_at) * 1000000)::bigint,
+         'previous_hash', event.previous_hash
+       )::text
+     )
+  ) then
+    raise exception 'An audit event hash does not match its immutable payload';
+  end if;
+
+
+  -- Hashes must be independent of the session timezone used to verify them.
+  perform set_config('TimeZone', 'Pacific/Auckland', true);
+  if exists (
+    select 1
+      from public.dakar_admin_audit_events as event
+     where event.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', event.chain_sequence,
+         'id', event.id,
+         'actor_id', event.actor_id,
+         'action', event.action,
+         'target_type', event.target_type,
+         'target_id', event.target_id,
+         'details', event.details,
+         'created_at_epoch_microseconds',
+           (extract(epoch from event.created_at) * 1000000)::bigint,
+         'previous_hash', event.previous_hash
+       )::text
+     )
+  ) then
+    raise exception 'Audit hashes changed when the session timezone changed';
+  end if;
+  perform set_config('TimeZone', 'UTC', true);
+
+  select * into latest_audit
+    from public.dakar_admin_audit_events
+   order by chain_sequence desc
+   limit 1;
+  select * into audit_state
+    from public.dakar_admin_audit_chain_state
+   where singleton = true;
+  if audit_state.last_chain_sequence is distinct from latest_audit.chain_sequence
+     or audit_state.last_event_hash is distinct from latest_audit.event_hash then
+    raise exception 'Audit chain head does not match the latest event';
+  end if;
+
+  -- Insert under a non-UTC session timezone; the canonical hash must still verify in UTC.
+  perform set_config('TimeZone', 'Pacific/Auckland', true);
+  -- Caller-supplied chain values are ignored and recomputed by the BEFORE INSERT trigger.
+  insert into public.dakar_admin_audit_events (
+    actor_id, action, target_type, target_id, details,
+    chain_sequence, previous_hash, event_hash
+  ) values (
+    null, 'AUDIT_CHAIN_OVERRIDE_TEST', 'test', 'synthetic',
+    jsonb_build_object('fixture', true),
+    999, repeat('f', 64), repeat('f', 64)
+  )
+  returning * into appended_audit;
+  perform set_config('TimeZone', 'UTC', true);
+  if appended_audit.chain_sequence <> latest_audit.chain_sequence + 1
+     or appended_audit.previous_hash is distinct from latest_audit.event_hash
+     or appended_audit.event_hash = repeat('f', 64)
+     or appended_audit.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', appended_audit.chain_sequence,
+         'id', appended_audit.id,
+         'actor_id', appended_audit.actor_id,
+         'action', appended_audit.action,
+         'target_type', appended_audit.target_type,
+         'target_id', appended_audit.target_id,
+         'details', appended_audit.details,
+         'created_at_epoch_microseconds',
+           (extract(epoch from appended_audit.created_at) * 1000000)::bigint,
+         'previous_hash', appended_audit.previous_hash
+       )::text
+     ) then
+    raise exception 'Audit chain accepted caller hashes or depends on the session timezone';
+  end if;
+
+  rejected := false;
+  begin
+    update public.dakar_admin_audit_events
+       set details = '{}'::jsonb
+     where id = appended_audit.id;
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event update was not rejected';
+  end if;
+
+  rejected := false;
+  begin
+    delete from public.dakar_admin_audit_events
+     where id = appended_audit.id;
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event deletion was not rejected';
+  end if;
+
+  rejected := false;
+  begin
+    execute 'truncate table public.dakar_admin_audit_events';
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event truncation was not rejected';
   end if;
 end;
 $$;
