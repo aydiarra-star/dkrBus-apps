@@ -152,3 +152,36 @@ La page précise que le même circuit dessert Sphère Ministérielle, mais ne pu
 5. Garder les pages sources, variantes et versions en provenance séparée ; ne pas supprimer les anciennes observations.
 
 **Garde-fous :** aucun arrêt n'est créé à partir d'un corridor, aucun sens retour n'est reconstruit par inversion, aucune fréquence n'est calculée à partir des seuls premiers/derniers départs, aucune donnée TER/BRT n'est modifiée. Audit documentaire uniquement, sans écriture Supabase ni déploiement.
+
+
+## Recoupement institutionnel complémentaire — Guide officiel de mobilité JOJ Dakar 2026
+
+Source institutionnelle : guide de mobilité publié sur vie-publique.sn, préparé par le MITTA et le CETUD pour les JOJ du 31 octobre au 13 novembre 2026 : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+
+### Ligne 504A : fonction circulaire confirmée, séquence d'arrêts non publiée
+
+Le guide identifie explicitement la **504A comme ligne circulaire de Diamniadio vers les Sphères ministérielles**. Il indique que la ligne Dem Dikk 504 dessert les quatre sites du pôle olympique depuis la gare TER de Diamniadio : Centre équestre, Dakar Arena, Stade Abdoulaye Wade et Centre des expositions de Diamniadio. La 504A est également indiquée comme liaison après TER ou GTS pour rejoindre ces sites.
+
+**Conséquence pour la base :** on peut qualifier le type de service de 504A comme circulaire et confirmer le périmètre des quatre sites. En revanche, le guide ne fournit pas une liste ordonnée d'arrêts routiers, ni un sens aller/retour autonome, ni une fréquence DDD. Ne pas convertir la fréquence TER de 8 minutes mentionnée dans le même paragraphe en fréquence de bus 504A. La variante 504B Sébikotane ↔ Gare Diamniadio est confirmée par la page DDD Info voyageurs, mais sa séquence détaillée reste absente.
+
+### Ligne 233 : confirmation indépendante du terminus Palais
+
+Le guide CETUD/MITTA répertorie la ligne **233 — Baux Maraîchers ↔ Palais** parmi les lignes Dem Dikk desservant les sites de Dakar, notamment la Piscine olympique. Cette preuve institutionnelle indépendante renforce la page DDD « Info voyageurs » qui annonce Baux Maraîchers ↔ Palais 1. La fiche DDD « Réseau urbain » continue toutefois à afficher, sous l'en-tête 233, une séquence identique à la 232 se terminant à Aéroport LSS. Le terminus commercial vers le Palais est donc corroboré ; la séquence détaillée publiée sous le numéro 233 reste contradictoire et ne doit pas être réutilisée telle quelle.
+
+### Portée des variantes 502A/B et 503A/B
+
+La page officielle DDD « Info voyageurs » demeure la seule source officielle trouvée à ce stade pour les corridors suivants :
+- 502A Colobane ↔ UCAD
+- 502B Colobane ↔ Abass Ndao
+- 503A Colobane ↔ Môle 8
+- 503B Colobane ↔ Hydrocarbure
+
+Le guide de mobilité JOJ ne fournit pas de séquences détaillées pour ces variantes. Les anciennes séquences circulaires 502 et 503 de la page « Réseau urbain » ne peuvent pas être découpées arbitrairement entre A et B. Les quatre corridors sont donc enregistrés comme services officiellement annoncés, mais leurs arrêts intermédiaires et horaires restent à documenter.
+
+### Sources et limites conservées
+
+- DDD Info voyageurs : https://demdikk.sn/info-voyageurs/
+- DDD Réseau urbain : https://demdikk.sn/reseau-urbain-dakar/
+- Guide officiel MITTA/CETUD JOJ 2026 : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+
+Aucune donnée de circulation temporaire JOJ n'est considérée comme un horaire permanent. Aucun intervalle navette JOJ n'est attribué à un service DDD régulier. Aucun nouvel arrêt, sens ou temps de passage n'est inventé.
