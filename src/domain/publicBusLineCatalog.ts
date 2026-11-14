@@ -222,10 +222,29 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceLabel: line === '77' ? 'Document tarifaire TATA · juillet 2020' : 'MoMove · lignes TATA à Dakar · 09/06/2026',
 }))
 
-/** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
- * sans preuve explicite de correspondance et aucune fréquence n'est extrapolée. */
+function normalizeRouteEndpoint(value: string): string {
+  return value.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+/**
+ * Catalogue d’affichage commun. Une même ligne n’est fusionnée que si son
+ * numéro et ses deux terminus correspondent (dans un sens ou dans l’autre).
+ * Les numéros identiques avec des parcours différents restent distincts.
+ * En cas de doublon exact, la fiche AFTU est préférée ; les deux catalogues
+ * sources restent intacts pour conserver la provenance des itinéraires.
+ */
+export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
+  const merged = new Map<string, PublicBusLineReference>()
+  for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG]) {
+    const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
+    const key = `${line.line}|${ends[0]}|${ends[1]}`
+    if (!merged.has(key)) merged.set(key, line)
+  }
+  return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
+})()
+
 export const TATA_REFERENCE_POLICY = {
   independentScheduleAvailable: false,
   independentRouteCatalogAvailable: true,
-  note: 'Un catalogue de parcours TATA indépendant est disponible ; aucun horaire ni intervalle TATA fiable n’est encore validé.'
+  note: 'Les parcours TATA sont intégrés au catalogue commun AFTU / TATA ; la fréquence de référence est partagée.',
 } as const
