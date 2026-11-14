@@ -21,7 +21,7 @@ describe('bidirectional bus line registry', () => {
 
   it('applies the CETUD 05:30–22:00 service window to every AFTU catalogue line only', () => {
     const aftuLines = BIDIRECTIONAL_BUS_LINES.filter((line) => line.network === 'aftu')
-    expect(aftuLines).toHaveLength(65)
+    expect(aftuLines).toHaveLength(72)
     expect(aftuLines.every((line) => line.serviceWindow?.start === '05:30' && line.serviceWindow.end === '22:00')).toBe(true)
     expect(BIDIRECTIONAL_BUS_LINES.filter((line) => line.network !== 'aftu').every((line) => line.serviceWindow === null)).toBe(true)
   })
