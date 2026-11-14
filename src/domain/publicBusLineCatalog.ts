@@ -225,7 +225,18 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceLabel: line === '77' ? 'Document tarifaire TATA · juillet 2020' : 'MoMove · lignes TATA à Dakar · 09/06/2026',
 }))
 
-/** Les séquences TATA détaillées priment sur les terminus moins complets du catalogue public. */
+/** Les séquences détaillées sont la référence la plus complète pour chaque réseau. */
+export const AFTU_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; sourceUrl: string }[])
+  .filter((line) => line.network === 'aftu')
+  .map((line) => ({
+    line: line.code,
+    origin: line.origin,
+    destination: line.destination,
+    network: 'aftu',
+    sourceUrl: line.sourceUrl,
+    sourceLabel: 'AFTU · itinéraire détaillé du référentiel',
+  }))
+
 export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (tataLines as unknown as { code: string; origin: string; destination: string; sourceUrl: string }[])
   .map((line) => ({
     line: line.code,
@@ -236,7 +247,7 @@ export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (ta
     sourceLabel: 'TATA · itinéraire détaillé du référentiel',
   }))
 
-/** Les fiches TATA sans séquence détaillée restent visibles depuis le catalogue public. */
+/** Les lignes TATA sans séquence détaillée restent visibles depuis le catalogue public. */
 export const TATA_PUBLIC_FALLBACK_LINES: readonly PublicBusLineReference[] = TATA_PUBLIC_LINE_CATALOG
   .filter((line) => !TATA_DETAILED_PUBLIC_LINES.some((detailed) => detailed.line === line.line))
 
@@ -263,10 +274,10 @@ export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
     const key = detailedRouteKey(line)
     if (tataKeys.has(key)) shared.add(key)
   }
-  for (const aftu of AFTU_PUBLIC_LINE_CATALOG) {
-    for (const tata of TATA_DETAILED_PUBLIC_LINES) {
-      const aftuKey = detailedRouteKey({ code: aftu.line, origin: aftu.origin, destination: aftu.destination })
-      if (aftu.line === tata.line && aftuKey === detailedRouteKey({ code: tata.line, origin: tata.origin, destination: tata.destination })) shared.add(aftuKey)
+  for (const aftu of detailedAftu) {
+    for (const tata of TATA_PUBLIC_FALLBACK_LINES) {
+      const aftuKey = detailedRouteKey(aftu)
+      if (aftu.code === tata.line && aftuKey === detailedRouteKey({ code: tata.line, origin: tata.origin, destination: tata.destination })) shared.add(aftuKey)
     }
   }
   return shared
@@ -286,7 +297,7 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
-  for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
+  for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
     const key = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
     if (!merged.has(key)) merged.set(key, line)
   }
