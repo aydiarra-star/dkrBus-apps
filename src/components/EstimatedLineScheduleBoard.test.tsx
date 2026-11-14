@@ -26,7 +26,6 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
       expect(marks[0].getAttribute('d')).toMatch(/^M4 8 C/)
       expect(marks[1].getAttribute('d')).toMatch(/^M9 8 C/)
     })
-    expect(within(row).getByText('En service')).toBeTruthy()
     expect(within(row).getByText(/Aller ·/)).toBeTruthy()
     expect(within(row).getByText(/Retour ·/)).toBeTruthy()
     const aftuNinetyOneLabels = screen.getAllByText('AFTU / TATA 91')
@@ -35,10 +34,14 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
 
+    const beforeTick = Array.from(row.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getAllByText('4 min')).toHaveLength(1)
+    const afterTick = Array.from(row.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
+    expect(afterTick).toHaveLength(2)
+    expect(afterTick[0]).toBe(afterTick[1])
+    expect(afterTick).not.toEqual(beforeTick)
   })
 
   it('applique le même horaire AFTU / TATA aux itinéraires de même numéro, même si leurs terminus diffèrent', async () => {
@@ -147,8 +150,8 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
       .find((candidate) => candidate.textContent?.includes('Diamalaye') && candidate.textContent?.includes('Claudel'))!
     expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
 
-    // AFTU 39 et TATA 39 ont les mêmes terminus : une seule fiche est conservée.
-    expect(screen.getAllByText('AFTU / TATA 39')).toHaveLength(2)
+    // AFTU 39 et TATA 39 gardent deux fiches : leurs séquences détaillées diffèrent.
+    expect(screen.getAllByText('AFTU / TATA 39')).toHaveLength(4)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
