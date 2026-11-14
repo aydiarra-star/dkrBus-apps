@@ -34,9 +34,9 @@ begin
       immutable
       strict
       security definer
-      set search_path = pg_catalog, %I
+      set search_path = pg_catalog
       as $function$
-        select encode(digest(convert_to(p_payload, 'UTF8'), 'sha256'), 'hex')
+        select encode(%I.digest(convert_to(p_payload, 'UTF8'), 'sha256'), 'hex')
       $function$
     $function_ddl$,
     extension_schema
