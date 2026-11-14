@@ -157,3 +157,10 @@ Voir l'addendum dans `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-
 ## 2 nonies. Vérification directe du site AFTU-Sénégal pour les lignes 88, 89 et 91 (14 novembre 2026)
 
 La page publique AFTU-Sénégal `https://aftu-senegal.org/infos-pratiques/` confirme désormais les intitulés de corridor **88 Bargny – Croisement Niague (Cité SICAP)** et **89 APIX – Dougar**. Elle affiche aussi le numéro 91, mais sans corridor après son intitulé. Les cartes 84–91 ne donnent pas de lien de détail exploitable pour les trois lignes : aucun arrêt, tracé ordonné, retour, fréquence ou horaire n'a donc été ajouté. Le rapport détaillé a été complété dans `docs/aftu-88-89-91-mobility-apps-and-operational-sources-2026-11-14.md`. Les lignes 88 et 89 ont maintenant une source opérateur directe pour leurs terminus/corridors, mais leurs séquences restent à établir.
+
+
+## 2 decies. Confirmation des séquences DDD distinctes 18 et 20 — 14 novembre 2026
+
+La page opérateur DDD actuelle publie deux parcours circulaires distincts pour les lignes 18 et 20, avec des repères et un ordre différents. La séquence 18 passe notamment par Cité Derklé, Khar Yalla, Cité Marine, Castors, HLM et Colobane ; la séquence 20 commence par Allées Ababacar Sy, Jet d’Eau et Bourguiba, puis passe par Fann, UCAD, Gueule Tapée, Médina, Rebeuss, le port et Bel Air. Cette publication confirme la distinction des deux circuits textuels. Elle ne résout pas l'attribution géographique des 44 points ArcGIS stockés dans la couche 18 : les tracés 18 et 20 de 2017 sont presque superposés et les mêmes points sont proches des deux géométries. Les points restent donc sous leur identifiant source, sans duplication ni réattribution. Détail : `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md`.
+
+Source opérateur : https://demdikk.sn/reseau-urbain-dakar/ (consultée le 14 novembre 2026). Aucune donnée passager n'a été modifiée.
