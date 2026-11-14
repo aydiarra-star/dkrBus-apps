@@ -1966,7 +1966,7 @@ describe('réglages appliqués réellement à l’application', () => {
     expect(last.getAttribute('aria-pressed')).toBe('true')
     expect(section.getByText(/1 réseau autorisé dans le calcul/)).toBeTruthy()
     // Un réseau exclu se rétablit par le même bouton.
-    fireEvent.click(section.getByRole('button', { name: /TER/ }))
+    fireEvent.click(section.getByRole('button', { name: /Dakar Dem Dikk/ }))
     expect(section.getByText(/2 réseaux autorisés dans le calcul/)).toBeTruthy()
   })
 
