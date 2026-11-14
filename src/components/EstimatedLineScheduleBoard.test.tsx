@@ -106,7 +106,9 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T22:49:00.000Z'))
     const aftuFive = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveRow = screen.getAllByText('AFTU / TATA 5').map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
-    expect(within(aftuFiveRow).getAllByText('1 min')).toHaveLength(2)
+    expect(within(aftuFiveRow).getAllByText('1 min')).toHaveLength(1)
+    expect(within(aftuFiveRow).getByText(/Aller ·/)).toBeTruthy()
+    expect(within(aftuFiveRow).getByText(/Retour ·/)).toBeTruthy()
     aftuFive.unmount()
 
     vi.setSystemTime(new Date('2026-11-09T22:50:00.000Z'))
