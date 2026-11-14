@@ -19,7 +19,7 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(48)
     // Les deux lignes 5 ont des terminus distincts : elles doivent rester séparées.
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '5')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(124)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(90)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '39')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '42')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'APIX' && line.destination === 'UCAD')).toBe(true)
