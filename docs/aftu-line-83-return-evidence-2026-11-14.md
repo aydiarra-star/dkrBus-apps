@@ -9,8 +9,9 @@ La ligne 83 hérite du paramétrage réseau CETUD validé dans le projet : premi
 ## Retour : existence confirmée, séquence détaillée encore absente
 
 - La fiche officielle AFTU décrit l'aller de Rufisque Arafat vers Zone de Captage.
-- Le document tarifaire AFTU archivé [Tarification des lignes](https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf) distingue explicitement un **ALLER** et un **RETOUR** pour ce corridor et présente des tarifs depuis Arafat.
-- Cette preuve confirme l'existence d'un service retour, mais ne publie pas la liste ordonnée complète des arrêts retour.
+- Le document tarifaire AFTU archivé [Tarification des lignes](https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf), page 66, distingue explicitement un **ALLER** et un **RETOUR** pour ce corridor et présente les tarifs des repères retour.
+- Les repères retour ordonnés récupérables sont : Zone de Captage → Case Ba → Rond-point Malibu → Malika Plage → Station Keur Massar → Sipres → Dioutiba → Rufisque Arafat.
+- Cette preuve ne publie pas la liste exhaustive des arrêts retour entre ces repères.
 - Le fichier de séquence conserve donc 14 arrêts aller et aucune liste d'arrêts retour inventée.
 
 ## Décision de données
