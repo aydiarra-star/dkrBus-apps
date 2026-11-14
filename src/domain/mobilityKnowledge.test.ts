@@ -19,11 +19,12 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '65')?.destination).toBe('Jaxaay')
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(TATA_BUS_LINES).toHaveLength(62)
-    expect(TATA_CATALOG_FALLBACK_LINES).toHaveLength(3)
+    expect(TATA_CATALOG_FALLBACK_LINES).toHaveLength(0)
     expect(UNIFIED_BUS_LINES.filter((line) => line.code === '39')).toHaveLength(2)
     expect(UNIFIED_BUS_LINES.filter((line) => line.code === '42')).toHaveLength(2)
-    expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '69' && line.waypoints.length === 0)).toBe(true)
-    expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '70' && line.waypoints.length === 0)).toBe(true)
+    expect(TATA_CATALOG_FALLBACK_LINES).toHaveLength(0)
+    expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '69')).toBe(false)
+    expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '70')).toBe(false)
     expect(UNIFIED_BUS_LINES.find((line) => line.code === '39')?.waypoints.length).toBeGreaterThan(0)
     expect(busKnowledgeSummary()).toContain('restent à compléter')
     for (const line of BUS_LINES) {
@@ -38,7 +39,8 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   })
 
   it('distingue les parcours distincts sous un réseau AFTU / TATA unifié', () => {
-    expect(ask('ligne 1')).toContain('Plusieurs parcours distincts portent le numéro 1')
+    expect(ask('ligne 1')).toContain('Plusieurs mobilités portent le numéro 1')
+    expect((ask('AFTU ligne 1').match(/AFTU \/ TATA 1/g) ?? []).length).toBe(1)
     expect(ask('DDD 01')).toContain('Place Leclerc')
     expect(ask('AFTU ligne 1')).toContain('Lat Dior')
     expect(ask('AFTU ligne 1')).toContain('Grand Médine')
@@ -48,6 +50,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('donne le parcours AFTU / TATA récent plutôt que le parcours historique CETUD', () => {
     const result = ask('itinéraire AFTU 53')
     expect(result).toContain('Terminus Keur Massar (Marché)')
+    expect((result.match(/AFTU \/ TATA 53/g) ?? []).length).toBe(1)
     expect(result).toContain('Sococim → Bargny → Diamniadio')
     expect(result).toContain('publication du 2026-07-06')
     expect(result).toContain('Les sources AFTU consultées ne concordent pas')
@@ -57,6 +60,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('une recherche TATA consulte aussi les lignes AFTU du réseau commun', () => {
     const reply = ask('TATA 42')
     expect(reply).toContain('AFTU / TATA 42')
+    expect((reply.match(/AFTU \/ TATA 42/g) ?? []).length).toBe(1)
     expect(reply).toContain('Gadaye')
   })
 
@@ -75,7 +79,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     } as BusLine
     setRemoteCandidateLines([candidate])
     const reply = ask('TATA 42')
-    expect(reply).toContain('Plusieurs parcours distincts portent le numéro 42')
+    expect(reply).toContain('Variantes documentaires du même numéro')
     expect(reply).toContain('AFTU / TATA 42')
     expect(reply).toContain('Petersen ↔ Keur Massar')
     setRemoteCandidateLines([])

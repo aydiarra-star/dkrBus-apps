@@ -86,7 +86,8 @@ export const AFTU_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['81','Cité Tawfeex (Tivaouane Peul)','Baux Maraîchers'],
   ['82','Lat Dior','Comico Yeumbeul'],
   ['83','Rufisque Arafat','Zone de Captage'],
-  ['84','Jaxaay 2','UCAD'],
+  ['84','Jaxaay 2 Pénitence','Terminus 84_54Derrière Ucad En Face Canal 4'],
+  ['90','Terminus 90 (Départ)','Deni Birame Ndao Nord (Terminus)'],
   ['85','Banoba','Liberté 5'],
   ['86','Tournalou Boune','Toubab Dialaw'],
   ['87','Bambilor','Mosquée Massalikou Djinane'],
@@ -258,6 +259,14 @@ function normalizeRouteEndpoint(value: string): string {
   return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bterminus\b/g, ' ').replace(/\b(rond[ -]?point|giratoire)\b/g, ' ').replace(/\broute principale\b/g, ' ').replace(/\b(gare|des)\b/g, ' ').replace(/\bucad\b/g, 'universite cheikh anta diop').replace(/\bsham\b/g, 'sahm').replace(/\s+/g, ' ').trim()
 }
 
+export function sameDetailedRouteDirection(
+  a: { origin: string; destination: string },
+  b: { origin: string; destination: string },
+): boolean {
+  return normalizeRouteEndpoint(a.origin) === normalizeRouteEndpoint(b.origin)
+    && normalizeRouteEndpoint(a.destination) === normalizeRouteEndpoint(b.destination)
+}
+
 export function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
   const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
@@ -295,11 +304,11 @@ function sameDetailedStopSequence(a: { waypoints?: readonly string[] }, b: { way
  */
 export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
   const shared = new Set<string>()
-  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu')
-  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]
+  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[]; inboundWaypoints?: string[] }[]).filter((line) => line.network === 'aftu')
+  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[]; inboundWaypoints?: string[] }[]
   for (const aftu of detailedAftu) {
     const key = detailedRouteKey(aftu)
-    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedStopSequence(aftu, tata))
+    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedRouteDirection(aftu, tata) && sameDetailedStopSequence(aftu, tata) && sameDetailedStopSequence({ waypoints: aftu.inboundWaypoints }, { waypoints: tata.inboundWaypoints }))
     if (hasMatchingTata) shared.add(key)
   }
   return shared
@@ -323,22 +332,47 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
 )
 
 /**
- * Catalogue d’affichage commun. Les doublons confirmés par les séquences
- * détaillées sont fusionnés même si leurs libellés de terminus varient.
- * Les numéros identiques avec des parcours différents restent distincts.
- * Les catalogues sources originaux restent intacts pour la provenance.
+ * Catalogue unifié AFTU / Tata : « Tata » est l'appellation usuelle des minibus
+ * AFTU, pas un second réseau à afficher. Un seul enregistrement est donc retenu
+ * par numéro. Le référentiel AFTU fait foi lorsqu'il existe ; les lignes
+ * présentes uniquement dans les données TATA complètent le catalogue.
+ * Les séquences détaillées ne sont jamais fusionnées entre deux itinéraires.
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
-  for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
-    const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: line.waypoints })
-    if (!merged.has(key)) merged.set(key, line)
+  const detailedAftuByCode = new Map(AFTU_DETAILED_PUBLIC_LINES.map((line) => [line.line, line]))
+  for (const line of AFTU_PUBLIC_LINE_CATALOG) {
+    const detailed = detailedAftuByCode.get(line.line)
+    const canonical = detailed && sameDetailedRouteDirection(line, detailed)
+      ? { ...line, waypoints: detailed.waypoints }
+      : line
+    if (!merged.has(line.line)) merged.set(line.line, canonical)
   }
-  return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
+  for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
+    if (!merged.has(line.line)) merged.set(line.line, line)
+  }
+  return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line))
 })()
+
+export interface PublicBusLineGroup {
+  line: string
+  variants: readonly PublicBusLineReference[]
+}
+
+/**
+ * Regroupe les fiches d'un même numéro sous une seule entrée d'affichage.
+ * Les variantes AFTU/TATA restent séparées : leurs arrêts ne sont jamais fusionnés.
+ */
+export function groupPublicBusLinesByCode(catalogue: readonly PublicBusLineReference[]): PublicBusLineGroup[] {
+  const groups = new Map<string, PublicBusLineReference[]>()
+  for (const entry of catalogue) groups.set(entry.line, [...(groups.get(entry.line) ?? []), entry])
+  return [...groups.entries()]
+    .map(([line, variants]) => ({ line, variants }))
+    .sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line))
+}
 
 export const TATA_REFERENCE_POLICY = {
   independentScheduleAvailable: false,
-  independentRouteCatalogAvailable: true,
-  note: 'Les parcours TATA sont intégrés au catalogue commun AFTU / TATA ; la fréquence de référence est partagée.',
+  independentRouteCatalogAvailable: false,
+  note: 'Tata est l’appellation usuelle des minibus AFTU ; un seul numéro de ligne et une seule fiche sont affichés.',
 } as const
