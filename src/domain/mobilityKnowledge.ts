@@ -350,10 +350,48 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
   return { text: `${candidateNote}${label(line)}\n${detail}${line.note ? `\nAttention : ${line.note}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`, lineId: key(line) }
 }
 
+
+function groupedLineReply(matches: readonly BusLine[], question: string, code: string): KnowledgeReply {
+  const groups = new Map<string, { label: string; variants: BusLine[] }>()
+  for (const line of matches) {
+    const network = line.network === 'ddd' ? 'ddd' : 'aftu_tata'
+    const groupKey = `${network}:${line.code}`
+    const group = groups.get(groupKey) ?? {
+      label: network === 'ddd' ? 'DDD' : 'AFTU / TATA',
+      variants: [],
+    }
+    group.variants.push(line)
+    groups.set(groupKey, group)
+  }
+
+  const includeStops = /\\b(itineraire|parcours|arrets|aller|retour)\\b/.test(normalizeMobility(question))
+  const appendVariants = (variants: readonly BusLine[]) => {
+    if (variants.length <= 1) return ''
+    const details = variants.slice(1).map((line) =>
+      `• Variante de terminus : ${line.origin} ↔ ${line.destination}${includeStops && line.waypoints.length ? `\\n  Arrêts propres à cette variante : ${line.waypoints.join(' → ')}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`
+    )
+    return `\\n\\nVariantes documentaires du même numéro, conservées séparément sans mélanger leurs arrêts :\\n${details.join('\\n')}`
+  }
+
+  const entries = [...groups.values()]
+  if (entries.length === 1) {
+    const group = entries[0]
+    const reply = lineReply(group.variants[0], question)
+    return { ...reply, text: `${reply.text}${appendVariants(group.variants)}` }
+  }
+
+  return {
+    text: `Plusieurs mobilités portent le numéro ${code}. Chaque mobilité est présentée une seule fois, avec ses variantes d’itinéraire conservées séparément.\\n\\n${entries.map((group) => {
+      const reply = lineReply(group.variants[0], question)
+      return `${reply.text}${appendVariants(group.variants)}`
+    }).join('\\n\\n')}`,
+  }
+}
+
 export function busKnowledgeSummary(): string {
   const ddd = UNIFIED_BUS_LINES.filter((line) => line.network === 'ddd').length
-  const aftuTata = uniqueEquivalentLines(UNIFIED_BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata'))).length
-  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce référentiel n’est pas exhaustif. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
+  const aftuTata = new Set(UNIFIED_BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata')).map((line) => line.code)).size
+  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} numéros de ligne AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce référentiel n’est pas exhaustif. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
 }
 
 export function generalFareReply(): string {
@@ -502,8 +540,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     const localMatches = UNIFIED_BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const remoteMatches = remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const matches = uniqueEquivalentLines([...localMatches, ...remoteMatches])
-    if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}${line.waypoints.length ? `\n  Arrêts : ${line.waypoints.join(' → ')}` : ''}`).join('\n')}\nLes mentions « terminus à confirmer » restent explicites. Précisez le terminus ou le quartier pour choisir le bon parcours.` }
-    if (matches.length === 1) return lineReply(matches[0], question)
+    if (matches.length > 0) return groupedLineReply(matches, question, code)
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
   }
   if (lastLineId && /^(et |ses |les horaires|les arrets|son |elle passe|le prix)/.test(text) && !networks.length && !/\b(ter|brt|train|meteo|temperature)\b/.test(text)) {
