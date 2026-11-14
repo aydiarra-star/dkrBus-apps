@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, within, act } from '@testing-library/react'
+import { cleanup, fireEvent, render, within, act, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 
@@ -35,7 +35,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(lineButtons[0].getAttribute('aria-expanded')).toBe('true')
   })
 
-  it('applique la même référence horaire aux itinéraires AFTU / TATA portant le même numéro', () => {
+  it('applique la même référence horaire aux itinéraires AFTU / TATA portant le même numéro', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
@@ -54,7 +54,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const tataVariant = variants.find((variant) => variant.textContent?.includes('TATA ·'))
     expect(aftuVariant).toBeTruthy()
     expect(tataVariant).toBeTruthy()
-    expect(aftuVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy()
+    await waitFor(() => expect(aftuVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy())
     expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-pending')).toBeTruthy()
     expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
   })
