@@ -153,3 +153,14 @@ La fiche Google Play décrit également la recherche d'itinéraires et l'informa
 **Prochaine vérification opérationnelle :** consulter dans l'application officielle, si elle est accessible, les trajets et arrêts proposés pour la ligne 501 dans les deux sens, puis conserver les captures/résultats datés comme éléments de preuve. Comparer précisément les libellés Gare de Dakar, Palais 2, Esso Port Embarcadère et Leclerc sans les fusionner par hypothèse. Si l'application ne fournit pas de réponse exploitable, demander une confirmation écrite au service client DDD (serviceclient@demdikk.sn ; +221 33 824 10 10), sans présumer de la réponse.
 
 Cette piste ne modifie pas la décision de l'audit : le conflit de sources reste ouvert et aucune donnée de production n'est validée par cette seule documentation applicative.
+
+
+## Recoupement avec le guide officiel de mobilité JOJ Dakar 2026 — 14 novembre 2026
+
+Le guide officiel de mobilité JOJ Dakar 2026, publié par les autorités de mobilité et le CETUD, présente des listes de lignes DDD par site de compétition. Il identifie explicitement les pôles et les lignes recommandées pour les déplacements liés aux sites des Jeux. Dans ces tableaux, les lignes 501/502 ne figurent pas parmi les lignes DDD listées pour ces sites ; le guide cite notamment les lignes urbaines 1, 4, 6, 7, 8, 9, 10, 11, 13, 18, 20, 23, 121 et 233 selon les sites.
+
+Source : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+
+**Limite de portée :** ce guide est un document de mobilité événementielle, organisé par sites JOJ et trajets conseillés pour les déplacements liés aux sites, pendant la période du 31 octobre au 13 novembre 2026. Ses listes ne constituent pas un inventaire exhaustif de tout le réseau DDD. L'absence de 501 dans ces tableaux ne prouve donc ni la suppression de la ligne ni l'inexactitude de la page « Info voyageurs ». Elle ne permet pas davantage de trancher son terminus ou son retour.
+
+**Conséquence pour l'audit :** conserver cette source comme contexte institutionnel daté, sans l'utiliser pour modifier le statut CONFLICTING_SOURCES ni pour ajouter/supprimer des arrêts.
