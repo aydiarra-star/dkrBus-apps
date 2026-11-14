@@ -15,7 +15,7 @@ Le lien exact de la page source devra être associé à cette fiche dès qu'il e
 
 ## Point de rapprochement avec l'index AFTU
 
-La page d'index publique AFTU-Sénégal consultée séparément affiche pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Le site source des deux séquences détaillées repris dans cette fiche décrit « Terminus 88 » ↔ « Terminus Liberté 5 », avec des repères de Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes, Patte d'Oie et Grand Yoff.
+La page d'index publique AFTU-Sénégal consultée le 14 novembre 2026 affiche pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Le site source des deux séquences détaillées repris dans cette fiche décrit « Terminus 88 » ↔ « Terminus Liberté 5 », avec des repères de Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes, Patte d'Oie et Grand Yoff.
 
 Les deux éléments sont conservés tels quels : les séquences détaillées proviennent du site source communiqué pour ce travail ; l'index AFTU constitue une autre publication dont le corridor est différent. Cette divergence doit être signalée dans l'audit, mais elle ne justifie ni de supprimer ni de réécrire les arrêts du site source. Aucune hypothèse de variante, de changement de ligne ou de terminologie n'est imposée sans élément documentaire supplémentaire.
 
