@@ -1245,7 +1245,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const variants = [...opened.querySelectorAll('.station-board-line-direction')]
       expect(variants.length).toBeGreaterThan(0)
       expect(variants.every((variant) => variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong').length === 2)).toBe(true)
-      expect(variants.every((variant) => [...variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong')].every((passage) => /^\\d+ min$|^En service$/.test(passage.textContent!.trim())))).toBe(true)
+      expect(variants.every((variant) => [...variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong')].every((passage) => /^\d+ min$|^En service$/.test(passage.textContent!.trim())))).toBe(true)
     }
     expect(board.textContent).not.toMatch(/(?:intervalle|fréquence|moyenne du réseau)/i)
     vi.useRealTimers()
