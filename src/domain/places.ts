@@ -29,7 +29,7 @@ import {
 import { BUS_LINES, normalizeMobility, type BusLine } from './mobilityKnowledge'
 import type { PlannerEndpoint } from './planner'
 
-export type PlaceKind = 'ter' | 'brt' | 'ddd' | 'aftu' | 'tata' | 'bus'
+export type PlaceKind = 'ter' | 'brt' | 'ddd' | 'aftu_tata' | 'bus'
 
 export interface PlaceEntry {
   kind: PlaceKind
@@ -68,7 +68,7 @@ export interface JourneyEndpoints {
   explicit: boolean
 }
 
-const RANK: Record<PlaceKind, number> = { ter: 0, brt: 1, ddd: 2, aftu: 3, tata: 4, bus: 5 }
+const RANK: Record<PlaceKind, number> = { ter: 0, brt: 1, ddd: 2, aftu_tata: 3, bus: 4 }
 
 /** Préfixes de voirie : un nom de rue n'est pas un lieu nommé. */
 const STREET_LIKE = /^(?:rue|avenue|avenue|bd|boulevard|route|rond point|giratoire|chemin|autoroute|voie|voies|impasse|allee|deux voies|carrefour)\b/
@@ -147,11 +147,9 @@ export const REFERENCE_PLACES: readonly PlaceEntry[] = ALL_CORRIDOR_STOPS.map((s
       ? 'brt'
       : stop.id.startsWith('ddd')
         ? 'ddd'
-        : stop.id.startsWith('aftu')
-          ? 'aftu'
-          : stop.id.startsWith('tata')
-            ? 'tata'
-            : 'bus'
+        : stop.id.startsWith('aftu') || stop.id.startsWith('tata')
+          ? 'aftu_tata'
+          : 'bus'
   return {
     kind,
     id: stop.id,
