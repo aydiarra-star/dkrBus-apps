@@ -89,7 +89,7 @@ export function scheduleCountdownMinutes(schedule: EstimatedLineSchedule, now = 
   if (now >= endAt) return null
   const step = interval * MINUTE_MS
   const nextAt = now < startAt ? startAt : startAt + (Math.floor((now - startAt) / step) + 1) * step
-  if (nextAt >= endAt) return null
+  if (nextAt > endAt) return null
   return Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS))
 }
 
