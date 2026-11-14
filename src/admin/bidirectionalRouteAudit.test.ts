@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { auditBidirectionalBusLines } from './bidirectionalRouteAudit'
+import { BIDIRECTIONAL_BUS_LINES } from '../domain/bidirectionalBusLines'
 import type { BidirectionalBusLine, BusDirection } from '../domain/bidirectionalBusLines'
 
 const source = {
@@ -24,9 +25,11 @@ function direction(
     origin,
     destination,
     stopIds,
+    stopNames: [],
     status,
     sourceUrl: source.sourceUrl,
     sourceLabel: source.sourceLabel,
+    sequenceValidatedByProjectOwner: false,
   }
 }
 
@@ -83,7 +86,19 @@ describe('auditBidirectionalBusLines', () => {
     expect(report.findings).toEqual([])
   })
 
-  it('flags repeated stops in a direction without silently repairing the sequence', () => {
+  it('accepts the three owner-validated AFTU route lists as complete independent directions', () => {
+    const validatedLines = BIDIRECTIONAL_BUS_LINES.filter((line) =>
+      line.network === 'aftu' && ['88', '89', '91'].includes(line.line),
+    )
+    const report = auditBidirectionalBusLines(validatedLines)
+
+    expect(report.analyzedLines).toBe(3)
+    expect(report.analyzedDirections).toBe(6)
+    expect(report.completeLines).toBe(3)
+    expect(report.findings).toEqual([])
+  })
+
+  it('flags repeated geographic IDs without silently repairing a sequence', () => {
     const repeated = ['a', 'b', 'a']
     const line = lineWith(
       direction('outbound', 'Petersen', 'Ouakam', repeated, 'verified'),
