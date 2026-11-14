@@ -148,7 +148,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(container.querySelectorAll('.station-board-passage strong').length).toBe(container.querySelectorAll('.station-board-row').length)
     const tataThirtySevenRow = tataThirtySevenLabels.map((label) => label.closest('li')!)
       .find((candidate) => candidate.textContent?.includes('Diamalaye') && candidate.textContent?.includes('Claudel'))!
-    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(1)
+    expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
 
     // AFTU 39 et TATA 39 ont les mêmes terminus : une seule fiche est conservée.
     expect(screen.getAllByText('AFTU / TATA 39')).toHaveLength(2)
