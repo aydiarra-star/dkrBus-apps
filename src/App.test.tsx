@@ -412,17 +412,16 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
-    // Les cinq cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
-    expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(5)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
+    // Les quatre cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
+    expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
       expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2} · \d+ min$/)
     }
-    // DDD et AFTU affichent leur prochain passage ; TATA n'emprunte pas
-    // artificiellement une fréquence AFTU lorsqu'aucune fréquence propre n'existe.
-    for (const [network, minutes] of [['ddd', '2 min'], ['aftu', '12 min']]) {
+    // DDD et le réseau unifié AFTU / TATA affichent chacun un seul prochain passage.
+    for (const [network, minutes] of [['ddd', '2 min'], ['aftu_tata', '12 min']]) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
       expect(passage).toBeTruthy()
@@ -431,9 +430,7 @@ describe('structure en quatre piliers', () => {
       expect(passage!.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
-    const tataPassage = document.querySelector('.network-item-tata .network-summary-passage')
-    expect(tataPassage?.querySelector('strong')?.textContent).toBe('12 min')
-    expect(tataPassage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+    expect(document.querySelectorAll('.network-item-aftu_tata')).toHaveLength(1)
     expect(document.querySelector('.network-summary-estimates')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
     expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
@@ -1015,13 +1012,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
     }
   })
 
-  it('affiche DDD, AFTU et TATA dans les cartes existantes avec un compte à rebours', async () => {
+  it('affiche DDD et AFTU / TATA dans les cartes existantes avec un compte à rebours', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    const expected = { ddd: '2 min', aftu: '12 min', tata: '12 min' }
+    const expected = { ddd: '2 min', aftu_tata: '12 min' }
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
@@ -1037,8 +1034,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       await vi.advanceTimersByTimeAsync(61_000)
     })
     expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
-    expect(container.querySelector('.network-item-aftu .network-summary-passage strong')?.textContent).toBe('11 min')
-    expect(container.querySelector('.network-item-tata .network-summary-passage strong')?.textContent).toBe('11 min')
+    expect(container.querySelector('.network-item-aftu_tata .network-summary-passage strong')?.textContent).toBe('11 min')
     vi.useRealTimers()
   })
 
@@ -1076,8 +1072,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(within(panel).getByText('Arrêts TER')).toBeTruthy()
     expect(within(panel).getByText(/Aucun arrêt BRT dans ce rayon/i)).toBeTruthy()
     expect(within(panel).getByText('Bus DDD')).toBeTruthy()
-    expect(within(panel).getByText('Arrêts AFTU')).toBeTruthy()
-    expect(within(panel).getByText('Arrêts TATA')).toBeTruthy()
+    expect(within(panel).getByText('Arrêts AFTU / TATA')).toBeTruthy()
     expect(within(panel).getByText(/pas de position de véhicule/i)).toBeTruthy()
 
     fireEvent.click(within(panel).getByRole('button', { name: /Colobane.*TER/ }))
@@ -1223,7 +1218,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it.each(['ddd', 'aftu'] as const)('affiche uniquement les lignes et les comptes à rebours %s', (networkId) => {
+  it.each(['ddd', 'aftu_tata'] as const)('affiche uniquement les lignes et les comptes à rebours %s', (networkId) => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
@@ -1265,27 +1260,19 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
-  it('affiche les tableaux de lignes DDD, AFTU et TATA sans texte parasite', () => {
+  it('affiche les tableaux de lignes DDD et AFTU / TATA sans texte parasite', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    for (const network of ['aftu', 'tata', 'ddd']) {
+    for (const network of ['aftu_tata', 'ddd']) {
       fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
       const detail = container.querySelector(`.network-item-${network} .network-summary-detail`) as HTMLElement
       const board = detail.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
-      if (network === 'tata') {
-        // Le catalogue TATA est indépendant ; aucune fréquence AFTU ne lui est attribuée.
-        expect(board.querySelectorAll('.station-board-row')).toHaveLength(124)
-        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(124)
-        expect(board.querySelectorAll('.station-board-direction-outbound')).toHaveLength(62)
-        expect(board.querySelectorAll('.station-board-direction-inbound')).toHaveLength(62)
-      } else {
-        expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
-        expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
-      }
+      expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
+      expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
       expect(board.textContent).not.toMatch(/Estimation|horaires non publiés/i)
     }
     vi.useRealTimers()
@@ -1327,7 +1314,7 @@ describe('barre de recherche du Trajet', () => {
       ['senter', /TER/],
       ['sunubrt', /BRT/],
       ['dakar dem dikk', /DDD/],
-      ['tata', /TATA/],
+      ['tata', /AFTU \/ TATA/],
     ] as const) {
       fireEvent.change(input, { target: { value: query } })
       expect(within(list).getAllByRole('option').length).toBeGreaterThan(0)
