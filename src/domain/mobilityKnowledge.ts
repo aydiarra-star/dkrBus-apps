@@ -286,12 +286,10 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
 function routeSignature(line: BusLine): string {
   // Une même ligne n'est fusionnée que si ses deux terminus concordent ; les
   // alias éditoriaux connus (Sébikhotane, terminus, giratoire) sont normalisés.
-  const normalizeEndpoint = (value: string) => normalizeMobility(
-    value.replace(/\([^)]*\)/g, ' ')
-      .replace(/\bsebikhotane\b/gi, 'sebikotane')
-      .replace(/\bterminus\b/gi, ' ')
-      .replace(/\b(rond[ -]?point|giratoire)\b/gi, ' '),
-  )
+  const normalizeEndpoint = (value: string) => normalizeMobility(value.replace(/\([^)]*\)/g, ' '))
+    .replace(/\bsebikhotane\b/g, 'sebikotane')
+    .replace(/\bterminus\b/g, ' ')
+    .replace(/\b(rond[ -]?point|giratoire)\b/g, ' ')
   const ends = [normalizeEndpoint(line.origin), normalizeEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
 }
