@@ -70,7 +70,7 @@ describe('DDD official source crosswalk', () => {
     expect(line.claims[4].corridor).toContain('57 arrêts')
     expect(line.claims[4].corridor).toContain('56 arrêts')
     expect(line.decision).toContain('ne concordent pas exactement avec les 40 repères DDD')
-    expect(line.decision).toContain('aucune fusion ni correction automatique')
+    expect(line.decision).toContain('aucune fusion, inversion ou correction automatique')
   })
 
   it('does not merge line-number variants or distinct TAF TAF services', () => {
