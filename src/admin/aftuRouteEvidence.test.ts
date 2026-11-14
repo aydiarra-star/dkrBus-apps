@@ -89,6 +89,13 @@ describe('adaptateur de preuves AFTU', () => {
     expect(route?.outbound.scheduleInterval).toContain('10–15 min')
   })
 
+  it('verrouille les volumes directionnels des lignes AFTU 30 et 66', () => {
+    expect(getAftuRouteEvidence('30')?.outbound.waypoints).toHaveLength(77)
+    expect(getAftuRouteEvidence('30')?.inbound.waypoints).toHaveLength(74)
+    expect(getAftuRouteEvidence('66')?.outbound.waypoints).toHaveLength(77)
+    expect(getAftuRouteEvidence('66')?.inbound.waypoints).toHaveLength(77)
+  })
+
   it('signale les repères génériques et les libellés répétés sans les supprimer', () => {
     const route = getAftuRouteEvidence('30')
     expect(route?.outbound.genericStopLabels).toBeGreaterThan(0)
