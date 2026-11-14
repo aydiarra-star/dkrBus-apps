@@ -490,11 +490,14 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   }
   if (networks.length) {
     const lines = uniqueEquivalentLines([...BUS_LINES, ...remoteCandidateLines].filter((line) => networks.some((network) => belongsToNetwork(line, network))))
-    if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+    if (/\b(liste|lignes|numeros)\b/.test(text)) {
+      const networkLabel = (network: string) => network === 'aftu_tata' ? 'AFTU / TATA' : network.toUpperCase()
+      return { text: `${networks.map(networkLabel).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${networkLabel(network)} : ${lines.filter((line) => belongsToNetwork(line, network)).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+    }
     if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU / TATA : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
-      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
     if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit le réseau AFTU / TATA avec 72 lignes, 2 300 bus et 14 GIE. Service de référence 06h–22h50 ; intervalle moyen partagé de 11,6 min. Les horaires individuels restent à confirmer. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
   }
