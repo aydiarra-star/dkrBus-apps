@@ -881,17 +881,29 @@ function App() {
     )
   }, [])
 
-  useEffect(() => {
-    if (gpsState !== 'ready') return
-    ensureProximityWatch()
-  }, [gpsState, ensureProximityWatch])
-
-  useEffect(() => () => {
+  const stopProximityWatch = useCallback(() => {
     const id = proximityWatchId.current
     if (id === null) return
     proximityWatchId.current = null
     try { navigator.geolocation?.clearWatch(id) } catch { /* déjà arrêté */ }
   }, [])
+
+  /** La position n'est suivie qu'au premier plan : pas de veille GPS cachée. */
+  useEffect(() => {
+    const syncForegroundTracking = () => {
+      if (document.visibilityState === 'hidden' || preferences.privacy.gps === 'never' || gpsState !== 'ready') {
+        stopProximityWatch()
+        return
+      }
+      ensureProximityWatch()
+    }
+    document.addEventListener('visibilitychange', syncForegroundTracking)
+    syncForegroundTracking()
+    return () => {
+      document.removeEventListener('visibilitychange', syncForegroundTracking)
+      stopProximityWatch()
+    }
+  }, [gpsState, preferences.privacy.gps, ensureProximityWatch, stopProximityWatch])
 
   async function openStop(stop: PublishedStop) {
     const id = beginRequest('openStop')
