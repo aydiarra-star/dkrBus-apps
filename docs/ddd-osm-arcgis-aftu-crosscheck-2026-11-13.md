@@ -135,3 +135,7 @@ La couche ArcGIS publique des itinéraires de banlieue contient six entités pol
 | 232 | 7 | polyligne |
 
 Cette extraction apporte les corridors textuels officiels/cartographiques et leurs géométries. Elle ne constitue pas une séquence exhaustive d'arrêts et ne sépare pas les deux sens. Les champs ArcGIS ne doivent donc pas être transformés en arrêts passagers ni inversés artificiellement pour fabriquer un retour. La ligne 228 est particulièrement incomplète (deux segments seulement). Les six lignes restent en revue documentaire avant toute publication.
+
+## 2 quinquies. Revue ciblée des lignes DDD 1, 6, 12, 13, 16B et 121 — 14 novembre 2026
+
+Une revue croisée de la nouvelle extraction OSM et des couches ArcGIS a été ajoutée dans `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md`. Elle détaille notamment le conflit de terminus des deux pages officielles pour la ligne 6, les couches de points et de tracés des lignes 6 et 13, les anciens corridors ArcGIS 12 et 16B (métadonnées de tracé de décembre 2017), ainsi que les limites directionnelles des lignes 1 et 121. Aucun de ces rapprochements n'a été promu automatiquement au catalogue passager.
