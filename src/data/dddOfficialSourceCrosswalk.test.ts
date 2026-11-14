@@ -14,7 +14,7 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgis2024).toContain('Dem_dikk_mise_a_jour/FeatureServer')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '4', '6', '7', '9', '10', '12', '13', '15', '16B', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '4', '6', '12', '7', '9', '10', '13', '16B', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
