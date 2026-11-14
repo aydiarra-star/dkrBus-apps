@@ -256,3 +256,38 @@ Aucune relation OSM avec `ref=20`, `219` ou `228` n'est présente dans l'extract
 De même, aucune relation avec les références 208, 213, 220, 221, 233, 234, 311, 327, 319, 501, 502 ou 503 n'a été trouvée dans cet artefact. TAF TAF/TO1 et la ligne 15 ne disposent pas non plus d'une relation OSM exploitable sous ces références. L'absence dans cette extraction ne prouve pas l'inexistence des lignes ; elle borne uniquement la couverture de l'archive interrogée.
 
 **Décision OSM :** garder chaque relation, ses membres ordonnés, ses tags et ses ambiguïtés séparés. Ne pas créer de retour par inversion, ne pas réattribuer la relation 7499433 à la ligne 7 ou 6 sans validation, et ne pas importer les séquences OSM directement dans le catalogue voyageurs.
+
+
+## 9. Revalidation complète du service DDD et des 39 séquences — commit 619fe9e
+
+Le workflow `43563546429` a relu le service ArcGIS DDD mis à jour sans erreur : 777 entités d'arrêts, 25 entités de lignes, 750 arrêts nommés, 775 arrêts avec référence de ligne et 775 arrêts géolocalisés. Le contrôle de toutes les séquences publiées a comparé 39 lignes : 22 possèdent un groupe d'arrêts ArcGIS identifié et 17 n'en possèdent toujours pas. Le rapprochement de noms ordonnés donne 56 correspondances au total dans les groupes appariés.
+
+Le contrôle ciblé du service mis à jour sur six références (217, 218, 219, 227, 228 et 232) compte 168 entités d'arrêts. Il retrouve cinq noms communs ordonnés pour la ligne 218, un seul pour 227, un seul pour 232, aucun pour 217, 219 ou 228. Le contrôle spatial associé trouve 111/168 arrêts à 25 m ou moins de leur géométrie de ligne et 112/168 à 100 m ou moins. Ces chiffres restent des diagnostics internes à ArcGIS ; ils ne certifient ni l'identité de chaque arrêt ni l'ordre voyageurs.
+
+### Les 17 séquences toujours sans groupe ArcGIS
+
+La nouvelle comparaison confirme exactement les 17 références sans groupe dédié :
+
+| Ligne | Origine → destination publiée | Repères publiés | Groupe ArcGIS |
+|---|---|---:|---|
+| 20 | Dieuppeul → Centre-ville | 42 | Aucun |
+| 208 | Bayakh → Rufisque | 7 | Aucun |
+| 213 | Rufisque → Dieuppeul | 17 | Aucun |
+| 219 | Daroukhane → Ouakam | 19 | Aucun |
+| 220 | Rufisque → Guédiawaye | 16 | Aucun |
+| 221 | Gadaye → Almadies | 15 | Aucun |
+| 234 | Jaxaay → Leclerc | 13 | Aucun |
+| 233 | Baux Maraîchers → Palais 1 (titre) | 15 | Aucun — conflit de terminus dans la séquence source conservé |
+| 311 | Lac Rose → Croisement Keur Massar | 6 | Aucun |
+| 327 | Keur Massar → Terminus Parcelles | 11 | Aucun |
+| TO1 | Ouakam → Palais 2 | 10 | Aucun |
+| 319 | Liberté 6 → Ouakam | 17 | Aucun |
+| 501 | Séquence périurbaine publiée | 6 | Aucun |
+| 502 | Séquence périurbaine publiée | 8 | Aucun |
+| 503 | Séquence périurbaine publiée | 8 | Aucun |
+| TAF_TAF | Séquence périurbaine publiée | 17 | Aucun |
+| 15 | Séquence périurbaine publiée | 18 | Aucun |
+
+Les trois géométries 20/219/228 identifiées dans le second service ArcGIS ne créent pas un groupe d'arrêts dédié et ne changent donc pas le statut de ces 17 séquences. La ligne 228 n'appartient pas à la liste des 17 sans groupe : elle conserve ses quatre repères dans le premier service, tandis que sa polyligne dédiée du second service reste une géométrie de corridor, pas une séquence d'arrêts.
+
+**Priorité de la suite :** chercher des sources indépendantes et stop-level pour les 17 lignes, en commençant par celles dont les séquences publiées comportent le plus de repères et par les pages officielles détaillées. Les géométries ArcGIS ne doivent pas être transformées en arrêts ; OSM ne doit être retenu que si la référence et le sens sont explicites. Ne pas retoucher TER/BRT.
