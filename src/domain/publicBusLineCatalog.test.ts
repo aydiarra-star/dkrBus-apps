@@ -23,7 +23,7 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '39')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '42')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '65')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'Cité APIX' && line.destination === 'UCAD')).toBe(true)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'Cité APIX' && line.destination === 'UCAD (Claudel)')).toBe(true)
   })
   it('sépare les lignes TATA des références AFTU', () => {
     expect(TATA_PUBLIC_LINE_CATALOG.length).toBeGreaterThan(40)
