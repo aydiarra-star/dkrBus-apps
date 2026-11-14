@@ -364,13 +364,13 @@ function groupedLineReply(matches: readonly BusLine[], question: string, code: s
     groups.set(groupKey, group)
   }
 
-  const includeStops = /\\b(itineraire|parcours|arrets|aller|retour)\\b/.test(normalizeMobility(question))
+  const includeStops = /\b(itineraire|parcours|arrets|aller|retour)\b/.test(normalizeMobility(question))
   const appendVariants = (variants: readonly BusLine[]) => {
     if (variants.length <= 1) return ''
     const details = variants.slice(1).map((line) =>
-      `• Variante de terminus : ${line.origin} ↔ ${line.destination}${includeStops && line.waypoints.length ? `\\n  Arrêts propres à cette variante : ${line.waypoints.join(' → ')}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`
+      `• Variante de terminus : ${line.origin} ↔ ${line.destination}${includeStops && line.waypoints.length ? `\n  Arrêts propres à cette variante : ${line.waypoints.join(' → ')}` : ''}${source(line.detailSourceUrl ?? line.sourceUrl, line.publishedAt, line.consultedAt)}`
     )
-    return `\\n\\nVariantes documentaires du même numéro, conservées séparément sans mélanger leurs arrêts :\\n${details.join('\\n')}`
+    return `\n\nVariantes documentaires du même numéro, conservées séparément sans mélanger leurs arrêts :\n${details.join('\n')}`
   }
 
   const entries = [...groups.values()]
@@ -381,10 +381,10 @@ function groupedLineReply(matches: readonly BusLine[], question: string, code: s
   }
 
   return {
-    text: `Plusieurs mobilités portent le numéro ${code}. Chaque mobilité est présentée une seule fois, avec ses variantes d’itinéraire conservées séparément.\\n\\n${entries.map((group) => {
+    text: `Plusieurs mobilités portent le numéro ${code}. Chaque mobilité est présentée une seule fois, avec ses variantes d’itinéraire conservées séparément.\n\n${entries.map((group) => {
       const reply = lineReply(group.variants[0], question)
       return `${reply.text}${appendVariants(group.variants)}`
-    }).join('\\n\\n')}`,
+    }).join('\n\n')}`,
   }
 }
 
