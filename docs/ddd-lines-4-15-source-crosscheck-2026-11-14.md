@@ -12,7 +12,7 @@ Cet audit compare les publications DDD accessibles et les fiches de mobilité se
 
 ### Source primaire
 
-La page officielle « Réseau urbain » de Dakar Dem Dikk publie la ligne 4 sous l'intitulé « Liberté 5 ↔ Place Leclerc » et donne une séquence ordonnée de 27 libellés, terminus compris :
+La page officielle « Réseau urbain » de Dakar Dem Dikk publie la ligne 4 sous l'intitulé « Liberté 5 ↔ Place Leclerc » et affiche 26 entrées textuelles, terminus compris :
 
 1. Terminus Liberté 5 (Dieuppeul) – Cité Derklé
 2. Rond point Liberté 6
@@ -41,7 +41,7 @@ La page officielle « Réseau urbain » de Dakar Dem Dikk publie la ligne 4 sous
 25. Embarcadère
 26. Terminus Leclerc
 
-**Comptage corrigé : 26 libellés publiés**, terminus inclus. Le premier libellé regroupe « Terminus Liberté 5 (Dieuppeul) – Cité Derklé » dans une seule entrée telle qu'affichée par DDD.
+**Attention au comptage :** la première entrée publiée contient deux noms (« Terminus Liberté 5 (Dieuppeul) – Cité Derklé »). La page les présente sur une même ligne de texte ; cet audit conserve donc la transcription telle quelle et ne prétend pas résoudre si DDD entend un ou deux points d'arrêt distincts.
 
 La page officielle « Info voyageurs » confirme séparément l'identifiant et les terminus « Ligne 4 — Liberté 5 ↔ Place Leclerc ».
 
@@ -53,7 +53,7 @@ Moovit publie une fiche intitulée « Liberté 5 – Leclerc » avec 35 arrêts 
 
 - Terminus et séquence de référence : **DOCUMENTED_REFERENCE**, sur la base de la page officielle DDD.
 - Le sens retour détaillé n'est pas fourni comme séquence indépendante par la page officielle consultée.
-- Ne pas créer un retour en inversant automatiquement les 26 libellés.
+- Ne pas créer un retour en inversant automatiquement les entrées publiées.
 - Ne pas importer les 35 arrêts Moovit dans DDD 4 : l'attribution AFTU/DDD est contradictoire.
 - Aucun horaire, fréquence, coordonnée ou temps de passage n'est validé par cet audit.
 
@@ -61,7 +61,7 @@ Moovit publie une fiche intitulée « Liberté 5 – Leclerc » avec 35 arrêts 
 
 ### Source primaire : contradiction de nomenclature
 
-La page officielle « Réseau urbain de Dakar » affiche une **LIGNE 15 : RUFISQUE ↔ PALAIS 1** et publie les 18 libellés suivants, terminus compris :
+La page officielle « Réseau urbain de Dakar » affiche une **LIGNE 15 : RUFISQUE ↔ PALAIS 1** et publie les 18 entrées suivantes, terminus compris :
 
 1. Terminus Rufisque
 2. Djoutiba
@@ -84,7 +84,7 @@ La page officielle « Réseau urbain de Dakar » affiche une **LIGNE 15 : RUFISQ
 
 Cependant, la page officielle « Info voyageurs » classe actuellement **15A & 15B — Rufisque ↔ Palais 1** dans les lignes de banlieue, sans fournir dans cette rubrique les séquences propres à 15A et 15B.
 
-Ces deux publications officielles ne permettent donc pas d'établir si la fiche « ligne 15 » de la page réseau représente une ligne unique, une fiche générique regroupant 15A/15B, ou une ancienne nomenclature. Il ne faut pas attribuer automatiquement la séquence de 18 libellés à 15A et à 15B.
+Ces deux publications officielles ne permettent donc pas d'établir si la fiche « ligne 15 » de la page réseau représente une ligne unique, une fiche générique regroupant 15A/15B, ou une ancienne nomenclature. Il ne faut pas attribuer automatiquement la séquence de 18 entrées à 15A et à 15B.
 
 ### Recoupement secondaire : Moovit
 
@@ -102,7 +102,7 @@ La fiche Moovit confirme l'existence d'une ligne 15 opérée sous le nom Dakar D
 
 - L'existence d'un service DDD « 15 — Rufisque / Palais » est documentée par la page réseau DDD et recoupée par Moovit.
 - La nomenclature actuelle 15A/15B de la page « Info voyageurs » est également officielle, mais ses séquences respectives restent non documentées dans les éléments consultés.
-- La séquence DDD publiée de 18 libellés est conservée comme **DOCUMENTED_REFERENCE pour la fiche générique 15 uniquement** ; elle n'est pas attribuée à 15A ou 15B.
+- La séquence DDD publiée de 18 entrées est conservée comme **DOCUMENTED_REFERENCE pour la fiche générique 15 uniquement** ; elle n'est pas attribuée à 15A ou 15B.
 - Les deux listes Moovit de 69 arrêts sont des éléments secondaires de comparaison, pas un remplacement automatique de la séquence officielle.
 - Ne pas fusionner « Palais 1 », « Gare Palais » et d'autres terminus du centre-ville sans preuve d'équivalence opérationnelle.
 - Ne pas fabriquer des séquences 15A/15B, des coordonnées, des horaires ou des fréquences.
