@@ -20,6 +20,7 @@ import {
   detailedRouteKey,
   AFTU_TATA_SHARED_ROUTE_KEYS,
   type PublicBusLineReference,
+  groupPublicBusLinesByCode,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -127,18 +128,14 @@ function AftuTataScheduleBoard({
   nearestStop: { stop: (typeof AFTU_STOPS)[number] | (typeof TATA_STOPS)[number]; distance: number } | null
 }) {
   const [openedLine, setOpenedLine] = useState<string | null>(null)
-  const groups = useMemo(() => {
-    const grouped = new Map<string, PublicBusLineReference[]>()
-    for (const line of catalogue) grouped.set(line.line, [...(grouped.get(line.line) ?? []), line])
-    return [...grouped.entries()].sort(([a], [b]) => Number(a) - Number(b) || a.localeCompare(b))
-  }, [catalogue])
+  const groups = useMemo(() => groupPublicBusLinesByCode(catalogue), [catalogue])
   const weekday = new Date(now).getUTCDay()
 
   return (
     <section className="station-board" aria-label="Affichage des lignes AFTU / TATA">
       <header className="station-board-head"><strong>Lignes AFTU / TATA</strong></header>
       <ul className="station-board-list">
-        {groups.map(([lineNumber, variants]) => {
+        {groups.map(({ line: lineNumber, variants }) => {
           const schedule = schedulesByLine.get(lineNumber)
             ?? routeReferences.find((item) => item.code === lineNumber && item.outboundSchedule)?.outboundSchedule
             ?? AFTU_TATA_NETWORK_REFERENCE
@@ -173,9 +170,10 @@ function AftuTataScheduleBoard({
                       && Boolean(item.origin && item.destination)
                       && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
                     )
-                    const matchingSameNetwork = sameNetworkCandidates.filter((item) =>
-                      !line.waypoints?.length || !item.waypoints.length || sameOrderedStops(line.waypoints, item.waypoints)
-                    )
+                    const matchingSameNetwork = sameNetworkCandidates.filter((item) => {
+                      if (line.waypoints?.length && item.waypoints.length) return sameOrderedStops(line.waypoints, item.waypoints)
+                      return sameNetworkCandidates.length === 1
+                    })
                     const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
                       ? routeReferences.filter((item) =>
                         item.network !== line.network
