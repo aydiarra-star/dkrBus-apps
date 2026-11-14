@@ -21,21 +21,21 @@ const index = buildStopIndex(published)
 const labels = (query: string, limit?: number) => searchStopIndex(index, query, limit).map((option) => option.label)
 
 describe('index de recherche du Trajet', () => {
-  it('couvre les cinq mobilités et tous les arrêts déclarés', () => {
+  it('couvre les quatre réseaux et tous les arrêts déclarés', () => {
     const mobility = index.filter((option) => option.group === GROUP_MOBILITY)
-    expect(mobility.map((option) => option.label)).toEqual(['TER', 'BRT', 'DDD', 'AFTU', 'TATA'])
+    expect(mobility.map((option) => option.label)).toEqual(['TER', 'BRT', 'DDD', 'AFTU / TATA'])
     expect(index.filter((option) => option.group === GROUP_TER)).toHaveLength(TER_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_BRT)).toHaveLength(BRT_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_PUBLISHED).map((option) => option.stopId)).toEqual(['D6'])
   })
 
   it('trouve chaque mobilité par son sigle ou son autorité', () => {
-    expect(labels('aftu')[0]).toBe('AFTU')
-    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU']))
+    expect(labels('aftu')[0]).toBe('AFTU / TATA')
+    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU / TATA']))
     expect(labels('senter')[0]).toBe('TER')
     expect(labels('sunubrt')[0]).toBe('BRT')
     expect(labels('dakar dem dikk')[0]).toBe('DDD')
-    expect(labels('tata')[0]).toBe('TATA')
+    expect(labels('tata')[0]).toBe('AFTU / TATA')
   })
 
   it('trouve un arrêt de référence par son nom, accentué ou non', () => {
@@ -61,7 +61,7 @@ describe('index de recherche du Trajet', () => {
   })
 
   it('marque comme non sélectionnable une mobilité sans arrêt déclaré', () => {
-    const aftu = index.find((option) => option.value === 'network:aftu')!
+    const aftu = index.find((option) => option.value === 'network:aftu_tata')!
     expect(aftu.selectable).toBe(false)
     expect(aftu.hint).toMatch(/arrêts non publiés/)
     const ter = index.find((option) => option.value === 'network:ter')!
