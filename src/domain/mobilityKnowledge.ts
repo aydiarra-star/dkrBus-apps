@@ -283,7 +283,7 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
   return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
 }
 function routeSignature(line: BusLine): string {
-  const ends = [normalizeMobility(line.origin), normalizeMobility(line.destination)].sort()
+  const ends = [normalizeMobility(line.origin.replace(/\([^)]*\)/g, ' ')), normalizeMobility(line.destination.replace(/\([^)]*\)/g, ' '))].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
 }
 function uniqueEquivalentLines(lines: readonly BusLine[]): BusLine[] {
