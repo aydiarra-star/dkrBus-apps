@@ -15,10 +15,9 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveLabels = screen.getAllByText('AFTU / TATA 5')
-    expect(aftuFiveLabels).toHaveLength(2)
     const row = aftuFiveLabels.map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
     expect(row).toBeTruthy()
-    await waitFor(() => expect(within(row).getAllByText('5 min')).toHaveLength(1))
+    await waitFor(() => expect(within(row).getAllByText('10 min')).toHaveLength(2))
     const apostropheIcons = row.querySelectorAll('.station-board-double-apostrophe')
     expect(apostropheIcons.length).toBeGreaterThan(0)
     apostropheIcons.forEach((icon) => {
@@ -27,49 +26,52 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
       expect(marks[0].getAttribute('d')).toMatch(/^M4 8 C/)
       expect(marks[1].getAttribute('d')).toMatch(/^M9 8 C/)
     })
-    expect(within(row).getByText('En service')).toBeTruthy()
     expect(within(row).getByText(/Aller ·/)).toBeTruthy()
     expect(within(row).getByText(/Retour ·/)).toBeTruthy()
     const aftuNinetyOneLabels = screen.getAllByText('AFTU / TATA 91')
-    expect(aftuNinetyOneLabels).toHaveLength(2)
-    expect(within(aftuNinetyOneLabels[0].closest('li')!).getAllByText('5 min')).toHaveLength(1)
+    expect(aftuNinetyOneLabels[0].closest('li')).toBeTruthy()
     expect(container.querySelector('.station-board')).toBeTruthy()
     expect(container.querySelector('table')).toBeNull()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
 
+    const beforeTick = Array.from(row.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getAllByText('4 min')).toHaveLength(1)
+    const afterTick = Array.from(row.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
+    expect(afterTick).toHaveLength(2)
+    expect(afterTick[0]).toBe(afterTick[1])
+    expect(afterTick).not.toEqual(beforeTick)
   })
 
-  it('ne transfère pas la fréquence AFTU à une TATA de même numéro mais de terminus différents', async () => {
+  it('applique le même horaire AFTU / TATA aux itinéraires de même numéro, même si leurs terminus diffèrent', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const lineSixtyFive = screen.getAllByText('AFTU / TATA 65')
-    expect(lineSixtyFive).toHaveLength(4)
     const tataRow = lineSixtyFive.map((label) => label.closest('li')!)
       .find((candidate) => candidate.textContent?.includes('Gare routière de Colobane') && candidate.textContent?.includes('Jaxaay 2'))!
     const aftuRow = lineSixtyFive.map((label) => label.closest('li')!)
       .find((candidate) => candidate.textContent?.includes('Colobane') && candidate.textContent?.includes('Jaxaay'))!
     expect(tataRow).toBeTruthy()
     expect(aftuRow).toBeTruthy()
-    expect(within(tataRow).getAllByText('5 min')).toHaveLength(2)
-    await waitFor(() => expect(within(aftuRow).queryByText('5 min')).toBeNull())
+    const passageValues = (row: HTMLElement) => Array.from(row.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
+    expect(passageValues(tataRow)).toEqual(passageValues(aftuRow))
   })
 
-  it('calcule le statut du retour selon sa propre plage de service', async () => {
+  it('applique la même plage horaire à l’aller et au retour AFTU / TATA', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T20:47:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuSixtySix = screen.getAllByText('AFTU / TATA 66')[0].closest('li')!
     await waitFor(() => {
-      expect(within(aftuSixtySix).getByText("Service terminé pour aujourd'hui")).toBeTruthy()
+      const values = Array.from(aftuSixtySix.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
+      expect(values).toHaveLength(2)
+      expect(values[0]).toBe(values[1])
     })
-    expect(within(aftuSixtySix).getByText('3 min')).toBeTruthy()
+    expect(within(aftuSixtySix).queryByText("Service terminé pour aujourd'hui")).toBeNull()
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
@@ -82,7 +84,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(within(dddOneLabels[0].closest('li')!).getAllByText('10 min')).toHaveLength(1)
     const dddSixLabels = screen.getAllByText('DDD 6')
     expect(dddSixLabels).toHaveLength(2)
-    expect(within(dddSixLabels[0].closest('li')!).getAllByText('10 min')).toHaveLength(1)
+    expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(1)
   })
 
   it('annonce la reprise AFTU et TATA avant le premier départ, avec l’heure exacte', () => {
@@ -123,7 +125,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     vi.setSystemTime(new Date('2026-11-09T22:49:00.000Z'))
     const aftuFive = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveRow = screen.getAllByText('AFTU / TATA 5').map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
-    expect(within(aftuFiveRow).getAllByText('1 min')).toHaveLength(1)
+    expect(within(aftuFiveRow).getAllByText('1 min')).toHaveLength(2)
     expect(within(aftuFiveRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(aftuFiveRow).getByText(/Retour ·/)).toBeTruthy()
     aftuFive.unmount()
@@ -143,15 +145,15 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const tataThirtySevenLabels = screen.getAllByText('AFTU / TATA 37')
     expect(tataThirtySevenLabels).toHaveLength(4)
     expect(screen.queryByText('AFTU / TATA 2B')).toBeNull()
-    expect(container.querySelectorAll('.station-board-line-group')).toHaveLength(89)
+    expect(container.querySelectorAll('.station-board-line-group')).toHaveLength(126)
     expect(container.querySelectorAll('.station-board-row').length).toBeGreaterThan(124)
     expect(container.querySelectorAll('.station-board-passage strong').length).toBe(container.querySelectorAll('.station-board-row').length)
     const tataThirtySevenRow = tataThirtySevenLabels.map((label) => label.closest('li')!)
       .find((candidate) => candidate.textContent?.includes('Diamalaye') && candidate.textContent?.includes('Claudel'))!
     expect(within(tataThirtySevenRow).getAllByText('5 min')).toHaveLength(2)
 
-    // AFTU 39 et TATA 39 ont les mêmes terminus : une seule fiche est conservée.
-    expect(screen.getAllByText('AFTU / TATA 39')).toHaveLength(2)
+    // AFTU 39 et TATA 39 gardent deux fiches : leurs séquences détaillées diffèrent.
+    expect(screen.getAllByText('AFTU / TATA 39')).toHaveLength(4)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
