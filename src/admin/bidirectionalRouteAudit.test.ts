@@ -86,15 +86,15 @@ describe('auditBidirectionalBusLines', () => {
     expect(report.findings).toEqual([])
   })
 
-  it('accepts the three owner-validated AFTU route lists as complete independent directions', () => {
+  it('accepts the four owner-validated AFTU route lists as complete independent directions', () => {
     const validatedLines = BIDIRECTIONAL_BUS_LINES.filter((line) =>
-      line.network === 'aftu' && ['88', '89', '91'].includes(line.line),
+      line.network === 'aftu' && ['83', '88', '89', '91'].includes(line.line),
     )
     const report = auditBidirectionalBusLines(validatedLines)
 
-    expect(report.analyzedLines).toBe(3)
-    expect(report.analyzedDirections).toBe(6)
-    expect(report.completeLines).toBe(3)
+    expect(report.analyzedLines).toBe(4)
+    expect(report.analyzedDirections).toBe(8)
+    expect(report.completeLines).toBe(4)
     expect(report.findings).toEqual([])
   })
 
