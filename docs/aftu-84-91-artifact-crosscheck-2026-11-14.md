@@ -211,3 +211,58 @@ La page officielle [AFTU — Infos pratiques](https://aftu-senegal.org/infos-pra
 Les séquences capturées, les profils de fonctionnement et les corridors de l’index sont conservés comme sources distinctes. **Aucun parcours n’est supprimé, renuméroté ou réattribué automatiquement.** En revanche, tant que le CETUD n’a pas confirmé la correspondance des numéros, les fiches 86 et 87 doivent rester en statut de rapprochement à résoudre et ne doivent pas être présentées comme une correspondance officielle définitivement établie.
 
 Source primaire : index officiel AFTU, consulté directement le 14 novembre 2026 : https://aftu-senegal.org/infos-pratiques/ (sections lignes 84–91). Cette relecture confirme aussi que le contenu indexé ne fournit pas de corridor lisible pour le numéro 91.
+
+
+## Recherche approfondie AFTU / Moovit — lignes 88, 89, 90 et 91 (14 novembre 2026)
+
+Nouvelle vérification croisée des pages AFTU, des trois pages de l'archive AFTU, de l'index général Moovit Dakar et des recherches ciblées Moovit par numéro et par terminus.
+
+### 1. Résultat de l'index officiel AFTU
+
+La page officielle « Infos pratiques » affiche actuellement :
+
+| Ligne | Corridor visible dans l'index AFTU | Niveau de preuve |
+|---|---|---|
+| 88 | MTOA – Liberté 5 | Terminus/corridor seulement |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Terminus/corridor seulement |
+| 90 | Aucun numéro 90 affiché entre 89 et 91 | Non documenté |
+| 91 | Le libellé « LIGNE 91 » apparaît, mais aucun corridor lisible après ce titre | Numéro seulement |
+
+Les libellés « Voir itinéraire » des lignes 88, 89 et 91 ne sont pas exposés comme liens de fiche utilisables dans le contenu de la page consultée. Les anciennes URL candidates de fiches détaillées pour les lignes 88, 89 et 91 ont déjà renvoyé HTTP 404 dans les extractions AFTU précédentes. La nouvelle lecture ne fournit donc toujours aucune séquence d'arrêts.
+
+### 2. Résultat Moovit
+
+L'index général Moovit Dakar, dans sa section AFTU, énumère les lignes de 1B à 84 et s'arrête à « 84 – Grand Yoff – Jaxaay ». Il ne répertorie pas les lignes 88, 89, 90 ou 91. La page générale AFTU Moovit annonce 64 lignes et 1 634 arrêts, ce qui montre que son inventaire public n'est pas aligné sur la liste AFTU actuellement affichée sur le site de l'opérateur.
+
+Les recherches ciblées par numéro 88, 89, 90 et 91 n'ont pas fait remonter de fiche Moovit AFTU correspondante. Le résultat Moovit trouvé pour le numéro 90 concerne Casablanca et un autre réseau ; il est explicitement exclu de cet audit. Il ne faut surtout pas le rattacher à Dakar.
+
+**Interprétation :** Moovit ne corrobore pas actuellement les numéros/corridors 88 et 89 du nouvel index AFTU, et ne donne aucun élément pour 90 ou 91. Cette absence peut refléter un décalage de mise à jour de son catalogue ; elle ne prouve pas que les lignes n'existent pas.
+
+### 3. Archives AFTU
+
+Les trois pages publiques de la collection « Dakar lignes urbaines » couvrent les fiches 55 à 83. Aucune fiche 88, 89, 90 ou 91 n'y est publiée. Cette archive ne fournit donc pas de seconde séquence détaillée pour les quatre numéros.
+
+### 4. Autres recoupements et limites
+
+- Les recherches par les corridors « MTOA – Liberté 5 », « Bargny – Croisement Niague » et « APIX – Dougar » n'ont pas identifié de fiche d'itinéraire AFTU indépendante et exploitable pour les lignes 88, 89 ou 91.
+- Les occurrences de MTOA, Bargny, Niague, APIX ou Dougar dans des fiches d'autres lignes ne prouvent pas que ces fiches appartiennent aux lignes 88/89/91.
+- Les artefacts OSM précédemment audités ne contiennent aucune relation AFTU numérotée 88, 89 ou 91 ; aucun élément de ce jeu ne permet de reconstituer la ligne 90.
+- Les couches ArcGIS consultées dans ce chantier sont des services DDD, pas un référentiel géographique AFTU. Elles ne peuvent pas servir à fabriquer les arrêts des lignes recherchées.
+- Aucune séquence indépendante Aller/Retour, carte de ligne, horaire de passage ou fréquence propre à ces quatre numéros n'a été trouvée dans les sources consultées.
+
+### 5. Décision pour Dakar Bus
+
+1. Conserver pour la ligne 88 le corridor AFTU « MTOA – Liberté 5 » comme métadonnée d'index uniquement.
+2. Conserver pour la ligne 89 le corridor AFTU « Bargny – Croisement Niague (Cité SICAP) » comme métadonnée d'index uniquement.
+3. Conserver la ligne 90 en attente de source : ne pas lui attribuer un corridor ni supposer qu'elle est supprimée.
+4. Conserver la ligne 91 comme numéro affiché mais corridor non lisible ; ne pas lui attribuer APIX – Dougar sur la seule base des anciennes transcriptions d'index décalées.
+5. Ne créer aucun arrêt, ordre, direction retour, horaire ou fréquence pour 88, 89, 90 ou 91.
+6. Ne pas injecter ces métadonnées dans le catalogue passager tant que les deux directions et leurs séquences ne sont pas établies.
+
+Sources consultées le 14 novembre 2026 :
+- AFTU, index « Infos pratiques » : https://aftu-senegal.org/infos-pratiques/
+- AFTU, archive Dakar lignes urbaines : https://aftu-senegal.org/collection/dakar-lignes-urbaines/ (pages 1 à 3)
+- Moovit, index des lignes de Dakar : https://moovitapp.com/index/fr/transport_en_commun-linesIndex-Dakar-1-5996
+- Moovit, page générale AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
+
+Cette mise à jour est documentaire uniquement. Aucun JSON de parcours, horaire ou catalogue passager n'a été modifié. Aucun changement TER/BRT, aucune écriture Supabase, aucun déploiement et aucune fusion de PR.
