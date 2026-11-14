@@ -137,7 +137,8 @@ export function estimatedNextPassage(network: string | null, now = Date.now()): 
     const intervalMs = period.headwayMinutes * MINUTE_MS
     const slotIndex = now < startAt ? 0 : Math.floor((now - startAt) / intervalMs) + 1
     const nextAt = startAt + slotIndex * intervalMs
-    if (nextAt >= endAt) continue
+    // Le dernier créneau exactement à la fin du service reste affichable.
+    if (nextAt > endAt) continue
 
     return {
       nextDepartureAt: new Date(nextAt).toISOString(),
