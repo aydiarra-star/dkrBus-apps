@@ -38,12 +38,12 @@ export interface PlaceEntry {
   /** Nom affiché, tel qu'il est déclaré par la source. */
   name: string
   aliases: readonly string[]
-  /** Coordonnées uniquement pour une gare TER ou une station BRT. */
+  /** Coordonnées des arrêts de référence géolocalisés. */
   lat?: number
   lon?: number
   /** Zone tarifaire (TER) ou pôle d'échange (BRT), tel que déclaré. */
   note?: string
-  /** Fiches DDD/AFTU dont le parcours mentionne ce lieu (repères textuels). */
+  /** Fiches DDD/AFTU/TATA dont le parcours mentionne ce lieu. */
   busLines: readonly BusLine[]
 }
 
@@ -137,10 +137,23 @@ function busLinesForLabels(labels: readonly string[]): BusLine[] {
   return lines
 }
 
-/** Gares TER, stations BRT, arrêts DDD/AFTU/TATA : extrémités calculables en référence.
- *  DDD (jaune #F59E0B) et AFTU/TATA (orange #D97706) sont désormais géolocalisés
- *  en pointillés légers + pastilles pour éviter la surcharge carte. */
-export const REFERENCE_PLACES: readonly PlaceEntry[] = ALL_CORRIDOR_STOPS.map((stop) => {
+/** Une seule entrée par arrêt physique AFTU / TATA ; les coordonnées sources
+ *  restent conservées pour tracer les itinéraires complets sur la carte. */
+const UNIQUE_REFERENCE_STOPS = ALL_CORRIDOR_STOPS.filter((stop, index, all) => {
+  const prefix = stop.id.split('-')[0]
+  if (prefix !== 'aftu' && prefix !== 'tata') return true
+  const name = normalizeMobility(stop.name)
+  const firstEquivalent = all.findIndex((candidate) => {
+    const candidatePrefix = candidate.id.split('-')[0]
+    return (candidatePrefix === 'aftu' || candidatePrefix === 'tata')
+      && normalizeMobility(candidate.name) === name
+      && haversineMeters(candidate, stop) <= 150
+  })
+  return firstEquivalent === index
+})
+
+/** Gares TER, stations BRT, arrêts DDD et AFTU / TATA géolocalisés. */
+export const REFERENCE_PLACES: readonly PlaceEntry[] = UNIQUE_REFERENCE_STOPS.map((stop) => {
   const kind: PlaceKind = stop.id.startsWith('ter')
     ? 'ter'
     : stop.id.startsWith('brt')
@@ -413,7 +426,10 @@ export function declaredTransferOf(place: PlaceEntry) {
  */
 export function crossNetworkNearest(place: PlaceEntry): { stop: CorridorStop; distanceM: number; reachable: boolean } | null {
   if (place.lat === undefined || place.lon === undefined || place.kind === 'bus') return null
-  const others = ALL_CORRIDOR_STOPS.filter((stop) => !stop.id.startsWith(place.kind))
+  const isSameNetwork = (stop: CorridorStop) => place.kind === 'aftu_tata'
+    ? stop.id.startsWith('aftu-') || stop.id.startsWith('tata-')
+    : stop.id.startsWith(`${place.kind}-`)
+  const others = ALL_CORRIDOR_STOPS.filter((stop) => !isSameNetwork(stop))
   if (others.length === 0) return null
   let nearest: { stop: CorridorStop; distanceM: number } | null = null
   for (const stop of others) {
