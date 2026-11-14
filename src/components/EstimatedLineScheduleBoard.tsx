@@ -37,6 +37,16 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
 }
 
+/**
+ * Référence moyenne commune au réseau de minibus AFTU/TATA, utilisée uniquement
+ * comme cadence réseau quand aucune fréquence propre à la ligne TATA n'est publiée.
+ * Elle ne rattache jamais une ligne TATA à une ligne AFTU portant le même numéro.
+ */
+const TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
+  ...AFTU_TATA_NETWORK_REFERENCE,
+  sourceLabel: 'TATA · cadence moyenne de référence du réseau de minibus',
+}
+
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
   line: '*',
   weekday: { start: '05:30', end: '21:00', interval: '10 min' },
@@ -179,13 +189,13 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         {catalogue.map((line) => {
           const route = routeReferences.find((item) => item.network === network && item.code === line.line)
           const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
-          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : null)
+          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : network === 'tata' ? TATA_NETWORK_REFERENCE : null)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
           const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
-          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE.weekday : null)
+          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE.weekday : network === 'tata' ? TATA_NETWORK_REFERENCE.weekday : null)
           const scheduleWindow = capAftuTataServiceWindow(rawScheduleWindow, network)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
