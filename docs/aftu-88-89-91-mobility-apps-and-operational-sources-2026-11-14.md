@@ -186,7 +186,7 @@ Source : https://azactu.net/2-bus-tata-vandalises-un-agent-de-sante-blesse-6-mem
 
 Qualification :
 - C'est un indice indépendant de presse, pas une fiche d'itinéraire opérateur.
-- La mention « ligne 88 » et la présence de bus TATA sont compatibles avec une desserte du secteur Niague/Niacoulrab, ce qui mérite une vérification prioritaire pour le corridor officiel Bargny – Croisement Niague.
+- La mention « ligne 88 » concerne explicitement des bus TATA dans l'article. Elle ne corrobore pas la ligne AFTU 88, dont l'index officiel actuel indique MTOA – Liberté 5. Il s'agit d'une numérotation d'un autre réseau, à garder séparée.
 - L'article ne donne aucun arrêt ordonné, aucun tracé complet, aucun sens retour et ne précise pas explicitement que son « numéro 88 » correspond à la numérotation de l'index AFTU actuel.
 - Il ne peut donc pas être utilisé pour ajouter Niacoulrab ou Darou Thioub à la séquence passager de la ligne AFTU 88 sans confirmation supplémentaire.
 
@@ -228,9 +228,9 @@ Les pages marketing présentent aussi des chiffres de déploiement et de perform
 
 | Ligne recherchée | Résultat vérifiable depuis PassBi public | Utilisation dans Dakar Bus |
 |---|---|---|
-| 88 — Bargny / Croisement Niague | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
-| 89 — APIX / Dougar | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
-| 91 — corridor non lisible dans l'index | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas inventer le corridor |
+| 88 — MTOA / Liberté 5 | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 89 — Bargny / Croisement Niague | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 91 — APIX / Dougar | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
 
 **Verdict PassBi :** source prometteuse pour obtenir des données GTFS ou une API d'intégration, mais aucune donnée publique consultable n'a encore corroboré les arrêts des lignes 88, 89 ou 91. La fiche mobile et ses captures ne suffisent pas à prouver la présence des trois lignes. PassBi ne fournit donc, à ce stade, aucune séquence à importer.
 
@@ -258,21 +258,21 @@ Les conditions publiques rappellent que les contenus de l'application peuvent co
 
 ## 12. Vérification directe du site AFTU-Sénégal — confirmation des corridors 88 et 89, aucun détail de séquence (14 novembre 2026)
 
-Une vérification directe supplémentaire a été menée sur la page publique « Infos pratiques » du site AFTU-Sénégal : https://aftu-senegal.org/infos-pratiques/ . La page présente explicitement les rubriques « Nos lignes sur Dakar » et les corridors suivants :
+Une vérification directe supplémentaire a été menée sur la page publique « Infos pratiques » du site AFTU-Sénégal : https://aftu-senegal.org/infos-pratiques/ . La page présente explicitement les rubriques « Nos lignes sur Dakar » et les corridors suivants. Le tableau initial de cette section est rectifié ci-dessous pour correspondre à la numérotation exacte de la page :
 
 | Ligne | Corridor affiché par AFTU-Sénégal | Ce que la page permet d'affirmer |
 |---|---|---|
-| 88 | Bargny – Croisement Niague (Cité SICAP) | Corridor confirmé par une page du site AFTU-Sénégal ; aucun arrêt intermédiaire ni tracé ordonné affiché |
-| 89 | APIX – Dougar | Corridor confirmé par une page du site AFTU-Sénégal ; aucun arrêt intermédiaire ni tracé ordonné affiché |
-| 91 | Le numéro « LIGNE 91 » apparaît, mais aucun libellé de corridor n'est affiché après lui | Numéro présent, corridor toujours inconnu |
+| 88 | MTOA – Liberté 5 | Corridor confirmé par l'index ; la séquence enregistrée commence à « Terminus 88 » et contient MTOA en repère intermédiaire |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Corridor confirmé par l'index ; la séquence enregistrée va de « Terminus 89 » à Bargny et contient des repères de Niague |
+| 91 | APIX – Dougar | Corridor confirmé par l'index ; les listes CETUD enregistrées contiennent les secteurs APIX et Dougar mais commencent/finissent à Losso |
 
 La page affiche un texte « Voir itinéraire » pour les lignes 1 à 83, avec des liens de détails accessibles sur certaines cartes. Pour les entrées 84 à 91, le texte « Voir itinéraire » est rendu comme texte non cliquable dans la page consultée ; aucun lien de détail public exploitable n'est fourni pour les lignes 88, 89 ou 91. L'archive publique « Dakar lignes urbaines » renvoie encore des fiches datées des 13–14 juillet 2026 pour les lignes 72 à 83 ; elle ne fournit pas les séquences recherchées des lignes 88/89/91.
 
 ### Décision de données
 
-- Les corridors 88 et 89 peuvent être conservés comme métadonnées de ligne, avec attribution explicite à la page AFTU-Sénégal.
-- Ne pas ajouter d'arrêt intermédiaire, de géométrie, de sens aller/retour, de fréquence ou d'horaire : la page n'en fournit pas.
-- Pour la ligne 91, conserver uniquement le constat de présence du numéro ; ne pas inventer de corridor.
+- Les trois corridors 88, 89 et 91 peuvent être conservés comme métadonnées de ligne, avec attribution explicite à la page AFTU-Sénégal.
+- Ne pas ajouter d'arrêt intermédiaire, de géométrie, de sens aller/retour, de fréquence ou d'horaire à partir du seul index : la page n'en fournit pas.
+- Garder les écarts entre les titres de corridor et les extrémités des listes transmises visibles ; ne pas réécrire les séquences.
 - Ce résultat ne remplace pas une séquence opérateur détaillée ni une carte lisible des deux sens.
 
 ### Références AFTU-Sénégal
@@ -281,7 +281,7 @@ La page affiche un texte « Voir itinéraire » pour les lignes 1 à 83, avec de
 - Archive des fiches Dakar urbain : https://aftu-senegal.org/collection/dakar-lignes-urbaines/
 - Contact affiché sur le site : +221 33 859 02 88 ; siège annoncé : Zone de Captage, 440–441 Dakar, Sénégal.
 
-**Note de provenance :** les intitulés de corridor ci-dessus sont désormais directement corroborés par la page AFTU-Sénégal, en plus de l'index AFTU déjà examiné. Ils ne constituent toujours pas une séquence d'arrêts. La page AFTU ne confirme pas le sens aller/retour séparément.
+**Note de provenance :** les intitulés de corridor ci-dessus sont directement corroborés par la page AFTU-Sénégal. La numérotation exacte est 88 = MTOA–Liberté 5, 89 = Bargny–Croisement Niague, 91 = APIX–Dougar. Ils ne constituent toujours pas des séquences d'arrêts. La page AFTU ne confirme pas le sens aller/retour séparément.
 
 
 ## Mise à jour opérationnelle — séquences directionnelles reçues dans le chantier (14 novembre 2026)
