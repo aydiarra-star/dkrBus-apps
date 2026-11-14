@@ -158,3 +158,30 @@ Les captures CETUD transmises par l’utilisateur fournissent désormais les deu
 Les séquences sont enregistrées dans `src/data/aftu-87-directions.json`, séparément et dans l’ordre exact communiqué. Les répétitions, les variantes de libellés et l’encodage brut « Cité Fayà§Al » sont préservés. Les tests dédiés contrôlent les effectifs, les terminus, des répétitions et l’absence d’horaires.
 
 Aucun horaire de départ, horaire de passage ou fréquence n’a été fourni pour la ligne 87. Aucun n’est donc créé. Les données restent des parcours transcrits à partir des captures de l’application CETUD, sans prétendre à une validation indépendante des arrêts.
+
+
+## Mise à jour — fonctionnement et repères horaires AFTU 86/87 (14 novembre 2026)
+
+Le responsable du projet précise que les lignes AFTU fonctionnent en régulation continue selon le remplissage des véhicules et le trafic, contrairement à un horaire rigide de premier/dernier départ. Les repères généraux transmis pour le réseau sont :
+- premier départ généralement entre **05:30 et 06:30**, selon le terminus ;
+- dernier départ autour de **21:00**, avec variations ;
+- pointe du matin : **06:30–09:30** ;
+- pointe du soir : **16:30–20:00** ;
+- passages en pointe : intervalle variable de **5 à 15 minutes** depuis les terminus périphériques.
+
+Ces repères sont enregistrés dans les profils de fonctionnement des lignes 86 et 87 comme références générales AFTU/CETUD et données de terrain communiquées au projet. Ils ne sont pas transformés en horaires garantis, et aucun horaire de passage aux arrêts n'est calculé à partir d'eux.
+
+### Ligne 86
+La plage générale AFTU est conservée : départ initial dans la fenêtre 05:30–06:30 selon le terminus, dernier départ autour de 21:00. L'heure exacte du premier départ de la ligne 86 reste **inconnue**. Les anciennes heures transcrites restent invalidées et non utilisables ; les 68 arrêts aller et 64 arrêts retour sont inchangés.
+
+### Ligne 87
+Les départs théoriques communiqués sont enregistrés séparément :
+- aller depuis Bambilor : **06:30** ;
+- retour depuis les Maristes : **06:35**.
+
+Ils sont marqués comme repères théoriques et non comme départs fixes garantis. Aucun temps de passage aux arrêts n'est déduit. Les séquences de captures restent 68 arrêts aller et 71 arrêts retour, avec les libellés exacts « Terminus 79 87 » et « Maristes Terminus 87 ».
+
+### Divergence de corridor de la ligne 87
+L'index AFTU précédemment audité affichait **Bambilor – Mosquée Massalikou Djinane**. La référence plus récente transmise au projet décrit **Bambilor – Maristes**. Les captures détaillées enregistrées dans le dépôt relient « Terminus 79 87 » aux « Maristes Terminus 87 ». Cette différence est conservée comme évolution possible de version ou divergence de source ; l'ancien index n'est pas réécrit silencieusement.
+
+Les deux fichiers JSON et leurs tests sont mis à jour pour séparer amplitude générale, pointes, intervalle variable et départs théoriques. Aucun horaire de passage n'est créé. Aucune donnée TER/BRT, écriture Supabase, mise en production ou fusion de PR n'est effectuée.
