@@ -135,3 +135,21 @@ Source : https://demdikk.sn/chatbot-2303/ (guide annoncé comme document de réf
 Le nouveau plan CETUD est cartographique et daté de 2024 ; le guide DDD de septembre 2026 confirme l'existence de navettes spéciales 501/502 liées aux gares TER sans en détailler le parcours. Ces éléments renforcent le contexte de la ligne mais ne lèvent pas le conflit sur ses terminus ni l'absence de retour indépendant.
 
 **Décision inchangée :** conserver le statut `CONFLICTING_SOURCES`. Ne pas injecter le parcours de six repères du PR #74 dans le catalogue passager et ne pas fabriquer de retour. Une confirmation opérationnelle DDD reste nécessaire.
+
+
+## Piste de vérification par l'application officielle DDD — 14 novembre 2026
+
+La page officielle DDD annonce une nouvelle version de l'application mobile disponible depuis le 3 septembre 2025. DDD y décrit notamment une carte interactive des lignes et arrêts du réseau urbain, la géolocalisation des arrêts proches et des informations voyageurs en temps réel.
+
+Sources :
+- Page officielle DDD sur la nouvelle version : https://demdikk.sn/v2appmobile/
+- Page officielle de téléchargement : https://booking.demdikk.sn/
+- Fiche Google Play officielle « Dem Dikk » : https://play.google.com/store/apps/details?id=sn.demdikk.reservation.ddd_reservation
+
+La fiche Google Play décrit également la recherche d'itinéraires et l'information voyageurs en temps réel ; elle indique une mise à jour au 27 septembre 2025. La page DDD fournit un lien App Store et un lien Google Play.
+
+**Limite de la vérification web :** les pages publiques consultées décrivent les fonctions de l'application, mais n'exposent pas les résultats de recherche d'itinéraire ni la fiche détaillée de la ligne 501. Aucune séquence d'arrêts, aucun terminus supplémentaire et aucun horaire 501 ne peuvent donc être extraits de ces pages seules.
+
+**Prochaine vérification opérationnelle :** consulter dans l'application officielle, si elle est accessible, les trajets et arrêts proposés pour la ligne 501 dans les deux sens, puis conserver les captures/résultats datés comme éléments de preuve. Comparer précisément les libellés Gare de Dakar, Palais 2, Esso Port Embarcadère et Leclerc sans les fusionner par hypothèse. Si l'application ne fournit pas de réponse exploitable, demander une confirmation écrite au service client DDD (serviceclient@demdikk.sn ; +221 33 824 10 10), sans présumer de la réponse.
+
+Cette piste ne modifie pas la décision de l'audit : le conflit de sources reste ouvert et aucune donnée de production n'est validée par cette seule documentation applicative.
