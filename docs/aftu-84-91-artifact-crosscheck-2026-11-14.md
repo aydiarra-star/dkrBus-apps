@@ -363,3 +363,26 @@ Le fichier `src/data/aftu-87-directions.json` contient toujours 68 arrêts à l'
 3. Ne pas afficher les anciennes heures transcrites invalidées de la ligne 86 ; ne pas extrapoler de temps de passage.
 4. Maintenir la ligne 87 en divergence de terminus jusqu'à preuve institutionnelle plus précise.
 5. Poursuivre le contrôle des autres lignes AFTU et les audits DDD ; aucune donnée TER/BRT n'est touchée.
+
+
+## Comparaison séquentielle complémentaire des listes AFTU 88/89/91 — 14 novembre 2026
+
+Un contrôle programmatique a été effectué sur les listes directionnelles déjà archivées, sans modifier les séquences sources. Méthode : extraction des occurrences numérotées dans chaque direction, comparaison des libellés après normalisation technique minimale (casse, accents et espaces), sans fusion ni suppression des occurrences. Le nombre de libellés communs indique uniquement un partage textuel potentiel ; il ne prouve ni un arrêt physique identique, ni une correspondance de ligne, ni un tronc commun exploité.
+
+| Comparaison | Entrées | Libellés communs exacts après normalisation |
+|---|---:|---:|
+| 88 aller (78) ↔ 89 aller (55) | 78 / 55 | 0 |
+| 88 aller (78) ↔ 89 retour (53) | 78 / 53 | 0 |
+| 88 retour (81) ↔ 89 aller (55) | 81 / 55 | 0 |
+| 88 retour (81) ↔ 89 retour (53) | 81 / 53 | 0 |
+| 89 aller (55) ↔ 89 retour (53) | 55 / 53 | 20 |
+| 91 aller (70) ↔ 89 aller (55) | 70 / 55 | 5 |
+| 91 aller (70) ↔ 89 retour (53) | 70 / 53 | 4 |
+
+Pour la ligne 89, les 20 libellés communs entre les deux sens comprennent notamment les deux terminus, Mosquée Tawfekh Niague, Franco-Arabe La Voie du Savoir, Groupe scolaire El Hadji Bara Mbacke Falilou, Lotissement Alassane, Croisement Tivaoune Peulh, La Maison des Reporters, plusieurs repères de Keur Massar, Dioutiba, Poste Courant Rufisque et Thiawlène devant Station Total Energie. Les deux listes restent indépendantes : les autres points et leurs différences d'ordre ne sont pas corrigés par ce contrôle.
+
+Le rapprochement avec la ligne 91 fait ressortir cinq libellés textuellement communs entre son aller et l'aller de la 89 : Poste Courant Bargny près de la gare TER, Thiawlène devant Station Total Energie, Poste Courant Rufisque, Dioutiba et Arrêt Mame Awa Faye. Quatre sont communs entre le retour 91 et le retour 89 : Arrêt Mame Awa Faye, Dioutiba, Poste Courant Rufisque et Thiawlène devant Station Total Energie. Ce résultat peut signaler des repères partagés dans la zone de Rufisque/Bargny, mais ne suffit pas à confirmer une desserte commune ou à réattribuer les séquences. Les 70 occurrences validées par le responsable du projet pour chacun des sens 91 restent inchangées.
+
+Aucun libellé exact n'est partagé entre les listes 88 et 89 dans les quatre comparaisons directionnelles effectuées. Cela n'invalide pas les listes : les corridors publics AFTU actuellement affichés et les terminus du site source peuvent relever de publications/version différentes. La divergence officielle de corridor de la 88/89 demeure ouverte et doit être clarifiée auprès de l'opérateur/CETUD.
+
+Limites : cette comparaison est textuelle, pas géographique ; elle n'utilise ni géocodage, ni tracé GPS, ni validation terrain. Les variantes orthographiques et les arrêts homonymes peuvent produire des faux négatifs ou faux positifs. Aucun horaire, fréquence, coordonnée, arrêt ou retour n'est ajouté. Aucun catalogue passager, donnée TER/BRT, Supabase ou production n'est modifié.
