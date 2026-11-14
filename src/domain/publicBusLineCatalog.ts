@@ -225,6 +225,18 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceLabel: line === '77' ? 'Document tarifaire TATA · juillet 2020' : 'MoMove · lignes TATA à Dakar · 09/06/2026',
 }))
 
+/** Itinéraires TATA détaillés absents de la liste générale des terminus. */
+export const TATA_DETAILED_ADDITIONAL_PUBLIC_LINES: readonly PublicBusLineReference[] = (tataLines as unknown as { code: string; origin: string; destination: string; sourceUrl: string }[])
+  .filter((line) => !TATA_PUBLIC_LINE_CATALOG.some((listed) => listed.line === line.code))
+  .map((line) => ({
+    line: line.code,
+    origin: line.origin,
+    destination: line.destination,
+    network: 'tata',
+    sourceUrl: line.sourceUrl,
+    sourceLabel: 'TATA · itinéraire détaillé du référentiel',
+  }))
+
 function normalizeRouteEndpoint(value: string): string {
   return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').trim()
 }
@@ -261,7 +273,7 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = (() => {
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
-  for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG]) {
+  for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG, ...TATA_DETAILED_ADDITIONAL_PUBLIC_LINES]) {
     const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
     const key = AFTU_TATA_SHARED_LINE_CODES.has(line.line) ? `${line.line}|shared` : `${line.line}|${ends[0]}|${ends[1]}`
     if (!merged.has(key)) merged.set(key, line)
