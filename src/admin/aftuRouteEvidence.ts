@@ -15,6 +15,7 @@ export interface AftuDirectionEvidence {
   scheduleInterval: string | null
   genericStopLabels: number
   repeatedLabels: string[]
+  sequenceStatus: 'documented' | 'missing'
 }
 
 export interface AftuRouteEvidence {
@@ -23,6 +24,11 @@ export interface AftuRouteEvidence {
   outbound: AftuDirectionEvidence
   inbound: AftuDirectionEvidence
   sourceStatus: string | null
+  serviceWindow: {
+    start: string
+    end: string
+    source: 'CETUD-network-default'
+  }
 }
 
 interface RawDirection {
@@ -56,6 +62,7 @@ interface RawAftuRoute {
 }
 
 import aftu66Return from '../data/aftu-66-return.json'
+import { AFTU_CETUD_SCHEDULE_SETTINGS } from '../data/aftuScheduleSettings'
 
 const routeModules = import.meta.glob('../data/aftu-*-directions.json', {
   eager: true,
@@ -105,6 +112,7 @@ function directionEvidence(
       ?? nonEmptyString(route.frequency?.countdownBasis),
     genericStopLabels,
     repeatedLabels,
+    sequenceStatus: waypoints.length > 0 ? 'documented' : 'missing',
   }
 }
 
@@ -130,6 +138,10 @@ function adaptRoute(route: RawAftuRoute): AftuRouteEvidence | null {
       route,
     ),
     sourceStatus: nonEmptyString(route.sourceStatus),
+    serviceWindow: {
+      ...AFTU_CETUD_SCHEDULE_SETTINGS.generalServiceWindow,
+      source: 'CETUD-network-default',
+    },
   }
 }
 
