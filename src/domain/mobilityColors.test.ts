@@ -90,5 +90,7 @@ describe('code couleur officiel des mobilités', () => {
     expect(mobilityFromStopId('published-12')).toBeNull()
     const spans = mobilitySpans('Source SETER, prendre le TER puis le B1.')
     expect(spans.filter((span) => span.kind === 'sigil').map((span) => span.text)).toEqual(['TER', 'B1'])
+    const unified = mobilitySpans('Réseau AFTU / TATA')
+    expect(unified.filter((span) => span.kind === 'sigil')).toEqual([{ text: 'AFTU / TATA', id: 'aftu_tata', kind: 'sigil' }])
   })
 })
