@@ -140,7 +140,7 @@ function AftuTataScheduleBoard({
             ?? routeReferences.find((item) => item.code === lineNumber && item.outboundSchedule)?.outboundSchedule
             ?? AFTU_TATA_NETWORK_REFERENCE
           const declaredWindow = weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
-          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_NETWORK_REFERENCE.weekday, 'aftu_tata')
+          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_NETWORK_REFERENCE.weekday, 'aftu_tata') ?? AFTU_TATA_NETWORK_REFERENCE.weekday
           const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
           const countdownSchedule = { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
           const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
@@ -353,7 +353,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
-            end: network === 'aftu_tata' ? '22:50' : networkReference.serviceEnd,
+            end: networkReference.serviceEnd,
             interval: '',
           })
           const serviceState = serviceWindow
@@ -401,7 +401,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const routeKey = `${line.network}:${line.line}:${line.origin}:${line.destination}`
           return (
             <li key={routeKey} className="station-board-line-group">
-              {network === 'aftu_tata' ? (
+              {false ? (
                 <>
                   <button
                     type="button"
