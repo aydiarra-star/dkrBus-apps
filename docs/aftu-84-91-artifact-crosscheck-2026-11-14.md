@@ -73,3 +73,28 @@ Ces correspondances sont des occurrences de noms de lieux dans des corridors, pa
 5. Poursuivre la consolidation DDD sur les comparaisons de séquences et géométries déjà auditées, sans modifier le socle TER/BRT.
 
 Aucune écriture Supabase, aucun changement de données opérationnelles TER/BRT, aucun déploiement et aucune fusion de PR n'ont été effectués.
+
+
+## Mise à jour après le nouvel audit officiel du 14 novembre 2026
+
+Un nouvel audit de la page d'index AFTU et des liens de fiches a été exécuté sur le commit `ba4b2f9affe8b2fbf9df0fbc4f8415ddaa632b31` (workflow `43563127436`, artefact `14101142058`, génération 05:46:55 UTC).
+
+La relecture directe de l'index officiel confirme explicitement les sept corridors suivants :
+
+| Ligne | Corridor affiché dans l'index AFTU |
+|---|---|
+| 84 | UCAD – Jaxaay |
+| 85 | Banoba – Liberté 5 |
+| 86 | Tournalou Boune – Toubab Dialaw |
+| 87 | Bambilor – Mosquée Massalikou Djinane |
+| 88 | MTOA – Liberté 5 |
+| 89 | Bargny – Croisement Niague (Cité SICAP) |
+| 91 | APIX – Dougar |
+
+Les sept URL canoniques de fiches détaillées ont encore renvoyé HTTP 404 dans l'exécution automatisée. L'index confirme donc les numéros et les corridors, mais pas les étapes intermédiaires, les arrêts nommés, l'ordre de passage, le sens retour ni les horaires. Le nouvel artefact recense 63 liens de fiches issus de l'index, 9 pages officielles additionnelles testées, 65 fiches avec texte d'itinéraire récupéré et 7 erreurs HTTP 404. Le statut global reste `PARTIAL_SOURCE_RESPONSE`.
+
+**Correction de portée :** il ne faut plus dire que les sept lignes sont absentes de l'index officiel. Elles y figurent bien. Ce sont leurs pages détaillées qui restent indisponibles. Les corridors du tableau ci-dessus sont des métadonnées officielles confirmées ; ils ne constituent pas des séquences d'arrêts.
+
+Les recoupements de terminus observés dans les 65 autres fiches ne prouvent toujours aucune fusion ou renumérotation. Les lignes 84 et 85 conservent leurs fichiers de parcours et leurs provenances déjà présentes dans le dépôt. Pour 86, 87, 88, 89 et 91, conserver `pending_missing_source` pour les détails non documentés, sans supprimer les corridors officiels affichés dans l'index.
+
+Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index officiel AFTU, vérifié le 14 novembre 2026).
