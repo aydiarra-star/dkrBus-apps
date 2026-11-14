@@ -166,8 +166,8 @@ Cette source confirme trois géométries de lignes dont les groupes de points é
 | Ligne | Couche / attribut source | Géométrie | Corridor textuel | Qualification |
 |---|---|---:|---|---|
 | 20 | `Itinéraire_ligne_20_Dakar_Dem_Dikk`, champ `Nom__Ligne = Ligne 20` | 18,57 km | Dieuppeul – Allées Ababacar Sy, Jet d’Eau – Bourguiba, École Police – Cheikh Anta Diop, Fann, Corniche Ouest, MTOA, Colobane, puis retour vers Dieuppeul | Géométrie explicitement identifiée ; aucun groupe de points dédié dans cette extraction |
-| 219 | `Itinéraire_ligne_219_Dem_Dikk`, champ `Nom_Ligne = Ligne 219` | 21,52 km | Daroukhane – marché Ndiarème, Guédiawaye, Stade Amadou Barry, Fadia, Case, Ancienne Piste, Ouakam, Cité Asecna, Cité Assemblée | Géométrie explicitement identifiée ; aucun groupe de points dédié dans cette extraction |
-| 228 | `Itinéraire_ligne_228_Dem_Dikk`, champ source mal orthographié `Npm_Ligne = LIgne 228` | 29,75 km | Rufisque – ville de Rufisque ; Bargny – Diamniadio – Yenne | Géométrie explicitement identifiée ; le nom de champ atypique doit être conservé et signalé |
+| 219 | `Itinéraire_ligne_219_Dem_Dikk`, champ `Nom_Ligne = Ligne 219` | 20,77 km (`SHAPE_Leng`) | Daroukhane – marché Ndiarème, Guédiawaye, Stade Amadou Barry, Fadia, Case, Ancienne Piste, Ouakam, Cité Asecna, Cité Assemblée | Géométrie explicitement identifiée ; aucun groupe de points dédié dans cette extraction |
+| 228 | `Itinéraire_ligne_228_Dem_Dikk`, champ source mal orthographié `Npm_Ligne = LIgne 228` | 28,70 km (`SHAPE_Leng`) | Rufisque – ville de Rufisque ; Bargny – Diamniadio – Yenne | Géométrie explicitement identifiée ; le nom de champ atypique doit être conservé et signalé |
 
 **Correction de portée par rapport à la section 4 :** dans le service 2024, la ligne 20 était représentée par une géométrie anonyme compatible avec son corridor, et la ligne 219 par une géométrie nommée. Le deuxième service apporte une confirmation supplémentaire et plus explicite pour les deux identités. Pour la ligne 228, il lève l'ambiguïté de l'entité anonyme Rufisque du service 2024 en fournissant une couche nommée dédiée et un champ source `Npm_Ligne`. Ces couches ne sont pas fusionnées entre elles.
 
@@ -185,3 +185,35 @@ Les géométries 20, 219 et 228 sont donc des candidats cartographiques plus sol
 2. Rechercher une source indépendante pour les 14 lignes sans tracé identifié dans les deux inventaires et pour la ligne 15.
 3. Garder les points 218/219 séparés tant que DDD n'a pas confirmé l'attribution.
 4. Ne publier aucun arrêt ou retour sur la seule base d'une polyligne.
+
+
+## 7. Comparaison géométrique inter-services — 20, 219 et 228
+
+Les trois tracés ont été comparés sommet par sommet entre le service `Dem_dikk_mise_a_jour` et le deuxième inventaire. Résultat : les trois géométries se superposent à l'arrondi numérique et conservent le même nombre de sommets et les mêmes extrémités.
+
+| Ligne | Sommets dans chaque service | Écart maximal entre sommets correspondants | `SHAPE_Leng` source | Observation |
+|---|---:|---:|---:|---|
+| 20 | 254 / 254 | 0 | 18 571,40 m | Coordonnées identiques |
+| 219 | 234 / 234 | env. 1,0 × 10⁻¹³ degré | 20 771,65 m | Écarts uniquement au niveau de l'arrondi numérique |
+| 228 | 246 / 246 | env. 1,0 × 10⁻¹³ degré | 28 696,995 m | Écarts uniquement au niveau de l'arrondi numérique |
+
+**Conséquence :** les deux services ne sont pas deux relevés géographiques indépendants pour ces trois lignes. Ils reproduisent pratiquement les mêmes polylignes. Le deuxième service apporte surtout une meilleure identification attributaire des lignes 20, 219 et 228.
+
+### Anomalie de référence spatiale
+
+Les coordonnées des géométries sont numériquement au format longitude/latitude (valeurs proches de -17 et 14), alors que les métadonnées déclarent :
+- WKID 32628 pour les trois tracés dans le service 2024 ;
+- WKID 32628 pour la ligne 20 et WKID 3857 pour les lignes 219/228 dans le deuxième service.
+
+Ces systèmes déclarés sont incompatibles avec les valeurs de coordonnées observées. Il ne faut donc pas interpréter directement ces coordonnées comme des mètres ni les reprojeter selon le WKID déclaré avant correction ou confirmation du fournisseur.
+
+Autre divergence de champs : pour les lignes 219 et 228 du deuxième service, `SHAPE_Leng` vaut respectivement 20 771,65 m et 28 697,00 m, tandis que `Shape__Length` vaut 21 524,31 m et 29 747,37 m. La différence est conservée comme anomalie source ; le rapport n'utilise pas `Shape__Length` pour affirmer une longueur terrain.
+
+La ligne 20 ne présente pas cette différence entre `SHAPE_Leng` et `Shape__Length` (18 571,40 m), mais ses coordonnées restent elles aussi incompatibles avec le WKID 32628 annoncé.
+
+### Décision
+
+- Conserver les géométries des deux services séparément, sans les fusionner ni compter leur superposition comme deux validations indépendantes.
+- Conserver les noms de couches et les champs atypiques, notamment `Nom__Ligne` pour 20 et `Npm_Ligne` pour 228.
+- Faire confirmer le système de coordonnées et les champs de longueur auprès de la source avant tout calcul de distance, projection sur voirie ou publication de coordonnées.
+- Ne déduire aucun arrêt, aucun ordre voyageurs, aucun retour ou horaire de ces polylignes.
