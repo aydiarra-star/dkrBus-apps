@@ -14,7 +14,7 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgis2024).toContain('Dem_dikk_mise_a_jour/FeatureServer')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '4', '6', '12', '7', '9', '10', '13', '16B', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '1', '4', '6', '12', '7', '9', '10', '13', '16B', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
@@ -22,6 +22,15 @@ describe('DDD official source crosswalk', () => {
       expect(item.passengerCatalogueChanged).toBe(false)
       expect(item.reverseSequenceCreated).toBe(false)
     }
+  })
+
+  it('records the line 1, 13 and 121 source checks without promoting geometry to passenger stops', () => {
+    expect(getDddOfficialSourceCrosswalk('1')?.claims[0].corridor).toContain('22 repères')
+    expect(getDddOfficialSourceCrosswalk('1')?.claims.at(-1)?.corridor).toBe('Parcelles Assainies → Leclerc')
+    expect(getDddOfficialSourceCrosswalk('13')?.claims[0].corridor).toContain('24 repères')
+    expect(getDddOfficialSourceCrosswalk('13')?.decision).toContain('23 points ArcGIS')
+    expect(getDddOfficialSourceCrosswalk('121')?.claims[0].corridor).toContain('25 repères')
+    expect(getDddOfficialSourceCrosswalk('121')?.decision).toContain('ne pas les dédupliquer')
   })
 
   it('records the official line 12 and 16B sequences separately from historic ArcGIS corridor evidence', () => {
