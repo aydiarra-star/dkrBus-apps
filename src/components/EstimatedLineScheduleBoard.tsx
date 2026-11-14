@@ -225,7 +225,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
           const countdownSchedule = countdownWindow && schedule ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-          const inboundSchedule = route?.inboundSchedule ?? null
+          // AFTU et TATA partagent aussi le même horaire de retour :
+          // les horaires directionnels propres à une fiche ne doivent pas créer
+          // une différence entre opérateurs du réseau unifié.
+          const inboundSchedule = isDdd ? route?.inboundSchedule ?? null : null
           const inboundDayWindow = inboundSchedule
             ? weekday === 0 ? inboundSchedule.sunday : weekday === 6 ? inboundSchedule.saturday : inboundSchedule.weekday
             : scheduleWindow
