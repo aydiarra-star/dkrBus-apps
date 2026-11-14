@@ -47,6 +47,7 @@ Faire évoluer l'assistant existant en copilote de mobilité fiable. Le copilote
 - Distinguer signalement communautaire, observation qualifiée et incident confirmé.
 - GPS du voyageur uniquement avec consentement explicite, limité à l'usage nécessaire.
 - Aucun suivi caché en arrière-plan.
+- Le suivi de proximité du téléphone est suspendu en arrière-plan et lorsque le réglage GPS est « Jamais » ; il reprend au premier plan si la géolocalisation reste autorisée.
 - Aucun GPS de véhicule ou capteur prétendu actif sans flux partenaire réel et autorisé.
 
 ### Phase 5 — voix et langues
@@ -65,6 +66,7 @@ Faire évoluer l'assistant existant en copilote de mobilité fiable. Le copilote
 ## Suivi
 
 - [x] Phase 1 : mémoire locale, durée maximale, validation des données et effacement sur désactivation.
+- [x] Protection GPS : arrêt du suivi en arrière-plan, reprise au premier plan et arrêt si le GPS est interdit.
 - [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts.
 - [ ] Phase 3 : calcul d'itinéraires bus et multimodaux basé uniquement sur les données validées.
 - [ ] Phase 4 : observation et alertes avec niveaux de confiance.
