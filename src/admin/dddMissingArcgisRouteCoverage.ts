@@ -15,6 +15,7 @@ export interface DddMissingArcgisRouteCoverage {
   stopCount: number
   arcgisSameCodeStopGroup: false
   reverseSequenceCreated: false
+  directionVerified: false
   coordinatesVerified: false
 }
 
@@ -40,6 +41,7 @@ const coverage = (
     stopCount: route.stops.length,
     arcgisSameCodeStopGroup: false,
     reverseSequenceCreated: false,
+    directionVerified: false,
     coordinatesVerified: false,
   }
 }
