@@ -1,7 +1,8 @@
 /**
  * Read-only audit of the two directions recorded for DDD / AFTU / TATA lines.
- * It never creates a return by reversing the outbound sequence and never changes
- * the passenger catalogue. Every finding remains a human-review candidate.
+ * It never creates a return by reversing the outbound sequence. A sequence
+ * explicitly validated by the project owner is complete as a text route even
+ * before its stop names receive geographic IDs or coordinates.
  */
 import {
   validateBusDirection,
@@ -39,11 +40,6 @@ export interface DirectionAuditReport {
   completeLines: number
 }
 
-/**
- * A direction is complete only when its own ordered stops are present, its
- * status is explicitly verified, and the existing domain validator accepts it.
- * The opposite direction is never used as a fallback or reversed automatically.
- */
 export function auditBidirectionalBusLines(
   lines: readonly BidirectionalBusLine[],
 ): DirectionAuditReport {
@@ -57,30 +53,35 @@ export function auditBidirectionalBusLines(
     for (const directionId of directions) {
       const direction = line.directions[directionId]
       const errors = validateBusDirection(direction)
+      const sequenceCount = direction.stopNames.length || direction.stopIds.length
+      const ownerValidatedSequence = direction.status === 'sequence_validated'
+        && direction.sequenceValidatedByProjectOwner
+        && direction.stopNames.length >= 2
+      const directionVerified = direction.status === 'verified' || ownerValidatedSequence
       const base = {
         status: 'NEEDS_HUMAN_REVIEW' as const,
         network: line.network,
         line: line.line,
         direction: directionId,
         directionStatus: direction.status,
-        stopCount: direction.stopIds.length,
+        stopCount: sequenceCount,
         origin: direction.origin,
         destination: direction.destination,
         sourceUrl: direction.sourceUrl,
         sourceLabel: direction.sourceLabel,
       }
 
-      if (direction.stopIds.length < 2) {
+      if (sequenceCount < 2) {
         lineComplete = false
         findings.push({
           ...base,
           id: `missing-direction-stops:${line.network}:${line.line}:${directionId}`,
           kind: 'MISSING_DIRECTION_STOPS',
-          evidence: ['Aucune séquence ordonnée complète de ce sens (au moins deux arrêts) n’est enregistrée.'],
+          evidence: ['Aucune séquence ordonnée complète de ce sens (au moins deux occurrences) n’est enregistrée.'],
         })
       }
 
-      if (direction.status !== 'verified') {
+      if (!directionVerified) {
         lineComplete = false
         findings.push({
           ...base,
@@ -88,7 +89,7 @@ export function auditBidirectionalBusLines(
           kind: 'DIRECTION_NOT_VERIFIED',
           evidence: [
             `Statut actuel : ${direction.status}.`,
-            'Une séquence présente ou un terminus de catalogue ne suffit pas à valider le sens.',
+            'Une séquence présente ou un terminus de catalogue ne suffit pas ; la validation du responsable du projet est enregistrée séparément.',
           ],
         })
       }
