@@ -251,19 +251,29 @@ function detailedRouteKey(line: { code: string; origin: string; destination: str
  * Les terminus sont comparés sans accents, parenthèses ni variante « Sébikhotane ».
  * Les collisions de numéro dont les terminus diffèrent ne sont pas fusionnées.
  */
-export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = (() => {
-  const codes = new Set<string>()
+export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
+  const shared = new Set<string>()
   const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string }[]).filter((line) => line.network === 'aftu')
   const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string }[]
   const tataKeys = new Set(detailedTata.map(detailedRouteKey))
-  for (const line of detailedAftu) if (tataKeys.has(detailedRouteKey(line))) codes.add(line.code)
+  for (const line of detailedAftu) {
+    const key = detailedRouteKey(line)
+    if (tataKeys.has(key)) shared.add(key)
+  }
   for (const aftu of AFTU_PUBLIC_LINE_CATALOG) {
     for (const tata of TATA_PUBLIC_LINE_CATALOG) {
-      if (aftu.line === tata.line && detailedRouteKey({ code: aftu.line, ...aftu }) === detailedRouteKey({ code: tata.line, ...tata })) codes.add(aftu.line)
+      const aftuKey = detailedRouteKey({ code: aftu.line, origin: aftu.origin, destination: aftu.destination })
+      if (aftu.line === tata.line && aftuKey === detailedRouteKey({ code: tata.line, origin: tata.origin, destination: tata.destination })) shared.add(aftuKey)
     }
   }
-  return codes
+  return shared
 })()
+
+/** Alias de compatibilité pour les métriques : un numéro peut porter plusieurs
+ *  parcours distincts ; cet ensemble ne sert jamais seul à fusionner des fiches. */
+export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
+  [...AFTU_TATA_SHARED_ROUTE_KEYS].map((key) => key.slice(0, key.indexOf('|'))),
+)
 
 /**
  * Catalogue d’affichage commun. Les doublons confirmés par les séquences
@@ -275,7 +285,7 @@ export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = 
   const merged = new Map<string, PublicBusLineReference>()
   for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG, ...TATA_DETAILED_ADDITIONAL_PUBLIC_LINES]) {
     const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
-    const key = AFTU_TATA_SHARED_LINE_CODES.has(line.line) ? `${line.line}|shared` : `${line.line}|${ends[0]}|${ends[1]}`
+    const key = detailedRouteKey(line)
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
