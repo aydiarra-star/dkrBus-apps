@@ -1,6 +1,6 @@
 /**
- * Lecture croisée en lecture seule des pages officielles DDD et du guide CETUD JOJ.
- * Ce registre conserve les divergences de libellés/corridors sans réécrire
+ * Lecture croisée en lecture seule des pages officielles DDD, du guide CETUD JOJ
+ * et du service ArcGIS DDD 2024. Les divergences sont conservées, sans réécrire
  * les séquences publiées ni créer des directions ou des arrêts voyageurs.
  */
 export type DddOfficialSourceCrosswalkKind =
@@ -10,7 +10,7 @@ export type DddOfficialSourceCrosswalkKind =
   | 'distinct_service_identifiers'
 
 export interface DddOfficialSourceClaim {
-  source: 'ddd_route_page' | 'ddd_info_voyageurs' | 'cetud_joj_guide'
+  source: 'ddd_route_page' | 'ddd_info_voyageurs' | 'cetud_joj_guide' | 'ddd_arcgis_2024'
   corridor: string
 }
 
@@ -29,10 +29,7 @@ const entry = (
   claims: readonly DddOfficialSourceClaim[],
   decision: string,
 ): DddOfficialSourceCrosswalkEntry => ({
-  line,
-  kind,
-  claims,
-  decision,
+  line, kind, claims, decision,
   passengerCatalogueChanged: false,
   reverseSequenceCreated: false,
 })
@@ -42,6 +39,7 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK_URLS = {
   routePage: 'https://demdikk.sn/reseau-urbain-dakar/',
   infoPage: 'https://demdikk.sn/info-voyageurs/',
   cetudGuide: 'https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf',
+  arcgis2024: 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer',
 } as const
 
 export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkEntry[] = [
@@ -79,11 +77,16 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkE
     { source: 'ddd_route_page', corridor: 'Ligne 15 : Rufisque → Palais 1' },
     { source: 'ddd_info_voyageurs', corridor: 'Lignes 15A et 15B : Rufisque → Palais 1' },
   ], 'Ne pas fusionner 15, 15A et 15B ; demander une correspondance opérateur avant toute répartition.'),
+  entry('23', 'published_title_sequence_conflict', [
+    { source: 'ddd_route_page', corridor: 'En-tête Parcelles Assainies → Palais 1 ; dernier repère publié : Terminus Palais 2' },
+    { source: 'ddd_arcgis_2024', corridor: 'Ligne 23 ; segments décrits de Terminus des Parcelles / Ecole Dior jusqu’à Hôpital Le Dantec / Palais de Justice ; 54 points codés LIgne_23, premier Terminus Parcelles Assainies et dernier Terminus Palais de JUSTICE' },
+  ], 'Conflit d’extrémité confirmé entre l’en-tête et la séquence détaillée ; ArcGIS 2024 soutient un corridor jusqu’au Palais de Justice mais ne permet pas d’assimiler Palais 1, Palais 2 et Palais de Justice. Garder les 40 repères publiés et les 54 entités ArcGIS distincts ; aucune fusion ni correction automatique.'),
   entry('121', 'source_corridor_conflict', [
     { source: 'ddd_route_page', corridor: 'Scat Urbam → Leclerc' },
     { source: 'ddd_info_voyageurs', corridor: 'Scat Urbam → Leclerc' },
     { source: 'cetud_joj_guide', corridor: 'HLM Grand Yoff → Leclerc' },
-  ], 'Les deux pages DDD concordent sur Scat Urbam ; le guide JOJ donne HLM Grand Yoff. Garder les deux libellés comme sources distinctes, sans assimiler les terminus.'),
+    { source: 'ddd_arcgis_2024', corridor: 'Ligne 121 ; Terminus Scat Urban – Mairie Grand Yoff, puis Cité CSE / Sipres / Liberté 6 / Camp Pénal / Derklé / centre-ville jusqu’à Terminus Leclerc ; 31 points codés LIgne_121' },
+  ], 'Les deux pages DDD et la couche ArcGIS 2024 soutiennent le départ Scat Urbam/Scat Urban et l’arrivée Leclerc ; le guide JOJ indique HLM Grand Yoff. ArcGIS contient quatre occurrences Scat Urbam et des noms répétés : ne pas les dédupliquer ni les interpréter comme un ordre voyageurs validé. Conserver les sources séparées.'),
   entry('233', 'published_title_sequence_conflict', [
     { source: 'ddd_route_page', corridor: 'En-tête Palais 1 ; séquence détaillée jusqu’à Aéroport LSS' },
     { source: 'ddd_info_voyageurs', corridor: 'Baux Maraichers → Palais 1' },
