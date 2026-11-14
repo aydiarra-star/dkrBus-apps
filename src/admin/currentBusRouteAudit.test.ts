@@ -17,7 +17,7 @@ describe('getCurrentBusRouteAudit', () => {
 
   it('exposes AFTU source evidence separately from the passenger catalogue audit', () => {
     const report = getCurrentBusRouteAudit()
-    expect(report.aftuEvidence).toHaveLength(23)
+    expect(report.aftuEvidence).toHaveLength(27)
     expect(report.aftuEvidence.find((route) => route.line === '86')?.inbound.waypoints).toHaveLength(64)
     expect(report.aftuEvidence.find((route) => route.line === '87')?.inbound.waypoints).toHaveLength(71)
     expect(report.aftuEvidence.find((route) => route.line === '83')?.inbound.waypoints).toEqual([])
