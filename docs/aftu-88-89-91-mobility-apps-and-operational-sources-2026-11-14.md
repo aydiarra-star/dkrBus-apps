@@ -191,3 +191,67 @@ Qualification :
 - Il ne peut donc pas être utilisé pour ajouter Niacoulrab ou Darou Thioub à la séquence passager de la ligne AFTU 88 sans confirmation supplémentaire.
 
 Aucune séquence n'est modifiée sur cette base.
+
+## 11. Exploitation ciblée de PassBi — fiche magasin, captures d'écran et documentation éditeur (14 novembre 2026)
+
+### 11.1 Ce que confirme la version mobile publique
+
+La fiche Google Play de PassBi (package `com.senpassbi.app`), mise à jour le 30 janvier 2026, décrit un calculateur multimodal et une consultation des lignes et informations opérateurs. Elle dit explicitement que l'intégration des fournisseurs, dont AFTU, est progressive. La liste des sources GTFS nommées sur cette fiche renvoie au CETUD, SunuBRT, TER Dakar et Dakar Dem Dikk ; AFTU n'y apparaît pas comme une source GTFS distincte. Cette différence est importante : l'application mentionne AFTU comme réseau en cours d'intégration, mais ne publie pas la provenance d'un flux AFTU précis.
+
+Fiche officielle : https://play.google.com/store/apps/details?id=com.senpassbi.app
+
+La fiche indique 50+ téléchargements au moment de la consultation et ne requiert pas de compte dans cette première version. Il s'agit d'un indicateur de diffusion du package Android, pas d'une mesure de qualité ni de couverture des données.
+
+### 11.2 Analyse des captures d'écran officielles
+
+Les captures d'écran visibles sur la fiche Google Play montrent des catalogues distincts :
+- Dakar Dem Dikk : 53 lignes visibles dans la capture ;
+- BRT : 2 lignes visibles ;
+- TER : 6 lignes visibles ;
+- une capture de calcul d'itinéraire multimodal avec étapes et correspondances.
+
+Aucune des captures consultées ne montre un catalogue AFTU, ni les lignes 88, 89 ou 91. Cela ne prouve pas leur absence de la base interne ou d'une version plus récente : cela signifie uniquement que la couverture AFTU n'est pas démontrée par les éléments visuels publics de la fiche.
+
+Les captures ne donnent pas non plus d'identifiants de lignes, d'horodatage de mise à jour GTFS, de séquences d'arrêts AFTU ou de détails de sens aller/retour.
+
+### 11.3 Écart entre la fiche Android et la présentation actuelle de l'éditeur
+
+La page PassBi de l'éditeur Impact Solutions décrit une plateforme plus ambitieuse : moteur RAPTOR sur données GTFS, routage multimodal AFTU/DDD/BRT/TER, horaires temps réel, découverte des arrêts, et annonce de 292 bus AFTU équipés de validateurs NFC.
+
+Page éditeur : https://www.impactsolution.sn/solutions/passbi
+
+Le site public PassBi annonce également une documentation API (« API Docs ») et une application web, mais les pages accessibles publiquement lors de cette vérification n'ont pas fourni de documentation technique lisible ni de lien direct exploitable vers un flux de données anonyme. Aucun endpoint d'API public n'est donc enregistré ici : ne pas deviner de chemin d'API, ni tenter d'accéder à des interfaces privées.
+
+Les pages marketing présentent aussi des chiffres de déploiement et de performance qui ne constituent pas une preuve de la couverture d'une ligne particulière. Le chiffre « 292 bus AFTU équipés » peut concerner la billettique et l'équipement NFC ; il ne signifie pas que les itinéraires des lignes 88, 89 et 91 sont publiés dans le planificateur.
+
+### 11.4 Résultat ligne par ligne pour le chantier Dakar Bus
+
+| Ligne recherchée | Résultat vérifiable depuis PassBi public | Utilisation dans Dakar Bus |
+|---|---|---|
+| 88 — Bargny / Croisement Niague | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 89 — APIX / Dougar | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 91 — corridor non lisible dans l'index | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas inventer le corridor |
+
+**Verdict PassBi :** source prometteuse pour obtenir des données GTFS ou une API d'intégration, mais aucune donnée publique consultable n'a encore corroboré les arrêts des lignes 88, 89 ou 91. La fiche mobile et ses captures ne suffisent pas à prouver la présence des trois lignes. PassBi ne fournit donc, à ce stade, aucune séquence à importer.
+
+### 11.5 Demande technique ciblée à adresser à l'éditeur
+
+Contact public de la fiche Android : `contact@senpassbi.com`, téléphone `+221 78 450 00 58`. La page de l'éditeur Impact Solutions indique également `contact@senpassbi.sn`.
+
+La demande devra porter exclusivement sur les données partageables :
+1. présence ou absence des lignes AFTU 88, 89 et 91 dans la version de production ;
+2. pour chaque ligne présente, identifiant GTFS (`route_id`), nom public, opérateur/GIE et date de validité du flux ;
+3. fichiers ou export partageables `routes.txt`, `trips.txt`, `stop_times.txt`, `stops.txt`, `shapes.txt), avec les deux sens distincts ;
+4. date de dernière synchronisation et source amont (CETUD, opérateur, enquête terrain ou autre) ;
+5. documentation officielle de l'API et conditions d'accès intégrateur.
+
+Aucune authentification, clé privée, donnée personnelle ou donnée d'exploitation non publique ne doit être recherchée ou contournée. Une réponse de l'éditeur ou un export autorisé sera archivé puis contrôlé contre les sources CETUD/AFTU et les données cartographiques avant toute intégration.
+
+### 11.6 Références consultées
+
+- Google Play PassBi : https://play.google.com/store/apps/details?id=com.senpassbi.app
+- Présentation technique et commerciale Impact Solutions : https://www.impactsolution.sn/solutions/passbi
+- Site PassBi : https://senpassbi.com/
+- Conditions d'utilisation PassBi (mises à jour le 3 octobre 2026) : https://senpassbi.com/terms
+
+Les conditions publiques rappellent que les contenus de l'application peuvent comporter des erreurs et ne sont pas garantis comme exacts, complets ou à jour. Toute donnée PassBi devra donc être datée et corroborée avant d'être traitée comme référence.
