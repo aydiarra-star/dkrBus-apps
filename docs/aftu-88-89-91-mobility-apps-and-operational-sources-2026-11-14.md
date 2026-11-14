@@ -323,3 +323,38 @@ La page officielle consultée affiche aussi 85 = Banoba–Liberté 5, 86 = Tourn
 Le registre technique `src/data/aftuOfficialIndexCrosswalk.ts` et ses tests dédiés protègent ces associations et empêchent de traiter un simple titre de corridor comme une séquence complète. Les listes d'arrêts, leurs répétitions, leur ordre et leurs deux directions restent inchangés.
 
 Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index AFTU, sections lignes 85 à 91).
+
+
+## 10. Nouvelle vérification publique AFTU / Moovit (14 novembre 2026)
+
+Une nouvelle recherche ciblée a été menée par numéro de ligne, en recherchant les fiches Moovit indexées pour 88, 89 et 91, ainsi que les noms de corridor officiels.
+
+### AFTU — index officiel relu
+
+La page AFTU affiche explicitement :
+- 88 : MTOA – Liberté 5 ;
+- 89 : Bargny – Croisement Niague (Cité SICAP) ;
+- 91 : APIX – Dougar.
+
+Dans le rendu public récupéré, les lignes 88, 89 et 91 affichent « Voir itinéraire » sans lien de fiche détaillée exploitable, contrairement aux fiches détaillées des lignes antérieures. L'index confirme donc les corridors, mais ne permet pas de télécharger ou vérifier les séquences d'arrêts ordonnées de ces trois lignes.
+
+### Moovit — résultat de recherche publique
+
+La page publique Moovit consacrée à AFTU Dakar annonce 64 lignes et 1 634 arrêts. Les résultats de recherche donnent des fiches horaires détaillées pour certaines lignes du catalogue, notamment 72, 79 et 80, mais la recherche ciblée n'a pas fait ressortir de fiche AFTU 88, 89 ou 91 ni de séquence indépendante correspondante.
+
+**Interprétation :** le catalogue public Moovit consultable par moteur de recherche semble incomplet ou ne pas exposer ces trois fiches sous leur numéro actuel. Cela ne prouve pas que les lignes n'existent pas, ni que l'application mobile ne les contient pas. Aucune donnée de Moovit n'est donc utilisée pour modifier les arrêts du projet.
+
+Sources consultées le 14 novembre 2026 :
+- AFTU, index des lignes : https://aftu-senegal.org/infos-pratiques/
+- Moovit, catalogue AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
+- Exemple de fiche horaire publique Moovit ligne 80 : https://moovitapp.com/index/fr/transport_en_commun-time-80-Dakar-5996-1618038-18051453-4256227-0
+
+### Décision après recoupement
+
+- Les corridors 88, 89 et 91 sont confirmés par l'index AFTU.
+- Les fiches détaillées indépendantes pour ces trois numéros ne sont pas confirmées par les pages publiques actuellement indexées de Moovit.
+- Les 78/81 arrêts de la ligne 88, les 55/53 de la ligne 89 et les 70/70 de la ligne 91 restent inchangés.
+- Les 18 arrêts communs ordonnés entre 89 et 91 restent un indice de segment partagé, jamais une preuve de fusion ou de renumérotation.
+- Aucun horaire, fréquence, coordonnée, arrêt ou terminus n'est déduit de ces résultats négatifs.
+- La vérification via les applications mobiles CETUD Mobilités, FastFey et Seddo et auprès de l'exploitation AFTU/CAPTRANS reste ouverte ; les fiches App Store ne remplacent pas une observation du contenu applicatif.
+
