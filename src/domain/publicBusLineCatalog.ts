@@ -332,9 +332,7 @@ export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = 
   ]
   for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
     const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-    const shared = AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)
     const detail = detailedRecords.find((item) => item.network === line.network && detailedRouteKey(item) === routeKey)
-    const sequenceKey = detail?.waypoints?.length ? normalizedRouteStops(detail.waypoints).join('>') : 'no-detail'
     const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: detail?.waypoints })
     if (!merged.has(key)) merged.set(key, line)
   }
