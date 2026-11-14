@@ -8,7 +8,7 @@ const context = { publishedAvailable: false, adminOnline: false }
 function ask(question: string) { return answerMobilityKnowledge(question)?.text ?? '' }
 
 describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
-  it('embarque 72 fiches AFTU et 37 DDD, pas un graphe ni des positions inventées', () => {
+  it('embarque 72 fiches AFTU / TATA et 37 DDD, pas un graphe ni des positions inventées', () => {
     expect(BUS_LINES.filter((line) => line.network === 'aftu')).toHaveLength(72)
     expect(BUS_LINES.filter((line) => line.network === 'ddd')).toHaveLength(37)
     expect(BUS_LINES.filter((line) => line.waypoints.length)).toHaveLength(80)
@@ -30,16 +30,16 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     }
   })
 
-  it('ne confond pas le même numéro sur DDD et AFTU', () => {
-    expect(ask('ligne 1')).toContain('Précisez DDD ou AFTU')
+  it('distingue les parcours distincts sous un réseau AFTU / TATA unifié', () => {
+    expect(ask('ligne 1')).toContain('Plusieurs parcours distincts portent le numéro 1')
     expect(ask('DDD 01')).toContain('Place Leclerc')
     expect(ask('AFTU ligne 1')).toContain('Lat Dior')
     expect(ask('AFTU ligne 1')).toContain('Grand Médine')
     expect(ask('AFTU ligne 1')).toContain('terminus à confirmer')
   })
 
-  it('donne le parcours AFTU récent plutôt que le parcours historique CETUD', () => {
-    const result = ask('itinéraire AFTU 53')
+  it('donne le parcours AFTU / TATA récent plutôt que le parcours historique CETUD', () => {
+    const result = ask('itinéraire AFTU / TATA 53')
     expect(result).toContain('Terminus Keur Massar (Marché)')
     expect(result).toContain('Sococim → Bargny → Diamniadio')
     expect(result).toContain('publication du 2026-07-06')
@@ -47,14 +47,13 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(result).toContain('pas une liste d’arrêts géolocalisés')
   })
 
-  it('ne confond pas TATA et AFTU lorsqu’aucune fiche TATA n’est chargée', () => {
+  it('une recherche TATA consulte aussi les lignes AFTU du réseau commun', () => {
     const reply = ask('TATA 42')
-    expect(reply).toContain('La ligne 42 tata n’est pas documentée')
-    expect(reply).not.toContain('AFTU 42')
-    expect(reply).not.toContain('Boutikou Diallo')
+    expect(reply).toContain('AFTU / TATA 42')
+    expect(reply).toContain('Gadaye')
   })
 
-  it('charge une fiche TATA candidate sous son propre réseau', () => {
+  it('intègre une fiche TATA candidate aux résultats AFTU / TATA unifiés', () => {
     const candidate = {
       network: 'tata',
       code: '42',
@@ -69,9 +68,9 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     } as BusLine
     setRemoteCandidateLines([candidate])
     const reply = ask('TATA 42')
-    expect(reply).toContain('TATA 42')
+    expect(reply).toContain('Plusieurs parcours distincts portent le numéro 42')
+    expect(reply).toContain('AFTU / TATA 42')
     expect(reply).toContain('Petersen ↔ Keur Massar')
-    expect(reply).not.toContain('AFTU 42')
     setRemoteCandidateLines([])
   })
 
@@ -99,7 +98,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   })
 
   it('n’inverse pas un parcours ou ne garantit pas une correspondance bus', () => {
-    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('AFTU 68')
+    expect(ask('trajet AFTU de Sébikotane à Keur Massar')).toContain('AFTU / TATA 68')
   })
 
   it('préserve le calculateur TER/BRT existant pour ses parcours', () => {
