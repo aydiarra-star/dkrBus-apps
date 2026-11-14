@@ -53,6 +53,10 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkE
     { source: 'ddd_info_voyageurs', corridor: 'Cambérène 2 → Palais 2' },
     { source: 'cetud_joj_guide', corridor: 'Cambérène → Palais 1' },
   ], 'Conserver les trois déclarations comme conflit de sources ; ne pas choisir un terminus ni réécrire la séquence.'),
+  entry('12', 'source_corridor_conflict', [
+    { source: 'ddd_route_page', corridor: 'Guédiawaye → Palais 1 ; séquence publiée de 20 repères' },
+    { source: 'ddd_arcgis_2024', corridor: 'Tracé de 24,52 km et 11 champs de segments textuels ; aucune couche de points dédiée ; métadonnée lastEditDate du 6 décembre 2017' },
+  ], 'La séquence détaillée de 20 repères est publiée par DDD et conservée dans le registre. ArcGIS ne fournit qu’un corridor historique sans points d’arrêt ; ne pas convertir les segments textuels en arrêts ni créer un retour.'),
   entry('7', 'source_corridor_conflict', [
     { source: 'ddd_route_page', corridor: 'Ouakam → Palais 2' },
     { source: 'ddd_info_voyageurs', corridor: 'Ouakam → Palais 2' },
@@ -73,6 +77,10 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkE
     { source: 'ddd_info_voyageurs', corridor: 'Liberté 5 → Palais 2' },
     { source: 'cetud_joj_guide', corridor: 'Dieuppeul → Palais 1' },
   ], 'Conserver les terminus selon chaque source ; le guide JOJ ne remplace pas la fiche détaillée DDD.'),
+  entry('16B', 'source_corridor_conflict', [
+    { source: 'ddd_route_page', corridor: 'Malika → Palais 1 ; séquence publiée de 27 repères' },
+    { source: 'ddd_arcgis_2024', corridor: '12 champs de segments textuels reprenant le corridor Malika–Palais 1 ; tracé daté du 6 décembre 2017 ; aucune couche de points dédiée' },
+  ], 'Le corridor est cohérent entre la fiche DDD et les champs textuels ArcGIS historiques. Cela ne fournit ni arrêts géolocalisés ni second sens ; conserver les 27 repères publiés et ne pas générer de retour.'),
   entry('15', 'source_identifier_granularity', [
     { source: 'ddd_route_page', corridor: 'Ligne 15 : Rufisque → Palais 1' },
     { source: 'ddd_info_voyageurs', corridor: 'Lignes 15A et 15B : Rufisque → Palais 1' },
