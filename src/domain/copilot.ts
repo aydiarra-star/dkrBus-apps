@@ -1,5 +1,6 @@
 import { answerMobilityKnowledge } from './mobilityKnowledge'
 import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
+import { answerRemoteTrafficQuestion } from './remoteTrafficKnowledge'
 /**
  * Copilote de mobilité : interprétation des questions libres, récupération
  * dans le référentiel, calcul d'itinéraires et réponses honnêtes.
@@ -613,9 +614,21 @@ export function copilotAnswer(
     return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteKnowledge : remoteKnowledge, language: 'fr' }
   }
   if (/\btata\b/.test(text) && !context.remoteMobilityKnowledge) {
-    const message = 'Le catalogue TATA est distinct de celui de l’AFTU. La connexion au référentiel central est momentanément indisponible ; je ne vais pas remplacer une ligne TATA par une ligne AFTU.'
+    const tataLineCode = /\b(?:tata\s*)?(\d{1,3})\b/i.exec(question)?.[1]
+    const message = tataLineCode
+      ? `Le catalogue TATA est distinct de celui de l’AFTU. La ligne ${tataLineCode} tata n’est pas documentée dans le référentiel central ; je ne la remplace pas par une ligne AFTU.`
+      : 'Le catalogue TATA est distinct de celui de l’AFTU. La connexion au référentiel central est momentanément indisponible ; je ne vais pas remplacer une ligne TATA par une ligne AFTU.'
     memory.lastAnswer = message
     return { text: message, language: 'fr' }
+  }
+
+  const asksTraffic = /\b(trafic|circulation|bouchon|embouteillage|accident|alerte|perturbation|retard|incident|route|actuel|maintenant|autour de moi|pres de moi|mon trajet|sur mon trajet)\b/.test(text)
+  if (asksTraffic && context.remoteTrafficKnowledge) {
+    const remoteTraffic = answerRemoteTrafficQuestion(question, context.remoteTrafficKnowledge)
+    if (remoteTraffic) {
+      memory.lastAnswer = remoteTraffic
+      return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteTraffic : remoteTraffic, language: 'fr' }
+    }
   }
 
   const knowledge = answerMobilityKnowledge(question, memory.lastKnowledgeLineId)
