@@ -258,10 +258,10 @@ describe('mémoire embarquée sans publication ni API', () => {
     expect(reply.text).toContain('aucun import GTFS n’est nécessaire')
   })
 
-  it('consulte la fiche AFTU pour TATA sans fabriquer un trajet géographique', () => {
+  it('ne confond pas une demande TATA avec une fiche AFTU sans preuve', () => {
     const { reply } = ask('Où passe le bus TATA 42 ?')
-    expect(reply.text).toContain('AFTU 42')
-    expect(reply.text).toContain('Ouakam Baye')
+    expect(reply.text).toContain('La ligne 42 tata n’est pas documentée')
+    expect(reply.text).not.toContain('AFTU 42')
     expect(reply.journey).toBeUndefined()
   })
 })

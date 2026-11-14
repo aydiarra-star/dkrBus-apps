@@ -8,7 +8,7 @@ import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
 export const BUS_LINES = catalog
-export type BusLine = typeof BUS_LINES[number]
+export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
 export interface KnowledgeReply { text: string; lineId?: string }
 
 export interface RemoteTrafficIncident {
@@ -270,7 +270,7 @@ function graphSupplement(line: BusLine, text: string): string {
 }
 function label(line: BusLine): string { return `${line.network.toUpperCase()} ${line.code} : ${line.origin} ↔ ${line.destination}` }
 function explicitNetworks(text: string): string[] {
-  return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\b(aftu|tata)\b/.test(text) ? 'aftu' : '')].filter(Boolean)
+  return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\baftu\b/.test(text) ? 'aftu' : ''), (/\btata\b/.test(text) ? 'tata' : '')].filter(Boolean)
 }
 function lineReply(line: BusLine, question: string): KnowledgeReply {
   const text = normalizeMobility(question)
@@ -312,7 +312,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
 export function busKnowledgeSummary(): string {
   const ddd = BUS_LINES.filter((line) => line.network === 'ddd').length
   const aftu = BUS_LINES.filter((line) => line.network === 'aftu').length
-  return `Mémoire documentaire DDD/AFTU : ${ddd} fiches DDD et ${aftu} fiches AFTU, dont ${BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce catalogue n’est pas exhaustif ; les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter. « TATA » peut être précisé par un numéro de ligne AFTU, sans supposer un réseau indépendant vérifié.`
+  return `Mémoire documentaire DDD/AFTU : ${ddd} fiches DDD et ${aftu} fiches AFTU, dont ${BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce catalogue n’est pas exhaustif ; les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter. Les fiches TATA du référentiel central sont chargées séparément lorsqu’elles sont disponibles.`
 }
 
 export function generalFareReply(): string {
@@ -456,7 +456,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     if (matches.length > 1) return { text: `Ce numéro existe sur plusieurs réseaux :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez DDD ou AFTU pour éviter de vous orienter vers le mauvais bus.` }
     if (matches.length === 1) {
       const reply = lineReply(matches[0], question)
-      if (/\btata\b/.test(text)) reply.text = 'Si vous désignez la ligne AFTU par « TATA », voici sa fiche :\n' + reply.text
+      /* TATA reste un réseau distinct ; aucune réécriture en AFTU. */
       return reply
     }
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
@@ -473,15 +473,15 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     if (route) return route
   }
   if (networks.length) {
-    const lines = BUS_LINES.filter((line) => networks.includes(line.network))
-    if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
-    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
+    const lines = [...BUS_LINES, ...remoteCandidateLines].filter((line, index, all) => networks.includes(line.network) && all.findIndex((item) => key(item) === key(line)) === index)
+    if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : networks.includes('aftu') ? `AFTU : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` : 'Je ne dispose pas encore d’un contact opérateur TATA vérifié dans le référentiel.' }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
-      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
-    if (/\b(tata)\b/.test(text)) return { text: `Pour les minibus que vous appelez « TATA », je peux consulter les fiches AFTU si vous précisez le numéro. Je n’assimile pas automatiquement tout véhicule TATA à une ligne AFTU. ${busKnowledgeSummary()}${source(SOURCES.aftuLines)}` }
-    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
+    if (/\btata\b/.test(text)) return { text: `Le réseau TATA est consulté séparément d’AFTU. Les fiches candidates TATA disponibles dans le référentiel central sont affichées sous leur propre réseau ; si aucune fiche n’est trouvée, je ne remplace pas TATA par AFTU. ${busKnowledgeSummary()}` }
+    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : networks.includes('aftu') ? `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` : `Le réseau TATA est interrogé séparément d’AFTU. Les fiches et parcours TATA ne sont affichés que lorsqu’ils existent dans le référentiel central et restent candidats tant qu’ils ne sont pas validés. ${busKnowledgeSummary()}` }
   }
   return null
 }

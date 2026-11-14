@@ -47,9 +47,32 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(result).toContain('pas une liste d’arrêts géolocalisés')
   })
 
-  it('accepte TATA comme formulation usager avec clarification AFTU', () => {
-    expect(ask('TATA 42')).toContain('Si vous désignez la ligne AFTU')
-    expect(ask('TATA 42')).toContain('Boutikou Diallo')
+  it('ne confond pas TATA et AFTU lorsqu’aucune fiche TATA n’est chargée', () => {
+    const reply = ask('TATA 42')
+    expect(reply).toContain('La ligne 42 tata n’est pas documentée')
+    expect(reply).not.toContain('AFTU 42')
+    expect(reply).not.toContain('Boutikou Diallo')
+  })
+
+  it('charge une fiche TATA candidate sous son propre réseau', () => {
+    const candidate = {
+      network: 'tata',
+      code: '42',
+      origin: 'Petersen',
+      destination: 'Keur Massar',
+      waypoints: ['Petersen', 'Colobane', 'Keur Massar'],
+      sourceUrl: 'https://example.com/tata-42',
+      detailSourceUrl: 'https://example.com/tata-42/details',
+      consultedAt: '2026-11-12',
+      publishedAt: null,
+      note: 'Fiche TATA candidate.',
+    } as BusLine
+    setRemoteCandidateLines([candidate])
+    const reply = ask('TATA 42')
+    expect(reply).toContain('TATA 42')
+    expect(reply).toContain('Petersen ↔ Keur Massar')
+    expect(reply).not.toContain('AFTU 42')
+    setRemoteCandidateLines([])
   })
 
   it('signale les divergences, y compris celles présentes chez un opérateur', () => {
