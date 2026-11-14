@@ -92,7 +92,8 @@ begin
       'target_type', audit_row.target_type,
       'target_id', audit_row.target_id,
       'details', audit_row.details,
-      'created_at', audit_row.created_at,
+      'created_at_epoch_microseconds',
+      (extract(epoch from audit_row.created_at) * 1000000)::bigint,
       'previous_hash', v_previous_hash
     )::text;
     current_hash := public.dakar_admin_sha256(payload);
@@ -165,7 +166,8 @@ begin
     'target_type', new.target_type,
     'target_id', new.target_id,
     'details', new.details,
-    'created_at', new.created_at,
+    'created_at_epoch_microseconds',
+    (extract(epoch from new.created_at) * 1000000)::bigint,
     'previous_hash', new.previous_hash
   )::text;
   new.event_hash := public.dakar_admin_sha256(payload);
