@@ -16,7 +16,8 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
       const ends = [normalize(line.origin), normalize(line.destination)].sort()
       return `${line.line}|${ends[0]}|${ends[1]}`
     })
-    expect(new Set(keys).size).toBe(keys.length)
+    // Les terminus identiques peuvent désormais rester en deux fiches si les arrêts diffèrent.
+    expect(new Set(keys).size).toBeLessThan(keys.length)
     expect(AFTU_TATA_SHARED_ROUTE_KEYS.size).toBe(10)
     expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(10)
     // Les lignes 4 et 33 ont une séquence détaillée commune ; les lignes 5, 39 et 42 ne sont pas fusionnées sur les seuls terminus.
