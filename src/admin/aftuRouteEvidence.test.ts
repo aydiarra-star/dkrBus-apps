@@ -63,6 +63,16 @@ describe('adaptateur de preuves AFTU', () => {
     expect(getAftuRouteEvidence('91')?.sourceStatus).toBe('user-validated-cetud-sequences')
   })
 
+  it('identifie toutes les séquences retour manquantes dans les 27 fiches détaillées chargées', () => {
+    const missing = AFTU_ROUTE_EVIDENCE
+      .filter((route) => route.inbound.sequenceStatus === 'missing')
+      .map((route) => route.line)
+    expect(missing).toEqual(['83'])
+    expect(AFTU_ROUTE_EVIDENCE.every((route) =>
+      route.outbound.sequenceStatus === 'documented' && route.serviceWindow.start === '05:30' && route.serviceWindow.end === '22:00',
+    )).toBe(true)
+  })
+
   it('conserve le retour absent de la fiche 83', () => {
     const route = getAftuRouteEvidence('83')
     expect(route?.outbound.waypoints).toHaveLength(14)
