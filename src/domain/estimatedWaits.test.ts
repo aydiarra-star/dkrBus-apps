@@ -11,6 +11,7 @@ describe('estimations de temps d’attente', () => {
   it('applique la référence empirique partagée aux minibus AFTU et TATA', () => {
     expect(estimatedWaitMinutes('aftu', Date.parse('2026-11-07T12:00:00Z'))).toBe(8)
     expect(estimatedWaitMinutes('tata', Date.parse('2026-11-07T12:00:00Z'))).toBe(8)
+    expect(estimatedWaitMinutes('aftu_tata', Date.parse('2026-11-07T12:00:00Z'))).toBe(8)
   })
 
   it('applique les fréquences estimatives propres aux lignes AFTU 42 et 53', () => {
@@ -26,7 +27,8 @@ describe('estimations de temps d’attente', () => {
     expect(estimatedFrequencyReference('ddd')).toContain('7–10 min aux heures de pointe')
     expect(estimatedFrequencyReference('ddd')).toContain('10–15 min en heures creuses')
     expect(estimatedFrequencyReference('aftu')).toContain('11,58 min')
-    expect(estimatedFrequencyReference('tata')).toContain('partagée AFTU/TATA')
+    expect(estimatedFrequencyReference('tata')).toContain('11,58 min')
+    expect(estimatedFrequencyReference('aftu_tata')).toContain('11,58 min')
     expect(estimatedFrequencyReference('ter')).toBeNull()
   })
 
@@ -46,6 +48,9 @@ describe('estimations de temps d’attente', () => {
       minutes: 12,
       headwayMinutes: 12,
     })
+    expect(estimatedNextPassage('aftu_tata', Date.parse('2026-11-07T12:00:00Z'))).toEqual(
+      estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
+    )
     expect(estimatedNextPassage('tata', Date.parse('2026-11-07T12:00:00Z'))).toEqual(
       estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
     )
