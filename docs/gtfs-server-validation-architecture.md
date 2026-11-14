@@ -92,3 +92,11 @@ Le validateur refuse les plages `frequencies.txt` qui se chevauchent pour un mê
 Pour `shapes.txt`, l'ordre sémantique est porté par `shape_pt_sequence`, qui doit être non négatif et unique pour chaque forme ; l'ordre physique des lignes CSV n'est pas interprété comme un ordre de trajet. Lorsque `shape_dist_traveled` est fourni, il doit être numérique, fini, non négatif et strictement croissant lorsque les points sont ordonnés par `shape_pt_sequence`.
 
 Les tests restent synthétiques et couvrent les chevauchements, les frontières adjacentes, la cohérence de `exact_times`, les distances de forme et l'ordre de lignes CSV. Ces contrôles sont structurels : ils ne valident ni l'autorité de la source, ni les droits de réutilisation, ni l'actualité d'un service.
+
+## Couverture stricte et refus des tables non contrôlées (14 novembre 2026)
+
+Le validateur échoue maintenant de façon conservatrice lorsqu'une table optionnelle GTFS reconnue est présente mais n'est pas encore prise en charge (`OPTIONAL_TABLE_NOT_VALIDATED`). Un fichier `.txt` inconnu placé à la racine du flux est également refusé (`UNRECOGNIZED_TEXT_TABLE`) au lieu d'être ignoré. Une archive contenant des tables non contrôlées ne peut donc plus recevoir `structure_valid = true` par simple absence d'erreur dans les tables connues. Il faut étendre le validateur et ses tests avant d'accepter ces tables.
+
+Dans `stop_times.txt`, si `arrival_time` et `departure_time` sont tous deux vides, `timepoint=0` est désormais obligatoire ; sinon la structure est invalide. Les valeurs renseignées de `pickup_type` et `drop_off_type` sont limitées aux codes GTFS 0 à 3. La version du worker est passée à `dakar-gtfs-validator-v2` afin que le rapport enregistré identifie cette nouvelle règle. La compression ZIP LZMA est refusée : le décodeur standard `zipfile` ne permet pas de fixer ici une limite mémoire fiable sur le dictionnaire LZMA. Les méthodes STORED, DEFLATED et BZIP2 restent acceptées sous les limites d'archive et de décompression déclarées.
+
+Ces refus maintiennent le dataset en quarantaine (`integrity_status = INVALID` après exécution du worker) et ne constituent ni une approbation humaine, ni une publication, ni une validation de provenance.
