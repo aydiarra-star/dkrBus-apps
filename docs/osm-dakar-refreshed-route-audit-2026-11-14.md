@@ -1,7 +1,7 @@
 # Audit OSM actualisé — relations DDD, AFTU et BRT dans Dakar
 
-Date de l'extraction : 14 novembre 2026, 05:17 UTC  
-Workflow OSM : [43560694378](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43560694378) — succès  
+Date de l'extraction : 14 novembre 2026, 05:20 UTC  
+Workflow OSM : [43561007354](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43561007354) — succès  
 Artefact : `dakar-osm-route-candidates` et `dakar-osm-directional-pairs`  
 Source : OpenStreetMap contributors via Overpass, licence ODbL  
 Périmètre : boîte géographique métropolitaine de Dakar définie par le workflow.
@@ -58,8 +58,8 @@ Il s'agit d'un signal communautaire de cohérence directionnelle, pas d'une nouv
 
 ## 4. AFTU — contrôle des pages officielles exécuté sur le même HEAD
 
-Workflow : [43560694408](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43560694408) — succès.  
-L'artefact confirme 65 pages officielles récupérées avec texte d'itinéraire (63 liées depuis l'index et 2 pages supplémentaires déjà identifiées, lignes 27 et 36). Sept tentatives complémentaires (84, 85, 86, 87, 88, 89 et 91) restent en erreur HTTP 404. Les sept lignes demeurent listées sur l'index officiel avec leurs corridors, mais sans fiche détaillée accessible par les URL testées. Aucun arrêt intermédiaire, retour ou horaire n'est inventé.
+Workflow : [43561007378](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/43561007378) — succès.  
+L'artefact `14100173826` confirme 65 pages officielles récupérées avec texte d'itinéraire (63 liées depuis l'index et 2 pages supplémentaires, lignes 27 et 36). Sept tentatives complémentaires (84, 85, 86, 87, 88, 89 et 91) restent en erreur HTTP 404. Le contrôle actualisé n'a donc pas débloqué ces sept fiches. Les sept lignes demeurent listées sur l'index officiel avec leurs corridors, mais sans fiche détaillée accessible par les URL testées. Aucun arrêt intermédiaire, retour ou horaire n'est inventé.
 
 ## Méthode et garde-fous
 
