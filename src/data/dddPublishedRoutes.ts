@@ -37,9 +37,12 @@ const route = (
   stops: readonly string[],
   retrievedOn: '2026-11-09' | '2026-11-10' | '2026-11-13' = '2026-11-09',
   sourceConflict?: string,
+  sourceUrlOverride?: string,
 ): DddPublishedRoute => ({
   line, origin, destination, kind, stops,
-  sourceUrl, sourceLabel, retrievedOn, sourceConflict,
+  sourceUrl: sourceUrlOverride ?? sourceUrl,
+  sourceLabel: sourceUrlOverride ? 'Dakar Dem Dikk · Info voyageurs' : sourceLabel,
+  retrievedOn, sourceConflict,
   directionVerified: false,
   coordinatesVerified: false,
 })
