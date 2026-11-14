@@ -75,7 +75,7 @@
         "Touba Ngayame",
         "Terminus 86 (Terminus)"
       ],
-      "times": [
+      "transcribedTimesUnvalidated": [
         "05:47",
         "05:47",
         "05:48",
@@ -224,7 +224,7 @@
   "sourceLabel": "CETUD — captures transmises par l’utilisateur",
   "sourceStatus": "user-provided-cetud-reference",
   "inboundStatus": "CETUD_SOURCE_USER_SUPPLIED",
-  "note": "Les listes sont transcrites dans l’ordre communiqué, sans fusionner les deux sens ni supprimer les doublons. Les horaires aller sont conservés exactement tels que fournis. La séquence horaire comporte une rupture chronologique : après 05:50, plusieurs arrêts portent 05:38–05:40 ; ne pas réordonner ni corriger sans retour à la capture source. Le retour est fourni sans horaires. L’encodage brut « Kà«R Yaye » est conservé tel que transmis, avec la correction lisible Keur Yaye uniquement en commentaire.",
+  "note": "Les listes d’arrêts sont transcrites dans l’ordre communiqué, sans fusionner les deux sens ni supprimer les doublons. Les heures figurant sur la transcription initiale sont explicitement invalidées : l’heure réelle de départ n’est pas connue et ces valeurs ne constituent pas un horaire fiable. Elles sont conservées uniquement dans transcribedTimesUnvalidated pour la traçabilité de la transcription et ne doivent jamais être utilisées dans l’affichage voyageur, les calculs de passage ou les estimations. Le retour est fourni sans horaires. L’encodage brut « Kà«R Yaye » est conservé tel que transmis, avec « Keur Yaye » uniquement en commentaire.",
   "waypoints": [
     "Yeumbeul (Départ)",
     "Route De Malika Devant Mairie Yeumbel Sud Et Sgbs",
@@ -360,5 +360,6 @@
     "Route De Yeumbeul En Face Ecobank",
     "Route Yeumbeul Devant Diouma Thiaroye",
     "Route De Malika En Face Mairie Yeumbel Sud Et Sgbs (Terminus)"
-  ]
+  ],
+  "timeStatus": "invalid-unverified"
 }
