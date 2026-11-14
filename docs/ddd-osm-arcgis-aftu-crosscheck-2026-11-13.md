@@ -147,3 +147,9 @@ La revue des 17 codes sans groupe de points ArcGIS de même code et de l'extract
 ## 2 septies. Revue détaillée des lignes 1, 6, 12, 13, 16B et 121 (14 novembre 2026)
 
 Voir `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md` pour les mesures de projection et les divergences, notamment le conflit des deux pages officielles DDD pour la ligne 6 et les couches historiques des lignes 12 et 16B.
+
+## 2 octies. Contrôle institutionnel du guide officiel JOJ/CETUD (14 novembre 2026)
+
+Le rapport des lignes prioritaires a été complété après examen du guide officiel de mobilité JOJ Dakar 2026, portant les logos MITTA, Dakar 2026 et CETUD. Pour la ligne DDD 6, cette source ajoute une troisième variante de terminus (Cambérène–Palais 1), en plus des deux pages DDD qui divergent déjà (Cambérène 2–Palais 2 et Guédiawaye–Palais 1). Le conflit est donc confirmé, pas résolu. Le guide liste aussi des sélections AFTU par site de compétition, mais elles ne constituent pas un annuaire exhaustif : l'absence de 88/89/91 ne permet aucune conclusion sur leur existence. Aucune donnée passager n'a été modifiée.
+
+Voir l'addendum dans `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md`.
