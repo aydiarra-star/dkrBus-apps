@@ -14,6 +14,7 @@ export interface AftuOfficialIndexCrosswalkEntry {
   status: AftuIndexCrosscheckStatus
   observation: string
   stopSequenceValidatedByIndex: false
+  sequenceValidatedByProjectOwner: boolean
 }
 
 export const AFTU_OFFICIAL_INDEX_URL = 'https://aftu-senegal.org/infos-pratiques/'
@@ -26,6 +27,8 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     status: 'corridor_endpoints_not_equivalent',
     observation: 'La séquence enregistrée va de « Terminus De La Ligne 73 » à « Terminus Liberté 5 » et inclut des repères de Lac Rose ; Banoba n’est pas identifié explicitement comme équivalent de son premier terminus.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: true,
+    sequenceValidatedByProjectOwner: false,
   },
   {
     line: '86',
@@ -45,21 +48,21 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     line: '88',
     officialCorridor: 'MTOA – Liberté 5',
     status: 'corridor_overlap_endpoint_identity_unconfirmed',
-    observation: 'La séquence enregistrée va de « Terminus 88 » à « Terminus Liberté 5 » et contient un repère MTOA dans chaque sens (« Devant Mtoa… » à l’aller, « Station Mtoa » au retour). Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
+    observation: 'La séquence complète 78/81 est validée à 100 % par le responsable du projet ; elle va de « Terminus 88 » à « Terminus Liberté 5 » et contient un repère MTOA dans chaque sens (« Devant Mtoa… » à l’aller, « Station Mtoa » au retour). Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
     stopSequenceValidatedByIndex: false,
   },
   {
     line: '89',
     officialCorridor: 'Bargny – Croisement Niague (Cité SICAP)',
     status: 'corridor_overlap_endpoint_identity_unconfirmed',
-    observation: 'La séquence enregistrée relie « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague, dont « Croisement Niague ». L’équivalence de « Terminus 89 » avec le terminus officiel Croisement Niague reste à confirmer.',
+    observation: 'La séquence complète 55/53 est validée à 100 % par le responsable du projet ; elle relie « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague, dont « Croisement Niague ». L’équivalence de « Terminus 89 » avec le terminus officiel Croisement Niague reste à confirmer.',
     stopSequenceValidatedByIndex: false,
   },
   {
     line: '91',
     officialCorridor: 'APIX – Dougar',
     status: 'corridor_overlap_with_possible_extension',
-    observation: 'Les listes CETUD enregistrées vont de Losso à « Terminus 91 » / « Chez Lo électricien » et contiennent des repères de Cité APIX et Dougar Peulh. Le corridor APIX–Dougar semble inclus dans le parcours, mais les extrémités Losso et Chez Lo suggèrent une extension ou une variante à confirmer.',
+    observation: 'Les listes CETUD complètes 70/70 sont validées à 100 % par le responsable du projet ; elles vont de Losso à « Terminus 91 » / « Chez Lo électricien » et contiennent des repères de Cité APIX et Dougar Peulh. Le corridor APIX–Dougar semble inclus dans le parcours, mais les extrémités Losso et Chez Lo suggèrent une extension ou une variante à confirmer.',
     stopSequenceValidatedByIndex: false,
   },
 ] as const
