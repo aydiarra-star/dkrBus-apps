@@ -58,8 +58,8 @@ describe('adaptateur de preuves AFTU', () => {
     }
   })
 
-  it('marque les séquences 88, 89 et 91 comme validées à 100 % par le responsable du projet', () => {
-    for (const line of ['88', '89', '91']) {
+  it('marque les séquences 83, 88, 89 et 91 comme validées à 100 % par le responsable du projet', () => {
+    for (const line of ['83', '88', '89', '91']) {
       const route = getAftuRouteEvidence(line)
       expect(route?.validatedByProjectOwner).toBe(true)
       expect(route?.outbound.waypoints.length).toBeGreaterThan(0)
