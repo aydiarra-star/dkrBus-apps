@@ -85,7 +85,7 @@ Ce résultat donne une base concrète pour la prochaine revue : traiter d'abord 
 
 Pour les 26 paires de même code et de mêmes terminus, un second contrôle a comparé les ensembles de waypoints normalisés (accents/casse/ponctuation neutralisés). La mesure est l'indice de Jaccard sur les noms distincts : intersection des noms divisée par l'union. **Elle ignore volontairement l'ordre** ; elle sert uniquement à prioriser la revue, jamais à valider une séquence.
 
-Les 18 paires dont le score est au moins 0,70 sont :
+Les 17 paires dont le score est au moins 0,70 sont :
 
 | Code | Repères TATA / AFTU | Noms communs | Jaccard |
 |---:|---:|---:|---:|
@@ -106,9 +106,9 @@ Les 18 paires dont le score est au moins 0,70 sont :
 | 55 | 11 / 13 | 10 | 0,714 |
 | 51 | 7 / 10 | 7 | 0,700 |
 | 34 | 7 / 10 | 7 | 0,700 |
-| 78 | 10 / 12 | 9 | 0,692 |
 
-Les huit autres paires de terminus identiques ont un score inférieur à 0,70 (codes 46, 36, 43, 44, 1, 39, 79 et 30). Elles restent à contrôler, car une couverture secondaire partielle, des alias de noms ou une divergence de corridor peuvent expliquer le score.
+
+Les neuf autres paires de terminus identiques ont un score inférieur à 0,70 (codes 78, 46, 36, 43, 44, 1, 39, 79 et 30). Elles restent à contrôler, car une couverture secondaire partielle, des alias de noms ou une divergence de corridor peuvent expliquer le score.
 
 ### Priorité proposée
 
