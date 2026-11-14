@@ -99,7 +99,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dakar_bus_test
         run: |
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/bootstrap_supabase.sql -f supabase/migrations/20261113090000_dakar_admin_foundation.sql -f supabase/migrations/20261113100000_dakar_private_gtfs_staging.sql -f supabase/migrations/20261113110000_dakar_gtfs_validation_worker.sql -f supabase/migrations/20261113120000_dakar_gtfs_validation_integrity_guards.sql -f tests/sql/seed_legacy_dakar_admin_audit_event.sql -f supabase/migrations/20261114180000_dakar_admin_audit_hash_chain.sql -f supabase/migrations/20261114190000_dakar_gtfs_staging_least_privilege.sql -f tests/sql/test_gtfs_service_role_privileges.sql -f tests/sql/test_gtfs_validation_worker.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/bootstrap_supabase.sql -f supabase/migrations/20261113090000_dakar_admin_foundation.sql -f supabase/migrations/20261113100000_dakar_private_gtfs_staging.sql -f supabase/migrations/20261113110000_dakar_gtfs_validation_worker.sql -f supabase/migrations/20261113120000_dakar_gtfs_validation_integrity_guards.sql -f tests/sql/seed_legacy_dakar_admin_audit_event.sql -f supabase/migrations/20261114180000_dakar_admin_audit_hash_chain.sql -f supabase/migrations/20261114190000_dakar_gtfs_staging_least_privilege.sql -f supabase/migrations/20261114193000_dakar_gtfs_storage_isolation.sql -f tests/sql/test_gtfs_storage_isolation.sql -f tests/sql/test_gtfs_service_role_privileges.sql -f tests/sql/test_gtfs_validation_worker.sql
           bash tests/sql/test_dakar_admin_audit_concurrency.sh
 
   verify-gtfs-ingest:
