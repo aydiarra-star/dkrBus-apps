@@ -124,8 +124,7 @@ const NETWORK_MENTIONS: readonly { id: string; patterns: readonly string[] }[] =
   { id: 'ter', patterns: ['ter', 'train', 'senter', 'seter'] },
   { id: 'brt', patterns: ['brt', 'sunubrt', 'b1', 'b2', 'b3'] },
   { id: 'ddd', patterns: ['ddd', 'dikk'] },
-  { id: 'aftu', patterns: ['aftu'] },
-  { id: 'tata', patterns: ['tata'] },
+  { id: 'aftu_tata', patterns: ['aftu', 'tata'] },
 ]
 
 /**
@@ -196,15 +195,16 @@ const PLACE_KEYS: readonly { key: string; stops: CorridorStop[] }[] = (() => {
   return [...byKey.entries()].map(([key, stops]) => ({ key, stops })).sort((a, b) => b.key.length - a.key.length)
 })()
 
-const NETWORK_PRIORITY = ['ter', 'brt', 'ddd', 'aftu', 'tata'] as const
+const NETWORK_PRIORITY = ['ter', 'brt', 'ddd', 'aftu_tata'] as const
 
 /** Un même quartier est enregistré sur plusieurs réseaux : on retient l'arrêt du
  *  réseau le mieux documenté (TER, puis BRT), sauf si un réseau est cité. */
 function preferredStop(stops: readonly CorridorStop[], preferredNetwork: string | null): CorridorStop | null {
   if (stops.length === 0) return null
+  const normalizedPreferredNetwork = preferredNetwork === 'aftu' || preferredNetwork === 'tata' ? 'aftu_tata' : preferredNetwork
   const rank = (stop: CorridorStop): number => {
     const network = networkOfStopId(stop.id)
-    if (preferredNetwork && network === preferredNetwork) return -1
+    if (normalizedPreferredNetwork && network === normalizedPreferredNetwork) return -1
     const index = NETWORK_PRIORITY.indexOf(network as (typeof NETWORK_PRIORITY)[number])
     return index < 0 ? NETWORK_PRIORITY.length : index
   }
