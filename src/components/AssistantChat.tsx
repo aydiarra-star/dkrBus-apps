@@ -7,6 +7,7 @@ import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
 import { copilotAnswer } from '../domain/copilot'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
+import { clearConversationMemory, loadConversationMemory, saveConversationMemory } from '../domain/conversationStorage'
 import { type AssistantLanguagePreference } from '../domain/language'
 import { getPreferences, updatePreferences, usePreferences } from '../domain/preferences'
 import type { PlannerEndpoint } from '../domain/planner'
@@ -87,7 +88,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const preferences = usePreferences()
   const preference = preferences.language.assistant
   const listRef = useRef<HTMLDivElement | null>(null)
-  const memoryRef = useRef<ConversationMemory>(createConversationMemory())
+  const memoryRef = useRef<ConversationMemory>(loadConversationMemory(preferences.privacy.keepPlaceHistory))
   const lastTrafficQuestionRef = useRef<string | null>(null)
   const contextRef = useRef(context)
   const preferenceRef = useRef(preference)
@@ -101,6 +102,13 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   useEffect(() => {
     preferenceRef.current = preference
   }, [preference])
+  useEffect(() => {
+    if (!preferences.privacy.keepPlaceHistory) {
+      // La désactivation efface aussi le contexte en mémoire vive.
+      memoryRef.current = createConversationMemory()
+      clearConversationMemory()
+    }
+  }, [preferences.privacy.keepPlaceHistory])
 
   // Les réponses trafic suivent les preuves courantes : un accident résolu
   // ne reste pas dans une ancienne bulle. Les autres échanges sont inchangés.
@@ -215,6 +223,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
         }
         reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
+        saveConversationMemory(memoryRef.current, getPreferences().privacy.keepPlaceHistory)
       } catch {
         failed = true
         text = 'Une erreur est survenue en préparant cette réponse. Réessayez : la carte, la recherche et le calcul de trajet restent disponibles pendant ce temps.'
