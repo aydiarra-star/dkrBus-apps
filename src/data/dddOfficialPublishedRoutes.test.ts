@@ -32,6 +32,18 @@ describe('official DDD published route sequences', () => {
     expect(getDddOfficialPublishedRoute('504A')).toBeNull()
   })
 
+  it('preserves the official published sequences for priority lines 6, 12 and 16B', () => {
+    expect(getDddOfficialPublishedRoute('6')?.stops).toHaveLength(25)
+    expect(getDddOfficialPublishedRoute('6')?.stops[0]).toBe('Terminus Guédiawaye')
+    expect(getDddOfficialPublishedRoute('6')?.stops.at(-1)).toBe('Palais 1')
+    expect(getDddOfficialPublishedRoute('12')?.stops).toHaveLength(20)
+    expect(getDddOfficialPublishedRoute('12')?.stops[1]).toBe('Lycée Canada')
+    expect(getDddOfficialPublishedRoute('12')?.stops.at(-1)).toBe('Palais 1')
+    expect(getDddOfficialPublishedRoute('16B')?.stops).toHaveLength(27)
+    expect(getDddOfficialPublishedRoute('16B')?.stops[0]).toBe('Terminus Malika')
+    expect(getDddOfficialPublishedRoute('16B')?.stops.at(-1)).toBe('Palais 1')
+  })
+
   it('keeps distinct TAF TAF services and the published 502/503 headings', () => {
     expect(getDddOfficialPublishedRoute('TAF_TAF_TO1')?.stops.at(-1)).toBe('Palais 2')
     expect(getDddOfficialPublishedRoute('TAF_TAF')?.stops.at(-1)).toBe('AIBD')

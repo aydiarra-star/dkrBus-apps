@@ -52,6 +52,7 @@ export const DDD_PRIORITY_ROUTE_EVIDENCE: readonly DddPriorityRouteEvidence[] = 
     'La relation OSM 7499433 porte un nom de ligne 7, ref=6 et un seul arrêt ordonné : elle n’est pas associée au catalogue ligne 6.',
   ]),
   evidence('12', 'ARCGIS_CORRIDOR_ONLY', 0, null, [], [
+    'La page officielle DDD publie 20 repères de Guédiawaye à Palais 1 ; la séquence est conservée dans le registre officiel.',
     'Tracé ArcGIS de 24,52 km et 11 champs de segments textuels ; aucune couche de points dédiée.',
     'Métadonnée ArcGIS lastEditDate : 6 décembre 2017 ; conservation comme corridor historique seulement.',
     'Les terminus ArcGIS ne concordent pas entièrement avec la fiche DDD actuelle.',
@@ -62,6 +63,7 @@ export const DDD_PRIORITY_ROUTE_EVIDENCE: readonly DddPriorityRouteEvidence[] = 
     'Les points restent des candidats documentaires, pas des arrêts passagers importés.',
   ]),
   evidence('16B', 'OFFICIAL_CORRIDOR_TEXT_MATCH', 0, null, [], [
+    'La page officielle DDD publie 27 repères de Malika à Palais 1 ; la séquence est conservée dans le registre officiel.',
     'Les 12 champs de segments ArcGIS reprennent le corridor Malika–Palais 1 de la fiche DDD.',
     'Aucune couche de points dédiée ; le tracé est daté du 6 décembre 2017.',
     'Aucune direction retour distincte n’est établie par ce rapprochement.',

@@ -22,6 +22,14 @@ describe('DDD priority route evidence', () => {
     expect(route?.status).toBe('OSM_ORDER_GEOMETRY_STRONG_ONE_DIRECTION')
   })
 
+  it('records the published stop counts for lines 12 and 16B without promoting ArcGIS corridor data', () => {
+    expect(getDddPriorityRouteEvidence('12')?.notes.join(' ')).toContain('20 repères')
+    expect(getDddPriorityRouteEvidence('12')?.arcgisPointCount).toBe(0)
+    expect(getDddPriorityRouteEvidence('16B')?.notes.join(' ')).toContain('27 repères')
+    expect(getDddPriorityRouteEvidence('16B')?.arcgisPointCount).toBe(0)
+    expect(getDddPriorityRouteEvidence('16B')?.reverseSequenceCreated).toBe(false)
+  })
+
   it('keeps the line 6 terminus conflict explicit', () => {
     const route = getDddPriorityRouteEvidence('6')
     expect(route?.arcgisPointCount).toBe(60)
