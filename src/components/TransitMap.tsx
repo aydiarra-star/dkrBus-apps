@@ -224,6 +224,19 @@ function TransitMapView({
   const originIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-origin', 'Départ sélectionné', '#146b43'), [])
   const destinationIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-destination', 'Destination sélectionnée', '#d78a32'), [])
   const stops = useMemo(() => mappableStops(publishedStops), [publishedStops])
+  const uniqueCorridorStops = useMemo(() => corridorStops.filter((stop, index, all) => {
+    const prefix = stop.id.split('-')[0]
+    if (prefix !== 'aftu' && prefix !== 'tata') return true
+    const normalized = stop.name.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+    const firstEquivalent = all.findIndex((candidate) => {
+      const candidatePrefix = candidate.id.split('-')[0]
+      if (candidatePrefix !== 'aftu' && candidatePrefix !== 'tata') return false
+      const candidateName = candidate.name.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+      const meters = Math.hypot((candidate.lat - stop.lat) * 111_000, (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180))
+      return candidateName === normalized && meters <= 150
+    })
+    return firstEquivalent === index
+  }), [corridorStops])
   const corridorLineStops = useMemo(
     () =>
       corridorLines.map((line) => ({
@@ -331,7 +344,7 @@ function TransitMapView({
         })}
       {/* Pointillés très légers DDD/AFTU/TATA */}
       {corridorLineStops
-        .filter(({ line }) => line.network === 'ddd' || line.network === 'aftu' || line.network === 'tata')
+        .filter(({ line }) => line.network === 'ddd' || line.network === 'aftu_tata')
         .map(({ line, positions }) => {
           const paint = paintFor(line.network)
           const isDDD = line.network === 'ddd'
@@ -362,10 +375,10 @@ function TransitMapView({
           )
         })}
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
-      {corridorStops.map((stop) => {
+      {uniqueCorridorStops.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
-        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu' || line?.network === 'tata'
+        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'
         return (
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
