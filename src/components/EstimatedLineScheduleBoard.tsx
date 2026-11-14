@@ -16,6 +16,7 @@ import {
 } from '../domain/estimatedSchedules'
 import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
+  AFTU_TATA_SHARED_LINE_CODES,
   DDD_PUBLIC_LINE_CATALOG,
 } from '../domain/publicBusLineCatalog'
 
@@ -189,6 +190,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const routeCandidates = routeReferences.filter((item) => {
             if (item.code !== line.line) return false
             if (item.network === line.network) return true
+            if (AFTU_TATA_SHARED_LINE_CODES.has(line.line) && (item.network === 'aftu' || item.network === 'tata')) return true
             if (!item.origin || !item.destination) return false
             const candidateEnds = [normalizedRouteEndpoint(item.origin), normalizedRouteEndpoint(item.destination)].sort().join('|')
             return candidateEnds === lineEnds
