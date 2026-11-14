@@ -67,7 +67,7 @@ Les documents de conception et de couverture ont été regroupés sous `docs/ai/
 
 1. Cette PR est l'unique PR de référence du chantier IA ; les changements IA suivants doivent être intégrés à cette branche avant fusion, pas dispersés en PR concurrentes.
 2. Ne pas fusionner en bloc les anciennes PR #106, #107, #109, #112, #114 et #115 : elles contiennent des périmètres différents, des recouvrements et des éléments qui nécessitent une revue technique et de sécurité.
-3. Les anciennes propositions seront reprises sélectivement dans cette PR, puis leurs PR sources seront fermées avec un lien vers la PR de référence, une fois leurs changements récupérés ou explicitement écartés.
+3. Les anciennes propositions sont reprises sélectivement dans cette PR ; leurs PR sources sont fermées après récupération ou décision documentée.
 4. Aucune migration Supabase, fonction serveur, clé, collecte externe ou modification de données réseau ne sera activée sans vérification de son schéma, de ses droits, de ses secrets et de ses tests.
 5. La PR n'est pas considérée terminée tant que CI n'est pas verte, que les fonctions sont vérifiées et que le déploiement de production n'a pas été contrôlé.
 
@@ -75,7 +75,8 @@ Les documents de conception et de couverture ont été regroupés sous `docs/ai/
 
 - [x] Phase 1 : mémoire locale, durée maximale, validation des données et effacement sur désactivation.
 - [x] Protection GPS : arrêt du suivi en arrière-plan, reprise au premier plan et arrêt si le GPS est interdit.
-- [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts.
+- [x] Correctif du parseur wolof « joge … dem … » récupéré de l'ancienne PR #107.
+- [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts (audit de la PR #109 en cours).
 - [ ] Phase 3 : calcul d'itinéraires bus et multimodaux basé uniquement sur les données validées.
 - [ ] Phase 4 : observation et alertes avec niveaux de confiance.
 - [ ] Phase 5 : consolidation voix et wolof.
