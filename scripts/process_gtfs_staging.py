@@ -26,6 +26,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_gtfs.py"
 MAX_ARCHIVE_BYTES = 100 * 1024 * 1024
+MAX_MANIFEST_BYTES = 1024 * 1024
 LEASE_SECONDS = 900
 VALIDATOR_VERSION = "dakar-gtfs-validator-v1"
 SUPABASE_PROJECT_REF = "mdmuxzaewqzqutkqdylo"
@@ -35,6 +36,7 @@ DATASET_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 LEASE_TOKEN_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
 ARCHIVE_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/feed\.zip$")
+MANIFEST_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/manifest\.json$")
 
 EXPECTED_VALIDATOR_LIMITS = {
     "max_archive_bytes": 100 * 1024 * 1024,
@@ -108,6 +110,8 @@ def validate_claimed_job(job: Any) -> int:
     bucket = job.get("archive_bucket")
     object_path = job.get("archive_object_path")
     archive_sha256 = job.get("archive_sha256")
+    manifest_path = job.get("manifest_object_path")
+    manifest_sha256 = job.get("manifest_sha256")
     lease_token = job.get("lease_token")
     raw_bytes = job.get("archive_bytes")
 
@@ -120,6 +124,11 @@ def validate_claimed_job(job: Any) -> int:
     expected_path = f"{dataset_id}/{archive_sha256}/feed.zip"
     if object_path != expected_path or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
         raise WorkerError("CLAIM_OBJECT_PATH_INVALID")
+    expected_manifest_path = f"{dataset_id}/{archive_sha256}/manifest.json"
+    if manifest_path != expected_manifest_path or not isinstance(manifest_path, str) or not MANIFEST_PATH_RE.fullmatch(manifest_path):
+        raise WorkerError("CLAIM_MANIFEST_PATH_INVALID")
+    if not isinstance(manifest_sha256, str) or not SHA256_RE.fullmatch(manifest_sha256):
+        raise WorkerError("CLAIM_MANIFEST_SHA256_INVALID")
     if not isinstance(lease_token, str) or not LEASE_TOKEN_RE.fullmatch(lease_token):
         raise WorkerError("CLAIM_LEASE_TOKEN_INVALID")
 
@@ -218,6 +227,50 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
     return report
 
 
+def verify_manifest_bytes(
+    payload: bytes,
+    expected_dataset_id: str,
+    expected_manifest_sha256: str,
+    expected_archive_sha256: str,
+    expected_archive_bytes: int,
+) -> dict[str, Any]:
+    if not isinstance(payload, bytes) or not payload or len(payload) > MAX_MANIFEST_BYTES:
+        raise WorkerError("MANIFEST_SIZE_INVALID")
+    if not isinstance(expected_manifest_sha256, str) or not SHA256_RE.fullmatch(expected_manifest_sha256):
+        raise WorkerError("MANIFEST_SHA256_INVALID")
+    if hashlib.sha256(payload).hexdigest() != expected_manifest_sha256:
+        raise WorkerError("MANIFEST_SHA256_MISMATCH")
+    try:
+        manifest = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise WorkerError("MANIFEST_INVALID_JSON") from error
+    if not isinstance(manifest, dict):
+        raise WorkerError("MANIFEST_NOT_OBJECT")
+    if manifest.get("schema_version") != "1.0":
+        raise WorkerError("MANIFEST_SCHEMA_UNSUPPORTED")
+    if manifest.get("dataset_id") != expected_dataset_id:
+        raise WorkerError("MANIFEST_DATASET_ID_MISMATCH")
+    if (
+        manifest.get("publication_status") != "NOT_PUBLISHED"
+        or manifest.get("publication_ready") is not False
+        or manifest.get("review_status") != "PENDING_REVIEW"
+    ):
+        raise WorkerError("MANIFEST_REVIEW_OR_PUBLICATION_STATE_INVALID")
+    archive = manifest.get("archive")
+    if not isinstance(archive, dict):
+        raise WorkerError("MANIFEST_ARCHIVE_INVALID")
+    archive_bytes = archive.get("bytes")
+    if (
+        archive.get("stored_as") != "feed.zip"
+        or not isinstance(archive_bytes, int)
+        or isinstance(archive_bytes, bool)
+        or archive_bytes != expected_archive_bytes
+        or archive.get("sha256") != expected_archive_sha256
+    ):
+        raise WorkerError("MANIFEST_ARCHIVE_METADATA_MISMATCH")
+    return manifest
+
+
 class SupabaseRest:
     def __init__(self, base_url: str, service_key: str) -> None:
         self.base_url = validate_supabase_url(base_url)
@@ -261,8 +314,17 @@ class SupabaseRest:
             raise WorkerError("CLAIM_RESPONSE_INVALID")
         return rows[0]
 
-    def download(self, bucket: str, object_path: str) -> bytes:
-        if bucket != STAGING_BUCKET or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
+    def download(
+        self,
+        bucket: str,
+        object_path: str,
+        *,
+        max_bytes: int = MAX_ARCHIVE_BYTES,
+        path_pattern: re.Pattern[str] = ARCHIVE_PATH_RE,
+        download_error_code: str = "ARCHIVE_DOWNLOAD_FAILED",
+        too_large_code: str = "ARCHIVE_TOO_LARGE",
+    ) -> bytes:
+        if bucket != STAGING_BUCKET or not isinstance(object_path, str) or not path_pattern.fullmatch(object_path):
             raise WorkerError("UNSAFE_ARCHIVE_OBJECT_REFERENCE")
         encoded_path = urllib.parse.quote(object_path, safe="/")
         request = urllib.request.Request(
@@ -271,12 +333,36 @@ class SupabaseRest:
         )
         try:
             with open_without_redirect(request, timeout=120) as response:
-                payload = response.read(MAX_ARCHIVE_BYTES + 1)
+                payload = response.read(max_bytes + 1)
         except (urllib.error.URLError, TimeoutError) as error:
-            raise WorkerError("ARCHIVE_DOWNLOAD_FAILED") from error
-        if len(payload) > MAX_ARCHIVE_BYTES:
-            raise WorkerError("ARCHIVE_TOO_LARGE")
+            raise WorkerError(download_error_code) from error
+        if len(payload) > max_bytes:
+            raise WorkerError(too_large_code)
         return payload
+
+    def download_manifest(self, bucket: str, object_path: str) -> bytes:
+        return self.download(
+            bucket,
+            object_path,
+            max_bytes=MAX_MANIFEST_BYTES,
+            path_pattern=MANIFEST_PATH_RE,
+            download_error_code="MANIFEST_DOWNLOAD_FAILED",
+            too_large_code="MANIFEST_TOO_LARGE",
+        )
+
+    def fail(self, job: dict[str, Any], failure_code: str) -> bool:
+        if not re.fullmatch(r"[A-Z0-9_]{1,80}", failure_code):
+            failure_code = "WORKER_UNEXPECTED_ERROR"
+        result = self.request(
+            "/rest/v1/rpc/fail_dakar_gtfs_validation",
+            method="POST",
+            payload={
+                "p_dataset_id": job["dataset_id"],
+                "p_lease_token": job["lease_token"],
+                "p_failure_code": failure_code,
+            },
+        )
+        return result is True
 
     def complete(self, job: dict[str, Any], report: dict[str, Any]) -> bool:
         result = self.request(
@@ -293,40 +379,73 @@ class SupabaseRest:
         return result is True
 
 
+def failure_code_for(error: Exception) -> str:
+    if isinstance(error, WorkerError):
+        candidate = str(error)
+    elif isinstance(error, subprocess.TimeoutExpired):
+        candidate = "VALIDATOR_TIMEOUT"
+    elif isinstance(error, OSError):
+        candidate = "WORKER_IO_ERROR"
+    else:
+        candidate = "WORKER_UNEXPECTED_ERROR"
+    return candidate if re.fullmatch(r"[A-Z0-9_]{1,80}", candidate) else "WORKER_UNEXPECTED_ERROR"
+
+
 def process_one(client: SupabaseRest) -> str:
     job = client.claim()
     if job is None:
         return "QUEUE_EMPTY"
-    archive_bytes = validate_claimed_job(job)
-    payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
-    verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
-
-    with tempfile.TemporaryDirectory(prefix="dakar-gtfs-worker-") as directory:
-        archive = Path(directory) / "feed.zip"
-        archive.write_bytes(payload)
-        completed = subprocess.run(
-            [sys.executable, str(VALIDATOR), str(archive)],
-            capture_output=True,
-            text=True,
-            timeout=600,
-            check=False,
-            # Do not pass the Supabase service-role key to the validator subprocess.
-            env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"},
+    try:
+        archive_bytes = validate_claimed_job(job)
+        manifest_payload = client.download_manifest(
+            str(job["archive_bucket"]),
+            str(job["manifest_object_path"]),
         )
-        if completed.returncode not in (0, 1):
-            raise WorkerError("VALIDATOR_EXECUTION_FAILED")
-        try:
-            report = validate_report(
-                json.loads(completed.stdout),
-                str(job["archive_sha256"]),
-                archive_bytes,
-            )
-        except json.JSONDecodeError as error:
-            raise WorkerError("VALIDATOR_OUTPUT_INVALID_JSON") from error
+        verify_manifest_bytes(
+            manifest_payload,
+            str(job["dataset_id"]),
+            str(job["manifest_sha256"]),
+            str(job["archive_sha256"]),
+            archive_bytes,
+        )
+        payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
+        verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
 
-    if not client.complete(job, report):
-        raise WorkerError("VALIDATION_LEASE_EXPIRED_OR_HASH_MISMATCH")
-    return "VALID" if report["structure_valid"] else "INVALID"
+        with tempfile.TemporaryDirectory(prefix="dakar-gtfs-worker-") as directory:
+            archive = Path(directory) / "feed.zip"
+            archive.write_bytes(payload)
+            completed = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(archive)],
+                capture_output=True,
+                text=True,
+                timeout=600,
+                check=False,
+                # Do not pass the Supabase service-role key to the validator subprocess.
+                env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"},
+            )
+            if completed.returncode not in (0, 1):
+                raise WorkerError("VALIDATOR_EXECUTION_FAILED")
+            try:
+                report = validate_report(
+                    json.loads(completed.stdout),
+                    str(job["archive_sha256"]),
+                    archive_bytes,
+                )
+            except json.JSONDecodeError as error:
+                raise WorkerError("VALIDATOR_OUTPUT_INVALID_JSON") from error
+
+        if not client.complete(job, report):
+            raise WorkerError("VALIDATION_LEASE_EXPIRED_OR_HASH_MISMATCH")
+        return "VALID" if report["structure_valid"] else "INVALID"
+    except (WorkerError, subprocess.TimeoutExpired, OSError) as error:
+        try:
+            client.fail(job, failure_code_for(error))
+        except Exception:
+            # Keep the original failure; an unrecorded lease expires and remains quarantined.
+            pass
+        if isinstance(error, WorkerError):
+            raise
+        raise WorkerError(failure_code_for(error)) from error
 
 
 def main() -> int:
