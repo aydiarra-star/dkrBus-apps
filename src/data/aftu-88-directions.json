@@ -180,5 +180,6 @@
   },
   "sourceLabel": "Site source communiqué par le responsable du projet",
   "sourceStatus": "user-provided-site-reference",
-  "note": "Séquences détaillées reprises du site source communiqué. Les libellés, l'ordre et les occurrences sont conservés. Aucune fréquence, coordonnée ou heure n'est ajoutée."
+  "note": "Séquences aller et retour complètes, validées à 100 % par le responsable du projet. Les libellés, l'ordre et toutes les occurrences sont conservés sans dédoublonnage. Aucune fréquence, coordonnée ou heure n'est ajoutée.",
+  "validatedByProjectOwner": true
 }
