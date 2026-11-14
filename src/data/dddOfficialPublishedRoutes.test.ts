@@ -32,6 +32,15 @@ describe('official DDD published route sequences', () => {
     expect(getDddOfficialPublishedRoute('504A')).toBeNull()
   })
 
+  it('checks the official published stop counts for priority lines 1, 13 and 121', () => {
+    expect(getDddOfficialPublishedRoute('1')?.stops).toHaveLength(22)
+    expect(getDddOfficialPublishedRoute('1')?.stops.at(-1)).toBe('Terminus Leclerc')
+    expect(getDddOfficialPublishedRoute('13')?.stops).toHaveLength(24)
+    expect(getDddOfficialPublishedRoute('13')?.stops.at(-1)).toBe('Terminus Palais 2')
+    expect(getDddOfficialPublishedRoute('121')?.stops).toHaveLength(25)
+    expect(getDddOfficialPublishedRoute('121')?.stops.at(-1)).toBe('Terminus Leclerc')
+  })
+
   it('preserves the official published sequences for priority lines 6, 12 and 16B', () => {
     expect(getDddOfficialPublishedRoute('6')?.stops).toHaveLength(25)
     expect(getDddOfficialPublishedRoute('6')?.stops[0]).toBe('Terminus Guédiawaye')
