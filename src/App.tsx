@@ -2161,11 +2161,10 @@ function ExplorerPanel({
   )
 }
 
-const REFERENCE_NETWORK_CARD_IDS = ['ter', 'brt', 'ddd', 'aftu'] as const
+const REFERENCE_NETWORK_CARD_IDS = ['ter', 'brt', 'ddd', 'aftu_tata'] as const
 
 /** Mention secondaire des réseaux qui ne publient pas de fréquence exploitable. */
 function networkMetaLabel(network: NetworkSource): string {
-  if (network.id === 'tata') return 'Réseau indépendant'
   const lines = network.referenceData?.lineCount
   return lines ? `${lines} lignes` : 'Réseau de référence'
 }
@@ -3107,8 +3106,7 @@ function DataCatalogSection({
     { id: 'ter', label: 'TER' },
     { id: 'brt', label: 'BRT' },
     { id: 'ddd', label: 'DDD' },
-    { id: 'aftu', label: 'AFTU' },
-    { id: 'tata', label: 'TATA' },
+    { id: 'aftu_tata', label: 'AFTU / TATA' }
   ]
   const referenceStops = filter === 'ter' ? TER_STOPS : filter === 'brt' ? BRT_STOPS : [...TER_STOPS, ...BRT_STOPS]
 
