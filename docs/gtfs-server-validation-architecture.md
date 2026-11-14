@@ -100,3 +100,10 @@ Le validateur échoue maintenant de façon conservatrice lorsqu'une table option
 Dans `stop_times.txt`, si `arrival_time` et `departure_time` sont tous deux vides, `timepoint=0` est désormais obligatoire ; sinon la structure est invalide. Les valeurs renseignées de `pickup_type` et `drop_off_type` sont limitées aux codes GTFS 0 à 3. La version du worker est passée à `dakar-gtfs-validator-v2` afin que le rapport enregistré identifie cette nouvelle règle. La compression ZIP LZMA est refusée : le décodeur standard `zipfile` ne permet pas de fixer ici une limite mémoire fiable sur le dictionnaire LZMA. Les méthodes STORED, DEFLATED et BZIP2 restent acceptées sous les limites d'archive et de décompression déclarées.
 
 Ces refus maintiennent le dataset en quarantaine (`integrity_status = INVALID` après exécution du worker) et ne constituent ni une approbation humaine, ni une publication, ni une validation de provenance.
+
+## Protection contre le nettoyage d'une archive déjà référencée (14 novembre 2026)
+
+Si le téléversement du manifeste échoue après celui de l'archive, l'Edge Function relit maintenant la ligne de staging par `dataset_id` avant toute suppression. Elle ne retire l'archive que si la lecture réussit et confirme qu'aucune ligne ne référence le chemin. Une référence complète renvoie un conflit ; une référence partielle ou une erreur de lecture conserve l'objet et renvoie un état indéterminé. Ce choix privilégie l'intégrité des données privées : un objet orphelin éventuel est préférable à la suppression d'une archive déjà référencée.
+
+Les tests Deno couvrent les quatre décisions (aucune référence, référence complète, référence partielle et lecture SQL incertaine). Ils restent synthétiques et n'effectuent aucun accès ou écriture Supabase.
+
