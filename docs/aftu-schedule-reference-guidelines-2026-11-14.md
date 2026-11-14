@@ -23,6 +23,12 @@ Ces valeurs sont des paramètres de configuration du réseau AFTU. Elles constit
 - Temps de parcours moyen de référence : 1 h 15 à 1 h 30.
 - Les deux directions et les répétitions de noms restent conservées.
 
+## Application au catalogue des lignes
+
+La plage réseau 05:30–22:00 est maintenant portée par le registre de lignes AFTU `BIDIRECTIONAL_BUS_LINES` pour les **65 lignes AFTU présentes dans le catalogue public**. La propriété est absente (`null`) pour DDD et TATA afin d'éviter toute contamination entre réseaux. Les tests vérifient les 65 lignes et les deux bornes horaires.
+
+Cette plage concerne le service de ligne ; elle ne génère pas d'heures de passage à chaque arrêt et ne crée aucune séquence retour.
+
 ## Règles d'application
 
 1. Les valeurs CETUD sont conservées comme settings réseau et ne doivent pas être requalifiées en estimations personnelles.
