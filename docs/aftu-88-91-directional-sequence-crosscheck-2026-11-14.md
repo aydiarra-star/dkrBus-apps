@@ -96,3 +96,14 @@ Le segment commun de 18 libellés entre 89 et 91 reste conservé comme indice de
 Pour la ligne 88, MTOA apparaît dans la liste détaillée mais comme repère intermédiaire ; le lien avec « Terminus 88 » n'est pas établi. Pour la ligne 89, Bargny est corroboré par le terminus de la liste, mais l'équivalence de « Terminus 89 » avec « Croisement Niague (Cité SICAP) » reste à établir. Pour la ligne 91, les deux sens enregistrés contiennent les secteurs APIX et Dougar, mais leurs extrémités Losso / Chez Lo électricien peuvent représenter une extension du corridor officiel ; aucune coupe n'est faite.
 
 Les six lignes 85 à 91 affichées par l'index officiel ont désormais un registre de rapprochement et un test dédié dans `src/data/aftuOfficialIndexCrosswalk.ts` et `src/data/aftuOfficialIndexCrosswalk.test.ts`.
+
+
+## Statut définitif d'intégration des lignes 88, 89 et 91
+
+Le responsable du projet confirme explicitement que les séquences complètes sont validées à 100 % et doivent être intégrées sans réserve :
+
+- Ligne 88 : 78 occurrences aller et 81 retour ;
+- Ligne 89 : 55 occurrences aller et 53 retour ;
+- Ligne 91 : 70 occurrences aller et 70 retour.
+
+Cette validation porte sur les séquences transmises elles-mêmes. Les différences entre les noms de terminus dans l'index AFTU et les libellés des listes restent des informations de rapprochement externe ; elles ne constituent pas un statut « à confirmer » pour les listes intégrées. Aucun arrêt n'est retiré, réordonné, fusionné ou renommé en raison de ces différences. Les deux sens sont indépendants et les répétitions sont conservées.
