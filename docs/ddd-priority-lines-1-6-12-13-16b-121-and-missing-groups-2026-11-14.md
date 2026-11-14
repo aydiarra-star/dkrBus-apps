@@ -155,3 +155,33 @@ Priorités suivantes :
 - Aucune écriture Supabase, aucune modification du catalogue passager, aucun déploiement.
 - Les données et horaires TER/BRT restent strictement inchangés.
 - GTFS n'est pas requis et ne bloque pas cette consolidation.
+
+
+## 6. Contrôle complémentaire du deuxième service ArcGIS — lignes sans groupe de points
+
+Une seconde source ArcGIS DDD, distincte du service `Dem_dikk_mise_a_jour` (777 points), a été relue à partir de l'artefact `14099677252`, workflow `43559272262`. Elle contient 24 couches de tracés et 12 couches d'arrêts, soit 25 entités de tracé et 455 points, sans erreur ni limite de transfert.
+
+Cette source confirme trois géométries de lignes dont les groupes de points étaient absents ou insuffisants dans le rapprochement global :
+
+| Ligne | Couche / attribut source | Géométrie | Corridor textuel | Qualification |
+|---|---|---:|---|---|
+| 20 | `Itinéraire_ligne_20_Dakar_Dem_Dikk`, champ `Nom__Ligne = Ligne 20` | 18,57 km | Dieuppeul – Allées Ababacar Sy, Jet d’Eau – Bourguiba, École Police – Cheikh Anta Diop, Fann, Corniche Ouest, MTOA, Colobane, puis retour vers Dieuppeul | Géométrie explicitement identifiée ; aucun groupe de points dédié dans cette extraction |
+| 219 | `Itinéraire_ligne_219_Dem_Dikk`, champ `Nom_Ligne = Ligne 219` | 21,52 km | Daroukhane – marché Ndiarème, Guédiawaye, Stade Amadou Barry, Fadia, Case, Ancienne Piste, Ouakam, Cité Asecna, Cité Assemblée | Géométrie explicitement identifiée ; aucun groupe de points dédié dans cette extraction |
+| 228 | `Itinéraire_ligne_228_Dem_Dikk`, champ source mal orthographié `Npm_Ligne = LIgne 228` | 29,75 km | Rufisque – ville de Rufisque ; Bargny – Diamniadio – Yenne | Géométrie explicitement identifiée ; le nom de champ atypique doit être conservé et signalé |
+
+**Correction de portée par rapport à la section 4 :** dans le service 2024, la ligne 20 était représentée par une géométrie anonyme compatible avec son corridor, et la ligne 219 par une géométrie nommée. Le deuxième service apporte une confirmation supplémentaire et plus explicite pour les deux identités. Pour la ligne 228, il lève l'ambiguïté de l'entité anonyme Rufisque du service 2024 en fournissant une couche nommée dédiée et un champ source `Npm_Ligne`. Ces couches ne sont pas fusionnées entre elles.
+
+### Conséquence pour la liste des lignes sans groupe d'arrêts
+
+- **20 et 219 :** géométries identifiées dans les deux jeux cartographiques, mais aucun groupe d'arrêts dédié à importer depuis le deuxième service.
+- **228 :** quatre points seulement dans le service 2024 et une géométrie dédiée dans le deuxième service ; couverture trop faible pour reconstituer la séquence.
+- **208, 213, 220, 221, 233, 234, 311, 327, 319, TO1, 501, 502, 503, TAF_TAF et 15 :** aucun groupe de points ni couche de tracé dédiée identifiée dans le deuxième inventaire examiné.
+
+Les géométries 20, 219 et 228 sont donc des candidats cartographiques plus solides, mais elles ne fournissent pas les identifiants d'arrêts, l'ordre exact des arrêts, le retour ou les horaires. La ligne 219 reste particulièrement sensible : le groupe de 33 points historiquement codé 218, spatialement proche de sa polyligne, demeure un candidat d'attribution et n'est pas réécrit.
+
+### Prochaine priorité opérationnelle
+
+1. Comparer les polylignes 20, 219 et 228 des deux services entre elles (géométrie, distance, recouvrement et extrémités), sans fusionner les couches.
+2. Rechercher une source indépendante pour les 14 lignes sans tracé identifié dans les deux inventaires et pour la ligne 15.
+3. Garder les points 218/219 séparés tant que DDD n'a pas confirmé l'attribution.
+4. Ne publier aucun arrêt ou retour sur la seule base d'une polyligne.
