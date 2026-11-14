@@ -191,7 +191,10 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
     lines.some((line) => line.id === direction.line_id) && isUsableRecordStatus(direction.status)
   )
   const label = networkLabel(snapshot, code)
-  const summary = `${label} : ${lines.length} lignes et ${directions.length} directions enregistrées dans la mémoire Supabase.`
+  const candidates = lines.filter((line) => line.status === 'candidate').length
+  const verified = lines.filter((line) => line.status === 'verified').length
+  const published = lines.filter((line) => line.status === 'published').length
+  const summary = \`\${label} : \${lines.length} lignes enregistrées (\${candidates} candidates, \${verified} vérifiées, \${published} publiées) et \${directions.length} directions.\`
   const codes = listAll
     ? `\nLignes : ${lines.map((line) => line.code).join(', ')}.`
     : ''
@@ -248,17 +251,17 @@ function stopReply(
   )
   const lineById = new Map(snapshot.lines.filter((line) => isUsableRecordStatus(line.status)).map((line) => [line.id, line]))
   const networkById = new Map(snapshot.networks.map((network) => [network.id, network]))
-  const uniqueLines = new Map<string, { network: string; code: string }>()
+  const uniqueLines = new Map<string, { network: string; code: string; status: string }>()
   for (const direction of directionRows) {
     const line = lineById.get(direction.line_id)
     const network = line ? networkById.get(line.network_id) : null
     if (!line || !network || (networkCode && network.code !== networkCode)) continue
-    uniqueLines.set(`${network.code}:${line.code}`, { network: network.name, code: line.code })
+    uniqueLines.set(`${network.code}:${line.code}`, { network: network.name, code: line.code, status: line.status })
   }
   const stopLabels = matchedStops.map((stop) => stop.canonical_name)
   const linesText = [...uniqueLines.values()]
     .sort((a, b) => a.network.localeCompare(b.network, 'fr') || a.code.localeCompare(b.code, 'fr'))
-    .map((line) => `${line.network} ${line.code}`)
+    .map((line) => `${line.network} ${line.code} (${line.status === 'published' ? 'publiée' : line.status === 'verified' ? 'vérifiée' : 'candidate'})`)
   const usableStopIds = new Set(snapshot.reference_stops
     .filter((stop) => isUsableRecordStatus(stop.status))
     .map((stop) => stop.id))
