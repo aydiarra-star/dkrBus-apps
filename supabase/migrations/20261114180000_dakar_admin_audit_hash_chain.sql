@@ -156,6 +156,8 @@ begin
     raise exception 'Dakar Bus audit chain state is missing';
   end if;
 
+  -- Audit time is server-generated; callers cannot backdate or future-date events.
+  new.created_at := clock_timestamp();
   new.chain_sequence := chain_state.last_chain_sequence + 1;
   new.previous_hash := chain_state.last_event_hash;
   payload := jsonb_build_object(
