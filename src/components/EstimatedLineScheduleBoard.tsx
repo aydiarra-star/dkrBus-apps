@@ -198,10 +198,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             outboundSchedule: routeCandidates.find((item) => item.outboundSchedule)?.outboundSchedule ?? richestRoute.outboundSchedule,
             inboundSchedule: routeCandidates.find((item) => item.inboundSchedule)?.inboundSchedule ?? richestRoute.inboundSchedule,
           } : undefined
-          // Une fréquence AFTU n'est réutilisée que si la fiche détaillée AFTU
-          // décrit exactement les mêmes terminus ; un simple numéro commun ne suffit pas.
-          const hasMatchingAftuRoute = routeCandidates.some((item) => item.network === 'aftu')
-          const lineSchedule = (hasMatchingAftuRoute ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
+          // AFTU et TATA partagent le même référentiel horaire : la référence
+          // est choisie par numéro de ligne, sans distinction d'opérateur.
+          // L'identité des itinéraires et leurs listes d'arrêts restent séparées.
+          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
