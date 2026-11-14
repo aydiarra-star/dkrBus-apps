@@ -34,4 +34,13 @@ describe('parcours AFTU 87 issus des captures CETUD', () => {
     expect(route.sourceStatus).toBe('user-provided-cetud-reference')
     expect(route.note).toContain('Aucun horaire ni fréquence')
   })
+
+  it('enregistre les deux départs théoriques et la fréquence de pointe sans créer de passages', () => {
+    expect(route.operatingProfile.lineSpecificFirstDeparture.outbound.timeLocal).toBe('06:30')
+    expect(route.operatingProfile.lineSpecificFirstDeparture.inbound.timeLocal).toBe('06:35')
+    expect(route.operatingProfile.peakHeadwayMinutes).toEqual({ min: 5, max: 15, scope: 'peak departures from peripheral termini; variable with passenger loading and traffic' })
+    expect(route.timeStatus).toBe('theoretical-departure-reference-only')
+    expect('times' in route.directions.outbound).toBe(false)
+    expect('times' in route.directions.inbound).toBe(false)
+  })
 })
