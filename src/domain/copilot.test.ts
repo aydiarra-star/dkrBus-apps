@@ -3,6 +3,7 @@ import type { AssistantContext } from './assistant'
 import { copilotAnswer } from './copilot'
 import { createConversationMemory } from './conversation'
 import { WOLOF_VALIDATION_NOTE } from './wolof'
+import type { MobilityBrainSnapshot } from './mobilityBrainApi'
 
 const CONTEXT: AssistantContext = { publishedAvailable: false, adminOnline: false }
 const NOW = Date.parse('2026-10-10T07:30:00Z')
@@ -343,4 +344,62 @@ describe('copilote wolof : questions locales comprises et réponses calculées',
     expect(reply.journey).toBeUndefined()
     expect(reply.text).toMatch(/amul ci|Li ma xamul|xamuma/)
   })
+
+  it('utilise les deux sens du référentiel Supabase pour une ligne AFTU', () => {
+    const snapshot: MobilityBrainSnapshot = {
+      generated_at: '2026-11-14T12:00:00.000Z',
+      source_of_truth: 'Supabase PostgreSQL',
+      realtime: false,
+      networks: [{ id: 'network-aftu', code: 'aftu', name: 'AFTU', status: 'active' }],
+      lines: [{ id: 'line-aftu-5', network_id: 'network-aftu', code: '5', status: 'candidate' }],
+      catalogue: [],
+      reference_stops: [
+        { id: 'petersen', canonical_name: 'Petersen', status: 'candidate' },
+        { id: 'rufisque', canonical_name: 'Rufisque', status: 'candidate' },
+      ],
+      directions: [
+        { id: 'out', line_id: 'line-aftu-5', direction_code: 'source_forward', origin_label: 'Petersen', destination_label: 'Rufisque', status: 'candidate', direction_method: 'source_documented' },
+        { id: 'return', line_id: 'line-aftu-5', direction_code: 'return_reverse_candidate', origin_label: 'Rufisque', destination_label: 'Petersen', status: 'candidate', direction_method: 'reverse_derived' },
+      ],
+      ordered_line_stops: [
+        { direction_id: 'out', stop_id: 'petersen', stop_sequence: 1, stop: { id: 'petersen', canonical_name: 'Petersen', status: 'candidate' } },
+        { direction_id: 'out', stop_id: 'rufisque', stop_sequence: 2, stop: { id: 'rufisque', canonical_name: 'Rufisque', status: 'candidate' } },
+        { direction_id: 'return', stop_id: 'rufisque', stop_sequence: 1, stop: { id: 'rufisque', canonical_name: 'Rufisque', status: 'candidate' } },
+        { direction_id: 'return', stop_id: 'petersen', stop_sequence: 2, stop: { id: 'petersen', canonical_name: 'Petersen', status: 'candidate' } },
+      ],
+      service_patterns: [],
+      transfers: [],
+    }
+    const { reply } = ask('AFTU 5', { context: { ...CONTEXT, remoteMobilityKnowledge: snapshot } })
+    expect(reply.text).toContain('Fiche candidate')
+    expect(reply.text).toContain('Aller : Petersen → Rufisque')
+    expect(reply.text).toContain('Retour : Rufisque → Petersen')
+  })
+
+  it('ne confond jamais TATA avec AFTU si le référentiel central est indisponible', () => {
+    const { reply } = ask('TATA 5')
+    expect(reply.text).toContain('catalogue TATA est distinct')
+    expect(reply.text).not.toContain('AFTU 5')
+  })
+
+  it('utilise l’état trafic distant sans prétendre disposer du temps réel', () => {
+    const remoteTraffic = {
+      generated_at: '2026-11-14T12:00:00.000Z',
+      source_of_truth: 'Supabase PostgreSQL',
+      realtime: false as const,
+      traffic_only: true as const,
+      alert_policy: 'confirmed_only',
+      confirmed_traffic_incidents: [],
+      traffic_candidates: [],
+      traffic_sources: [],
+      traffic_data_status: {
+        status: 'unavailable',
+        message: 'Aucun flux public de circulation en direct n’est actuellement validé.',
+      },
+    }
+    const { reply } = ask('Quel est le trafic à Dakar ?', { context: { ...CONTEXT, remoteTrafficKnowledge: remoteTraffic } })
+    expect(reply.text).toContain('Aucun flux public de circulation en direct')
+    expect(reply.text).toContain('ne signifie pas que la circulation est fluide')
+  })
+
 })

@@ -1,0 +1,31 @@
+project_id = "mdmuxzaewqzqutkqdylo"
+
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+major_version = 17
+
+[functions.dakar-bus-knowledge]
+verify_jwt = false
+
+[functions.dakar-bus-mobility-search]
+verify_jwt = false
+
+[functions.dakar-bus-osm-stops-sync]
+verify_jwt = false
+
+[functions.dakar-bus-traffic-ingest]
+verify_jwt = true
+
+[functions.dakar-bus-traffic-ingest-senenews]
+verify_jwt = false
+
+[functions.dakar-bus-traffic-ingest-dakaractu]
+verify_jwt = false
+
+[functions.dakar-admin]
+verify_jwt = true

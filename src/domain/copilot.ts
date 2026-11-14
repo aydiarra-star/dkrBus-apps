@@ -1,4 +1,6 @@
 import { answerMobilityKnowledge } from './mobilityKnowledge'
+import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
+import { answerRemoteTrafficQuestion } from './remoteTrafficKnowledge'
 /**
  * Copilote de mobilité : interprétation des questions libres, récupération
  * dans le référentiel, calcul d'itinéraires et réponses honnêtes.
@@ -152,7 +154,7 @@ function wolofJourneyEndpoints(question: string): { origin: PlannerEndpoint | nu
   const text = question.toLowerCase().replace(/['’]/g, ' ')
   const joge = '(?:j\u00f3ge|joge)'
   const placeChars = 'a-z\u00eb\u00e0\u00f1\u00f3\u014bx0-9 .-'
-  const pair = new RegExp(`${joge}\\s+([${placeChars}]{2,55}?)\\s+dem\\b(?:\\s+(?:ci|ba|si|ca))?\\s+([${placeChars}]{2,65})`).exec(text)
+  const pair = new RegExp(`${joge}\\s+([${placeChars}]{2,55}?)\\s+dem\b(?:\\s+(?:ci|ba|si|ca))?\\s+([${placeChars}]{2,65})`).exec(text)
   const toEndpoint = (name: string): PlannerEndpoint | null => {
     const stop = findReferentialStops(name)[0]
     return stop ? { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id } : null
@@ -600,6 +602,35 @@ export function copilotAnswer(
 
   // Consultation documentaire avant le parseur de trajets TER/BRT : les noms
   // de quartiers et numéros bus ne doivent pas être interprétés comme du rail.
+  const remoteKnowledge = answerRemoteMobilityQuestion(question, context.remoteMobilityKnowledge)
+  if (remoteKnowledge) {
+    memory.lastKnowledgeLineId = null
+    memory.lastAnswer = remoteKnowledge
+    if (/\b(ddd|aftu|tata)\b/.test(text)) {
+      memory.lastJourney = null
+      memory.lastOrigin = null
+      memory.lastDestination = null
+    }
+    return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteKnowledge : remoteKnowledge, language: 'fr' }
+  }
+  if (/\btata\b/.test(text) && !context.remoteMobilityKnowledge) {
+    const tataLineCode = /\b(?:tata\s*)?(\d{1,3})\b/i.exec(question)?.[1]
+    const message = tataLineCode
+      ? `Le catalogue TATA est distinct de celui de l’AFTU. La ligne ${tataLineCode} tata n’est pas documentée dans le référentiel central ; je ne la remplace pas par une ligne AFTU.`
+      : 'Le catalogue TATA est distinct de celui de l’AFTU. La connexion au référentiel central est momentanément indisponible ; je ne vais pas remplacer une ligne TATA par une ligne AFTU.'
+    memory.lastAnswer = message
+    return { text: message, language: 'fr' }
+  }
+
+  const asksTraffic = /\b(trafic|circulation|bouchon|embouteillage|accident|alerte|perturbation|retard|incident|route|actuel|maintenant|autour de moi|pres de moi|mon trajet|sur mon trajet)\b/.test(text)
+  if (asksTraffic && context.remoteTrafficKnowledge) {
+    const remoteTraffic = answerRemoteTrafficQuestion(question, context.remoteTrafficKnowledge)
+    if (remoteTraffic) {
+      memory.lastAnswer = remoteTraffic
+      return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteTraffic : remoteTraffic, language: 'fr' }
+    }
+  }
+
   const knowledge = answerMobilityKnowledge(question, memory.lastKnowledgeLineId)
   if (knowledge) {
     memory.lastKnowledgeLineId = knowledge.lineId ?? null

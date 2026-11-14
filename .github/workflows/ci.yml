@@ -105,7 +105,7 @@ jobs:
   verify-gtfs-ingest:
     name: Verify private GTFS ingest function
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -119,4 +119,4 @@ jobs:
         run: deno test supabase/functions/dakar-gtfs-ingest/multipart_test.ts
 
       - name: Type-check Supabase Edge Functions
-        run: deno check supabase/functions/dakar-admin/index.ts supabase/functions/dakar-gtfs-ingest/index.ts
+        run: deno check supabase/functions/dakar-admin/index.ts supabase/functions/dakar-gtfs-ingest/index.ts supabase/functions/dakar-bus-knowledge/index.ts supabase/functions/dakar-bus-mobility-search/index.ts supabase/functions/dakar-bus-osm-stops-sync/index.ts supabase/functions/dakar-bus-traffic-ingest/index.ts supabase/functions/dakar-bus-traffic-ingest-dakaractu/index.ts supabase/functions/dakar-bus-traffic-ingest-senenews/index.ts

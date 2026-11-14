@@ -39,7 +39,7 @@ export interface ConversationMemory {
   lastDestination: PlannerEndpoint | null
   lastJourney: JourneyMemory | null
   lastStopId: string | null
-  lastNetwork: 'ter' | 'brt' | 'ddd' | 'aftu' | null
+  lastNetwork: 'ter' | 'brt' | 'ddd' | 'aftu' | 'tata' | null
   /** Dernier texte de réponse, pour les questions « qu'est-ce qui est confirmé ? ». */
   lastAnswer: string | null
   /** Lieu énoncé, en attente du lieu complémentaire (jamais déduit). */

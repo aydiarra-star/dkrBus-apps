@@ -5,8 +5,11 @@ import { extractJourneyRequest, getAssistantCountdownMinutes, type AssistantCont
 import { MobilityText } from './MobilityBadge'
 import { assistantBounds } from './assistantBounds'
 import { safeHttpUrl } from '../domain/http'
+import { loadMobilityBrainKnowledge } from '../domain/mobilityBrainApi'
+import { loadTrafficBrainKnowledge } from '../domain/trafficBrainApi'
 import { copilotAnswer } from '../domain/copilot'
 import { createConversationMemory, detectFollowUp, type ConversationMemory } from '../domain/conversation'
+import { clearConversationMemory, loadConversationMemory, saveConversationMemory } from '../domain/conversationStorage'
 import { type AssistantLanguagePreference } from '../domain/language'
 import { getPreferences, updatePreferences, usePreferences } from '../domain/preferences'
 import type { PlannerEndpoint } from '../domain/planner'
@@ -87,9 +90,11 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   const preferences = usePreferences()
   const preference = preferences.language.assistant
   const listRef = useRef<HTMLDivElement | null>(null)
-  const memoryRef = useRef<ConversationMemory>(createConversationMemory())
+  const memoryRef = useRef<ConversationMemory>(loadConversationMemory(preferences.privacy.keepPlaceHistory))
   const lastTrafficQuestionRef = useRef<string | null>(null)
   const contextRef = useRef(context)
+  const remoteKnowledgeRef = useRef<Awaited<ReturnType<typeof loadMobilityBrainKnowledge>>>(null)
+  const remoteTrafficRef = useRef<Awaited<ReturnType<typeof loadTrafficBrainKnowledge>>>(null)
   const preferenceRef = useRef(preference)
   const pendingRef = useRef(false)
   const recognitionRef = useRef<SpeechRecognitionHandle | null>(null)
@@ -101,6 +106,13 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
   useEffect(() => {
     preferenceRef.current = preference
   }, [preference])
+  useEffect(() => {
+    if (!preferences.privacy.keepPlaceHistory) {
+      // La désactivation efface aussi le contexte en mémoire vive.
+      memoryRef.current = createConversationMemory()
+      clearConversationMemory()
+    }
+  }, [preferences.privacy.keepPlaceHistory])
 
   // Les réponses trafic suivent les preuves courantes : un accident résolu
   // ne reste pas dans une ancienne bulle. Les autres échanges sont inchangés.
@@ -203,7 +215,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
     setExchanges((current) => [...current, { id: nextMessageId++, role: 'user', text: trimmed }])
     // La question et l'état de chargement sont rendus avant le calcul de la
     // réponse : la fenêtre ne dépend plus du temps de traitement.
-    window.setTimeout(() => {
+    window.setTimeout(async () => {
       let text: string
       let failed = false
       let reply: ReturnType<typeof copilotAnswer> | null = null
@@ -213,8 +225,30 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
           // Même « répète » doit oublier une perturbation résolue/périmée.
           memoryRef.current.lastAnswer = copilotAnswer(lastTrafficQuestionRef.current, contextRef.current, createConversationMemory(), preferenceRef.current, Date.now()).text
         }
-        reply = copilotAnswer(trimmed, contextRef.current, memoryRef.current, preferenceRef.current, Date.now())
+        const normalizedRemoteQuestion = trimmed.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        const needsRemoteKnowledge = /\b(ddd|dakar dem dikk|aftu|tata|bus|lignes?|arrets?|reseaux?|mobilites?|memoire|base de connaissances)\b/.test(normalizedRemoteQuestion)
+        if (needsRemoteKnowledge) {
+          const latestRemoteKnowledge = await loadMobilityBrainKnowledge()
+          if (latestRemoteKnowledge) remoteKnowledgeRef.current = latestRemoteKnowledge
+        }
+        const needsRemoteTrafficKnowledge = /\b(trafic|circulation|bouchon|embouteillages?|accident|alerte|perturbation|retard|incident|route|actuel|maintenant|autour de moi|pres de moi|mon trajet|sur mon trajet|boul ma dige|ndaw)\b/.test(normalizedRemoteQuestion)
+        const trafficSummaryValid = Boolean(
+          contextRef.current.trafficSummaryFr
+          && contextRef.current.trafficSummaryValidUntil
+          && new Date(contextRef.current.trafficSummaryValidUntil).getTime() > Date.now()
+        )
+        if (needsRemoteTrafficKnowledge && !trafficSummaryValid) {
+          const latestRemoteTraffic = await loadTrafficBrainKnowledge()
+          remoteTrafficRef.current = latestRemoteTraffic
+        }
+        const assistantContext = {
+          ...contextRef.current,
+          remoteMobilityKnowledge: remoteKnowledgeRef.current,
+          remoteTrafficKnowledge: remoteTrafficRef.current,
+        }
+        reply = copilotAnswer(trimmed, assistantContext, memoryRef.current, preferenceRef.current, Date.now())
         text = reply.text
+        saveConversationMemory(memoryRef.current, getPreferences().privacy.keepPlaceHistory)
       } catch {
         failed = true
         text = 'Une erreur est survenue en préparant cette réponse. Réessayez : la carte, la recherche et le calcul de trajet restent disponibles pendant ce temps.'
