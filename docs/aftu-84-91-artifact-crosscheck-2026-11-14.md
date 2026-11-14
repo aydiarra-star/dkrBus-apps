@@ -137,3 +137,16 @@ La ligne 86 ne doit donc plus être présentée comme entièrement sans parcours
 Le catalogue officiel AFTU extrait de l'index associe actuellement le numéro 86 au corridor **Tournalou Boune → Toubab Dialaw**. La nouvelle transcription de captures attribuées au CETUD porte, elle, **Yeumbeul → Terminus 86 / Touba Ngayame**. Ce n'est pas une petite différence de libellé : les deux couples de terminus sont distincts. La nouvelle séquence est donc enregistrée comme preuve de parcours fournie par l'utilisateur, mais le catalogue public officiel n'est pas réécrit tant que l'index CETUD/la capture de l'en-tête de ligne ne permet pas d'établir s'il s'agit d'une mise à jour, d'une variante, ou d'une attribution de numéro différente.
 
 Les horaires aller présentent en outre un retour de 05:50 à 05:38 entre les arrêts 8 et 9. Cette valeur est conservée à l'identique ; il faut vérifier la capture correspondante avant toute correction ou affichage horaire.
+
+## Rectification — heures de la ligne AFTU 86 invalidées (14 novembre 2026)
+
+Le responsable du projet précise que l'heure réelle de départ n'est pas connue et que l'horaire précédemment transcrit n'est pas valide. En conséquence, les 68 heures relevées dans la transcription ne sont **pas des horaires fiables** et ne doivent pas être affichées ni utilisées pour calculer des passages, des fréquences ou des départs.
+
+Le fichier `src/data/aftu-86-directions.json` a été corrigé :
+- les 68 arrêts aller et les 64 arrêts retour sont conservés dans leurs sens respectifs ;
+- la propriété opérationnelle `times` a été retirée du sens aller ;
+- les valeurs de la transcription sont conservées sous `transcribedTimesUnvalidated`, uniquement pour traçabilité et explicitement hors usage voyageur ;
+- `timeStatus` vaut `invalid-unverified` ;
+- aucun horaire n'est ajouté au sens retour.
+
+**Règle de publication :** la ligne AFTU 86 ne possède actuellement aucun horaire de départ ou de passage validé. Afficher les arrêts sans heure, jusqu'à obtention d'une source horaire fiable. Cette rectification ne modifie ni les parcours TER/BRT ni les autres lignes.
