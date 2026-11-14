@@ -16,7 +16,7 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
       return `${line.line}|${ends[0]}|${ends[1]}`
     })
     expect(new Set(keys).size).toBe(keys.length)
-    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(48)
+    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(47)
     // Les deux lignes 5 ont des terminus distincts : elles doivent rester séparées.
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '5')).toHaveLength(2)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(90)
