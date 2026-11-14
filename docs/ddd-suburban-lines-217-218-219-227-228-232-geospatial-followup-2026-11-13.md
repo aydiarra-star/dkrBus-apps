@@ -103,3 +103,10 @@ La page officielle affiche aussi les lignes 217 et 218 avec le même ensemble de
 - Aucun retour, horaire ou fréquence n'est ajouté par cette vérification.
 
 Source officielle : page « Réseau urbain de Dakar », lignes 219 (Daroukhane–Ouakam) et 217/218, consultée le 14 novembre 2026.
+
+
+### Limite du rapprochement nom-à-nom pour la ligne 219
+
+Une comparaison stricte de la liste officielle de 19 repères avec les 33 positions uniques OBJECTID 54–86, après normalisation de la casse, des accents et des préfixes génériques « arrêt/terminus », ne donne qu'une **LCS de 3 noms exacts** : Daroukhane, Ancienne Piste et Ouakam. Plusieurs libellés ArcGIS ressemblent à des repères officiels (par exemple « Stade de Ndiarème » / « marché Ndiarème », « Rond Point Marché Jeudi » / « Marché Jeudi corniche », « Case ba » / « Case bi »), mais ces rapprochements restent des hypothèses de synonymie, non des identités d'arrêt prouvées.
+
+La géométrie confirme donc fortement le corridor et l'attribution candidate, mais **pas une correspondance un-à-un des 19 arrêts officiels avec les 33 points ArcGIS**. Les points répétés et les noms de voirie doivent être revus séparément avant tout rapprochement d'identifiants d'arrêts.
