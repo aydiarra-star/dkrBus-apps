@@ -304,3 +304,39 @@ En conséquence :
 Les sections historiques restent visibles pour la traçabilité de l'erreur, mais ne doivent plus être utilisées comme référence de données. Source primaire : index officiel AFTU, https://aftu-senegal.org/infos-pratiques/, relu directement le 14 novembre 2026. Le rapport détaillé consacré aux applications et aux sources opérationnelles est complémentaire : `docs/aftu-88-89-91-mobility-apps-and-operational-sources-2026-11-14.md`.
 
 Aucune séquence d'arrêts, aucun sens retour, horaire ou intervalle n'est ajouté par cette rectification.
+
+
+## Mise à jour de recherche indépendante et intégration des listes CETUD 90/91 — 14 novembre 2026
+
+### Index officiel AFTU relu en direct
+La page publique AFTU `https://aftu-senegal.org/infos-pratiques/` affiche actuellement :
+- 86 : Tournalou Boune – Toubab Dialaw ;
+- 87 : Bambilor – Mosquée Massalikou Djinane ;
+- 88 : MTOA – Liberté 5 ;
+- 89 : Bargny – Croisement Niague (Cité SICAP) ;
+- 91 : APIX – Dougar.
+
+La page ne présente pas de ligne 90 dans cette liste, mais l'application CETUD fournie en capture par le responsable du projet affiche explicitement « AFTU », « Ligne 90 », « Terminus 90 → Deni Birame Ndao Nord » et 82 arrêts pour le sens affiché. La présence de la ligne 90 dans l'application est donc consignée séparément de l'index public AFTU, qui ne la reprend pas dans son affichage actuel.
+
+### Recherche de sources secondaires pour 86–89
+- Une fiche pratique indépendante publiée en janvier 2026 indique qu'un Tata 86 circule de Pikine vers Toubab Dialaw, avec des arrêts à Rufisque, Bargny et Diamniadio. Elle corrobore le corridor vers Toubab Dialaw, mais ne confirme pas le terminus Tournalou Boune ni les 68/64 arrêts déjà transcrits dans `src/data/aftu-86-directions.json`. La divergence de point de départ reste donc ouverte.
+- La recherche publique ciblée n'a pas retrouvé de séquence indépendante suffisamment documentée pour les lignes 87, 88 ou 89. Moovit indique 64 lignes AFTU dans son inventaire public et n'affiche pas de page exploitable 86–89 dans les résultats examinés ; cette absence de résultat n'est pas une preuve d'inexistence.
+- L'index officiel confirme les corridors des lignes 86–89, mais les liens « Voir itinéraire » de ces numéros ne fournissent pas de fiche détaillée exploitable dans l'extraction existante.
+
+### Ligne 91 — contradiction à conserver, pas à corriger
+L'index public officiel AFTU affiche pour la ligne 91 le corridor **APIX – DOUGAR**. Le responsable du projet a transmis depuis l'application CETUD deux séquences complètes et les a validées : 70 occurrences Losso → Terminus 91 et 70 occurrences Chez Lo électricien → Losso. Ces listes sont conservées intégralement dans `docs/aftu-line-91-cetud-app-directional-stop-lists-2026-11-14.md`.
+
+La divergence entre le corridor de l'index AFTU (APIX–Dougar) et les terminus/libellés de la fiche CETUD transmise (Losso / Terminus 91 / Chez Lo électricien) est un conflit de publications à tracer. Elle ne justifie ni d'écarter les 140 occurrences validées par le responsable du projet, ni de les réécrire ou de les rattacher arbitrairement à un autre numéro. La validation des séquences par le responsable du projet reste distincte d'une résolution institutionnelle de ce conflit de corridor.
+
+### Limites de recherche
+La fiche App Store décrit CETUD Mobilités comme l'application officielle du CETUD, permettant de consulter lignes, arrêts et horaires ; elle ne fournit pas dans sa fiche publique les détails des lignes 86–91. PassBi déclare intégrer progressivement les opérateurs et utiliser des données GTFS publiques centralisées par CETUD, mais aucune séquence publique spécifique 86–91 n'a été extraite. Aucune API privée ni route non publique n'a été appelée.
+
+Sources publiques consultées :
+- AFTU-Sénégal, index officiel : https://aftu-senegal.org/infos-pratiques/
+- CETUD, présentation AFTU : https://cetud.sn/reseaux-de-transport/aftu/
+- CETUD Mobilités, fiche App Store : https://apps.apple.com/fr/app/cetud-mobilit%C3%A9s/id6814449080
+- Moovit, inventaire public AFTU (64 lignes affichées) : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
+- Guide pratique indépendant mentionnant le Tata 86 vers Toubab Dialaw : https://anafonio.sn/wp-content/uploads/2026/01/Itineraire_Detaillee_2.pdf
+- PassBi, fiche publique : https://play.google.com/store/apps/details?id=com.senpassbi.app
+
+Aucun horaire ou intervalle n'est validé par ces recherches. Les listes CETUD 90/91 sont conservées selon les validations explicites du responsable du projet. Aucune donnée passager, TER/BRT, Supabase ou production n'est modifiée.
