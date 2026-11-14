@@ -337,6 +337,23 @@ export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = 
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
 })()
 
+export interface PublicBusLineGroup {
+  line: string
+  variants: readonly PublicBusLineReference[]
+}
+
+/**
+ * Regroupe les fiches d'un même numéro sous une seule entrée d'affichage.
+ * Les variantes AFTU/TATA restent séparées : leurs arrêts ne sont jamais fusionnés.
+ */
+export function groupPublicBusLinesByCode(catalogue: readonly PublicBusLineReference[]): PublicBusLineGroup[] {
+  const groups = new Map<string, PublicBusLineReference[]>()
+  for (const entry of catalogue) groups.set(entry.line, [...(groups.get(entry.line) ?? []), entry])
+  return [...groups.entries()]
+    .map(([line, variants]) => ({ line, variants }))
+    .sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line))
+}
+
 export const TATA_REFERENCE_POLICY = {
   independentScheduleAvailable: false,
   independentRouteCatalogAvailable: true,
