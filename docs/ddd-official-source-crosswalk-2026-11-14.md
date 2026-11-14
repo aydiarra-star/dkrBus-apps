@@ -23,7 +23,8 @@ Le contrôle est transcrit dans `src/data/dddOfficialSourceCrosswalk.ts` et prot
 | 10 | Liberté 5 (Dieuppeul) → Palais 2 | Liberté 5 → Palais 2 | Dieuppeul → Palais 1 | Conserver les deux terminus publiés ; contexte JOJ à distinguer |
 | 13 | Liberté 5 → Palais 2 | Liberté 5 → Palais 2 | Dieuppeul → Palais 1 | Conserver les trois libellés selon leur source |
 | 15 | Ligne 15 : Rufisque → Palais 1 | Lignes 15A et 15B : Rufisque → Palais 1 | — | Ne pas fusionner 15, 15A et 15B |
-| 121 | Scat Urbam → Leclerc | Scat Urbam → Leclerc | HLM Grand Yoff → Leclerc | Conserver les deux terminus déclarés ; ne pas assimiler les noms |
+| 23 | Parcelles Assainies → Palais 1 ; dernier repère « Terminus Palais 2 » | — | ArcGIS 2024 : 54 points, dernier « Terminus Palais de JUSTICE » ; géométrie jusqu’au Palais de Justice | Conflit d’extrémité ; conserver les trois libellés sans les assimiler |
+| 121 | Scat Urbam → Leclerc | Scat Urbam → Leclerc | HLM Grand Yoff → Leclerc | ArcGIS 2024 corrobore Scat Urban → Leclerc ; le guide JOJ reste une déclaration distincte |
 | 233 | En-tête Palais 1 ; séquence détaillée jusqu’à Aéroport LSS | Baux Maraichers → Palais 1 | — | Conflit en-tête / dernier arrêt ; séquence intacte |
 | 501 | Palais 2 → Leclerc | Gare de Dakar → Palais 2 | — | Corridors incompatibles sous le code 501 |
 | 502 | Boucle Gare Colobane → Gare Colobane | 502A Colobane → UCAD ; 502B Colobane → Abass Ndao | — | Garder la boucle 502 et les deux sous-codes distincts |
@@ -60,3 +61,15 @@ La séquence Cambérène 2 → Palais 2 déjà conservée dans le registre histo
 - Aucune écriture Supabase, aucun déploiement, aucune fusion.
 - TER et BRT restent strictement inchangés.
 - GTFS n'est pas requis pour poursuivre.
+
+
+## Complément ArcGIS 2024 — lignes 23 et 121
+
+L'audit détaillé du service `Dem_dikk_mise_a_jour` confirme des données cartographiques séparées à conserver :
+
+- **Ligne 23 :** 54 points `LIgne_23`, de « Terminus Parcelles Assainies » à « Terminus Palais de JUSTICE », et une géométrie explicitement nommée Ligne 23. Les attributs du tracé vont jusqu'au Palais de Justice. La fiche voyageurs contient 40 repères, avec un en-tête Palais 1 mais une dernière occurrence « Terminus Palais 2 ». Les quatre noms communs sont ACAPES, UCAD, Avenue Cheikh Anta Diop et Hôpital Principal ; seuls trois apparaissent dans la sous-séquence de réponse ArcGIS. Cela ne permet pas de choisir le terminus ni de fusionner les listes.
+- **Ligne 121 :** 31 points `LIgne_121` et une géométrie nommée Ligne 121. Le tracé ArcGIS commence par « Terminus Scat Urban – Mairie grand Yoff » et finit à Leclerc. Cinq correspondances ordonnées de noms sont retrouvées. Le groupe contient quatre occurrences « Arret Scat Urbam » ; elles restent distinctes. Cela corrobore le corridor DDD Scat Urbam → Leclerc, mais ne valide pas l'ordre voyageurs.
+
+Détails et limites : `docs/ddd-line-23-121-arcgis-2024-audit-2026-11-14.md`.
+
+Le service ArcGIS indique une édition source au 24 septembre 2024. Il apporte une corroboration cartographique historique, pas une validation de l'exploitation actuelle, des deux sens, de l'exhaustivité ou des horaires.
