@@ -59,3 +59,28 @@ La couche ArcGIS d'arrêts ne renvoie aucun point avec `Nom_Ligne=ligne_219`, al
 ## Garde-fous
 
 Audit documentaire en lecture seule. Aucun changement de données passagers, aucun import ni écriture Supabase, aucun déploiement. TER et BRT restent intacts. Aucun GTFS utilisé ou attendu.
+
+
+## Actualisation sur le service ArcGIS actualisé — 14 novembre 2026
+
+Le workflow en lecture seule du 14 novembre (run `43556069073`, artefact `ddd-updated-service-and-sequence-audit`) a recalculé les projections à partir du service actualisé. Il confirme le découpage géographique, tout en montrant que les corridors se rapprochent localement et que le classement par « tracé le plus proche » ne doit pas être confondu avec l'appartenance métier.
+
+### Résultats recalculés pour les 103 points étiquetés 218
+
+| Groupe source | Nombre | Distance au tracé 219 | Distance au tracé 218 | Lecture |
+|---|---:|---:|---:|---|
+| OBJECTID 54–86 | 33 | 33/33 à ≤25 m ; médiane 7,29 m ; maximum 9,82 m | 7/33 à ≤25 m | Bloc spatial candidat 219 |
+| OBJECTID 293–325 | 33 | 33/33 à ≤25 m ; mêmes coordonnées et noms que 54–86 | 7/33 à ≤25 m | Copie exacte du premier bloc, à conserver |
+| OBJECTID 87–123 | 37 | 7/37 à ≤25 m | 37/37 à ≤25 m ; médiane 6,89 m ; maximum 16,09 m | Bloc spatial candidat 218 |
+
+Sur les 103 points, le tracé le plus proche à moins de 25 m est le 219 pour 69 points, le 218 pour 27, le 217 pour 4 et le 232 pour 3. Ce classement est un diagnostic géométrique : il ne remplace pas l'attribut source et ne doit pas déclencher de réaffectation automatique. Les corridors se chevauchent près de certains arrêts ; par exemple, deux positions du bloc 219 sont plus proches du tracé 217 malgré leur proximité de moins de 10 m avec le tracé 219.
+
+La géométrie ArcGIS 219 porte le nom « Daroukhane – marché Ndiarème », tandis que la séquence publiée DDD comparée indique Daroukhane → Ouakam. Le chaînage des 33 positions atteint le secteur d'Ouakam, mais le libellé de la géométrie constitue une divergence documentaire à faire confirmer par DDD, pas une preuve suffisante pour renommer le terminus.
+
+### Décision actualisée
+
+- Le découpage géospatial des 33 positions uniques 219 et des 37 positions 218 reste fortement corroboré.
+- Les 33 enregistrements dupliqués ne sont pas dédupliqués dans les données sources.
+- Le classement du tracé le plus proche est conservé uniquement comme diagnostic.
+- L'attribution officielle des 33 positions à la ligne 219 et le libellé exact de son terminus restent à confirmer auprès de DDD.
+- Aucun arrêt n'est réaffecté, aucune séquence de retour n'est créée et aucune donnée passager n'est modifiée.
