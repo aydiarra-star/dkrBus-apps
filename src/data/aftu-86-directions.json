@@ -224,7 +224,7 @@
   "sourceLabel": "CETUD — captures transmises par l’utilisateur",
   "sourceStatus": "user-provided-cetud-reference",
   "inboundStatus": "CETUD_SOURCE_USER_SUPPLIED",
-  "note": "Les listes d’arrêts sont transcrites dans l’ordre communiqué, sans fusionner les deux sens ni supprimer les doublons. Les heures figurant sur la transcription initiale sont explicitement invalidées : l’heure réelle de départ n’est pas connue et ces valeurs ne constituent pas un horaire fiable. Elles sont conservées uniquement dans transcribedTimesUnvalidated pour la traçabilité de la transcription et ne doivent jamais être utilisées dans l’affichage voyageur, les calculs de passage ou les estimations. Le retour est fourni sans horaires. L’encodage brut « Kà«R Yaye » est conservé tel que transmis, avec « Keur Yaye » uniquement en commentaire.",
+  "note": "Les listes d’arrêts sont transcrites dans l’ordre communiqué, sans fusionner les deux sens ni supprimer les doublons. Les heures figurant sur la transcription initiale sont explicitement invalidées : l’heure réelle de départ n’est pas connue et ces valeurs ne constituent pas un horaire fiable. Elles sont conservées uniquement dans transcribedTimesUnvalidated pour la traçabilité de la transcription et ne doivent jamais être utilisées dans l’affichage voyageur, les calculs de passage ou les estimations. Le retour est fourni sans horaires. L’encodage brut « Kà«R Yaye » est conservé tel que transmis, avec « Keur Yaye » uniquement en commentaire. Les repères généraux de fonctionnement AFTU (début 05:30–06:30, fin autour de 21:00, pointes 06:30–09:30 et 16:30–20:00, intervalle variable 5–15 min en pointe) sont stockés séparément comme références de réseau ; ils ne valident aucune heure de départ ou de passage propre à la ligne 86.",
   "waypoints": [
     "Yeumbeul (Départ)",
     "Route De Malika Devant Mairie Yeumbel Sud Et Sgbs",
@@ -361,5 +361,34 @@
     "Route Yeumbeul Devant Diouma Thiaroye",
     "Route De Malika En Face Mairie Yeumbel Sud Et Sgbs (Terminus)"
   ],
-  "timeStatus": "invalid-unverified"
+  "timeStatus": "invalid-unverified",
+  "operatingProfile": {
+    "serviceModel": "continuous-regulation",
+    "fixedDepartureTimetable": false,
+    "generalNetworkOperatingWindow": {
+      "firstDepartureLocal": "05:30-06:30",
+      "lastDepartureApproxLocal": "21:00",
+      "appliesTo": "AFTU network general reference; not a line-specific guaranteed timetable"
+    },
+    "peakPeriodsLocal": {
+      "morning": {
+        "start": "06:30",
+        "end": "09:30"
+      },
+      "evening": {
+        "start": "16:30",
+        "end": "20:00"
+      }
+    },
+    "peakHeadwayMinutes": {
+      "min": 5,
+      "max": 15,
+      "scope": "peak departures from peripheral termini; variable with passenger loading and traffic"
+    },
+    "sourceLabel": "Informations de fonctionnement AFTU/CETUD et données de terrain transmises par le responsable du projet",
+    "sourceStatus": "user-provided-operating-reference",
+    "caveat": "Repères de fonctionnement variables, pas des horaires garantis. Ne pas interpoler des heures de passage aux arrêts à partir de ces seules données.",
+    "lineSpecificFirstDeparture": null,
+    "note": "Pour la ligne 86, seule l’amplitude générale AFTU est disponible ici : premier départ entre 05:30 et 06:30 selon le terminus ; dernier départ autour de 21:00. L’heure exacte de départ de la ligne 86 reste inconnue. Les anciennes heures transcrites invalidées restent non publiables."
+  }
 }
