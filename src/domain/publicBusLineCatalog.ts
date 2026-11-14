@@ -317,7 +317,6 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
-  const detailedByNetwork = new Map<string, { waypoints?: string[] }>()
   const detailedRecords = [
     ...(mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu'),
     ...(tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]),
