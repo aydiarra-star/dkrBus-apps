@@ -17,7 +17,7 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     })
     expect(new Set(keys).size).toBe(keys.length)
     expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(35)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(101)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(102)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '39')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '42')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'APIX' && line.destination === 'UCAD')).toBe(true)
