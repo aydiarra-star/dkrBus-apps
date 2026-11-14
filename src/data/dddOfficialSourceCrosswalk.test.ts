@@ -13,7 +13,7 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.infoPage).toBe('https://demdikk.sn/info-voyageurs/')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '6', '7', '13', '15', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '4', '6', '7', '9', '10', '13', '15', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
@@ -23,14 +23,17 @@ describe('DDD official source crosswalk', () => {
     }
   })
 
-  it('keeps the line 6, 7 and 13 terminus conflicts explicit', () => {
+  it('keeps the line 6, 7, 9, 10, 13 and 121 terminus conflicts explicit', () => {
     expect(getDddOfficialSourceCrosswalk('6')?.claims.map(({ corridor }) => corridor)).toEqual([
       'Guédiawaye → Palais 1',
       'Cambérène 2 → Palais 2',
       'Cambérène → Palais 1',
     ])
     expect(getDddOfficialSourceCrosswalk('7')?.claims.at(-1)?.corridor).toBe('Ouakam → Palais 1')
+    expect(getDddOfficialSourceCrosswalk('9')?.claims.at(-1)?.corridor).toBe('Liberté 6 → Palais 1')
+    expect(getDddOfficialSourceCrosswalk('10')?.claims.at(-1)?.corridor).toContain('Palais 1')
     expect(getDddOfficialSourceCrosswalk('13')?.claims.at(-1)?.corridor).toBe('Dieuppeul → Palais 1')
+    expect(getDddOfficialSourceCrosswalk('121')?.claims.at(-1)?.corridor).toBe('HLM Grand Yoff → Leclerc')
   })
 
   it('does not merge line-number variants or distinct TAF TAF services', () => {
