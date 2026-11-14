@@ -211,3 +211,10 @@ La relecture de l'index AFTU actuel fixe les corridors de référence : 86 Tourn
 - **89 :** les listes couvrent explicitement Niague → Tivaoune Peulh → Keur Massar → Keur Mbaye Fall → Zac Mbao → Rufisque → Bargny Gare TER. C'est globalement compatible avec Bargny–Croisement Niague ; l'équivalence exacte entre « Terminus 89 » et « Croisement Niague (Cité SICAP) » reste à confirmer.
 
 Aucun arrêt répété n'est supprimé ou fusionné. Les deux sens restent indépendants. Pas de modification du catalogue passager, des données TER/BRT, de Supabase ou de la production.
+
+
+## AFTU ligne 90 — listes directionnelles transmises (14 novembre 2026)
+
+Une transcription dédiée a été ajoutée dans [aftu-line-90-site-source-directional-stop-lists-2026-11-14.md](aftu-line-90-site-source-directional-stop-lists-2026-11-14.md). Elle conserve les deux sens indépendamment : **82 occurrences à l'aller** de Terminus 90 vers Deni Birame Ndao Nord et **82 au retour**, soit **164 occurrences directionnelles**. Les noms, répétitions, graphies et positions ont été conservés ; aucun arrêt n'a été fusionné ou supprimé.
+
+La séquence dessine, par ses seuls libellés, un corridor général Thiaroye/Fass Mbao – Keur Massar/Jaxaay – Keur Ndiaye Lô/Sangalkam/Noflaye – Bambilor/Deni Birame Ndao. C'est un constat géographique initial, pas une validation officielle du numéro 90, des terminus ou des deux itinéraires. L'URL de la page détaillée d'origine n'est pas encore disponible dans le dossier. Aucun horaire, fréquence ou coordonnée n'a été inventé ; aucune donnée TER/BRT ni donnée passager n'a été modifiée.
