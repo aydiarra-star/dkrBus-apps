@@ -48,8 +48,7 @@ const NETWORK_KEYWORDS: Record<NetworkId, readonly string[]> = {
   ter: ['ter', 'senter', 'sen ter', 'seter', 'train', 'train express regional', 'gare'],
   brt: ['brt', 'sunubrt', 'sunu brt', 'bus rapid transit', 'b1', 'dakar mobilite', 'station'],
   ddd: ['ddd', 'dakar dem dikk', 'dem dikk', 'cetud', 'bus urbain'],
-  aftu: ['aftu', 'cetud', 'minibus', 'ndiaga ndiaye', 'car rapide'],
-  tata: ['tata', 'reseau independant', 'taxi', 'clando'],
+  aftu_tata: ['aftu', 'tata', 'cetud', 'minibus', 'ndiaga ndiaye', 'car rapide'],
   other: ['autre'],
 }
 
@@ -57,8 +56,7 @@ const NETWORK_SOURCE_LABEL: Record<NetworkId, string> = {
   ter: 'Référence SETER',
   brt: 'Référence SunuBRT / CETUD',
   ddd: 'Référence CETUD',
-  aftu: 'Référence CETUD',
-  tata: 'Référence catalogue',
+  aftu_tata: 'Référence CETUD',
   other: 'Source non déclarée',
 }
 
