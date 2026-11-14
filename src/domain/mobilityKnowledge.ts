@@ -4,11 +4,15 @@
  * Voir docs/mobility-research-2026-10-10.md pour les vérifications et lacunes.
  */
 import catalog from '../data/mobility-lines.json'
+import tataCatalog from '../data/tata-lines.json'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
 export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
+export const TATA_BUS_LINES = tataCatalog as unknown as readonly BusLine[]
+/** Tous les itinéraires documentés sous l'identité commune AFTU / TATA. */
+export const UNIFIED_BUS_LINES: readonly BusLine[] = [...BUS_LINES, ...TATA_BUS_LINES]
 export interface KnowledgeReply { text: string; lineId?: string }
 
 export interface RemoteTrafficIncident {
@@ -329,9 +333,9 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
 }
 
 export function busKnowledgeSummary(): string {
-  const ddd = BUS_LINES.filter((line) => line.network === 'ddd').length
-  const aftuTata = uniqueEquivalentLines(BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata'))).length
-  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
+  const ddd = UNIFIED_BUS_LINES.filter((line) => line.network === 'ddd').length
+  const aftuTata = uniqueEquivalentLines(UNIFIED_BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata'))).length
+  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
 }
 
 export function generalFareReply(): string {
@@ -448,7 +452,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
         : []
     })
   })
-  const candidates = BUS_LINES.filter((line) => (!networks.length || networks.some((network) => belongsToNetwork(line, network))) && !line.note?.startsWith('Divergence'))
+  const candidates = UNIFIED_BUS_LINES.filter((line) => (!networks.length || networks.some((network) => belongsToNetwork(line, network))) && !line.note?.startsWith('Divergence'))
   const allMatches = [
     ...findMatches(candidates),
     ...findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.some((network) => belongsToNetwork(line, network)))),
@@ -477,7 +481,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   const networks = explicitNetworks(text)
   const code = /\b(?:ligne|bus|ddd|aftu|tata)\s*(?:numero\s*|n\s*)?0*(\d+[ab]?|to1)\b/.exec(text)?.[1]?.toUpperCase()
   if (code) {
-    const localMatches = BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
+    const localMatches = UNIFIED_BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const remoteMatches = remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const matches = uniqueEquivalentLines([...localMatches, ...remoteMatches])
     if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez le terminus ou le quartier pour choisir le bon parcours.` }
@@ -485,7 +489,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
   }
   if (lastLineId && /^(et |ses |les horaires|les arrets|son |elle passe|le prix)/.test(text) && !networks.length && !/\b(ter|brt|train|meteo|temperature)\b/.test(text)) {
-    const line = BUS_LINES.find((entry) => key(entry) === lastLineId)
+    const line = UNIFIED_BUS_LINES.find((entry) => key(entry) === lastLineId)
       ?? remoteCandidateLines.find((entry) => key(entry) === lastLineId)
     if (line) return lineReply(line, question)
   }
@@ -496,7 +500,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     if (route) return route
   }
   if (networks.length) {
-    const lines = uniqueEquivalentLines([...BUS_LINES, ...remoteCandidateLines].filter((line) => networks.some((network) => belongsToNetwork(line, network))))
+    const lines = uniqueEquivalentLines([...UNIFIED_BUS_LINES, ...remoteCandidateLines].filter((line) => networks.some((network) => belongsToNetwork(line, network))))
     if (/\b(liste|lignes|numeros)\b/.test(text)) {
       const networkLabel = (network: string) => network === 'aftu_tata' ? 'AFTU / TATA' : network.toUpperCase()
       return { text: `${networks.map(networkLabel).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${networkLabel(network)} : ${lines.filter((line) => belongsToNetwork(line, network)).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
