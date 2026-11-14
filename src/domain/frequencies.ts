@@ -6,7 +6,7 @@
 export type FrequencyStatus = 'OFFICIAL_REFERENCE' | 'SCHEDULED' | 'ESTIMATED' | 'REAL_TIME' | 'UNKNOWN'
 export type FrequencyAuthority = 'CETUD' | 'TER_DAKAR' | 'SETER' | 'AFTU' | 'DDD'
 export type ServiceDay = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN'
-export type ReferenceNetworkId = 'ter' | 'brt' | 'ddd' | 'aftu' | 'tata'
+export type ReferenceNetworkId = 'ter' | 'brt' | 'ddd' | 'aftu_tata'
 
 export type FrequencySource = {
   authority: FrequencyAuthority
@@ -229,41 +229,21 @@ export const NETWORK_REFERENCE_DATA: Readonly<Record<ReferenceNetworkId, Network
     source: FREQUENCY_SOURCES.cetud,
     validityPeriod: NO_CALENDAR_VALIDITY,
   },
-  aftu: {
-    id: 'aftu',
-    label: 'AFTU',
-    shortName: 'AFTU',
-    operator: 'AFTU',
-    coverage: 'Réseau de minibus',
+  aftu_tata: {
+    id: 'aftu_tata',
+    label: 'AFTU / TATA',
+    shortName: 'AFTU / TATA',
+    operator: 'AFTU · minibus TATA',
+    coverage: 'Réseau unifié de minibus AFTU / TATA',
     lineCount: 72,
     stationCount: null,
     vehicleCount: 2300,
     gieCount: 14,
     serviceStart: '06:00',
-    serviceEnd: '21:00',
-    serviceWindow: '06:00–21:00',
+    serviceEnd: '22:50',
+    serviceWindow: '06:00–22:50',
     frequencyStatus: 'UNKNOWN',
-    frequencyLabel: 'Fréquences non publiées ligne par ligne',
-    officialFrequencies: [],
-    sourceAuthority: 'CETUD',
-    source: FREQUENCY_SOURCES.cetud,
-    validityPeriod: NO_CALENDAR_VALIDITY,
-  },
-  tata: {
-    id: 'tata',
-    label: 'TATA',
-    shortName: 'TATA',
-    operator: 'AFTU (minibus TATA)',
-    coverage: 'Minibus TATA · réseau AFTU',
-    lineCount: null,
-    stationCount: null,
-    vehicleCount: null,
-    gieCount: null,
-    serviceStart: '06:00',
-    serviceEnd: '21:00',
-    serviceWindow: '06:00–21:00 · référence générale AFTU',
-    frequencyStatus: 'UNKNOWN',
-    frequencyLabel: 'Référence empirique partagée AFTU/TATA',
+    frequencyLabel: 'Intervalle moyen partagé : 11,6 min · créneau projeté : 12 min',
     officialFrequencies: [],
     sourceAuthority: 'CETUD',
     source: FREQUENCY_SOURCES.cetud,
