@@ -161,5 +161,6 @@
   },
   "sourceLabel": "Application CETUD — listes transmises et validées par le responsable du projet",
   "sourceStatus": "user-validated-cetud-sequences",
-  "note": "Les deux séquences sont complètes et validées par le responsable du projet. Les 70 occurrences de chaque sens sont conservées sans dédoublonnage. Aucune fréquence, coordonnée ou heure n'est ajoutée."
+  "note": "Séquences aller et retour complètes, validées à 100 % par le responsable du projet. Les libellés, l'ordre et toutes les occurrences sont conservés sans dédoublonnage. Aucune fréquence, coordonnée ou heure n'est ajoutée.",
+  "validatedByProjectOwner": true
 }
