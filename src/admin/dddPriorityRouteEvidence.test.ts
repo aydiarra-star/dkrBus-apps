@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DDD_ARCGIS_ATTRIBUTION_WARNINGS,
   DDD_LINES_WITHOUT_SAME_CODE_ARCGIS_STOP_GROUP,
   DDD_PRIORITY_ROUTE_EVIDENCE,
   getDddPriorityRouteEvidence,
@@ -49,5 +50,14 @@ describe('DDD priority route evidence', () => {
     expect(DDD_LINES_WITHOUT_SAME_CODE_ARCGIS_STOP_GROUP).toContain('20')
     expect(DDD_LINES_WITHOUT_SAME_CODE_ARCGIS_STOP_GROUP).toContain('219')
     expect(DDD_LINES_WITHOUT_SAME_CODE_ARCGIS_STOP_GROUP).toContain('TAF_TAF')
+  })
+  it('does not reassign ambiguous ArcGIS layers to another DDD line', () => {
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '20')?.sourceLayerLine).toBe('18')
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '20')?.pointCount).toBe(44)
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '219')?.sourceLayerLine).toBe('218')
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '219')?.pointCount).toBe(33)
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '233')?.warning).toContain('Palais 1')
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === 'TAF_TAF')?.sourceLayerLine).toBe('TO1')
+    expect(DDD_ARCGIS_ATTRIBUTION_WARNINGS.find((item) => item.line === '15')?.sourceLayerLine).toBe('15A/15B')
   })
 })
