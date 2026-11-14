@@ -81,10 +81,10 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOneLabels = screen.getAllByText('DDD 1')
     expect(dddOneLabels).toHaveLength(2)
-    expect(within(dddOneLabels[0].closest('li')!).getAllByText('10 min')).toHaveLength(1)
+    expect(within(dddOneLabels[0].closest('li')!).getAllByText('10 min')).toHaveLength(2)
     const dddSixLabels = screen.getAllByText('DDD 6')
     expect(dddSixLabels).toHaveLength(2)
-    expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(1)
+    expect(within(dddSixLabels[0].closest('li')!).getAllByText('6 min')).toHaveLength(2)
   })
 
   it('annonce la reprise AFTU et TATA avant le premier départ, avec l’heure exacte', () => {
@@ -109,7 +109,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
 
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOne = screen.getAllByText('DDD 1')[0].closest('li')!
-    expect(within(dddOne).getAllByText('6 min')).toHaveLength(1)
+    expect(within(dddOne).getAllByText('6 min')).toHaveLength(2)
   })
 
   it('arrête chaque ligne AFTU à sa fin connue et plafonne les autres à 22:50', async () => {
