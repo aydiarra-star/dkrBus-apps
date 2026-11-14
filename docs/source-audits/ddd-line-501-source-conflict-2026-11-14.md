@@ -64,3 +64,20 @@ Il n'existe pas, dans ces publications, de preuve permettant d'affirmer que « G
 ## Suite de vérification
 
 Interroger les entités ArcGIS des deux couches avec un filtre exact sur la ligne 501, vérifier les attributs et les positions, puis comparer ces résultats aux publications DDD avant toute évolution des données applicatives.
+
+## Vérification du catalogue ArcGIS interurbain
+
+Le catalogue du service public `Ligne_inter_urbain` expose des couches dédiées pour les lignes 1, 4, 6, 7, 8, 9, 10, 13, 18, 20, 23 et 121. Il ne présente pas de couche dédiée à la ligne 501 dans cet inventaire.
+
+Source : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/layers
+
+Cette absence de couche dédiée dans ce service ne prouve pas l'absence de données 501 dans d'autres services ArcGIS. Le service générique `Dem_dikk_mise_a_jour` possède bien un champ `Nom_Ligne` sur sa couche d'arrêts et un champ `Nom_Ligne` sur sa couche de tracés ; les entités propres à 501 doivent encore être interrogées et vérifiées avant toute conclusion sur leur contenu.
+
+## Résultat de l'audit ArcGIS
+
+- Couche générique d'arrêts : disponible, avec `Nom_Arret`, `Nom_Ligne` et `Id`, mais dernière modification des données le 24 septembre 2024.
+- Couche générique de tracés : disponible, avec `Nom_Ligne` et plusieurs champs descriptifs d'itinéraire, mais dernière modification des données le 11 janvier 2019.
+- Catalogue interurbain : aucune couche dédiée 501 répertoriée.
+- Aucun résultat d'entités ArcGIS 501 n'est considéré comme validé dans ce PR.
+
+La vérification ArcGIS ne lève donc pas la contradiction des terminus. Elle précise seulement quelles couches existent et quelles vérifications ciblées restent nécessaires.
