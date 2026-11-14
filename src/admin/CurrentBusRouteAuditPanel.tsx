@@ -167,7 +167,7 @@ export function CurrentBusRouteAuditPanel() {
           {report.aftuEvidence.map((route) => (
             <li key={route.line}>
               <details>
-                <summary>AFTU {route.line} · Aller {route.outbound.waypoints.length} repères · Retour {route.inbound.waypoints.length} repères</summary>
+                <summary>AFTU {route.line} · Aller {route.outbound.waypoints.length} repères · Retour {route.inbound.waypoints.length} repères{route.validatedByProjectOwner ? ' · Validée à 100 % par le responsable du projet' : ''}</summary>
                 {(['outbound', 'inbound'] as const).map((direction) => {
                   const evidence = route[direction]
                   return (
