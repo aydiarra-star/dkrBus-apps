@@ -19,6 +19,7 @@ import {
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
   AFTU_TATA_SHARED_ROUTE_KEYS,
+  type PublicBusLineReference,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -97,6 +98,140 @@ export function scheduleCountdownMinutes(schedule: EstimatedLineSchedule, now = 
   const nextAt = now < startAt ? startAt : startAt + (Math.floor((now - startAt) / step) + 1) * step
   if (nextAt > endAt) return null
   return Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS))
+}
+
+
+function normalizeStopsForIdentity(stops: readonly string[]): string[] {
+  return stops.map((stop) => stop.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean)
+}
+
+function sameOrderedStops(left: readonly string[], right: readonly string[]): boolean {
+  const a = normalizeStopsForIdentity(left)
+  const b = normalizeStopsForIdentity(right)
+  return a.length > 0 && a.length === b.length && a.every((stop, index) => stop === b[index])
+}
+
+function AftuTataScheduleBoard({
+  catalogue,
+  routeReferences,
+  schedulesByLine,
+  now,
+  location,
+  nearestStop,
+}: {
+  catalogue: readonly PublicBusLineReference[]
+  routeReferences: MobilityRouteReference[]
+  schedulesByLine: Map<string, EstimatedLineSchedule>
+  now: number
+  location: UserLocation | null
+  nearestStop: { stop: (typeof AFTU_STOPS)[number] | (typeof TATA_STOPS)[number]; distance: number } | null
+}) {
+  const [openedLine, setOpenedLine] = useState<string | null>(null)
+  const groups = useMemo(() => {
+    const grouped = new Map<string, PublicBusLineReference[]>()
+    for (const line of catalogue) grouped.set(line.line, [...(grouped.get(line.line) ?? []), line])
+    return [...grouped.entries()].sort(([a], [b]) => Number(a) - Number(b) || a.localeCompare(b))
+  }, [catalogue])
+  const weekday = new Date(now).getUTCDay()
+
+  return (
+    <section className="station-board" aria-label="Affichage des lignes AFTU / TATA">
+      <header className="station-board-head"><strong>Lignes AFTU / TATA</strong></header>
+      <ul className="station-board-list">
+        {groups.map(([lineNumber, variants]) => {
+          const schedule = schedulesByLine.get(lineNumber)
+            ?? routeReferences.find((item) => item.code === lineNumber && item.outboundSchedule)?.outboundSchedule
+            ?? AFTU_TATA_NETWORK_REFERENCE
+          const declaredWindow = weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
+          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_NETWORK_REFERENCE.weekday, 'aftu_tata')
+          const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
+          const countdownSchedule = { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
+          const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
+          const expanded = openedLine === lineNumber
+
+          return (
+            <li key={lineNumber} className="station-board-line-group" data-line-code={lineNumber}>
+              <button
+                type="button"
+                className={`station-board-row station-board-row-static station-board-direction-row station-board-line-toggle${expanded ? ' is-expanded' : ''}`}
+                aria-expanded={expanded}
+                onClick={() => setOpenedLine(expanded ? null : lineNumber)}
+              >
+                <span className="station-board-stop"><strong>Ligne {lineNumber}</strong></span>
+                <span className="station-board-direction-action">
+                  <span className="station-board-open-label">Affiche horaire</span>
+                  <span aria-hidden="true">{expanded ? '−' : '→'}</span>
+                </span>
+              </button>
+              {expanded && (
+                <div className="station-board-line-timetable" aria-label={`Affiche horaire ligne ${lineNumber}`}>
+                  {variants.map((line) => {
+                    const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+                    const sameNetworkCandidates = routeReferences.filter((item) =>
+                      item.network === line.network
+                      && item.code === line.line
+                      && Boolean(item.origin && item.destination)
+                      && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+                    )
+                    const matchingSameNetwork = sameNetworkCandidates.filter((item) =>
+                      !line.waypoints?.length || !item.waypoints.length || sameOrderedStops(line.waypoints, item.waypoints)
+                    )
+                    const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
+                      ? routeReferences.filter((item) =>
+                        item.network !== line.network
+                        && item.code === line.line
+                        && Boolean(item.origin && item.destination)
+                        && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+                        && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
+                      )
+                      : []
+                    const candidates = [...matchingSameNetwork, ...sharedCandidates]
+                    const route = [...candidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+                    const outboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
+                    const inboundStops = route?.inboundWaypoints ?? []
+                    const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
+                    const serviceLabel = serviceState.status === 'UPCOMING'
+                      ? serviceState.label
+                      : serviceState.status === 'FINISHED'
+                        ? "Service terminé pour aujourd'hui"
+                        : minutes === null ? 'En service' : formatPassageCountdown(minutes)
+
+                    return (
+                      <section key={`${line.network}:${lineRouteKey}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`} className="station-board-line-direction">
+                        <div className="station-board-line-variant-heading">
+                          <strong>{variants.length > 1 ? `${line.network === 'aftu' ? 'AFTU' : 'TATA'} · ` : ''}{line.origin} → {line.destination}</strong>
+                        </div>
+                        {(['outbound', 'inbound'] as const).map((direction) => {
+                          const stops = direction === 'outbound' ? outboundStops : inboundStops
+                          return (
+                            <section key={direction} className={`station-board-line-direction-detail station-board-line-direction-${direction}`}>
+                              <div className="station-board-line-direction-heading">
+                                <strong>{direction === 'outbound' ? 'Aller' : 'Retour'}</strong>
+                                <span className={`network-summary-passage station-board-passage${minutes === null ? ' is-undeclared' : ''}`} role="status">
+                                  <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{serviceLabel}</strong>
+                                  {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
+                                </span>
+                              </div>
+                              <p className="station-board-line-endpoints">{direction === 'outbound' ? line.origin + ' → ' + line.destination : line.destination + ' → ' + line.origin}</p>
+                              {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
+                              {stops.length > 0
+                                ? <ol className="station-board-itinerary-list">{stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
+                                : <p className="station-board-itinerary-pending">{direction === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}
+                              {sourceUrl && <a className="station-board-itinerary-source" href={direction === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
+                            </section>
+                          )
+                        })}
+                      </section>
+                    )
+                  })}
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
 }
 
 export function EstimatedLineScheduleBoard({ network, location = null }: { network: EstimatedScheduleNetwork; location?: UserLocation | null }) {
@@ -178,6 +313,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
     const timer = window.setInterval(() => setNow(Date.now()), 1_000)
     return () => window.clearInterval(timer)
   }, [])
+
+  if (network === 'aftu_tata') {
+    return <AftuTataScheduleBoard catalogue={catalogue} routeReferences={routeReferences} schedulesByLine={schedulesByLine} now={now} location={location} nearestStop={nearestStop} />
+  }
 
   return (
     <section className="station-board" aria-label={`Affichage des lignes ${label}`}>
