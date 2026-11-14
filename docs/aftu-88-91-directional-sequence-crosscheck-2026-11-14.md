@@ -41,7 +41,7 @@ Les deux séquences 89/91 décrivent donc un segment commun très fortement comp
 17. Rond-Point Zac Mbao face Station Total
 18. Zac Mbao Station Oryx
 
-**Interprétation limitée :** cela prouve un recouvrement textuel ordonné entre les listes transmises, pas que les lignes 89 et 91 sont la même ligne, ni qu'elles ont été fusionnées ou renumérotées. L'index public AFTU consulté affiche 89 = APIX–Dougar, tandis que la fiche CETUD 91 transmise décrit Losso / Chez Lo électricien. Cette divergence institutionnelle demeure ouverte ; aucun arrêt n'est réaffecté.
+**Interprétation limitée :** cela prouve un recouvrement textuel ordonné entre les listes transmises, pas que les lignes 89 et 91 sont la même ligne, ni qu'elles ont été fusionnées ou renumérotées. L'index public AFTU consulté affiche 89 = Bargny–Croisement Niague et 91 = APIX–Dougar. La liste CETUD 91 transmise décrit Losso / Chez Lo électricien et contient aussi le secteur APIX et Dougar ; la correspondance exacte des extrémités reste ouverte. Aucun arrêt n'est réaffecté.
 
 ### Ligne 88 et ligne 90
 
@@ -65,12 +65,12 @@ L'absence de libellé identique ne prouve pas l'absence de proximité géographi
 ## Contrôle des corridors publics
 
 La page officielle AFTU « Infos pratiques » consultée le 14 novembre 2026 affiche :
-- Ligne 87 : MTOA – Liberté 5.
-- Ligne 88 : Bargny – Croisement Niague (Cité SICAP).
-- Ligne 89 : APIX – Dougar.
-- Ligne 91 : le titre « Ligne 91 » apparaît sans corridor lisible dans le texte récupéré.
+- Ligne 87 : Bambilor – Mosquée Massalikou Djinane.
+- Ligne 88 : MTOA – Liberté 5.
+- Ligne 89 : Bargny – Croisement Niague (Cité SICAP).
+- Ligne 91 : APIX – Dougar.
 
-La liste détaillée 88 transmise au projet va de « Terminus 88 » à « Terminus Liberté 5 » : elle ne correspond donc pas au corridor actuellement affiché par l'index officiel. La liste détaillée 89 va de « Terminus 89 » à « Poste Courant Bargny près de la gare TER » : elle ne correspond pas non plus au corridor officiel APIX–Dougar. Ces différences sont des conflits de sources à résoudre, pas des raisons d'effacer les listes fournies.
+La liste détaillée 88 transmise au projet va de « Terminus 88 » à « Terminus Liberté 5 » et contient MTOA comme repère intermédiaire : le point de départ « Terminus 88 » n'est pas encore identifié comme MTOA. La liste détaillée 89 va de « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient « Croisement Niague » : le lien entre « Terminus 89 » et Croisement Niague reste à confirmer. Les listes 89 et 91 ont 18 libellés communs en sous-séquence opposée ; la correction du corridor officiel permet de traiter cela comme un segment partagé possible, sans fusionner les lignes. Ces différences sont des conflits de sources à résoudre, pas des raisons d'effacer les listes fournies.
 
 Source primaire : https://aftu-senegal.org/infos-pratiques/  
 La page CETUD présente AFTU comme un réseau de 72 lignes et 14 GIE : https://cetud.sn/reseaux-de-transport/aftu/
@@ -85,3 +85,14 @@ La page CETUD présente AFTU comme un réseau de 72 lignes et 14 GIE : https://c
 - Garder les divergences de terminus visibles pour validation AFTU/CETUD.
 
 Aucune donnée passager n'est modifiée. Aucun changement TER/BRT, aucune écriture Supabase, aucun déploiement et aucune fusion du PR.
+
+
+## Rectification officielle de la numérotation — 14 novembre 2026
+
+La page AFTU relue directement confirme les corridors exacts suivants : 88 = MTOA–Liberté 5 ; 89 = Bargny–Croisement Niague (Cité SICAP) ; 91 = APIX–Dougar. Les anciennes associations de numéros dans la section « Contrôle des corridors publics » sont remplacées par cette référence corrigée.
+
+Le segment commun de 18 libellés entre 89 et 91 reste conservé comme indice de corridor partagé possible : la ligne 91, plus longue, dessert elle aussi des secteurs de Bargny/Rufisque dans les listes transmises. Cela ne prouve ni identité de ligne ni fusion, et ne permet pas de transférer des arrêts d'une ligne à l'autre.
+
+Pour la ligne 88, MTOA apparaît dans la liste détaillée mais comme repère intermédiaire ; le lien avec « Terminus 88 » n'est pas établi. Pour la ligne 89, Bargny est corroboré par le terminus de la liste, mais l'équivalence de « Terminus 89 » avec « Croisement Niague (Cité SICAP) » reste à établir. Pour la ligne 91, les deux sens enregistrés contiennent les secteurs APIX et Dougar, mais leurs extrémités Losso / Chez Lo électricien peuvent représenter une extension du corridor officiel ; aucune coupe n'est faite.
+
+Les six lignes 85 à 91 affichées par l'index officiel ont désormais un registre de rapprochement et un test dédié dans `src/data/aftuOfficialIndexCrosswalk.ts` et `src/data/aftuOfficialIndexCrosswalk.test.ts`.
