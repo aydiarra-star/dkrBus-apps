@@ -194,7 +194,7 @@ function networkSummary(snapshot: MobilityBrainSnapshot, code: string, listAll: 
   const candidates = lines.filter((line) => line.status === 'candidate').length
   const verified = lines.filter((line) => line.status === 'verified').length
   const published = lines.filter((line) => line.status === 'published').length
-  const summary = \`\${label} : \${lines.length} lignes enregistrées (\${candidates} candidates, \${verified} vérifiées, \${published} publiées) et \${directions.length} directions.\`
+  const summary = `${label} : ${lines.length} lignes enregistrées (${candidates} candidates, ${verified} vérifiées, ${published} publiées) et ${directions.length} directions.`
   const codes = listAll
     ? `\nLignes : ${lines.map((line) => line.code).join(', ')}.`
     : ''
