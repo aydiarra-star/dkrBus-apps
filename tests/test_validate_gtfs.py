@@ -391,5 +391,16 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertFalse(report["structure_valid"])
         self.assertIn("UNSUPPORTED_COMPRESSION", self.issue_codes(report))
 
+    def test_zip_lzma_compression_is_rejected_before_member_read(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        lzma_entry = zipfile.ZipInfo("agency.txt")
+        lzma_entry.compress_type = zipfile.ZIP_LZMA
+
+        with patch.object(zipfile.ZipFile, "infolist", return_value=[lzma_entry]):
+            report = validate_gtfs_archive(archive)
+
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSUPPORTED_COMPRESSION", self.issue_codes(report))
+
 if __name__ == "__main__":
     unittest.main()
