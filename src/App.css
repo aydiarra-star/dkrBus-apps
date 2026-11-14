@@ -2140,7 +2140,6 @@ button:disabled { cursor: not-allowed; }
     --focus-ring: #3ee094;
     --panel-shadow: 0 16px 44px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .35);
   }
-}
 
 .app-shell.theme-dark .brand-name { color: var(--text); }
 .app-shell.theme-dark .brand-name > span { color: var(--green-700); }
@@ -2422,7 +2421,6 @@ button:disabled { cursor: not-allowed; }
 .mobility-tile.mobility-brt,
 .mobility-tile.mobility-ddd,
 .mobility-tile.mobility-aftu_tata,
-.mobility-tile.mobility-aftu_tata,
 .stop-row-icon.reference-icon-ter,
 .stop-row-icon.reference-icon-brt,
 .stop-row-icon.mobility-ter,
@@ -2430,7 +2428,6 @@ button:disabled { cursor: not-allowed; }
 .route-list-badge.mobility-ter,
 .route-list-badge.mobility-brt,
 .route-list-badge.mobility-ddd,
-.route-list-badge.mobility-aftu_tata,
 .route-list-badge.mobility-aftu_tata,
 .stop-route-badge.mobility-ter,
 .stop-route-badge.mobility-brt,
@@ -2470,16 +2467,13 @@ button:disabled { cursor: not-allowed; }
 .network-reference-card.mobility-brt,
 .network-reference-card.mobility-ddd,
 .network-reference-card.mobility-aftu_tata,
-.network-reference-card.mobility-aftu_tata,
 .journey-card.mobility-ter,
 .journey-card.mobility-brt,
 .journey-card.mobility-ddd,
 .journey-card.mobility-aftu_tata,
-.journey-card.mobility-aftu_tata,
 .published-stop-row.mobility-ter,
 .published-stop-row.mobility-brt,
 .published-stop-row.mobility-ddd,
-.published-stop-row.mobility-aftu_tata,
 .published-stop-row.mobility-aftu_tata,
 .network-source-card.mobility-ter,
 .network-source-card.mobility-brt,
@@ -2640,7 +2634,6 @@ button:disabled { cursor: not-allowed; }
 .leaflet-tooltip.mobility-tooltip.mobility-ter { border-color: var(--mobility-ter-bright); }
 .leaflet-tooltip.mobility-tooltip.mobility-brt { border-color: var(--mobility-brt); }
 .leaflet-tooltip.mobility-tooltip.mobility-ddd { border-color: var(--mobility-ddd); }
-.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu-tata); }
 .leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu-tata); }
 .leaflet-tooltip .mobility-badge { margin-right: 4px; }
 
