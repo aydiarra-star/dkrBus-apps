@@ -76,11 +76,14 @@ describe('adaptateur de preuves AFTU', () => {
   it('conserve le retour absent de la fiche 83', () => {
     const route = getAftuRouteEvidence('83')
     expect(route?.outbound.waypoints).toHaveLength(14)
+    expect(route?.outbound.sourceUrl).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-83/')
+    expect(route?.outbound.waypoints[0]).toBe('Terminus Rufisque Arafat')
+    expect(route?.outbound.waypoints[13]).toBe('Terminus Zone de Captage')
     expect(route?.inbound.waypoints).toHaveLength(0)
     expect(route?.inboundCorridorStatus).toBe('confirmed-sequence-unavailable')
     expect(route?.inboundCorridorAnchors).toEqual([
-      'Zone de Captage', 'Case Ba', 'Rond-point Malibu', 'Malika Plage',
-      'Station Keur Massar', 'Sipres', 'Dioutiba', 'Rufisque Arafat',
+      'Terminus Zone de Captage', 'Case-Ba', 'Rond-point Malibu', 'Malika Plage',
+      'Station Keur Massar', 'Sipres', 'Dioutiba', 'Terminus Rufisque Arafat',
     ])
     expect(route?.inbound.hasPerStopTimes).toBe(false)
     expect(route?.inbound.sequenceStatus).toBe('missing')
