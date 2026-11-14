@@ -110,7 +110,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     aftuFive.unmount()
 
     vi.setSystemTime(new Date('2026-11-09T22:50:00.000Z'))
-    const tata = render(<EstimatedLineScheduleBoard network="tata" />)
+    render(<EstimatedLineScheduleBoard network="tata" />)
     const tataThirtySeven = screen.getAllByText('TATA 37')[0].closest('li')!
     expect(within(tataThirtySeven).getAllByText("Service terminé pour aujourd'hui")).toHaveLength(2)
     expect(within(tataThirtySeven).queryByText('En service')).toBeNull()
