@@ -26,6 +26,10 @@ Le contrôle est transcrit dans `src/data/dddOfficialSourceCrosswalk.ts` et prot
 | 503 | Boucle Gare de Colobane → Gare de Colobane | 503A Colobane → Môle 8 ; 503B Colobane → Hydrocarbure | — | Garder la boucle 503 et les deux sous-codes distincts |
 | TAF TAF / TO1 | TO1 : Ouakam → Palais 2 ; TAF TAF : Ouakam → AIBD | TAF TAF : AIBD / Sphère ministérielle | — | Deux services distincts ; aucune séquence empruntée |
 
+## Correction de provenance — ligne 6
+
+La séquence Cambérène 2 → Palais 2 déjà conservée dans le registre historique `src/data/dddPublishedRoutes.ts` correspond à la déclaration de la page DDD « Info voyageurs », et non à la page « Réseau urbain de Dakar ». Son champ `sourceUrl` et son libellé de source ont donc été corrigés pour pointer vers `https://demdikk.sn/info-voyageurs/`. La séquence et ses arrêts n'ont pas été modifiés. Un test protège désormais cette provenance. La séquence distincte Guédiawaye → Palais 1 de la page réseau reste conservée dans le registre officiel détaillé.
+
 ## Conséquences pour le chantier
 
 1. Les séquences publiées par l'utilisateur et celles déjà transcrites restent les références de travail. Ce tableau ne les bloque pas et ne les remplace pas.
