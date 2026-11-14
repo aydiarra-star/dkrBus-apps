@@ -10,7 +10,9 @@ describe('DDD published route references', () => {
     ])
     for (const route of DDD_PUBLISHED_ROUTES) {
       expect(route.stops.length).toBeGreaterThan(1)
-      expect(route.sourceUrl).toBe('https://demdikk.sn/reseau-urbain-dakar/')
+      expect(route.sourceUrl).toBe(route.line === '6'
+        ? 'https://demdikk.sn/info-voyageurs/'
+        : 'https://demdikk.sn/reseau-urbain-dakar/')
       expect(route.directionVerified).toBe(false)
       expect(route.coordinatesVerified).toBe(false)
     }
@@ -33,6 +35,7 @@ describe('DDD published route references', () => {
   it('does not manufacture a sequence for a line absent from this source page', () => {
     expect(getDddPublishedRoute('6')?.origin).toBe('Cambérène 2')
     expect(getDddPublishedRoute('6')?.destination).toBe('Palais 2')
+    expect(getDddPublishedRoute('6')?.sourceLabel).toBe('Dakar Dem Dikk · Info voyageurs')
   })
   it('flags the official title/sequence conflicts on lines 217 and 233', () => {
     const line217 = getDddPublishedRoute('217')
