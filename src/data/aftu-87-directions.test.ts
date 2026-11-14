@@ -32,7 +32,7 @@ describe('parcours AFTU 87 issus des captures CETUD', () => {
     expect('times' in route.directions.inbound).toBe(false)
     expect('frequencyMinutes' in route).toBe(false)
     expect(route.sourceStatus).toBe('user-provided-cetud-reference')
-    expect(route.note).toContain('Aucun horaire de passage')
+    expect(route.note).toContain('Aucun horaire de passage aux arrêts')
   })
 
   it('enregistre les deux départs théoriques et la fréquence de pointe sans créer de passages', () => {
