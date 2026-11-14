@@ -241,3 +241,18 @@ Aucune séquence indépendante exploitable n'a été retrouvée publiquement pou
 Pour la ligne 91, l'index AFTU affiche APIX–Dougar, alors que les listes transmises depuis l'application CETUD et validées par le responsable du projet décrivent 70 occurrences Losso → Terminus 91 et 70 occurrences Chez Lo électricien → Losso. Les 140 occurrences restent validées et conservées dans leur ordre d'origine ; la divergence de terminus avec l'index officiel est enregistrée comme conflit de publications, sans réécriture ni rattachement arbitraire.
 
 Rapport détaillé actualisé : `docs/aftu-84-91-artifact-crosscheck-2026-11-14.md`. Sources publiques consultées : index AFTU https://aftu-senegal.org/infos-pratiques/ ; CETUD AFTU https://cetud.sn/reseaux-de-transport/aftu/ ; fiche App Store CETUD Mobilités https://apps.apple.com/fr/app/cetud-mobilit%C3%A9s/id6814449080 ; inventaire Moovit https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038 ; fiche indépendante mentionnant Tata 86 vers Toubab Dialaw https://anafonio.sn/wp-content/uploads/2026/01/Itineraire_Detaillee_2.pdf ; fiche PassBi https://play.google.com/store/apps/details?id=com.senpassbi.app. Aucune fréquence ni aucun horaire n'est ajouté ; aucun endpoint privé n'est consulté. Aucun changement TER/BRT, passager, Supabase ou production.
+
+
+## AFTU 88–91 — comparaison directionnelle des séquences (14 novembre 2026)
+
+Le contrôle croisé exact des listes conservées dans les fiches AFTU 88, 89, 90 et 91 est détaillé dans `docs/aftu-88-91-directional-sequence-crosscheck-2026-11-14.md`.
+
+Résultats principaux :
+- **89 / 91 :** 18 libellés communs dans le même ordre relatif entre l'aller 89 et le retour 91, et les mêmes 18 dans l'autre paire de sens. Le segment commun couvre notamment Bargny, Sococim, Rufisque, P15, Sonadis, Dioutiba, Auberge L'Oustal, Avisen et Layousse. Cela ne prouve ni fusion ni renumérotation.
+- **88 / 90 :** 9 libellés communs en sous-séquence entre le retour 88 et l'aller 90 ; 7 entre l'aller 88 et le retour 90. Le recoupement est concentré sur Fass Mbao / Boune / LGI Mbao. Il ne valide pas une identité de ligne.
+- Aucun libellé exact normalisé commun entre 88 et 89, 88 et 91, ni 89 et 90.
+- Comptages conservés : 88 = 78/81 ; 89 = 55/53 ; 90 = 82/82 ; 91 = 70/70.
+
+La page officielle AFTU consultée directement affiche 88 = Bargny–Croisement Niague (Cité SICAP) et 89 = APIX–Dougar ; les listes détaillées 88 et 89 transmises au projet présentent d'autres terminus. Ces conflits restent ouverts et les listes ne sont ni supprimées ni réaffectées. Source : https://aftu-senegal.org/infos-pratiques/.
+
+Aucune séquence n'est modifiée ou fusionnée. Aucun arrêt, horaire, fréquence, coordonnée ou temps de passage n'est inféré. Aucun changement TER/BRT, aucune écriture Supabase, aucun déploiement et aucune fusion.
