@@ -213,7 +213,11 @@ function AftuTataScheduleBoard({
                           Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                         )
                         : sameNetworkByCode.length === 1 ? sameNetworkByCode : []
-                    const ownRoute = matchingSameNetwork[0]
+                    const crossNetworkByCode = routeReferences.filter((item) => item.code === line.line && item.network !== line.network)
+                    const matchingCrossNetwork = matchingSameNetwork.length === 0 && crossNetworkByCode.length === 1
+                      ? crossNetworkByCode
+                      : []
+                    const ownRoute = matchingSameNetwork[0] ?? matchingCrossNetwork[0]
                     const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
                       ? routeReferences.filter((item) =>
                         item.network !== line.network
