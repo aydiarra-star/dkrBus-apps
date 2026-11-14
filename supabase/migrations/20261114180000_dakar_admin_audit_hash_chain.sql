@@ -73,7 +73,7 @@ do $$
 declare
   audit_row record;
   next_sequence bigint := 0;
-  previous_hash text := repeat('0', 64);
+  v_previous_hash text := repeat('0', 64);
   current_hash text;
   payload text;
 begin
@@ -92,22 +92,22 @@ begin
       'target_id', audit_row.target_id,
       'details', audit_row.details,
       'created_at', audit_row.created_at,
-      'previous_hash', previous_hash
+      'previous_hash', v_previous_hash
     )::text;
     current_hash := public.dakar_admin_sha256(payload);
 
     update public.dakar_admin_audit_events
        set chain_sequence = next_sequence,
-           previous_hash = previous_hash,
+           previous_hash = v_previous_hash,
            event_hash = current_hash
      where id = audit_row.id;
 
-    previous_hash := current_hash;
+    v_previous_hash := current_hash;
   end loop;
 
   update public.dakar_admin_audit_chain_state
      set last_chain_sequence = next_sequence,
-         last_event_hash = previous_hash,
+         last_event_hash = v_previous_hash,
          updated_at = now()
    where singleton = true;
 end;
