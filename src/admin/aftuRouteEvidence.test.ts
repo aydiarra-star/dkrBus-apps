@@ -78,6 +78,10 @@ describe('adaptateur de preuves AFTU', () => {
     expect(route?.outbound.waypoints).toHaveLength(14)
     expect(route?.inbound.waypoints).toHaveLength(0)
     expect(route?.inboundCorridorStatus).toBe('confirmed-sequence-unavailable')
+    expect(route?.inboundCorridorAnchors).toEqual([
+      'Zone de Captage', 'Case Ba', 'Rond-point Malibu', 'Malika Plage',
+      'Station Keur Massar', 'Sipres', 'Dioutiba', 'Rufisque Arafat',
+    ])
     expect(route?.inbound.hasPerStopTimes).toBe(false)
     expect(route?.inbound.sequenceStatus).toBe('missing')
     expect(route?.inbound.waypoints).toHaveLength(0)
