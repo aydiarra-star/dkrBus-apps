@@ -312,7 +312,8 @@ export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
  */
 export function detailedRouteIdentity(line: { network: string; code: string; origin: string; destination: string; waypoints?: readonly string[] }): string {
   const routeKey = detailedRouteKey(line)
-  if ((line.network === 'aftu' || line.network === 'tata') && AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)) return routeKey
+  if (line.network !== 'aftu' && line.network !== 'tata') return routeKey
+  if (AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)) return routeKey
   const sequence = normalizedRouteStops(line.waypoints ?? []).join('>') || 'no-detail'
   return `${line.network}|${routeKey}|${sequence}`
 }
