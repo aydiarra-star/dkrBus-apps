@@ -15,15 +15,20 @@ import {
   type EstimatedLineSchedule,
 } from '../domain/estimatedSchedules'
 import {
-  AFTU_PUBLIC_LINE_CATALOG,
+  AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
-  TATA_PUBLIC_LINE_CATALOG,
+  detailedRouteKey,
 } from '../domain/publicBusLineCatalog'
 
-type EstimatedScheduleNetwork = 'ddd' | 'aftu' | 'tata'
+type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
+type RouteSourceNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: EstimatedScheduleNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
+
+function routeCompleteness(route: MobilityRouteReference): number {
+  return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
+}
 
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
@@ -35,16 +40,6 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   sunday: { start: '06:00', end: '22:50', interval: '11.6 min' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
   sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
-}
-
-/**
- * Référence moyenne commune au réseau de minibus AFTU/TATA, utilisée uniquement
- * comme cadence réseau quand aucune fréquence propre à la ligne TATA n'est publiée.
- * Elle ne rattache jamais une ligne TATA à une ligne AFTU portant le même numéro.
- */
-const TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
-  ...AFTU_TATA_NETWORK_REFERENCE,
-  sourceLabel: 'TATA · cadence moyenne de référence du réseau de minibus',
 }
 
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
@@ -105,14 +100,14 @@ export function scheduleCountdownMinutes(schedule: EstimatedLineSchedule, now = 
 
 export function EstimatedLineScheduleBoard({ network, location = null }: { network: EstimatedScheduleNetwork; location?: UserLocation | null }) {
   const isDdd = network === 'ddd'
-  const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA' : 'AFTU'
-  const catalogue = isDdd ? DDD_PUBLIC_LINE_CATALOG : network === 'tata' ? TATA_PUBLIC_LINE_CATALOG : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : network === 'aftu' ? AFTU_ESTIMATED_LINE_SCHEDULES : []
+  const label = isDdd ? 'DDD' : 'AFTU / TATA'
+  const catalogue = isDdd ? DDD_PUBLIC_LINE_CATALOG : AFTU_TATA_PUBLIC_LINE_CATALOG
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
   const schedulesByLine = useMemo(() => new Map(schedules.map((schedule) => [schedule.line, schedule])), [schedules])
   const [now, setNow] = useState(() => Date.now())
   const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
   const [openedDirection, setOpenedDirection] = useState<{ line: string; direction: DirectionId } | null>(null)
-  const referenceStops = network === 'ddd' ? DDD_STOPS : network === 'tata' ? TATA_STOPS : AFTU_STOPS
+  const referenceStops = network === 'ddd' ? DDD_STOPS : [...AFTU_STOPS, ...TATA_STOPS]
   const nearestStop = useMemo(() => {
     if (!location || referenceStops.length === 0) return null
     return referenceStops.reduce((nearest, stop) => {
@@ -187,20 +182,36 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
       <ul className="station-board-list">
         {catalogue.map((line) => {
-          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
-          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
-          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE : network === 'tata' ? TATA_NETWORK_REFERENCE : null)
+          const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+          const routeCandidates = routeReferences.filter((item) => {
+            if (item.code !== line.line) return false
+            if (!item.origin || !item.destination) return item.network === line.network
+            return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
+          })
+          const richestRoute = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+          // Garder les séquences du parcours le plus complet, sans perdre les
+          // horaires directionnels propres à une autre fiche du même trajet.
+          const route = richestRoute ? {
+            ...richestRoute,
+            outboundSchedule: routeCandidates.find((item) => item.outboundSchedule)?.outboundSchedule ?? richestRoute.outboundSchedule,
+            inboundSchedule: routeCandidates.find((item) => item.inboundSchedule)?.inboundSchedule ?? richestRoute.inboundSchedule,
+          } : undefined
+          // Une fréquence AFTU n'est réutilisée que si la fiche détaillée AFTU
+          // décrit exactement les mêmes terminus ; un simple numéro commun ne suffit pas.
+          const hasMatchingAftuRoute = routeCandidates.some((item) => item.network === 'aftu')
+          const lineSchedule = (hasMatchingAftuRoute ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
+          const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
           const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
-          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : network === 'aftu' ? AFTU_TATA_NETWORK_REFERENCE.weekday : network === 'tata' ? TATA_NETWORK_REFERENCE.weekday : null)
+          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
           const scheduleWindow = capAftuTataServiceWindow(rawScheduleWindow, network)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
-            end: network === 'tata' ? '22:50' : networkReference.serviceEnd,
+            end: network === 'aftu_tata' ? '22:50' : networkReference.serviceEnd,
             interval: '',
           })
           const serviceState = serviceWindow
@@ -228,7 +239,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const inboundMinutes = inboundServiceState.status === 'ACTIVE'
             ? inboundSchedule
               ? scheduleCountdownMinutes(inboundSchedule, now)
-              : (network === 'tata' || route?.inboundWaypoints?.length) && countdownSchedule
+              : (line.network === 'tata' || route?.inboundWaypoints?.length) && countdownSchedule
                 ? scheduleCountdownMinutes(countdownSchedule, now)
                 : null
             : null
@@ -236,16 +247,17 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes, serviceState, serviceWindow, hasExplicitNoService },
             { id: 'inbound' as const, label: 'Retour', from: line.destination, to: line.origin, minutes: inboundMinutes, serviceState: inboundServiceState, serviceWindow: inboundServiceWindow, hasExplicitNoService: inboundHasExplicitNoService },
           ]
+          const routeKey = `${line.network}:${line.line}:${line.origin}:${line.destination}`
           return (
-            <li key={line.line} className="station-board-line-group">
+            <li key={routeKey} className="station-board-line-group">
               {directions.map((direction) => {
-                const selected = openedDirection?.line === line.line && openedDirection.direction === direction.id
+                const selected = openedDirection?.line === routeKey && openedDirection.direction === direction.id
                 const publishedStops = direction.id === 'outbound'
                   ? (route?.waypoints?.length ? route.waypoints : network === 'ddd' ? [...(dddPublishedStopsByLine.get(line.line) ?? [])] : [])
                   : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
                 return (
                   <div key={direction.id} className="station-board-direction-detail">
-                    <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
+                    <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
                       <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                       <span className="station-board-direction-action">
                         <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : network === 'ddd' ? 'Fin de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
@@ -274,7 +286,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       </ul>
       {(() => {
         const linesWithoutAnyStops = catalogue.filter((line) => {
-          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+          const route = routeReferences.find((item) => item.code === line.line
+            && (!item.origin || !item.destination
+              ? item.network === line.network
+              : detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === routeKey))
           const hasOutbound = Boolean(route?.waypoints?.length)
             || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
           return !hasOutbound

@@ -43,8 +43,8 @@ function serviceStartMinute(network: string): number {
 
 export function estimatedFrequencyReference(network: string | null): string | null {
   if (network === 'ddd') return 'Intervalle de passage : 7–10 min aux heures de pointe · 10–15 min en heures creuses (repère de planification historique)'
-  if (network === 'aftu') return 'Intervalle moyen observé : 11,6 min (11,58 min mesurés à Dakar en 2023–2024)'
-  if (network === 'tata') return 'Référence partagée AFTU/TATA : intervalle moyen observé 11,6 min (11,58 min mesurés en 2023–2024)'
+  if (network === 'aftu' || network === 'tata' || network === 'aftu_tata') return 'Intervalle moyen observé : 11,6 min (11,58 min mesurés à Dakar en 2023–2024)'
+  
   return null
 }
 
@@ -82,7 +82,7 @@ export function estimatedWaitMinutes(network: string | null, now = Date.now()): 
 
   // AFTU et TATA partagent la même référence empirique : environ 7,9 min
   // d'attente résiduelle, arrondie à 8 min. Ce n'est pas une arrivée prédite.
-  if (network === 'aftu' || network === 'tata') return 8
+  if (network === 'aftu' || network === 'tata' || network === 'aftu_tata') return 8
   return null
 }
 
@@ -125,7 +125,7 @@ export function estimatedNextPassage(network: string | null, now = Date.now()): 
 
   const periods = network === 'ddd'
     ? DDD_HEADWAY_PERIODS
-    : network === 'aftu' || network === 'tata'
+    : network === 'aftu' || network === 'tata' || network === 'aftu_tata'
       ? AFTU_TATA_HEADWAY_PERIODS
       : null
   if (!periods) return null

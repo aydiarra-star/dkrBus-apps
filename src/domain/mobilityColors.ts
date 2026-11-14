@@ -11,15 +11,14 @@
  * - DDD — jaune / or national (#F59E0B / #EAB308)
  * - AFTU / TATA — orange ambré / marron (#D97706 / #C05621)
  *
- * AFTU et TATA partagent cette dernière paire. Pour les distinguer sans sortir
- * de la palette, AFTU prend l’ambre comme couleur dominante et TATA le marron.
- * La seconde teinte reste visible en accent (pastille, liseré de tracé).
+ * AFTU et TATA constituent un seul réseau d’exploitation et utilisent donc
+ * une seule teinte et un seul identifiant d’interface.
  *
  * `ink` n’est pas une teinte de réseau : c’est le texte posé sur la pastille,
  * choisi pour un contraste AA d’au moins 4,5:1.
  */
 
-export const MOBILITY_IDS = ['ter', 'brt', 'ddd', 'aftu', 'tata'] as const
+export const MOBILITY_IDS = ['ter', 'brt', 'ddd', 'aftu_tata'] as const
 
 export type MobilityId = (typeof MOBILITY_IDS)[number]
 
@@ -71,20 +70,10 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     core: '#F59E0B',
     casing: '#EAB308',
   },
-  aftu: {
-    id: 'aftu',
-    label: 'AFTU',
-    name: 'Orange ambré / marron',
-    badge: '#D97706',
-    ink: '#1C1408',
-    bright: '#C05621',
-    core: '#D97706',
-    casing: '#C05621',
-  },
-  tata: {
-    id: 'tata',
-    label: 'TATA',
-    name: 'Orange ambré / marron',
+  aftu_tata: {
+    id: 'aftu_tata',
+    label: 'AFTU / TATA',
+    name: 'Terracotta',
     badge: '#C05621',
     ink: '#FFFFFF',
     bright: '#D97706',
@@ -93,24 +82,24 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
   },
 }
 
-const TOKEN = /(?<![0-9A-Za-zÀ-ÿ])(Dakar Dem Dikk|Sunu\s?BRT|TER|BRT|DDD|AFTU|TATA|B[1-3])(?![0-9A-Za-zÀ-ÿ])/gi
+const TOKEN = /(?<![0-9A-Za-zÀ-ÿ])(Dakar Dem Dikk|Sunu\s?BRT|AFTU\s*\/\s*TATA|TER|BRT|DDD|AFTU|TATA|B[1-3])(?![0-9A-Za-zÀ-ÿ])/gi
 
 export function isMobilityId(value: string | null | undefined): value is MobilityId {
   return Boolean(value && (MOBILITY_IDS as readonly string[]).includes(value))
 }
 
 export function mobilityPaint(id: string | null | undefined): MobilityPaint | null {
+  if (id === 'aftu' || id === 'tata') return MOBILITY_PALETTE.aftu_tata
   return isMobilityId(id) ? MOBILITY_PALETTE[id] : null
 }
 
 /** Sigle, ligne B1–B3 ou nom de marque → réseau. `null` si ce n’est pas une mobilité. */
 export function mobilityIdFromToken(token: string): MobilityId | null {
-  const key = token.toLowerCase().replace(/\s+/g, '')
+  const key = token.toLowerCase().replace(/[\s/]+/g, '')
   if (key === 'ter') return 'ter'
   if (key === 'brt' || key === 'sunubrt' || /^b[1-3]$/.test(key)) return 'brt'
   if (key === 'ddd' || key === 'dakardemdikk') return 'ddd'
-  if (key === 'aftu') return 'aftu'
-  if (key === 'tata') return 'tata'
+  if (key === 'aftu' || key === 'tata' || key === 'aftutata') return 'aftu_tata'
   return null
 }
 
@@ -129,7 +118,7 @@ export function mobilitySpans(text: string): MobilitySpan[] {
     const raw = match[1]
     if (start > cursor) spans.push({ text: text.slice(cursor, start), id: null, kind: 'text' })
     const id = mobilityIdFromToken(raw)
-    const sigil = /^(ter|brt|ddd|aftu|tata|b[1-3])$/i.test(raw)
+    const sigil = /^(ter|brt|ddd|aftu|tata|aftu\s*\/\s*tata|b[1-3])$/i.test(raw)
     spans.push({ text: raw, id, kind: id && sigil ? 'sigil' : id ? 'mention' : 'text' })
     cursor = start + raw.length
   }
@@ -160,7 +149,6 @@ export function mobilityFromStopId(stopId: string): MobilityId | null {
   if (stopId.startsWith('ter')) return 'ter'
   if (stopId.startsWith('brt')) return 'brt'
   if (stopId.startsWith('ddd')) return 'ddd'
-  if (stopId.startsWith('aftu')) return 'aftu'
-  if (stopId.startsWith('tata')) return 'tata'
+  if (stopId.startsWith('aftu') || stopId.startsWith('tata')) return 'aftu_tata'
   return null
 }

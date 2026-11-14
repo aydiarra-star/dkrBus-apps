@@ -1,3 +1,6 @@
+import mobilityLines from '../data/mobility-lines.json'
+import tataLines from '../data/tata-lines.json'
+
 /**
  * Catalogue public des lignes à intégrer aux tableaux de passage par arrêt.
  * Ce registre identifie les lignes et leurs terminus ; il ne prétend pas fournir
@@ -177,7 +180,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['39','Lat-Dior','Diamalaye'],
   ['40','Jaxaay','Petersen'],
   ['41','Guédiawaye','Rebeuss'],
-  ['42','Gadaye','Ouakam'],
+  ['42','Gadaye','Ouakam Bayé'],
   ['43','Ouakam','Thiaroye'],
   ['44','Mbao','Ouakam'],
   ['46','Guédiawaye','Rebeuss'],
@@ -222,10 +225,87 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   sourceLabel: line === '77' ? 'Document tarifaire TATA · juillet 2020' : 'MoMove · lignes TATA à Dakar · 09/06/2026',
 }))
 
-/** TATA reste un réseau distinct : aucune ligne AFTU ne lui est attribuée
- * sans preuve explicite de correspondance et aucune fréquence n'est extrapolée. */
+/** Les séquences détaillées sont la référence la plus complète pour chaque réseau. */
+export const AFTU_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; sourceUrl: string }[])
+  .filter((line) => line.network === 'aftu')
+  .map((line) => ({
+    line: line.code,
+    origin: line.origin,
+    destination: line.destination,
+    network: 'aftu',
+    sourceUrl: line.sourceUrl,
+    sourceLabel: 'AFTU · itinéraire détaillé du référentiel',
+  }))
+
+export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (tataLines as unknown as { code: string; origin: string; destination: string; sourceUrl: string }[])
+  .map((line) => ({
+    line: line.code,
+    origin: line.origin,
+    destination: line.destination,
+    network: 'tata',
+    sourceUrl: line.sourceUrl,
+    sourceLabel: 'TATA · itinéraire détaillé du référentiel',
+  }))
+
+/** Les lignes TATA sans séquence détaillée restent visibles depuis le catalogue public. */
+export const TATA_PUBLIC_FALLBACK_LINES: readonly PublicBusLineReference[] = TATA_PUBLIC_LINE_CATALOG
+  .filter((line) => !TATA_DETAILED_PUBLIC_LINES.some((detailed) => detailed.line === line.line))
+
+function normalizeRouteEndpoint(value: string): string {
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bterminus\b/g, ' ').replace(/\b(rond[ -]?point|giratoire)\b/g, ' ').replace(/\broute principale\b/g, ' ').replace(/\b(gare|des)\b/g, ' ').replace(/\bucad\b/g, 'universite cheikh anta diop').replace(/\bsham\b/g, 'sahm').replace(/\s+/g, ' ').trim()
+}
+
+export function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
+  const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
+  return `${line.code}|${ends[0]}|${ends[1]}`
+}
+
+/**
+ * Numéros dont les catalogues détaillés AFTU et TATA décrivent le même trajet.
+ * Les terminus sont comparés sans accents, parenthèses ni variante « Sébikhotane ».
+ * Les collisions de numéro dont les terminus diffèrent ne sont pas fusionnées.
+ */
+export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
+  const shared = new Set<string>()
+  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string }[]).filter((line) => line.network === 'aftu')
+  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string }[]
+  const tataKeys = new Set(detailedTata.map(detailedRouteKey))
+  for (const line of detailedAftu) {
+    const key = detailedRouteKey(line)
+    if (tataKeys.has(key)) shared.add(key)
+  }
+  for (const aftu of detailedAftu) {
+    for (const tata of TATA_PUBLIC_FALLBACK_LINES) {
+      const aftuKey = detailedRouteKey(aftu)
+      if (aftu.code === tata.line && aftuKey === detailedRouteKey({ code: tata.line, origin: tata.origin, destination: tata.destination })) shared.add(aftuKey)
+    }
+  }
+  return shared
+})()
+
+/** Alias de compatibilité pour les métriques : un numéro peut porter plusieurs
+ *  parcours distincts ; cet ensemble ne sert jamais seul à fusionner des fiches. */
+export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
+  [...AFTU_TATA_SHARED_ROUTE_KEYS].map((key) => key.slice(0, key.indexOf('|'))),
+)
+
+/**
+ * Catalogue d’affichage commun. Les doublons confirmés par les séquences
+ * détaillées sont fusionnés même si leurs libellés de terminus varient.
+ * Les numéros identiques avec des parcours différents restent distincts.
+ * Les catalogues sources originaux restent intacts pour la provenance.
+ */
+export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
+  const merged = new Map<string, PublicBusLineReference>()
+  for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
+    const key = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+    if (!merged.has(key)) merged.set(key, line)
+  }
+  return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
+})()
+
 export const TATA_REFERENCE_POLICY = {
   independentScheduleAvailable: false,
   independentRouteCatalogAvailable: true,
-  note: 'Un catalogue de parcours TATA indépendant est disponible ; aucun horaire ni intervalle TATA fiable n’est encore validé.'
+  note: 'Les parcours TATA sont intégrés au catalogue commun AFTU / TATA ; la fréquence de référence est partagée.',
 } as const

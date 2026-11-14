@@ -135,7 +135,7 @@ describe('résolution des lieux', () => {
 
   it('préfère le réseau cité quand un lieu existe sur plusieurs réseaux', () => {
     expect(resolveWolofPlace('guédiawaye', 'brt')[0]?.id).toBe('brt-prefecture-guediawaye')
-    expect(resolveWolofPlace('guédiawaye', 'tata')[0]?.id).toBe('tata-guediawaye')
+    expect(resolveWolofPlace('guédiawaye', 'tata')[0]?.id).toBe('aftu-guediawaye')
     // Un réseau demandé qui ne dessert pas ce lieu ne fait pas inventer d arrêt :
     // on retombe sur le réseau de référence prioritaire pour ce point.
     expect(resolveWolofPlace('pikine', 'brt')[0]?.id).toBe('ter-pikine')

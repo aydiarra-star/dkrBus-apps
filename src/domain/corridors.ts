@@ -27,7 +27,7 @@ import {
 import { FREQUENCY_SOURCES, OFFICIAL_REFERENCE_FREQUENCIES, type FrequencySource, type FrequencyStatus, type OfficialFrequency } from './frequencies'
 import { MOBILITY_PALETTE } from './mobilityColors'
 
-export type CorridorNetworkId = 'ter' | 'brt' | 'ddd' | 'aftu' | 'tata'
+export type CorridorNetworkId = 'ter' | 'brt' | 'ddd' | 'aftu_tata'
 
 export interface CorridorStop {
   id: string
@@ -125,21 +125,13 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
     provenance:
       'Arrêts de référence DDD issus des fiches itinéraires demdikk.sn (consultation 2026-10-10). Tracé simplifié en pointillés légers pour éviter la surcharge visuelle.',
   },
-  aftu: {
-    id: 'aftu',
-    label: 'AFTU',
-    operator: 'AFTU / TATA',
-    description: 'Minibus AFTU et TATA — réseau de référence simplifié.',
+  aftu_tata: {
+    id: 'aftu_tata',
+    label: 'AFTU / TATA',
+    operator: 'AFTU · minibus TATA',
+    description: 'Réseau unifié de minibus AFTU / TATA — arrêts et lignes regroupés.',
     provenance:
-      'Arrêts de référence AFTU issus des fiches aftu-senegal.org (consultation 2026-10-10). Affichage en pointillés légers et pastilles d’arrêts.',
-  },
-  tata: {
-    id: 'tata',
-    label: 'TATA',
-    operator: 'TATA (AFTU)',
-    description: 'Minibus TATA exploités au sein du réseau AFTU — fiche visuelle distincte, références horaires partagées.',
-    provenance:
-      'Les sources consultées rattachent les minibus TATA à l’AFTU ; la fiche TATA reste séparée visuellement dans Dakar Bus, mais ne reçoit ni effectif ni fréquence autonome sans mesure distincte.',
+      'Les fiches AFTU et TATA sont regroupées sous une seule identité d’exploitation. Les catalogues sources restent conservés pour tracer la provenance de chaque itinéraire.',
   },
 }
 
@@ -343,10 +335,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-1',
-    network: 'aftu',
+    network: 'aftu_tata',
     shortName: 'AFTU 42',
     longName: 'Gadaye ↔ Ouakam (référence AFTU)',
-    color: MOBILITY_PALETTE.aftu.core,
+    color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['aftu-guediawaye', 'aftu-parcelles', 'aftu-grand-yoff', 'aftu-ouakam'],
     headwayMin: 12,
     frequencyStatus: 'UNKNOWN',
@@ -357,10 +349,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-2',
-    network: 'aftu',
+    network: 'aftu_tata',
     shortName: 'AFTU 53',
     longName: 'Keur Massar ↔ Sébikotane via Rufisque (référence)',
-    color: MOBILITY_PALETTE.aftu.core,
+    color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['aftu-keur-massar', 'aftu-pikine', 'aftu-rufisque', 'aftu-lat-dior'],
     headwayMin: 15,
     frequencyStatus: 'UNKNOWN',
@@ -371,10 +363,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-3',
-    network: 'aftu',
+    network: 'aftu_tata',
     shortName: 'AFTU 1',
     longName: 'Lat Dior ↔ HLM Grand Médine (référence)',
-    color: MOBILITY_PALETTE.aftu.core,
+    color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['aftu-lat-dior', 'aftu-petersen', 'aftu-colobane', 'aftu-parcelles', 'aftu-diamalaye'],
     headwayMin: 10,
     frequencyStatus: 'UNKNOWN',
@@ -385,10 +377,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'tata-1',
-    network: 'tata',
+    network: 'aftu_tata',
     shortName: 'TATA',
     longName: 'Colobane ↔ Guédiawaye (référence TATA)',
-    color: MOBILITY_PALETTE.tata.core,
+    color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['tata-colobane', 'tata-pikine', 'tata-guediawaye', 'tata-parcelles'],
     headwayMin: 15,
     frequencyStatus: 'UNKNOWN',
@@ -448,9 +440,8 @@ function pairKey(a: string, b: string): string {
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
 export function networkOfStopId(stopId: string): CorridorNetworkId | null {
   const prefix = stopId.split('-')[0]
-  return prefix === 'ter' || prefix === 'brt' || prefix === 'ddd' || prefix === 'aftu' || prefix === 'tata'
-    ? prefix
-    : null
+  if (prefix === 'aftu' || prefix === 'tata') return 'aftu_tata'
+  return prefix === 'ter' || prefix === 'brt' || prefix === 'ddd' ? prefix : null
 }
 
 export function networkLabelOf(stopId: string): string {

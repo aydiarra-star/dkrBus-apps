@@ -226,11 +226,11 @@ describe('copilote : honnêteté et non-invention', () => {
   })
 
   it('aucun prix n’est inventé quand on demande le moins cher', () => {
-    const { reply } = ask('Quel trajet de Petersen à Rufisque est le moins cher ?')
+    const { reply } = ask('Quel trajet de Lat Dior à Rufisque est le moins cher ?')
     expect(reply.text).toContain('prix')
-    // Petersen ↔ Rufisque fait entrer AFTU dans la chaîne : sans tarif publié
+    // Lat Dior ↔ Rufisque emprunte la ligne AFTU / TATA 53 : sans tarif publié
     // pour ce réseau, aucun total n'est annoncé.
-    expect(reply.text).toMatch(/Aucun tarif publié pour AFTU 1/)
+    expect(reply.text).toMatch(/Aucun tarif publié pour AFTU 53/)
     expect(reply.text).not.toMatch(/total de \d+\s*F CFA/i)
   })
 
@@ -252,16 +252,16 @@ describe('copilote : honnêteté et non-invention', () => {
 
 
 describe('mémoire embarquée sans publication ni API', () => {
-  it('expose la couverture des cinq mobilités sans exiger un fichier GTFS', () => {
+  it('expose la couverture des quatre réseaux sans exiger un fichier GTFS', () => {
     const { reply } = ask('Quels réseaux connais-tu dans ta mémoire ?')
-    for (const name of ['TER', 'BRT', 'Dakar Dem Dikk', 'AFTU', 'TATA']) expect(reply.text).toContain(name)
+    for (const name of ['TER', 'BRT', 'Dakar Dem Dikk', 'AFTU / TATA']) expect(reply.text).toContain(name)
     expect(reply.text).toContain('aucun import GTFS n’est nécessaire')
   })
 
-  it('ne confond pas une demande TATA avec une fiche AFTU sans preuve', () => {
+  it('une demande TATA retrouve le catalogue commun AFTU / TATA', () => {
     const { reply } = ask('Où passe le bus TATA 42 ?')
-    expect(reply.text).toContain('La ligne 42 tata n’est pas documentée')
-    expect(reply.text).not.toContain('AFTU 42')
+    expect(reply.text).toContain('AFTU / TATA 42')
+    expect(reply.text).toContain('Gadaye')
     expect(reply.journey).toBeUndefined()
   })
 })

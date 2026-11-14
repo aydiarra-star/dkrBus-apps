@@ -33,12 +33,11 @@ const OFFICIAL_PAIRS: Record<string, readonly [string, string]> = {
   ter: ['#003366', '#1D4ED8'],
   brt: ['#00A859', '#10B981'],
   ddd: ['#F59E0B', '#EAB308'],
-  aftu: ['#D97706', '#C05621'],
-  tata: ['#C05621', '#D97706'],
+  aftu_tata: ['#C05621', '#D97706'],
 }
 
 describe('code couleur officiel des mobilités', () => {
-  it('fixe les paires officielles, sans teinte inventée hors AFTU/TATA', () => {
+  it('fixe quatre couleurs de réseau, avec une seule couleur AFTU / TATA', () => {
     for (const id of MOBILITY_IDS) {
       const paint = MOBILITY_PALETTE[id]
       const [badge, bright] = OFFICIAL_PAIRS[id]
@@ -46,14 +45,9 @@ describe('code couleur officiel des mobilités', () => {
       expect(paint.bright.toLowerCase()).toBe(bright.toLowerCase())
       expect([paint.core, paint.casing].map((hex) => hex.toLowerCase()).sort()).toEqual([badge, bright].map((hex) => hex.toLowerCase()).sort())
     }
-    const aftuTata = new Set([
-      MOBILITY_PALETTE.aftu.badge,
-      MOBILITY_PALETTE.aftu.bright,
-      MOBILITY_PALETTE.tata.badge,
-      MOBILITY_PALETTE.tata.bright,
-    ].map((hex) => hex.toLowerCase()))
-    expect(aftuTata).toEqual(new Set(['#d97706', '#c05621']))
-    expect(MOBILITY_PALETTE.aftu.badge.toLowerCase()).not.toBe(MOBILITY_PALETTE.tata.badge.toLowerCase())
+    expect(MOBILITY_IDS).toEqual(['ter', 'brt', 'ddd', 'aftu_tata'])
+    expect(MOBILITY_PALETTE.aftu_tata.label).toBe('AFTU / TATA')
+    expect(MOBILITY_PALETTE.aftu_tata.badge.toLowerCase()).toBe('#c05621')
   })
 
   it('garde un texte de pastille lisible (AA 4,5:1) sur chaque fond officiel', () => {
@@ -66,9 +60,10 @@ describe('code couleur officiel des mobilités', () => {
   it('publie les mêmes hexadécimaux dans la feuille de style', () => {
     for (const id of MOBILITY_IDS) {
       const paint = MOBILITY_PALETTE[id]
-      expect(css).toMatch(new RegExp(`--mobility-${id}:\\s*${paint.badge}`, 'i'))
-      expect(css).toMatch(new RegExp(`--mobility-${id}-bright:\\s*${paint.bright}`, 'i'))
-      expect(css).toMatch(new RegExp(`--mobility-${id}-ink:\\s*${paint.ink}`, 'i'))
+      const cssId = id.replace('_', '-')
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}:\\s*${paint.badge}`, 'i'))
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}-bright:\\s*${paint.bright}`, 'i'))
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}-ink:\\s*${paint.ink}`, 'i'))
     }
   })
 
@@ -84,11 +79,18 @@ describe('code couleur officiel des mobilités', () => {
     expect(mobilityIdFromToken('SunuBRT')).toBe('brt')
     expect(mobilityFromLabel('Démo — Médina')).toBeNull()
     expect(mobilityFromLabel('TER + B1')).toBeNull()
-    expect(mobilityFromLabel('AFTU 53')).toBe('aftu')
+    expect(mobilityFromLabel('AFTU 53')).toBe('aftu_tata')
+    expect(mobilityFromLabel('TATA 37')).toBe('aftu_tata')
+    expect(mobilityIdFromToken('AFTU')).toBe('aftu_tata')
+    expect(mobilityIdFromToken('TATA')).toBe('aftu_tata')
+    expect(mobilityFromStopId('aftu-colobane')).toBe('aftu_tata')
+    expect(mobilityFromStopId('tata-colobane')).toBe('aftu_tata')
     expect(mobilityFromStopId('ter-dakar')).toBe('ter')
     expect(mobilityFromStopId('brt-petersen')).toBe('brt')
     expect(mobilityFromStopId('published-12')).toBeNull()
     const spans = mobilitySpans('Source SETER, prendre le TER puis le B1.')
     expect(spans.filter((span) => span.kind === 'sigil').map((span) => span.text)).toEqual(['TER', 'B1'])
+    const unified = mobilitySpans('Réseau AFTU / TATA')
+    expect(unified.filter((span) => span.kind === 'sigil')).toEqual([{ text: 'AFTU / TATA', id: 'aftu_tata', kind: 'sigil' }])
   })
 })

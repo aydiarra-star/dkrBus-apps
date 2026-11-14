@@ -13,15 +13,15 @@ const PETERSEN = { lat: 14.6766438, lon: -17.4406354 }
 const COLOMBANE = { lat: 14.7003482, lon: -17.4416523 }
 
 describe('mobilités à proximité', () => {
-  it('couvre les cinq mobilités du catalogue, sans en inventer une sixième', () => {
+  it('couvre les quatre réseaux du catalogue, sans en inventer un cinquième', () => {
     expect(nearbyMobilityCatalogCoversAllNetworks()).toBe(true)
     expect(NEARBY_MOBILITY_RADIUS_M).toBe(1000)
   })
 
-  it('détecte TER, BRT, DDD et AFTU à Petersen, pas le TATA de Colobane', () => {
+  it('détecte TER, BRT, DDD et AFTU / TATA à Petersen', () => {
     const hits = detectNearbyMobilities(PETERSEN)
     const networks = new Set(hits.map((hit) => hit.network))
-    expect(networks).toEqual(new Set(['ter', 'brt', 'ddd', 'aftu']))
+    expect(networks).toEqual(new Set(['ter', 'brt', 'ddd', 'aftu_tata']))
     expect(hits.every((hit) => hit.distanceM <= NEARBY_MOBILITY_RADIUS_M)).toBe(true)
     expect(hits.map((hit) => hit.distanceM)).toEqual([...hits.map((hit) => hit.distanceM)].sort((a, b) => a - b))
     const brt = hits.find((hit) => hit.stop.id === 'brt-petersen')
@@ -29,12 +29,12 @@ describe('mobilités à proximité', () => {
     expect(brt?.lineNames).toContain('B1')
     const ddd = hits.find((hit) => hit.stop.id === 'ddd-petersen')
     expect(ddd?.lineNames).toEqual(expect.arrayContaining(['DDD 1', 'DDD 15']))
-    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBe('Aucun arrêt TATA dans ce rayon.')
+    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBeNull()
   })
 
   it('ne retient que les mobilités réellement situées dans le rayon de 1 km autour de Colobane', () => {
     const groups = groupNearbyMobilities(detectNearbyMobilities(COLOMBANE))
-    expect(groups.map((group) => group.network)).toEqual(['ter', 'ddd', 'aftu', 'tata'])
+    expect(groups.map((group) => group.network)).toEqual(['ter', 'ddd', 'aftu_tata'])
     expect(absentNearbyNetworks(groups)).toEqual(['brt'])
     expect(absentNearbyLabel(absentNearbyNetworks(groups))).toBe('Aucun arrêt BRT dans ce rayon.')
     expect(absentNearbyLabel([])).toBeNull()

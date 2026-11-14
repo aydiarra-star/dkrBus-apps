@@ -424,14 +424,13 @@ const NAV_ITEMS: { id: TabId; label: string; icon: typeof Compass }[] = [
 ]
 
 /** Mobilités résumées dans Explorer, dans l’ordre d’affichage. */
-const COMPACT_NETWORK_IDS: readonly NetworkId[] = ['ter', 'brt', 'ddd', 'aftu', 'tata']
+const COMPACT_NETWORK_IDS: readonly NetworkId[] = ['ter', 'brt', 'ddd', 'aftu_tata']
 
 const NETWORK_ICONS: Record<NetworkId, typeof TrainFront> = {
   ter: TrainFront,
   brt: BusFront,
   ddd: BusFront,
-  aftu: BusFront,
-  tata: BusFront,
+  aftu_tata: BusFront,
   other: BusFront,
 }
 
@@ -462,8 +461,7 @@ function App() {
     ter: true,
     brt: true,
     ddd: true,
-    aftu: true,
-    tata: true,
+    aftu_tata: true,
     other: true,
   })
   const [layersOpen, setLayersOpen] = useState(false)
@@ -552,10 +550,10 @@ function App() {
       ...(networkLayers.ter ? TER_STOPS : []),
       ...(networkLayers.brt ? BRT_STOPS : []),
       ...(networkLayers.ddd ? DDD_STOPS : []),
-      ...(networkLayers.aftu ? AFTU_STOPS : []),
-      ...(networkLayers.tata ? TATA_STOPS : []),
+      ...(networkLayers.aftu_tata ? AFTU_STOPS : []),
+      ...(networkLayers.aftu_tata ? TATA_STOPS : []),
     ],
-    [networkLayers.ter, networkLayers.brt, networkLayers.ddd, networkLayers.aftu, networkLayers.tata],
+    [networkLayers.ter, networkLayers.brt, networkLayers.ddd, networkLayers.aftu_tata],
   )
 
   useEffect(() => {
@@ -614,7 +612,7 @@ function App() {
     // Ouvrir ou fermer le volet des horaires n'affiche que la couche du réseau :
     // la carte ne bouge pas (pas de zoom ni de recentrage). Elle ne se recentre
     // que si l'usager touche explicitement une gare.
-    if (next === 'ter' || next === 'brt') {
+    if (next) {
       setNetworkLayers((layers) => (layers[next] ? layers : { ...layers, [next]: true }))
     }
   }
@@ -665,7 +663,7 @@ function App() {
       if (entry.passage) deadlines.push(entry.passage.nextDepartureAt)
     }
     // Les cartes DDD, AFTU et TATA utilisent le même compte à rebours visuel.
-    for (const id of ['ddd', 'aftu', 'tata'] as const) {
+    for (const id of ['ddd', 'aftu_tata'] as const) {
       const passage = estimatedNextPassage(id, countdownNow)
       if (passage) deadlines.push(passage.nextDepartureAt)
     }
@@ -1582,7 +1580,7 @@ function App() {
                 type="button"
                 className="map-legend-badge-button"
                 onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
-                aria-label={`Voir le réseau ${id.toUpperCase()}`}
+                aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
               >
                 <MobilityBadge id={id} />
               </button>
@@ -2163,11 +2161,10 @@ function ExplorerPanel({
   )
 }
 
-const REFERENCE_NETWORK_CARD_IDS = ['ter', 'brt', 'ddd', 'aftu'] as const
+const REFERENCE_NETWORK_CARD_IDS = ['ter', 'brt', 'ddd', 'aftu_tata'] as const
 
 /** Mention secondaire des réseaux qui ne publient pas de fréquence exploitable. */
 function networkMetaLabel(network: NetworkSource): string {
-  if (network.id === 'tata') return 'Réseau indépendant'
   const lines = network.referenceData?.lineCount
   return lines ? `${lines} lignes` : 'Réseau de référence'
 }
@@ -2217,7 +2214,7 @@ function ReferenceNetworkSummary({
           const serviceState = serviceStates[index]
           const isSelected = selectedNetwork === network.id
           const refData = network.referenceData
-          const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu' || network.id === 'tata'
+          const hasEstimatedMinutes = network.id === 'ddd' || network.id === 'aftu_tata'
           const estimatedPassage = hasEstimatedMinutes ? estimatedNextPassage(network.id, now) : null
           const showCountdown = serviceState.status === 'ACTIVE' && (hasEstimatedMinutes ? estimatedPassage !== null : serviceState.showCountdown && passage)
 
@@ -2265,11 +2262,6 @@ function ReferenceNetworkSummary({
                     <strong>{formatPassageCountdown(estimatedPassage.minutes)}</strong>
                     <small>créneau {new Date(estimatedPassage.nextDepartureAt).toISOString().slice(11, 16)}</small>
                   </span>
-                ) : network.id === 'tata' ? (
-                  <span className="network-summary-passage is-undeclared" role="status">
-                    <strong>En service</strong>
-                    <small>06:00–21:00</small>
-                  </span>
                 ) : (
                   <span className="network-summary-passage is-undeclared" role="status">
                     <strong>En service</strong>
@@ -2281,10 +2273,8 @@ function ReferenceNetworkSummary({
                 <div className="network-summary-detail station-board-detail">
                   {network.id === 'ddd' ? (
                     <EstimatedLineScheduleBoard network="ddd" location={location} />
-                  ) : network.id === 'aftu' ? (
-                    <EstimatedLineScheduleBoard network="aftu" location={location} />
-                  ) : network.id === 'tata' ? (
-                    <EstimatedLineScheduleBoard network="tata" location={location} />
+                  ) : network.id === 'aftu_tata' ? (
+                    <EstimatedLineScheduleBoard network="aftu_tata" location={location} />
                   ) : (
                     <>
                       <span className="station-board-context">
@@ -3116,8 +3106,7 @@ function DataCatalogSection({
     { id: 'ter', label: 'TER' },
     { id: 'brt', label: 'BRT' },
     { id: 'ddd', label: 'DDD' },
-    { id: 'aftu', label: 'AFTU' },
-    { id: 'tata', label: 'TATA' },
+    { id: 'aftu_tata', label: 'AFTU / TATA' }
   ]
   const referenceStops = filter === 'ter' ? TER_STOPS : filter === 'brt' ? BRT_STOPS : [...TER_STOPS, ...BRT_STOPS]
 

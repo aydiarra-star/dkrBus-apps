@@ -4,11 +4,33 @@
  * Voir docs/mobility-research-2026-10-10.md pour les vérifications et lacunes.
  */
 import catalog from '../data/mobility-lines.json'
+import tataCatalog from '../data/tata-lines.json'
+import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteKey } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
 export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
+export const TATA_BUS_LINES = tataCatalog as unknown as readonly BusLine[]
+const detailedTataCodes = new Set(TATA_BUS_LINES.map((line) => line.code))
+/** Deux lignes TATA ont un terminus publié mais pas encore de séquence détaillée. */
+export const TATA_CATALOG_FALLBACK_LINES: readonly BusLine[] = AFTU_TATA_PUBLIC_LINE_CATALOG
+  .filter((line) => line.network === 'tata' && !detailedTataCodes.has(line.line)
+    && !AFTU_TATA_SHARED_ROUTE_KEYS.has(detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })))
+  .map((line) => ({
+    network: 'tata' as const,
+    code: line.line,
+    origin: line.origin,
+    destination: line.destination,
+    sourceUrl: line.sourceUrl,
+    consultedAt: '2026-11-14',
+    publishedAt: null,
+    waypoints: [],
+    detailSourceUrl: line.sourceUrl,
+    note: 'Terminus issu du catalogue TATA ; séquence détaillée non disponible dans le dépôt.',
+  }))
+/** Tous les itinéraires détaillés et les fiches de terminus TATA manquantes. */
+export const UNIFIED_BUS_LINES: readonly BusLine[] = uniqueEquivalentLines([...BUS_LINES, ...TATA_BUS_LINES, ...TATA_CATALOG_FALLBACK_LINES])
 export interface KnowledgeReply { text: string; lineId?: string }
 
 export interface RemoteTrafficIncident {
@@ -268,9 +290,29 @@ function graphSupplement(line: BusLine, text: string): string {
 
   return sections.join('\n\n')
 }
-function label(line: BusLine): string { return `${line.network.toUpperCase()} ${line.code} : ${line.origin} ↔ ${line.destination}` }
+function label(line: BusLine): string {
+  const network = line.network === 'ddd' ? 'DDD' : 'AFTU / TATA'
+  return `${network} ${line.code} : ${line.origin} ↔ ${line.destination}`
+}
 function explicitNetworks(text: string): string[] {
-  return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\baftu\b/.test(text) ? 'aftu' : ''), (/\btata\b/.test(text) ? 'tata' : '')].filter(Boolean)
+  return [(/\b(ddd|dem dikk)\b/.test(text) ? 'ddd' : ''), (/\b(aftu|tata)\b/.test(text) ? 'aftu_tata' : '')].filter(Boolean)
+}
+function belongsToNetwork(line: BusLine, network: string): boolean {
+  return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
+}
+function routeSignature(line: BusLine): string {
+  // Une même ligne n'est fusionnée que si son numéro et ses deux terminus
+  // concordent après normalisation, exactement comme dans le catalogue public.
+  return detailedRouteKey(line)
+}
+function uniqueEquivalentLines(lines: readonly BusLine[]): BusLine[] {
+  const merged = new Map<string, BusLine>()
+  for (const line of lines) {
+    const signature = routeSignature(line)
+    const previous = merged.get(signature)
+    if (!previous || line.waypoints.length > previous.waypoints.length) merged.set(signature, line)
+  }
+  return [...merged.values()]
 }
 function lineReply(line: BusLine, question: string): KnowledgeReply {
   const text = normalizeMobility(question)
@@ -310,9 +352,9 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
 }
 
 export function busKnowledgeSummary(): string {
-  const ddd = BUS_LINES.filter((line) => line.network === 'ddd').length
-  const aftu = BUS_LINES.filter((line) => line.network === 'aftu').length
-  return `Mémoire documentaire DDD/AFTU : ${ddd} fiches DDD et ${aftu} fiches AFTU, dont ${BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce catalogue n’est pas exhaustif ; les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter. Les fiches TATA du référentiel central sont chargées séparément lorsqu’elles sont disponibles.`
+  const ddd = UNIFIED_BUS_LINES.filter((line) => line.network === 'ddd').length
+  const aftuTata = uniqueEquivalentLines(UNIFIED_BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata'))).length
+  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce référentiel n’est pas exhaustif. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
 }
 
 export function generalFareReply(): string {
@@ -429,13 +471,20 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
         : []
     })
   })
-  const candidates = BUS_LINES.filter((line) => (!networks.length || networks.includes(line.network)) && !line.note?.startsWith('Divergence'))
-  const localMatches = findMatches(candidates)
-  const matched = localMatches.length
-    ? localMatches
-    : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.includes(line.network)))
+  const candidates = UNIFIED_BUS_LINES.filter((line) => (!networks.length || networks.some((network) => belongsToNetwork(line, network))) && !line.note?.startsWith('Divergence'))
+  const allMatches = [
+    ...findMatches(candidates),
+    ...findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.some((network) => belongsToNetwork(line, network)))),
+  ]
+  const mergedMatches = new Map<string, RouteMatch>()
+  for (const match of allMatches) {
+    const signature = `${routeSignature(match.line)}|${match.directionLabel}`
+    const previous = mergedMatches.get(signature)
+    if (!previous || match.line.waypoints.length > previous.line.waypoints.length) mergedMatches.set(signature, match)
+  }
+  const matched = [...mergedMatches.values()]
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
-  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
+  const candidatePrefix = allMatches.some((match) => !match.candidate) ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
   const rows = matched.slice(0, 4).map((match) =>
     `• ${label(match.line)} — ${match.directionLabel}${match.candidate ? ' (à confirmer)' : ''}`
   )
@@ -451,18 +500,15 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   const networks = explicitNetworks(text)
   const code = /\b(?:ligne|bus|ddd|aftu|tata)\s*(?:numero\s*|n\s*)?0*(\d+[ab]?|to1)\b/.exec(text)?.[1]?.toUpperCase()
   if (code) {
-    const localMatches = BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.includes(line.network)))
-    const matches = localMatches.length ? localMatches : remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.includes(line.network)))
-    if (matches.length > 1) return { text: `Ce numéro existe sur plusieurs réseaux :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez DDD ou AFTU pour éviter de vous orienter vers le mauvais bus.` }
-    if (matches.length === 1) {
-      const reply = lineReply(matches[0], question)
-      /* TATA reste un réseau distinct ; aucune réécriture en AFTU. */
-      return reply
-    }
+    const localMatches = UNIFIED_BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
+    const remoteMatches = remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
+    const matches = uniqueEquivalentLines([...localMatches, ...remoteMatches])
+    if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez le terminus ou le quartier pour choisir le bon parcours.` }
+    if (matches.length === 1) return lineReply(matches[0], question)
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
   }
   if (lastLineId && /^(et |ses |les horaires|les arrets|son |elle passe|le prix)/.test(text) && !networks.length && !/\b(ter|brt|train|meteo|temperature)\b/.test(text)) {
-    const line = BUS_LINES.find((entry) => key(entry) === lastLineId)
+    const line = UNIFIED_BUS_LINES.find((entry) => key(entry) === lastLineId)
       ?? remoteCandidateLines.find((entry) => key(entry) === lastLineId)
     if (line) return lineReply(line, question)
   }
@@ -473,15 +519,17 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     if (route) return route
   }
   if (networks.length) {
-    const lines = [...BUS_LINES, ...remoteCandidateLines].filter((line, index, all) => networks.includes(line.network) && all.findIndex((item) => key(item) === key(line)) === index)
-    if (/\b(liste|lignes|numeros)\b/.test(text)) return { text: `${networks.map((network) => network.toUpperCase()).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${network.toUpperCase()} : ${lines.filter((line) => line.network === network).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
-    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : networks.includes('aftu') ? `AFTU : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` : 'Je ne dispose pas encore d’un contact opérateur TATA vérifié dans le référentiel.' }
+    const lines = uniqueEquivalentLines([...UNIFIED_BUS_LINES, ...remoteCandidateLines].filter((line) => networks.some((network) => belongsToNetwork(line, network))))
+    if (/\b(liste|lignes|numeros)\b/.test(text)) {
+      const networkLabel = (network: string) => network === 'aftu_tata' ? 'AFTU / TATA' : network.toUpperCase()
+      return { text: `${networks.map(networkLabel).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${networkLabel(network)} : ${lines.filter((line) => belongsToNetwork(line, network)).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+    }
+    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU / TATA : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
-      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${networks[0] === 'tata' ? '' : source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
+      if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
-    if (/\btata\b/.test(text)) return { text: `Le réseau TATA est consulté séparément d’AFTU. Les fiches candidates TATA disponibles dans le référentiel central sont affichées sous leur propre réseau ; si aucune fiche n’est trouvée, je ne remplace pas TATA par AFTU. ${busKnowledgeSummary()}` }
-    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : networks.includes('aftu') ? `CETUD décrit AFTU avec 72 lignes, 2 300 bus, 14 GIE et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` : `Le réseau TATA est interrogé séparément d’AFTU. Les fiches et parcours TATA ne sont affichés que lorsqu’ils existent dans le référentiel central et restent candidats tant qu’ils ne sont pas validés. ${busKnowledgeSummary()}` }
+    if (/\b(presente|presentation|reseau|connaitre|connais|c est quoi)\b/.test(text)) return { text: networks.includes('ddd') ? `CETUD décrit DDD avec 38 lignes, 400 autobus et une amplitude générale 06h–21h. Ce n’est pas l’horaire de chaque ligne. ${busKnowledgeSummary()}${source(SOURCES.ddd)}` : `CETUD décrit le réseau AFTU / TATA avec 72 lignes, 2 300 bus et 14 GIE. Service de référence 06h–22h50 ; intervalle moyen partagé de 11,6 min. Les horaires individuels restent à confirmer. ${busKnowledgeSummary()}${source(SOURCES.aftu)}` }
   }
   return null
 }

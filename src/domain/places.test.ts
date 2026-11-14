@@ -11,13 +11,13 @@ import {
 } from './places'
 
 describe('mémoire des lieux de Dakar', () => {
-  it('couvre les 13 gares TER, les 23 stations BRT, les arrêts DDD/AFTU/TATA en pointillés et les lieux des fiches bus', () => {
+  it('couvre les 13 gares TER, les 23 stations BRT, les arrêts DDD et AFTU / TATA en pointillés et les lieux des fiches bus', () => {
     expect(REFERENCE_PLACES.filter((place) => place.kind === 'ter')).toHaveLength(13)
     expect(REFERENCE_PLACES.filter((place) => place.kind === 'brt')).toHaveLength(23)
-    // DDD (jaune #F59E0B) et AFTU/TATA (orange #D97706) en pointillés légers + pastilles
+    // DDD (jaune #F59E0B) et AFTU/TATA (terracotta #C05621) en pointillés légers + pastilles
     expect(REFERENCE_PLACES.filter((place) => place.kind === 'ddd').length).toBeGreaterThanOrEqual(10)
-    expect(REFERENCE_PLACES.filter((place) => place.kind === 'aftu').length).toBeGreaterThanOrEqual(10)
-    expect(REFERENCE_PLACES.filter((place) => place.kind === 'tata').length).toBeGreaterThanOrEqual(1)
+    expect(REFERENCE_PLACES.filter((place) => place.kind === 'aftu_tata').length).toBeGreaterThanOrEqual(10)
+    expect(REFERENCE_PLACES.some((place) => ['aftu', 'tata'].includes(String(place.kind)))).toBe(false)
     expect(BUS_PLACES.length).toBeGreaterThan(10)
     expect(ALL_KNOWN_PLACES.length).toBe(REFERENCE_PLACES.length + BUS_PLACES.length)
     // Petersen existe en BRT (tracé continu) et aussi en DDD/AFTU en pointillés : le BRT reste présent
@@ -117,7 +117,7 @@ describe('compréhension du langage naturel', () => {
     // Ouakam lui-même est maintenant en pointillés DDD/AFTU, donc géolocalisé
     const ouakam = findPlaceMentions('Ouakam')[0]?.place
     expect(ouakam).toBeTruthy()
-    expect(['ddd', 'aftu', 'brt', 'bus']).toContain(ouakam!.kind)
+    expect(['ddd', 'aftu_tata', 'brt', 'bus']).toContain(ouakam!.kind)
   })
 
   it('ne fabrique aucun lieu inconnu', () => {

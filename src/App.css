@@ -50,12 +50,9 @@
   --mobility-ddd: #F59E0B;
   --mobility-ddd-bright: #EAB308;
   --mobility-ddd-ink: #1C1408;
-  --mobility-aftu: #D97706;
-  --mobility-aftu-bright: #C05621;
-  --mobility-aftu-ink: #1C1408;
-  --mobility-tata: #C05621;
-  --mobility-tata-bright: #D97706;
-  --mobility-tata-ink: #FFFFFF;
+  --mobility-aftu-tata: #C05621;
+  --mobility-aftu-tata-bright: #D97706;
+  --mobility-aftu-tata-ink: #FFFFFF;
   /* Surfaces légèrement teintées : moins de blanc pur, même lisibilité. */
   --surface-shell: #f3f8f5;
   --surface-panel: #fafdfc;
@@ -238,8 +235,7 @@ button:disabled { cursor: not-allowed; }
 .layer-icon-ter, .network-ter { background: var(--mobility-ter); color: var(--mobility-ter-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-ter-bright); }
 .layer-icon-brt, .network-brt { background: var(--mobility-brt); color: var(--mobility-brt-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-brt-bright); }
 .layer-icon-ddd, .network-ddd { background: var(--mobility-ddd); color: var(--mobility-ddd-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-ddd-bright); }
-.layer-icon-aftu, .network-aftu { background: var(--mobility-aftu); color: var(--mobility-aftu-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-aftu-bright); }
-.layer-icon-tata, .network-tata { background: var(--mobility-tata); color: var(--mobility-tata-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-tata-bright); }
+.layer-icon-aftu_tata, .network-aftu_tata { background: var(--mobility-aftu-tata); color: var(--mobility-aftu-tata-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-aftu-tata-bright); }
 .layer-label { flex: 1; color: #284437; font-size: 12px; font-weight: 650; }
 .layer-empty { color: #8c9e97; font-size: 9px; white-space: nowrap; }
 .popover-footnote { display: flex; align-items: center; margin-top: 11px; padding-top: 11px; border-top: 1px solid #edf2f0; color: #687f74; font-size: 10px; gap: 7px; }
@@ -867,8 +863,7 @@ button:disabled { cursor: not-allowed; }
 .mobility-ter .mobility-icon { background: var(--mobility-ter); color: var(--mobility-ter-ink); }
 .mobility-brt .mobility-icon { background: var(--mobility-brt); color: var(--mobility-brt-ink); }
 .mobility-ddd .mobility-icon { background: var(--mobility-ddd); color: var(--mobility-ddd-ink); }
-.mobility-aftu .mobility-icon { background: var(--mobility-aftu); color: var(--mobility-aftu-ink); }
-.mobility-tata .mobility-icon { background: var(--mobility-tata); color: var(--mobility-tata-ink); }
+.mobility-aftu_tata .mobility-icon { background: var(--mobility-aftu-tata); color: var(--mobility-aftu-tata-ink); }
 .mobility-copy { display: grid; min-width: 0; flex: 1 1 auto; gap: 1px; }
 .mobility-copy strong { color: #214333; font-size: 11px; font-weight: 700; }
 .mobility-copy small { color: #6f8b7e; font-size: 9.5px; line-height: 1.4; }
@@ -1352,8 +1347,7 @@ button:disabled { cursor: not-allowed; }
 .network-reference-icon.network-ter { background: var(--mobility-ter); color: var(--mobility-ter-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-ter-bright); }
 .network-reference-icon.network-brt { background: var(--mobility-brt); color: var(--mobility-brt-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-brt-bright); }
 .network-reference-icon.network-ddd { background: var(--mobility-ddd); color: var(--mobility-ddd-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-ddd-bright); }
-.network-reference-icon.network-aftu { background: var(--mobility-aftu); color: var(--mobility-aftu-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-aftu-bright); }
-.network-reference-icon.network-tata { background: var(--mobility-tata); color: var(--mobility-tata-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-tata-bright); }
+.network-reference-icon.network-aftu_tata { background: var(--mobility-aftu-tata); color: var(--mobility-aftu-tata-ink); box-shadow: inset 0 0 0 1.5px var(--mobility-aftu-tata-bright); }
 .network-reference-title { display: grid; min-width: 0; gap: 2px; }
 .network-reference-title strong { color: var(--text); font-size: 13px; font-weight: 780; }
 .network-reference-title small { color: var(--muted); font-size: 10px; line-height: 1.35; }
@@ -2329,19 +2323,12 @@ button:disabled { cursor: not-allowed; }
   --mobility-bright: var(--mobility-ddd-bright);
   --dot: var(--mobility-ddd);
 }
-.mobility-aftu {
-  --mobility-badge: var(--mobility-aftu);
-  --mobility-ink: var(--mobility-aftu-ink);
-  --mobility-stroke: var(--mobility-aftu);
-  --mobility-bright: var(--mobility-aftu-bright);
-  --dot: var(--mobility-aftu-bright);
-}
-.mobility-tata {
-  --mobility-badge: var(--mobility-tata);
-  --mobility-ink: var(--mobility-tata-ink);
-  --mobility-stroke: var(--mobility-tata);
-  --mobility-bright: var(--mobility-tata-bright);
-  --dot: var(--mobility-tata-bright);
+.mobility-aftu_tata {
+  --mobility-badge: var(--mobility-aftu-tata);
+  --mobility-ink: var(--mobility-aftu-tata-ink);
+  --mobility-stroke: var(--mobility-aftu-tata);
+  --mobility-bright: var(--mobility-aftu-tata-bright);
+  --dot: var(--mobility-aftu-tata-bright);
 }
 
 .mobility-badge {
@@ -2386,6 +2373,13 @@ button:disabled { cursor: not-allowed; }
   gap: 4px;
   flex: 0 0 auto;
 }
+.network-summary-item .mobility-aftu_tata,
+.network-reference-card .mobility-aftu_tata,
+.map-mobility-legend .mobility-aftu_tata {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
 .network-summary-item .mobility-badge::before,
 .network-reference-card .mobility-badge::before,
 .map-mobility-legend .mobility-badge::before {
@@ -2427,8 +2421,7 @@ button:disabled { cursor: not-allowed; }
 .mobility-tile.mobility-ter,
 .mobility-tile.mobility-brt,
 .mobility-tile.mobility-ddd,
-.mobility-tile.mobility-aftu,
-.mobility-tile.mobility-tata,
+.mobility-tile.mobility-aftu_tata,
 .stop-row-icon.reference-icon-ter,
 .stop-row-icon.reference-icon-brt,
 .stop-row-icon.mobility-ter,
@@ -2436,13 +2429,11 @@ button:disabled { cursor: not-allowed; }
 .route-list-badge.mobility-ter,
 .route-list-badge.mobility-brt,
 .route-list-badge.mobility-ddd,
-.route-list-badge.mobility-aftu,
-.route-list-badge.mobility-tata,
+.route-list-badge.mobility-aftu_tata,
 .stop-route-badge.mobility-ter,
 .stop-route-badge.mobility-brt,
 .stop-route-badge.mobility-ddd,
-.stop-route-badge.mobility-aftu,
-.stop-route-badge.mobility-tata {
+.stop-route-badge.mobility-aftu_tata {
   background: var(--mobility-badge);
   color: var(--mobility-ink);
   box-shadow: inset 0 0 0 1.5px var(--mobility-bright);
@@ -2451,47 +2442,40 @@ button:disabled { cursor: not-allowed; }
 .mobility-ter .network-summary-dot,
 .mobility-brt .network-summary-dot,
 .mobility-ddd .network-summary-dot,
-.mobility-aftu .network-summary-dot,
-.mobility-tata .network-summary-dot {
+.mobility-aftu_tata .network-summary-dot {
   background: var(--dot);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 28%, transparent);
 }
 .network-summary-list > li.network-summary-item.mobility-ter.is-selected,
 .network-summary-list > li.network-summary-item.mobility-brt.is-selected,
 .network-summary-list > li.network-summary-item.mobility-ddd.is-selected,
-.network-summary-list > li.network-summary-item.mobility-aftu.is-selected,
-.network-summary-list > li.network-summary-item.mobility-tata.is-selected {
+.network-summary-list > li.network-summary-item.mobility-aftu_tata.is-selected {
   background-color: color-mix(in srgb, var(--dot) 14%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--dot);
 }
 .network-summary-item.mobility-ter .network-summary-header:hover,
 .network-summary-item.mobility-brt .network-summary-header:hover,
 .network-summary-item.mobility-ddd .network-summary-header:hover,
-.network-summary-item.mobility-aftu .network-summary-header:hover,
-.network-summary-item.mobility-tata .network-summary-header:hover {
+.network-summary-item.mobility-aftu_tata .network-summary-header:hover {
   background-color: color-mix(in srgb, var(--dot) 10%, transparent);
 }
 
 .network-reference-card.mobility-ter,
 .network-reference-card.mobility-brt,
 .network-reference-card.mobility-ddd,
-.network-reference-card.mobility-aftu,
-.network-reference-card.mobility-tata,
+.network-reference-card.mobility-aftu_tata,
 .journey-card.mobility-ter,
 .journey-card.mobility-brt,
 .journey-card.mobility-ddd,
-.journey-card.mobility-aftu,
-.journey-card.mobility-tata,
+.journey-card.mobility-aftu_tata,
 .published-stop-row.mobility-ter,
 .published-stop-row.mobility-brt,
 .published-stop-row.mobility-ddd,
-.published-stop-row.mobility-aftu,
-.published-stop-row.mobility-tata,
+.published-stop-row.mobility-aftu_tata,
 .network-source-card.mobility-ter,
 .network-source-card.mobility-brt,
 .network-source-card.mobility-ddd,
-.network-source-card.mobility-aftu,
-.network-source-card.mobility-tata {
+.network-source-card.mobility-aftu_tata {
   box-shadow: inset 3px 0 0 var(--dot);
 }
 .network-reference-card-head .network-reference-fullname,
@@ -2500,8 +2484,7 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter,
 .filter-chip.mobility-brt,
 .filter-chip.mobility-ddd,
-.filter-chip.mobility-aftu,
-.filter-chip.mobility-tata {
+.filter-chip.mobility-aftu_tata {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -2511,8 +2494,7 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter::before,
 .filter-chip.mobility-brt::before,
 .filter-chip.mobility-ddd::before,
-.filter-chip.mobility-aftu::before,
-.filter-chip.mobility-tata::before {
+.filter-chip.mobility-aftu_tata::before {
   content: '';
   width: 7px;
   height: 7px;
@@ -2524,8 +2506,7 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter:hover,
 .filter-chip.mobility-brt:hover,
 .filter-chip.mobility-ddd:hover,
-.filter-chip.mobility-aftu:hover,
-.filter-chip.mobility-tata:hover {
+.filter-chip.mobility-aftu_tata:hover {
   border-color: var(--mobility-stroke);
   background: color-mix(in srgb, var(--mobility-stroke) 14%, var(--surface-card));
   color: var(--text);
@@ -2533,8 +2514,7 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter.selected,
 .filter-chip.mobility-brt.selected,
 .filter-chip.mobility-ddd.selected,
-.filter-chip.mobility-aftu.selected,
-.filter-chip.mobility-tata.selected {
+.filter-chip.mobility-aftu_tata.selected {
   border-color: var(--mobility-badge);
   background: var(--mobility-badge);
   box-shadow: none;
@@ -2543,8 +2523,7 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter.selected::before,
 .filter-chip.mobility-brt.selected::before,
 .filter-chip.mobility-ddd.selected::before,
-.filter-chip.mobility-aftu.selected::before,
-.filter-chip.mobility-tata.selected::before {
+.filter-chip.mobility-aftu_tata.selected::before {
   background: var(--mobility-bright);
   box-shadow: 0 0 0 1.5px #fff;
 }
@@ -2552,15 +2531,13 @@ button:disabled { cursor: not-allowed; }
 .point-option.mobility-ter,
 .point-option.mobility-brt,
 .point-option.mobility-ddd,
-.point-option.mobility-aftu,
-.point-option.mobility-tata {
+.point-option.mobility-aftu_tata {
   box-shadow: inset 3px 0 0 var(--dot);
 }
 .point-option.mobility-ter.is-active,
 .point-option.mobility-brt.is-active,
 .point-option.mobility-ddd.is-active,
-.point-option.mobility-aftu.is-active,
-.point-option.mobility-tata.is-active {
+.point-option.mobility-aftu_tata.is-active {
   background: color-mix(in srgb, var(--dot) 12%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--dot);
 }
@@ -2569,16 +2546,14 @@ button:disabled { cursor: not-allowed; }
 .planner-leg.mobility-ter,
 .planner-leg.mobility-brt,
 .planner-leg.mobility-ddd,
-.planner-leg.mobility-aftu,
-.planner-leg.mobility-tata {
+.planner-leg.mobility-aftu_tata {
   border-color: color-mix(in srgb, var(--mobility-stroke) 42%, var(--line));
   box-shadow: inset 3px 0 0 var(--mobility-stroke);
 }
 .planner-leg.mobility-ter .planner-leg-icon,
 .planner-leg.mobility-brt .planner-leg-icon,
 .planner-leg.mobility-ddd .planner-leg-icon,
-.planner-leg.mobility-aftu .planner-leg-icon,
-.planner-leg.mobility-tata .planner-leg-icon {
+.planner-leg.mobility-aftu_tata .planner-leg-icon {
   background: var(--mobility-badge);
   color: var(--mobility-ink);
 }
@@ -2607,8 +2582,7 @@ button:disabled { cursor: not-allowed; }
 .mobility-step.mobility-ter,
 .mobility-step.mobility-brt,
 .mobility-step.mobility-ddd,
-.mobility-step.mobility-aftu,
-.mobility-step.mobility-tata {
+.mobility-step.mobility-aftu_tata {
   background: color-mix(in srgb, var(--mobility-stroke) 14%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--mobility-stroke);
 }
@@ -2646,12 +2620,12 @@ button:disabled { cursor: not-allowed; }
 .leaflet-tooltip.mobility-tooltip.mobility-ter { border-color: var(--mobility-ter-bright); }
 .leaflet-tooltip.mobility-tooltip.mobility-brt { border-color: var(--mobility-brt); }
 .leaflet-tooltip.mobility-tooltip.mobility-ddd { border-color: var(--mobility-ddd); }
-.leaflet-tooltip.mobility-tooltip.mobility-aftu { border-color: var(--mobility-aftu); }
-.leaflet-tooltip.mobility-tooltip.mobility-tata { border-color: var(--mobility-tata); }
+.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu-tata); }
 .leaflet-tooltip .mobility-badge { margin-right: 4px; }
 
 @media (max-width: 820px) {
   .map-mobility-legend { bottom: 26px; left: 8px; max-width: calc(100% - 62px); padding: 6px; }
+  .map-mobility-legend .mobility-aftu_tata { max-width: none; }
   .map-mobility-legend small { display: none; }
 }
 

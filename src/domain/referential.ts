@@ -69,7 +69,7 @@ export type IntegrationStatus =
   | 'NOT_INTEGRATED'
 
 export interface ReferentialNetwork {
-  id: ReferenceNetworkId | 'tata'
+  id: ReferenceNetworkId
   label: string
   operator: string
   classification: NetworkClassification
@@ -192,35 +192,20 @@ export const REFERENTIAL_NETWORKS: readonly ReferentialNetwork[] = [
     source: REFERENTIAL_SOURCES.cetud,
   },
   {
-    id: 'aftu',
-    label: 'AFTU',
-    operator: NETWORK_REFERENCE_DATA.aftu.operator,
+    id: 'aftu_tata',
+    label: 'AFTU / TATA',
+    operator: NETWORK_REFERENCE_DATA.aftu_tata.operator,
     classification: 'MINIBUS',
     integrationStatus: 'REFERENCE_NETWORK',
-    coverage: NETWORK_REFERENCE_DATA.aftu.coverage,
-    lineCount: NETWORK_REFERENCE_DATA.aftu.lineCount,
+    coverage: NETWORK_REFERENCE_DATA.aftu_tata.coverage,
+    lineCount: NETWORK_REFERENCE_DATA.aftu_tata.lineCount,
     stationCount: 13,
-    serviceWindow: NETWORK_REFERENCE_DATA.aftu.serviceWindow,
+    serviceWindow: NETWORK_REFERENCE_DATA.aftu_tata.serviceWindow,
     frequencyStatus: 'UNKNOWN',
     known:
-      'Ampleur déclarée (72 lignes, ~2 300 minibus, 14 GIE) + 13 arrêts principaux de référence géolocalisés  en pointillés légers + pastilles.',
+      'Réseau commun : 72 lignes déclarées, ~2 300 minibus, 14 GIE et 13 arrêts principaux de référence géolocalisés en pointillés légers + pastilles.',
     missing:
       'Fréquences par ligne non publiées : affichage léger uniquement, pas de temps réel.',
-    source: REFERENTIAL_SOURCES.cetud,
-  },
-  {
-    id: 'tata',
-    label: 'TATA',
-    operator: 'AFTU / TATA',
-    classification: 'MINIBUS',
-    integrationStatus: 'REFERENCE_NETWORK',
-    coverage: 'Réseau TATA — 6 arrêts principaux de référence',
-    lineCount: 1,
-    stationCount: 6,
-    serviceWindow: '06:00–21:00 · TATA',
-    frequencyStatus: 'UNKNOWN',
-    known: '6 arrêts principaux de référence (marron #C05621, palette AFTU) en pointillés légers + pastilles, distincts d’AFTU sans sortir de la palette.',
-    missing: 'Fréquences par ligne non publiées, pas de temps réel.',
     source: REFERENTIAL_SOURCES.cetud,
   },
 ]
@@ -232,9 +217,7 @@ export const REFERENTIAL_STOPS: readonly ReferentialStop[] = ALL_CORRIDOR_STOPS.
       ? 'brt'
       : stop.id.startsWith('ddd')
         ? 'ddd'
-        : stop.id.startsWith('aftu')
-          ? 'aftu'
-          : 'tata'
+        : 'aftu_tata'
   const source = networkId === 'ter'
     ? REFERENTIAL_SOURCES.ter
     : networkId === 'brt'

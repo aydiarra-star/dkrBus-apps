@@ -80,7 +80,7 @@ export interface Preferences {
 
 export const DEFAULT_PREFERENCES: Preferences = {
   mobility: {
-    networks: { ter: true, brt: true, ddd: true, aftu: true, tata: true },
+    networks: { ter: true, brt: true, ddd: true, aftu_tata: true },
     walkSpeed: 'normal',
     accessRadius: 'normal',
     transferBufferMin: 0,
@@ -124,8 +124,7 @@ export const NETWORK_CHOICE_LABELS: Record<MobilityId, string> = {
   ter: 'TER',
   brt: 'BRT SunuBRT',
   ddd: 'Dakar Dem Dikk',
-  aftu: 'AFTU',
-  tata: 'TATA',
+  aftu_tata: 'AFTU / TATA',
 }
 
 export const GPS_MODE_CHOICES: readonly { id: GpsMode; label: string; detail: string }[] = [
@@ -193,6 +192,10 @@ function networksFrom(raw: unknown, fallback: Record<MobilityId, boolean>): Reco
   if (!isRecord(raw)) return { ...fallback }
   const out = { ...fallback }
   for (const id of MOBILITY_IDS) out[id] = bool(raw[id], fallback[id])
+  if (typeof raw.aftu_tata !== 'boolean') {
+    const hasLegacyAftuTata = typeof raw.aftu === 'boolean' || typeof raw.tata === 'boolean'
+    if (hasLegacyAftuTata) out.aftu_tata = raw.aftu === true || raw.tata === true
+  }
   return out
 }
 
