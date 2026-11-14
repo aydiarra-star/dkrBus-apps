@@ -177,3 +177,17 @@ La prochaine vérification doit porter sur les données réellement servies dans
 Une recherche ciblée a été menée sur le site CETUD, ses répertoires de fichiers publics, les portails open data et les dépôts GitHub indexés. La page CETUD confirme l'existence de fichiers GTFS et décrit leur contenu, mais aucun lien public direct vers une archive GTFS AFTU/Dakar exploitable et datée n'a été identifié dans les résultats accessibles pendant cette vérification.
 
 Conséquence : le GTFS reste une source potentielle à demander au CETUD, pas une dépendance du chantier. S'il est obtenu ultérieurement, le contrôle devra vérifier la période de validité, les lignes présentes dans `routes.txt`, les trajets et directions dans `trips.txt`, l'ordre des arrêts dans `stop_times.txt`, les coordonnées dans `stops.txt` et les géométries dans `shapes.txt`. Une archive ancienne ou partielle ne sera pas considérée comme la vérité actuelle sans recoupement.
+
+## 10. Indice de presse à qualifier — ligne 88 et secteur Niacoulrab (2023)
+
+Une recherche de presse a fait remonter un article daté du 23 janvier 2023, publié par AZACTU et attribuant l'information à des sources de Seneweb. Il rapporte que deux bus TATA de la « ligne 88 » ont été vandalisés à Niacoulrab ; le même article situe les interpellations entre Niague, Niacoulrab et Darou Thioub.
+
+Source : https://azactu.net/2-bus-tata-vandalises-un-agent-de-sante-blesse-6-membres-du-syndicat-de-gora-khouma-en-garde-a-vue-a-la-police-de-jaxaay/
+
+Qualification :
+- C'est un indice indépendant de presse, pas une fiche d'itinéraire opérateur.
+- La mention « ligne 88 » et la présence de bus TATA sont compatibles avec une desserte du secteur Niague/Niacoulrab, ce qui mérite une vérification prioritaire pour le corridor officiel Bargny – Croisement Niague.
+- L'article ne donne aucun arrêt ordonné, aucun tracé complet, aucun sens retour et ne précise pas explicitement que son « numéro 88 » correspond à la numérotation de l'index AFTU actuel.
+- Il ne peut donc pas être utilisé pour ajouter Niacoulrab ou Darou Thioub à la séquence passager de la ligne AFTU 88 sans confirmation supplémentaire.
+
+Aucune séquence n'est modifiée sur cette base.
