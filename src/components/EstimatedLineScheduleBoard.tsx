@@ -185,13 +185,17 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
           const routeCandidates = routeReferences.filter((item) => {
             if (item.code !== line.line) return false
-            // La fiche détaillée du même sous-réseau reste prioritaire, même si
-            // ses libellés de terminus sont plus précis que le catalogue public.
-            if (item.network === line.network) return true
-            if (!item.origin || !item.destination) return false
+            if (!item.origin || !item.destination) return item.network === line.network
             return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
           })
-          const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+          const richestRoute = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+          // Garder les séquences du parcours le plus complet, sans perdre les
+          // horaires directionnels propres à une autre fiche du même trajet.
+          const route = richestRoute ? {
+            ...richestRoute,
+            outboundSchedule: routeCandidates.find((item) => item.outboundSchedule)?.outboundSchedule ?? richestRoute.outboundSchedule,
+            inboundSchedule: routeCandidates.find((item) => item.inboundSchedule)?.inboundSchedule ?? richestRoute.inboundSchedule,
+          } : undefined
           // Une fréquence AFTU n'est réutilisée que si la fiche détaillée AFTU
           // décrit exactement les mêmes terminus ; un simple numéro commun ne suffit pas.
           const hasMatchingAftuRoute = routeCandidates.some((item) => item.network === 'aftu')
@@ -282,7 +286,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       </ul>
       {(() => {
         const linesWithoutAnyStops = catalogue.filter((line) => {
-          const route = routeReferences.find((item) => item.network === network && item.code === line.line)
+          const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+          const route = routeReferences.find((item) => item.code === line.line
+            && (!item.origin || !item.destination
+              ? item.network === line.network
+              : detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === routeKey))
           const hasOutbound = Boolean(route?.waypoints?.length)
             || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
           return !hasOutbound
