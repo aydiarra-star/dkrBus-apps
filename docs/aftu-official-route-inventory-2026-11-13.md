@@ -127,3 +127,21 @@ L'artefact de collecte actualisé (`aftu-official-route-pages`, workflow `434900
 La mention « 0 erreur » du contrôle initial s'applique aux 65 pages effectivement récupérées ; elle ne signifie pas que les 7 URL supplémentaires ont répondu. Les sept lignes restent bien présentes dans l'index officiel, avec leurs corridors, mais leurs fiches détaillées ne sont pas disponibles par ces URL candidates. Le compte de réseau reste 72 lignes listées (65 fiches récupérées + 7 lignes d'index sans fiche détaillée).
 
 Les pages officielles extraites ne mentionnent explicitement des variantes de retour que pour les lignes 2 et 5 (Rue 39/Rue 17 et Rue 25/Rue 37). Ces mentions ne constituent pas un parcours retour complet.
+
+
+## Vérification complémentaire des archives AFTU — 14 novembre 2026
+
+Une vérification indépendante de l'archive officielle « Dakar lignes urbaines » a été effectuée après les tentatives HTTP 404 des sept URL candidates.
+
+- L'archive est paginée sur **3 pages** et les entrées visibles vont de la ligne 55 à la ligne 83.
+- La page 1 de l'archive affiche les lignes 72 à 83 ; la page 2 affiche les lignes 60 à 71 ; la page 3 affiche les lignes 55 à 59.
+- Aucune entrée d'archive ni fiche détaillée n'est exposée pour les lignes 84, 85, 86, 87, 88, 89 et 91 dans ces trois pages.
+- Sur l'index « Infos pratiques », ces sept lignes apparaissent bien avec les corridors listés plus haut, mais contrairement aux lignes précédentes, leur libellé « Voir itinéraire » n'est pas un lien cliquable dans le contenu HTML rendu.
+
+**Conclusion renforcée :** les 7 réponses HTTP 404 ne doivent pas être interprétées comme un simple problème de slug à corriger. À la date du contrôle, l'index officiel publie les sept numéros et corridors mais ne fournit pas de liens de détail, et l'archive des fiches publiées s'arrête à la ligne 83. Les corridors officiels restent exploitables comme terminus de référence ; aucun arrêt intermédiaire, ordre complet, sens retour ou fréquence ne peut être extrait de ces entrées seules.
+
+Sources vérifiées :
+- Index AFTU : https://aftu-senegal.org/infos-pratiques/
+- Archive, page 1 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/
+- Archive, page 2 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/page/2/
+- Archive, page 3 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/page/3/
