@@ -20,7 +20,7 @@ describe('getCurrentBusRouteAudit', () => {
     expect(report.aftuEvidence).toHaveLength(27)
     expect(report.aftuEvidence.find((route) => route.line === '86')?.inbound.waypoints).toHaveLength(64)
     expect(report.aftuEvidence.find((route) => route.line === '87')?.inbound.waypoints).toHaveLength(71)
-    expect(report.aftuEvidence.find((route) => route.line === '83')?.inbound.waypoints).toEqual([])
+    expect(report.aftuEvidence.find((route) => route.line === '83')?.inbound.waypoints).toHaveLength(90)
     expect(report.aftuEvidence.find((route) => route.line === '84')?.inbound.timetableEntries).toBe(73)
     expect(report.aftuEvidence.find((route) => route.line === '85')?.outbound.hasPerStopTimes).toBe(false)
   })
