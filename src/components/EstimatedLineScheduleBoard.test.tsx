@@ -50,6 +50,13 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
       const pair = Array.from(variant.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
       return pair.length === 2 && pair[0] === pair[1]
     })).toBe(true)
+    const aftuVariant = variants.find((variant) => variant.textContent?.includes('AFTU ·'))
+    const tataVariant = variants.find((variant) => variant.textContent?.includes('TATA ·'))
+    expect(aftuVariant).toBeTruthy()
+    expect(tataVariant).toBeTruthy()
+    expect(aftuVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy()
+    expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-pending')).toBeTruthy()
+    expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
   })
 
   it('fait diminuer ensemble les deux comptes à rebours AFTU / TATA', () => {
