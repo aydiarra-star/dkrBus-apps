@@ -59,6 +59,37 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
   })
 
+  it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
+    vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const expected = [
+      { line: '83', outbound: 93, inbound: 90 },
+      { line: '88', outbound: 78, inbound: 81 },
+      { line: '89', outbound: 55, inbound: 53 },
+      { line: '91', outbound: 70, inbound: 70 },
+    ]
+
+    for (const item of expected) {
+      const button = getLineButtons(container, item.line)[0]
+      expect(button).toBeTruthy()
+      fireEvent.click(button)
+      const row = button.closest('li')!
+      await waitFor(() => {
+        const variants = Array.from(row.querySelectorAll('.station-board-line-direction'))
+        const aftuVariant = variants.find((variant) => variant.textContent?.includes('AFTU ·')) ?? variants[0]
+        expect(aftuVariant?.querySelectorAll('.station-board-line-direction-outbound .station-board-itinerary-list li')).toHaveLength(item.outbound)
+        expect(aftuVariant?.querySelectorAll('.station-board-line-direction-inbound .station-board-itinerary-list li')).toHaveLength(item.inbound)
+      })
+      const variants = Array.from(row.querySelectorAll('.station-board-line-direction'))
+      const aftuVariant = variants.find((variant) => variant.textContent?.includes('AFTU ·')) ?? variants[0]
+      const outbound = aftuVariant.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')!.textContent
+      const inbound = aftuVariant.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')!.textContent
+      expect(outbound).not.toBe(inbound)
+      fireEvent.click(button)
+    }
+  })
+
   it('fait diminuer ensemble les deux comptes à rebours AFTU / TATA', () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
