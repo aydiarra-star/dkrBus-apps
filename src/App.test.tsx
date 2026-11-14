@@ -1233,7 +1233,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(rows.every((row) => row.querySelector('.station-board-stop') && row.querySelector('.station-board-passage strong'))).toBe(true)
     expect(board.textContent).not.toMatch(/Estimation|créneau théorique/i)
     if (networkId === 'ddd') expect(board.textContent).toContain('En service')
-    else expect(rows.some((row) => /^\\d+ min$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+    else expect(rows.some((row) => /^\d+ min$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
     expect(board.textContent).not.toMatch(/(?:intervalle|fréquence|moyenne du réseau)/i)
     expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
     vi.useRealTimers()
