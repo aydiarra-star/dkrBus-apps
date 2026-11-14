@@ -223,8 +223,8 @@ La page officielle « Infos pratiques » affiche actuellement :
 
 | Ligne | Corridor visible dans l'index AFTU | Niveau de preuve |
 |---|---|---|
-| 88 | MTOA – Liberté 5 | Terminus/corridor seulement |
-| 89 | Bargny – Croisement Niague (Cité SICAP) | Terminus/corridor seulement |
+| 88 | Bargny – Croisement Niague (Cité SICAP) | Terminus/corridor seulement |
+| 89 | APIX – Dougar | Terminus/corridor seulement |
 | 90 | **Pas de ligne 90** — correction confirmée par le responsable du projet | Numéro inexistant dans le réseau concerné ; aucune recherche de parcours à poursuivre |
 | 91 | Le libellé « LIGNE 91 » apparaît, mais aucun corridor lisible après ce titre | Numéro seulement |
 
@@ -244,7 +244,7 @@ Les trois pages publiques de la collection « Dakar lignes urbaines » couvrent 
 
 ### 4. Autres recoupements et limites
 
-- Les recherches par les corridors « MTOA – Liberté 5 », « Bargny – Croisement Niague » et « APIX – Dougar » n'ont pas identifié de fiche d'itinéraire AFTU indépendante et exploitable pour les lignes 88, 89 ou 91.
+- Les recherches par les corridors « Bargny – Croisement Niague », « APIX – Dougar » et « MTOA – Liberté 5 » n'ont pas identifié de fiche d'itinéraire AFTU indépendante et exploitable pour les lignes 88, 89 ou 91.
 - Les occurrences de MTOA, Bargny, Niague, APIX ou Dougar dans des fiches d'autres lignes ne prouvent pas que ces fiches appartiennent aux lignes 88/89/91.
 - Les artefacts OSM précédemment audités ne contiennent aucune relation AFTU numérotée 88, 89 ou 91 ; aucun élément de ce jeu ne permet de reconstituer la ligne 90.
 - Les couches ArcGIS consultées dans ce chantier sont des services DDD, pas un référentiel géographique AFTU. Elles ne peuvent pas servir à fabriquer les arrêts des lignes recherchées.
@@ -252,8 +252,8 @@ Les trois pages publiques de la collection « Dakar lignes urbaines » couvrent 
 
 ### 5. Décision pour Dakar Bus
 
-1. Conserver pour la ligne 88 le corridor AFTU « MTOA – Liberté 5 » comme métadonnée d'index uniquement.
-2. Conserver pour la ligne 89 le corridor AFTU « Bargny – Croisement Niague (Cité SICAP) » comme métadonnée d'index uniquement.
+1. Conserver pour la ligne 88 le corridor AFTU « Bargny – Croisement Niague (Cité SICAP) » comme métadonnée d'index uniquement.
+2. Conserver pour la ligne 89 le corridor AFTU « APIX – Dougar » comme métadonnée d'index uniquement.
 3. Retirer la ligne 90 du périmètre de recherche : le responsable du projet confirme qu'il n'existe pas de ligne 90. Ne créer aucune fiche ni numéro fictif.
 4. Conserver la ligne 91 comme numéro affiché mais corridor non lisible ; ne pas lui attribuer APIX – Dougar sur la seule base des anciennes transcriptions d'index décalées.
 5. Ne créer aucun arrêt, ordre, direction retour, horaire ou fréquence pour 88, 89, 90 ou 91.
@@ -266,3 +266,15 @@ Sources consultées le 14 novembre 2026 :
 - Moovit, page générale AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
 
 Cette mise à jour est documentaire uniquement. Aucun JSON de parcours, horaire ou catalogue passager n'a été modifié. Aucun changement TER/BRT, aucune écriture Supabase, aucun déploiement et aucune fusion de PR.
+
+
+## Rectification de lecture de l'index AFTU — lignes 88 et 89 (14 novembre 2026)
+
+Une relecture ligne par ligne du HTML rendu de la page AFTU, en tenant compte de l'ordre exact « corridor puis numéro de ligne », confirme sans ambiguïté :
+- Ligne 88 : **Bargny – Croisement Niague (Cité SICAP)**.
+- Ligne 89 : **APIX – Dougar**.
+- Ligne 91 : le titre « LIGNE 91 » est visible, mais aucun corridor n'est affiché après ce titre.
+
+La ligne **MTOA – Liberté 5 appartient à la ligne 87**, et non à la 88. Toute mention antérieure dans ce rapport attribuant MTOA – Liberté 5 à la ligne 88 est erronée et doit être ignorée. Source primaire : page AFTU relue directement, lignes 414–439 du rendu consulté le 14 novembre 2026 : https://aftu-senegal.org/infos-pratiques/.
+
+Cette rectification est documentaire ; elle ne modifie aucune donnée d'itinéraire.
