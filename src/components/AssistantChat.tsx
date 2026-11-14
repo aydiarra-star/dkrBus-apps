@@ -239,7 +239,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
         )
         if (needsRemoteTrafficKnowledge && !trafficSummaryValid) {
           const latestRemoteTraffic = await loadTrafficBrainKnowledge()
-          if (latestRemoteTraffic) remoteTrafficRef.current = latestRemoteTraffic
+          remoteTrafficRef.current = latestRemoteTraffic
         }
         const assistantContext = {
           ...contextRef.current,
