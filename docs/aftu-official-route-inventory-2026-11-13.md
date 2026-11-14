@@ -243,3 +243,45 @@ Sources :
 - Index officiel AFTU (Petersen–Étage Madiale) : https://aftu-senegal.org/infos-pratiques/
 - TransitRun, liste secondaire de 60 arrêts et horaires : https://transitrun.com/fr/public-transit-line_41_226929
 - TransitByCity, reprise de la liste et des horaires secondaires : https://transitbycity.com/fr/senegal/dakar/operators/aftu/routes/41/
+
+
+## Extension des fiches officielles AFTU — lignes 42 à 45 — 14 novembre 2026
+
+La collecte automatisée officielle AFTU du workflow `43559037476` a abouti : **65 pages récupérées, 65 avec un texte d'itinéraire, aucune fiche récupérée sans itinéraire**. Le statut global reste `PARTIAL_SOURCE_RESPONSE` car sept URL supplémentaires (84, 85, 86, 87, 88, 89, 91) renvoient HTTP 404. Les lignes 42 à 45, elles, disposent bien de fiches officielles détaillées ; leurs corridors sont désormais consignés ci-dessous.
+
+### Ligne 42 — Gadaye → Ouakam Baye
+
+Fiche AFTU publiée le 30 juin 2026 : **Gadaye → Corniche Guédiawaye → Cité des Enseignants → Croisement Béthio → Route des Niayes → Case Ba → Police des Parcelles Assainies → Route du Stade LSS (Tally Boubess) → VDN → Ancienne piste d'envol → Avenue Cheikh Anta Diop → Route principale de Ouakam (marché) → Boutikou Diallo → terminus Ouakam Baye**.
+
+Source : https://aftu-senegal.org/map/dakar-urbain-ligne-42/
+
+### Ligne 43 — Ouakam → Thierno Ndiaye
+
+Fiche AFTU publiée le 30 juin 2026 : **Ouakam → Siège Expresso Ouakam → École Normale → Bourguiba → Rue 10 (Grand Dakar) → HLM → Cité des Eaux → Pont Hann → Autoroute → Bountou Pikine → Tally Boubess → Police Thiaroye → Tally Diallo → terminus Thierno Ndiaye**.
+
+Source : https://aftu-senegal.org/map/dakar-urbain-ligne-43/
+
+### Ligne 44 — Grand Mbao → Ouakam
+
+Fiche AFTU publiée le 30 juin 2026 : **Grand Mbao → Route nationale 1 → Fass Mbao → Sicap Mbao → Diamaguène → Poste Thiaroye → Autoroute → Patte d'Oie → Pont de l'Émergence → Foire → Ancienne piste → Mermoz → terminus Ouakam**.
+
+Source : https://aftu-senegal.org/map/dakar-urbain-ligne-44/
+
+### Ligne 45 — Kounoune Ngalam → Parcelles Église
+
+Fiche AFTU publiée le 1er juillet 2026 : **Kounoune Ngalam → ZAC 3 bis Kounoune → Kounoune Cité Assurance → Marine Française → Cité Yacine Diop → Shell Sedima → Lycée Jaxaay → Rond-point Cité Pénitence → Auchan Keur Massar → Rond-point Keur Massar → virage gauche Torino → Darou Missel → Tenn Bi → Mbedou Fass → Tournal Boune → Croisement Yeumbeul → Station Yeumbeul → Cité ASECNA → terminus 49 → Serigne Assane → Marché Boubess → Lycée Limamoulaye → Hôpital Roi Baudouin → Préfecture Guédiawaye → Arrêt Dial Mbaye → Cité des Enseignants → Croisement Béthio → Pharmacie Golf → Fadia → Case Ba → Croisement 22 → Caserne Sapeurs-Pompiers Parcelles → Parcelles Église → terminus 63**.
+
+Source : https://aftu-senegal.org/map/dakar-urbain-ligne-45/
+
+### Limites communes
+
+Ces fiches donnent un **corridor opérateur ordonné**, pas une table d'arrêts géolocalisés exhaustive. Elles ne publient pas de temps de passage, de fréquence ni de deuxième sens séparé. Les séquences sont donc conservées comme référence officielle de corridor ; elles ne sont pas converties automatiquement en arrêts voyageurs ou en horaires. Il faut encore confronter les repères à OSM/ArcGIS, et rechercher les retours séparément.
+
+### Couverture de collecte mise à jour
+
+- 65 fiches officielles récupérées, toutes avec texte d'itinéraire.
+- 7 lignes de l'index (84–89 et 91) toujours sans page détaillée accessible : HTTP 404 lors de la tentative directe.
+- Les pages 27, 36, 84, 85, 86, 87, 88, 89 et 91 ont fait l'objet de tentatives supplémentaires ; 27 et 36 ont été récupérées, tandis que les sept autres restent absentes.
+- Source d'audit : artefact `aftu-official-route-pages` du workflow `43559037476`, généré le 14 novembre 2026 à 04:56 UTC.
+
+**Décision :** lignes 42–45 ajoutées au catalogue de corridors officiels à rapprocher, sans générer de retour ni de fréquences. Aucun horaire TER/BRT, donnée passager ou déploiement n'est modifié.
