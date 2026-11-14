@@ -386,3 +386,22 @@ Le rapprochement avec la ligne 91 fait ressortir cinq libellés textuellement co
 Aucun libellé exact n'est partagé entre les listes 88 et 89 dans les quatre comparaisons directionnelles effectuées. Cela n'invalide pas les listes : les corridors publics AFTU actuellement affichés et les terminus du site source peuvent relever de publications/version différentes. La divergence officielle de corridor de la 88/89 demeure ouverte et doit être clarifiée auprès de l'opérateur/CETUD.
 
 Limites : cette comparaison est textuelle, pas géographique ; elle n'utilise ni géocodage, ni tracé GPS, ni validation terrain. Les variantes orthographiques et les arrêts homonymes peuvent produire des faux négatifs ou faux positifs. Aucun horaire, fréquence, coordonnée, arrêt ou retour n'est ajouté. Aucun catalogue passager, donnée TER/BRT, Supabase ou production n'est modifié.
+
+
+## Vérification web indépendante ciblée AFTU 88/89 — 14 novembre 2026
+
+Nouvelle recherche publique ciblée sur les numéros, les terminus, les listes d'arrêts et les applications de mobilité :
+
+- **Index primaire AFTU relu le 14 novembre** : il affiche 87 MTOA–Liberté 5, 88 Bargny–Croisement Niague (Cité SICAP), 89 APIX–Dougar et 91 APIX–Dougar. Aucun détail d'arrêts n'est exposé dans le contenu indexé pour 88/89/91 ; les liens « Voir itinéraire » ne livrent pas de fiche détaillée exploitable dans cette vérification. Source : https://aftu-senegal.org/infos-pratiques/.
+- **TransitByCity** : son inventaire public AFTU Dakar indique 28 lignes et liste notamment 84, mais ne contient ni 88 ni 89. Sa page de réseau indique une dernière actualisation au 28 mai 2026. Cette absence, dans un catalogue incomplet par rapport à l'index AFTU, ne réfute pas les corridors officiels et ne permet pas de confirmer les listes détaillées. Source : https://transitbycity.com/fr/senegal/dakar/operators/aftu/.
+- **Moovit** : l'index AFTU Dakar décrit les zones générales desservies et certaines lignes populaires, mais la recherche ciblée n'a pas fait apparaître de fiche exploitable 88 ou 89 ni de séquence indépendante pour ces deux numéros. Source : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038.
+- Les recherches ciblées sur les intitulés « Terminus 88 » / « Liberté 5 » et « Terminus 89 » / « Poste Courant Bargny » n'ont pas retrouvé de publication opérateur, fiche Moovit ou page de mobilité indépendante qui confirme les listes détaillées fournies. Aucun résultat ne permet de résoudre la différence entre les corridors actuels de l'index AFTU et les terminus des listes du site source communiquées au projet.
+
+**Conclusion renforcée :** les listes directionnelles détaillées 88 et 89 restent archivées comme relevés de leur site source, avec leur provenance et leur ordre conservés ; les corridors officiels AFTU sont des métadonnées distinctes. La recherche publique actuelle ne fournit pas de corroboration indépendante suffisante pour valider, renuméroter ou remplacer ces séquences. Les listes de l'utilisateur ne sont ni supprimées ni réécrites. Aucune fréquence ni horaire n'est validé.
+
+Sources web consultées le 14 novembre 2026 :
+- AFTU-Sénégal, index officiel : https://aftu-senegal.org/infos-pratiques/.
+- TransitByCity, inventaire AFTU Dakar : https://transitbycity.com/fr/senegal/dakar/operators/aftu/.
+- Moovit, index AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038.
+
+Cette recherche est documentaire uniquement : aucune donnée passager, aucun fichier JSON d'arrêts, aucune fréquence, TER/BRT, Supabase ou production n'est modifié.
