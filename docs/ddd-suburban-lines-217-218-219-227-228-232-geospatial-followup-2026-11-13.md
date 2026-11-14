@@ -84,3 +84,22 @@ La géométrie ArcGIS 219 porte le nom « Daroukhane – marché Ndiarème », t
 - Le classement du tracé le plus proche est conservé uniquement comme diagnostic.
 - L'attribution officielle des 33 positions à la ligne 219 et le libellé exact de son terminus restent à confirmer auprès de DDD.
 - Aucun arrêt n'est réaffecté, aucune séquence de retour n'est créée et aucune donnée passager n'est modifiée.
+
+
+## Confirmation par la page officielle DDD actuelle — 14 novembre 2026
+
+La page officielle « Réseau urbain de Dakar » a été relue directement le 14 novembre : https://demdikk.sn/reseau-urbain-dakar/
+
+Elle publie explicitement la **ligne 219 : Daroukhane ↔ Ouakam**, avec 19 repères ordonnés, de Daroukhane à Terminus Ouakam. La séquence comprend notamment marché Ndiarème, deux voies Notaire, Sapeur pompier Guédiawaye, Marché Jeudi corniche, Hôpital Dalal Diam, Case bi, Pont Sénégal 92, Collège Hyacinthe Thiandoum, Rond Point Liberté 6, JVC, Boulangerie Jaune, Immeuble Mariama, Ancienne Piste, Hôpital militaire de Ouakam, Comico, Cité Asecna et Cité Assemblée.
+
+**Correction de lecture :** le libellé de la géométrie ArcGIS « Daroukhane – marché Ndiarème » n'est pas, à lui seul, une preuve que le tracé se termine au marché Ndiarème. La fiche DDD actuelle confirme bien Ouakam comme terminus final et marché Ndiarème comme repère intermédiaire. Le conflit de terminus précédemment signalé est donc levé au niveau de la source officielle ; l'attribution des points ArcGIS reste toutefois à confirmer à cause de leur étiquette 218 et de leurs doublons.
+
+La page officielle affiche aussi les lignes 217 et 218 avec le même ensemble de 15 repères, dont la séquence continue après « terminus Ouakam » vers route des Mamelles, route des Almadies, Ngor et Terminus Aéroport LSS. Le titre de la ligne 217 annonce pourtant Ouakam comme terminus, tandis que la ligne 218 annonce Aéroport LSS. Cette incohérence de publication doit rester un conflit de source : ne pas tronquer ou répartir automatiquement les repères entre 217 et 218.
+
+**Conséquence pour la suite :**
+- La séquence textuelle 219 est confirmée par la page DDD actuelle ; rapprocher ses 19 repères avec les 33 positions uniques candidates ArcGIS, sans supposer une correspondance un-à-un.
+- Conserver les deux séries ArcGIS dupliquées et le champ source `Nom_Ligne=ligne_218` sans modification.
+- Traiter 217/218 comme deux fiches officielles actuellement non différenciées par leur séquence publiée, jusqu'à clarification DDD.
+- Aucun retour, horaire ou fréquence n'est ajouté par cette vérification.
+
+Source officielle : page « Réseau urbain de Dakar », lignes 219 (Daroukhane–Ouakam) et 217/218, consultée le 14 novembre 2026.
