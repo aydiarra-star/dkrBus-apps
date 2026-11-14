@@ -990,8 +990,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    // TER et BRT conservent un compte à rebours numérique qui diminue avec le temps.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(5)
+    // Les quatre réseaux affichent un compte à rebours numérique qui diminue avec le temps.
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
       expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
