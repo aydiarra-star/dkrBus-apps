@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { AFTU_ROUTE_EVIDENCE, getAftuRouteEvidence } from './aftuRouteEvidence'
 
 describe('adaptateur de preuves AFTU', () => {
-  it('charge les 21 fiches de parcours sans les injecter dans le catalogue public', () => {
-    expect(AFTU_ROUTE_EVIDENCE).toHaveLength(21)
-    expect(new Set(AFTU_ROUTE_EVIDENCE.map((route) => route.line)).size).toBe(21)
+  it('charge les 23 fiches de parcours sans les injecter dans le catalogue public', () => {
+    expect(AFTU_ROUTE_EVIDENCE).toHaveLength(23)
+    expect(new Set(AFTU_ROUTE_EVIDENCE.map((route) => route.line)).size).toBe(23)
+    expect(getAftuRouteEvidence('86')?.outbound.waypoints).toHaveLength(68)
+    expect(getAftuRouteEvidence('86')?.inbound.waypoints).toHaveLength(64)
+    expect(getAftuRouteEvidence('87')?.outbound.waypoints).toHaveLength(68)
+    expect(getAftuRouteEvidence('87')?.inbound.waypoints).toHaveLength(71)
     expect(AFTU_ROUTE_EVIDENCE.every((route) => route.network === 'aftu')).toBe(true)
   })
 
