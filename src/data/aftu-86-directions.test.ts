@@ -25,7 +25,7 @@ describe('parcours AFTU 86', () => {
     expect(inbound.waypoints).toHaveLength(64)
     expect(inbound.waypoints[0]).toBe('Terminus 86 (Départ)')
     expect(inbound.waypoints.at(-1)).toBe('Route De Malika En Face Mairie Yeumbel Sud Et Sgbs (Terminus)')
-    expect(inbound.times).toBeUndefined()
+    expect('times' in inbound).toBe(false)
     expect(route.inboundWaypoints).toEqual(inbound.waypoints)
     expect(route.stopCount).toEqual({ outbound: 68, inbound: 64 })
   })
