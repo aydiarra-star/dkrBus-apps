@@ -25,6 +25,28 @@ for pid in "${pids[@]}"; do
   wait "$pid"
 done
 
+# A rolled-back insert must not consume a sequence or move the chain head.
+before_sequence=$(psql "$DATABASE_URL" -qAt -c "SELECT last_chain_sequence FROM public.dakar_admin_audit_chain_state WHERE singleton = true")
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "BEGIN;
+  SET request.jwt.claim.role = 'service_role';
+  INSERT INTO public.dakar_admin_audit_events (
+    actor_id, action, target_type, target_id, details
+  ) VALUES (
+    NULL, 'AUDIT_ROLLBACK_TEST', 'synthetic_fixture', 'rolled-back',
+    jsonb_build_object('fixture', true)
+  );
+  ROLLBACK;" >/dev/null
+after_sequence=$(psql "$DATABASE_URL" -qAt -c "SELECT last_chain_sequence FROM public.dakar_admin_audit_chain_state WHERE singleton = true")
+if [[ "$before_sequence" != "$after_sequence" ]]; then
+  echo "A rolled-back audit insert changed the chain head" >&2
+  exit 1
+fi
+rollback_rows=$(psql "$DATABASE_URL" -qAt -c "SELECT count(*) FROM public.dakar_admin_audit_events WHERE action = 'AUDIT_ROLLBACK_TEST'")
+if [[ "$rollback_rows" != "0" ]]; then
+  echo "A rolled-back audit event was persisted" >&2
+  exit 1
+fi
+
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
 DO $$
 DECLARE
