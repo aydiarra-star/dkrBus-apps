@@ -6,7 +6,7 @@ describe('getCurrentBusRouteAudit', () => {
   it('audits every catalogue line and both directions without modifying the catalogue', () => {
     const before = JSON.stringify(BIDIRECTIONAL_BUS_LINES)
     const report = getCurrentBusRouteAudit()
-    const ownerValidatedDirections = 8
+    const ownerValidatedDirections = 10
 
     expect(report.analyzedLines).toBe(BIDIRECTIONAL_BUS_LINES.length)
     expect(report.analyzedDirections).toBe(BIDIRECTIONAL_BUS_LINES.length * 2)
