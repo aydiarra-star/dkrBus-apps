@@ -502,7 +502,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
     const localMatches = UNIFIED_BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const remoteMatches = remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const matches = uniqueEquivalentLines([...localMatches, ...remoteMatches])
-    if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}${line.waypoints.length ? `\n  Arrêts : ${line.waypoints.join(' → ')}` : ''}`).join('\n')}\nCertains terminus restent à confirmer selon la fiche. Précisez le terminus ou le quartier pour choisir le bon parcours.` }
+    if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}${line.waypoints.length ? `\n  Arrêts : ${line.waypoints.join(' → ')}` : ''}`).join('\n')}\nLes mentions « terminus à confirmer » restent explicites. Précisez le terminus ou le quartier pour choisir le bon parcours.` }
     if (matches.length === 1) return lineReply(matches[0], question)
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
   }
