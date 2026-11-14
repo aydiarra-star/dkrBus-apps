@@ -449,10 +449,17 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
     })
   })
   const candidates = BUS_LINES.filter((line) => (!networks.length || networks.some((network) => belongsToNetwork(line, network))) && !line.note?.startsWith('Divergence'))
-  const localMatches = findMatches(candidates)
-  const matched = localMatches.length
-    ? localMatches
-    : findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.some((network) => belongsToNetwork(line, network))))
+  const allMatches = [
+    ...findMatches(candidates),
+    ...findMatches(remoteCandidateLines.filter((line) => !networks.length || networks.some((network) => belongsToNetwork(line, network)))),
+  ]
+  const mergedMatches = new Map<string, RouteMatch>()
+  for (const match of allMatches) {
+    const signature = `${routeSignature(match.line)}|${match.directionLabel}`
+    const previous = mergedMatches.get(signature)
+    if (!previous || match.line.waypoints.length > previous.line.waypoints.length) mergedMatches.set(signature, match)
+  }
+  const matched = [...mergedMatches.values()]
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
   const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
   const rows = matched.slice(0, 4).map((match) =>
@@ -472,7 +479,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
   if (code) {
     const localMatches = BUS_LINES.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
     const remoteMatches = remoteCandidateLines.filter((line) => line.code === code && (!networks.length || networks.some((network) => belongsToNetwork(line, network))))
-    const matches = uniqueEquivalentLines(localMatches.length ? localMatches : remoteMatches)
+    const matches = uniqueEquivalentLines([...localMatches, ...remoteMatches])
     if (matches.length > 1) return { text: `Plusieurs parcours distincts portent le numéro ${code} dans le réseau demandé :\n${matches.map((line) => `• ${label(line)}`).join('\n')}\nPrécisez le terminus ou le quartier pour choisir le bon parcours.` }
     if (matches.length === 1) return lineReply(matches[0], question)
     return { text: `La ligne ${code}${networks.length ? ` ${networks.join('/')}` : ''} n’est pas documentée dans ma mémoire actuelle. Cela ne prouve pas son absence du réseau. Précisez l’opérateur ou consultez son plan officiel ; je n’invente ni numéro ni parcours.` }
