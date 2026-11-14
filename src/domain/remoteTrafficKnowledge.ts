@@ -90,9 +90,10 @@ export function answerRemoteTrafficQuestion(
   if (!snapshot) return null
   const text = normalize(question)
   const asksNearby = /\b(autour de moi|pres de moi|mon trajet|sur mon trajet)\b/.test(text)
-  const confirmed = snapshot.confirmed_traffic_incidents.filter((incident) => incident.status === 'confirmed')
+  const isNotExpired = (incident: RemoteTrafficIncident) => !incident.expires_at || new Date(incident.expires_at).getTime() > Date.now()
+  const confirmed = snapshot.confirmed_traffic_incidents.filter((incident) => incident.status === 'confirmed' && isNotExpired(incident))
   const candidates = snapshot.traffic_candidates.filter((incident) =>
-    incident.status === 'unverified' || incident.status === 'reported'
+    (incident.status === 'unverified' || incident.status === 'reported') && isNotExpired(incident)
   )
   const prefix = asksNearby
     ? 'Je ne dispose pas de votre position dans cette vérification. '
