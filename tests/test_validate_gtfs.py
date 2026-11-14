@@ -133,12 +133,55 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertIn("INVALID_FREQUENCY_RANGE", codes)
         self.assertIn("UNKNOWN_TRIP_REFERENCE", codes)
 
-    def test_unchecked_optional_tables_are_explicitly_reported(self) -> None:
+    def test_unchecked_optional_tables_are_rejected_until_supported(self) -> None:
         tables = dict(VALID_TABLES)
         tables["fare_rules.txt"] = "route_id\nR1\n"
         report = validate_gtfs_archive(self.make_archive(tables))
-        self.assertTrue(report["structure_valid"])
+        self.assertFalse(report["structure_valid"])
+        self.assertGreater(report["counts"]["errors"], 0)  # type: ignore[index]
         self.assertIn("OPTIONAL_TABLE_NOT_VALIDATED", self.issue_codes(report))
+
+    def test_unrecognized_root_text_tables_are_rejected(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["vendor_extension.txt"] = "id,value\nX,ignored\n"
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNRECOGNIZED_TEXT_TABLE", self.issue_codes(report))
+
+    def test_missing_stop_times_require_timepoint_zero(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stops.txt"] = (
+            "stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station\n"
+            "S1,Stop One,14.7000,-17.4500,0,\n"
+            "S2,Stop Two,14.7100,-17.4600,0,\n"
+            "S3,Stop Three,14.7200,-17.4700,0,\n"
+        )
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence,timepoint\n"
+            "T1,08:00:00,08:00:00,S1,1,1\n"
+            "T1,,,S2,2,1\n"
+            "T1,08:20:00,08:20:00,S3,3,1\n"
+        )
+        invalid_report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(invalid_report["structure_valid"])
+        self.assertIn("MISSING_STOP_TIME", self.issue_codes(invalid_report))
+
+        tables["stop_times.txt"] = tables["stop_times.txt"].replace("T1,,,S2,2,1", "T1,,,S2,2,0")
+        valid_report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertTrue(valid_report["structure_valid"], valid_report["issues"])
+
+    def test_pickup_and_drop_off_types_must_use_gtfs_values(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type\n"
+            "T1,08:00:00,08:00:00,S1,1,4,0\n"
+            "T1,08:20:00,08:20:00,S2,2,0,9\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        codes = self.issue_codes(report)
+        self.assertIn("INVALID_PICKUP_TYPE", codes)
+        self.assertIn("INVALID_DROP_OFF_TYPE", codes)
 
     def test_unsafe_archive_paths_are_rejected_without_extraction(self) -> None:
         tables = dict(VALID_TABLES)
