@@ -7,6 +7,7 @@ import {
   DDD_PUBLIC_LINE_CATALOG,
   TATA_PUBLIC_LINE_CATALOG,
   TATA_REFERENCE_POLICY,
+  groupPublicBusLinesByCode,
 } from './publicBusLineCatalog'
 
 describe('catalogues sources et réseau unifié AFTU / TATA', () => {
@@ -36,6 +37,21 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     expect(AFTU_PUBLIC_LINE_CATALOG.every((line) => line.network === 'aftu')).toBe(true)
     expect(TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'APIX' && line.destination === 'UCAD')).toBe(true)
     expect(TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '53' && line.origin === 'Keur Massar' && line.destination === 'Sébikotane')).toBe(true)
+  })
+
+  it('ne duplique aucun numéro dans chaque mobilité source', () => {
+    for (const catalogue of [DDD_PUBLIC_LINE_CATALOG, AFTU_PUBLIC_LINE_CATALOG, TATA_PUBLIC_LINE_CATALOG]) {
+      expect(new Set(catalogue.map((line) => line.line)).size).toBe(catalogue.length)
+    }
+  })
+
+  it('affiche une seule entrée par numéro tout en conservant les variantes d’itinéraire distinctes', () => {
+    const groups = groupPublicBusLinesByCode(AFTU_TATA_PUBLIC_LINE_CATALOG)
+    expect(groups).toHaveLength(72)
+    expect(new Set(groups.map((group) => group.line)).size).toBe(groups.length)
+    expect(groups.find((group) => group.line === '5')?.variants.map((line) => line.network).sort()).toEqual(['aftu', 'tata'])
+    expect(groups.find((group) => group.line === '65')?.variants.map((line) => line.network).sort()).toEqual(['aftu', 'tata'])
+    expect(groups.reduce((total, group) => total + group.variants.length, 0)).toBe(AFTU_TATA_PUBLIC_LINE_CATALOG.length)
   })
 
   it('ne transforme pas un catalogue de parcours en horaires', () => {
