@@ -2,7 +2,7 @@
 
 Date d'intégration : 14 novembre 2026  
 Branche : `feat/admin-stop-sequence-audit-phase-a`  
-Statut : transcription conservée ; validation indépendante du corridor et des terminus en attente.
+Statut : ligne AFTU confirmée dans l'application ; les 82 occurrences de l'aller et les 82 occurrences du retour sont explicitement validées par le responsable du projet.
 
 ## Règles de conservation
 
@@ -199,3 +199,10 @@ Aucune donnée TER/BRT n'a été modifiée. Aucun changement de catalogue passag
 Une capture d'écran fournie par le responsable du projet montre explicitement la fiche **AFTU — Ligne 90** dans l'application, avec le trajet **Terminus 90 → Deni Birame Ndao Nord** et un compteur de **82 arrêts**. La capture affiche également les premiers arrêts du sens retour depuis Deni Birame Ndao Nord, ainsi que la mention « Horaires théoriques · Peuvent varier selon le trafic » ; les indicateurs fréquence et longueur sont affichés « - ».
 
 Cette preuve confirme que la ligne 90 est bien répertoriée comme ligne AFTU dans cette application et confirme le compteur de 82 arrêts affiché pour le sens présenté. Elle ne constitue pas, à elle seule, une validation indépendante de l'intégralité des 82 occurrences de chaque sens, ni de leurs horaires ou coordonnées. La validation de la transcription détaillée reste donc distincte de la confirmation du numéro de ligne et de son rattachement AFTU.
+
+
+## Validation explicite des arrêts par le responsable du projet — 14 novembre 2026
+
+Le responsable du projet confirme explicitement : **tous les arrêts de l'aller et tous les arrêts du retour de la ligne 90 sont validés**. Cette validation porte sur les deux séquences intégrales retranscrites ci-dessus, dans leur ordre respectif : 82 occurrences pour l'aller et 82 pour le retour, soit 164 occurrences directionnelles.
+
+Conséquences pour le suivi du chantier : les deux listes sont désormais considérées comme validées par le responsable du projet. Toutes les répétitions et variantes de libellés sont conservées ; aucun dédoublonnage, réordonnancement ou normalisation n'est autorisé sans instruction explicite. Cette validation utilisateur est distinguée d'une certification externe par AFTU/CETUD. Aucun horaire ni fréquence n'est validé par cette seule confirmation.
