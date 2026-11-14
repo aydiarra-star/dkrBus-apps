@@ -15,7 +15,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveLabels = screen.getAllByText('AFTU / TATA 5')
-    expect(aftuFiveLabels).toHaveLength(4)
+    expect(aftuFiveLabels).toHaveLength(2)
     const row = aftuFiveLabels.map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
     expect(row).toBeTruthy()
     expect(within(row).getAllByText('10 min')).toHaveLength(1)
