@@ -15,6 +15,7 @@ import {
   type EstimatedLineSchedule,
 } from '../domain/estimatedSchedules'
 import {
+  AFTU_PUBLIC_LINE_CATALOG,
   AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
