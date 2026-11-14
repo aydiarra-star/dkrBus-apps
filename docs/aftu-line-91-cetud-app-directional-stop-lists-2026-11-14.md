@@ -2,11 +2,11 @@
 
 Date d'intégration : 14 novembre 2026  
 Branche : `feat/admin-stop-sequence-audit-phase-a`  
-Statut : transcription des deux sens conservée ; validation des listes par le responsable du projet non encore demandée.
+Statut : les deux listes complètes sont validées par le responsable du projet ; source déclarée : application CETUD.
 
-## Source déclarée
+## Source déclarée et validation
 
-Le responsable du projet indique que les deux listes proviennent de l'application CETUD. La capture ou l'URL exacte de la fiche de ligne 91 n'a pas été jointe à ce message ; le présent rapport enregistre la provenance déclarée, sans prétendre avoir consulté directement la fiche dans l'application.
+Le responsable du projet confirme que les deux listes sont complètes et proviennent de l'application CETUD. Il valide l'intégralité des deux séquences telles que transmises : les 70 occurrences de l'aller et les 70 occurrences du retour. La capture ou l'URL exacte de la fiche de ligne 91 n'a pas été jointe ; la validation des listes par le responsable du projet est donc enregistrée distinctement d'une vérification indépendante de la fiche.
 
 ## Règles de conservation
 
@@ -168,12 +168,11 @@ Les libellés et l'ordre fournis sont conservés. Chaque occurrence reste distin
 - La liste suggère un corridor Losso / Dougar Peulh / Diamniadio / Bargny / Rufisque / Zac Mbao / Jaxaay / Keur Massar. Cette lecture vient des noms fournis et ne constitue pas une validation cartographique indépendante.
 - Aucun horaire, fréquence, coordonnée ou temps de passage n'est ajouté.
 
-## Points à vérifier séparément
+## Statut final des séquences
 
-1. Confirmer dans la fiche CETUD le numéro 91, le réseau/opérateur et les terminus annoncés.
-2. Obtenir la capture ou l'URL exacte de la fiche de ligne 91 pour assurer la traçabilité documentaire.
-3. Comparer les deux séquences et leurs variantes de libellés sans supprimer les occurrences répétées.
-4. Distinguer la validation du numéro/corridor de la validation des arrêts détaillés et des horaires.
+Les deux séquences d'arrêts sont considérées comme complètes et validées par le responsable du projet. Elles peuvent servir de référence de travail pour la ligne 91 dans le chantier PR #123. Les variantes de libellés et les éventuelles répétitions restent intactes.
+
+La capture ou l'URL de la fiche CETUD pourra être ajoutée ultérieurement pour renforcer la traçabilité externe. Cette réserve documentaire ne remet pas en cause la validation explicite des 140 occurrences par le responsable du projet. Les horaires, fréquences et coordonnées ne sont pas validés par cette confirmation.
 
 ## Garde-fous
 
