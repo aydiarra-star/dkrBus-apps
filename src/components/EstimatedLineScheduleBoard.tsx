@@ -170,10 +170,11 @@ function AftuTataScheduleBoard({
                       && Boolean(item.origin && item.destination)
                       && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
                     )
-                    const matchingSameNetwork = sameNetworkCandidates.filter((item) => {
-                      if (line.waypoints?.length && item.waypoints.length) return sameOrderedStops(line.waypoints, item.waypoints)
-                      return sameNetworkCandidates.length === 1
-                    })
+                    const matchingSameNetwork = sameNetworkCandidates.length === 1
+                      ? sameNetworkCandidates
+                      : sameNetworkCandidates.filter((item) =>
+                        Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
+                      )
                     const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
                       ? routeReferences.filter((item) =>
                         item.network !== line.network
