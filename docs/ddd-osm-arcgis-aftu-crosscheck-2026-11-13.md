@@ -182,3 +182,20 @@ Les deux séquences détaillées reprises du site web source communiqué pour le
 La page d'index AFTU-Sénégal consultée séparément publie pour la ligne 89 le corridor « APIX – Dougar ». La séquence détaillée du site source communiquée ici décrit un parcours différent, passant notamment par Niague, Tivaoune Peulh, Keur Massar, Keur Mbaye Fall, Zac Mbao, Rufisque et Bargny. Les deux publications sont conservées comme sources distinctes : la différence ne justifie ni d'écarter ni de réécrire les 55 et 53 entrées. L'URL exacte de la page source doit être rattachée à la fiche pour compléter la traçabilité.
 
 Les répétitions et variantes de noms sont préservées. Aucun arrêt, sens, horaire, fréquence ou coordonnée n'est généré à partir de l'autre direction ; aucune donnée n'est injectée dans le catalogue passager.
+
+
+## Validation directionnelle AFTU 86–89 — 14 novembre 2026
+
+Un contrôle dédié confronte les séquences capturées des lignes 86 et 87 et les listes détaillées fournies pour 88 et 89 aux corridors de l'index AFTU actuel. La règle de revue est explicite : les noms répétés sont conservés comme occurrences distinctes ; aucune suppression ou fusion sur la seule identité du libellé.
+
+Résultat : les séquences sont conservées, mais le rattachement complet aux numéros 86, 87, 88 et 89 reste **CONFLICTING_SOURCES** :
+- 86 : fichier Yeumbeul–Touba Ngayame, index AFTU Tournalou Boune–Toubab Dialaw.
+- 87 : captures Bambilor–Maristes, index AFTU Bambilor–Mosquée Massalikou Djinane.
+- 88 : liste détaillée Terminus 88–Liberté 5, index AFTU MTOA–Liberté 5.
+- 89 : liste détaillée Terminus 89–Bargny Gare TER, index AFTU Bargny–Croisement Niague (Cité SICAP).
+
+L'index AFTU affiche aussi désormais la ligne 91 comme APIX–Dougar. Il s'agit d'un corridor publié, pas d'une séquence détaillée validée.
+
+Rapport détaillé : `docs/aftu-lines-86-87-88-89-validation-audit-2026-11-14.md`.
+
+Les transcriptions et les répétitions ne sont pas supprimées. Aucun horaire/fréquence n'est validé par ce rapprochement. Pas d'écriture Supabase, pas de déploiement, pas de changement TER/BRT.
