@@ -1,5 +1,6 @@
 import {
   classifyStagingObjectReferences,
+  classifyManifestUploadFailure,
   cleanupUploadedObjects,
   getExactlyOneFormValue,
   hasOnlyExpectedFormFields,
@@ -185,3 +186,49 @@ Deno.test("classifies rows that may already reference uploaded objects", () => {
     throw new Error("An unrelated row was treated as an object reference");
   }
 });
+
+Deno.test("preserves a staged archive when the manifest upload fails and a row references it", () => {
+  const archivePath = "synthetic-feed/" + "a".repeat(64) + "/feed.zip";
+  const manifestPath = "synthetic-feed/" + "a".repeat(64) + "/manifest.json";
+
+  const referenced = classifyManifestUploadFailure(
+    { archive_object_path: archivePath, manifest_object_path: manifestPath },
+    false,
+    archivePath,
+    manifestPath,
+  );
+  if (referenced !== "DATASET_ALREADY_REGISTERED") {
+    throw new Error("A referenced archive was marked for cleanup");
+  }
+
+  const partial = classifyManifestUploadFailure(
+    { archive_object_path: archivePath, manifest_object_path: "other/manifest.json" },
+    false,
+    archivePath,
+    manifestPath,
+  );
+  if (partial !== "OUTCOME_UNKNOWN") {
+    throw new Error("A partially referenced archive was marked for cleanup");
+  }
+
+  const lookupFailed = classifyManifestUploadFailure(
+    null,
+    true,
+    archivePath,
+    manifestPath,
+  );
+  if (lookupFailed !== "OUTCOME_UNKNOWN") {
+    throw new Error("An archive was marked for cleanup after an uncertain database lookup");
+  }
+
+  const unreferenced = classifyManifestUploadFailure(
+    null,
+    false,
+    archivePath,
+    manifestPath,
+  );
+  if (unreferenced !== "CLEANUP_ARCHIVE") {
+    throw new Error("A proven unreferenced archive was not eligible for cleanup");
+  }
+});
+

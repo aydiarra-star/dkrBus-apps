@@ -156,3 +156,26 @@ export function classifyStagingObjectReferences(
   if (archiveReferenced || manifestReferenced) return "PARTIAL";
   return "NONE";
 }
+
+export type ManifestUploadFailureDecision =
+  | "CLEANUP_ARCHIVE"
+  | "DATASET_ALREADY_REGISTERED"
+  | "OUTCOME_UNKNOWN";
+
+/**
+ * Decide whether the archive uploaded before a manifest failure may be removed.
+ * An uncertain lookup or any existing reference always preserves the objects.
+ */
+export function classifyManifestUploadFailure(
+  existing: { archive_object_path?: unknown; manifest_object_path?: unknown } | null,
+  lookupFailed: boolean,
+  archivePath: string,
+  manifestPath: string,
+): ManifestUploadFailureDecision {
+  if (lookupFailed) return "OUTCOME_UNKNOWN";
+  const references = classifyStagingObjectReferences(existing, archivePath, manifestPath);
+  if (references === "BOTH") return "DATASET_ALREADY_REGISTERED";
+  if (references === "PARTIAL") return "OUTCOME_UNKNOWN";
+  return "CLEANUP_ARCHIVE";
+}
+
