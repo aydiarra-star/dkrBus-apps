@@ -36,14 +36,15 @@ type DirectionalRouteData = Partial<MobilityRouteReference> & {
 }
 
 function normalizeRouteDetails(data: DirectionalRouteData): Partial<MobilityRouteReference> {
+  const { origin, destination, ...details } = data
   return {
-    ...data,
+    ...details,
     waypoints: data.waypoints ?? data.directions?.outbound?.waypoints ?? [],
     inboundWaypoints: data.inboundWaypoints ?? data.directions?.inbound?.waypoints ?? [],
-    outboundOrigin: data.directions?.outbound?.origin,
-    outboundDestination: data.directions?.outbound?.destination,
-    inboundOrigin: data.directions?.inbound?.origin,
-    inboundDestination: data.directions?.inbound?.destination,
+    outboundOrigin: data.outboundOrigin ?? data.directions?.outbound?.origin ?? origin,
+    outboundDestination: data.outboundDestination ?? data.directions?.outbound?.destination ?? destination,
+    inboundOrigin: data.inboundOrigin ?? data.directions?.inbound?.origin,
+    inboundDestination: data.inboundDestination ?? data.directions?.inbound?.destination,
   }
 }
 
