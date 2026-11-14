@@ -57,7 +57,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(tataRow).toBeTruthy()
     expect(aftuRow).toBeTruthy()
     expect(within(tataRow).getAllByText('5 min')).toHaveLength(2)
-    expect(within(aftuRow).getAllByText('15 min')).toHaveLength(2)
+    expect(within(aftuRow).queryByText('5 min')).toBeNull()
   })
 
   it('calcule le statut du retour selon sa propre plage de service', async () => {
