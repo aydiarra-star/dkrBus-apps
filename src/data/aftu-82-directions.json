@@ -123,5 +123,5 @@
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-82-Dakar-5996-1618038-18051521-0",
     "sourceLabel": "Moovit · direction Rebeuss"
   },
-  "note": "Les séquences détaillées et les grilles horaires directionnelles proviennent des deux fiches Moovit AFTU 82. La fiche officielle AFTU publie le corridor Comico–Mbédou Fass–Fass Mbao–Poste Thiaroye–autoroute à péage–Colobane–Lycée Kennedy–Place de l’Obélisque–rues 37 et 22–Marché Tilène–avenue Blaise Diagne–Service d’Hygiène–Lat Dior. Les intitulés de terminus diffèrent entre les sources et doivent être rapprochés avant validation définitive. Les arrêts génériques « Arrêt de bus » sont conservés tels que publiés, sans leur attribuer de nom inventé."
+  "note": "Les terminus sont désormais rapprochés : la fiche officielle AFTU confirme le corridor COMICO–LAT DIOR. Moovit détaille les deux sens sous les appellations Yeumbeul (51 arrêts, départ Avenue Pl 52, 122) et Rebeuss (49 arrêts, départ Marché, arrivée Avenue Pl 52, 122). Les horaires et séquences directionnels sont conservés depuis les fiches Moovit correspondantes. Les arrêts génériques « Arrêt de bus » sont conservés exactement comme publiés, sans nom inventé."
 }
