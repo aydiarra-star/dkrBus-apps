@@ -29,7 +29,7 @@ describe('mobilités à proximité', () => {
     expect(brt?.lineNames).toContain('B1')
     const ddd = hits.find((hit) => hit.stop.id === 'ddd-petersen')
     expect(ddd?.lineNames).toEqual(expect.arrayContaining(['DDD 1', 'DDD 15']))
-    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBe('Aucun arrêt AFTU / TATA dans ce rayon.')
+    expect(absentNearbyLabel(absentNearbyNetworks(groupNearbyMobilities(hits)))).toBeNull()
   })
 
   it('ne retient que les mobilités réellement situées dans le rayon de 1 km autour de Colobane', () => {
