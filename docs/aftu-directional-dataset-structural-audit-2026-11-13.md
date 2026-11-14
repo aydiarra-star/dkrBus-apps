@@ -34,11 +34,11 @@ Le statut de l'extraction reste PARTIAL_SOURCE_RESPONSE à cause de ces sept ré
 | 79 | 15 | 15 | 0 | 0 | 0 / 0 |
 | 80 | 17 | 17 | 0 | 0 | 0 / 0 |
 | 81 | 16 | 16 | 0 | 0 | 0 / 0 |
-| 83 | 14 | — | 0 | — | 0 / — |
+| 83 | 93 | 90 | doublons conservés | doublons conservés | non applicable — séquences CETUD validées |
 | 84 | 73 | 73 | 0 | 0 | 0 / 0 |
 | 85 | 89 | 95 | 2 | 2 | 0 / 0 |
 
-Les fichiers 83 et 85 sont des formats différents des fichiers à objet `directions` ; le sens absent de la ligne 83 n'est pas créé par ce contrôle.
+Les fichiers 83 et 85 ont des structures distinctes des autres fichiers directionnels ; la ligne 83 possède désormais ses deux séquences CETUD validées, intégrées séparément.
 
 ## Anomalies et décisions
 
@@ -66,9 +66,15 @@ Décision : conserver les 73+73 points et la fréquence CETUD transmise ; ne pas
 
 Décision : conserver les deux ordres tels quels, mais ne pas promouvoir la fréquence en donnée opérateur officielle sans preuve CETUD/opérateur rattachée à la ligne.
 
-### Ligne 83 — retour absent
+### Ligne 83 — deux séquences CETUD validées (mise à jour du 14 novembre 2026)
 
-Le fichier contient 14 repères pour le parcours publié Rufisque Arafat → Zone de Captage, sans séquence Retour distincte. Le contrôle confirme l'absence du Retour ; il ne le génère pas par inversion.
+- 93 occurrences à l'Aller, de Sonadis près du Jardin En Face Hôtel De Ville à Zone De Captage.
+- 90 occurrences au Retour, de Zone De Captage à Rufisque Ville devant la boutique Orange à côté de la mairie.
+- Fréquence transmise et validée : 11 minutes.
+- Les répétitions et variantes de libellés sont conservées à leur position exacte.
+- Les deux sens sont stockés dans `src/data/aftu-83-directions.json`, avec le statut `user-validated-cetud-sequences`.
+
+Décision : les deux séquences sont désormais documentées. Aucun horaire individuel par arrêt n'est déduit de la fréquence de 11 minutes.
 
 ## TATA : périmètre opérateur
 
