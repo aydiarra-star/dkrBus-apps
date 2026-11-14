@@ -242,6 +242,100 @@ begin
     raise exception 'Audit hash-chain links are not continuous';
   end if;
 
+  if not exists (
+    select 1
+      from public.dakar_admin_audit_events
+     where action = 'LEGACY_AUDIT_BACKFILL_TEST'
+       and chain_sequence = 1
+       and previous_hash = repeat('0', 64)
+       and event_hash ~ '^[a-f0-9]{64}
+  if exists (
+    select 1
+      from public.dakar_admin_audit_events as event
+     where event.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', event.chain_sequence,
+         'id', event.id,
+         'actor_id', event.actor_id,
+         'action', event.action,
+         'target_type', event.target_type,
+         'target_id', event.target_id,
+         'details', event.details,
+         'created_at', event.created_at,
+         'previous_hash', event.previous_hash
+       )::text
+     )
+  ) then
+    raise exception 'An audit event hash does not match its immutable payload';
+  end if;
+
+  select * into latest_audit
+    from public.dakar_admin_audit_events
+   order by chain_sequence desc
+   limit 1;
+  select * into audit_state
+    from public.dakar_admin_audit_chain_state
+   where singleton = true;
+  if audit_state.last_chain_sequence is distinct from latest_audit.chain_sequence
+     or audit_state.last_event_hash is distinct from latest_audit.event_hash then
+    raise exception 'Audit chain head does not match the latest event';
+  end if;
+
+  -- Caller-supplied chain values are ignored and recomputed by the BEFORE INSERT trigger.
+  insert into public.dakar_admin_audit_events (
+    actor_id, action, target_type, target_id, details,
+    chain_sequence, previous_hash, event_hash
+  ) values (
+    null, 'AUDIT_CHAIN_OVERRIDE_TEST', 'test', 'synthetic',
+    jsonb_build_object('fixture', true),
+    999, repeat('f', 64), repeat('f', 64)
+  )
+  returning * into appended_audit;
+  if appended_audit.chain_sequence <> latest_audit.chain_sequence + 1
+     or appended_audit.previous_hash is distinct from latest_audit.event_hash
+     or appended_audit.event_hash = repeat('f', 64) then
+    raise exception 'Audit chain accepted caller-supplied sequence or hashes';
+  end if;
+
+  rejected := false;
+  begin
+    update public.dakar_admin_audit_events
+       set details = '{}'::jsonb
+     where id = appended_audit.id;
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event update was not rejected';
+  end if;
+
+  rejected := false;
+  begin
+    delete from public.dakar_admin_audit_events
+     where id = appended_audit.id;
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event deletion was not rejected';
+  end if;
+
+  rejected := false;
+  begin
+    execute 'truncate table public.dakar_admin_audit_events';
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'Audit event truncation was not rejected';
+  end if;
+end;
+$$;
+
+  ) then
+    raise exception 'A pre-existing legacy audit event was not backfilled into the hash chain';
+  end if;
+
   if exists (
     select 1
       from public.dakar_admin_audit_events as event
