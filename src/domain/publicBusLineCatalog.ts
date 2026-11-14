@@ -177,7 +177,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['39','Lat-Dior','Diamalaye'],
   ['40','Jaxaay','Petersen'],
   ['41','Guédiawaye','Rebeuss'],
-  ['42','Gadaye','Ouakam'],
+  ['42','Gadaye','Ouakam Bayé'],
   ['43','Ouakam','Thiaroye'],
   ['44','Mbao','Ouakam'],
   ['46','Guédiawaye','Rebeuss'],
@@ -223,7 +223,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
 }))
 
 function normalizeRouteEndpoint(value: string): string {
-  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
 /**
