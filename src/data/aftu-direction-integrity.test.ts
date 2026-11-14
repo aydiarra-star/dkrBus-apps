@@ -26,11 +26,16 @@ describe('AFTU direction integrity', () => {
     expect(route.inboundDetailSourceUrl).toContain('-1')
   })
 
-  it('does not manufacture a return for line 83', () => {
+  it('preserves both validated CETUD directions for line 83 without manufacturing stop times', () => {
     const route = loadRoute('./aftu-83-directions.json')
-    expect(route.waypoints).toHaveLength(14)
-    expect(route.inboundWaypoints).toBeUndefined()
-    expect(route.note).toContain('n’est pas reconstitué artificiellement')
+    expect(route.directions.outbound.waypoints).toHaveLength(93)
+    expect(route.directions.inbound.waypoints).toHaveLength(90)
+    expect(route.directions.outbound.waypoints).not.toEqual(route.directions.inbound.waypoints)
+    expect(route.stopCount).toEqual({ outbound: 93, inbound: 90 })
+    expect(route.frequency.intervalMinutes).toBe(11)
+    expect(route.directions.outbound.times).toBeUndefined()
+    expect(route.directions.inbound.times).toBeUndefined()
+    expect(route.sourceStatus).toBe('user-validated-cetud-sequences')
   })
 
   it('preserves both supplied directions and their independent counts for line 84', () => {
