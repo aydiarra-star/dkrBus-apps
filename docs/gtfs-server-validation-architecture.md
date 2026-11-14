@@ -101,8 +101,14 @@ Dans `stop_times.txt`, si `arrival_time` et `departure_time` sont tous deux vide
 
 Ces refus maintiennent le dataset en quarantaine (`integrity_status = INVALID` après exécution du worker) et ne constituent ni une approbation humaine, ni une publication, ni une validation de provenance.
 
+## Protection contre le nettoyage d'une archive déjà référencée (14 novembre 2026)
+
+Si le téléversement du manifeste échoue après celui de l'archive, l'Edge Function relit maintenant la ligne de staging par `dataset_id` avant toute suppression. Elle ne retire l'archive que si la lecture réussit et confirme qu'aucune ligne ne référence le chemin. Une référence complète renvoie un conflit ; une référence partielle ou une erreur de lecture conserve l'objet et renvoie un état indéterminé. Ce choix privilégie l'intégrité des données privées : un objet orphelin éventuel est préférable à la suppression d'une archive déjà référencée.
+
+Les tests Deno couvrent les quatre décisions (aucune référence, référence complète, référence partielle et lecture SQL incertaine). Ils restent synthétiques et n'effectuent aucun accès ou écriture Supabase.
+
 ## Journal administratif chaîné (14 novembre 2026)
 
-Le journal `dakar_admin_audit_events` conserve maintenant un ordre `chain_sequence` sérialisé par verrouillage de la ligne d'état privée. Chaque événement reçoit automatiquement `previous_hash` et `event_hash` SHA-256 calculés sur son identifiant, sa séquence, son acteur, son action, sa cible, ses détails, son horodatage et le hash précédent. Les valeurs de chaîne fournies par un appelant sont écrasées par le déclencheur serveur. L'état de tête est inaccessible directement aux rôles applicatifs ; le journal reste append-only contre UPDATE, DELETE et TRUNCATE.
+Le journal `dakar_admin_audit_events` conserve maintenant un ordre `chain_sequence` sérialisé par verrouillage de la ligne d'état privée. Chaque événement reçoit automatiquement `previous_hash` et `event_hash` SHA-256 calculés sur son identifiant, sa séquence, son acteur, son action, sa cible, ses détails, son horodatage UTC représenté en microsecondes depuis l'époque Unix et le hash précédent. Les valeurs de chaîne fournies par un appelant sont écrasées par le déclencheur serveur. L'état de tête est inaccessible directement aux rôles applicatifs ; le journal reste append-only contre UPDATE, DELETE et TRUNCATE.
 
-La migration recalcule les éventuelles anciennes entrées dans l'ordre de leur identifiant avant de rétablir la protection append-only. Les tests SQL isolés vérifient la continuité, le recalcul des empreintes, la tête de chaîne, les privilèges et le rejet des tentatives de modification. Cette chaîne rend les altérations détectables ; elle ne remplace ni les droits d'accès, ni une sauvegarde indépendante, ni la revue humaine.
+La migration recalcule les éventuelles anciennes entrées dans l'ordre de leur identifiant avant de rétablir la protection append-only. Les tests SQL isolés vérifient la continuité, le recalcul des empreintes, l'indépendance au fuseau horaire, la tête de chaîne, les privilèges et le rejet des tentatives de modification. Cette chaîne rend les altérations détectables ; elle ne remplace ni les droits d'accès, ni une sauvegarde indépendante, ni la revue humaine.
