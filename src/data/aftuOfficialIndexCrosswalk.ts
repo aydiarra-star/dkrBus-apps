@@ -14,6 +14,7 @@ export interface AftuOfficialIndexCrosswalkEntry {
   status: AftuIndexCrosscheckStatus
   observation: string
   stopSequenceValidatedByIndex: false
+  /** Owner validation of the detailed sequence is independent of this index. */
   sequenceValidatedByProjectOwner: boolean
 }
 
@@ -27,7 +28,6 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     status: 'corridor_endpoints_not_equivalent',
     observation: 'La séquence enregistrée va de « Terminus De La Ligne 73 » à « Terminus Liberté 5 » et inclut des repères de Lac Rose ; Banoba n’est pas identifié explicitement comme équivalent de son premier terminus.',
     stopSequenceValidatedByIndex: false,
-    sequenceValidatedByProjectOwner: true,
     sequenceValidatedByProjectOwner: false,
   },
   {
@@ -36,6 +36,7 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     status: 'corridor_endpoints_not_equivalent',
     observation: 'La séquence enregistrée va de Yeumbeul à « Terminus 86 / Touba Ngayame ». Les deux extrémités publiées par l’index ne sont pas identifiées textuellement dans les extrémités de la séquence.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: false,
   },
   {
     line: '87',
@@ -43,27 +44,31 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     status: 'corridor_endpoints_not_equivalent',
     observation: 'La séquence enregistrée va de « Terminus 79 87 » à « Maristes Terminus 87 ». Le corridor affiché par l’index est différent ; conserver la séquence CETUD transmise sans la remplacer.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: false,
   },
   {
     line: '88',
     officialCorridor: 'MTOA – Liberté 5',
     status: 'corridor_overlap_endpoint_identity_unconfirmed',
-    observation: 'La séquence complète 78/81 est validée à 100 % par le responsable du projet ; elle va de « Terminus 88 » à « Terminus Liberté 5 » et contient un repère MTOA dans chaque sens (« Devant Mtoa… » à l’aller, « Station Mtoa » au retour). Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
+    observation: 'La séquence complète 78/81 est validée à 100 % par le responsable du projet ; elle va de « Terminus 88 » à « Terminus Liberté 5 » et contient un repère MTOA dans chaque sens. Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: true,
   },
   {
     line: '89',
     officialCorridor: 'Bargny – Croisement Niague (Cité SICAP)',
     status: 'corridor_overlap_endpoint_identity_unconfirmed',
-    observation: 'La séquence complète 55/53 est validée à 100 % par le responsable du projet ; elle relie « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague, dont « Croisement Niague ». L’équivalence de « Terminus 89 » avec le terminus officiel Croisement Niague reste à confirmer.',
+    observation: 'La séquence complète 55/53 est validée à 100 % par le responsable du projet ; elle relie « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague. L’équivalence de « Terminus 89 » avec le terminus officiel Croisement Niague reste une question de rapprochement externe, pas de validité de la séquence fournie.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: true,
   },
   {
     line: '91',
     officialCorridor: 'APIX – Dougar',
     status: 'corridor_overlap_with_possible_extension',
-    observation: 'Les listes CETUD complètes 70/70 sont validées à 100 % par le responsable du projet ; elles vont de Losso à « Terminus 91 » / « Chez Lo électricien » et contiennent des repères de Cité APIX et Dougar Peulh. Le corridor APIX–Dougar semble inclus dans le parcours, mais les extrémités Losso et Chez Lo suggèrent une extension ou une variante à confirmer.',
+    observation: 'Les listes CETUD complètes 70/70 sont validées à 100 % par le responsable du projet ; elles vont de Losso à « Terminus 91 » / « Chez Lo électricien » et contiennent des repères de Cité APIX et Dougar Peulh. Les extrémités officielles restent des métadonnées de corridor distinctes.',
     stopSequenceValidatedByIndex: false,
+    sequenceValidatedByProjectOwner: true,
   },
 ] as const
 
