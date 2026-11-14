@@ -375,7 +375,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             code: line.line,
             origin: line.origin,
             destination: line.destination,
-            waypoints: line.waypoints ?? [],
+            waypoints: [...(line.waypoints ?? [])],
             inboundWaypoints: [],
             sourceUrl: line.sourceUrl,
             detailSourceUrl: line.sourceUrl,
@@ -384,7 +384,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             inboundSchedule: null,
             note: null,
           }
-          baseReferences.push({ ...base, ...(overrides[line.line] ?? {}) } as MobilityRouteReference)
+          baseReferences.push({ ...base, ...(overrides[line.line] ?? {}) } as unknown as MobilityRouteReference)
         }
         setRouteReferences(baseReferences)
       }
