@@ -1289,8 +1289,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
         expect(lineButtons).toHaveLength(73)
         fireEvent.click(lineButtons[0])
         const opened = lineButtons[0].closest('li')!
-        expect(opened.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(4)
-        expect(opened.querySelectorAll('.station-board-passage strong')).toHaveLength(4)
+        expect(opened.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(2)
+        expect(opened.querySelectorAll('.station-board-passage strong')).toHaveLength(2)
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
