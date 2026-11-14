@@ -84,3 +84,11 @@ Le worker Python décrit ci-dessus est maintenant présent dans `scripts/process
 Les secrets attendus restent exclusivement dans l'environnement GitHub `dakar-bus-private-validation` : `DAKAR_BUS_SUPABASE_URL` et `DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY`. Leur présence, la protection de cet environnement et l'obtention d'une approbation humaine ne sont pas présumées. Aucun secret n'a été créé ou modifié et le workflow n'a pas été déclenché.
 
 La CI teste uniquement le code du worker, le validateur et les migrations dans un PostgreSQL isolé avec des fixtures synthétiques. Elle ne lance jamais le worker opérationnel et n'écrit pas dans le projet Supabase Dakar Bus actif. L'activation réelle reste bloquée tant que l'accès sécurisé, la protection de l'environnement et les limites d'exécution ne sont pas vérifiés séparément.
+
+## Compléments de validation structurelle (14 novembre 2026)
+
+Le validateur refuse les plages `frequencies.txt` qui se chevauchent pour un même `trip_id` ; deux plages adjacentes sont admises lorsque la suivante commence exactement à la fin de la précédente. La valeur `exact_times` doit rester identique pour toutes les lignes d'un même trajet.
+
+Pour `shapes.txt`, l'ordre sémantique est porté par `shape_pt_sequence`, qui doit être non négatif et unique pour chaque forme ; l'ordre physique des lignes CSV n'est pas interprété comme un ordre de trajet. Lorsque `shape_dist_traveled` est fourni, il doit être numérique, fini, non négatif et strictement croissant lorsque les points sont ordonnés par `shape_pt_sequence`.
+
+Les tests restent synthétiques et couvrent les chevauchements, les frontières adjacentes, la cohérence de `exact_times`, les distances de forme et l'ordre de lignes CSV. Ces contrôles sont structurels : ils ne valident ni l'autorité de la source, ni les droits de réutilisation, ni l'actualité d'un service.

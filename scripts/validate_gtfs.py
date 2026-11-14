@@ -146,6 +146,9 @@ class GTFSValidator:
         self.stop_time_trip_ids: set[str] = set()
         self.stop_time_stop_ids: set[str] = set()
         self.frequency_trip_ids: list[tuple[int, str]] = []
+        self.frequency_ranges: dict[str, list[tuple[int, int, int]]] = {}
+        self.frequency_exact_times: dict[str, tuple[str, int]] = {}
+        self.shape_distances: dict[str, list[tuple[int, float, int]]] = {}
         self.shape_ids: set[str] = set()
         self.trip_shape_ids: list[tuple[int, str, str]] = []
         self.transfer_stop_ids: list[tuple[int, str, str]] = []
@@ -576,12 +579,27 @@ class GTFSValidator:
             self.report.add("ERROR", "EMPTY_REQUIRED_VALUE", "end_time est vide.", "frequencies.txt", line)
         if start is not None and end is not None and end <= start:
             self.report.add("ERROR", "INVALID_FREQUENCY_RANGE", "end_time doit être postérieur à start_time.", "frequencies.txt", line)
+        if trip_id and start is not None and end is not None and end > start:
+            self.frequency_ranges.setdefault(trip_id, []).append((start, end, line))
         headway = self._integer(self._value(row, "headway_secs"), "headway_secs", "frequencies.txt", line, required=True)
         if headway is not None and headway <= 0:
             self.report.add("ERROR", "INVALID_HEADWAY", "headway_secs doit être strictement positif.", "frequencies.txt", line)
         exact_times = self._value(row, "exact_times")
         if exact_times and exact_times not in {"0", "1"}:
             self.report.add("ERROR", "INVALID_EXACT_TIMES", "exact_times doit valoir 0 ou 1 lorsqu’il est renseigné.", "frequencies.txt", line)
+        elif trip_id:
+            normalized_exact_times = exact_times or "0"
+            previous_exact_times = self.frequency_exact_times.get(trip_id)
+            if previous_exact_times is not None and previous_exact_times[0] != normalized_exact_times:
+                self.report.add(
+                    "ERROR",
+                    "INCONSISTENT_EXACT_TIMES",
+                    f"exact_times doit rester identique pour toutes les lignes du trip « {trip_id} ».",
+                    "frequencies.txt",
+                    line,
+                )
+            else:
+                self.frequency_exact_times.setdefault(trip_id, (normalized_exact_times, line))
 
     def _shape_row(self, row: dict[str, str | None], line: int) -> None:
         shape_id = self._value(row, "shape_id")
@@ -590,12 +608,26 @@ class GTFSValidator:
             self.report.add("ERROR", "INVALID_SHAPE_SEQUENCE", "shape_pt_sequence ne peut pas être négatif.", "shapes.txt", line)
         self._coordinate(row, "shape_pt_lat", -90, 90, "shapes.txt", line)
         self._coordinate(row, "shape_pt_lon", -180, 180, "shapes.txt", line)
+
+        shape_distance_raw = self._value(row, "shape_dist_traveled")
+        shape_distance: float | None = None
+        if shape_distance_raw:
+            try:
+                shape_distance = float(shape_distance_raw)
+            except ValueError:
+                self.report.add("ERROR", "INVALID_SHAPE_DISTANCE", "shape_dist_traveled doit être un nombre fini non négatif.", "shapes.txt", line)
+            if shape_distance is not None and (not math.isfinite(shape_distance) or shape_distance < 0):
+                self.report.add("ERROR", "INVALID_SHAPE_DISTANCE", "shape_dist_traveled doit être un nombre fini non négatif.", "shapes.txt", line)
+                shape_distance = None
+
         if not shape_id:
             self.report.add("ERROR", "EMPTY_ID", "shape_id est vide.", "shapes.txt", line)
-        elif sequence is not None:
+        elif sequence is not None and sequence >= 0:
             self.shape_ids.add(shape_id)
             if self._sequence_seen("shape_sequences", shape_id, sequence):
                 self.report.add("ERROR", "DUPLICATE_SHAPE_SEQUENCE", f"shape_pt_sequence {sequence} répété pour « {shape_id} ».", "shapes.txt", line)
+            if shape_distance is not None:
+                self.shape_distances.setdefault(shape_id, []).append((sequence, shape_distance, line))
 
     def _transfer_row(self, row: dict[str, str | None], line: int) -> None:
         from_stop = self._value(row, "from_stop_id")
@@ -616,6 +648,8 @@ class GTFSValidator:
 
     def _check_references(self) -> None:
         self._check_stop_time_chronology()
+        self._check_frequency_ranges()
+        self._check_shape_distances()
         if self.agency_rows > 1:
             for line in self.agency_missing_id_rows:
                 self.report.add("ERROR", "MISSING_AGENCY_ID", "agency_id est requis lorsque plusieurs agences sont définies.", "agency.txt", line)
@@ -689,6 +723,39 @@ class GTFSValidator:
             (trip_id, sequence, arrival_time, departure_time, source_line),
         )
         return cursor.rowcount == 0
+
+    def _check_frequency_ranges(self) -> None:
+        for trip_id, ranges in self.frequency_ranges.items():
+            previous_end: int | None = None
+            for start, end, line in sorted(ranges):
+                if previous_end is not None and start < previous_end:
+                    self.report.add(
+                        "ERROR",
+                        "OVERLAPPING_FREQUENCY_RANGES",
+                        f"Les plages de frequencies.txt se chevauchent pour le trip « {trip_id} ».",
+                        "frequencies.txt",
+                        line,
+                    )
+                previous_end = end if previous_end is None else max(previous_end, end)
+
+    def _check_shape_distances(self) -> None:
+        for shape_id, points in self.shape_distances.items():
+            previous_sequence: int | None = None
+            previous_distance: float | None = None
+            for sequence, distance, line in sorted(points, key=lambda point: (point[0], point[2])):
+                # Duplicate sequence values are already reported by _shape_row.
+                if sequence == previous_sequence:
+                    continue
+                if previous_distance is not None and distance <= previous_distance:
+                    self.report.add(
+                        "ERROR",
+                        "NON_INCREASING_SHAPE_DISTANCE",
+                        f"shape_dist_traveled doit augmenter avec shape_pt_sequence pour « {shape_id} ».",
+                        "shapes.txt",
+                        line,
+                    )
+                previous_sequence = sequence
+                previous_distance = distance
 
     def _check_stop_time_chronology(self) -> None:
         if self.validation_db is None:

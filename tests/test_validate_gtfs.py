@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import stat
 import sys
 import tempfile
 import unittest
@@ -228,6 +229,113 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertIn("INVALID_DATE", codes)
         self.assertIn("INVALID_TIME", codes)
         self.assertFalse(report["structure_valid"])
+
+    def test_shape_points_use_sequence_values_not_physical_csv_row_order(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["shapes.txt"] = (
+            "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled\n"
+            "SH1,14.7100,-17.4600,11,15.8765\n"
+            "SH1,14.7000,-17.4500,0,0\n"
+            "SH1,14.7050,-17.4550,6,6.8310\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertTrue(report["structure_valid"], report["issues"])
+
+    def test_shape_distances_must_increase_in_sequence_order(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["shapes.txt"] = (
+            "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled\n"
+            "SH1,14.7000,-17.4500,0,0\n"
+            "SH1,14.7050,-17.4550,6,8\n"
+            "SH1,14.7100,-17.4600,11,7\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("NON_INCREASING_SHAPE_DISTANCE", self.issue_codes(report))
+
+    def test_shape_distances_must_be_finite_and_non_negative(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["shapes.txt"] = (
+            "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled\n"
+            "SH1,14.7000,-17.4500,0,-1\n"
+            "SH1,14.7050,-17.4550,1,NaN\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("INVALID_SHAPE_DISTANCE", self.issue_codes(report))
+
+    def test_frequency_ranges_for_one_trip_must_not_overlap(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["frequencies.txt"] = (
+            "trip_id,start_time,end_time,headway_secs\n"
+            "T1,08:00:00,09:00:00,600\n"
+            "T1,08:30:00,09:30:00,600\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("OVERLAPPING_FREQUENCY_RANGES", self.issue_codes(report))
+
+    def test_adjacent_frequency_ranges_and_other_trip_ranges_are_allowed(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["trips.txt"] = (
+            "route_id,service_id,trip_id\n"
+            "R1,WK,T1\n"
+            "R1,WK,T2\n"
+        )
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"
+            "T1,08:00:00,08:00:00,S1,1\n"
+            "T2,08:00:00,08:00:00,S1,1\n"
+        )
+        tables["frequencies.txt"] = (
+            "trip_id,start_time,end_time,headway_secs\n"
+            "T1,08:00:00,09:00:00,600\n"
+            "T1,09:00:00,10:00:00,600\n"
+            "T2,08:00:00,10:00:00,600\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertTrue(report["structure_valid"], report["issues"])
+
+    def test_exact_times_must_be_consistent_for_each_trip(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["frequencies.txt"] = (
+            "trip_id,start_time,end_time,headway_secs,exact_times\n"
+            "T1,08:00:00,09:00:00,600,0\n"
+            "T1,09:00:00,10:00:00,600,1\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("INCONSISTENT_EXACT_TIMES", self.issue_codes(report))
+
+    def test_symlink_archive_entries_are_rejected(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with zipfile.ZipFile(archive, "a") as zipped:
+            link = zipfile.ZipInfo("outside-link.txt")
+            link.create_system = 3
+            link.external_attr = (stat.S_IFLNK | 0o777) << 16
+            zipped.writestr(link, "target.txt")
+        report = validate_gtfs_archive(archive)
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSAFE_ARCHIVE_PATH", self.issue_codes(report))
+
+    def test_duplicate_archive_member_names_are_rejected(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with zipfile.ZipFile(archive, "a") as zipped:
+            zipped.writestr("agency.txt", "duplicate\n")
+        report = validate_gtfs_archive(archive)
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("DUPLICATE_ARCHIVE_ENTRY", self.issue_codes(report))
+
+    def test_encrypted_archive_entries_are_rejected(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with zipfile.ZipFile(archive, "r") as zipped:
+            infos = zipped.infolist()
+        encrypted = zipfile.ZipInfo("encrypted.txt")
+        encrypted.flag_bits |= 0x1
+        with patch.object(zipfile.ZipFile, "infolist", return_value=infos + [encrypted]):
+            report = validate_gtfs_archive(archive)
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("ENCRYPTED_ENTRY", self.issue_codes(report))
 
     def test_unsupported_zip_compression_is_rejected_before_member_read(self) -> None:
         archive = self.make_archive(VALID_TABLES)
