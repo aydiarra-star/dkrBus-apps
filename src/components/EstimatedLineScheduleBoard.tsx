@@ -28,7 +28,15 @@ type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
 type RouteSourceNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
 type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; outboundOrigin?: string; outboundDestination?: string; inboundOrigin?: string; inboundDestination?: string; note: string | null }
-type DirectionalRouteData = Partial<MobilityRouteReference> & {
+type DirectionalRouteData = {
+  origin?: string
+  destination?: string
+  waypoints?: string[]
+  inboundWaypoints?: string[]
+  outboundOrigin?: string
+  outboundDestination?: string
+  inboundOrigin?: string
+  inboundDestination?: string
   directions?: {
     outbound?: { origin?: string; destination?: string; waypoints?: string[] }
     inbound?: { origin?: string; destination?: string; waypoints?: string[] }
