@@ -75,7 +75,6 @@ export function loadTrafficBrainKnowledge(): Promise<RemoteTrafficSnapshot | nul
   if (cachedSnapshot && Date.now() - cachedAt < CACHE_TTL_MS) return Promise.resolve(cachedSnapshot)
   if (pendingLoad) return pendingLoad
 
-  const previousSnapshot = cachedSnapshot
   pendingLoad = fetch(`${SUPABASE_URL}/functions/v1/dakar-bus-knowledge?traffic_only=1`, {
     method: 'GET',
     mode: 'cors',
@@ -97,7 +96,7 @@ export function loadTrafficBrainKnowledge(): Promise<RemoteTrafficSnapshot | nul
     })
     .catch((error: unknown) => {
       console.warn('Dakar Bus: état trafic Supabase indisponible.', error)
-      return previousSnapshot
+      return null
     })
     .finally(() => {
       pendingLoad = null
