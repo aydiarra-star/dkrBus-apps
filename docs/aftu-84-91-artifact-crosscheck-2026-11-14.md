@@ -105,3 +105,17 @@ Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index of
 Une publication du compte LinkedIn officiel AFTU Sénégal indique que l'itinéraire de la ligne 87 avait subi des changements et renvoie vers un « nouvel itinéraire » : https://sn.linkedin.com/posts/aftu-senegal_weekend-ligne87-diam-activity-6954111887911325696-_ZrF
 
 La publication est ancienne (environ quatre ans) et le visuel accessible dans la page consultée ne fournit pas de carte ou de séquence exploitable. Elle confirme qu'une version antérieure de l'itinéraire a existé, mais ne permet pas de reconstruire le tracé actuel. À conserver comme piste de recherche historique uniquement ; la ligne 87 reste `pending_missing_source` pour ses détails d'itinéraire.
+
+
+## Vérification de répétition sur le commit 619fe9e — 14 novembre 2026
+
+Les workflows du commit `619fe9e08d6fbc679389c0455e0e1954300827c1` sont terminés avec succès. Les artefacts les plus récents confirment les limites suivantes :
+
+- Audit AFTU (run `43563546428`, artefact `14101292135`) : 63 fiches liées à l'index, 9 pages officielles additionnelles testées, 65 fiches récupérées avec texte d'itinéraire, 7 erreurs. Les sept erreurs correspondent exactement aux URL canoniques des lignes 84, 85, 86, 87, 88, 89 et 91, toutes en HTTP 404.
+- Aucun itinéraire détaillé pour les sept numéros n'est présent dans le tableau des fiches récupérées. Les 84/85 gardent donc leurs fichiers de parcours déjà présents dans le dépôt ; les 86/87/88/89/91 restent sans détails d'arrêts publiables.
+- L'extracteur ne télécharge toujours pas le sitemap XML. Il ne fournit pas de preuve d'une variante de slug alternative ; cela ne permet pas de conclure qu'aucune variante n'existe sur le site.
+- Audit OSM (run `43563546406`, artefact `14101875001`) : 6 610 éléments, 25 relations de bus, 23 candidates dans le périmètre de Dakar, 18 relations avec arrêts ordonnés, 522 membres d'arrêts ordonnés. Aucune relation portant `ref=84`, `85`, `86`, `87`, `88`, `89` ou `91` n'est présente. La seule relation AFTU/Tata numérotée visible dans cet extrait est `ref=40` ; elle ne permet pas de déduire les parcours recherchés.
+- Les artefacts ArcGIS utilisés ici concernent exclusivement les services DDD. Le service DDD mis à jour renvoie 777 entités d'arrêts et 25 de lignes ; le second inventaire DDD renvoie 455 entités d'arrêts et 25 de lignes. Ils ne constituent pas une source ArcGIS AFTU et ne peuvent pas confirmer les sept numéros AFTU.
+
+**Décision maintenue :** aucun arrêt, sens retour, horaire, fréquence, fusion ou renumérotation n'est ajouté sur la base de ces résultats. Les corridors officiels de l'index restent des métadonnées de terminus, pas des listes d'arrêts. La recherche sitemap et les variantes de slugs restent ouvertes faute d'artefact sitemap brut.
+
