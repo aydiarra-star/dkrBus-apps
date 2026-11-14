@@ -1,6 +1,6 @@
 import { NETWORK_REFERENCE_DATA, type NetworkReferenceData } from './frequencies'
 
-export type NetworkId = 'ter' | 'brt' | 'ddd' | 'aftu' | 'tata' | 'other'
+export type NetworkId = 'ter' | 'brt' | 'ddd' | 'aftu_tata' | 'other'
 
 export type SourceConnectionStatus = 'NOT_CONNECTED' | 'CONNECTED' | 'STALE' | 'ERROR'
 
@@ -52,20 +52,10 @@ export const NETWORK_SOURCES: readonly NetworkSource[] = [
     verifiedAt: null,
   },
   {
-    id: 'aftu',
-    referenceData: NETWORK_REFERENCE_DATA.aftu,
-    label: 'AFTU',
-    description: 'Réseau de minibus',
-    status: 'NOT_CONNECTED',
-    sourceType: 'UNKNOWN',
-    recordCount: null,
-    verifiedAt: null,
-  },
-  {
-    id: 'tata',
-    referenceData: NETWORK_REFERENCE_DATA.tata,
-    label: 'TATA',
-    description: 'Réseau complémentaire de minibus',
+    id: 'aftu_tata',
+    referenceData: NETWORK_REFERENCE_DATA.aftu_tata,
+    label: 'AFTU / TATA',
+    description: 'Réseau unifié de minibus',
     status: 'NOT_CONNECTED',
     sourceType: 'UNKNOWN',
     recordCount: null,
