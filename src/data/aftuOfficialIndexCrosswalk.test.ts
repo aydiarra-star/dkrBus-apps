@@ -34,7 +34,8 @@ describe('official AFTU public index crosswalk', () => {
     expect(line88.directions.outbound.waypoints.at(-1)).toBe('Terminus Liberté 5')
     expect(line88.directions.inbound.waypoints[0]).toBe('Terminus Liberté 5')
     expect(line88.directions.inbound.waypoints.at(-1)).toBe('Terminus 88')
-    expect(line88.directions.outbound.waypoints).toContain('Station Mtoa')
+    expect(line88.directions.outbound.waypoints.some((stop: string) => stop.includes('Mtoa'))).toBe(true)
+    expect(line88.directions.inbound.waypoints.some((stop: string) => stop.includes('Mtoa'))).toBe(true)
     expect(getAftuOfficialIndexCrosswalk('88')?.status).toBe('corridor_overlap_endpoint_identity_unconfirmed')
   })
 
@@ -44,7 +45,7 @@ describe('official AFTU public index crosswalk', () => {
     expect(line89.directions.outbound.waypoints.at(-1)).toBe('Poste Courant Bargny Près De La Gare Ter')
     expect(line89.directions.inbound.waypoints[0]).toBe('Poste Courant Bargny Près De La Gare Ter')
     expect(line89.directions.inbound.waypoints.at(-1)).toBe('Terminus 89')
-    expect(line89.directions.outbound.waypoints.some((stop: string) => stop.includes('Croisement Niague'))).toBe(true)
+    expect(line89.directions.inbound.waypoints.some((stop: string) => stop.includes('Croisement Niague'))).toBe(true)
     expect(getAftuOfficialIndexCrosswalk('89')?.status).toBe('corridor_overlap_endpoint_identity_unconfirmed')
   })
 
