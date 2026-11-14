@@ -82,9 +82,10 @@ describe('bidirectional bus line registry', () => {
   })
 
   it('does not invent stop sequences for other AFTU lines or TATA', () => {
+    const validatedAftuLines = ['83', '88', '89', '91']
     for (const network of ['aftu', 'tata'] as const) {
       for (const line of BIDIRECTIONAL_BUS_LINES.filter((item) => item.network === network)) {
-        if (network === 'aftu' && ['88', '89', '91'].includes(line.line)) continue
+        if (network === 'aftu' && validatedAftuLines.includes(line.line)) continue
         expect(line.directions.outbound.status).toBe('awaiting_stops')
         expect(line.directions.inbound.status).toBe('awaiting_stops')
         expect(line.directions.outbound.stopNames).toEqual([])
