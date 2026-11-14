@@ -329,17 +329,18 @@ begin
   -- Caller-supplied chain values are ignored and recomputed by the BEFORE INSERT trigger.
   insert into public.dakar_admin_audit_events (
     actor_id, action, target_type, target_id, details,
-    chain_sequence, previous_hash, event_hash
+    chain_sequence, previous_hash, event_hash, created_at
   ) values (
     null, 'AUDIT_CHAIN_OVERRIDE_TEST', 'test', 'synthetic',
     jsonb_build_object('fixture', true),
-    999, repeat('f', 64), repeat('f', 64)
+    999, repeat('f', 64), repeat('f', 64), '2099-01-01T00:00:00Z'::timestamptz
   )
   returning * into appended_audit;
   perform set_config('TimeZone', 'UTC', true);
   if appended_audit.chain_sequence <> latest_audit.chain_sequence + 1
      or appended_audit.previous_hash is distinct from latest_audit.event_hash
      or appended_audit.event_hash = repeat('f', 64)
+     or appended_audit.created_at >= '2099-01-01T00:00:00Z'::timestamptz
      or appended_audit.event_hash is distinct from public.dakar_admin_sha256(
        jsonb_build_object(
          'chain_sequence', appended_audit.chain_sequence,
