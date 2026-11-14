@@ -108,14 +108,14 @@ export const DDD_ARCGIS_ATTRIBUTION_WARNINGS = [
   },
   {
     line: 'TAF_TAF',
-    sourceLayerLine: 'TO1',
+    sourceLayerLine: null,
     pointCount: 0,
     maxDistanceMeters: null,
     warning: 'TO1 et TAF_TAF restent deux identifiants distincts ; aucune séquence n’est empruntée de l’un à l’autre.',
   },
   {
     line: '15',
-    sourceLayerLine: '15A/15B',
+    sourceLayerLine: null,
     pointCount: 0,
     maxDistanceMeters: null,
     warning: 'La ligne 15 reste distincte des lignes 15A et 15B ; aucune fusion de séquences.',
