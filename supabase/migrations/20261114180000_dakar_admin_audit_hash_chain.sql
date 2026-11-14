@@ -7,19 +7,19 @@ do $$
 declare
   extension_schema text;
 begin
-  select namespace.nspname
+  select n.nspname
     into extension_schema
-    from pg_extension as extension
-    join pg_namespace as namespace on namespace.oid = extension.extnamespace
-   where extension.extname = 'pgcrypto';
+    from pg_extension as e
+    join pg_namespace as n on n.oid = e.extnamespace
+   where e.extname = 'pgcrypto';
 
   if extension_schema is null then
     execute 'create extension pgcrypto with schema extensions';
-    select namespace.nspname
+    select n.nspname
       into extension_schema
-      from pg_extension as extension
-      join pg_namespace as namespace on namespace.oid = extension.extnamespace
-     where extension.extname = 'pgcrypto';
+      from pg_extension as e
+      join pg_namespace as n on n.oid = e.extnamespace
+     where e.extname = 'pgcrypto';
   end if;
 
   if extension_schema is null then
