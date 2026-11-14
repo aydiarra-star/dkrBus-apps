@@ -2373,6 +2373,13 @@ button:disabled { cursor: not-allowed; }
   gap: 4px;
   flex: 0 0 auto;
 }
+.network-summary-item .mobility-aftu_tata,
+.network-reference-card .mobility-aftu_tata,
+.map-mobility-legend .mobility-aftu_tata {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+}
 .network-summary-item .mobility-badge::before,
 .network-reference-card .mobility-badge::before,
 .map-mobility-legend .mobility-badge::before {
