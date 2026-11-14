@@ -192,3 +192,10 @@ La source détaillée est la liste transmise dans la conversation par le respons
 ## Protection des données existantes
 
 Aucune donnée TER/BRT n'a été modifiée. Aucun changement de catalogue passager, écriture Supabase, déploiement ou fusion du PR n'a été effectué.
+
+
+## Confirmation visuelle de l'application — 14 novembre 2026
+
+Une capture d'écran fournie par le responsable du projet montre explicitement la fiche **AFTU — Ligne 90** dans l'application, avec le trajet **Terminus 90 → Deni Birame Ndao Nord** et un compteur de **82 arrêts**. La capture affiche également les premiers arrêts du sens retour depuis Deni Birame Ndao Nord, ainsi que la mention « Horaires théoriques · Peuvent varier selon le trafic » ; les indicateurs fréquence et longueur sont affichés « - ».
+
+Cette preuve confirme que la ligne 90 est bien répertoriée comme ligne AFTU dans cette application et confirme le compteur de 82 arrêts affiché pour le sens présenté. Elle ne constitue pas, à elle seule, une validation indépendante de l'intégralité des 82 occurrences de chaque sens, ni de leurs horaires ou coordonnées. La validation de la transcription détaillée reste donc distincte de la confirmation du numéro de ligne et de son rattachement AFTU.
