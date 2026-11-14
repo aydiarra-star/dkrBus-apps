@@ -265,13 +265,39 @@ begin
          'target_type', event.target_type,
          'target_id', event.target_id,
          'details', event.details,
-         'created_at', event.created_at,
+         'created_at_epoch_microseconds',
+         (extract(epoch from event.created_at) * 1000000)::bigint,
          'previous_hash', event.previous_hash
        )::text
      )
   ) then
     raise exception 'An audit event hash does not match its immutable payload';
   end if;
+
+
+  -- Hashes must be independent of the session timezone used to verify them.
+  perform set_config('TimeZone', 'Pacific/Auckland', true);
+  if exists (
+    select 1
+      from public.dakar_admin_audit_events as event
+     where event.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', event.chain_sequence,
+         'id', event.id,
+         'actor_id', event.actor_id,
+         'action', event.action,
+         'target_type', event.target_type,
+         'target_id', event.target_id,
+         'details', event.details,
+         'created_at_epoch_microseconds',
+           (extract(epoch from event.created_at) * 1000000)::bigint,
+         'previous_hash', event.previous_hash
+       )::text
+     )
+  ) then
+    raise exception 'Audit hashes changed when the session timezone changed';
+  end if;
+  perform set_config('TimeZone', 'UTC', true);
 
   select * into latest_audit
     from public.dakar_admin_audit_events
@@ -285,6 +311,8 @@ begin
     raise exception 'Audit chain head does not match the latest event';
   end if;
 
+  -- Insert under a non-UTC session timezone; the canonical hash must still verify in UTC.
+  perform set_config('TimeZone', 'Pacific/Auckland', true);
   -- Caller-supplied chain values are ignored and recomputed by the BEFORE INSERT trigger.
   insert into public.dakar_admin_audit_events (
     actor_id, action, target_type, target_id, details,
@@ -295,10 +323,25 @@ begin
     999, repeat('f', 64), repeat('f', 64)
   )
   returning * into appended_audit;
+  perform set_config('TimeZone', 'UTC', true);
   if appended_audit.chain_sequence <> latest_audit.chain_sequence + 1
      or appended_audit.previous_hash is distinct from latest_audit.event_hash
-     or appended_audit.event_hash = repeat('f', 64) then
-    raise exception 'Audit chain accepted caller-supplied sequence or hashes';
+     or appended_audit.event_hash = repeat('f', 64)
+     or appended_audit.event_hash is distinct from public.dakar_admin_sha256(
+       jsonb_build_object(
+         'chain_sequence', appended_audit.chain_sequence,
+         'id', appended_audit.id,
+         'actor_id', appended_audit.actor_id,
+         'action', appended_audit.action,
+         'target_type', appended_audit.target_type,
+         'target_id', appended_audit.target_id,
+         'details', appended_audit.details,
+         'created_at_epoch_microseconds',
+           (extract(epoch from appended_audit.created_at) * 1000000)::bigint,
+         'previous_hash', appended_audit.previous_hash
+       )::text
+     ) then
+    raise exception 'Audit chain accepted caller hashes or depends on the session timezone';
   end if;
 
   rejected := false;
