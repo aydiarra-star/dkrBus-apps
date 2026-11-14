@@ -46,6 +46,7 @@ $metadata_acl_test$;
 
 -- Simulate a broad permissive Storage policy. The restrictive bucket policy must
 -- take precedence for this bucket while leaving unrelated buckets unaffected.
+grant usage on schema storage to anon, authenticated, service_role;
 grant select, insert, update, delete on table storage.objects to anon, authenticated, service_role;
 alter role service_role bypassrls;
 drop policy if exists test_generic_storage_access on storage.objects;
