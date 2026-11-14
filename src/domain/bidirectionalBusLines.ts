@@ -49,6 +49,7 @@ type SuppliedAftuSequence = {
   }>
   sourceLabel: string
   sourceStatus: string
+  validatedByProjectOwner: true
 }
 
 const AFTU_VALIDATED_DIRECTIONAL_SEQUENCES: Readonly<Record<string, SuppliedAftuSequence>> = {
@@ -93,7 +94,7 @@ function makeValidatedAftuDirection(
     status: 'sequence_validated',
     sourceUrl: source.sourceUrl,
     sourceLabel: `${sourceLabel} · séquence validée par le responsable du projet`,
-    sequenceValidatedByProjectOwner: true,
+    sequenceValidatedByProjectOwner: sequence.validatedByProjectOwner,
   }
 }
 
