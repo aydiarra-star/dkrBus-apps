@@ -50,7 +50,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="aftu" />)
     const aftuSixtySix = screen.getAllByText('AFTU 66')[0].closest('li')!
     await waitFor(() => {
-      expect(within(aftuSixtySix).getByText('Fin de service')).toBeTruthy()
+      expect(within(aftuSixtySix).getByText("Service terminé pour aujourd'hui")).toBeTruthy()
     })
     expect(within(aftuSixtySix).getByText('En service')).toBeTruthy()
   })
