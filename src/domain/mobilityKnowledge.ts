@@ -13,7 +13,7 @@ export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
 export const TATA_BUS_LINES = tataCatalog as unknown as readonly BusLine[]
 const detailedTataCodes = new Set(TATA_BUS_LINES.map((line) => line.code))
-/** Deux lignes TATA ont un terminus publié mais pas encore de séquence détaillée. */
+/** Aucun numéro TATA supplémentaire n'est affiché séparément dans le réseau unifié. */
 export const TATA_CATALOG_FALLBACK_LINES: readonly BusLine[] = AFTU_TATA_PUBLIC_LINE_CATALOG
   .filter((line) => line.network === 'tata' && !detailedTataCodes.has(line.line)
     && !AFTU_TATA_SHARED_ROUTE_KEYS.has(detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })))
