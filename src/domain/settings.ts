@@ -8,6 +8,7 @@
  */
 
 import type { Preferences } from './preferences'
+import { MOBILITY_PALETTE, type MobilityId } from './mobilityColors'
 
 export type SettingsSectionId =
   | 'mobility'
@@ -108,7 +109,7 @@ export const OFFLINE_CAPABILITIES: readonly OfflineCapability[] = [
 
 /** Résumé lu par l'aide et par l'écran : ce que l'utilisateur a choisi. */
 export function preferencesSummary(preferences: Preferences): string[] {
-  const networks = Object.entries(preferences.mobility.networks).filter(([, enabled]) => enabled).map(([id]) => id.toUpperCase())
+  const networks = (Object.entries(preferences.mobility.networks) as [MobilityId, boolean][]).filter(([, enabled]) => enabled).map(([id]) => MOBILITY_PALETTE[id].label)
   return [
     `Réseaux autorisés : ${networks.length > 0 ? networks.join(', ') : 'aucun — le calcul refusera toute ligne'}.`,
     `Vitesse de marche : ${preferences.mobility.walkSpeed} · rayon d’accès : ${preferences.mobility.accessRadius}.`,
