@@ -30,9 +30,9 @@ const DAY_MS = 24 * 60 * MINUTE_MS
 
 const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   line: '*',
-  weekday: { start: '06:00', end: '21:00', interval: '11.6 min' },
-  saturday: { start: '06:00', end: '21:00', interval: '11.6 min' },
-  sunday: { start: '06:00', end: '21:00', interval: '11.6 min' },
+  weekday: { start: '06:00', end: '22:50', interval: '11.6 min' },
+  saturday: { start: '06:00', end: '22:50', interval: '11.6 min' },
+  sunday: { start: '06:00', end: '22:50', interval: '11.6 min' },
   sourceUrl: 'https://www.iieta.org/journals/ijtdi/paper/10.18280/ijtdi.090108',
   sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
 }
@@ -53,6 +53,17 @@ function parseClock(value: string): number | null {
   const minutes = Number(match[2])
   if (hours > 23 || minutes > 59) return null
   return hours * 60 + minutes
+}
+
+function capAftuTataServiceWindow(window: EstimatedFrequencyWindow | null, network: EstimatedScheduleNetwork): EstimatedFrequencyWindow | null {
+  if (!window || network === 'ddd') return window
+  const endMinute = parseClock(window.end)
+  const maximumEndMinute = 22 * 60 + 50
+  // Une fin de ligne connue avant 22:50 est conservée ; aucune ligne AFTU/TATA
+  // ne peut afficher un compte à rebours au-delà de la borne générale.
+  return endMinute !== null && endMinute > maximumEndMinute
+    ? { ...window, end: '22:50' }
+    : window
 }
 
 function parseInterval(value: string): number | null {
@@ -78,7 +89,7 @@ export function scheduleCountdownMinutes(schedule: EstimatedLineSchedule, now = 
   if (now >= endAt) return null
   const step = interval * MINUTE_MS
   const nextAt = now < startAt ? startAt : startAt + (Math.floor((now - startAt) / step) + 1) * step
-  if (nextAt >= endAt) return null
+  if (nextAt > endAt) return null
   return Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS))
 }
 
@@ -174,7 +185,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             ? weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
             : null
           const hasExplicitNoService = Boolean(lineSchedule && !declaredWindow && lineSchedule.note?.toLowerCase().includes('pas de service'))
-          const scheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
+          const rawScheduleWindow = declaredWindow ?? (hasExplicitNoService ? null : isDdd ? DDD_NETWORK_REFERENCE.weekday : AFTU_TATA_NETWORK_REFERENCE.weekday)
+          const scheduleWindow = capAftuTataServiceWindow(rawScheduleWindow, network)
           const networkReference = NETWORK_REFERENCE_DATA[network]
           const serviceWindow = scheduleWindow ?? (hasExplicitNoService ? null : {
             start: networkReference.serviceStart,
@@ -226,7 +238,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                     <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: line.line, direction: direction.id })}>
                       <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                       <span className="station-board-direction-action">
-                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
+                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : network === 'ddd' ? 'Fin de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
                         <span aria-hidden="true">{selected ? '−' : '+'}</span>
                       </span>
                     </button>

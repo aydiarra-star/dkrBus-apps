@@ -50,9 +50,9 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="aftu" />)
     const aftuSixtySix = screen.getAllByText('AFTU 66')[0].closest('li')!
     await waitFor(() => {
-      expect(within(aftuSixtySix).getByText('Fin de service')).toBeTruthy()
+      expect(within(aftuSixtySix).getByText("Service terminé pour aujourd'hui")).toBeTruthy()
     })
-    expect(within(aftuSixtySix).getByText('En service')).toBeTruthy()
+    expect(within(aftuSixtySix).getByText('3 min')).toBeTruthy()
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
@@ -91,6 +91,29 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOne = screen.getAllByText('DDD 1')[0].closest('li')!
     expect(within(dddOne).getAllByText('6 min')).toHaveLength(1)
+  })
+
+  it('arrête chaque ligne AFTU à sa fin connue et plafonne les autres à 22:50', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-09T21:51:00.000Z'))
+
+    const aftu = render(<EstimatedLineScheduleBoard network="aftu" />)
+    const aftuFortyTwo = screen.getAllByText('AFTU 42')[0].closest('li')!
+    expect(within(aftuFortyTwo).getAllByText("Service terminé pour aujourd'hui")).toHaveLength(2)
+    expect(within(aftuFortyTwo).queryByText('En service')).toBeNull()
+    aftu.unmount()
+
+    vi.setSystemTime(new Date('2026-11-09T22:49:00.000Z'))
+    const aftuFive = render(<EstimatedLineScheduleBoard network="aftu" />)
+    const aftuFiveRow = screen.getAllByText('AFTU 5')[0].closest('li')!
+    expect(within(aftuFiveRow).getAllByText('1 min')).toHaveLength(1)
+    aftuFive.unmount()
+
+    vi.setSystemTime(new Date('2026-11-09T22:50:00.000Z'))
+    render(<EstimatedLineScheduleBoard network="tata" />)
+    const tataThirtySeven = screen.getAllByText('TATA 37')[0].closest('li')!
+    expect(within(tataThirtySeven).getAllByText("Service terminé pour aujourd'hui")).toHaveLength(2)
+    expect(within(tataThirtySeven).queryByText('En service')).toBeNull()
   })
 
   it('affiche le catalogue TATA séparément sans inventer de fréquence AFTU', () => {
