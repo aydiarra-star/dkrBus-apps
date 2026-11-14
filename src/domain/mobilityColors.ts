@@ -82,7 +82,7 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
   },
 }
 
-const TOKEN = /(?<![0-9A-Za-zÀ-ÿ])(Dakar Dem Dikk|Sunu\s?BRT|TER|BRT|DDD|AFTU|TATA|B[1-3])(?![0-9A-Za-zÀ-ÿ])/gi
+const TOKEN = /(?<![0-9A-Za-zÀ-ÿ])(Dakar Dem Dikk|Sunu\s?BRT|AFTU\s*\/\s*TATA|TER|BRT|DDD|AFTU|TATA|B[1-3])(?![0-9A-Za-zÀ-ÿ])/gi
 
 export function isMobilityId(value: string | null | undefined): value is MobilityId {
   return Boolean(value && (MOBILITY_IDS as readonly string[]).includes(value))
@@ -95,7 +95,7 @@ export function mobilityPaint(id: string | null | undefined): MobilityPaint | nu
 
 /** Sigle, ligne B1–B3 ou nom de marque → réseau. `null` si ce n’est pas une mobilité. */
 export function mobilityIdFromToken(token: string): MobilityId | null {
-  const key = token.toLowerCase().replace(/\s+/g, '')
+  const key = token.toLowerCase().replace(/[\s/]+/g, '')
   if (key === 'ter') return 'ter'
   if (key === 'brt' || key === 'sunubrt' || /^b[1-3]$/.test(key)) return 'brt'
   if (key === 'ddd' || key === 'dakardemdikk') return 'ddd'
@@ -118,7 +118,7 @@ export function mobilitySpans(text: string): MobilitySpan[] {
     const raw = match[1]
     if (start > cursor) spans.push({ text: text.slice(cursor, start), id: null, kind: 'text' })
     const id = mobilityIdFromToken(raw)
-    const sigil = /^(ter|brt|ddd|aftu|tata|b[1-3])$/i.test(raw)
+    const sigil = /^(ter|brt|ddd|aftu|tata|aftu\s*\/\s*tata|b[1-3])$/i.test(raw)
     spans.push({ text: raw, id, kind: id && sigil ? 'sigil' : id ? 'mention' : 'text' })
     cursor = start + raw.length
   }
