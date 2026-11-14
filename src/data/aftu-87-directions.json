@@ -161,6 +161,46 @@
   "sourceLabel": "Application CETUD — captures transmises par l’utilisateur",
   "sourceStatus": "user-provided-cetud-reference",
   "inboundStatus": "CETUD_SOURCE_USER_SUPPLIED",
-  "timeStatus": "not-provided",
-  "note": "Parcours transcrits depuis les captures de l’application CETUD transmises par l’utilisateur. Les deux sens sont conservés séparément dans l’ordre fourni. Aucun horaire ni fréquence n’a été communiqué pour cette ligne : ne pas en inventer. Les répétitions d’arrêts et les graphies/encodages de la source, notamment « Cité Fayà§Al », sont conservés tels que transmis."
+  "timeStatus": "theoretical-departure-reference-only",
+  "note": "Parcours transcrits depuis les captures de l’application CETUD transmises par l’utilisateur. Les deux sens sont conservés séparément dans l’ordre fourni. Aucun horaire ni fréquence n’a été communiqué pour cette ligne : ne pas en inventer. Les répétitions d’arrêts et les graphies/encodages de la source, notamment « Cité Fayà§Al », sont conservés tels que transmis. Des repères théoriques de départ sont désormais fournis : 06:30 depuis Bambilor (aller) et 06:35 depuis les Maristes (retour). Ils ne constituent pas des heures fixes garanties ni des horaires de passage aux 68/71 arrêts. La fréquence 5–15 min ne concerne que les périodes de pointe indiquées dans operatingProfile.",
+  "operatingProfile": {
+    "serviceModel": "continuous-regulation",
+    "fixedDepartureTimetable": false,
+    "generalNetworkOperatingWindow": {
+      "firstDepartureLocal": "05:30-06:30",
+      "lastDepartureApproxLocal": "21:00",
+      "appliesTo": "AFTU network general reference; not a line-specific guaranteed timetable"
+    },
+    "peakPeriodsLocal": {
+      "morning": {
+        "start": "06:30",
+        "end": "09:30"
+      },
+      "evening": {
+        "start": "16:30",
+        "end": "20:00"
+      }
+    },
+    "peakHeadwayMinutes": {
+      "min": 5,
+      "max": 15,
+      "scope": "peak departures from peripheral termini; variable with passenger loading and traffic"
+    },
+    "sourceLabel": "Informations de fonctionnement AFTU/CETUD et données de terrain transmises par le responsable du projet",
+    "sourceStatus": "user-provided-operating-reference",
+    "caveat": "Repères de fonctionnement variables, pas des horaires garantis. Ne pas interpoler des heures de passage aux arrêts à partir de ces seules données.",
+    "lineSpecificFirstDeparture": {
+      "outbound": {
+        "terminus": "Bambilor",
+        "timeLocal": "06:30",
+        "status": "theoretical-reference"
+      },
+      "inbound": {
+        "terminus": "Maristes",
+        "timeLocal": "06:35",
+        "status": "theoretical-reference"
+      }
+    },
+    "note": "Départs théoriques transmis pour la ligne 87 : 06:30 depuis Bambilor et 06:35 depuis les Maristes. Les terminus détaillés des captures restent libellés « Terminus 79 87 » et « Maristes Terminus 87 ». Le corridor de l’index AFTU a historiquement affiché Bambilor–Mosquée Massalikou Djinane ; la référence plus récente transmise indique Bambilor–Maristes. Conserver cette évolution comme divergence de version/source, sans remplacer silencieusement les libellés de la séquence capturée."
+  }
 }
