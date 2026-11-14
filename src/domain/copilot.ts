@@ -1,4 +1,5 @@
 import { answerMobilityKnowledge } from './mobilityKnowledge'
+import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
 /**
  * Copilote de mobilité : interprétation des questions libres, récupération
  * dans le référentiel, calcul d'itinéraires et réponses honnêtes.
@@ -600,6 +601,23 @@ export function copilotAnswer(
 
   // Consultation documentaire avant le parseur de trajets TER/BRT : les noms
   // de quartiers et numéros bus ne doivent pas être interprétés comme du rail.
+  const remoteKnowledge = answerRemoteMobilityQuestion(question, context.remoteMobilityKnowledge)
+  if (remoteKnowledge) {
+    memory.lastKnowledgeLineId = null
+    memory.lastAnswer = remoteKnowledge
+    if (/\b(ddd|aftu|tata)\b/.test(text)) {
+      memory.lastJourney = null
+      memory.lastOrigin = null
+      memory.lastDestination = null
+    }
+    return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteKnowledge : remoteKnowledge, language: 'fr' }
+  }
+  if (includesAny(text, ['tata']) && !context.remoteMobilityKnowledge) {
+    const message = 'Le catalogue TATA est distinct de celui de l’AFTU. La connexion au référentiel central est momentanément indisponible ; je ne vais pas remplacer une ligne TATA par une ligne AFTU.'
+    memory.lastAnswer = message
+    return { text: message, language: 'fr' }
+  }
+
   const knowledge = answerMobilityKnowledge(question, memory.lastKnowledgeLineId)
   if (knowledge) {
     memory.lastKnowledgeLineId = knowledge.lineId ?? null
