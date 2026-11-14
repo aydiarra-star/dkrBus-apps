@@ -228,7 +228,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const inboundMinutes = inboundServiceState.status === 'ACTIVE'
             ? inboundSchedule
               ? scheduleCountdownMinutes(inboundSchedule, now)
-              : route?.inboundWaypoints?.length && countdownSchedule
+              : (network === 'tata' || route?.inboundWaypoints?.length) && countdownSchedule
                 ? scheduleCountdownMinutes(countdownSchedule, now)
                 : null
             : null
