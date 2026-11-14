@@ -10,6 +10,7 @@ describe('adaptateur de preuves AFTU', () => {
     expect(getAftuRouteEvidence('87')?.outbound.waypoints).toHaveLength(68)
     expect(getAftuRouteEvidence('87')?.inbound.waypoints).toHaveLength(71)
     expect(AFTU_ROUTE_EVIDENCE.every((route) => route.network === 'aftu')).toBe(true)
+    expect(AFTU_ROUTE_EVIDENCE.every((route) => route.serviceWindow.start === '05:30' && route.serviceWindow.end === '22:00')).toBe(true)
   })
 
   it('maintient les heures invalidées de la ligne 86 hors des horaires exploitables', () => {
@@ -68,6 +69,7 @@ describe('adaptateur de preuves AFTU', () => {
     expect(route?.inbound.waypoints).toHaveLength(0)
     expect(route?.inbound.hasPerStopTimes).toBe(false)
     expect(route?.inbound.sequenceStatus).toBe('missing')
+    expect(route?.inbound.waypoints).toHaveLength(0)
     expect(route?.outbound.sequenceStatus).toBe('documented')
     expect(route?.serviceWindow).toEqual({ start: '05:30', end: '22:00', source: 'CETUD-network-default' })
   })
