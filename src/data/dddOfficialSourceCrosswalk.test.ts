@@ -14,7 +14,7 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgis2024).toContain('Dem_dikk_mise_a_jour/FeatureServer')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '4', '6', '7', '9', '10', '13', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '4', '6', '7', '9', '10', '12', '13', '15', '16B', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
@@ -22,6 +22,15 @@ describe('DDD official source crosswalk', () => {
       expect(item.passengerCatalogueChanged).toBe(false)
       expect(item.reverseSequenceCreated).toBe(false)
     }
+  })
+
+  it('records the official line 12 and 16B sequences separately from historic ArcGIS corridor evidence', () => {
+    expect(getDddOfficialSourceCrosswalk('12')?.claims).toEqual([
+      { source: 'ddd_route_page', corridor: 'Guédiawaye → Palais 1 ; séquence publiée de 20 repères' },
+      { source: 'ddd_arcgis_2024', corridor: 'Tracé de 24,52 km et 11 champs de segments textuels ; aucune couche de points dédiée ; métadonnée lastEditDate du 6 décembre 2017' },
+    ])
+    expect(getDddOfficialSourceCrosswalk('16B')?.claims[0].corridor).toContain('27 repères')
+    expect(getDddOfficialSourceCrosswalk('16B')?.decision).toContain('ne pas générer de retour')
   })
 
   it('keeps the line 6, 7, 9, 10, 13 and 121 terminus conflicts explicit', () => {
