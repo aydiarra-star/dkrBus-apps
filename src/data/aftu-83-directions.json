@@ -18,5 +18,11 @@
     "Terminus Zone de Captage"
   ],
   "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-83/",
-  "note": "La fiche officielle AFTU publie ce parcours ordonné de Rufisque Arafat vers Zone de Captage. Aucun parcours retour distinct n’est publié dans cette fiche ; le retour reste donc non documenté et n’est pas reconstitué artificiellement."
+  "note": "La fiche officielle AFTU publie le parcours aller ordonné Rufisque Arafat → Zone de Captage. Un document tarifaire AFTU archivé confirme l'existence d'un RETOUR depuis Arafat, mais ne donne pas de séquence ordonnée complète des arrêts retour. Le retour existe au niveau du corridor ; sa séquence détaillée reste à établir et n'est pas reconstituée artificiellement.",
+  "returnEvidence": {
+    "status": "return-corridor-confirmed-sequence-unavailable",
+    "sourceLabel": "Document tarifaire AFTU archivé",
+    "sourceUrl": "https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf",
+    "note": "Le document distingue explicitement ALLER et RETOUR et publie des tarifs au départ d’Arafat vers les secteurs de la ligne. Il confirme l'existence d'un service retour, mais ne fournit pas une liste ordonnée complète des arrêts retour. Aucun ordre inverse n'est fabriqué."
+  }
 }
