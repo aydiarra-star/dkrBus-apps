@@ -2,7 +2,7 @@
 
 Date d'intégration : 14 novembre 2026  
 Branche : `feat/admin-stop-sequence-audit-phase-a`  
-Statut : les deux listes complètes sont validées par le responsable du projet ; source déclarée : application CETUD.
+Statut : les deux listes complètes (70 aller / 70 retour) sont validées à 100 % par le responsable du projet ; source déclarée : application CETUD.
 
 ## Source déclarée et validation
 
@@ -184,3 +184,8 @@ Aucune donnée passager n'est modifiée. Aucune écriture Supabase, aucun déplo
 La page publique AFTU-Sénégal affiche actuellement la ligne 91 avec le corridor **APIX – DOUGAR**. Les listes de l'application CETUD transmises et validées dans ce dossier décrivent cependant l'aller **Losso → Terminus 91** et le retour **Chez Lo électricien → Losso**. Cette différence de terminus est enregistrée comme divergence entre sources officielles/publications ; elle ne remet pas en cause la validation explicite des 70 occurrences de chaque sens par le responsable du projet et ne justifie aucune réécriture de la liste CETUD.
 
 La ligne reste identifiée AFTU 91 dans le suivi du projet sur la base de la fiche CETUD transmise. Le statut de rapprochement avec le corridor APIX–Dougar est **à résoudre** ; aucun arrêt n'est déplacé, supprimé ou réaffecté à une autre ligne.
+
+
+## Validation définitive du responsable du projet
+
+Le responsable du projet confirme que la séquence complète Aller et la séquence complète Retour de cette ligne sont **validées à 100 %** et doivent être intégrées comme données de référence dans Dakar Bus. Cette validation couvre les libellés, l'ordre, les terminus et le nombre d'occurrences indiqué. Aucune comparaison avec un index public ou une application tierce ne peut annuler ou mettre en attente cette validation. Les recoupements externes restent des métadonnées distinctes, utiles uniquement pour documenter les corridors et les correspondances.
