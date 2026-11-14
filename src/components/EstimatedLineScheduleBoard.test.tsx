@@ -51,7 +51,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const lineSixtyFive = screen.getAllByText('AFTU / TATA 65')
     expect(lineSixtyFive).toHaveLength(4)
     const tataRow = lineSixtyFive.map((label) => label.closest('li')!)
-      .find((candidate) => candidate.textContent?.includes('Colobane') && candidate.textContent?.includes('Kounoune'))!
+      .find((candidate) => candidate.textContent?.includes('Gare routière de Colobane') && candidate.textContent?.includes('Jaxaay 2'))!
     const aftuRow = lineSixtyFive.map((label) => label.closest('li')!)
       .find((candidate) => candidate.textContent?.includes('Colobane') && candidate.textContent?.includes('Jaxaay'))!
     expect(tataRow).toBeTruthy()
