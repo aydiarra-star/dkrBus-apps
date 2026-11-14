@@ -10,11 +10,11 @@ La relecture directe de l'index officiel AFTU « Infos pratiques » impose l'ass
 
 | Ligne AFTU | Corridor publié par AFTU | Niveau de preuve disponible |
 |---|---|---|
-| 88 | Bargny – Croisement Niague (Cité SICAP) | Corridor/terminus publié, aucun ordre d'arrêts détaillé retrouvé |
-| 89 | APIX – Dougar | Corridor/terminus publié, aucun ordre d'arrêts détaillé retrouvé |
-| 91 | Le titre « LIGNE 91 » est affiché, sans corridor lisible après ce titre | Numéro affiché, corridor à établir |
+| 88 | MTOA – Liberté 5 | Corridor publié ; la séquence enregistrée commence par « Terminus 88 » et contient « Station Mtoa » comme arrêt intermédiaire |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Corridor publié ; la séquence enregistrée relie « Terminus 89 » à Bargny et contient des repères de Niague |
+| 91 | APIX – Dougar | Corridor publié ; les deux séquences enregistrées vont de Losso à la zone APIX et contiennent Dougar Peulh |
 
-**Attention à la numérotation :** « MTOA – Liberté 5 » appartient à la ligne 87, et non à la 88. Les transcriptions antérieures qui décalent ces corridors d'un numéro sont erronées. La ligne 90 est inexistante dans le périmètre, sur confirmation du responsable du projet.
+**Correction de l'index officiel :** la page AFTU actuelle associe bien MTOA – Liberté 5 à la ligne 88, Bargny – Croisement Niague à la ligne 89 et APIX – Dougar à la ligne 91. Elle affiche aussi les corridors des lignes 85 à 87 ; ceux-ci ne doivent pas être substitués aux listes directionnelles déjà transmises sans rapprochement explicite. La ligne 90 reste hors périmètre de cette enquête.
 
 Source primaire : https://aftu-senegal.org/infos-pratiques/ (lecture directe des sections lignes 84–91).
 
@@ -22,7 +22,7 @@ Source primaire : https://aftu-senegal.org/infos-pratiques/ (lecture directe des
 
 ### 2.1 AFTU — index public
 
-L'index AFTU confirme les corridors des lignes 88 et 89 et affiche le numéro 91. Pour les lignes 84 à 91, les libellés « Voir itinéraire » ne sont pas des liens de fiches détaillées dans le rendu public actuellement consulté. En comparaison, la fiche AFTU de la ligne 83 existe et fournit un itinéraire textuel détaillé. Les pages candidates 88, 89 et 91 n'ont pas été retrouvées dans le site public ; les ouvertures des URL construites sur le modèle de la fiche 83 n'ont pas fourni de page exploitable. Il ne faut donc pas considérer le corridor comme une liste d'arrêts.
+L'index AFTU confirme les intitulés des corridors des lignes 85 à 89 et 91. Pour les lignes 84 à 91, les libellés « Voir itinéraire » ne sont pas des liens de fiches détaillées dans le rendu public actuellement consulté. En comparaison, la fiche AFTU de la ligne 83 existe et fournit un itinéraire textuel détaillé. Les corridors de l'index sont des repères de terminus, pas des listes ordonnées d'arrêts ; ils ne remplacent donc pas les listes directionnelles transmises.
 
 Fiche témoin montrant le format des détails AFTU disponibles : https://aftu-senegal.org/map/dakar-urbain-ligne-83/
 
@@ -92,23 +92,23 @@ Références :
 
 ## 5. Bilan probatoire actuel
 
-### Ligne 88 — Bargny / Croisement Niague (Cité SICAP)
-- Confirmé : l'index AFTU publie ces deux extrémités.
-- Non confirmé : les arrêts intermédiaires, leur ordre, la variante exacte de terminus à Bargny, le tracé et le sens retour.
-- Attention : les lignes TATA 60, 68 et 74 qui passent par Bargny dans certains catalogues ne sont pas la ligne AFTU 88.
+### Ligne 88 — MTOA / Liberté 5
+- Confirmé : l'index AFTU publie « MTOA – Liberté 5 » pour la ligne 88.
+- La séquence enregistrée comporte 78 occurrences aller et 81 retour ; elle va de « Terminus 88 » à « Terminus Liberté 5 » et contient « Station Mtoa » en cours de parcours.
+- Non confirmé : l'identité exacte entre « Terminus 88 » et MTOA. Ne pas déplacer « Station Mtoa » au début de la séquence sans confirmation.
 
-### Ligne 89 — APIX / Dougar
-- Confirmé : l'index AFTU publie ces deux extrémités.
-- Non confirmé : les arrêts intermédiaires, leur ordre, le tracé et le sens retour.
-- Attention : la présence de « Cité APIX » dans d'autres lignes AFTU ne prouve pas qu'elles appartiennent à la ligne 89.
+### Ligne 89 — Bargny / Croisement Niague (Cité SICAP)
+- Confirmé : l'index AFTU publie ce corridor pour la ligne 89.
+- La séquence enregistrée comporte 55 occurrences aller et 53 retour ; elle va de « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague, dont « Croisement Niague ».
+- Non confirmé : l'identité exacte entre « Terminus 89 » et Croisement Niague (Cité SICAP), ainsi que la correspondance de chaque repère avec le corridor officiel.
 
-### Ligne 91
-- Confirmé : le titre « LIGNE 91 » apparaît sur l'index AFTU.
-- Non confirmé : corridor, terminus, arrêts, tracé et directions.
-- Ne pas lui attribuer APIX – Dougar : ce corridor est celui de la ligne 89 dans l'index actuellement publié.
+### Ligne 91 — APIX / Dougar
+- Confirmé : l'index AFTU publie « APIX – DOUGAR » pour la ligne 91.
+- Les listes directionnelles validées et enregistrées comptent 70 occurrences dans chaque sens ; elles vont de Losso à « Terminus 91 » / « Chez Lo électricien », et contiennent des repères de Cité APIX ainsi que « Dougar Peulh ».
+- L'index officiel ne précise pas si Losso est une extension du service APIX–Dougar ou un terminus d'une variante. Cette différence doit être confirmée ; les 70+70 occurrences ne sont pas raccourcies ni réordonnées.
 
 ### Niveau de conclusion
-À ce stade, aucune application tierce consultée ne fournit publiquement une séquence d'arrêts exploitable et corroborée pour les trois lignes. L'absence dans Moovit, MoMove ou Transitrun est une absence de données publiées dans ces catalogues, pas une preuve que les lignes n'existent pas.
+À ce stade, l'index officiel confirme les corridors des lignes 88, 89 et 91, mais pas leurs séquences détaillées. Aucune application tierce consultée ne fournit publiquement une seconde séquence d'arrêts complète et indépendante qui puisse corroborer les listes enregistrées. L'absence dans Moovit, MoMove ou Transitrun reste une absence de données publiées dans ces catalogues, pas une preuve que les lignes n'existent pas.
 
 ## 6. Prochaine phase de recherche
 
@@ -304,3 +304,22 @@ Les deux sens restent séparés et les occurrences répétées sont conservées.
 Cette mise à jour ne change pas les limites de l'enquête externe : les pages détaillées AFTU testées pour ces lignes restent indisponibles dans l'extraction publique, et les applications tierces examinées n'ont pas fourni de séquences indépendantes vérifiables. Les listes intégrées sont donc conservées avec leur provenance exacte, sans prétendre qu'elles ont été corroborées par Moovit, FastFey, Seddo, PassBi ou CAPTRANS.
 
 Aucun horaire individuel, fréquence, coordonnée ou terminus alternatif n'est déduit de ces séquences. Aucun retour n'est généré par inversion.
+
+
+## 9. Rectification de la numérotation et rapprochement avec les séquences enregistrées (14 novembre 2026)
+
+La relecture directe de l'index AFTU a permis de corriger la correspondance des corridors : 88 = MTOA–Liberté 5 ; 89 = Bargny–Croisement Niague (Cité SICAP) ; 91 = APIX–Dougar. L'ancien tableau de cette enquête attribuait ces corridors aux mauvais numéros ; il est remplacé par la présente section.
+
+Les listes déjà enregistrées restent séparées de l'index :
+
+| Ligne | Liste directionnelle conservée | Écart à clarifier |
+|---|---|---|
+| 88 | 78 aller / 81 retour ; Terminus 88 ↔ Liberté 5 ; « Station Mtoa » apparaît dans le parcours | L'index indique MTOA comme extrémité, mais le fichier ne prouve pas que « Terminus 88 » soit ce même point |
+| 89 | 55 aller / 53 retour ; Terminus 89 ↔ Poste Courant Bargny | « Croisement Niague » apparaît dans la liste ; équivalence avec « Terminus 89 » non confirmée |
+| 91 | 70 aller / 70 retour ; Losso ↔ zone APIX / Chez Lo électricien | Le corridor APIX–Dougar apparaît à l'intérieur du parcours ; Losso pourrait être une extension, à confirmer |
+
+La page officielle consultée affiche aussi 85 = Banoba–Liberté 5, 86 = Tournalou Boune–Toubab Dialaw et 87 = Bambilor–Mosquée Massalikou Djinane. Ces corridors ne correspondent pas textuellement aux extrémités des séquences 85, 86 et 87 actuellement enregistrées. Il s'agit d'une divergence documentaire à instruire, pas d'une autorisation de remplacer les listes transmises ou de changer leur numéro.
+
+Le registre technique `src/data/aftuOfficialIndexCrosswalk.ts` et ses tests dédiés protègent ces associations et empêchent de traiter un simple titre de corridor comme une séquence complète. Les listes d'arrêts, leurs répétitions, leur ordre et leurs deux directions restent inchangés.
+
+Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index AFTU, sections lignes 85 à 91).
