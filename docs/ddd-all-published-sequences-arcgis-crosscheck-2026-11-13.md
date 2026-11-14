@@ -42,3 +42,37 @@ Le nouveau script `scripts/compare_ddd_all_published_arcgis_sequences.mjs` rappr
 ## Garde-fous
 
 Audit documentaire en lecture seule. Aucun arrêt ni itinéraire n'est promu dans le catalogue passager. Aucune fréquence ou aucun horaire n'est déduit. Aucun GTFS utilisé. Aucune écriture Supabase, aucun déploiement et aucune modification TER/BRT.
+
+
+## Actualisation de la liste prioritaire — 14 novembre 2026
+
+Le nouvel artefact de comparaison globale confirme les **17 séquences sans groupe de points ArcGIS portant le même code**. Cette absence de groupe ne signifie pas que la ligne n'existe pas : elle signifie seulement qu'aucun groupe de points de la couche comparée n'a été rapproché sous ce code.
+
+| Code DDD publié | Départ publié | Arrivée publiée | Point de vigilance |
+|---|---|---|---|
+| 20 | Dieuppeul | Centre-ville | Aucun groupe de points de même code |
+| 208 | Bayakh | Rufisque | Aucun groupe de points de même code |
+| 213 | Rufisque | Dieuppeul | Aucun groupe de points de même code |
+| 219 | Daroukhane | Ouakam | Géométrie de ligne présente ; points candidats observés sous l'étiquette 218, à confirmer sans réétiquetage automatique |
+| 220 | Rufisque | Guédiawaye | Aucun groupe de points de même code |
+| 221 | Gadaye | Almadies | Aucun groupe de points de même code |
+| 233 | Baux Maraîchers | Palais 1 | Conflit : la séquence extraite se termine à Aéroport LSS ; le titre officiel indique Palais 1 |
+| 234 | Jaxaay | Leclerc | Aucun groupe de points de même code |
+| 311 | Lac Rose | Croisement Keur Massar | Aucun groupe de points de même code |
+| 327 | Keur Massar | Terminus Parcelles | Aucun groupe de points de même code |
+| TO1 | Ouakam | Palais 2 | Aucun groupe de points de même code |
+| 319 | Liberté 6 | Ouakam | Aucun groupe de points de même code |
+| 501 | Non renseigné | Non renseigné | Code présent dans les séquences publiées, terminus absents |
+| 502 | Non renseigné | Non renseigné | Code présent dans les séquences publiées, terminus absents |
+| 503 | Non renseigné | Non renseigné | Code présent dans les séquences publiées, terminus absents |
+| TAF_TAF | Non renseigné | Non renseigné | Libellé publié à qualifier, terminus absents |
+| 15 | Non renseigné | Non renseigné | Code présent dans les séquences publiées, terminus absents |
+
+### Priorité de rapprochement
+
+1. **219** : traiter d'abord le conflit d'étiquetage entre la géométrie 219 et les points enregistrés sous 218 ; garder les identifiants et doublons d'origine.
+2. **233** : résoudre le conflit de terminus avec une source DDD explicite avant toute publication.
+3. **20, 208, 213, 220, 221, 234, 311, 327, TO1 et 319** : chercher les couches ArcGIS alternatives et relations OSM portant des références ou terminus compatibles.
+4. **501, 502, 503, TAF_TAF et 15** : retrouver d'abord une fiche officielle donnant les terminus ; ne pas déduire les extrémités à partir du seul code.
+
+Ce contrôle reste un rapprochement de sources. Il ne valide ni sens retour, ni ordre de passage, ni fréquence. Aucun parcours passager n'est modifié et aucun point n'est automatiquement réaffecté.
