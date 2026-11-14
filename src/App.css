@@ -2394,6 +2394,15 @@ button:disabled { cursor: not-allowed; }
   height: 9px;
   flex: 0 0 9px;
 }
+/* Barre AFTU / TATA alignée sur les repères TER, BRT et DDD. */
+.network-summary-item.mobility-aftu_tata .network-summary-dot {
+  align-self: center;
+  width: 9px;
+  height: 9px;
+  min-width: 9px;
+  min-height: 9px;
+  margin: 0;
+}
 .network-summary-header {
   gap: 8px;
 }
@@ -2817,6 +2826,16 @@ button:disabled { cursor: not-allowed; }
 
 /* Détails cliquables des itinéraires DDD / AFTU / TATA */
 .station-board-direction-toggle { width: 100%; border: 0; cursor: pointer; text-align: left; font: inherit; }
+.station-board-line-toggle { width: 100%; border: 0; cursor: pointer; text-align: left; font: inherit; }
+.station-board-line-toggle:focus-visible { outline: 2px solid var(--accent, #198754); outline-offset: 2px; }
+.station-board-line-toggle.is-expanded { background: var(--surface-raised, rgba(25,135,84,.07)); }
+.station-board-open-label { color: var(--green-700); font-size: 11px; font-weight: 750; white-space: nowrap; }
+.station-board-line-timetable { padding: 10px 14px 14px; border-top: 1px solid var(--line-soft); }
+.station-board-line-direction + .station-board-line-direction { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-strong); }
+.station-board-line-direction-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.station-board-line-direction-heading > strong { color: var(--text); font-size: 11px; font-weight: 800; }
+.station-board-line-endpoints { margin: 3px 0 9px; color: var(--muted); font-size: 10px; font-weight: 600; }
+
 .station-board-direction-toggle:focus-visible { outline: 2px solid var(--accent, #198754); outline-offset: 2px; }
 .station-board-direction-toggle.is-expanded { background: var(--surface-raised, rgba(25,135,84,.07)); }
 .station-board-direction-action { display: inline-flex; align-items: center; gap: 10px; }
