@@ -182,3 +182,34 @@ Les autres relations de l'extraction sont principalement DDD ou non attribuées 
 **Décision :** conserver la relation 3982642 comme candidat géométrique AFTU 40, sans lui attribuer de liste d'arrêts. Croiser ses 35 tronçons avec le plan CETUD et les corridors officiels avant toute qualification. Ne pas créer d'arrêts, de retour ou de fréquence depuis cette relation.
 
 Source : artefact OSM du workflow GitHub `43558634239`, généré le 14 novembre 2026 à 04:51 UTC ; extraction Overpass des relations `route=bus` et de leurs membres ordonnés.
+
+
+## Dossier renforcé — AFTU ligne 40, directions distinctes et arrêts secondaires — 14 novembre 2026
+
+### Source opérateur
+
+La fiche officielle AFTU de la ligne 40, publiée le 29 juin 2026, donne le corridor dans cet ordre : **Grand Mbao → Route nationale 1 → Fass Mbao → Poste Thiaroye → Route de Yarakh → Cafétéria → Maristes → Échangeur Hann → Autoroute → Colobane → terminus Petersen**. Cette description est la référence institutionnelle du corridor ; elle ne donne ni liste complète d'arrêts intermédiaires ni horaires/fréquences.
+
+### Recoupement secondaire des deux sens
+
+La fiche et le PDF Moovit consultés le 14 novembre 2026 décrivent deux itinéraires séparés pour la ligne 40 :
+
+- **Direction Mbao** : Avenue Petersen 15 → École Wassour, **43 arrêts**, durée annoncée 56 min. La liste publiée nomme notamment Avenue Faidherbe 31, Avenue Petersen 30, Allées Papa Gueye Fall, Avenue Malick Sy, HLM V, Route des Maristes, Route de Rufisque, SIPS, Poste de Santé Gueye, École Alioune Gaye, Centre de Santé, Brigade de Gendarmerie, Carrefour Mbao, Carrefour Keur Massar, Keur Mbaye Centre, Keur Mbaye Mosquée, Mairie de Grand Mbao, Stade de Grand Mbao et École Wassour. Plusieurs positions restent libellées seulement « Arrêt de bus ».
+- **Direction Rebeuss** : École Wassour → Avenue Petersen 15, **41 arrêts**, durée annoncée 54 min. Les arrêts nommés visibles comprennent École Wassour, École El Hadj, Stade de Grand Mbao, Mairie de Grand Mbao, Keur Mbaye Mosquée, Keur Mbaye Centre, Carrefour Keur Massar, Carrefour Mbao, Centre de Santé, École Alioune Gaye, Poste de Santé Gueye, SIPS et Route de Rufisque ; la fiche affiche également plusieurs arrêts sans nom.
+- **Plages Moovit** : direction Rebeuss 03:50–22:58 en semaine et 04:00–22:59 le week-end ; direction Mbao 04:10–22:55 en semaine et 04:20–22:53 le week-end. La fréquence affichée pour Mbao est 15 min du lundi au vendredi et 21 min le samedi/dimanche. La page ne donne pas de fréquence comparable pour Rebeuss.
+
+### Écarts et décision d'intégration
+
+- L'index AFTU et sa fiche officielle donnent les terminus **Grand Mbao–Petersen** ; le guide officiel CETUD/Joj 2026 décrit la ligne 40 comme **Jaxaay–Petersen**. Ce différend de terminus doit rester visible, sans choisir arbitrairement une seule variante.
+- Moovit nomme le sens retour « Rebeuss », tandis que l'extrémité détaillée de sa liste est Avenue Petersen 15. Ce libellé ne doit pas être substitué silencieusement au terminus officiel.
+- Le nombre d'arrêts Moovit (43/41) et ses horaires/fréquences sont des données secondaires, pas des données publiées par l'opérateur. Les noms génériques « Arrêt de bus » ne sont pas des arrêts géolocalisés et ne peuvent pas être créés comme arrêts distincts sans coordonnées ou preuve terrain.
+- La relation OSM 3982642 associée à AFTU, ref 40, possède 35 membres de voirie ordonnés mais aucun membre arrêt/quai. Elle apporte donc un tracé routier candidat, pas une liste d'arrêts voyageurs.
+
+**Décision :** la ligne 40 devient un dossier de rapprochement prioritaire : corridor officiel conservé, séquences Moovit des deux sens gardées en source secondaire pour comparaison, et relation OSM 3982642 conservée comme géométrie candidate. Ne pas publier encore les 43/41 arrêts comme arrêts validés, ne pas générer les horaires de passage à chaque arrêt et ne pas déduire un retour par simple inversion. Aucune fréquence n'est injectée dans les données passagers à partir de Moovit sans validation complémentaire.
+
+Sources :
+- Fiche officielle AFTU ligne 40 (29 juin 2026) : https://aftu-senegal.org/map/dakar-urbain-ligne-40/
+- Moovit, fiche PDF ligne 40, deux directions et arrêts : https://appassets.mvtdev.com/map/48/l/5996/18051526.pdf
+- Moovit, fiche ligne 40 : https://moovitapp.com/index/fr/transport_en_commun-line-40-Dakar-5996-1618038-18051526-0
+- Guide officiel mobilité JOJ Dakar 2026 (ligne 40 : Jaxaay–Petersen) : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+- Extraction OSM du workflow 43558758426, relation 3982642.
