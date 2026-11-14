@@ -43,6 +43,23 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(within(row).getAllByText('9 min')).toHaveLength(1)
   })
 
+  it('ne transfère pas la fréquence AFTU à une TATA de même numéro mais de terminus différents', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
+
+    render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const lineSixtyFive = screen.getAllByText('AFTU / TATA 65')
+    expect(lineSixtyFive).toHaveLength(4)
+    const tataRow = lineSixtyFive.map((label) => label.closest('li')!)
+      .find((candidate) => candidate.textContent?.includes('Gare routière de Colobane'))!
+    const aftuRow = lineSixtyFive.map((label) => label.closest('li')!)
+      .find((candidate) => candidate.textContent?.includes('Colobane') && !candidate.textContent?.includes('Gare routière'))!
+    expect(tataRow).toBeTruthy()
+    expect(aftuRow).toBeTruthy()
+    expect(within(tataRow).getAllByText('5 min')).toHaveLength(2)
+    expect(within(aftuRow).getAllByText('15 min')).toHaveLength(2)
+  })
+
   it('calcule le statut du retour selon sa propre plage de service', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T20:47:00.000Z'))
