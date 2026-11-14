@@ -58,6 +58,15 @@ describe('adaptateur de preuves AFTU', () => {
     }
   })
 
+  it('marque les séquences 88, 89 et 91 comme validées à 100 % par le responsable du projet', () => {
+    for (const line of ['88', '89', '91']) {
+      const route = getAftuRouteEvidence(line)
+      expect(route?.validatedByProjectOwner).toBe(true)
+      expect(route?.outbound.waypoints.length).toBeGreaterThan(0)
+      expect(route?.inbound.waypoints.length).toBeGreaterThan(0)
+    }
+  })
+
   it('préserve les statuts de validation des séquences 90 et 91', () => {
     expect(getAftuRouteEvidence('90')?.sourceStatus).toBe('user-validated-directional-sequences')
     expect(getAftuRouteEvidence('91')?.sourceStatus).toBe('user-validated-cetud-sequences')
