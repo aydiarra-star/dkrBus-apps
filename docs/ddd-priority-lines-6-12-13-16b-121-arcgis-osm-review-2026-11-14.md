@@ -161,3 +161,16 @@ Le guide affiche, selon les sites, des sélections différentes de lignes AFTU (
 - Guide officiel de la mobilité JOJ Dakar 2026 (MITTA, Dakar 2026, CETUD), notamment présentation institutionnelle et période aux pages d'ouverture, lignes de bus Dem Dikk/AFTU des clusters : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
 - DDD « Info voyageurs » : https://demdikk.sn/info-voyageurs/
 - DDD « Réseau urbain » : https://demdikk.sn/reseau-urbain-dakar/
+
+
+## Addendum — séquences officielles distinctes des lignes 18 et 20 (14 novembre 2026)
+
+Une nouvelle lecture de la page opérateur DDD « Réseau urbain de Dakar » confirme explicitement deux fiches de parcours distinctes pour les lignes circulaires 18 et 20. La fiche de la ligne 18 passe notamment par Cité Derklé, Khar Yalla, Cité Marine, Castors, HLM, Colobane et le centre-ville avant de revenir à Dieuppeul. La fiche de la ligne 20 commence par Allées Ababacar Sy, Jet d’Eau et Avenue Bourguiba, puis décrit un autre enchaînement par Fann, UCAD, Gueule Tapée, Médina, Rebeuss, le port et Bel Air avant de revenir à Dieuppeul.
+
+Cette publication officielle permet de conserver les deux séquences textuelles comme deux circuits opérateur distincts ; elle ne permet toutefois pas d'attribuer les 44 points ArcGIS de la couche 18 à l'un plutôt qu'à l'autre. Les deux polylignes ArcGIS de 2017 restent presque superposées (distance de Hausdorff d'environ 25,1 m), et les mêmes 44 points sont à 8,4 m ou moins des deux tracés. La relation OSM 18 examinée ne contient pas de membres d'arrêt ordonnés et aucune relation OSM 20 n'a été trouvée dans l'extraction du 14 novembre.
+
+**Décision :** conserver séparément les séquences DDD publiées 18 et 20 ; garder les 44 points sous leur couche source ArcGIS 18, sans duplication ni réattribution ; ne pas utiliser ces points pour valider les arrêts ou les deux sens. La distinction textuelle des deux circuits est confirmée par DDD, mais leur géoréférencement individuel reste à établir.
+
+### Source
+
+- DDD, « Réseau urbain de Dakar » : https://demdikk.sn/reseau-urbain-dakar/ (fiches actuelles des lignes 18 et 20, consultées le 14 novembre 2026).
