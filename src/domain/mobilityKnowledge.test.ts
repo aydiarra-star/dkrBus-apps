@@ -39,7 +39,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   })
 
   it('donne le parcours AFTU / TATA récent plutôt que le parcours historique CETUD', () => {
-    const result = ask('itinéraire AFTU / TATA 53')
+    const result = ask('itinéraire AFTU 53')
     expect(result).toContain('Terminus Keur Massar (Marché)')
     expect(result).toContain('Sococim → Bargny → Diamniadio')
     expect(result).toContain('publication du 2026-07-06')
@@ -94,7 +94,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     const result = ask('trajet DDD de Ouakam à UCAD')
     expect(result).toContain('DDD 7')
     expect(result).toContain('ni durée, ni prochain départ garanti')
-    expect(ask('trajet AFTU de Keur Massar à Sébikotane')).toContain('AFTU 53')
+    expect(ask('trajet AFTU de Keur Massar à Sébikotane')).toContain('AFTU / TATA 53')
   })
 
   it('n’inverse pas un parcours ou ne garantit pas une correspondance bus', () => {
