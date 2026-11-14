@@ -167,3 +167,18 @@ Sources :
 - Document CETUD/AATR sur les voiries utilisées en partie par les lignes 76 et 84 : https://cetud.sn/wp-content/uploads/2024/11/RTC-DK_-Cadre-de-Politique-de-Reinstallation-CPR_VF_2022-10-14.pdf
 
 Aucune donnée du catalogue passager, aucune base Supabase, aucun horaire TER/BRT et aucun déploiement n'ont été modifiés.
+
+
+## Contrôle croisé de la collecte OSM AFTU — 14 novembre 2026
+
+L'extraction OSM du workflow `43558634239` (artefact `dakar-osm-route-candidates`, extraction horodatée du 14 novembre 2026 à 04:51 UTC) contient 25 relations de lignes dans le périmètre de Dakar. Une seule relation porte explicitement un opérateur AFTU dans les champs analysés :
+
+- Relation OSM **3982642**, nom `Ligne 40`, référence `40`, opérateur `Aftu`, réseau `Tata`.
+- Elle comporte 35 tronçons de voirie ordonnés, mais **0 membre arrêt/quai ordonné**.
+- Elle ne peut donc pas servir de liste d'arrêts voyageurs ni confirmer le sens retour. Son réseau OSM `Tata` est cohérent avec la nécessité de traiter TATA comme une étiquette de flotte/réseau cartographique à rapprocher, et non comme preuve d'un réseau commercial séparé.
+
+Les autres relations de l'extraction sont principalement DDD ou non attribuées ; aucune relation portant les références 84, 85, 86, 87, 88, 89 ou 91 n'a été retrouvée dans ce périmètre OSM extrait. Cela signifie uniquement qu'aucune relation correspondante n'est présente dans cette extraction, pas que les lignes n'existent pas.
+
+**Décision :** conserver la relation 3982642 comme candidat géométrique AFTU 40, sans lui attribuer de liste d'arrêts. Croiser ses 35 tronçons avec le plan CETUD et les corridors officiels avant toute qualification. Ne pas créer d'arrêts, de retour ou de fréquence depuis cette relation.
+
+Source : artefact OSM du workflow GitHub `43558634239`, généré le 14 novembre 2026 à 04:51 UTC ; extraction Overpass des relations `route=bus` et de leurs membres ordonnés.
