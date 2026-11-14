@@ -1239,7 +1239,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board.textContent).toContain('En service')
       expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
     } else {
-      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(72)
+      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(73)
       fireEvent.click(rows[0])
       const opened = rows[0].closest('li')!
       const variants = [...opened.querySelectorAll('.station-board-line-direction')]
@@ -1286,7 +1286,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board).toBeTruthy()
       if (network === 'aftu_tata') {
         const lineButtons = [...board.querySelectorAll('.station-board-line-toggle')]
-        expect(lineButtons).toHaveLength(72)
+        expect(lineButtons).toHaveLength(73)
         fireEvent.click(lineButtons[0])
         const opened = lineButtons[0].closest('li')!
         expect(opened.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(4)
