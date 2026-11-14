@@ -201,7 +201,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           // AFTU et TATA partagent le même référentiel horaire : la référence
           // est choisie par numéro de ligne, sans distinction d'opérateur.
           // L'identité des itinéraires et leurs listes d'arrêts restent séparées.
-          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
+          const sharedRouteSchedule = routeReferences.find((item) => item.code === line.line && item.outboundSchedule)?.outboundSchedule
+          const lineSchedule = schedulesByLine.get(line.line) ?? sharedRouteSchedule ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
