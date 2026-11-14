@@ -22,8 +22,16 @@ import {
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
 type RouteSourceNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: RouteSourceNetwork; code: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
+
+function normalizedRouteEndpoint(value: string): string {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function routeCompleteness(route: MobilityRouteReference): number {
+  return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
+}
 
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
@@ -177,7 +185,15 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
       <ul className="station-board-list">
         {catalogue.map((line) => {
-          const route = routeReferences.find((item) => item.network === line.network && item.code === line.line)
+          const lineEnds = [normalizedRouteEndpoint(line.origin), normalizedRouteEndpoint(line.destination)].sort().join('|')
+          const routeCandidates = routeReferences.filter((item) => {
+            if (item.code !== line.line) return false
+            if (item.network === line.network) return true
+            if (!item.origin || !item.destination) return false
+            const candidateEnds = [normalizedRouteEndpoint(item.origin), normalizedRouteEndpoint(item.destination)].sort().join('|')
+            return candidateEnds === lineEnds
+          })
+          const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           const lineSchedule = (line.network === 'aftu' ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
