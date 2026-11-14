@@ -79,3 +79,40 @@ Un contrôle reproductible a comparé les 62 objets de `src/data/tata-lines.json
 - Les 62 fiches TATA ne contiennent toujours aucune séquence retour indépendante.
 
 Ce résultat donne une base concrète pour la prochaine revue : traiter d'abord les 26 paires de terminus concordantes, puis les cinq inversions, sans fusionner automatiquement les enregistrements ni publier de retour.
+
+
+## Comparaison complémentaire des repères — 26 corridors à terminus concordants
+
+Pour les 26 paires de même code et de mêmes terminus, un second contrôle a comparé les ensembles de waypoints normalisés (accents/casse/ponctuation neutralisés). La mesure est l'indice de Jaccard sur les noms distincts : intersection des noms divisée par l'union. **Elle ignore volontairement l'ordre** ; elle sert uniquement à prioriser la revue, jamais à valider une séquence.
+
+Les 18 paires dont le score est au moins 0,70 sont :
+
+| Code | Repères TATA / AFTU | Noms communs | Jaccard |
+|---:|---:|---:|---:|
+| 66 | 21 / 23 | 21 | 0,913 |
+| 45 | 31 / 34 | 31 | 0,912 |
+| 33 | 16 / 18 | 16 | 0,889 |
+| 80 | 15 / 17 | 15 | 0,882 |
+| 41 | 18 / 21 | 18 | 0,857 |
+| 83 | 12 / 14 | 12 | 0,857 |
+| 50 | 17 / 20 | 17 | 0,850 |
+| 62 | 17 / 18 | 16 | 0,842 |
+| 56 | 10 / 12 | 10 | 0,833 |
+| 76 | 10 / 12 | 10 | 0,833 |
+| 40 | 9 / 11 | 9 | 0,818 |
+| 4 | 8 / 10 | 8 | 0,800 |
+| 49 | 19 / 22 | 18 | 0,783 |
+| 48 | 9 / 12 | 9 | 0,750 |
+| 55 | 11 / 13 | 10 | 0,714 |
+| 51 | 7 / 10 | 7 | 0,700 |
+| 34 | 7 / 10 | 7 | 0,700 |
+| 78 | 10 / 12 | 9 | 0,692 |
+
+Les huit autres paires de terminus identiques ont un score inférieur à 0,70 (codes 46, 36, 43, 44, 1, 39, 79 et 30). Elles restent à contrôler, car une couverture secondaire partielle, des alias de noms ou une divergence de corridor peuvent expliquer le score.
+
+### Priorité proposée
+
+1. Examiner d'abord les 18 paires à score élevé en comparant l'ordre exact, les arrêts répétés, les points OSM/ArcGIS disponibles et les variantes de voirie.
+2. Vérifier en particulier les fiches courtes (ex. codes 79 et 30) : un score bas peut venir d'une extraction secondaire incomplète.
+3. Ne jamais reconstruire le retour par inversion : les deux fichiers ne contiennent aucune séquence retour TATA indépendante.
+4. Conserver les deux provenances tant qu'une validation opérateur n'a pas établi la relation canonique.
