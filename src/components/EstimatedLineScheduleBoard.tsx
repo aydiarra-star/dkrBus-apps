@@ -176,7 +176,7 @@ function AftuTataScheduleBoard({
                       && item.code === line.line
                       && Boolean(item.origin && item.destination)
                       && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                      && sameDetailedRouteDirection(line, item)
+                      && sameDetailedRouteDirection(line, { origin: item.origin!, destination: item.destination! })
                     )
                     const matchingSameNetwork = sameNetworkCandidates.length === 1
                       ? sameNetworkCandidates
