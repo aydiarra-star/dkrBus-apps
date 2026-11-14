@@ -2633,12 +2633,13 @@ button:disabled { cursor: not-allowed; }
 .leaflet-tooltip.mobility-tooltip.mobility-ter { border-color: var(--mobility-ter-bright); }
 .leaflet-tooltip.mobility-tooltip.mobility-brt { border-color: var(--mobility-brt); }
 .leaflet-tooltip.mobility-tooltip.mobility-ddd { border-color: var(--mobility-ddd); }
-.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu); }
-.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-tata); }
+.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu-tata); }
+.leaflet-tooltip.mobility-tooltip.mobility-aftu_tata { border-color: var(--mobility-aftu-tata); }
 .leaflet-tooltip .mobility-badge { margin-right: 4px; }
 
 @media (max-width: 820px) {
   .map-mobility-legend { bottom: 26px; left: 8px; max-width: calc(100% - 62px); padding: 6px; }
+  .map-mobility-legend .mobility-aftu_tata { max-width: none; }
   .map-mobility-legend small { display: none; }
 }
 
