@@ -171,3 +171,9 @@ Références complémentaires :
 La recherche publique permet désormais de confirmer le meilleur chemin d'accès aux données primaires : CETUD / Observatoire et CAPTRANS. Elle n'a pas encore révélé de fichier public contenant les séquences complètes des lignes 88, 89 ou 91. Les applications tierces annoncent des fonctionnalités utiles, mais leurs fiches magasins ne prouvent pas la couverture des trois lignes.
 
 La prochaine vérification doit porter sur les données réellement servies dans les applications et, en parallèle, sur une demande ciblée au CETUD/CAPTRANS : fiches de ligne, arrêts ordonnés, sens aller/retour, identifiants d'arrêts, date de validité et source de la donnée. Toute séquence issue d'une application sera comparée à une source indépendante avant d'être qualifiée.
+
+## 9. Vérification de disponibilité publique du GTFS (14 novembre 2026)
+
+Une recherche ciblée a été menée sur le site CETUD, ses répertoires de fichiers publics, les portails open data et les dépôts GitHub indexés. La page CETUD confirme l'existence de fichiers GTFS et décrit leur contenu, mais aucun lien public direct vers une archive GTFS AFTU/Dakar exploitable et datée n'a été identifié dans les résultats accessibles pendant cette vérification.
+
+Conséquence : le GTFS reste une source potentielle à demander au CETUD, pas une dépendance du chantier. S'il est obtenu ultérieurement, le contrôle devra vérifier la période de validité, les lignes présentes dans `routes.txt`, les trajets et directions dans `trips.txt`, l'ordre des arrêts dans `stop_times.txt`, les coordonnées dans `stops.txt` et les géométries dans `shapes.txt`. Une archive ancienne ou partielle ne sera pas considérée comme la vérité actuelle sans recoupement.
