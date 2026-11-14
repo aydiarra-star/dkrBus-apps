@@ -18,21 +18,31 @@
     "Terminus Zone de Captage"
   ],
   "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-83/",
-  "note": "La fiche officielle AFTU publie le parcours aller ordonné Rufisque Arafat → Zone de Captage. Un document tarifaire AFTU archivé confirme l'existence d'un RETOUR depuis Arafat, mais ne donne pas de séquence ordonnée complète des arrêts retour. Le retour existe au niveau du corridor ; sa séquence détaillée reste à établir et n'est pas reconstituée artificiellement.",
+  "note": "La fiche officielle AFTU publiée le 14 juillet 2026 donne 14 arrêts ordonnés pour l'aller Rufisque Arafat → Zone de Captage. Le document tarifaire AFTU archivé confirme le sens retour et permet d'établir huit repères de corridor dans l'ordre Zone de Captage → Rufisque Arafat, mais pas les arrêts intermédiaires exhaustifs. La séquence retour complète reste à documenter ; aucun aller inversé n'est présenté comme retour opérateur.",
   "returnEvidence": {
-    "status": "return-corridor-confirmed-sequence-unavailable",
+    "status": "return-direction-confirmed-partial-corridor-anchors",
     "sourceLabel": "Document tarifaire AFTU archivé",
     "sourceUrl": "https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf",
-    "note": "Le document tarifaire distingue explicitement ALLER et RETOUR. Les tarifs du retour permettent d'identifier ces repères de corridor dans l'ordre Zone de Captage → Case Ba → Rond-point Malibu → Malika Plage → Station Keur Massar → Sipres → Dioutiba → Rufisque Arafat. Ce sont des points d'ancrage tarifaires, pas une liste exhaustive d'arrêts ; ils ne sont pas injectés comme séquence retour.",
+    "note": "Le document tarifaire AFTU présente les sections RETOUR au départ d'Arafat vers Dioutiba, Sipres, Station Keur Massar, Malika Plage, Rond-point Malibu, Case-Ba et Zone de Captage. En suivant l'ordre de desserte vers le terminus Arafat, ces tarifs établissent huit repères ordonnés Zone de Captage → Case-Ba → Rond-point Malibu → Malika Plage → Station Keur Massar → Sipres → Dioutiba → Rufisque Arafat. Ils ne donnent pas la liste exhaustive des arrêts intermédiaires : ces repères ne sont donc pas injectés comme séquence retour.",
     "orderedCorridorAnchors": [
-      "Zone de Captage",
-      "Case Ba",
+      "Terminus Zone de Captage",
+      "Case-Ba",
       "Rond-point Malibu",
       "Malika Plage",
       "Station Keur Massar",
       "Sipres",
       "Dioutiba",
-      "Rufisque Arafat"
-    ]
+      "Terminus Rufisque Arafat"
+    ],
+    "anchorType": "tariff-section-destinations-not-exhaustive-stop-list",
+    "sourcePage": 66
+  },
+  "outboundEvidence": {
+    "status": "official-operator-itinerary-published",
+    "sourceLabel": "AFTU Sénégal — fiche Dakar-Urbain ligne 83",
+    "sourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-83/",
+    "sourceDate": "2026-07-14",
+    "orderedStopCount": 14,
+    "note": "La fiche opérateur publie explicitement la liste ordonnée du terminus Rufisque Arafat au terminus Zone de Captage."
   }
 }
