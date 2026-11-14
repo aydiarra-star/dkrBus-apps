@@ -152,7 +152,7 @@ function wolofJourneyEndpoints(question: string): { origin: PlannerEndpoint | nu
   const text = question.toLowerCase().replace(/['’]/g, ' ')
   const joge = '(?:j\u00f3ge|joge)'
   const placeChars = 'a-z\u00eb\u00e0\u00f1\u00f3\u014bx0-9 .-'
-  const pair = new RegExp(`${joge}\\s+([${placeChars}]{2,55}?)\\s+dem\\b(?:\\s+(?:ci|ba|si|ca))?\\s+([${placeChars}]{2,65})`).exec(text)
+  const pair = new RegExp(`${joge}\\s+([${placeChars}]{2,55}?)\\s+dem\b(?:\\s+(?:ci|ba|si|ca))?\\s+([${placeChars}]{2,65})`).exec(text)
   const toEndpoint = (name: string): PlannerEndpoint | null => {
     const stop = findReferentialStops(name)[0]
     return stop ? { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id } : null
