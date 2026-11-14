@@ -6,6 +6,7 @@ import {
 } from './publicBusLineCatalog'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { AFTU_CETUD_SCHEDULE_SETTINGS } from '../data/aftuScheduleSettings'
+import line83 from '../data/aftu-83-directions.json'
 import line88 from '../data/aftu-88-directions.json'
 import line89 from '../data/aftu-89-directions.json'
 import line91 from '../data/aftu-91-directions.json'
@@ -53,6 +54,7 @@ type SuppliedAftuSequence = {
 }
 
 const AFTU_VALIDATED_DIRECTIONAL_SEQUENCES: Readonly<Record<string, SuppliedAftuSequence>> = {
+  '83': line83,
   '88': line88,
   '89': line89,
   '91': line91,
