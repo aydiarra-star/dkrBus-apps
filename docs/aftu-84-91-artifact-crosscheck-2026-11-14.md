@@ -278,3 +278,29 @@ Une relecture ligne par ligne du HTML rendu de la page AFTU, en tenant compte de
 La ligne **MTOA – Liberté 5 appartient à la ligne 87**, et non à la 88. Toute mention antérieure dans ce rapport attribuant MTOA – Liberté 5 à la ligne 88 est erronée et doit être ignorée. Source primaire : page AFTU relue directement, lignes 414–439 du rendu consulté le 14 novembre 2026 : https://aftu-senegal.org/infos-pratiques/.
 
 Cette rectification est documentaire ; elle ne modifie aucune donnée d'itinéraire.
+
+
+## Rectification définitive de la numérotation — 14 novembre 2026
+
+Cette section remplace les tableaux historiques des sections 3 et « Mise à jour après le nouvel audit officiel » ci-dessus, qui reprenaient une lecture décalée de l'index AFTU.
+
+La relecture directe de l'index officiel AFTU donne la correspondance correcte :
+
+| Ligne | Corridor officiel actuellement affiché |
+|---|---|
+| 87 | MTOA – Liberté 5 |
+| 88 | Bargny – Croisement Niague (Cité SICAP) |
+| 89 | APIX – Dougar |
+| 90 | Pas de ligne 90 — erreur de numéro corrigée par le responsable du projet |
+| 91 | Le titre « LIGNE 91 » est visible, mais aucun corridor n'est lisible |
+
+En conséquence :
+- Toute attribution antérieure de « MTOA – Liberté 5 » à la ligne 88 est erronée ; elle concerne la ligne 87.
+- Toute attribution antérieure de « Bargny – Croisement Niague » à la ligne 89 est erronée ; elle concerne la ligne 88.
+- Toute attribution antérieure de « APIX – Dougar » à la ligne 91 est erronée ; elle concerne la ligne 89.
+- La ligne 91 reste sans corridor identifié ; ne pas lui transférer le corridor de la ligne 89.
+- La ligne 90 est exclue des recherches et des données : elle n'existe pas dans le périmètre, selon la correction du responsable du projet.
+
+Les sections historiques restent visibles pour la traçabilité de l'erreur, mais ne doivent plus être utilisées comme référence de données. Source primaire : index officiel AFTU, https://aftu-senegal.org/infos-pratiques/, relu directement le 14 novembre 2026. Le rapport détaillé consacré aux applications et aux sources opérationnelles est complémentaire : `docs/aftu-88-89-91-mobility-apps-and-operational-sources-2026-11-14.md`.
+
+Aucune séquence d'arrêts, aucun sens retour, horaire ou intervalle n'est ajouté par cette rectification.
