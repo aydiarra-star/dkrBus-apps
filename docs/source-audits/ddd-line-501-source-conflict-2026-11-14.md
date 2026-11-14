@@ -2,7 +2,7 @@
 
 ## Périmètre
 
-Audit documentaire de la ligne 501 à partir des deux pages officielles Dakar Dem Dikk consultées le 14 novembre 2026. Aucun changement de donnée applicative.
+Audit documentaire de la ligne 501 à partir des deux pages officielles Dakar Dem Dikk et des métadonnées du service ArcGIS DDD consultées le 14 novembre 2026. Aucun changement de donnée applicative.
 
 ## Constat des sources officielles
 
@@ -27,6 +27,20 @@ La page contient donc une séquence de six libellés dans le sens présenté, ma
 
 Source : https://demdikk.sn/reseau-urbain-dakar/
 
+## Contrôle des métadonnées ArcGIS DDD
+
+Le service public « Dem_dikk_mise_a_jour » expose deux couches distinctes :
+
+- `Arrets_Ligne_Dakar_Dem_Dikk` (couche 0), géométrie ponctuelle, avec les champs `Nom_Arret`, `Nom_Ligne` et `Id`. Sa date de dernière modification des données indiquée dans les métadonnées est le **24 septembre 2024**.
+- `Itinéraire_lignes_Dakar_Dem_Dikk` (couche 1), géométrie linéaire, avec plusieurs champs de texte d'itinéraire. Sa date de dernière modification des données indiquée est le **11 janvier 2019**.
+
+Sources :
+- Service : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer
+- Couche arrêts : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/0
+- Couche itinéraires : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/1
+
+Ces métadonnées confirment l'existence de couches d'arrêts et d'itinéraires, mais ne prouvent pas à elles seules que leurs enregistrements décrivent la ligne 501 actuelle, ses deux directions, ou la divergence Gare de Dakar / Leclerc. La couche itinéraires porte en outre une date de données ancienne (2019) : elle ne doit pas être considérée comme validation actuelle sans contrôle des enregistrements concernés.
+
 ## Analyse et décision
 
 Les deux pages officielles ne concordent pas sur le terminus associé à la ligne 501 :
@@ -34,7 +48,7 @@ Les deux pages officielles ne concordent pas sur le terminus associé à la lign
 - « Gare de Dakar » sur Info voyageurs ;
 - « Palais 2 » et « Leclerc » sur la page Réseau urbain.
 
-Il n'existe pas, dans ces deux publications, de preuve permettant d'affirmer que « Gare de Dakar » est interchangeable avec « Leclerc », ni de reconstruire un retour indépendant.
+Il n'existe pas, dans ces publications, de preuve permettant d'affirmer que « Gare de Dakar » est interchangeable avec « Leclerc », ni de reconstruire un retour indépendant. Les métadonnées ArcGIS disponibles ne résolvent pas cet écart sans examen ciblé des entités de la ligne.
 
 **Décision :** conserver l'écart documentaire ouvert. Ne pas fusionner les terminus, ne pas renommer « LECLERCL » silencieusement, ne pas créer de retour par inversion automatique et ne pas modifier la séquence de production sur la seule base de cet audit.
 
@@ -49,4 +63,4 @@ Il n'existe pas, dans ces deux publications, de preuve permettant d'affirmer que
 
 ## Suite de vérification
 
-Chercher une publication officielle plus récente ou une donnée cartographique DDD/ArcGIS permettant de confirmer le terminus réel et les deux directions avant toute évolution des données applicatives.
+Interroger les entités ArcGIS des deux couches avec un filtre exact sur la ligne 501, vérifier les attributs et les positions, puis comparer ces résultats aux publications DDD avant toute évolution des données applicatives.
