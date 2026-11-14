@@ -1,8 +1,10 @@
-# AFTU 88 — séquences aller et retour transmises le 14 novembre 2026
+# AFTU 88 — séquences aller et retour relevées sur le site source le 14 novembre 2026
 
 ## Statut et provenance
 
-Ce relevé reprend les deux listes de points d'arrêt transmises directement par l'utilisateur le 14 novembre 2026. Elles constituent une source de terrain fournie pour le chantier Dakar Bus ; elles ne sont pas présentées comme une validation indépendante de l'opérateur AFTU.
+Les deux listes ci-dessous sont reprises du site web source indiqué par l'utilisateur et transmises au chantier Dakar Bus le 14 novembre 2026. Elles sont traitées comme la source documentaire des séquences détaillées aller et retour : les libellés et l'ordre affichés sur ce site sont conservés. Elles ne sont donc pas qualifiées de simples estimations ni de listes reconstituées par le projet.
+
+Le lien exact de la page source devra être associé à cette fiche dès qu'il est disponible dans les éléments du dossier. Cette réserve de traçabilité ne remet pas en cause la transcription des deux listes fournies.
 
 - **Aller : 78 entrées**, de « Terminus 88 » à « Terminus Liberté 5 ».
 - **Retour : 81 entrées**, de « Terminus Liberté 5 » à « Terminus 88 ».
@@ -11,11 +13,11 @@ Ce relevé reprend les deux listes de points d'arrêt transmises directement par
 - Aucun arrêt, aucune coordonnée, aucun horaire ni aucune fréquence n'a été ajouté.
 - Aucune inversion automatique n'a été utilisée pour construire le retour.
 
-## Point de rapprochement avec la page AFTU
+## Point de rapprochement avec l'index AFTU
 
-La page publique AFTU-Sénégal consultée précédemment affiche pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Le relevé transmis ici décrit un parcours entre « Terminus 88 » et « Terminus Liberté 5 », avec des repères de Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes, Patte d'Oie et Grand Yoff.
+La page d'index publique AFTU-Sénégal consultée séparément affiche pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Le site source des deux séquences détaillées repris dans cette fiche décrit « Terminus 88 » ↔ « Terminus Liberté 5 », avec des repères de Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes, Patte d'Oie et Grand Yoff.
 
-Cette différence de description doit être résolue avant de qualifier les deux listes comme séquences officielles de la ligne 88. Elle peut correspondre à une variante, à une évolution de ligne, à une terminologie de terminus différente ou à une divergence entre la page index et le relevé terrain ; aucune de ces explications n'est retenue sans preuve.
+Les deux éléments sont conservés tels quels : les séquences détaillées proviennent du site source communiqué pour ce travail ; l'index AFTU constitue une autre publication dont le corridor est différent. Cette divergence doit être signalée dans l'audit, mais elle ne justifie ni de supprimer ni de réécrire les arrêts du site source. Aucune hypothèse de variante, de changement de ligne ou de terminologie n'est imposée sans élément documentaire supplémentaire.
 
 ## Séquence aller — 78 entrées
 
@@ -184,7 +186,7 @@ Cette différence de description doit être résolue avant de qualifier les deux
 
 ## Contrôles à effectuer avant validation
 
-1. Confirmer auprès de l'opérateur que les deux listes correspondent bien à la ligne AFTU 88 et préciser la signification du corridor publié « Bargny – Croisement Niague (Cité SICAP) ».
+1. Rattacher à cette fiche l'URL exacte du site source des deux séquences pour assurer la traçabilité documentaire, puis conserver séparément la différence avec le corridor de l'index AFTU.
 2. Géocoder chaque entrée à partir d'une source ou d'une vérification terrain ; ne pas déduire une coordonnée du seul nom.
 3. Identifier les arrêts communs et les variantes de libellés sans fusionner deux lieux distincts sur simple ressemblance.
 4. Vérifier les points de divergence entre les sens, notamment les repères présents dans un seul sens.
