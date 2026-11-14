@@ -5,14 +5,33 @@
  */
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
+import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_LINE_CODES } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
 export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
 export const TATA_BUS_LINES = tataCatalog as unknown as readonly BusLine[]
-/** Tous les itinéraires documentés sous l'identité commune AFTU / TATA. */
-export const UNIFIED_BUS_LINES: readonly BusLine[] = uniqueEquivalentLines([...BUS_LINES, ...TATA_BUS_LINES])
+const detailedTataCodes = new Set(TATA_BUS_LINES.map((line) => line.code))
+const detailedAftuCodes = new Set(BUS_LINES.filter((line) => line.network === 'aftu').map((line) => line.code))
+/** Deux lignes TATA ont un terminus publié mais pas encore de séquence détaillée. */
+export const TATA_CATALOG_FALLBACK_LINES: readonly BusLine[] = AFTU_TATA_PUBLIC_LINE_CATALOG
+  .filter((line) => line.network === 'tata' && !detailedTataCodes.has(line.line)
+    && !(AFTU_TATA_SHARED_LINE_CODES.has(line.line) && detailedAftuCodes.has(line.line)))
+  .map((line) => ({
+    network: 'tata' as const,
+    code: line.line,
+    origin: line.origin,
+    destination: line.destination,
+    sourceUrl: line.sourceUrl,
+    consultedAt: '2026-11-14',
+    publishedAt: null,
+    waypoints: [],
+    detailSourceUrl: line.sourceUrl,
+    note: 'Terminus issu du catalogue TATA ; séquence détaillée non disponible dans le dépôt.',
+  }))
+/** Tous les itinéraires détaillés et les fiches de terminus TATA manquantes. */
+export const UNIFIED_BUS_LINES: readonly BusLine[] = uniqueEquivalentLines([...BUS_LINES, ...TATA_BUS_LINES, ...TATA_CATALOG_FALLBACK_LINES])
 export interface KnowledgeReply { text: string; lineId?: string }
 
 export interface RemoteTrafficIncident {
