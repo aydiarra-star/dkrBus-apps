@@ -323,4 +323,4 @@ begin
     raise exception 'Audit event truncation was not rejected';
   end if;
 end;
-$;
+$$;
