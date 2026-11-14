@@ -238,7 +238,7 @@ export const TATA_DETAILED_ADDITIONAL_PUBLIC_LINES: readonly PublicBusLineRefere
   }))
 
 function normalizeRouteEndpoint(value: string): string {
-  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').trim()
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bterminus\b/g, ' ').replace(/\b(rond[ -]?point|giratoire)\b/g, ' ').trim()
 }
 
 function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
