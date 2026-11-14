@@ -199,3 +199,15 @@ L'index AFTU affiche aussi désormais la ligne 91 comme APIX–Dougar. Il s'agit
 Rapport détaillé : `docs/aftu-lines-86-87-88-89-validation-audit-2026-11-14.md`.
 
 Les transcriptions et les répétitions ne sont pas supprimées. Aucun horaire/fréquence n'est validé par ce rapprochement. Pas d'écriture Supabase, pas de déploiement, pas de changement TER/BRT.
+
+
+## Complément AFTU 86–89 — recoupement directionnel approfondi (14 novembre 2026)
+
+La relecture de l'index AFTU actuel fixe les corridors de référence : 86 Tournalou Boune–Toubab Dialaw ; 87 Bambilor–Mosquée Massalikou Djinane ; 88 MTOA–Liberté 5 ; 89 Bargny–Croisement Niague (Cité SICAP). Les notes documentaires des fichiers JSON 86/87 ont été corrigées pour retirer des affectations de corridors décalées ; aucun waypoint ni horaire n'a été changé.
+
+- **86 :** un guide indépendant d'accès à Toubab Dialaw (janvier 2026) mentionne un Tata 86 au départ de Pikine, via Rufisque, Bargny et Diamniadio. Cela renforce l'arrivée Toubab Dialaw, mais ne valide ni le départ Tournalou Boune ni la transcription Yeumbeul–Touba Ngayame (68/64). Statut de rattachement : conflit ouvert.
+- **87 :** Bambilor est confirmé comme extrémité officielle et correspond à la référence des captures ; Massalikou Djinane ne correspond pas au terminus Maristes de la liste. Statut : cohérence partielle, terminus à résoudre.
+- **88 :** MTOA est présent dans les deux séquences détaillées (aller rang 12 ; retour rang 71), mais les listes vont de « Terminus 88 » à Liberté 5 et ne commencent pas à MTOA. L'index officiel confirme le corridor MTOA–Liberté 5 sans expliquer cette différence. Statut : repère MTOA corroboré dans la liste, terminus exact à résoudre.
+- **89 :** les listes couvrent explicitement Niague → Tivaoune Peulh → Keur Massar → Keur Mbaye Fall → Zac Mbao → Rufisque → Bargny Gare TER. C'est globalement compatible avec Bargny–Croisement Niague ; l'équivalence exacte entre « Terminus 89 » et « Croisement Niague (Cité SICAP) » reste à confirmer.
+
+Aucun arrêt répété n'est supprimé ou fusionné. Les deux sens restent indépendants. Pas de modification du catalogue passager, des données TER/BRT, de Supabase ou de la production.
