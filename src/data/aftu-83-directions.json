@@ -23,6 +23,16 @@
     "status": "return-corridor-confirmed-sequence-unavailable",
     "sourceLabel": "Document tarifaire AFTU archivé",
     "sourceUrl": "https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf",
-    "note": "Le document distingue explicitement ALLER et RETOUR et publie des tarifs au départ d’Arafat vers les secteurs de la ligne. Il confirme l'existence d'un service retour, mais ne fournit pas une liste ordonnée complète des arrêts retour. Aucun ordre inverse n'est fabriqué."
+    "note": "Le document tarifaire distingue explicitement ALLER et RETOUR. Les tarifs du retour permettent d'identifier ces repères de corridor dans l'ordre Zone de Captage → Case Ba → Rond-point Malibu → Malika Plage → Station Keur Massar → Sipres → Dioutiba → Rufisque Arafat. Ce sont des points d'ancrage tarifaires, pas une liste exhaustive d'arrêts ; ils ne sont pas injectés comme séquence retour.",
+    "orderedCorridorAnchors": [
+      "Zone de Captage",
+      "Case Ba",
+      "Rond-point Malibu",
+      "Malika Plage",
+      "Station Keur Massar",
+      "Sipres",
+      "Dioutiba",
+      "Rufisque Arafat"
+    ]
   }
 }
