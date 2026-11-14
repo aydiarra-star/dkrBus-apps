@@ -33,6 +33,7 @@ begin
       language sql
       immutable
       strict
+      security definer
       set search_path = pg_catalog, %I
       as $function$
         select encode(digest(convert_to(p_payload, 'UTF8'), 'sha256'), 'hex')
