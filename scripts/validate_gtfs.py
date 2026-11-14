@@ -256,7 +256,6 @@ class GTFSValidator:
                 zipfile.ZIP_STORED,
                 zipfile.ZIP_DEFLATED,
                 zipfile.ZIP_BZIP2,
-                zipfile.ZIP_LZMA,
             }:
                 self.report.add(
                     "ERROR",
