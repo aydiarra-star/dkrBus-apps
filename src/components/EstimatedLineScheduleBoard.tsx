@@ -45,6 +45,12 @@ const AFTU_TATA_NETWORK_REFERENCE: EstimatedLineSchedule = {
   sourceLabel: 'AFTU/TATA · intervalle moyen de référence',
 }
 
+const AFTU_TATA_DEFAULT_WINDOW: EstimatedFrequencyWindow = {
+  start: '06:00',
+  end: '22:50',
+  interval: '11.6 min',
+}
+
 const DDD_NETWORK_REFERENCE: EstimatedLineSchedule = {
   line: '*',
   weekday: { start: '05:30', end: '21:00', interval: '10 min' },
@@ -140,7 +146,7 @@ function AftuTataScheduleBoard({
             ?? routeReferences.find((item) => item.code === lineNumber && item.outboundSchedule)?.outboundSchedule
             ?? AFTU_TATA_NETWORK_REFERENCE
           const declaredWindow = weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
-          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_NETWORK_REFERENCE.weekday, 'aftu_tata') ?? AFTU_TATA_NETWORK_REFERENCE.weekday
+          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_DEFAULT_WINDOW, 'aftu_tata') ?? AFTU_TATA_DEFAULT_WINDOW
           const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
           const countdownSchedule = { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
           const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
