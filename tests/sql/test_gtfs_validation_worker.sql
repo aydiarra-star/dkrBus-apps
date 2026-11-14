@@ -207,7 +207,8 @@ begin
   end if;
 
   if (select count(*) from public.dakar_admin_audit_events
-      where action = 'GTFS_SERVER_VALIDATION_COMPLETED') <> 2 then
+      where action = 'GTFS_SERVER_VALIDATION_COMPLETED'
+        and target_id in ('worker-valid-test', 'worker-invalid-test')) <> 2 then
     raise exception 'Server validation audit events were not recorded atomically';
   end if;
 
