@@ -241,7 +241,7 @@ function normalizeRouteEndpoint(value: string): string {
   return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bterminus\b/g, ' ').replace(/\b(rond[ -]?point|giratoire)\b/g, ' ').trim()
 }
 
-function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
+export function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
   const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
 }
