@@ -185,3 +185,29 @@ Ils sont marqués comme repères théoriques et non comme départs fixes garanti
 L'index AFTU précédemment audité affichait **Bambilor – Mosquée Massalikou Djinane**. La référence plus récente transmise au projet décrit **Bambilor – Maristes**. Les captures détaillées enregistrées dans le dépôt relient « Terminus 79 87 » aux « Maristes Terminus 87 ». Cette différence est conservée comme évolution possible de version ou divergence de source ; l'ancien index n'est pas réécrit silencieusement.
 
 Les deux fichiers JSON et leurs tests sont mis à jour pour séparer amplitude générale, pointes, intervalle variable et départs théoriques. Aucun horaire de passage n'est créé. Aucune donnée TER/BRT, écriture Supabase, mise en production ou fusion de PR n'est effectuée.
+
+
+## Rectification majeure de numérotation — relecture directe de l’index AFTU (14 novembre 2026)
+
+La page officielle [AFTU — Infos pratiques](https://aftu-senegal.org/infos-pratiques/) a été rouverte directement après les mises à jour précédentes. Les lignes 84 à 91 y sont affichées ainsi (lecture des lignes 402 à 439 de la page) :
+
+| Numéro affiché actuellement | Corridor affiché par l’index officiel |
+|---|---|
+| 84 | Banoba – Liberté 5 |
+| 85 | Tournalou Boune – Toubab Dialaw |
+| 86 | Bambilor – Mosquée Massalikou Djinane |
+| 87 | MTOA – Liberté 5 |
+| 88 | Bargny – Croisement Niague (Cité SICAP) |
+| 89 | APIX – Dougar |
+| 91 | Aucun corridor lisible dans le contenu de la page après le libellé « LIGNE 91 » |
+
+**Correction de l’audit antérieur :** les tableaux précédents attribuant Tournalou–Toubab à 86 et Bambilor–Massalikou à 87 étaient décalés d’un numéro par rapport à la page officielle actuellement publiée. Il faut les considérer comme une ancienne transcription erronée de l’index et non comme la référence actuelle.
+
+### Conséquence pour les données CETUD transmises au projet
+
+- **Fichier 86 :** les captures enregistrées dans le dépôt décrivent Yeumbeul → Touba Ngayame et le retour. Le responsable du projet a également décrit la ligne 86 comme Tournalou Boune → Toubab Dialaw. L’index officiel actuel affiche pourtant Bambilor → Mosquée Massalikou Djinane pour 86. Ces trois références ne sont pas compatibles à ce stade.
+- **Fichier 87 :** les captures enregistrées décrivent Terminus 79 87 → Maristes Terminus 87 et le retour ; la référence de fonctionnement transmise indique Bambilor → Maristes. L’index officiel actuel affiche MTOA → Liberté 5 pour 87.
+
+Les séquences capturées, les profils de fonctionnement et les corridors de l’index sont conservés comme sources distinctes. **Aucun parcours n’est supprimé, renuméroté ou réattribué automatiquement.** En revanche, tant que le CETUD n’a pas confirmé la correspondance des numéros, les fiches 86 et 87 doivent rester en statut de rapprochement à résoudre et ne doivent pas être présentées comme une correspondance officielle définitivement établie.
+
+Source primaire : index officiel AFTU, consulté directement le 14 novembre 2026 : https://aftu-senegal.org/infos-pratiques/ (sections lignes 84–91). Cette relecture confirme aussi que le contenu indexé ne fournit pas de corridor lisible pour le numéro 91.
