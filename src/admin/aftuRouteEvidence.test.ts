@@ -67,6 +67,7 @@ describe('adaptateur de preuves AFTU', () => {
     const route = getAftuRouteEvidence('83')
     expect(route?.outbound.waypoints).toHaveLength(14)
     expect(route?.inbound.waypoints).toHaveLength(0)
+    expect(route?.inboundCorridorStatus).toBe('confirmed-sequence-unavailable')
     expect(route?.inbound.hasPerStopTimes).toBe(false)
     expect(route?.inbound.sequenceStatus).toBe('missing')
     expect(route?.inbound.waypoints).toHaveLength(0)
