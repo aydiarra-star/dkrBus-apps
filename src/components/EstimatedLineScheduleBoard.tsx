@@ -18,6 +18,7 @@ import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
+  AFTU_TATA_SHARED_ROUTE_KEYS,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -187,6 +188,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             if (item.code !== line.line) return false
             if (!item.origin || !item.destination) return item.network === line.network
             return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
+              && (item.network === line.network || AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey))
           })
           const richestRoute = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           // Garder les séquences du parcours le plus complet, sans perdre les
@@ -196,10 +198,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             outboundSchedule: routeCandidates.find((item) => item.outboundSchedule)?.outboundSchedule ?? richestRoute.outboundSchedule,
             inboundSchedule: routeCandidates.find((item) => item.inboundSchedule)?.inboundSchedule ?? richestRoute.inboundSchedule,
           } : undefined
-          // Une fréquence AFTU n'est réutilisée que si la fiche détaillée AFTU
-          // décrit exactement les mêmes terminus ; un simple numéro commun ne suffit pas.
-          const hasMatchingAftuRoute = routeCandidates.some((item) => item.network === 'aftu')
-          const lineSchedule = (hasMatchingAftuRoute ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
+          // AFTU et TATA partagent le même référentiel horaire : la référence
+          // est choisie par numéro de ligne, sans distinction d'opérateur.
+          // L'identité des itinéraires et leurs listes d'arrêts restent séparées.
+          const sharedRouteSchedule = routeReferences.find((item) => item.code === line.line && item.outboundSchedule)?.outboundSchedule
+          const lineSchedule = schedulesByLine.get(line.line) ?? sharedRouteSchedule ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
@@ -217,11 +220,16 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
+          // Les deux opérateurs partagent la même grille horaire : ne pas laisser
+          // une fréquence isolée d'une fiche de parcours remplacer la référence commune.
+          const lineInterval = isDdd && route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : isDdd ? route?.frequency?.display : undefined
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
           const countdownSchedule = countdownWindow && schedule ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-          const inboundSchedule = route?.inboundSchedule ?? null
+          // AFTU et TATA partagent aussi le même horaire de retour :
+          // les horaires directionnels propres à une fiche ne doivent pas créer
+          // une différence entre opérateurs du réseau unifié.
+          const inboundSchedule = isDdd ? route?.inboundSchedule ?? null : null
           const inboundDayWindow = inboundSchedule
             ? weekday === 0 ? inboundSchedule.sunday : weekday === 6 ? inboundSchedule.saturday : inboundSchedule.weekday
             : scheduleWindow
@@ -236,12 +244,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           // independent return timetable, reuse the line's published frequency
           // window for the return board. This is a frequency-based countdown,
           // not a vehicle-position prediction or a stop-by-stop arrival time.
-          const inboundMinutes = inboundServiceState.status === 'ACTIVE'
-            ? inboundSchedule
-              ? scheduleCountdownMinutes(inboundSchedule, now)
-              : (line.network === 'tata' || route?.inboundWaypoints?.length) && countdownSchedule
-                ? scheduleCountdownMinutes(countdownSchedule, now)
-                : null
+          const inboundMinutes = inboundServiceState.status === 'ACTIVE' && countdownSchedule
+            ? scheduleCountdownMinutes(countdownSchedule, now)
             : null
           const directions = [
             { id: 'outbound' as const, label: 'Aller', from: line.origin, to: line.destination, minutes: outboundMinutes, serviceState, serviceWindow, hasExplicitNoService },

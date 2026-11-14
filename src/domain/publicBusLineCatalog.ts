@@ -261,30 +261,59 @@ export function detailedRouteKey(line: { code: string; origin: string; destinati
 }
 
 /**
- * Numéros dont les catalogues détaillés AFTU et TATA décrivent le même trajet.
- * Les terminus sont comparés sans accents, parenthèses ni variante « Sébikhotane ».
- * Les collisions de numéro dont les terminus diffèrent ne sont pas fusionnées.
+ * Normalisation des séquences d'arrêts détaillées pour vérifier l'identité
+ * d'un trajet entre les deux opérateurs.
+ */
+/**
+ * Normalise une séquence d'arrêts pour comparer deux fiches détaillées.
+ * Les mentions de terminus en tête/fin de fiche AFTU ne sont pas des arrêts
+ * intermédiaires et sont retirées avant la comparaison.
+ */
+function normalizeRouteStop(value: string): string {
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bsham\b/g, 'sahm').replace(/\s+/g, ' ').trim()
+}
+
+function normalizedRouteStops(stops: readonly string[]): string[] {
+  const copy = [...stops]
+  if (copy.length && /^terminus\b/i.test(copy[0].trim())) copy.shift()
+  if (copy.length && /^terminus\b/i.test(copy[copy.length - 1].trim())) copy.pop()
+  return copy.map(normalizeRouteStop).filter(Boolean)
+}
+
+function sameDetailedStopSequence(a: { waypoints?: readonly string[] }, b: { waypoints?: readonly string[] }): boolean {
+  const left = normalizedRouteStops(a.waypoints ?? [])
+  const right = normalizedRouteStops(b.waypoints ?? [])
+  return left.length > 0 && left.length === right.length && left.every((stop, index) => stop === right[index])
+}
+
+/**
+ * Un trajet AFTU/TATA n'est partagé que si les terminus ET la séquence ordonnée
+ * des arrêts détaillés concordent. Un numéro ou des terminus identiques ne suffisent pas.
  */
 export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
   const shared = new Set<string>()
-  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string }[]).filter((line) => line.network === 'aftu')
-  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string }[]
-  const tataKeys = new Set(detailedTata.map(detailedRouteKey))
-  for (const line of detailedAftu) {
-    const key = detailedRouteKey(line)
-    if (tataKeys.has(key)) shared.add(key)
-  }
+  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu')
+  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]
   for (const aftu of detailedAftu) {
-    for (const tata of TATA_PUBLIC_FALLBACK_LINES) {
-      const aftuKey = detailedRouteKey(aftu)
-      if (aftu.code === tata.line && aftuKey === detailedRouteKey({ code: tata.line, origin: tata.origin, destination: tata.destination })) shared.add(aftuKey)
-    }
+    const key = detailedRouteKey(aftu)
+    const matchingTata = detailedTata.find((tata) => detailedRouteKey(tata) === key)
+    if (matchingTata && sameDetailedStopSequence(aftu, matchingTata)) shared.add(key)
   }
   return shared
 })()
 
 /** Alias de compatibilité pour les métriques : un numéro peut porter plusieurs
  *  parcours distincts ; cet ensemble ne sert jamais seul à fusionner des fiches. */
+/** Identité stable d'une fiche : les itinéraires AFTU/TATA ne partagent
+ * une identité que si leurs séquences détaillées sont identiques.
+ */
+export function detailedRouteIdentity(line: { network: string; code: string; origin: string; destination: string; waypoints?: readonly string[] }): string {
+  const routeKey = detailedRouteKey(line)
+  if ((line.network === 'aftu' || line.network === 'tata') && AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)) return routeKey
+  const sequence = normalizedRouteStops(line.waypoints ?? []).join('>') || 'no-detail'
+  return `${line.network}|${routeKey}|${sequence}`
+}
+
 export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
   [...AFTU_TATA_SHARED_ROUTE_KEYS].map((key) => key.slice(0, key.indexOf('|'))),
 )
@@ -297,8 +326,14 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
+  const detailedRecords = [
+    ...(mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu'),
+    ...(tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]),
+  ]
   for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
-    const key = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+    const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+    const detail = detailedRecords.find((item) => item.network === line.network && detailedRouteKey(item) === routeKey)
+    const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: detail?.waypoints })
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
