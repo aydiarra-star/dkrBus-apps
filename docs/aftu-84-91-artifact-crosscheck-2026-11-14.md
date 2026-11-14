@@ -340,3 +340,26 @@ Sources publiques consultées :
 - PassBi, fiche publique : https://play.google.com/store/apps/details?id=com.senpassbi.app
 
 Aucun horaire ou intervalle n'est validé par ces recherches. Les listes CETUD 90/91 sont conservées selon les validations explicites du responsable du projet. Aucune donnée passager, TER/BRT, Supabase ou production n'est modifiée.
+
+
+## Rapprochement séquentiel ligne 86 / ligne 91 — contrôle exact du 14 novembre 2026
+
+Un contrôle programmatique des libellés exacts a été réalisé entre les 64 arrêts du retour de la ligne 86 déjà stockés dans `src/data/aftu-86-directions.json` et les 70 arrêts de l'aller de la ligne 91 validés par le responsable du projet dans `docs/aftu-line-91-cetud-app-directional-stop-lists-2026-11-14.md`.
+
+**Résultat : 26 libellés exactement identiques** apparaissent dans les deux séquences. Ils couvrent notamment Diamniadio (garage Modou Talibé Cheikh, Talli Boune, Oil Libya, Incco, Baye Peul, gendarmerie), puis Sendou/Bargny, Sococim, Rufisque, P15, Sonadis, Dioutiba, Auberge L'Oustal, Avisen et Layousse. L'ordre général de ces arrêts est compatible avec un tronçon commun, mais le contrôle effectué ici porte sur l'appartenance des libellés aux listes et non sur une preuve GPS indépendante ni sur une correspondance complète de ligne.
+
+Le recoupement peut s'expliquer par un tronc commun, des variantes de desserte ou une différence de version/source. Il ne prouve ni fusion, ni renumérotation, ni erreur de numéro. Les deux séquences sont issues de références CETUD transmises au projet, mais les terminus publics AFTU affichés restent différents : ligne 86 Tournalou Boune–Toubab Dialaw et ligne 91 APIX–Dougar. **Aucune correction ou suppression n'est faite** dans les deux fichiers. À faire confirmer par une source opérateur/CETUD : le partage de tronçon, les arrêts propres à chaque ligne et les terminus réellement exploités.
+
+La fiche publique AFTU continue d'afficher les corridors 86 Tournalou Boune–Toubab Dialaw, 87 Bambilor–Mosquée Massalikou Djinane et 91 APIX–Dougar, sans séquences détaillées. La fiche App Store de CETUD Mobilités confirme que l'application officielle donne accès aux lignes, arrêts et horaires, mais sa description publique ne publie pas le détail de ces trois lignes. Sources : https://aftu-senegal.org/infos-pratiques/ ; https://apps.apple.com/sn/app/cetud-mobilit%C3%A9s/id6814449080.
+
+## Ligne 87 — état après recherche complémentaire
+
+Le fichier `src/data/aftu-87-directions.json` contient toujours 68 arrêts à l'aller et 71 au retour, terminus transcrits « Terminus 79 87 » et « Maristes Terminus 87 », avec départs théoriques 06:30 Bambilor et 06:35 Maristes transmis par le responsable du projet. L'index AFTU public donne Bambilor–Mosquée Massalikou Djinane. Une ancienne publication LinkedIn du compte AFTU mentionne un changement d'itinéraire de la ligne 87, mais le contenu accessible ne donne pas de séquence lisible : https://sn.linkedin.com/posts/aftu-senegal_weekend-ligne87-diam-activity-6954111887911325696-_ZrF. Cette piste confirme seulement qu'il y a eu une évolution d'itinéraire ; elle ne résout pas la divergence Maristes / Mosquée Massalikou Djinane. Ne pas réécrire les 68/71 arrêts ni les repères théoriques.
+
+## Décision de chantier
+
+1. Conserver sans modification les séquences 86 (68/64) et 87 (68/71).
+2. Consigner les 26 libellés communs entre retour 86 et aller 91 comme tronc commun potentiel à confirmer, sans fusion.
+3. Ne pas afficher les anciennes heures transcrites invalidées de la ligne 86 ; ne pas extrapoler de temps de passage.
+4. Maintenir la ligne 87 en divergence de terminus jusqu'à preuve institutionnelle plus précise.
+5. Poursuivre le contrôle des autres lignes AFTU et les audits DDD ; aucune donnée TER/BRT n'est touchée.
