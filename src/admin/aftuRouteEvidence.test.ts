@@ -67,28 +67,29 @@ describe('adaptateur de preuves AFTU', () => {
     const missing = AFTU_ROUTE_EVIDENCE
       .filter((route) => route.inbound.sequenceStatus === 'missing')
       .map((route) => route.line)
-    expect(missing).toEqual(['83'])
+    expect(missing).toEqual([])
     expect(AFTU_ROUTE_EVIDENCE.every((route) =>
       route.outbound.sequenceStatus === 'documented' && route.serviceWindow.start === '05:30' && route.serviceWindow.end === '22:00',
     )).toBe(true)
   })
 
-  it('conserve le retour absent de la fiche 83', () => {
+  it('conserve les deux séquences CETUD validées de la ligne 83 et sa fréquence', () => {
     const route = getAftuRouteEvidence('83')
-    expect(route?.outbound.waypoints).toHaveLength(14)
-    expect(route?.outbound.sourceUrl).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-83/')
-    expect(route?.outbound.waypoints[0]).toBe('Terminus Rufisque Arafat')
-    expect(route?.outbound.waypoints[13]).toBe('Terminus Zone de Captage')
-    expect(route?.inbound.waypoints).toHaveLength(0)
-    expect(route?.inboundCorridorStatus).toBe('confirmed-sequence-unavailable')
-    expect(route?.inboundCorridorAnchors).toEqual([
-      'Terminus Zone de Captage', 'Case-Ba', 'Rond-point Malibu', 'Malika Plage',
-      'Station Keur Massar', 'Sipres', 'Dioutiba', 'Terminus Rufisque Arafat',
-    ])
-    expect(route?.inbound.hasPerStopTimes).toBe(false)
-    expect(route?.inbound.sequenceStatus).toBe('missing')
-    expect(route?.inbound.waypoints).toHaveLength(0)
+    expect(route?.outbound.waypoints).toHaveLength(93)
+    expect(route?.inbound.waypoints).toHaveLength(90)
+    expect(route?.outbound.waypoints[0]).toBe('Sonadis près du Jardin En Face Hôtel De Ville (Départ)')
+    expect(route?.outbound.waypoints[92]).toBe('Zone De Captage (Terminus)')
+    expect(route?.inbound.waypoints[0]).toBe('Zone De Captage (Départ)')
+    expect(route?.inbound.waypoints[89]).toBe('Rufisque Ville Devant La Boutique Orange À Coté De La Mairie (Terminus)')
+    expect(route?.outbound.waypoints.filter((name) => name === 'Malika Plage Vdn')).toHaveLength(2)
+    expect(route?.inbound.waypoints.filter((name) => name === 'Terrain De Football Zone De Captage')).toHaveLength(2)
     expect(route?.outbound.sequenceStatus).toBe('documented')
+    expect(route?.inbound.sequenceStatus).toBe('documented')
+    expect(route?.outbound.scheduleInterval).toBe('11 min')
+    expect(route?.inbound.scheduleInterval).toBe('11 min')
+    expect(route?.outbound.hasPerStopTimes).toBe(false)
+    expect(route?.inbound.hasPerStopTimes).toBe(false)
+    expect(route?.sourceStatus).toBe('user-validated-cetud-sequences')
     expect(route?.serviceWindow).toEqual({ start: '05:30', end: '22:00', source: 'CETUD-network-default' })
   })
 
