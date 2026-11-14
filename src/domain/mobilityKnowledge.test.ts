@@ -49,6 +49,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('donne le parcours AFTU / TATA récent plutôt que le parcours historique CETUD', () => {
     const result = ask('itinéraire AFTU 53')
     expect(result).toContain('Terminus Keur Massar (Marché)')
+    expect((result.match(/AFTU \/ TATA 53/g) ?? []).length).toBe(1)
     expect(result).toContain('Sococim → Bargny → Diamniadio')
     expect(result).toContain('publication du 2026-07-06')
     expect(result).toContain('Les sources AFTU consultées ne concordent pas')
@@ -58,6 +59,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   it('une recherche TATA consulte aussi les lignes AFTU du réseau commun', () => {
     const reply = ask('TATA 42')
     expect(reply).toContain('AFTU / TATA 42')
+    expect((reply.match(/AFTU \/ TATA 42/g) ?? []).length).toBe(1)
     expect(reply).toContain('Gadaye')
   })
 
