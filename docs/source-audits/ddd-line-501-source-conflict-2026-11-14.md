@@ -166,45 +166,51 @@ Source : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/g
 **Conséquence pour l'audit :** conserver cette source comme contexte institutionnel daté, sans l'utiliser pour modifier le statut CONFLICTING_SOURCES ni pour ajouter/supprimer des arrêts.
 
 
-## Observation de l'application DDD fournie par l'utilisateur — 14 novembre 2026
+## Séquences 501 fournies par l'utilisateur — 14 novembre 2026
 
-Une capture d'écran de la fiche de la ligne 501 et une transcription du sens retour ont été fournies dans la conversation. Il s'agit d'une **observation utilisateur de l'application**, et non d'une extraction indépendante reproductible par cet audit. Les libellés sont conservés tels qu'ils apparaissent, sans normalisation silencieuse.
+L'utilisateur a fourni une capture de la fiche DDD et la transcription du sens retour. Ces éléments documentent deux séquences distinctes de neuf arrêts chacune. **Toutes les heures affichées dans la capture et la transcription sont exclues** : elles ne sont ni reprises ni utilisées pour valider des horaires.
 
 ### Sens aller — Port De Dakar → Terminus Palais 2
 
-La fiche affiche « Ligne 501 », 9 arrêts, fréquence « - » et longueur « - ». Séquence visible :
+1. Port De Dakar
+2. Cercle Mess Des Officiers Colonel Emmanuel Gomis Ou Embarcadère (Port Môle 08)
+3. Poste Ponty
+4. Devant Strass Avenue Ponpidou
+5. Devant Cité Peytavin
+6. Asecna
+7. Prés Du Bureau Regional Pam
+8. Prés De L'Hôpital Le Dantec
+9. Terminus Palais 2
 
-1. Port De Dakar — départ, 14:38
-2. Cercle Mess Des Officiers Colonel Emmanuel Gomis Ou Embarcadère (Port Môle 08) — 14:39
-3. Poste Ponty — 14:41
-4. Devant Strass Avenue Ponpidou — 14:42
-5. Devant Cité Peytavin — 14:44
-6. Asecna — 14:45
-7. Prés Du Bureau Regional Pam — 14:48
-8. Prés De L'Hôpital Le Dantec — 14:50
-9. Terminus Palais 2 — terminus, 14:33
+### Sens retour — Terminus Palais 2 → Port de Dakar
 
-### Sens retour — Terminus Palais 2 → Port De Dakar
+1. Terminus Palais 2
+2. Hopital Le Dantec
+3. Face Bureau Regional Pam
+4. En Face De La Direction Générale Du Budget
+5. Avenue Ponpidou En Face Alimentation Catim
+6. Cbao Ponty
+7. Place De L'Indépendance Prés De La Cbao
+8. Royal Air Maroc Place De L'Indépendance
+9. Port De Dakar
 
-La transcription fournie affiche également 9 arrêts, fréquence « - » et longueur « - ». Séquence :
+Les noms, l'orthographe et l'ordre sont conservés tels que fournis. Les deux directions restent séparées ; aucune direction n'est fabriquée par inversion. Les variantes de libellés entre directions ne sont pas fusionnées.
 
-1. Terminus Palais 2 — départ, 14:38
-2. Hopital Le Dantec — 14:40
-3. Face Bureau Regional Pam — 14:43
-4. En Face De La Direction Générale Du Budget — 14:45
-5. Avenue Ponpidou En Face Alimentation Catim — 14:47
-6. Cbao Ponty — 14:49
-7. Place De L'Indépendance Prés De La Cbao — 14:49
-8. Royal Air Maroc Place De L'Indépendance — 14:51
-9. Port De Dakar — terminus, 14:34
+## Vérification CETUD du statut des séquences — 14 novembre 2026
 
-### Contrôles et limites
+La page officielle « Système de données » du CETUD indique que l'organisme a créé des fichiers GTFS pour numériser le réseau de transport collectif de Dakar. Le CETUD précise que ces fichiers peuvent contenir les horaires, arrêts, itinéraires, trajets, tarifs et services.
 
-- Les deux sens sont consignés comme **deux séquences distinctes** ; aucun sens n'est fabriqué par inversion de l'autre.
-- Les variantes de libellés entre les sens (par exemple « Prés Du Bureau Regional Pam » / « Face Bureau Regional Pam », « Poste Ponty » / « Cbao Ponty ») sont conservées séparément.
-- Les horaires de terminus transcrits (14:33 à l'aller et 14:34 au retour) précèdent les départs affichés à 14:38. Cette anomalie apparente est signalée, sans correction ni déduction d'horaire.
-- La fiche affiche « Horaires théoriques · Peuvent varier selon le trafic » ; les heures sont consignées comme affichage observé, pas comme horaires opérationnels indépendamment vérifiés.
-- La capture ne fournit ni fréquence exploitable, ni longueur, ni preuve de la date de validité des données affichées. Les champs fréquence et longueur apparaissent « - ».
-- Cette observation utilisateur apporte deux séquences directionnelles de neuf arrêts à examiner pour l'intégration, mais elle ne résout pas à elle seule les contradictions entre les pages DDD sur les terminus « Gare de Dakar », « Palais 2 » et « Leclerc ».
+Source : https://cetud.sn/observatoire/systeme-de-donnees/
 
-**Décision :** conserver ces deux séquences dans le dossier d'audit comme observation de l'application DDD fournie par l'utilisateur. Ne pas les présenter comme vérification indépendante, ne pas modifier les horaires, et ne pas injecter automatiquement les données en production dans le cadre de ce PR documentaire. Une validation de la source, de la date et de la cohérence des horaires reste nécessaire avant toute intégration applicative.
+La page publique consultée décrit l'existence et le contenu général des fichiers GTFS, mais ne donne pas de lien de téléchargement direct vers le jeu de données lui-même ni d'extrait consultable permettant d'isoler la ligne 501. La page CETUD consacrée à DDD propose par ailleurs un téléchargement des lignes et horaires, mais le lien examiné précédemment aboutit à un plan cartographique JPEG de 2024, et non à une liste d'arrêts ordonnés par direction.
+
+Source : https://cetud.sn/reseaux-de-transport/ddd/
+
+### Conclusion de validation
+
+- **Séquences observées :** 9 arrêts aller et 9 arrêts retour, conservés exactement selon les éléments transmis par l'utilisateur.
+- **Horaires :** exclus, conformément à la consigne de l'utilisateur.
+- **Validation indépendante CETUD :** non acquise à ce stade. Le CETUD confirme publiquement l'existence de données GTFS contenant des arrêts et itinéraires, mais le fichier exploitable et son contenu pour la ligne 501 n'ont pas été récupérés/inspectés dans cet audit.
+- **Décision :** ne pas qualifier les deux séquences de « validées par le CETUD » tant que le GTFS ou une autre source CETUD directement vérifiable ne confirme pas les 9 arrêts et leur ordre dans chacun des deux sens. Ne pas les injecter comme données officiellement validées dans le catalogue de production sur la seule base de la capture.
+
+Aucune modification de donnée applicative, aucun horaire/fréquence ajouté, aucune modification TER/BRT, aucune écriture Supabase et aucun déploiement.
