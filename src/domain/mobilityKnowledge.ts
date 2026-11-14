@@ -284,8 +284,14 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
   return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
 }
 function routeSignature(line: BusLine): string {
-  if ((line.network === 'aftu' || line.network === 'tata') && AFTU_TATA_SHARED_LINE_CODES.has(line.code)) return `${line.code}|aftu-tata-shared`
-  const normalizeEndpoint = (value: string) => normalizeMobility(value.replace(/\([^)]*\)/g, ' ').replace(/\bsebikhotane\b/gi, 'sebikotane'))
+  // Une même ligne n'est fusionnée que si ses deux terminus concordent ; les
+  // alias éditoriaux connus (Sébikhotane, terminus, giratoire) sont normalisés.
+  const normalizeEndpoint = (value: string) => normalizeMobility(
+    value.replace(/\([^)]*\)/g, ' ')
+      .replace(/\bsebikhotane\b/gi, 'sebikotane')
+      .replace(/\bterminus\b/gi, ' ')
+      .replace(/\b(rond[ -]?point|giratoire)\b/gi, ' '),
+  )
   const ends = [normalizeEndpoint(line.origin), normalizeEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
 }
