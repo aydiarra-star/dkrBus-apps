@@ -38,7 +38,8 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   })
 
   it('distingue les parcours distincts sous un réseau AFTU / TATA unifié', () => {
-    expect(ask('ligne 1')).toContain('Plusieurs parcours distincts portent le numéro 1')
+    expect(ask('ligne 1')).toContain('Plusieurs mobilités portent le numéro 1')
+    expect((ask('AFTU ligne 1').match(/AFTU \/ TATA 1/g) ?? []).length).toBe(1)
     expect(ask('DDD 01')).toContain('Place Leclerc')
     expect(ask('AFTU ligne 1')).toContain('Lat Dior')
     expect(ask('AFTU ligne 1')).toContain('Grand Médine')
@@ -75,7 +76,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     } as BusLine
     setRemoteCandidateLines([candidate])
     const reply = ask('TATA 42')
-    expect(reply).toContain('Plusieurs parcours distincts portent le numéro 42')
+    expect(reply).toContain('Variantes documentaires du même numéro')
     expect(reply).toContain('AFTU / TATA 42')
     expect(reply).toContain('Petersen ↔ Keur Massar')
     setRemoteCandidateLines([])
