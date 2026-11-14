@@ -82,3 +82,42 @@ export const DDD_LINES_WITHOUT_SAME_CODE_ARCGIS_STOP_GROUP = [
 export function getDddPriorityRouteEvidence(line: string): DddPriorityRouteEvidence | null {
   return DDD_PRIORITY_ROUTE_EVIDENCE.find((item) => item.line === line) ?? null
 }
+
+/** Anomalies de rattachement des couches ; aucune réattribution n'est faite. */
+export const DDD_ARCGIS_ATTRIBUTION_WARNINGS = [
+  {
+    line: '20',
+    sourceLayerLine: '18',
+    pointCount: 44,
+    maxDistanceMetersToBothRoutes: 8.4,
+    warning: 'Les tracés ArcGIS 18 et 20 ont une distance de Hausdorff d’environ 25,1 m ; les 44 points de la couche 18 sont à 8,4 m ou moins des deux tracés. Les points restent attribués à la couche source 18.',
+  },
+  {
+    line: '219',
+    sourceLayerLine: '218',
+    pointCount: 33,
+    maxDistanceMeters: 9.8,
+    warning: '33 positions uniques stockées sous 218 suivent la géométrie 219 ; elles ne sont pas renommées ni déplacées vers la ligne 219.',
+  },
+  {
+    line: '233',
+    sourceLayerLine: null,
+    pointCount: 0,
+    maxDistanceMeters: null,
+    warning: 'L’en-tête DDD annonce Palais 1 tandis que la séquence publiée se termine à Aéroport LSS ; conflit non résolu.',
+  },
+  {
+    line: 'TAF_TAF',
+    sourceLayerLine: 'TO1',
+    pointCount: 0,
+    maxDistanceMeters: null,
+    warning: 'TO1 et TAF_TAF restent deux identifiants distincts ; aucune séquence n’est empruntée de l’un à l’autre.',
+  },
+  {
+    line: '15',
+    sourceLayerLine: '15A/15B',
+    pointCount: 0,
+    maxDistanceMeters: null,
+    warning: 'La ligne 15 reste distincte des lignes 15A et 15B ; aucune fusion de séquences.',
+  },
+] as const
