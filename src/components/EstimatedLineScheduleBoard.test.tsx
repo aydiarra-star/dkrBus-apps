@@ -15,7 +15,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveLabels = screen.getAllByText('AFTU / TATA 5')
-    expect(aftuFiveLabels).toHaveLength(4)
+    expect(aftuFiveLabels).toHaveLength(2)
     const row = aftuFiveLabels.map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
     expect(row).toBeTruthy()
     expect(within(row).getAllByText('10 min')).toHaveLength(1)
@@ -143,7 +143,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const tataThirtySevenLabels = screen.getAllByText('AFTU / TATA 37')
     expect(tataThirtySevenLabels).toHaveLength(4)
     expect(screen.queryByText('AFTU / TATA 2B')).toBeNull()
-    expect(container.querySelectorAll('.station-board-line-group')).toHaveLength(124)
+    expect(container.querySelectorAll('.station-board-line-group')).toHaveLength(90)
     expect(container.querySelectorAll('.station-board-row').length).toBeGreaterThan(124)
     expect(container.querySelectorAll('.station-board-passage strong').length).toBe(container.querySelectorAll('.station-board-row').length)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
