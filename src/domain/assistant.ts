@@ -35,6 +35,10 @@ import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoi
 import type { PlannerPriority } from './planner'
 
 import { trafficInstant } from './trafficFreshness'
+import { answerRemoteMobilityQuestion } from './remoteMobilityKnowledge'
+import type { MobilityBrainSnapshot } from './mobilityBrainApi'
+import { answerRemoteTrafficQuestion } from './remoteTrafficKnowledge'
+import type { RemoteTrafficSnapshot } from './trafficBrainApi'
 
 export interface AssistantContext {
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
@@ -57,6 +61,10 @@ export interface AssistantContext {
   trafficSummaryFr?: string | null
   /** Version wolof du résumé, quand elle est disponible. */
   trafficSummaryWo?: string | null
+  /** Référentiel public des mobilités chargé en lecture seule depuis Supabase. */
+  remoteMobilityKnowledge?: MobilityBrainSnapshot | null
+  /** État des alertes Supabase ; aucune question, position ou conversation n'est transmise. */
+  remoteTrafficKnowledge?: RemoteTrafficSnapshot | null
   /** Date limite de la synthèse, bornée par la plus courte preuve source. */
   trafficSummaryValidUntil?: string | null
 }
@@ -277,6 +285,12 @@ export function answerAssistant(question: string, context: AssistantContext, now
   const text = normalize(question)
   if (!text) return 'Posez-moi une question sur les transports de Dakar : arrêts BRT, gares TER, itinéraires, fréquences ou perturbations.'
 
+  const remoteBusKnowledge = answerRemoteMobilityQuestion(question, context.remoteMobilityKnowledge)
+  if (remoteBusKnowledge) return remoteBusKnowledge
+  if (includesAny(text, ['tata']) && !context.remoteMobilityKnowledge) {
+    return 'Le catalogue TATA est distinct de celui de l’AFTU dans la mémoire centrale. La connexion au référentiel Supabase est momentanément indisponible ; je ne vais donc pas remplacer une ligne TATA par une ligne AFTU.'
+  }
+
   const knowledge = answerMobilityKnowledge(question)
   if (knowledge) return knowledge.text
 
@@ -475,6 +489,8 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
         : 'Voici l’état du trafic autour de vous : '
       return `${prefix}${context.trafficSummaryFr}${context.trafficSummaryWo ? `\n\n(Wolof · ${context.trafficSummaryWo})` : ''}`
     }
+    const remoteTrafficAnswer = answerRemoteTrafficQuestion(question, context.remoteTrafficKnowledge)
+    if (remoteTrafficAnswer) return remoteTrafficAnswer
     return `Je n’ai aucune alerte vérifiable à afficher : aucune synthèse trafic récente n’est disponible dans ce contexte, et l’absence d’alerte ne signifie pas que le service est normal. ${OFFICIAL_CHANNELS}${context.adminOnline ? ' Une API joignable ne garantit pas que les flux trafic soient configurés et vérifiés.' : ''} Activez le GPS dans l’onglet Alertes pour activer la détection des arrêts à proximité.`
   }
 
