@@ -55,6 +55,14 @@ Faire évoluer l'assistant existant en copilote de mobilité fiable. Le copilote
 - Consolider français et wolof sans annoncer une couverture wolof qui n'est pas validée.
 - Toute transcription ou réponse vocale doit garder un mode texte accessible.
 
+## Documents techniques récupérés
+
+Les documents de conception et de couverture ont été regroupés sous `docs/ai/` :
+- `architecture-mobility-brain-v1.md` : architecture du cerveau de mobilité et principes de séparation.
+- `schema-proposal-v1.sql` : proposition de schéma uniquement ; ce fichier n'est pas une migration et ne doit pas être exécuté tel quel.
+- `network-coverage-2026-11-12.md` : inventaire et limites de couverture des réseaux.
+- `gps-capteurs-alertes-ia.md` : cadrage de la collecte GPS, des capteurs et des alertes.
+
 ## Règles de livraison
 
 1. Cette PR est l'unique PR de référence du chantier IA ; les changements IA suivants doivent être intégrés à cette branche avant fusion, pas dispersés en PR concurrentes.
