@@ -53,6 +53,70 @@ type SuppliedAftuSequence = {
   validatedByProjectOwner: boolean
 }
 
+
+/** Séquences 501 validées explicitement par le responsable du projet à partir
+ * de la fiche de l'application DDD fournie : aucun horaire n'est importé. */
+const DDD_OWNER_VALIDATED_SEQUENCES: Readonly<Record<string, {
+  directions: Record<BusDirectionId, { origin: string; destination: string; waypoints: string[] }>
+  sourceLabel: string
+}>> = {
+  '501': {
+    sourceLabel: 'Application mobile DDD · séquences aller/retour fournies et validées par le responsable du projet',
+    directions: {
+      outbound: {
+        origin: 'Port De Dakar',
+        destination: 'Terminus Palais 2',
+        waypoints: [
+          'Port De Dakar',
+          'Cercle Mess Des Officiers Colonel Emmanuel Gomis Ou Embarcadère (Port Môle 08)',
+          'Poste Ponty',
+          'Devant Strass Avenue Ponpidou',
+          'Devant Cité Peytavin',
+          'Asecna',
+          'Prés Du Bureau Regional Pam',
+          "Prés De L'Hôpital Le Dantec",
+          'Terminus Palais 2',
+        ],
+      },
+      inbound: {
+        origin: 'Terminus Palais 2',
+        destination: 'Port De Dakar',
+        waypoints: [
+          'Terminus Palais 2',
+          'Hopital Le Dantec',
+          'Face Bureau Regional Pam',
+          'En Face De La Direction Générale Du Budget',
+          'Avenue Ponpidou En Face Alimentation Catim',
+          'Cbao Ponty',
+          "Place De L'Indépendance Prés De La Cbao",
+          "Royal Air Maroc Place De L'Indépendance",
+          'Port De Dakar',
+        ],
+      },
+    },
+  },
+}
+
+function makeOwnerValidatedDirection(
+  source: PublicBusLineReference,
+  id: BusDirectionId,
+  sequence: DDD_OWNER_VALIDATED_SEQUENCES[string]['directions'][BusDirectionId],
+  sourceLabel: string,
+): BusDirection {
+  return {
+    id,
+    label: id === 'outbound' ? 'Aller' : 'Retour',
+    origin: sequence.origin,
+    destination: sequence.destination,
+    stopIds: [],
+    stopNames: [...sequence.waypoints],
+    status: 'sequence_validated',
+    sourceUrl: source.sourceUrl,
+    sourceLabel,
+    sequenceValidatedByProjectOwner: true,
+  }
+}
+
 const AFTU_VALIDATED_DIRECTIONAL_SEQUENCES: Readonly<Record<string, SuppliedAftuSequence>> = {
   '83': line83,
   '88': line88,
@@ -115,6 +179,25 @@ function registerLine(source: PublicBusLineReference): BidirectionalBusLine {
   const aftuSequence = source.network === 'aftu'
     ? AFTU_VALIDATED_DIRECTIONAL_SEQUENCES[source.line]
     : undefined
+
+
+  const dddOwnerSequence = source.network === 'ddd'
+    ? DDD_OWNER_VALIDATED_SEQUENCES[source.line]
+    : undefined
+
+  if (dddOwnerSequence) {
+    return {
+      id: `${source.network}-${source.line}`,
+      network: source.network,
+      line: source.line,
+      source,
+      serviceWindow: null,
+      directions: {
+        outbound: makeOwnerValidatedDirection(source, 'outbound', dddOwnerSequence.directions.outbound, dddOwnerSequence.sourceLabel),
+        inbound: makeOwnerValidatedDirection(source, 'inbound', dddOwnerSequence.directions.inbound, dddOwnerSequence.sourceLabel),
+      },
+    }
+  }
 
   if (aftuSequence) {
     return {
