@@ -14,6 +14,7 @@ export interface PublicBusLineReference {
   sourceUrl: string
   sourceLabel: string
   network: 'ddd' | 'aftu' | 'tata'
+  waypoints?: readonly string[]
 }
 
 const aftuSource = 'https://aftu-senegal.org/infos-pratiques/'
@@ -226,7 +227,7 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
 }))
 
 /** Les séquences détaillées sont la référence la plus complète pour chaque réseau. */
-export const AFTU_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; sourceUrl: string }[])
+export const AFTU_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; sourceUrl: string; waypoints?: string[] }[])
   .filter((line) => line.network === 'aftu')
   .map((line) => ({
     line: line.code,
@@ -235,9 +236,10 @@ export const AFTU_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (mo
     network: 'aftu',
     sourceUrl: line.sourceUrl,
     sourceLabel: 'AFTU · itinéraire détaillé du référentiel',
+    waypoints: line.waypoints ?? [],
   }))
 
-export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (tataLines as unknown as { code: string; origin: string; destination: string; sourceUrl: string }[])
+export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (tataLines as unknown as { code: string; origin: string; destination: string; sourceUrl: string; waypoints?: string[] }[])
   .map((line) => ({
     line: line.code,
     origin: line.origin,
@@ -245,6 +247,7 @@ export const TATA_DETAILED_PUBLIC_LINES: readonly PublicBusLineReference[] = (ta
     network: 'tata',
     sourceUrl: line.sourceUrl,
     sourceLabel: 'TATA · itinéraire détaillé du référentiel',
+    waypoints: line.waypoints ?? [],
   }))
 
 /** Les lignes TATA sans séquence détaillée restent visibles depuis le catalogue public. */
@@ -326,14 +329,8 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
-  const detailedRecords = [
-    ...(mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu'),
-    ...(tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]),
-  ]
   for (const line of [...AFTU_DETAILED_PUBLIC_LINES, ...TATA_DETAILED_PUBLIC_LINES, ...TATA_PUBLIC_FALLBACK_LINES]) {
-    const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-    const detail = detailedRecords.find((item) => item.network === line.network && detailedRouteKey(item) === routeKey)
-    const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: detail?.waypoints })
+    const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: line.waypoints })
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
