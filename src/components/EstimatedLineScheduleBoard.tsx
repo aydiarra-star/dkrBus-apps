@@ -16,8 +16,8 @@ import {
 } from '../domain/estimatedSchedules'
 import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
-  AFTU_TATA_SHARED_LINE_CODES,
   DDD_PUBLIC_LINE_CATALOG,
+  detailedRouteKey,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -25,10 +25,6 @@ type RouteSourceNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
 type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
 const dddPublishedStopsByLine = new Map(DDD_PUBLISHED_ROUTES.map((route) => [route.line, route.stops] as const))
-
-function normalizedRouteEndpoint(value: string): string {
-  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
-}
 
 function routeCompleteness(route: MobilityRouteReference): number {
   return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
@@ -186,17 +182,17 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
       <ul className="station-board-list">
         {catalogue.map((line) => {
-          const lineEnds = [normalizedRouteEndpoint(line.origin), normalizedRouteEndpoint(line.destination)].sort().join('|')
+          const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
           const routeCandidates = routeReferences.filter((item) => {
             if (item.code !== line.line) return false
-            if (item.network === line.network) return true
-            if (AFTU_TATA_SHARED_LINE_CODES.has(line.line) && (item.network === 'aftu' || item.network === 'tata')) return true
-            if (!item.origin || !item.destination) return false
-            const candidateEnds = [normalizedRouteEndpoint(item.origin), normalizedRouteEndpoint(item.destination)].sort().join('|')
-            return candidateEnds === lineEnds
+            if (!item.origin || !item.destination) return item.network === line.network
+            return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
           })
           const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
-          const lineSchedule = (line.network === 'aftu' ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
+          // Une fréquence AFTU n'est réutilisée que si la fiche détaillée AFTU
+          // décrit exactement les mêmes terminus ; un simple numéro commun ne suffit pas.
+          const hasMatchingAftuRoute = routeCandidates.some((item) => item.network === 'aftu')
+          const lineSchedule = (hasMatchingAftuRoute ? schedulesByLine.get(line.line) : undefined) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
