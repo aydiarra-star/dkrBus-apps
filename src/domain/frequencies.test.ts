@@ -51,7 +51,7 @@ describe('références officielles de fréquence', () => {
     })
   })
 
-  it('keeps official DDD/AFTU fleet counts separate from unavailable line frequencies', () => {
+  it('keeps DDD and shared AFTU / TATA fleet counts separate from unavailable line frequencies', () => {
     expect(NETWORK_REFERENCE_DATA.ddd).toMatchObject({
       lineCount: 38,
       vehicleCount: 400,
@@ -63,18 +63,18 @@ describe('références officielles de fréquence', () => {
       frequencyLabel: 'Fréquences non publiées ligne par ligne',
       officialFrequencies: [],
     })
-    expect(NETWORK_REFERENCE_DATA.aftu).toMatchObject({
+    expect(NETWORK_REFERENCE_DATA.aftu_tata).toMatchObject({
       lineCount: 72,
       vehicleCount: 2300,
       gieCount: 14,
       serviceStart: '06:00',
-      serviceEnd: '21:00',
+      serviceEnd: '22:50',
       sourceAuthority: 'CETUD',
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Fréquences non publiées ligne par ligne',
+      frequencyLabel: 'Intervalle moyen partagé : 11,6 min · créneau projeté : 12 min',
       officialFrequencies: [],
     })
-    expect(NETWORK_REFERENCE_DATA.aftu.lineCount).not.toBe(71)
+    expect(NETWORK_REFERENCE_DATA.aftu_tata.lineCount).not.toBe(71)
     expect(NETWORK_REFERENCE_DATA.ddd.source).toMatchObject({
       authority: 'CETUD',
       sourceUrl: 'https://cetud.sn',
@@ -83,14 +83,15 @@ describe('références officielles de fréquence', () => {
     })
   })
 
-  it('ne compte pas les minibus TATA comme un réseau indépendant de l’AFTU', () => {
-    expect(NETWORK_REFERENCE_DATA.tata).toMatchObject({
-      operator: 'AFTU (minibus TATA)',
-      coverage: 'Minibus TATA · réseau AFTU',
-      lineCount: null,
-      vehicleCount: null,
+  it('publie une seule référence partagée AFTU / TATA', () => {
+    expect(NETWORK_REFERENCE_DATA.aftu_tata).toMatchObject({
+      id: 'aftu_tata',
+      operator: 'AFTU · minibus TATA',
+      coverage: 'Réseau unifié de minibus AFTU / TATA',
+      lineCount: 72,
+      vehicleCount: 2300,
       frequencyStatus: 'UNKNOWN',
-      frequencyLabel: 'Référence empirique partagée AFTU/TATA',
+      serviceEnd: '22:50',
     })
   })
 
