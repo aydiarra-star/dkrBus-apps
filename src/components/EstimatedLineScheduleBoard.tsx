@@ -18,6 +18,7 @@ import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
+  AFTU_TATA_SHARED_ROUTE_KEYS,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -187,6 +188,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             if (item.code !== line.line) return false
             if (!item.origin || !item.destination) return item.network === line.network
             return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
+              && (item.network === line.network || AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey))
           })
           const richestRoute = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           // Garder les séquences du parcours le plus complet, sans perdre les
