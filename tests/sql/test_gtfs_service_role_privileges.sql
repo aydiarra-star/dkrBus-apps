@@ -94,10 +94,13 @@ insert into public.dakar_admin_staged_datasets (
   null
 );
 
-do $$
+do $
 declare
   rejected boolean;
   forged_id text := 'privilege-forged-test';
+  claimed_job record;
+  validation_report jsonb;
+  completed boolean;
 begin
   if not exists (
     select 1
@@ -112,6 +115,60 @@ begin
        and validation_lease_until is null
   ) then
     raise exception 'Safe intake insert did not receive quarantine defaults';
+  end if;
+
+  -- The trusted RPC remains callable by service_role and owns the protected update.
+  select * into claimed_job
+    from public.claim_dakar_gtfs_validation(900);
+  if not found or claimed_job.dataset_id is distinct from 'privilege-boundary-test' then
+    raise exception 'service_role could not claim the synthetic validation job through the trusted RPC';
+  end if;
+
+  validation_report := jsonb_build_object(
+    'schema_version', '1.0',
+    'dataset', jsonb_build_object(
+      'filename', 'feed.zip',
+      'archive_bytes', 128,
+      'sha256', repeat('a', 64)
+    ),
+    'validated_at', '2026-11-14T19:00:00+00:00',
+    'structure_valid', false,
+    'production_ready', false,
+    'scope', 'Synthetic privilege test only; never production approval.',
+    'counts', jsonb_build_object('errors', 1, 'warnings', 0),
+    'tables', '{}'::jsonb,
+    'issues', jsonb_build_array(jsonb_build_object(
+      'severity', 'ERROR',
+      'code', 'SYNTHETIC_INVALID_FIXTURE',
+      'message', 'Synthetic test report'
+    )),
+    'limits', jsonb_build_object(
+      'max_archive_bytes', 104857600,
+      'max_entries', 1000,
+      'max_member_bytes', 209715200,
+      'max_total_uncompressed_bytes', 524288000,
+      'max_rows_per_table', 2000000,
+      'max_issue_details', 200
+    )
+  );
+
+  completed := public.complete_dakar_gtfs_validation(
+    claimed_job.dataset_id,
+    claimed_job.lease_token,
+    claimed_job.archive_sha256,
+    validation_report,
+    'dakar-gtfs-validator-v2'
+  );
+  if completed is not true or not exists (
+    select 1
+      from public.dakar_admin_staged_datasets
+     where dataset_id = 'privilege-boundary-test'
+       and integrity_status = 'INVALID'
+       and review_status = 'PENDING_REVIEW'
+       and publication_status = 'NOT_PUBLISHED'
+       and validation_lease_token is null
+  ) then
+    raise exception 'Trusted worker RPC did not finalize while direct table updates were restricted';
   end if;
 
   rejected := false;
