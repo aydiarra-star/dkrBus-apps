@@ -130,3 +130,10 @@ Les données ont été enregistrées séparément dans `src/data/aftu-86-directi
 **Anomalie horaire conservée, non corrigée :** les premiers horaires aller progressent de 05:47 à 05:50, puis les arrêts 9 à 11 reviennent à 05:38. La transcription contient ensuite des horaires qui reprennent leur progression. Cette rupture peut provenir d'une erreur de lecture/capture ou de source ; sans revoir les captures originales, il ne faut ni trier les arrêts ni corriger les heures. Le libellé « Kà«R Yaye » est également conservé exactement tel que fourni ; « Keur Yaye » n'est indiqué que dans la note de transcription.
 
 La ligne 86 ne doit donc plus être présentée comme entièrement sans parcours. Elle dispose maintenant d'une séquence aller/retour transmise par l'utilisateur comme provenant du CETUD, mais les horaires du retour et la validation indépendante de la séquence restent absents. Les lignes 87, 88, 89 et 91 restent `pending_missing_source` pour leurs détails d'arrêts ; 84 et 85 conservent leurs sources et fichiers précédents.
+
+
+### Conflit de terminus à résoudre avant intégration au catalogue public
+
+Le catalogue officiel AFTU extrait de l'index associe actuellement le numéro 86 au corridor **Tournalou Boune → Toubab Dialaw**. La nouvelle transcription de captures attribuées au CETUD porte, elle, **Yeumbeul → Terminus 86 / Touba Ngayame**. Ce n'est pas une petite différence de libellé : les deux couples de terminus sont distincts. La nouvelle séquence est donc enregistrée comme preuve de parcours fournie par l'utilisateur, mais le catalogue public officiel n'est pas réécrit tant que l'index CETUD/la capture de l'en-tête de ligne ne permet pas d'établir s'il s'agit d'une mise à jour, d'une variante, ou d'une attribution de numéro différente.
+
+Les horaires aller présentent en outre un retour de 05:50 à 05:38 entre les arrêts 8 et 9. Cette valeur est conservée à l'identique ; il faut vérifier la capture correspondante avant toute correction ou affichage horaire.
