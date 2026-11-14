@@ -78,7 +78,7 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     ink: '#FFFFFF',
     bright: '#D97706',
     core: '#C05621',
-    casing: '#C05621',
+    casing: '#D97706',
   },
 }
 
