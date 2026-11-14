@@ -94,7 +94,7 @@ insert into public.dakar_admin_staged_datasets (
   null
 );
 
-do $
+do $privilege_test$
 declare
   rejected boolean;
   forged_id text := 'privilege-forged-test';
@@ -226,6 +226,6 @@ begin
     raise exception 'service_role appended directly to the audit ledger';
   end if;
 end;
-$$;
+$privilege_test$;
 
 reset role;
