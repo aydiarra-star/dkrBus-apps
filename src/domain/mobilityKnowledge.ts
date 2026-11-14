@@ -465,7 +465,7 @@ function busRouteReply(question: string, networks: string[]): KnowledgeReply | n
   }
   const matched = [...mergedMatches.values()]
   if (!matched.length) return networks.length ? { text: 'Aucun parcours direct documenté dans ce sens. Une ligne peut néanmoins exister ; précisez numéro, quartier et sens. Correspondances et retour non validés.' } : null
-  const candidatePrefix = localMatches.length ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
+  const candidatePrefix = allMatches.some((match) => !match.candidate) ? '' : 'Pistes candidates de la mémoire centrale (à confirmer auprès de l’opérateur).\n'
   const rows = matched.slice(0, 4).map((match) =>
     `• ${label(match.line)} — ${match.directionLabel}${match.candidate ? ' (à confirmer)' : ''}`
   )
