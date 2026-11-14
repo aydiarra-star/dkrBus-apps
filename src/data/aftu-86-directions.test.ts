@@ -37,4 +37,11 @@ describe('parcours AFTU 86', () => {
     expect(route.note).toContain('heure réelle de départ n’est pas connue')
     expect(route.note).toContain('ne doivent jamais être utilisées')
   })
+
+  it('conserve l’amplitude générale AFTU sans inventer un départ fixe pour la ligne 86', () => {
+    expect(route.operatingProfile.generalNetworkOperatingWindow.firstDepartureLocal).toBe('05:30-06:30')
+    expect(route.operatingProfile.generalNetworkOperatingWindow.lastDepartureApproxLocal).toBe('21:00')
+    expect(route.operatingProfile.lineSpecificFirstDeparture).toBeNull()
+    expect(route.timeStatus).toBe('invalid-unverified')
+  })
 })
