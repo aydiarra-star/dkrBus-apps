@@ -2433,7 +2433,6 @@ button:disabled { cursor: not-allowed; }
 .stop-route-badge.mobility-ter,
 .stop-route-badge.mobility-brt,
 .stop-route-badge.mobility-ddd,
-.stop-route-badge.mobility-aftu_tata,
 .stop-route-badge.mobility-aftu_tata {
   background: var(--mobility-badge);
   color: var(--mobility-ink);
@@ -2443,7 +2442,6 @@ button:disabled { cursor: not-allowed; }
 .mobility-ter .network-summary-dot,
 .mobility-brt .network-summary-dot,
 .mobility-ddd .network-summary-dot,
-.mobility-aftu_tata .network-summary-dot,
 .mobility-aftu_tata .network-summary-dot {
   background: var(--dot);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 28%, transparent);
@@ -2451,7 +2449,6 @@ button:disabled { cursor: not-allowed; }
 .network-summary-list > li.network-summary-item.mobility-ter.is-selected,
 .network-summary-list > li.network-summary-item.mobility-brt.is-selected,
 .network-summary-list > li.network-summary-item.mobility-ddd.is-selected,
-.network-summary-list > li.network-summary-item.mobility-aftu_tata.is-selected,
 .network-summary-list > li.network-summary-item.mobility-aftu_tata.is-selected {
   background-color: color-mix(in srgb, var(--dot) 14%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--dot);
@@ -2459,7 +2456,6 @@ button:disabled { cursor: not-allowed; }
 .network-summary-item.mobility-ter .network-summary-header:hover,
 .network-summary-item.mobility-brt .network-summary-header:hover,
 .network-summary-item.mobility-ddd .network-summary-header:hover,
-.network-summary-item.mobility-aftu_tata .network-summary-header:hover,
 .network-summary-item.mobility-aftu_tata .network-summary-header:hover {
   background-color: color-mix(in srgb, var(--dot) 10%, transparent);
 }
@@ -2479,7 +2475,6 @@ button:disabled { cursor: not-allowed; }
 .network-source-card.mobility-ter,
 .network-source-card.mobility-brt,
 .network-source-card.mobility-ddd,
-.network-source-card.mobility-aftu_tata,
 .network-source-card.mobility-aftu_tata {
   box-shadow: inset 3px 0 0 var(--dot);
 }
@@ -2489,7 +2484,6 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter,
 .filter-chip.mobility-brt,
 .filter-chip.mobility-ddd,
-.filter-chip.mobility-aftu_tata,
 .filter-chip.mobility-aftu_tata {
   display: inline-flex;
   align-items: center;
@@ -2500,7 +2494,6 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter::before,
 .filter-chip.mobility-brt::before,
 .filter-chip.mobility-ddd::before,
-.filter-chip.mobility-aftu_tata::before,
 .filter-chip.mobility-aftu_tata::before {
   content: '';
   width: 7px;
@@ -2513,7 +2506,6 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter:hover,
 .filter-chip.mobility-brt:hover,
 .filter-chip.mobility-ddd:hover,
-.filter-chip.mobility-aftu_tata:hover,
 .filter-chip.mobility-aftu_tata:hover {
   border-color: var(--mobility-stroke);
   background: color-mix(in srgb, var(--mobility-stroke) 14%, var(--surface-card));
@@ -2522,7 +2514,6 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter.selected,
 .filter-chip.mobility-brt.selected,
 .filter-chip.mobility-ddd.selected,
-.filter-chip.mobility-aftu_tata.selected,
 .filter-chip.mobility-aftu_tata.selected {
   border-color: var(--mobility-badge);
   background: var(--mobility-badge);
@@ -2532,7 +2523,6 @@ button:disabled { cursor: not-allowed; }
 .filter-chip.mobility-ter.selected::before,
 .filter-chip.mobility-brt.selected::before,
 .filter-chip.mobility-ddd.selected::before,
-.filter-chip.mobility-aftu_tata.selected::before,
 .filter-chip.mobility-aftu_tata.selected::before {
   background: var(--mobility-bright);
   box-shadow: 0 0 0 1.5px #fff;
@@ -2541,14 +2531,12 @@ button:disabled { cursor: not-allowed; }
 .point-option.mobility-ter,
 .point-option.mobility-brt,
 .point-option.mobility-ddd,
-.point-option.mobility-aftu_tata,
 .point-option.mobility-aftu_tata {
   box-shadow: inset 3px 0 0 var(--dot);
 }
 .point-option.mobility-ter.is-active,
 .point-option.mobility-brt.is-active,
 .point-option.mobility-ddd.is-active,
-.point-option.mobility-aftu_tata.is-active,
 .point-option.mobility-aftu_tata.is-active {
   background: color-mix(in srgb, var(--dot) 12%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--dot);
@@ -2558,7 +2546,6 @@ button:disabled { cursor: not-allowed; }
 .planner-leg.mobility-ter,
 .planner-leg.mobility-brt,
 .planner-leg.mobility-ddd,
-.planner-leg.mobility-aftu_tata,
 .planner-leg.mobility-aftu_tata {
   border-color: color-mix(in srgb, var(--mobility-stroke) 42%, var(--line));
   box-shadow: inset 3px 0 0 var(--mobility-stroke);
@@ -2566,7 +2553,6 @@ button:disabled { cursor: not-allowed; }
 .planner-leg.mobility-ter .planner-leg-icon,
 .planner-leg.mobility-brt .planner-leg-icon,
 .planner-leg.mobility-ddd .planner-leg-icon,
-.planner-leg.mobility-aftu_tata .planner-leg-icon,
 .planner-leg.mobility-aftu_tata .planner-leg-icon {
   background: var(--mobility-badge);
   color: var(--mobility-ink);
@@ -2596,7 +2582,6 @@ button:disabled { cursor: not-allowed; }
 .mobility-step.mobility-ter,
 .mobility-step.mobility-brt,
 .mobility-step.mobility-ddd,
-.mobility-step.mobility-aftu_tata,
 .mobility-step.mobility-aftu_tata {
   background: color-mix(in srgb, var(--mobility-stroke) 14%, var(--surface-card));
   box-shadow: inset 3px 0 0 var(--mobility-stroke);
