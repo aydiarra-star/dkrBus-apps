@@ -15,7 +15,7 @@ describe('initial transport catalogue', () => {
 
   it('records official DDD and AFTU network counts without inventing line frequencies', () => {
     const ddd = NETWORK_SOURCES.find((network) => network.id === 'ddd')
-    const aftu = NETWORK_SOURCES.find((network) => network.id === 'aftu')
+    const aftu = NETWORK_SOURCES.find((network) => network.id === 'aftu_tata')
     expect(ddd?.referenceData).toMatchObject({ lineCount: 38, vehicleCount: 400, frequencyStatus: 'UNKNOWN' })
     expect(aftu?.referenceData).toMatchObject({ lineCount: 72, vehicleCount: 2300, gieCount: 14, frequencyStatus: 'UNKNOWN' })
     expect(ddd?.status).toBe('NOT_CONNECTED')
