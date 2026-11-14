@@ -128,11 +128,11 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     expect(container.querySelectorAll('.station-board-row')).toHaveLength(124)
     expect(container.querySelectorAll('.station-board-passage strong')).toHaveLength(124)
     const tataThirtySevenRow = tataThirtySevenLabels[0].closest('li')!
-    expect(within(tataThirtySevenRow).getAllByText('—')).toHaveLength(2)
+    expect(within(tataThirtySevenRow).getAllByText('En service')).toHaveLength(2)
 
     // TATA 39 shares its number with AFTU 39, but must not inherit that AFTU timetable.
     const tataThirtyNine = screen.getAllByText('TATA 39')[0].closest('li')!
-    expect(within(tataThirtyNine).getAllByText('—')).toHaveLength(2)
+    expect(within(tataThirtyNine).getAllByText('En service')).toHaveLength(2)
     expect(within(tataThirtySevenRow).getByText(/Aller ·/)).toBeTruthy()
     expect(within(tataThirtySevenRow).getByText(/Retour ·/)).toBeTruthy()
     expect(container.textContent).not.toMatch(/Estimation|TransitByCity|Source|fréquence|horaire/i)
