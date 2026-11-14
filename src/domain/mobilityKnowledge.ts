@@ -5,6 +5,7 @@
  */
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
+import { AFTU_TATA_SHARED_LINE_CODES } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
@@ -283,7 +284,9 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
   return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
 }
 function routeSignature(line: BusLine): string {
-  const ends = [normalizeMobility(line.origin.replace(/\([^)]*\)/g, ' ')), normalizeMobility(line.destination.replace(/\([^)]*\)/g, ' '))].sort()
+  if ((line.network === 'aftu' || line.network === 'tata') && AFTU_TATA_SHARED_LINE_CODES.has(line.code)) return `${line.code}|aftu-tata-shared`
+  const normalizeEndpoint = (value: string) => normalizeMobility(value.replace(/\([^)]*\)/g, ' ').replace(/\bsebikhotane\b/gi, 'sebikotane'))
+  const ends = [normalizeEndpoint(line.origin), normalizeEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
 }
 function uniqueEquivalentLines(lines: readonly BusLine[]): BusLine[] {
