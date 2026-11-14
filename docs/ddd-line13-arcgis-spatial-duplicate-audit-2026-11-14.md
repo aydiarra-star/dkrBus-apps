@@ -29,4 +29,4 @@ Cela constitue un indice fort que les deux couches représentent presque le mêm
 
 ## Reproductibilité
 
-Calcul effectué à partir de l'artefact public en lecture seule `ddd-arcgis-route-stop-candidates.json`, produit par le workflow GitHub Actions `43559510914` (artefact `14099114230`). Coordonnées ponctuelles ArcGIS converties en distances géodésiques ; appariement au plus proche voisin calculé dans les deux sens. Aucun changement de base, de données voyageurs ou de production.
+Calcul effectué à partir de l'artefact public en lecture seule `ddd-arcgis-route-stop-candidates.json`, produit par le workflow GitHub Actions `43559510914` (artefact `14099114230`). Les géométries ponctuelles de l'artefact sont exprimées en longitude/latitude (WGS84). Les distances ont été recalculées par formule géodésique haversine sur le sphéroïde terrestre, et non par distance euclidienne sur les degrés ; appariement au plus proche voisin calculé dans les deux sens. Aucun changement de base, de données voyageurs ou de production.
