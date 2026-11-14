@@ -110,13 +110,13 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(within(dddOne).getAllByText('6 min')).toHaveLength(1)
   })
 
-  it('arrête chaque ligne AFTU à sa fin connue et plafonne les autres à 22:50', () => {
-    vi.useFakeTimers()
+  it('arrête chaque ligne AFTU à sa fin connue et plafonne les autres à 22:50', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T21:51:00.000Z'))
 
     const aftu = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFortyTwo = screen.getAllByText('AFTU / TATA 42')[0].closest('li')!
-    expect(within(aftuFortyTwo).getAllByText("Service terminé pour aujourd'hui")).toHaveLength(2)
+    await waitFor(() => expect(within(aftuFortyTwo).getAllByText("Service terminé pour aujourd'hui")).toHaveLength(2))
     expect(within(aftuFortyTwo).queryByText('En service')).toBeNull()
     aftu.unmount()
 
