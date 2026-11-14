@@ -100,7 +100,7 @@ const DDD_OWNER_VALIDATED_SEQUENCES: Readonly<Record<string, {
 function makeOwnerValidatedDirection(
   source: PublicBusLineReference,
   id: BusDirectionId,
-  sequence: DDD_OWNER_VALIDATED_SEQUENCES[string]['directions'][BusDirectionId],
+  sequence: { origin: string; destination: string; waypoints: string[] },
   sourceLabel: string,
 ): BusDirection {
   return {
