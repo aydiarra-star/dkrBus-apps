@@ -28,4 +28,23 @@ describe('parcours AFTU 84', () => {
     expect(route.inboundWaypoints).toEqual(inbound.waypoints)
     expect(route.stopCount).toEqual({ outbound: 73, inbound: 73 })
   })
+
+  it('signale les terminus différents sans les corriger automatiquement', () => {
+    expect(route.directions.outbound.origin).toBe('Jaxaay 2 Pénitence')
+    expect(route.directions.outbound.destination).toBe('Terminus 84_54Derrière Ucad En Face Canal 4')
+    expect(route.directions.inbound.origin).toBe('Delafosse Commerce')
+    expect(route.directions.inbound.destination).toBe('Jaxaay2 Route Du 84')
+    expect(route.directions.inbound.origin).not.toBe(route.directions.outbound.destination)
+    expect(route.directions.inbound.destination).not.toBe(route.directions.outbound.origin)
+  })
+
+  it('conserve les 73 heures du retour dans un ordre chronologique valide', () => {
+    const times = route.directions.inbound.times
+    const toMinutes = (value: string) => {
+      const [hours, minutes] = value.split(':').map(Number)
+      return hours * 60 + minutes
+    }
+    expect(times.every((value) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value))).toBe(true)
+    expect(times.every((value, index) => index === 0 || toMinutes(value) >= toMinutes(times[index - 1]))).toBe(true)
+  })
 })
