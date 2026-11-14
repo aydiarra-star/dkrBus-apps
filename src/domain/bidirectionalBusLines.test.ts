@@ -73,6 +73,43 @@ describe('bidirectional bus line registry', () => {
     expect(getBusDirectionReadiness(line).complete).toBe(true)
   })
 
+
+  it('integrates the owner-validated DDD 501 sequences independently in both directions', () => {
+    const line = getBusLineDirections('ddd', '501')!
+    expect(line.source.origin).toBe('Port De Dakar')
+    expect(line.source.destination).toBe('Terminus Palais 2')
+    expect(line.serviceWindow).toBeNull()
+    expect(line.directions.outbound.status).toBe('sequence_validated')
+    expect(line.directions.inbound.status).toBe('sequence_validated')
+    expect(line.directions.outbound.sequenceValidatedByProjectOwner).toBe(true)
+    expect(line.directions.inbound.sequenceValidatedByProjectOwner).toBe(true)
+    expect(line.directions.outbound.stopNames).toEqual([
+      'Port De Dakar',
+      'Cercle Mess Des Officiers Colonel Emmanuel Gomis Ou Embarcadère (Port Môle 08)',
+      'Poste Ponty',
+      'Devant Strass Avenue Ponpidou',
+      'Devant Cité Peytavin',
+      'Asecna',
+      'Prés Du Bureau Regional Pam',
+      "Prés De L'Hôpital Le Dantec",
+      'Terminus Palais 2',
+    ])
+    expect(line.directions.inbound.stopNames).toEqual([
+      'Terminus Palais 2',
+      'Hopital Le Dantec',
+      'Face Bureau Regional Pam',
+      'En Face De La Direction Générale Du Budget',
+      'Avenue Ponpidou En Face Alimentation Catim',
+      'Cbao Ponty',
+      "Place De L'Indépendance Prés De La Cbao",
+      "Royal Air Maroc Place De L'Indépendance",
+      'Port De Dakar',
+    ])
+    expect(getBusDirectionReadiness(line).complete).toBe(true)
+    expect(validateBusDirection(line.directions.outbound)).toEqual([])
+    expect(validateBusDirection(line.directions.inbound)).toEqual([])
+  })
+
   it('does not split published DDD circuits into fabricated directions', () => {
     for (const lineNumber of ['18', '20']) {
       const line = getBusLineDirections('ddd', lineNumber)!
