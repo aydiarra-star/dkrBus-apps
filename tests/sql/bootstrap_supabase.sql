@@ -11,6 +11,10 @@ create table auth.users (
   email_confirmed_at timestamptz
 );
 
+insert into auth.users (id, email, email_confirmed_at)
+values ('11111111-1111-4111-8111-111111111111', 'diztech.contact@gmail.com', now())
+on conflict (id) do nothing;
+
 create function auth.role()
 returns text
 language sql
@@ -32,3 +36,5 @@ create table storage.objects (
   bucket_id text not null,
   name text not null
 );
+
+alter table storage.objects enable row level security;
