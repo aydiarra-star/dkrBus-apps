@@ -31,7 +31,11 @@
  * https://www.itfglobal.org/sites/default/files/node/resources/files/2020%20Dakar%20BRT%20LIA%20EN.pdf
  */
 
-const SERVICE_END_MINUTE = 21 * 60
+function serviceEndMinute(network: string): number {
+  // Borne générale retenue pour AFTU/TATA ; les lignes qui terminent avant
+  // conservent leurs horaires propres lorsqu'ils sont connus.
+  return network === 'ddd' ? 21 * 60 : 22 * 60 + 50
+}
 
 function serviceStartMinute(network: string): number {
   return network === 'ddd' ? 5 * 60 + 30 : 6 * 60
@@ -67,7 +71,7 @@ export function estimatedLineWaitMinutes(lineName: string, network: string | nul
 export function estimatedWaitMinutes(network: string | null, now = Date.now()): number | null {
   if (!Number.isFinite(now) || !network) return null
   const minuteOfDay = new Date(now).getUTCHours() * 60 + new Date(now).getUTCMinutes()
-  if (minuteOfDay < serviceStartMinute(network) || minuteOfDay >= SERVICE_END_MINUTE) return null
+  if (minuteOfDay < serviceStartMinute(network) || minuteOfDay >= serviceEndMinute(network)) return null
 
   if (network === 'ddd') {
     const hour = Math.floor(minuteOfDay / 60)
@@ -105,7 +109,7 @@ const DDD_HEADWAY_PERIODS: readonly EstimatedHeadwayPeriod[] = [
 
 const AFTU_TATA_HEADWAY_PERIODS: readonly EstimatedHeadwayPeriod[] = [
   // 11,58 minutes observées à Dakar, arrondies à 12 minutes.
-  { startMinute: 6 * 60, endMinute: 21 * 60, headwayMinutes: 12 },
+  { startMinute: 6 * 60, endMinute: 22 * 60 + 50, headwayMinutes: 12 },
 ]
 
 const MINUTE_MS = 60_000
@@ -138,11 +142,12 @@ export function estimatedNextPassage(network: string | null, now = Date.now()): 
     const slotIndex = now < startAt ? 0 : Math.floor((now - startAt) / intervalMs) + 1
     const nextAt = startAt + slotIndex * intervalMs
     // Le dernier créneau exactement à la fin du service reste affichable.
-    if (nextAt > endAt) continue
+    const finalAt = Math.min(nextAt, endAt)
+    if (finalAt <= now) continue
 
     return {
-      nextDepartureAt: new Date(nextAt).toISOString(),
-      minutes: Math.max(1, Math.ceil((nextAt - now) / MINUTE_MS)),
+      nextDepartureAt: new Date(finalAt).toISOString(),
+      minutes: Math.max(1, Math.ceil((finalAt - now) / MINUTE_MS)),
       headwayMinutes: period.headwayMinutes,
     }
   }
