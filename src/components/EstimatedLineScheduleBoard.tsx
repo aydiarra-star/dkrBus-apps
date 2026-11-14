@@ -97,7 +97,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
   const isDdd = network === 'ddd'
   const label = isDdd ? 'DDD' : network === 'tata' ? 'TATA' : 'AFTU'
   const catalogue = isDdd ? DDD_PUBLIC_LINE_CATALOG : network === 'tata' ? TATA_PUBLIC_LINE_CATALOG : AFTU_PUBLIC_LINE_CATALOG
-  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : AFTU_ESTIMATED_LINE_SCHEDULES
+  const schedules = isDdd ? DDD_ESTIMATED_LINE_SCHEDULES : network === 'aftu' ? AFTU_ESTIMATED_LINE_SCHEDULES : []
   const schedulesByLine = useMemo(() => new Map(schedules.map((schedule) => [schedule.line, schedule])), [schedules])
   const [now, setNow] = useState(() => Date.now())
   const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
