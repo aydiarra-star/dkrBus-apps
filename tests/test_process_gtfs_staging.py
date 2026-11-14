@@ -9,19 +9,42 @@ from unittest.mock import Mock, patch
 from scripts.process_gtfs_staging import (
     EXPECTED_VALIDATOR_LIMITS,
     MAX_ARCHIVE_BYTES,
+    MAX_MANIFEST_BYTES,
     NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
     SupabaseRest,
     WorkerError,
+    failure_code_for,
+    process_one,
     validate_claimed_job,
     validate_report,
     validate_supabase_url,
     verify_archive_bytes,
+    verify_manifest_bytes,
 )
 
 VALID_SHA = "a" * 64
 VALID_LEASE = "123e4567-e89b-42d3-a456-426614174000"
+
+
+def valid_manifest_bytes() -> bytes:
+    return __import__("json").dumps({
+        "schema_version": "1.0",
+        "dataset_id": "synthetic-feed",
+        "review_status": "PENDING_REVIEW",
+        "publication_status": "NOT_PUBLISHED",
+        "publication_ready": False,
+        "archive": {
+            "stored_as": "feed.zip",
+            "bytes": 128,
+            "sha256": VALID_SHA,
+        },
+    }, separators=(",", ":")).encode("utf-8")
+
+
+VALID_MANIFEST = valid_manifest_bytes()
+VALID_MANIFEST_SHA = hashlib.sha256(VALID_MANIFEST).hexdigest()
 
 
 def valid_report(archive_bytes: int = 128, sha256: str = VALID_SHA) -> dict:
@@ -46,6 +69,8 @@ def valid_job() -> dict:
         "archive_object_path": f"synthetic-feed/{VALID_SHA}/feed.zip",
         "archive_sha256": VALID_SHA,
         "archive_bytes": 128,
+        "manifest_object_path": f"synthetic-feed/{VALID_SHA}/manifest.json",
+        "manifest_sha256": VALID_MANIFEST_SHA,
         "lease_token": VALID_LEASE,
     }
 
@@ -140,6 +165,80 @@ class GTFSWorkerTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkerError, "CLAIM_OBJECT_PATH_INVALID"):
             validate_claimed_job(job)
 
+    def test_manifest_hash_and_archive_metadata_are_verified(self) -> None:
+        manifest = verify_manifest_bytes(
+            VALID_MANIFEST,
+            "synthetic-feed",
+            VALID_MANIFEST_SHA,
+            VALID_SHA,
+            128,
+        )
+        self.assertEqual(manifest["dataset_id"], "synthetic-feed")
+
+    def test_manifest_hash_mismatch_is_rejected(self) -> None:
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_SHA256_MISMATCH"):
+            verify_manifest_bytes(VALID_MANIFEST, "synthetic-feed", "0" * 64, VALID_SHA, 128)
+
+    def test_manifest_rejects_wrong_dataset_archive_and_publication_state(self) -> None:
+        import json
+
+        wrong_dataset = json.loads(VALID_MANIFEST)
+        wrong_dataset["dataset_id"] = "other-feed"
+        payload = json.dumps(wrong_dataset, separators=(",", ":")).encode()
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_DATASET_ID_MISMATCH"):
+            verify_manifest_bytes(payload, "synthetic-feed", hashlib.sha256(payload).hexdigest(), VALID_SHA, 128)
+
+        wrong_archive = json.loads(VALID_MANIFEST)
+        wrong_archive["archive"]["bytes"] = 129
+        payload = json.dumps(wrong_archive, separators=(",", ":")).encode()
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_ARCHIVE_METADATA_MISMATCH"):
+            verify_manifest_bytes(payload, "synthetic-feed", hashlib.sha256(payload).hexdigest(), VALID_SHA, 128)
+
+        publishable = json.loads(VALID_MANIFEST)
+        publishable["publication_ready"] = True
+        payload = json.dumps(publishable, separators=(",", ":")).encode()
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_REVIEW_OR_PUBLICATION_STATE_INVALID"):
+            verify_manifest_bytes(payload, "synthetic-feed", hashlib.sha256(payload).hexdigest(), VALID_SHA, 128)
+
+    def test_manifest_size_is_bounded(self) -> None:
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_SIZE_INVALID"):
+            verify_manifest_bytes(b"x" * (MAX_MANIFEST_BYTES + 1), "synthetic-feed", VALID_MANIFEST_SHA, VALID_SHA, 128)
+
+    def test_claimed_job_rejects_wrong_manifest_reference(self) -> None:
+        job = valid_job()
+        job["manifest_object_path"] = "other-feed/manifest.json"
+        with self.assertRaisesRegex(WorkerError, "CLAIM_MANIFEST_PATH_INVALID"):
+            validate_claimed_job(job)
+
+        job = valid_job()
+        job["manifest_sha256"] = "not-a-sha"
+        with self.assertRaisesRegex(WorkerError, "CLAIM_MANIFEST_SHA256_INVALID"):
+            validate_claimed_job(job)
+
+    def test_worker_records_failure_after_claim_without_processing_unverified_archive(self) -> None:
+        class FailingClient:
+            def __init__(self):
+                self.failure_code = None
+
+            def claim(self):
+                return valid_job()
+
+            def download_manifest(self, bucket, object_path):
+                raise WorkerError("MANIFEST_DOWNLOAD_FAILED")
+
+            def fail(self, job, failure_code):
+                self.failure_code = failure_code
+                return True
+
+        client = FailingClient()
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_DOWNLOAD_FAILED"):
+            process_one(client)  # type: ignore[arg-type]
+        self.assertEqual(client.failure_code, "MANIFEST_DOWNLOAD_FAILED")
+
+    def test_failure_codes_are_bounded_and_safe(self) -> None:
+        self.assertEqual(failure_code_for(WorkerError("ARCHIVE_SHA256_MISMATCH")), "ARCHIVE_SHA256_MISMATCH")
+        self.assertEqual(failure_code_for(WorkerError("token=secret")), "WORKER_UNEXPECTED_ERROR")
+
     def test_claimed_job_rejects_wrong_bucket_hash_dataset_and_lease(self) -> None:
         for key, value, code in [
             ("archive_bucket", "public", "CLAIM_BUCKET_INVALID"),
@@ -196,6 +295,22 @@ class GTFSWorkerTests(unittest.TestCase):
         client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
         with self.assertRaisesRegex(WorkerError, "UNSAFE_ARCHIVE_OBJECT_REFERENCE"):
             client.download(STAGING_BUCKET, "../../secrets")
+        with self.assertRaisesRegex(WorkerError, "UNSAFE_ARCHIVE_OBJECT_REFERENCE"):
+            client.download_manifest(STAGING_BUCKET, "../../secrets")
+
+    def test_failure_rpc_uses_only_the_claimed_dataset_and_lease(self) -> None:
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        with patch.object(client, "request", return_value=True) as request:
+            self.assertTrue(client.fail(valid_job(), "MANIFEST_SHA256_MISMATCH"))
+        request.assert_called_once_with(
+            "/rest/v1/rpc/fail_dakar_gtfs_validation",
+            method="POST",
+            payload={
+                "p_dataset_id": "synthetic-feed",
+                "p_lease_token": VALID_LEASE,
+                "p_failure_code": "MANIFEST_SHA256_MISMATCH",
+            },
+        )
 
 
 if __name__ == "__main__":
