@@ -31,15 +31,16 @@ Source : https://demdikk.sn/reseau-urbain-dakar/
 
 Le service public « Dem_dikk_mise_a_jour » expose deux couches distinctes :
 
-- `Arrets_Ligne_Dakar_Dem_Dikk` (couche 0), géométrie ponctuelle, avec les champs `Nom_Arret`, `Nom_Ligne` et `Id`. Sa date de dernière modification des données indiquée dans les métadonnées est le **24 septembre 2024**.
-- `Itinéraire_lignes_Dakar_Dem_Dikk` (couche 1), géométrie linéaire, avec plusieurs champs de texte d'itinéraire. Sa date de dernière modification des données indiquée est le **11 janvier 2019**.
+- `Arrets_Ligne_Dakar_Dem_Dikk` (couche 0), géométrie ponctuelle, avec les champs `Nom_Arret`, `Nom_Ligne` et `Id`.
+- `Itinéraire_lignes_Dakar_Dem_Dikk` (couche 1), géométrie linéaire, avec plusieurs champs de texte d'itinéraire.
+- L'extraction complète des deux couches confirme une date de dernière modification des données au **24 septembre 2024** pour chacune.
 
 Sources :
 - Service : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer
 - Couche arrêts : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/0
 - Couche itinéraires : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/1
 
-Ces métadonnées confirment l'existence de couches d'arrêts et d'itinéraires, mais ne prouvent pas à elles seules que leurs enregistrements décrivent la ligne 501 actuelle, ses deux directions, ou la divergence Gare de Dakar / Leclerc. La couche itinéraires porte en outre une date de données ancienne (2019) : elle ne doit pas être considérée comme validation actuelle sans contrôle des enregistrements concernés.
+Ces métadonnées confirment l'existence de couches d'arrêts et d'itinéraires, mais ne prouvent pas à elles seules que leurs enregistrements décrivent la ligne 501 actuelle, ses deux directions, ou la divergence Gare de Dakar / Leclerc. Les deux couches datent de septembre 2024 et ne constituent pas une preuve de l'exploitation actuelle en 2026.
 
 ## Analyse et décision
 
@@ -63,7 +64,7 @@ Il n'existe pas, dans ces publications, de preuve permettant d'affirmer que « G
 
 ## Suite de vérification
 
-Interroger les entités ArcGIS des deux couches avec un filtre exact sur la ligne 501, vérifier les attributs et les positions, puis comparer ces résultats aux publications DDD avant toute évolution des données applicatives.
+Contrôle ciblé effectué : extraction des deux couches complètes, filtre normalisé sur `Nom_Ligne` pour 501 et capture séparée des libellés contenant 501. Résultat : aucune entité correspondante. Conserver la recherche d'autres services ArcGIS comme piste distincte.
 
 ## Vérification du catalogue ArcGIS interurbain
 
@@ -71,13 +72,31 @@ Le catalogue du service public `Ligne_inter_urbain` expose des couches dédiées
 
 Source : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/layers
 
-Cette absence de couche dédiée dans ce service ne prouve pas l'absence de données 501 dans d'autres services ArcGIS. Le service générique `Dem_dikk_mise_a_jour` possède bien un champ `Nom_Ligne` sur sa couche d'arrêts et un champ `Nom_Ligne` sur sa couche de tracés ; les entités propres à 501 doivent encore être interrogées et vérifiées avant toute conclusion sur leur contenu.
+Cette absence de couche dédiée dans ce service ne prouve pas l'absence de données 501 dans d'autres services ArcGIS. Le service générique `Dem_dikk_mise_a_jour` a été interrogé séparément dans ses deux couches : les résultats ciblés sont consignés ci-dessous.
 
-## Résultat de l'audit ArcGIS
+## Résultat de l'audit ArcGIS — extraction ciblée du 14 novembre 2026
 
-- Couche générique d'arrêts : disponible, avec `Nom_Arret`, `Nom_Ligne` et `Id`, mais dernière modification des données le 24 septembre 2024.
-- Couche générique de tracés : disponible, avec `Nom_Ligne` et plusieurs champs descriptifs d'itinéraire, mais dernière modification des données le 11 janvier 2019.
-- Catalogue interurbain : aucune couche dédiée 501 répertoriée.
-- Aucun résultat d'entités ArcGIS 501 n'est considéré comme validé dans ce PR.
+Le workflow en lecture seule a récupéré l'intégralité du service `Dem_dikk_mise_a_jour` puis appliqué un filtre normalisé sur le champ `Nom_Ligne`, avec une seconde recherche plus large des libellés contenant le numéro 501.
 
-La vérification ArcGIS ne lève donc pas la contradiction des terminus. Elle précise seulement quelles couches existent et quelles vérifications ciblées restent nécessaires.
+| Contrôle | Résultat |
+|---|---:|
+| Entités de la couche arrêts | 777 |
+| Entités avec géométrie d'arrêt | 775 |
+| Entités avec nom d'arrêt | 750 |
+| Entités avec code de ligne | 775 |
+| Entités de la couche itinéraires | 25 |
+| Entités avec géométrie de tracé | 24 |
+| Arrêts codés exactement 501 | **0** |
+| Candidats arrêts dont le libellé contient 501 | **0** |
+| Tracés codés exactement 501 | **0** |
+| Candidats tracés dont le libellé contient 501 | **0** |
+
+La liste des codes `Nom_Ligne` observés dans les 777 enregistrements d'arrêts comprend notamment 1, 2, 4 à 13, 16A/16B, 18, 23, 121, 217, 218, 227, 228 et 232 ; aucun code 501 n'apparaît. La couche des tracés ne présente pas non plus de code 501. Les deux couches indiquent la date de dernière modification des données du **24 septembre 2024**.
+
+Le catalogue distinct `Ligne_inter_urbain` expose des couches dédiées aux lignes 1, 4, 6, 7, 8, 9, 10, 13, 18, 20, 23 et 121, mais aucune couche dédiée 501.
+
+**Interprétation limitée :** les deux services ArcGIS DDD examinés ne fournissent pas de preuve géographique exploitable pour la ligne 501. Cela ne démontre pas que la ligne n'existe pas et ne permet pas de choisir entre « Gare de Dakar » et « Leclerc ». Il faut rechercher d'autres services/couches ou une confirmation opérationnelle DDD. Aucun ordre de passage, retour ou équivalence de terminus n'est déduit.
+
+Artefact de l'extraction ciblée : workflow GitHub Actions `43604447054`, artefact `ddd-updated-service-and-sequence-audit` (cinq fichiers, conservation 14 jours).
+
+La vérification ArcGIS ne lève donc pas la contradiction des terminus. Elle établit que les deux services cartographiques recensés dans cet audit ne contiennent pas d'entité 501 identifiée.
