@@ -72,6 +72,7 @@ function isTrafficSnapshot(value: unknown): value is RemoteTrafficSnapshot {
  * position GPS ou conversation n'est transmise à l'API.
  */
 export function loadTrafficBrainKnowledge(): Promise<RemoteTrafficSnapshot | null> {
+  if (import.meta.env.MODE === 'test') return Promise.resolve(null)
   if (cachedSnapshot && Date.now() - cachedAt < CACHE_TTL_MS) return Promise.resolve(cachedSnapshot)
   if (pendingLoad) return pendingLoad
 
