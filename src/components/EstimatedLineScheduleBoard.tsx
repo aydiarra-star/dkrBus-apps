@@ -368,7 +368,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           ...(tata.default as MobilityRouteReference[]),
         ]
         const knownAftuCodes = new Set(baseReferences.filter((item) => item.network === 'aftu').map((item) => item.code))
-        for (const line of AFTU_PUBLIC_LINE_CATALOG) {
+        for (const line of AFTU_TATA_PUBLIC_LINE_CATALOG) {
           if (knownAftuCodes.has(line.line)) continue
           const base = {
             network: 'aftu' as const,
