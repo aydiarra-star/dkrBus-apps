@@ -219,7 +219,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const serviceState = serviceWindow
             ? getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
-          const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
+          // Les deux opérateurs partagent la même grille horaire : ne pas laisser
+          // une fréquence isolée d'une fiche de parcours remplacer la référence commune.
+          const lineInterval = isDdd && route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : isDdd ? route?.frequency?.display : undefined
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
           const countdownSchedule = countdownWindow && schedule ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
