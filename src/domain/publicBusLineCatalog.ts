@@ -130,7 +130,7 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['232','Baux Maraîchers','Aéroport LSS'],
   ['233','Baux Maraîchers','Palais 1'],
   ['234','Jaxaay','Leclerc'],
-  ['501','Gare de Dakar','Palais 2'],
+  ['501','Port De Dakar','Terminus Palais 2'],
   ['502A','Colobane','UCAD'],
   ['502B','Colobane','Abass Ndao'],
   ['503A','Colobane','Môle 8'],
@@ -140,7 +140,8 @@ export const DDD_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
   ['319','Liberté 6','Ouakam'],
 ].map(([line, origin, destination]) => ({
   line, origin, destination, network: 'ddd' as const,
-  sourceUrl: dddSource, sourceLabel: 'Dakar Dem Dikk · Info voyageurs',
+  sourceUrl: line === '501' ? 'https://demdikk.sn/v2appmobile/' : dddSource,
+  sourceLabel: line === '501' ? 'Application mobile DDD · capture fournie et séquence validée par le responsable du projet' : 'Dakar Dem Dikk · Info voyageurs',
 }))
 
 
