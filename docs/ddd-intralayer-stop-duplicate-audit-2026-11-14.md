@@ -30,3 +30,15 @@ Les deux paires à ≤25 m doivent être considérées comme de simples voisinag
 4. Poursuivre la validation des noms, directions et séquences par confrontation aux fiches officielles DDD et aux tracés, sans déduire de retour ou d'horaire.
 
 Aucune écriture base de données, aucun changement des données passagers, TER/BRT ou production.
+
+
+## Identification des deux voisinages internes à 25 m
+
+Le recalcul direct des coordonnées de l'artefact source précise les deux paires signalées :
+
+| Couche | Enregistrements | Libellés source | Distance géodésique |
+|---|---|---|---:|
+| Ligne 13 | OBJECTID 1 / 2 | « Terminus Liberté 5 » / « Arret Terminus Liberté 5 » | 23,72 m |
+| Ligne 18 | OBJECTID 1 / 44 | « Terminus liberté 5 » / « Terminus liberté 5 » | 7,36 m |
+
+Les deux paires se situent au terminus Liberté 5. Elles peuvent correspondre à des positions d'arrêt distinctes, à des quais ou à des enregistrements répétés ; les coordonnées et les noms seuls ne permettent pas de trancher. Les GlobalID sont distincts dans chaque paire et sont conservés. **Aucune fusion, suppression ou correction de coordonnées n'est justifiée par ce seul voisinage.**
