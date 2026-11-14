@@ -99,7 +99,7 @@ declare
   rejected boolean;
   forged_id text := 'privilege-forged-test';
   claimed_job record;
-  validation_report jsonb;
+  report_payload jsonb;
   completed boolean;
 begin
   if not exists (
@@ -124,7 +124,7 @@ begin
     raise exception 'service_role could not claim the synthetic validation job through the trusted RPC';
   end if;
 
-  validation_report := jsonb_build_object(
+  report_payload := jsonb_build_object(
     'schema_version', '1.0',
     'dataset', jsonb_build_object(
       'filename', 'feed.zip',
@@ -156,7 +156,7 @@ begin
     claimed_job.dataset_id,
     claimed_job.lease_token,
     claimed_job.archive_sha256,
-    validation_report,
+    report_payload,
     'dakar-gtfs-validator-v2'
   );
   if completed is not true or not exists (
