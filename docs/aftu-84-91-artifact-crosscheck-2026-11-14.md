@@ -225,7 +225,7 @@ La page officielle « Infos pratiques » affiche actuellement :
 |---|---|---|
 | 88 | MTOA – Liberté 5 | Terminus/corridor seulement |
 | 89 | Bargny – Croisement Niague (Cité SICAP) | Terminus/corridor seulement |
-| 90 | Aucun numéro 90 affiché entre 89 et 91 | Non documenté |
+| 90 | **Pas de ligne 90** — correction confirmée par le responsable du projet | Numéro inexistant dans le réseau concerné ; aucune recherche de parcours à poursuivre |
 | 91 | Le libellé « LIGNE 91 » apparaît, mais aucun corridor lisible après ce titre | Numéro seulement |
 
 Les libellés « Voir itinéraire » des lignes 88, 89 et 91 ne sont pas exposés comme liens de fiche utilisables dans le contenu de la page consultée. Les anciennes URL candidates de fiches détaillées pour les lignes 88, 89 et 91 ont déjà renvoyé HTTP 404 dans les extractions AFTU précédentes. La nouvelle lecture ne fournit donc toujours aucune séquence d'arrêts.
@@ -248,13 +248,13 @@ Les trois pages publiques de la collection « Dakar lignes urbaines » couvrent 
 - Les occurrences de MTOA, Bargny, Niague, APIX ou Dougar dans des fiches d'autres lignes ne prouvent pas que ces fiches appartiennent aux lignes 88/89/91.
 - Les artefacts OSM précédemment audités ne contiennent aucune relation AFTU numérotée 88, 89 ou 91 ; aucun élément de ce jeu ne permet de reconstituer la ligne 90.
 - Les couches ArcGIS consultées dans ce chantier sont des services DDD, pas un référentiel géographique AFTU. Elles ne peuvent pas servir à fabriquer les arrêts des lignes recherchées.
-- Aucune séquence indépendante Aller/Retour, carte de ligne, horaire de passage ou fréquence propre à ces quatre numéros n'a été trouvée dans les sources consultées.
+- Aucune séquence indépendante Aller/Retour, carte de ligne, horaire de passage ou fréquence propre aux lignes 88, 89 et 91 n'a été trouvée dans les sources consultées. La ligne 90 est exclue du réseau étudié sur confirmation du responsable du projet.
 
 ### 5. Décision pour Dakar Bus
 
 1. Conserver pour la ligne 88 le corridor AFTU « MTOA – Liberté 5 » comme métadonnée d'index uniquement.
 2. Conserver pour la ligne 89 le corridor AFTU « Bargny – Croisement Niague (Cité SICAP) » comme métadonnée d'index uniquement.
-3. Conserver la ligne 90 en attente de source : ne pas lui attribuer un corridor ni supposer qu'elle est supprimée.
+3. Retirer la ligne 90 du périmètre de recherche : le responsable du projet confirme qu'il n'existe pas de ligne 90. Ne créer aucune fiche ni numéro fictif.
 4. Conserver la ligne 91 comme numéro affiché mais corridor non lisible ; ne pas lui attribuer APIX – Dougar sur la seule base des anciennes transcriptions d'index décalées.
 5. Ne créer aucun arrêt, ordre, direction retour, horaire ou fréquence pour 88, 89, 90 ou 91.
 6. Ne pas injecter ces métadonnées dans le catalogue passager tant que les deux directions et leurs séquences ne sont pas établies.
