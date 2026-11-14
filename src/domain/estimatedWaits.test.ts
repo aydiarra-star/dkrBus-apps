@@ -55,7 +55,7 @@ describe('estimations de temps d’attente', () => {
       minutes: 10,
       headwayMinutes: 12,
     })
-    expect(estimatedNextPassage('tata', Date.parse('2026-11-07T20:50:00Z'))).toMatchObject({
+    expect(estimatedNextPassage('tata', Date.parse('2026-11-07T22:40:00Z'))).toMatchObject({
       nextDepartureAt: '2026-11-07T22:50:00.000Z',
       minutes: 10,
       headwayMinutes: 12,
