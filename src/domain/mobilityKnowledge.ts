@@ -5,7 +5,6 @@
  */
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
-import { AFTU_TATA_SHARED_LINE_CODES } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
