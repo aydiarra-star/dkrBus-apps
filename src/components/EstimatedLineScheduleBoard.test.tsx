@@ -58,6 +58,8 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const expected = [
       { line: '83', outbound: 93, inbound: 90 },
       { line: '84', outbound: 73, inbound: 73 },
+      { line: '86', outbound: 68, inbound: 64 },
+      { line: '87', outbound: 68, inbound: 71 },
       { line: '88', outbound: 78, inbound: 81 },
       { line: '89', outbound: 55, inbound: 53 },
       { line: '90', outbound: 82, inbound: 82 },
