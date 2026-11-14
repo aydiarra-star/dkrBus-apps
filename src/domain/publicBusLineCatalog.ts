@@ -304,6 +304,16 @@ export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
 
 /** Alias de compatibilité pour les métriques : un numéro peut porter plusieurs
  *  parcours distincts ; cet ensemble ne sert jamais seul à fusionner des fiches. */
+/** Identité stable d'une fiche : les itinéraires AFTU/TATA ne partagent
+ * une identité que si leurs séquences détaillées sont identiques.
+ */
+export function detailedRouteIdentity(line: { network: string; code: string; origin: string; destination: string; waypoints?: readonly string[] }): string {
+  const routeKey = detailedRouteKey(line)
+  if ((line.network === 'aftu' || line.network === 'tata') && AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)) return routeKey
+  const sequence = normalizedRouteStops(line.waypoints ?? []).join('>') || 'no-detail'
+  return `${line.network}|${routeKey}|${sequence}`
+}
+
 export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
   [...AFTU_TATA_SHARED_ROUTE_KEYS].map((key) => key.slice(0, key.indexOf('|'))),
 )
@@ -325,7 +335,7 @@ export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = 
     const shared = AFTU_TATA_SHARED_ROUTE_KEYS.has(routeKey)
     const detail = detailedRecords.find((item) => item.network === line.network && detailedRouteKey(item) === routeKey)
     const sequenceKey = detail?.waypoints?.length ? normalizedRouteStops(detail.waypoints).join('>') : 'no-detail'
-    const key = shared ? routeKey : `${line.network}|${routeKey}|${sequenceKey}`
+    const key = detailedRouteIdentity({ network: line.network, code: line.line, origin: line.origin, destination: line.destination, waypoints: detail?.waypoints })
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
