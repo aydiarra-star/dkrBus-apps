@@ -50,6 +50,16 @@ describe('estimations de temps d’attente', () => {
       estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
     )
     expect(estimatedNextPassage('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
+    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T20:50:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T21:00:00.000Z',
+      minutes: 10,
+      headwayMinutes: 12,
+    })
+    expect(estimatedNextPassage('tata', Date.parse('2026-11-07T20:50:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T21:00:00.000Z',
+      minutes: 10,
+      headwayMinutes: 12,
+    })
     expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
   })
 
