@@ -35,7 +35,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(lineButtons[0].getAttribute('aria-expanded')).toBe('true')
   })
 
-  it('applique la même référence horaire aux itinéraires AFTU / TATA portant le même numéro', async () => {
+  it('n’affiche qu’une seule fiche pour une ligne appelée AFTU ou Tata', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
@@ -44,29 +44,23 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(lineButtons).toHaveLength(1)
     fireEvent.click(lineButtons[0])
     const row = lineButtons[0].closest('li')!
-    const variants = Array.from(row.querySelectorAll('.station-board-line-direction'))
-    expect(variants.length).toBeGreaterThan(0)
-    expect(variants.every((variant) => {
-      const pair = Array.from(variant.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
-      return pair.length === 2 && pair[0] === pair[1]
-    })).toBe(true)
-    const aftuVariant = variants.find((variant) => variant.textContent?.includes('AFTU ·'))
-    const tataVariant = variants.find((variant) => variant.textContent?.includes('TATA ·'))
-    expect(aftuVariant).toBeTruthy()
-    expect(tataVariant).toBeTruthy()
-    await waitFor(() => expect(aftuVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy())
-    expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-pending')).toBeTruthy()
-    expect(tataVariant!.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
+    const routeCards = Array.from(row.querySelectorAll('.station-board-line-direction'))
+    expect(routeCards).toHaveLength(1)
+    expect(routeCards[0].querySelectorAll('.station-board-line-direction-detail')).toHaveLength(2)
+    expect(routeCards[0].textContent).not.toContain('AFTU ·')
+    expect(routeCards[0].textContent).not.toContain('TATA ·')
+    await waitFor(() => expect(routeCards[0].querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy())
   })
-
   it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const expected = [
       { line: '83', outbound: 93, inbound: 90 },
+      { line: '84', outbound: 73, inbound: 73 },
       { line: '88', outbound: 78, inbound: 81 },
       { line: '89', outbound: 55, inbound: 53 },
+      { line: '90', outbound: 82, inbound: 82 },
       { line: '91', outbound: 70, inbound: 70 },
     ]
 
@@ -131,14 +125,14 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(within(row).getAllByText('Reprise à 06:00')).toHaveLength(variants * 2)
   })
 
-  it('affiche chaque numéro de ligne une seule fois sans supprimer les variantes de parcours', () => {
+  it('affiche une seule ligne par numéro sans séparer les appellations AFTU et Tata', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const groups = Array.from(container.querySelectorAll('.station-board-line-group'))
     const codes = groups.map((group) => group.getAttribute('data-line-code'))
-    expect(groups).toHaveLength(72)
-    expect(new Set(codes).size).toBe(72)
-    expect(container.querySelectorAll('.station-board-line-toggle')).toHaveLength(72)
-    expect(container.querySelectorAll('.station-board-line-toggle strong').length).toBe(72)
+    expect(groups).toHaveLength(73)
+    expect(new Set(codes).size).toBe(73)
+    expect(container.querySelectorAll('.station-board-line-toggle')).toHaveLength(73)
+    expect(container.querySelectorAll('.station-board-line-toggle strong').length).toBe(73)
     expect(container.textContent).not.toContain('AFTU / TATA 2B')
   })
 })
