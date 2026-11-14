@@ -60,9 +60,10 @@ describe('code couleur officiel des mobilités', () => {
   it('publie les mêmes hexadécimaux dans la feuille de style', () => {
     for (const id of MOBILITY_IDS) {
       const paint = MOBILITY_PALETTE[id]
-      expect(css).toMatch(new RegExp(`--mobility-${id}:\\s*${paint.badge}`, 'i'))
-      expect(css).toMatch(new RegExp(`--mobility-${id}-bright:\\s*${paint.bright}`, 'i'))
-      expect(css).toMatch(new RegExp(`--mobility-${id}-ink:\\s*${paint.ink}`, 'i'))
+      const cssId = id.replace('_', '-')
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}:\\s*${paint.badge}`, 'i'))
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}-bright:\\s*${paint.bright}`, 'i'))
+      expect(css).toMatch(new RegExp(`--mobility-${cssId}-ink:\\s*${paint.ink}`, 'i'))
     }
   })
 
