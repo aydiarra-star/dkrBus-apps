@@ -26,7 +26,7 @@ import {
   linesServingStop,
   type CorridorStop,
 } from './corridors'
-import { BUS_LINES, normalizeMobility, type BusLine } from './mobilityKnowledge'
+import { UNIFIED_BUS_LINES, normalizeMobility, type BusLine } from './mobilityKnowledge'
 import type { PlannerEndpoint } from './planner'
 
 export type PlaceKind = 'ter' | 'brt' | 'ddd' | 'aftu_tata' | 'bus'
@@ -92,7 +92,7 @@ interface BusPlaceIndex {
 
 function buildBusIndex(): Map<string, BusPlaceIndex> {
   const index = new Map<string, BusPlaceIndex>()
-  for (const line of BUS_LINES) {
+  for (const line of UNIFIED_BUS_LINES) {
     for (const raw of [line.origin, line.destination, ...line.waypoints]) {
       const key = busPlaceKey(raw)
       if (!isPlaceName(key)) continue
