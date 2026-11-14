@@ -80,7 +80,17 @@ export function detectNearbyMobilities(
     }
   }
   hits.sort((a, b) => a.distanceM - b.distanceM || a.stop.name.localeCompare(b.stop.name, 'fr'))
-  return hits
+  const uniqueHits: NearbyMobilityHit[] = []
+  for (const hit of hits) {
+    const normalizedName = hit.stop.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+    const duplicateIndex = uniqueHits.findIndex((candidate) => {
+      const candidateName = candidate.stop.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+      return candidate.network === hit.network && candidateName === normalizedName && haversineMeters(candidate.stop, hit.stop) <= 150
+    })
+    if (duplicateIndex < 0) uniqueHits.push(hit)
+    else if (hit.lineNames.length > uniqueHits[duplicateIndex].lineNames.length) uniqueHits[duplicateIndex] = hit
+  }
+  return uniqueHits
 }
 
 /** Regroupe les détections dans l’ordre des quatre mobilités, sans groupe vide. */
