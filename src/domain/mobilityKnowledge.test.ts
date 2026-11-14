@@ -26,7 +26,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '69' && line.waypoints.length === 0)).toBe(true)
     expect(UNIFIED_BUS_LINES.some((line) => line.network === 'tata' && line.code === '70' && line.waypoints.length === 0)).toBe(true)
     expect(UNIFIED_BUS_LINES.find((line) => line.code === '39')?.waypoints.length).toBeGreaterThan(0)
-    expect(busKnowledgeSummary()).toContain('n’est pas exhaustif')
+    expect(busKnowledgeSummary()).toContain('restent à compléter')
     for (const line of BUS_LINES) {
       expect(line.consultedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       expect(new URL(line.sourceUrl).protocol).toBe('https:')
