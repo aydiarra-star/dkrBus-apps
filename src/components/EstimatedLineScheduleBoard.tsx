@@ -198,7 +198,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             : { status: 'FINISHED' as const, label: 'Pas de service aujourd’hui', showCountdown: false }
           const lineInterval = route?.frequency?.intervalMinutes ? `${route.frequency.intervalMinutes} min` : route?.frequency?.display
           const countdownWindow = scheduleWindow && lineInterval ? { ...scheduleWindow, interval: lineInterval } : scheduleWindow
-          const countdownSchedule = countdownWindow ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
+          const countdownSchedule = countdownWindow && schedule ? { ...schedule, weekday: countdownWindow, saturday: countdownWindow, sunday: countdownWindow } : null
           const outboundMinutes = countdownSchedule && serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
           const inboundSchedule = route?.inboundSchedule ?? null
           const inboundDayWindow = inboundSchedule
