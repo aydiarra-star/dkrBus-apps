@@ -12,8 +12,9 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.routePage).toBe('https://demdikk.sn/reseau-urbain-dakar/')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.infoPage).toBe('https://demdikk.sn/info-voyageurs/')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
+    expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgis2024).toContain('Dem_dikk_mise_a_jour/FeatureServer')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '4', '6', '7', '9', '10', '13', '15', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '4', '6', '7', '9', '10', '13', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
@@ -33,7 +34,16 @@ describe('DDD official source crosswalk', () => {
     expect(getDddOfficialSourceCrosswalk('9')?.claims.at(-1)?.corridor).toBe('Liberté 6 → Palais 1')
     expect(getDddOfficialSourceCrosswalk('10')?.claims.at(-1)?.corridor).toContain('Palais 1')
     expect(getDddOfficialSourceCrosswalk('13')?.claims.at(-1)?.corridor).toBe('Dieuppeul → Palais 1')
-    expect(getDddOfficialSourceCrosswalk('121')?.claims.at(-1)?.corridor).toBe('HLM Grand Yoff → Leclerc')
+    expect(getDddOfficialSourceCrosswalk('121')?.claims.at(2)?.corridor).toBe('HLM Grand Yoff → Leclerc')
+    expect(getDddOfficialSourceCrosswalk('121')?.claims.at(-1)?.source).toBe('ddd_arcgis_2024')
+  })
+
+  it('records the line 23 title/last-stop conflict and the limited ArcGIS crosscheck', () => {
+    const line = getDddOfficialSourceCrosswalk('23')!
+    expect(line.kind).toBe('published_title_sequence_conflict')
+    expect(line.claims[0].corridor).toContain('dernier repère publié : Terminus Palais 2')
+    expect(line.claims[1].corridor).toContain('54 points codés LIgne_23')
+    expect(line.decision).toContain('aucune fusion ni correction automatique')
   })
 
   it('does not merge line-number variants or distinct TAF TAF services', () => {
