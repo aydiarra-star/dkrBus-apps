@@ -17,6 +17,7 @@ describe('DDD lines without a same-code ArcGIS stop group', () => {
   it('keeps the absence of ArcGIS points separate from published sequence availability', () => {
     expect(DDD_MISSING_ARCGIS_ROUTE_COVERAGE.every((item) => item.arcgisSameCodeStopGroup === false)).toBe(true)
     expect(DDD_MISSING_ARCGIS_ROUTE_COVERAGE.every((item) => item.reverseSequenceCreated === false)).toBe(true)
+    expect(DDD_MISSING_ARCGIS_ROUTE_COVERAGE.every((item) => item.directionVerified === false)).toBe(true)
     expect(DDD_MISSING_ARCGIS_ROUTE_COVERAGE.every((item) => item.coordinatesVerified === false)).toBe(true)
   })
 
