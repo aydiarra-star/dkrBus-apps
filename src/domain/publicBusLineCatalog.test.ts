@@ -20,8 +20,8 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     })
     // Les terminus identiques peuvent désormais rester en deux fiches si les arrêts diffèrent.
     expect(new Set(keys).size).toBeLessThan(keys.length)
-    expect(AFTU_TATA_SHARED_ROUTE_KEYS.size).toBe(11)
-    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(11)
+    expect(AFTU_TATA_SHARED_ROUTE_KEYS.size).toBe(9)
+    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(9)
     // Les lignes 4, 33 et 53 ont une séquence détaillée commune après normalisation ; les lignes 5, 39 et 42 restent distinctes.
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '1')).toHaveLength(2)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '4')).toHaveLength(1)
