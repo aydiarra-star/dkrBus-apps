@@ -61,12 +61,12 @@ describe('AFTU lines 88–91: supplied directional sequences', () => {
 
   it('does not fabricate frequencies, coordinates, or stop passage times', () => {
     for (const route of [line88, line89, line90, line91]) {
-      expect(route.frequency).toBeUndefined()
-      expect(route.operatingProfile).toBeUndefined()
-      expect(route.directions.outbound.times).toBeUndefined()
-      expect(route.directions.inbound.times).toBeUndefined()
-      expect(route.directions.outbound.coordinates).toBeUndefined()
-      expect(route.directions.inbound.coordinates).toBeUndefined()
+      expect('frequency' in route).toBe(false)
+      expect('operatingProfile' in route).toBe(false)
+      expect('times' in route.directions.outbound).toBe(false)
+      expect('times' in route.directions.inbound).toBe(false)
+      expect('coordinates' in route.directions.outbound).toBe(false)
+      expect('coordinates' in route.directions.inbound).toBe(false)
     }
   })
 })
