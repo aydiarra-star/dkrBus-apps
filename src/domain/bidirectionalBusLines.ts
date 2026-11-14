@@ -5,6 +5,7 @@ import {
   type PublicBusLineReference,
 } from './publicBusLineCatalog'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
+import { AFTU_CETUD_SCHEDULE_SETTINGS } from '../data/aftuScheduleSettings'
 
 export type BusDirectionId = 'outbound' | 'inbound'
 export type BusDirectionStatus = 'awaiting_stops' | 'stops_mapped' | 'verified'
@@ -26,6 +27,11 @@ export interface BidirectionalBusLine {
   network: 'ddd' | 'aftu' | 'tata'
   line: string
   source: PublicBusLineReference
+  serviceWindow: {
+    start: string
+    end: string
+    source: 'CETUD-network-default'
+  } | null
   directions: Readonly<Record<BusDirectionId, BusDirection>>
 }
 
@@ -80,6 +86,12 @@ function registerLine(source: PublicBusLineReference): BidirectionalBusLine {
     network: source.network,
     line: source.line,
     source,
+    serviceWindow: source.network === 'aftu'
+      ? {
+          ...AFTU_CETUD_SCHEDULE_SETTINGS.generalServiceWindow,
+          source: 'CETUD-network-default',
+        }
+      : null,
     directions: {
       outbound: mappedOutbound,
       inbound: makeDirection(source, 'inbound', source.destination, source.origin),
