@@ -15,7 +15,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
 
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuFiveLabels = screen.getAllByText('AFTU / TATA 5')
-    expect(aftuFiveLabels).toHaveLength(2)
+    expect(aftuFiveLabels).toHaveLength(4)
     const row = aftuFiveLabels.map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
     expect(row).toBeTruthy()
     expect(within(row).getAllByText('10 min')).toHaveLength(1)
@@ -51,9 +51,9 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const lineSixtyFive = screen.getAllByText('AFTU / TATA 65')
     expect(lineSixtyFive).toHaveLength(4)
     const tataRow = lineSixtyFive.map((label) => label.closest('li')!)
-      .find((candidate) => candidate.textContent?.includes('Gare routière de Colobane'))!
+      .find((candidate) => candidate.textContent?.includes('Colobane') && candidate.textContent?.includes('Kounoune'))!
     const aftuRow = lineSixtyFive.map((label) => label.closest('li')!)
-      .find((candidate) => candidate.textContent?.includes('Colobane') && !candidate.textContent?.includes('Gare routière'))!
+      .find((candidate) => candidate.textContent?.includes('Colobane') && candidate.textContent?.includes('Jaxaay'))!
     expect(tataRow).toBeTruthy()
     expect(aftuRow).toBeTruthy()
     expect(within(tataRow).getAllByText('5 min')).toHaveLength(2)
