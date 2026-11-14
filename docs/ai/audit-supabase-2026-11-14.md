@@ -52,6 +52,10 @@ La PR #109 contient une archive de migrations présentée comme l'historique app
 - Les fonctions serveur sont donc actives dans Supabase, mais cela ne prouve pas que l'application publiée les interroge.
 - Aucun GPS de flotte, capteur routier ou flux temps réel opérateur n'a été vérifié comme actif.
 
+## Correctif de compatibilité des clés
+
+L'ancienne branche #109 envoyait la clé `sb_publishable_` à la fois dans `apikey` et dans `Authorization: Bearer`. La documentation Supabase actuelle précise que les nouvelles clés publishable/secret ne sont pas des JWT et ne doivent pas être envoyées dans `Authorization`. Le client repris dans la PR #154 n'envoie désormais que l'en-tête `apikey`. Aucun secret `service_role` n'est embarqué dans le navigateur.
+
 ## Décision pour la PR de référence #154
 
 1. Reprendre sélectivement le client de lecture Supabase de #109, après comparaison de son contrat JSON avec la fonction déjà déployée.
