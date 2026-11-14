@@ -258,6 +258,14 @@ function normalizeRouteEndpoint(value: string): string {
   return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bterminus\b/g, ' ').replace(/\b(rond[ -]?point|giratoire)\b/g, ' ').replace(/\broute principale\b/g, ' ').replace(/\b(gare|des)\b/g, ' ').replace(/\bucad\b/g, 'universite cheikh anta diop').replace(/\bsham\b/g, 'sahm').replace(/\s+/g, ' ').trim()
 }
 
+export function sameDetailedRouteDirection(
+  a: { origin: string; destination: string },
+  b: { origin: string; destination: string },
+): boolean {
+  return normalizeRouteEndpoint(a.origin) === normalizeRouteEndpoint(b.origin)
+    && normalizeRouteEndpoint(a.destination) === normalizeRouteEndpoint(b.destination)
+}
+
 export function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
   const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
   return `${line.code}|${ends[0]}|${ends[1]}`
@@ -299,7 +307,7 @@ export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
   const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]
   for (const aftu of detailedAftu) {
     const key = detailedRouteKey(aftu)
-    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedStopSequence(aftu, tata))
+    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedRouteDirection(aftu, tata) && sameDetailedStopSequence(aftu, tata))
     if (hasMatchingTata) shared.add(key)
   }
   return shared
