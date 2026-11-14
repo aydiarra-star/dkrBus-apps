@@ -286,9 +286,7 @@ const readKnowledge = withSupabase(
         .select("id,subject_type,subject_id,predicate,value_json,source_id,status,observed_at,valid_from,valid_until,verified_by,dataset_version_id")
         .in("status", activeStatuses).order("observed_at", { ascending: false }).limit(1000),
       db.from("mobility_reference_snapshots")
-        .select(includeSources
-          ? "source_path,source_blob_sha,repository_commit,network_scope,notes,imported_at,source_content"
-          : "source_path,source_blob_sha,repository_commit,network_scope,notes,imported_at")
+        .select("*")
         .order("source_path"),
     ]);
 
@@ -326,10 +324,11 @@ const readKnowledge = withSupabase(
       : catalog;
 
     // Archived line snapshots are excluded; derived return directions stay explicit.
-    const directions = (directionsResult.data ?? []).filter((row) =>
-      lineIds.has(row.line_id) && row.mobility_lines &&
-      activeStatuses.includes(row.mobility_lines.status)
-    );
+    const directions = (directionsResult.data ?? []).filter((row) => {
+      const relatedLine = Array.isArray(row.mobility_lines) ? row.mobility_lines[0] : row.mobility_lines;
+      return lineIds.has(row.line_id) && Boolean(relatedLine)
+        && activeStatuses.includes(relatedLine.status);
+    });
     const directionIds = directions.map((row) => row.id);
     const directionSet = new Set(directionIds);
 
@@ -447,7 +446,7 @@ const readKnowledge = withSupabase(
       const direction = directionById.get(row.direction_id);
       const line = direction ? lineById.get(direction.line_id) : null;
       const networkRow = line ? networkById.get(line.network_id) : null;
-      if (!line || !networkRow) continue;
+      if (!direction || !line || !networkRow) continue;
       const stop = stopById.get(row.stop_id);
       const current = membershipMap.get(row.stop_id) ?? {
         stop_id: row.stop_id,
@@ -490,9 +489,9 @@ const readKnowledge = withSupabase(
     const publicTrafficObservations = (observationsResult.data ?? []).filter((observation) =>
       isPublicTrafficSource(observation.traffic_source_id)
     );
-    const snapshots = (snapshotsResult.data ?? []).filter((row) =>
-      !network || (row.network_scope ?? []).includes(network)
-    );
+    const snapshots = ((snapshotsResult.data ?? []) as any[])
+      .filter((row) => !network || (row.network_scope ?? []).includes(network))
+      .map(({ source_content: _sourceContent, ...row }) => row);
     const assertions = (assertionsResult.data ?? []).filter((row) =>
       !network || row.value_json?.network_code === network
     );
