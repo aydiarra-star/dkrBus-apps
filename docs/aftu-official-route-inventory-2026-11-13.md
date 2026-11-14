@@ -213,3 +213,33 @@ Sources :
 - Moovit, fiche ligne 40 : https://moovitapp.com/index/fr/transport_en_commun-line-40-Dakar-5996-1618038-18051526-0
 - Guide officiel mobilité JOJ Dakar 2026 (ligne 40 : Jaxaay–Petersen) : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
 - Extraction OSM du workflow 43558758426, relation 3982642.
+
+
+## Dossier AFTU ligne 41 — séquence officielle et contrôle secondaire — 14 novembre 2026
+
+### Séquence publiée par l'opérateur
+
+La fiche AFTU du **30 juin 2026** donne le parcours dans cet ordre : **Petersen → Allées Papa Gueye Fall → Avenue Malick Sy → Échangeur Cyrnos → Môle 10 → Rond-point Môle 8 → Rond-point SCOA → Boulevard du Centenaire de la Commune de Dakar → CAPA → Marché aux Poissons → Bountou Pikine → Tally Boumack → Route des Niayes → Rue 10 prolongée → Police Guédiawaye → Station Touré → Quartier Cheikh Wade → Marché Ndiarème → Baye Laye → Daroukhane → Terminus Étage Madiale**.
+
+Cette séquence est la référence officielle du corridor. La page donne un seul texte continu, sans tableau de sens retour, sans horaires et sans fréquence.
+
+### Comparaison à la source secondaire TransitRun
+
+La page TransitRun attribue à la ligne 41 un itinéraire de **60 arrêts** commençant à Avenue Petersen 15 et se terminant par un libellé générique « Arrêt de Bus ». Sa liste reprend des points compatibles avec le début du corridor officiel (Petersen, Allées Papa Gueye Fall, Avenue Malick Sy), puis décrit un passage par Route de Rufisque, Colobane, Camp Lemonier, Zoo, CEM de Hann, Baux Maraîchers, Pikine et Guédiawaye. Elle nomme aussi Marché Ndiarème, Stade de Ndiarème et Tally Baye Laye.
+
+La fiche secondaire annonce 05:30–22:47 et 17 min du lundi au vendredi, puis 05:50–22:38 et 28 min le samedi/dimanche. Ces données ne sont pas publiées sur la fiche AFTU et restent donc secondaires.
+
+### Écarts à ne pas masquer
+
+- La fiche officielle passe par **Échangeur Cyrnos, Môle 10, Môle 8, SCOA, Boulevard du Centenaire, CAPA et Marché aux Poissons** ; ces repères ne figurent pas dans la séquence TransitRun extraite.
+- TransitRun cite des points (Camp Lemonier, Zoo, CEM de Hann, Baux Maraîchers, Institut de Pédiatrie, Hôpital Roi Baudouin, etc.) qui ne sont pas nommés dans le corridor officiel.
+- La page secondaire se termine sur un arrêt générique, alors que l'opérateur donne **Étage Madiale** comme terminus.
+- La fiche TransitRun expose une seule direction ; elle ne donne pas de retour distinct et complet.
+
+**Décision :** ligne 41 qualifiée « séquence de corridor officielle disponible ; détail secondaire non concordant ». Conserver la liste officielle comme référence, mettre la séquence de 60 arrêts en quarantaine de rapprochement, ne pas la publier telle quelle et ne pas importer ses horaires/fréquences. Le retour doit être recherché séparément. Aucun arrêt ni temps de passage n'est ajouté aux données passagers depuis cette source.
+
+Sources :
+- Fiche officielle AFTU ligne 41, 30 juin 2026 : https://aftu-senegal.org/map/dakar-urbain-ligne-41/
+- Index officiel AFTU (Petersen–Étage Madiale) : https://aftu-senegal.org/infos-pratiques/
+- TransitRun, liste secondaire de 60 arrêts et horaires : https://transitrun.com/fr/public-transit-line_41_226929
+- TransitByCity, reprise de la liste et des horaires secondaires : https://transitbycity.com/fr/senegal/dakar/operators/aftu/routes/41/
