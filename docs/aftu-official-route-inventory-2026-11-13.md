@@ -145,3 +145,25 @@ Sources vérifiées :
 - Archive, page 1 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/
 - Archive, page 2 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/page/2/
 - Archive, page 3 : https://aftu-senegal.org/collection/dakar-lignes-urbaines/page/3/
+
+
+## Recoupement cartographique institutionnel CETUD — 14 novembre 2026
+
+Une source géographique officielle supplémentaire a été retrouvée sur la page CETUD consacrée à l'AFTU : le plan des lignes téléchargeable, publié sous `https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg`.
+
+- La page CETUD indique un réseau AFTU de **72 lignes**, **2 300 bus** et une plage générale de service de **6 h à 21 h**. Cette plage décrit le réseau dans son ensemble ; elle ne doit pas être transformée en horaire propre à chaque ligne.
+- Le plan cartographique porte explicitement des libellés de lignes AFTU et leurs tracés géographiques. Il constitue un support de comparaison spatiale avec les relations OSM et les autres couches cartographiques, mais ne fournit pas de liste ordonnée des arrêts, de sens aller/retour distincts ni de fréquence.
+- La ligne **84** apparaît sur le plan institutionnel. L'index AFTU la décrit comme **UCAD – Jaxaay**. Le guide officiel de mobilité des JOJ 2026 la cite également parmi les lignes du réseau AFTU et présente une carte de réseau ; ces documents confirment sa présence dans le réseau et son corridor général, pas une séquence détaillée des arrêts.
+- Un document de projet CETUD/AATR relatif à la restructuration du réseau indique que des voiries proches de l'axe AF_s2 sont empruntées en partie par les lignes **76 et 84**. Cette indication ne couvre qu'un secteur local près de Jaxaay/Guédiawaye ; elle ne suffit pas à reconstituer les parcours complets de ces lignes.
+- Le plan statique ne résout pas les sept fiches détaillées absentes (84, 85, 86, 87, 88, 89 et 91). Il donne un indice cartographique supplémentaire, mais les corridors de l'index restent la seule description textuelle officielle actuellement disponible pour ces lignes.
+
+**Traitement retenu :** conserver le plan comme source cartographique officielle datée, l'utiliser pour prioriser les rapprochements OSM/ArcGIS, et ne pas convertir le dessin en liste d'arrêts ou en retour automatique. Aucune fréquence n'est déduite de la plage générale CETUD 6 h–21 h.
+
+Sources :
+- CETUD, page AFTU et plan des lignes : https://cetud.sn/reseaux-de-transport/aftu/
+- Plan cartographique AFTU (publication novembre 2024) : https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg
+- Index officiel AFTU : https://aftu-senegal.org/infos-pratiques/
+- Guide officiel mobilité JOJ Dakar 2026 : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+- Document CETUD/AATR sur les voiries utilisées en partie par les lignes 76 et 84 : https://cetud.sn/wp-content/uploads/2024/11/RTC-DK_-Cadre-de-Politique-de-Reinstallation-CPR_VF_2022-10-14.pdf
+
+Aucune donnée du catalogue passager, aucune base Supabase, aucun horaire TER/BRT et aucun déploiement n'ont été modifiés.
