@@ -90,3 +90,23 @@ La même page AFTU affiche désormais explicitement « APIX – Dougar » pour l
 5. Ne rien injecter dans le catalogue passager avant résolution des conflits.
 
 Aucune écriture Supabase, aucun déploiement, aucune modification TER/BRT et aucune fusion du PR ne sont effectués par ce rapport.
+
+
+## Complément de recherche et correction des références — 14 novembre 2026, 09:40
+
+Une nouvelle lecture de l'index AFTU confirme sans ambiguïté l'affectation actuelle des corridors : 86 Tournalou Boune–Toubab Dialaw ; 87 Bambilor–Mosquée Massalikou Djinane ; 88 MTOA–Liberté 5 ; 89 Bargny–Croisement Niague (Cité SICAP). Les anciennes notes internes des fichiers JSON 86 et 87 contenaient des affectations décalées (86 associé à l'ancien corridor du 87 ; 87 associé au corridor du 88). Seuls les champs de note documentaire ont été corrigés dans les deux JSON ; les listes d'arrêts, leurs positions, les nombres d'entrées, les statuts d'horaires et les données opérationnelles n'ont pas été modifiés.
+
+### Ligne 86 — corroboration partielle du secteur d'arrivée
+Un guide d'accès à Toubab Dialaw publié en janvier 2026 cite un « bus Tata n° 86 » au départ de Pikine, avec des arrêts à Rufisque, Bargny et Diamniadio. Cela corrobore indépendamment l'association du numéro 86 au secteur de Toubab Dialaw, mais pas le terminus Tournalou Boune ni les 68/64 arrêts de la transcription Yeumbeul–Touba Ngayame. Le décalage entre le corridor officiel actuel, la source secondaire et la séquence transcrite reste donc ouvert.
+
+### Ligne 87 — départ Bambilor corroboré, terminus retour non résolu
+L'index officiel confirme Bambilor comme extrémité du corridor 87, ce qui rejoint la référence de départ des captures. Il publie toutefois Mosquée Massalikou Djinane, tandis que les listes capturées se terminent aux Maristes. Aucune source indépendante retrouvée ne confirme que Maristes est une variante, un terminus alternatif ou un changement de service. Les 68/71 entrées restent conservées mais le corridor complet et le numéro restent à confirmer.
+
+### Ligne 88 — MTOA apparaît dans la liste détaillée
+La séquence aller de 78 entrées contient explicitement « Devant Mtoa près du dibiterie Le Djolof » au rang 12 ; la séquence retour de 81 entrées contient « Station Mtoa » au rang 71. L'index officiel publie MTOA–Liberté 5. Cela établit que MTOA est bien un repère présent dans les listes détaillées, mais ne démontre pas qu'il est leur terminus : la liste commence à « Terminus 88 » et continue au-delà de MTOA vers Malika, Yeumbeul et Keur Massar. Ne pas raccourcir la séquence ni déplacer son terminus sans preuve de terrain ou opérateur.
+
+### Ligne 89 — cohérence géographique générale avec le corridor officiel
+La liste aller de 55 entrées commence par des repères explicitement situés à Niague (Mosquée Tawfekh Niague, établissements et commerces de Niague, station Niague, Lotissement Alassane), puis descend vers Tivaoune Peulh, Keur Massar, Keur Mbaye Fall, Zac Mbao, Rufisque et Bargny Gare TER. Le retour de 53 entrées suit la chaîne opposée dans son propre ordre transcrit. Cette géographie est globalement cohérente avec le corridor officiel Bargny–Croisement Niague, davantage que ne le laissait entendre la première note. Cependant, le point exact « Terminus 89 » n'est pas identifié comme étant le « Croisement Niague (Cité SICAP) » : la ligne est donc **corridor-compatible, terminus précis à confirmer**, et non encore VALIDATED_ROUTE.
+
+### Règle de traitement maintenue
+Les comparaisons sont ordinales et directionnelles. Les répétitions telles que « Arrêt Keur Massar », « Keur Massar », les libellés de gares et les arrêts nommés de façon proche sont des occurrences à conserver ; aucune fusion n'est faite à partir d'une égalité de texte. Les sources trouvées ne permettent pas de valider les horaires ou fréquences propres aux lignes 86–89.
