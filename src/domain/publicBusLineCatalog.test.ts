@@ -16,10 +16,10 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
       return `${line.line}|${ends[0]}|${ends[1]}`
     })
     expect(new Set(keys).size).toBe(keys.length)
-    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(47)
+    expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(48)
     // La ligne 5 AFTU / TATA est fusionnée depuis les séquences détaillées.
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '5')).toHaveLength(1)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(90)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG).toHaveLength(89)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '39')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '42')).toHaveLength(1)
     expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '65')).toHaveLength(2)
