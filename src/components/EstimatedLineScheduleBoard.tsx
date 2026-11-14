@@ -317,10 +317,13 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-73-directions.json'),
       import('../data/aftu-70-directions.json'),
       import('../data/aftu-71-directions.json'),
+      import('../data/aftu-86-directions.json'),
+      import('../data/aftu-87-directions.json'),
       import('../data/aftu-88-directions.json'),
       import('../data/aftu-89-directions.json'),
+      import('../data/aftu-90-directions.json'),
       import('../data/aftu-91-directions.json'),
-    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu88, aftu89, aftu91]) => {
+    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -339,8 +342,11 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '81': aftu81.default as Partial<MobilityRouteReference>,
         '70': aftu70.default as Partial<MobilityRouteReference>,
         '71': aftu71.default as Partial<MobilityRouteReference>,
+        '86': normalizeRouteDetails(aftu86.default),
+        '87': normalizeRouteDetails(aftu87.default),
         '88': normalizeRouteDetails(aftu88.default),
         '89': normalizeRouteDetails(aftu89.default),
+        '90': normalizeRouteDetails(aftu90.default),
         '91': normalizeRouteDetails(aftu91.default),
         '83': normalizeRouteDetails(aftu83Directions),
         '84': normalizeRouteDetails(aftu84Directions),
