@@ -22,7 +22,8 @@
     "admin:api": "python3 scripts/serve_admin_api.py --root data/staging --published-root data/published --actors-root data/actors --traffic-public-watch --community-reports-root data/traffic/community --host 127.0.0.1 --port 8787",
     "traffic:watch": "python3 scripts/public_traffic_watch.py",
     "graph:build": "python3 scripts/publish_gtfs.py --published-root data/published graph-rebuild",
-    "graph:status": "python3 scripts/publish_gtfs.py --published-root data/published graph-status"
+    "graph:status": "python3 scripts/publish_gtfs.py --published-root data/published graph-status",
+    "audit:ddd-osm-crosscheck": "node scripts/compare_ddd_osm_arcgis_stops.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

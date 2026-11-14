@@ -33,6 +33,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check read-only DDD OSM ArcGIS reconciliation script
+        run: node --check scripts/compare_ddd_osm_arcgis_stops.mjs
+
+      - name: Check read-only OSM way to ArcGIS stop proximity exporter
+        run: node --check scripts/export_ddd_osm_way_arcgis_stop_proximity.mjs
+
+      - name: Check read-only OSM stop-node candidate exporter
+        run: node --check scripts/export_ddd_osm_way_stop_node_candidates.mjs
+
+      - name: Check official DDD route exporter
+        run: node --check scripts/export_ddd_official_route_candidates.mjs
+
+      - name: Check OSM directional pair and ambiguity audit
+        run: node --check scripts/analyze_dakar_osm_directional_pairs.mjs
+
+      - name: Extract official DDD published route sequences
+        id: ddd_official
+        continue-on-error: true
+        run: node scripts/export_ddd_official_route_candidates.mjs
+
+      - name: Upload official DDD route evidence
+        if: always() && steps.ddd_official.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-official-published-route-candidates
+          path: artifacts/ddd/ddd-official-published-route-candidates.json
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Build frontend
         run: npm run build
 

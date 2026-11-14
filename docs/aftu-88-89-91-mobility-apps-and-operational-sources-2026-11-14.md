@@ -1,0 +1,360 @@
+# Enquête approfondie — AFTU 88, 89 et 91 : applications et sources opérationnelles
+
+Date de recherche : 14 novembre 2026
+Périmètre : Dakar et sa périphérie, lignes AFTU 88, 89 et 91.
+Règle : aucune séquence d'arrêts, direction retour, fréquence ou horaire n'est créée sans preuve.
+
+## 1. Référence actuelle des numéros et corridors
+
+La relecture directe de l'index officiel AFTU « Infos pratiques » impose l'association suivante :
+
+| Ligne AFTU | Corridor publié par AFTU | Niveau de preuve disponible |
+|---|---|---|
+| 88 | MTOA – Liberté 5 | Corridor publié ; la séquence enregistrée commence par « Terminus 88 » et contient « Station Mtoa » comme arrêt intermédiaire |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Corridor publié ; la séquence enregistrée relie « Terminus 89 » à Bargny et contient des repères de Niague |
+| 91 | APIX – Dougar | Corridor publié ; les deux séquences enregistrées vont de Losso à la zone APIX et contiennent Dougar Peulh |
+
+**Correction de l'index officiel :** la page AFTU actuelle associe bien MTOA – Liberté 5 à la ligne 88, Bargny – Croisement Niague à la ligne 89 et APIX – Dougar à la ligne 91. Elle affiche aussi les corridors des lignes 85 à 87 ; ceux-ci ne doivent pas être substitués aux listes directionnelles déjà transmises sans rapprochement explicite. La ligne 90 reste hors périmètre de cette enquête.
+
+Source primaire : https://aftu-senegal.org/infos-pratiques/ (lecture directe des sections lignes 84–91).
+
+## 2. Sources opérateur et autorité organisatrice
+
+### 2.1 AFTU — index public
+
+L'index AFTU confirme les intitulés des corridors des lignes 85 à 89 et 91. Pour les lignes 84 à 91, les libellés « Voir itinéraire » ne sont pas des liens de fiches détaillées dans le rendu public actuellement consulté. En comparaison, la fiche AFTU de la ligne 83 existe et fournit un itinéraire textuel détaillé. Les corridors de l'index sont des repères de terminus, pas des listes ordonnées d'arrêts ; ils ne remplacent donc pas les listes directionnelles transmises.
+
+Fiche témoin montrant le format des détails AFTU disponibles : https://aftu-senegal.org/map/dakar-urbain-ligne-83/
+
+### 2.2 CETUD — réseau, carte et application officielle
+
+La page réseau AFTU du CETUD annonce 72 lignes et 2 300 bus, mais ne publie pas les séquences propres aux lignes 88, 89 et 91.
+
+Le bouton officiel « Télécharger le plan des lignes » mène à une carte JPEG datée du répertoire 2024/11 : https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg. Cette carte est utile comme contexte géographique historique, mais elle ne constitue pas une preuve suffisante pour les trois numéros recherchés : elle ne fournit ni liste ordonnée des arrêts ni tracé actuel vérifié pour les lignes 88, 89 et 91.
+
+La fiche App Store de **CETUD Mobilités** (éditeur : CETUD) décrit une application officielle qui permet de parcourir les lignes et leurs arrêts réseau par réseau, consulter les horaires de passage par arrêt et calculer des itinéraires multimodaux. La fiche a publié la version 1.0.14 le 14 novembre 2026. C'est la meilleure application publique à examiner pour les trois lignes, mais la fiche du magasin ne publie pas elle-même les arrêts des lignes 88/89/91.
+
+Références :
+- https://cetud.sn/reseaux-de-transport/aftu/
+- https://apps.apple.com/sn/app/cetud-mobilit%C3%A9s/id6814449080
+
+### 2.3 CAPTRANS — piste opérationnelle prioritaire
+
+Le CETUD indique explicitement que les données d'exploitation des réseaux classiques AFTU et DDD proviennent de plateformes dédiées (CAPTRANS) et/ou d'enquêtes auprès des opérateurs. Le CETUD a également documenté la mise en place d'une plateforme CAPTRANS centralisant les données issues de l'exploitation AFTU, avec suivi des départs et arrivées de minibus aux terminus et supervision de l'activité.
+
+Cela identifie CAPTRANS comme une piste beaucoup plus proche de l'exploitation réelle que les catalogues d'applications tierces. Aucun export public des séquences 88/89/91 n'a cependant été trouvé sur son site.
+
+Références :
+- CETUD, système de données : https://cetud.sn/observatoire/systeme-de-donnees/
+- CETUD, lancement de la plateforme CAPTRANS (19/08/2019) : https://cetud.sn/mobilite-urbaine-a-l-ere-du-numerique-le-cetud-lance-une-plateforme-de-centralisation-des-donnees-pour-un-meilleur-suivi-de-l-exploitation-des-transports-en-commun-par-minibus/
+- CAPTRANS : https://captrans.sn/
+
+Le CETUD précise également avoir créé des fichiers GTFS contenant lignes, arrêts, itinéraires, trajets, tarifs et services. Le GTFS reste une piste de vérification si une version publique exploitable est accessible ; il ne devient pas une condition bloquante du chantier.
+
+## 3. Applications de mobilité examinées
+
+| Application / source | Couverture annoncée ou observée | Résultat pour 88 / 89 / 91 | Valeur pour l'enquête |
+|---|---|---|---|
+| **CETUD Mobilités** | Application officielle CETUD ; lignes, arrêts, horaires par arrêt et calcul d'itinéraires | La fiche magasin ne donne pas les séquences ; contenu interne de l'application à examiner | Priorité maximale |
+| **FastFey** | Notes de version mentionnant un filtre AFTU (lignes « A »), en plus de BRT et TER | Aucun résultat public indexé par numéro 88/89/91 | Candidat sérieux à tester dans l'application |
+| **Seddo** | Application de mobilité Dakar ; historique App Store mentionnant explicitement les lignes AFTU, BRT et DDD | Aucun détail public trouvé pour les trois numéros | Candidat sérieux à tester dans l'application |
+| **PassBi** | Application indépendante de calcul multimodal ; déclare utiliser les GTFS publics centralisés par CETUD et intégrer progressivement AFTU | Aucune séquence 88/89/91 publiquement visible dans la fiche magasin | Priorité élevée si ses données AFTU sont effectivement intégrées |
+| **Moovit** | Page AFTU Dakar : 64 lignes et 1 634 arrêts ; son inventaire public consulté ne fait pas apparaître les nouveaux corridors 88/89/91 | Pas de fiche Dakar AFTU trouvée pour ces numéros | Catalogue incomplet ou en retard ; ne permet pas de conclure que les lignes n'existent pas |
+| **MoMove** | 109 lignes cartographiées à Dakar, données annoncées au 09/06/2026 | Le tableau public ne fournit pas de fiche AFTU 88/89/91. Les lignes 60/68/74 qui mentionnent Bargny sont étiquetées TATA, pas AFTU | Indice cartographique partiel ; attention aux collisions de numéros entre réseaux |
+| **Transitrun** | Répertoire AFTU annoncé à 64 lignes et 3 813 arrêts ; liste publique terminant à la ligne 84 | Aucun 88/89/91 | Référentiel secondaire ancien/incomplet, non corroborant |
+| **Dakar Transit** | Site promotionnel annonçant 64 lignes AFTU et 1 634 arrêts | Aucun détail de ligne ni jeu de données public exploitable trouvé sur le site | À ne pas utiliser comme preuve sans accès à ses données réelles |
+| **Weego** | Guide voyageurs renvoyant vers le plan de lignes CETUD pour AFTU | Pas de séquence propre aux trois lignes | Guide d'orientation, pas une source de parcours AFTU |
+| **Bus Bii** | Application orientée DDD et TATA ; sa fiche magasin indique les filtres DDD/TATA | Pas de preuve de couverture AFTU 88/89/91 | Ne pas confondre ses lignes TATA avec les lignes AFTU |
+| **Talibi** | Application sénégalaise annonçant la recherche d'itinéraires, les lignes et arrêts de bus ; provenance détaillée des données non publiée | Aucun numéro 88/89/91 publiquement vérifié | Piste secondaire à tester, provenance à établir |
+| **SunuBRT** | Application Dakar Mobilité, centrée sur l'information réseau et les trajets multimodaux | Pas de séquence AFTU 88/89/91 publiée dans sa fiche | Source complémentaire, pas preuve AFTU directe |
+
+Références principales des applications :
+- FastFey : https://apps.apple.com/sn/app/fastfey/id6739596735
+- Seddo : https://apps.apple.com/sn/app/seddo/id6737347803 et https://play.google.com/store/apps/details?id=com.wakana.seddo
+- PassBi : https://play.google.com/store/apps/details?id=com.senpassbi.app et https://senpassbi.com/
+- Moovit AFTU : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
+- MoMove : https://momove.app/guide
+- Transitrun : https://transitrun.com/fr/public-transit-lines_AFTU_12223
+- Weego : https://weegolife.com/en/guides/transports-dakar/lignes-bus-dakar
+- Bus Bii : https://play.google.com/store/apps/details?id=com.busbi.topandbrice
+- Talibi : https://play.google.com/store/apps/details?hl=fr&id=com.talibi.app
+- SunuBRT : https://play.google.com/store/apps/details?id=prod.maasify.dakar
+
+## 4. Documents de planification et cartes
+
+Le guide officiel de mobilité des JOJ Dakar 2026 présente une sélection de lignes AFTU utiles pour desservir certains sites. Il ne prétend pas recenser tout le réseau et ne cite pas 88, 89 ou 91. Son silence n'est donc pas une preuve d'inexistence.
+
+Le plan AFTU CETUD de novembre 2024 est antérieur à l'index actuel. Il peut aider à comprendre les grands axes, mais ne permet pas de reconstituer les trois nouvelles lignes.
+
+Références :
+- Guide officiel JOJ/CETUD : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+- Carte AFTU CETUD : https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg
+
+## 5. Bilan probatoire actuel
+
+### Ligne 88 — MTOA / Liberté 5
+- Confirmé : l'index AFTU publie « MTOA – Liberté 5 » pour la ligne 88.
+- La séquence enregistrée comporte 78 occurrences aller et 81 retour ; elle va de « Terminus 88 » à « Terminus Liberté 5 » et contient « Station Mtoa » en cours de parcours.
+- Non confirmé : l'identité exacte entre « Terminus 88 » et MTOA. Ne pas déplacer « Station Mtoa » au début de la séquence sans confirmation.
+
+### Ligne 89 — Bargny / Croisement Niague (Cité SICAP)
+- Confirmé : l'index AFTU publie ce corridor pour la ligne 89.
+- La séquence enregistrée comporte 55 occurrences aller et 53 retour ; elle va de « Terminus 89 » à « Poste Courant Bargny près de la gare TER » et contient des repères de Niague, dont « Croisement Niague ».
+- Non confirmé : l'identité exacte entre « Terminus 89 » et Croisement Niague (Cité SICAP), ainsi que la correspondance de chaque repère avec le corridor officiel.
+
+### Ligne 91 — APIX / Dougar
+- Confirmé : l'index AFTU publie « APIX – DOUGAR » pour la ligne 91.
+- Les listes directionnelles validées et enregistrées comptent 70 occurrences dans chaque sens ; elles vont de Losso à « Terminus 91 » / « Chez Lo électricien », et contiennent des repères de Cité APIX ainsi que « Dougar Peulh ».
+- L'index officiel ne précise pas si Losso est une extension du service APIX–Dougar ou un terminus d'une variante. Cette différence doit être confirmée ; les 70+70 occurrences ne sont pas raccourcies ni réordonnées.
+
+### Niveau de conclusion
+À ce stade, l'index officiel confirme les corridors des lignes 88, 89 et 91, mais pas leurs séquences détaillées. Aucune application tierce consultée ne fournit publiquement une seconde séquence d'arrêts complète et indépendante qui puisse corroborer les listes enregistrées. L'absence dans Moovit, MoMove ou Transitrun reste une absence de données publiées dans ces catalogues, pas une preuve que les lignes n'existent pas.
+
+## 6. Prochaine phase de recherche
+
+1. Examiner dans l'application CETUD Mobilités les fiches exactes 88, 89 et 91, leurs deux directions, les arrêts et les horaires affichés ; conserver les libellés tels qu'ils apparaissent.
+2. Tester les mêmes recherches dans FastFey et Seddo, puis comparer chaque arrêt avec CETUD et AFTU. Relever la date/version de l'application et les captures de chaque sens.
+3. Vérifier PassBi et sa provenance GTFS : présence effective des lignes, route_id, trip_id, direction_id, stop_id, ordre stop_sequence et dates de validité. Ne pas supposer qu'une intégration annoncée couvre tous les services AFTU.
+4. Chercher auprès de CAPTRANS et des GIE concernés les fiches opérationnelles ou relevés de terminus qui permettraient de confirmer les parcours. CAPTRANS est identifié par le CETUD comme plateforme de données d'exploitation AFTU.
+5. Rechercher ensuite une corroboration géographique indépendante (OSM et cartographie routière), sans convertir un simple tracé routier en séquence d'arrêts.
+6. Conserver séparément aller et retour. Une direction ne sera jamais fabriquée par inversion de l'autre.
+
+## 7. Protection du projet
+
+Cette enquête est documentaire. Aucun itinéraire passager n'est ajouté sur la seule base de terminus. Aucun horaire ou intervalle n'est estimé pour ces lignes. Les données TER/BRT restent inchangées. Aucune écriture Supabase, mise en production ou fusion de PR n'est effectuée.
+
+## 8. Vérification complémentaire — carte CETUD, accès aux données et applications (14 novembre 2026)
+
+### 8.1 Carte officielle AFTU accessible depuis le CETUD
+
+Le bouton « Télécharger le plan des lignes » de la page institutionnelle AFTU du CETUD a été suivi directement. Il mène à :
+https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg
+
+La carte est un document cartographique de novembre 2024. Elle donne un aperçu des corridors AFTU représentés à cette date, mais ne fournit ni liste d'arrêts ordonnée, ni tableau des deux directions, ni horaires. Elle ne permet pas d'identifier avec assez de certitude une séquence exploitable pour les lignes 88, 89 et 91. Elle ne doit donc pas servir à construire leurs arrêts intermédiaires.
+
+### 8.2 Point d'entrée institutionnel pour obtenir les données
+
+La page actuelle du système de données du CETUD précise explicitement :
+- les données d'exploitation des réseaux classiques AFTU et DDD proviennent de plateformes dédiées (CAPTRANS) et/ou d'enquêtes auprès des opérateurs ;
+- les fichiers GTFS du CETUD sont conçus pour contenir lignes, arrêts, itinéraires, trajets, tarifs et services ;
+- le contact de l'Observatoire est **observatoire@cetud.sn**, téléphone **+221 33 859 47 20**.
+
+Page de référence : https://cetud.sn/observatoire/systeme-de-donnees/
+
+Le site actuel de CAPTRANS donne les coordonnées suivantes : **captrans@captrans.sn**, **+221 33 877 60 38**, Guédiawaye, quartier Mbode 3. La page décrit la gestion et la supervision opérationnelle de bus AFTU, mais ne publie pas de fichiers d'itinéraires ni de données de séquences 88/89/91.
+
+Page : https://captrans.sn/index.php/aftu/
+
+Ces coordonnées constituent des voies de demande de données primaires. Elles ne signifient pas que CAPTRANS ou le CETUD ont déjà confirmé les parcours des trois lignes.
+
+### 8.3 Contrôle plus strict des fiches d'applications
+
+- **CETUD Mobilités** : sa fiche officielle CETUD indique que le réseau et le calcul d'itinéraires sont consultables sans compte. C'est la première interface à interroger directement. La fiche magasin ne donne toutefois aucune séquence ligne par ligne.
+- **FastFey** : les notes de version 2.0.0 (08/07/2025) annoncent un filtre AFTU (« lignes A »), BRT et TER. La fiche publique comporte aussi un avis utilisateur signalant des lignes manquantes. Cet avis n'est pas une preuve technique, mais rappelle qu'une absence ou présence dans l'application doit être contrôlée ligne par ligne.
+- **Seddo** : la fiche Google Play actuelle décrit la recherche d'itinéraires, les lignes et arrêts intermédiaires et la navigation vers les arrêts. Elle ne documente pas publiquement l'origine des données ni une couverture garantie de toutes les lignes AFTU. La promesse fonctionnelle ne suffit donc pas à corroborer 88/89/91.
+- **PassBi** : sa fiche Google Play précise que l'intégration AFTU est progressive, et que les sources déclarées comprennent les GTFS publics centralisés par le CETUD ainsi que des sources opérateurs. L'éditeur précise que l'application est indépendante et n'est pas affiliée à un organisme public. Il faut contrôler les identifiants et dates des données avant d'utiliser un itinéraire affiché comme preuve.
+- **SunuBRT** : sa fiche Google Play annonce la consultation de lignes, horaires, arrêts proches et calcul d'itinéraires multimodaux. Elle ne prouve pas que les trois lignes AFTU sont incluses.
+- **Bus Bii** : sa fiche décrit explicitement les itinéraires TATA et Dakar Dem Dikk. Elle n'est pas une source directe pour l'identité des lignes AFTU 88, 89 et 91.
+- **Dakar Transit** : son site promotionnel annonce 64 lignes AFTU, mais aucune fiche détaillée publique ni export exploitable des lignes 88/89/91 n'a été obtenu. Ne pas traiter le nombre annoncé comme une preuve de couverture de ces numéros.
+
+Références complémentaires :
+- CETUD Mobilités : https://apps.apple.com/sn/app/cetud-mobilit%C3%A9s/id6814449080
+- FastFey : https://apps.apple.com/fr/app/fastfey/id6739596735
+- Seddo : https://play.google.com/store/apps/details?id=com.wakana.seddo
+- PassBi : https://play.google.com/store/apps/details?id=com.senpassbi.app
+- SunuBRT : https://play.google.com/store/apps/details?hl=fr&id=prod.maasify.dakar
+- Bus Bii : https://play.google.com/store/apps/details?hl=fr&id=com.busbi.topandbrice
+- Dakar Transit : https://dakartransitsenegal.online/
+
+### 8.4 Conclusion opérationnelle mise à jour
+
+La recherche publique permet désormais de confirmer le meilleur chemin d'accès aux données primaires : CETUD / Observatoire et CAPTRANS. Elle n'a pas encore révélé de fichier public contenant les séquences complètes des lignes 88, 89 ou 91. Les applications tierces annoncent des fonctionnalités utiles, mais leurs fiches magasins ne prouvent pas la couverture des trois lignes.
+
+La prochaine vérification doit porter sur les données réellement servies dans les applications et, en parallèle, sur une demande ciblée au CETUD/CAPTRANS : fiches de ligne, arrêts ordonnés, sens aller/retour, identifiants d'arrêts, date de validité et source de la donnée. Toute séquence issue d'une application sera comparée à une source indépendante avant d'être qualifiée.
+
+## 9. Vérification de disponibilité publique du GTFS (14 novembre 2026)
+
+Une recherche ciblée a été menée sur le site CETUD, ses répertoires de fichiers publics, les portails open data et les dépôts GitHub indexés. La page CETUD confirme l'existence de fichiers GTFS et décrit leur contenu, mais aucun lien public direct vers une archive GTFS AFTU/Dakar exploitable et datée n'a été identifié dans les résultats accessibles pendant cette vérification.
+
+Conséquence : le GTFS reste une source potentielle à demander au CETUD, pas une dépendance du chantier. S'il est obtenu ultérieurement, le contrôle devra vérifier la période de validité, les lignes présentes dans `routes.txt`, les trajets et directions dans `trips.txt`, l'ordre des arrêts dans `stop_times.txt`, les coordonnées dans `stops.txt` et les géométries dans `shapes.txt`. Une archive ancienne ou partielle ne sera pas considérée comme la vérité actuelle sans recoupement.
+
+## 10. Indice de presse à qualifier — ligne 88 et secteur Niacoulrab (2023)
+
+Une recherche de presse a fait remonter un article daté du 23 janvier 2023, publié par AZACTU et attribuant l'information à des sources de Seneweb. Il rapporte que deux bus TATA de la « ligne 88 » ont été vandalisés à Niacoulrab ; le même article situe les interpellations entre Niague, Niacoulrab et Darou Thioub.
+
+Source : https://azactu.net/2-bus-tata-vandalises-un-agent-de-sante-blesse-6-membres-du-syndicat-de-gora-khouma-en-garde-a-vue-a-la-police-de-jaxaay/
+
+Qualification :
+- C'est un indice indépendant de presse, pas une fiche d'itinéraire opérateur.
+- La mention « ligne 88 » concerne explicitement des bus TATA dans l'article. Elle ne corrobore pas la ligne AFTU 88, dont l'index officiel actuel indique MTOA – Liberté 5. Il s'agit d'une numérotation d'un autre réseau, à garder séparée.
+- L'article ne donne aucun arrêt ordonné, aucun tracé complet, aucun sens retour et ne précise pas explicitement que son « numéro 88 » correspond à la numérotation de l'index AFTU actuel.
+- Il ne peut donc pas être utilisé pour ajouter Niacoulrab ou Darou Thioub à la séquence passager de la ligne AFTU 88 sans confirmation supplémentaire.
+
+Aucune séquence n'est modifiée sur cette base.
+
+## 11. Exploitation ciblée de PassBi — fiche magasin, captures d'écran et documentation éditeur (14 novembre 2026)
+
+### 11.1 Ce que confirme la version mobile publique
+
+La fiche Google Play de PassBi (package `com.senpassbi.app`), mise à jour le 30 janvier 2026, décrit un calculateur multimodal et une consultation des lignes et informations opérateurs. Elle dit explicitement que l'intégration des fournisseurs, dont AFTU, est progressive. La liste des sources GTFS nommées sur cette fiche renvoie au CETUD, SunuBRT, TER Dakar et Dakar Dem Dikk ; AFTU n'y apparaît pas comme une source GTFS distincte. Cette différence est importante : l'application mentionne AFTU comme réseau en cours d'intégration, mais ne publie pas la provenance d'un flux AFTU précis.
+
+Fiche officielle : https://play.google.com/store/apps/details?id=com.senpassbi.app
+
+La fiche indique 50+ téléchargements au moment de la consultation et ne requiert pas de compte dans cette première version. Il s'agit d'un indicateur de diffusion du package Android, pas d'une mesure de qualité ni de couverture des données.
+
+### 11.2 Analyse des captures d'écran officielles
+
+Les captures d'écran visibles sur la fiche Google Play montrent des catalogues distincts :
+- Dakar Dem Dikk : 53 lignes visibles dans la capture ;
+- BRT : 2 lignes visibles ;
+- TER : 6 lignes visibles ;
+- une capture de calcul d'itinéraire multimodal avec étapes et correspondances.
+
+Aucune des captures consultées ne montre un catalogue AFTU, ni les lignes 88, 89 ou 91. Cela ne prouve pas leur absence de la base interne ou d'une version plus récente : cela signifie uniquement que la couverture AFTU n'est pas démontrée par les éléments visuels publics de la fiche.
+
+Les captures ne donnent pas non plus d'identifiants de lignes, d'horodatage de mise à jour GTFS, de séquences d'arrêts AFTU ou de détails de sens aller/retour.
+
+### 11.3 Écart entre la fiche Android et la présentation actuelle de l'éditeur
+
+La page PassBi de l'éditeur Impact Solutions décrit une plateforme plus ambitieuse : moteur RAPTOR sur données GTFS, routage multimodal AFTU/DDD/BRT/TER, horaires temps réel, découverte des arrêts, et annonce de 292 bus AFTU équipés de validateurs NFC.
+
+Page éditeur : https://www.impactsolution.sn/solutions/passbi
+
+Le site public PassBi annonce également une documentation API (« API Docs ») et une application web, mais les pages accessibles publiquement lors de cette vérification n'ont pas fourni de documentation technique lisible ni de lien direct exploitable vers un flux de données anonyme. Aucun endpoint d'API public n'est donc enregistré ici : ne pas deviner de chemin d'API, ni tenter d'accéder à des interfaces privées.
+
+Les pages marketing présentent aussi des chiffres de déploiement et de performance qui ne constituent pas une preuve de la couverture d'une ligne particulière. Le chiffre « 292 bus AFTU équipés » peut concerner la billettique et l'équipement NFC ; il ne signifie pas que les itinéraires des lignes 88, 89 et 91 sont publiés dans le planificateur.
+
+### 11.4 Résultat ligne par ligne pour le chantier Dakar Bus
+
+| Ligne recherchée | Résultat vérifiable depuis PassBi public | Utilisation dans Dakar Bus |
+|---|---|---|
+| 88 — MTOA / Liberté 5 | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 89 — Bargny / Croisement Niague | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+| 91 — APIX / Dougar | Aucune fiche AFTU ni séquence visible dans les captures publiques consultées | Ne pas ajouter d'arrêt |
+
+**Verdict PassBi :** source prometteuse pour obtenir des données GTFS ou une API d'intégration, mais aucune donnée publique consultable n'a encore corroboré les arrêts des lignes 88, 89 ou 91. La fiche mobile et ses captures ne suffisent pas à prouver la présence des trois lignes. PassBi ne fournit donc, à ce stade, aucune séquence à importer.
+
+### 11.5 Demande technique ciblée à adresser à l'éditeur
+
+Contact public de la fiche Android : `contact@senpassbi.com`, téléphone `+221 78 450 00 58`. La page de l'éditeur Impact Solutions indique également `contact@senpassbi.sn`.
+
+La demande devra porter exclusivement sur les données partageables :
+1. présence ou absence des lignes AFTU 88, 89 et 91 dans la version de production ;
+2. pour chaque ligne présente, identifiant GTFS (`route_id`), nom public, opérateur/GIE et date de validité du flux ;
+3. fichiers ou export partageables `routes.txt`, `trips.txt`, `stop_times.txt`, `stops.txt`, `shapes.txt), avec les deux sens distincts ;
+4. date de dernière synchronisation et source amont (CETUD, opérateur, enquête terrain ou autre) ;
+5. documentation officielle de l'API et conditions d'accès intégrateur.
+
+Aucune authentification, clé privée, donnée personnelle ou donnée d'exploitation non publique ne doit être recherchée ou contournée. Une réponse de l'éditeur ou un export autorisé sera archivé puis contrôlé contre les sources CETUD/AFTU et les données cartographiques avant toute intégration.
+
+### 11.6 Références consultées
+
+- Google Play PassBi : https://play.google.com/store/apps/details?id=com.senpassbi.app
+- Présentation technique et commerciale Impact Solutions : https://www.impactsolution.sn/solutions/passbi
+- Site PassBi : https://senpassbi.com/
+- Conditions d'utilisation PassBi (mises à jour le 3 octobre 2026) : https://senpassbi.com/terms
+
+Les conditions publiques rappellent que les contenus de l'application peuvent comporter des erreurs et ne sont pas garantis comme exacts, complets ou à jour. Toute donnée PassBi devra donc être datée et corroborée avant d'être traitée comme référence.
+
+## 12. Vérification directe du site AFTU-Sénégal — confirmation des corridors 88 et 89, aucun détail de séquence (14 novembre 2026)
+
+Une vérification directe supplémentaire a été menée sur la page publique « Infos pratiques » du site AFTU-Sénégal : https://aftu-senegal.org/infos-pratiques/ . La page présente explicitement les rubriques « Nos lignes sur Dakar » et les corridors suivants. Le tableau initial de cette section est rectifié ci-dessous pour correspondre à la numérotation exacte de la page :
+
+| Ligne | Corridor affiché par AFTU-Sénégal | Ce que la page permet d'affirmer |
+|---|---|---|
+| 88 | MTOA – Liberté 5 | Corridor confirmé par l'index ; la séquence enregistrée commence à « Terminus 88 » et contient MTOA en repère intermédiaire |
+| 89 | Bargny – Croisement Niague (Cité SICAP) | Corridor confirmé par l'index ; la séquence enregistrée va de « Terminus 89 » à Bargny et contient des repères de Niague |
+| 91 | APIX – Dougar | Corridor confirmé par l'index ; les listes CETUD enregistrées contiennent les secteurs APIX et Dougar mais commencent/finissent à Losso |
+
+La page affiche un texte « Voir itinéraire » pour les lignes 1 à 83, avec des liens de détails accessibles sur certaines cartes. Pour les entrées 84 à 91, le texte « Voir itinéraire » est rendu comme texte non cliquable dans la page consultée ; aucun lien de détail public exploitable n'est fourni pour les lignes 88, 89 ou 91. L'archive publique « Dakar lignes urbaines » renvoie encore des fiches datées des 13–14 juillet 2026 pour les lignes 72 à 83 ; elle ne fournit pas les séquences recherchées des lignes 88/89/91.
+
+### Décision de données
+
+- Les trois corridors 88, 89 et 91 peuvent être conservés comme métadonnées de ligne, avec attribution explicite à la page AFTU-Sénégal.
+- Ne pas ajouter d'arrêt intermédiaire, de géométrie, de sens aller/retour, de fréquence ou d'horaire à partir du seul index : la page n'en fournit pas.
+- Garder les écarts entre les titres de corridor et les extrémités des listes transmises visibles ; ne pas réécrire les séquences.
+- Ce résultat ne remplace pas une séquence opérateur détaillée ni une carte lisible des deux sens.
+
+### Références AFTU-Sénégal
+
+- Page officielle publique de présentation des lignes : https://aftu-senegal.org/infos-pratiques/
+- Archive des fiches Dakar urbain : https://aftu-senegal.org/collection/dakar-lignes-urbaines/
+- Contact affiché sur le site : +221 33 859 02 88 ; siège annoncé : Zone de Captage, 440–441 Dakar, Sénégal.
+
+**Note de provenance :** les intitulés de corridor ci-dessus sont directement corroborés par la page AFTU-Sénégal. La numérotation exacte est 88 = MTOA–Liberté 5, 89 = Bargny–Croisement Niague, 91 = APIX–Dougar. Ils ne constituent toujours pas des séquences d'arrêts. La page AFTU ne confirme pas le sens aller/retour séparément.
+
+
+## Mise à jour opérationnelle — séquences directionnelles reçues dans le chantier (14 novembre 2026)
+
+Depuis l'enquête documentaire ci-dessus, des listes directionnelles détaillées ont été transmises au projet et intégrées dans les fichiers de données. Elles améliorent la couverture du dépôt, sans modifier le constat sur l'absence de pages publiques AFTU détaillées pour ces numéros.
+
+| Ligne | Aller | Retour | Provenance enregistrée | Statut |
+|---|---:|---:|---|---|
+| 88 | 78 occurrences | 81 occurrences | Site source communiqué par le responsable du projet | `user-provided-site-reference` |
+| 89 | 55 occurrences | 53 occurrences | Site source communiqué par le responsable du projet | `user-provided-site-reference` |
+| 91 | 70 occurrences | 70 occurrences | Application CETUD — listes transmises et validées par le responsable du projet | `user-validated-cetud-sequences` |
+
+Fichiers intégrés :
+- `src/data/aftu-88-directions.json`
+- `src/data/aftu-89-directions.json`
+- `src/data/aftu-91-directions.json`
+
+Les deux sens restent séparés et les occurrences répétées sont conservées. Pour les lignes 88 et 89, la provenance est celle du site source communiqué au projet ; elle ne doit pas être requalifiée comme une page officielle AFTU ou une validation opérateur indépendante sans preuve supplémentaire. Pour la ligne 91, le responsable du projet a explicitement validé les deux listes comme données CETUD.
+
+Cette mise à jour ne change pas les limites de l'enquête externe : les pages détaillées AFTU testées pour ces lignes restent indisponibles dans l'extraction publique, et les applications tierces examinées n'ont pas fourni de séquences indépendantes vérifiables. Les listes intégrées sont donc conservées avec leur provenance exacte, sans prétendre qu'elles ont été corroborées par Moovit, FastFey, Seddo, PassBi ou CAPTRANS.
+
+Aucun horaire individuel, fréquence, coordonnée ou terminus alternatif n'est déduit de ces séquences. Aucun retour n'est généré par inversion.
+
+
+## 9. Rectification de la numérotation et rapprochement avec les séquences enregistrées (14 novembre 2026)
+
+La relecture directe de l'index AFTU a permis de corriger la correspondance des corridors : 88 = MTOA–Liberté 5 ; 89 = Bargny–Croisement Niague (Cité SICAP) ; 91 = APIX–Dougar. L'ancien tableau de cette enquête attribuait ces corridors aux mauvais numéros ; il est remplacé par la présente section.
+
+Les listes déjà enregistrées restent séparées de l'index :
+
+| Ligne | Liste directionnelle conservée | Écart à clarifier |
+|---|---|---|
+| 88 | 78 aller / 81 retour ; Terminus 88 ↔ Liberté 5 ; « Station Mtoa » apparaît dans le parcours | L'index indique MTOA comme extrémité, mais le fichier ne prouve pas que « Terminus 88 » soit ce même point |
+| 89 | 55 aller / 53 retour ; Terminus 89 ↔ Poste Courant Bargny | « Croisement Niague » apparaît dans la liste ; équivalence avec « Terminus 89 » non confirmée |
+| 91 | 70 aller / 70 retour ; Losso ↔ zone APIX / Chez Lo électricien | Le corridor APIX–Dougar apparaît à l'intérieur du parcours ; Losso pourrait être une extension, à confirmer |
+
+La page officielle consultée affiche aussi 85 = Banoba–Liberté 5, 86 = Tournalou Boune–Toubab Dialaw et 87 = Bambilor–Mosquée Massalikou Djinane. Ces corridors ne correspondent pas textuellement aux extrémités des séquences 85, 86 et 87 actuellement enregistrées. Il s'agit d'une divergence documentaire à instruire, pas d'une autorisation de remplacer les listes transmises ou de changer leur numéro.
+
+Le registre technique `src/data/aftuOfficialIndexCrosswalk.ts` et ses tests dédiés protègent ces associations et empêchent de traiter un simple titre de corridor comme une séquence complète. Les listes d'arrêts, leurs répétitions, leur ordre et leurs deux directions restent inchangés.
+
+Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index AFTU, sections lignes 85 à 91).
+
+
+## 10. Nouvelle vérification publique AFTU / Moovit (14 novembre 2026)
+
+Une nouvelle recherche ciblée a été menée par numéro de ligne, en recherchant les fiches Moovit indexées pour 88, 89 et 91, ainsi que les noms de corridor officiels.
+
+### AFTU — index officiel relu
+
+La page AFTU affiche explicitement :
+- 88 : MTOA – Liberté 5 ;
+- 89 : Bargny – Croisement Niague (Cité SICAP) ;
+- 91 : APIX – Dougar.
+
+Dans le rendu public récupéré, les lignes 88, 89 et 91 affichent « Voir itinéraire » sans lien de fiche détaillée exploitable, contrairement aux fiches détaillées des lignes antérieures. L'index confirme donc les corridors, mais ne permet pas de télécharger ou vérifier les séquences d'arrêts ordonnées de ces trois lignes.
+
+### Moovit — résultat de recherche publique
+
+La page publique Moovit consacrée à AFTU Dakar annonce 64 lignes et 1 634 arrêts. Les résultats de recherche donnent des fiches horaires détaillées pour certaines lignes du catalogue, notamment 72, 79 et 80, mais la recherche ciblée n'a pas fait ressortir de fiche AFTU 88, 89 ou 91 ni de séquence indépendante correspondante.
+
+**Interprétation :** le catalogue public Moovit consultable par moteur de recherche semble incomplet ou ne pas exposer ces trois fiches sous leur numéro actuel. Cela ne prouve pas que les lignes n'existent pas, ni que l'application mobile ne les contient pas. Aucune donnée de Moovit n'est donc utilisée pour modifier les arrêts du projet.
+
+Sources consultées le 14 novembre 2026 :
+- AFTU, index des lignes : https://aftu-senegal.org/infos-pratiques/
+- Moovit, catalogue AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038
+- Exemple de fiche horaire publique Moovit ligne 80 : https://moovitapp.com/index/fr/transport_en_commun-time-80-Dakar-5996-1618038-18051453-4256227-0
+
+### Décision après recoupement
+
+- Les corridors 88, 89 et 91 sont confirmés par l'index AFTU.
+- Les fiches détaillées indépendantes pour ces trois numéros ne sont pas confirmées par les pages publiques actuellement indexées de Moovit.
+- Les 78/81 arrêts de la ligne 88, les 55/53 de la ligne 89 et les 70/70 de la ligne 91 restent inchangés.
+- Les 18 arrêts communs ordonnés entre 89 et 91 restent un indice de segment partagé, jamais une preuve de fusion ou de renumérotation.
+- Aucun horaire, fréquence, coordonnée, arrêt ou terminus n'est déduit de ces résultats négatifs.
+- La vérification via les applications mobiles CETUD Mobilités, FastFey et Seddo et auprès de l'exploitation AFTU/CAPTRANS reste ouverte ; les fiches App Store ne remplacent pas une observation du contenu applicatif.
+

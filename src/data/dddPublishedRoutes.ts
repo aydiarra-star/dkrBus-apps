@@ -20,7 +20,8 @@ export interface DddPublishedRoute {
   stops: readonly string[]
   sourceUrl: string
   sourceLabel: string
-  retrievedOn: '2026-11-09' | '2026-11-10'
+  retrievedOn: '2026-11-09' | '2026-11-10' | '2026-11-13'
+  sourceConflict?: string
   directionVerified: false
   coordinatesVerified: false
 }
@@ -34,10 +35,14 @@ const route = (
   destination: string,
   kind: DddPublishedRouteKind,
   stops: readonly string[],
-  retrievedOn: '2026-11-09' | '2026-11-10' = '2026-11-09',
+  retrievedOn: '2026-11-09' | '2026-11-10' | '2026-11-13' = '2026-11-09',
+  sourceConflict?: string,
+  sourceUrlOverride?: string,
 ): DddPublishedRoute => ({
   line, origin, destination, kind, stops,
-  sourceUrl, sourceLabel, retrievedOn,
+  sourceUrl: sourceUrlOverride ?? sourceUrl,
+  sourceLabel: sourceUrlOverride ? 'Dakar Dem Dikk · Info voyageurs' : sourceLabel,
+  retrievedOn, sourceConflict,
   directionVerified: false,
   coordinatesVerified: false,
 })
@@ -197,7 +202,7 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Avenue Faidherbe', 'Avenue Lamine Gueye',
     'Avenue André Peytavin', 'Avenue Jean Jaurès',
     'Boulevard de la République', 'Avenue Nelson Mandela', 'Palais 2',
-  ]),
+  ], '2026-11-13', undefined, 'https://demdikk.sn/info-voyageurs/'),
   route('11', 'Keur Massar', 'Lat Dior', 'published_order', [
     'Terminus Keur Massar', 'Station Keur Massar', 'Croisement Keur Massar',
     'Fass Mbao', 'Diamaguène', 'Poste Thiaroye', 'Autoroute à péage',
@@ -304,14 +309,25 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'VDN', 'Sipres', 'Ancienne piste', 'Ouakam', 'Marché Ouakam',
     'Terminus Ouakam', 'Route des Mamelles', 'Route des Almadies', 'Ngor',
     'Terminus Aéroport LSS',
-  ]),
+  ], '2026-11-13', 'CONFLIT SOURCE : le titre officiel annonce Ouakam, mais la séquence publiée continue jusqu’à Aéroport LSS ; cette séquence est également publiée pour la ligne 218. Ne pas tronquer ni réaffecter automatiquement.'),
   route('233', 'Baux Maraîchers', 'Palais 1', 'published_order', [
     'Baux Maraîchers', 'Yarakh', 'Cafétéria', 'Hann Maristes',
     'Cours Sainte Marie de Hann', 'Sortie Mariste', 'Usine des eaux',
     'Front de terre', 'Khar Yalla', 'Rond Point Liberté 6',
     'Deux voies vers Camp Leclerc', 'VDN', 'Foire', 'Yoff',
     'Terminus Aéroport LSS',
-  ]),
+  ], '2026-11-13', 'CONFLIT SOURCE : le titre officiel annonce Palais 1, mais la séquence publiée se termine à Aéroport LSS. La page officielle Info voyageurs confirme le titre Baux Maraîchers ↔ Palais 1 sans fournir une séquence détaillée permettant de résoudre le conflit. Ne pas remplacer le terminus sans nouvelle preuve.'),
+  route('311', 'Lac Rose', 'Croisement Keur Massar', 'published_circuit', [
+    'Lac Rose / Croisement Niague', 'Croisement Tivaouane Peulh',
+    'Terminus Keur Massar', 'Station Keur Massar',
+    'Croisement Keur Massar', 'Retour vers Lac Rose',
+  ], '2026-11-13'),
+  route('327', 'Keur Massar', 'Terminus Parcelles', 'published_order', [
+    'Terminus Keur Massar', 'Tolou Abdoulaye Wade',
+    'Croisement Tivaouane Peulh', 'APIX', 'Malika Plage', 'Malibu',
+    'Hôpital Dalal Diam', 'Case bi', 'Croisement 22', 'Eglise PA',
+    'Terminus Parcelles',
+  ], '2026-11-13'),
   route('TO1', 'Ouakam', 'Palais 2', 'published_order', [
     'Terminus Ouakam', 'Brioche d’orée Ouakam',
     'Monument de la Renaissance', 'Corniche Ouest', 'Avenue Peytavin',

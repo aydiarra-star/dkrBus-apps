@@ -1,0 +1,54 @@
+name: Audit updated DDD ArcGIS service (read only)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/export_ddd_updated_arcgis_service.mjs"
+      - "scripts/compare_ddd_updated_arcgis_published_sequences.mjs"
+      - "scripts/compare_ddd_all_published_arcgis_sequences.mjs"
+      - "src/data/dddPublishedRoutes.ts"
+      - "src/data/dddSuburbanPublishedRoutesA.ts"
+      - "scripts/project_ddd_arcgis_stops_onto_routes.mjs"
+      - "src/data/dddSuburbanPublishedRoutesB.ts"
+      - ".github/workflows/audit-ddd-updated-arcgis.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ddd-updated-arcgis-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check sequence comparison script syntax
+        run: node --check scripts/compare_ddd_updated_arcgis_published_sequences.mjs
+      - name: Check all published DDD sequence comparison syntax
+        run: node --check scripts/compare_ddd_all_published_arcgis_sequences.mjs
+      - name: Retrieve updated DDD stop and route layers
+        run: node scripts/export_ddd_updated_arcgis_service.mjs
+      - name: Compare ArcGIS stop names with published DDD sequences
+        run: node scripts/compare_ddd_updated_arcgis_published_sequences.mjs
+      - name: Compare all published DDD sequences against updated ArcGIS stop names
+        run: node scripts/compare_ddd_all_published_arcgis_sequences.mjs
+      - name: Project DDD stops onto matching route geometries
+        run: node scripts/project_ddd_arcgis_stops_onto_routes.mjs
+      - name: Save read-only ArcGIS evidence and sequence cross-check
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-updated-service-and-sequence-audit
+          path: |
+            artifacts/arcgis/ddd-updated-service-candidates.json
+            artifacts/arcgis/ddd-published-sequence-name-crosscheck.json
+            artifacts/arcgis/ddd-all-published-sequence-crosscheck.json
+            artifacts/arcgis/ddd-stop-route-spatial-projection.json
+          if-no-files-found: error
+          retention-days: 14

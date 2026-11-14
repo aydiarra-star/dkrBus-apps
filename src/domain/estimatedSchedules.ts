@@ -24,12 +24,12 @@ const w = (start: string, end: string, interval: number | string): EstimatedFreq
 })
 
 /**
- * Horaires estimatifs issus de TransitByCity et Moovit. La ligne 62 dispose
- * de fenêtres directionnelles propres à la ligne ; les lignes 79 à 81 sont gérées
- * dans leurs fichiers directionnels ; la ligne 63 conserve le
- * repère moyen du réseau en l'absence d'une grille publique propre vérifiée.
- * Les données tierces sont des repères de planification, pas des horaires
- * certifiés par l'opérateur ni des prédictions de prochain véhicule.
+ * Registre de recherche des plages horaires candidates.
+ * La plupart des entrées proviennent de TransitByCity ou Moovit : elles sont
+ * conservées pour comparaison documentaire, mais ne pilotent pas le compte à
+ * rebours voyageurs. Seules les références explicitement officielles sont
+ * autorisées dans EstimatedLineScheduleBoard (AFTU 84 : référence CETUD
+ * transmise par le responsable ; DDD 1 : départs publiés par l'opérateur).
  */
 export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '5', weekday: w('06:00', '23:00', 10), saturday: w('06:00', '23:00', 15), sunday: w('06:00', '23:00', 20), sourceUrl: aftuUrl('5'), sourceLabel: tb },
@@ -57,11 +57,11 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '72', weekday: w('05:55', '21:55', 24), saturday: w('06:05', '21:33', 29), sunday: w('06:05', '21:33', 29), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-1', sourceLabel: 'Moovit · sens Guédiawaye vers Kounoune' },
   { line: '73', weekday: w('05:50', '22:55', 25), saturday: w('06:00', '22:55', 35), sunday: w('06:00', '22:55', 35), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0', sourceLabel: 'Moovit · sens Lac Rose vers Poste Thiaroye' },
   { line: '76', weekday: w('04:55', '21:52', 9), saturday: w('05:05', '21:53', 14), sunday: w('05:05', '21:53', 14), sourceUrl: aftuUrl('76'), sourceLabel: tb },
-  { line: '84', weekday: w('03:50', '21:48', 14), saturday: w('04:00', '22:00', 18), sunday: w('04:00', '22:00', 18), sourceUrl: aftuUrl('84'), sourceLabel: tb },
+  { line: '84', weekday: w('06:00', '21:00', 14), saturday: w('06:00', '21:00', 14), sunday: w('06:00', '21:00', 14), sourceUrl: 'https://cetud.sn/reseaux-de-transport/aftu/', sourceLabel: 'CETUD · fréquence 14 min transmise par le responsable' },
 ]
 
 export const DDD_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
-  { line: '1', weekday: null, saturday: null, sunday: null, sourceUrl: 'https://fr.linkedin.com/posts/dakar-dem-dikk_dakardemdikk-mobility-urbain-activity-7356651804501102593-rCq3', sourceLabel: 'Dakar Dem Dikk · départs publiés', note: 'Parcelles Assainies : premier départ 05:30, dernier 20:30 · Leclerc : premier départ 06:30, dernier 21:00.' },
+  { line: '1', weekday: null, saturday: null, sunday: null, sourceUrl: 'https://demdikk.sn/', sourceLabel: 'Dakar Dem Dikk · départs publiés', note: 'Source officielle DDD : Parcelles Assainies, premier départ 05:30 et dernier 20:30 ; terminus Leclerc, premier départ 06:30 et dernier 21:00. Aucun intervalle de fréquence par ligne n’est publié ici.' },
   { line: '6', weekday: w('04:30', '21:25', 7), saturday: w('05:00', '22:00', 12), sunday: w('05:00', '22:00', 17), sourceUrl: dddUrl('6'), sourceLabel: tb },
   { line: '12', weekday: w('06:00', '21:52', 17), saturday: w('06:00', '21:43', 23), sunday: w('06:00', '21:57', 33), sourceUrl: dddUrl('12'), sourceLabel: tb },
   { line: '16A', weekday: w('05:15', '21:58', 17), saturday: w('05:40', '22:00', 20), sunday: w('05:40', '22:00', 20), sourceUrl: dddUrl('16a'), sourceLabel: tb },

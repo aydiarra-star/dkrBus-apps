@@ -1,0 +1,50 @@
+name: Audit DDD OSM-ArcGIS stop crosswalk
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'scripts/export_dakar_osm_routes.mjs'
+      - 'scripts/export_ddd_arcgis_layers.mjs'
+      - 'scripts/compare_ddd_osm_arcgis_stops.mjs'
+      - '.github/workflows/audit-ddd-osm-arcgis-crosswalk.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  crosswalk:
+    name: Retrieve sources and compare route stops (read only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Retrieve Dakar OSM route relations and ordered members
+        run: node scripts/export_dakar_osm_routes.mjs
+
+      - name: Retrieve DDD ArcGIS stop and route layers
+        run: node scripts/export_ddd_arcgis_layers.mjs
+
+      - name: Compare OSM members with ArcGIS stop candidates
+        run: |
+          node scripts/compare_ddd_osm_arcgis_stops.mjs \
+            artifacts/osm/dakar-osm-route-candidates.json \
+            artifacts/arcgis/ddd-route-stop-candidates.json \
+            artifacts/arcgis/ddd-osm-arcgis-crosscheck.json
+
+      - name: Upload spatial crosswalk
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-osm-arcgis-stop-crosswalk
+          path: artifacts/arcgis/ddd-osm-arcgis-crosscheck.json
+          if-no-files-found: error
+          retention-days: 14

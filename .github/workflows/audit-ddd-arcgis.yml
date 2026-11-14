@@ -1,0 +1,34 @@
+name: Audit DDD ArcGIS route and stop layers
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/export_ddd_arcgis_layers.mjs"
+      - ".github/workflows/audit-ddd-arcgis.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dakar-bus-ddd-arcgis-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Retrieve public DDD ArcGIS route and stop layers
+        run: node scripts/export_ddd_arcgis_layers.mjs
+      - name: Save audit data
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-route-stop-candidates
+          path: artifacts/arcgis/ddd-route-stop-candidates.json
+          if-no-files-found: error
+          retention-days: 14
