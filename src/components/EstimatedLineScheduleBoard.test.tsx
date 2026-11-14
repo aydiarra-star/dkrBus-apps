@@ -60,16 +60,18 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(passageValues(tataRow)).toEqual(passageValues(aftuRow))
   })
 
-  it('calcule le statut du retour selon sa propre plage de service', async () => {
+  it('applique la même plage horaire à l’aller et au retour AFTU / TATA', async () => {
     vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
     vi.setSystemTime(new Date('2026-11-09T20:47:00.000Z'))
 
     render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const aftuSixtySix = screen.getAllByText('AFTU / TATA 66')[0].closest('li')!
     await waitFor(() => {
-      expect(within(aftuSixtySix).getByText("Service terminé pour aujourd'hui")).toBeTruthy()
+      const values = Array.from(aftuSixtySix.querySelectorAll('.station-board-passage strong')).map((node) => node.textContent)
+      expect(values).toHaveLength(2)
+      expect(values[0]).toBe(values[1])
     })
-    expect(within(aftuSixtySix).getByText('3 min')).toBeTruthy()
+    expect(within(aftuSixtySix).queryByText("Service terminé pour aujourd'hui")).toBeNull()
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
