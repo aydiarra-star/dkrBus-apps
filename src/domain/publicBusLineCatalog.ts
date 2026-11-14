@@ -261,9 +261,8 @@ export function detailedRouteKey(line: { code: string; origin: string; destinati
 }
 
 /**
- * Numéros dont les catalogues détaillés AFTU et TATA décrivent le même trajet.
- * Les terminus sont comparés sans accents, parenthèses ni variante « Sébikhotane ».
- * Les collisions de numéro dont les terminus diffèrent ne sont pas fusionnées.
+ * Normalisation des séquences d'arrêts détaillées pour vérifier l'identité
+ * d'un trajet entre les deux opérateurs.
  */
 /**
  * Normalise une séquence d'arrêts pour comparer deux fiches détaillées.
