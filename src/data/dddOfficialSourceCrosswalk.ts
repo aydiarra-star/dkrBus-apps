@@ -10,7 +10,7 @@ export type DddOfficialSourceCrosswalkKind =
   | 'distinct_service_identifiers'
 
 export interface DddOfficialSourceClaim {
-  source: 'ddd_route_page' | 'ddd_info_voyageurs' | 'cetud_joj_guide' | 'ddd_arcgis_2024'
+  source: 'ddd_route_page' | 'ddd_info_voyageurs' | 'cetud_joj_guide' | 'ddd_arcgis_2024' | 'moovit_2026'
   corridor: string
 }
 
@@ -40,6 +40,9 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK_URLS = {
   infoPage: 'https://demdikk.sn/info-voyageurs/',
   cetudGuide: 'https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf',
   arcgis2024: 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer',
+  arcgisLine23Stops: 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/10',
+  moovitLine23Outbound: 'https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-0',
+  moovitLine23Return: 'https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-1',
 } as const
 
 export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkEntry[] = [
@@ -91,9 +94,12 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkE
     { source: 'ddd_info_voyageurs', corridor: 'Lignes 15A et 15B : Rufisque → Palais 1' },
   ], 'Ne pas fusionner 15, 15A et 15B ; demander une correspondance opérateur avant toute répartition.'),
   entry('23', 'published_title_sequence_conflict', [
-    { source: 'ddd_route_page', corridor: 'En-tête Parcelles Assainies → Palais 1 ; dernier repère publié : Terminus Palais 2' },
-    { source: 'ddd_arcgis_2024', corridor: 'Ligne 23 ; segments décrits de Terminus des Parcelles / Ecole Dior jusqu’à Hôpital Le Dantec / Palais de Justice ; 54 points codés LIgne_23, premier Terminus Parcelles Assainies et dernier Terminus Palais de JUSTICE' },
-  ], 'Conflit d’extrémité confirmé entre l’en-tête et la séquence détaillée ; ArcGIS 2024 soutient un corridor jusqu’au Palais de Justice mais ne permet pas d’assimiler Palais 1, Palais 2 et Palais de Justice. Garder les 40 repères publiés et les 54 entités ArcGIS distincts ; aucune fusion ni correction automatique.'),
+    { source: 'ddd_route_page', corridor: 'En-tête Parcelles Assainies → Palais 1 ; dernier repère publié : Terminus Palais 2 ; séquence détaillée de 40 repères' },
+    { source: 'ddd_info_voyageurs', corridor: 'Parcelles Assainies ↔ Palais 1' },
+    { source: 'cetud_joj_guide', corridor: 'Parcelles Assainies → Palais 1' },
+    { source: 'ddd_arcgis_2024', corridor: 'Couche de points Arrets_LIgne_23_Dakar_Dem_Dikk (FeatureServer/10), géométrie ponctuelle et champ Nom_Arret ; 54 entités précédemment recensées, sans preuve d’ordre voyageurs ni de deux sens' },
+    { source: 'moovit_2026', corridor: '57 arrêts Parcelles Assainies → Gare Palais ; 56 arrêts Gare Palais → Terminus Parcelles Assainies ; plusieurs libellés génériques « Arrêt de bus » et des noms différents selon le sens' },
+  ], 'DDD, info voyageurs et guide CETUD donnent Palais 1, mais la séquence détaillée DDD finit à Palais 2 ; ArcGIS expose une couche ponctuelle distincte, sans ordre directionnel. Moovit fournit deux listes directionnelles (57/56) et un terminus nommé Gare Palais, mais ces listes tierces ne concordent pas exactement avec les 40 repères DDD et contiennent des arrêts génériques. Les utiliser comme pistes de recoupement, pas comme remplacement ni comme validation automatique. Ne pas assimiler Palais 1, Palais 2 et Gare Palais ; aucune fusion, inversion ou correction automatique.'),
   entry('121', 'source_corridor_conflict', [
     { source: 'ddd_route_page', corridor: 'Scat Urbam → Leclerc ; séquence publiée de 25 repères' },
     { source: 'ddd_info_voyageurs', corridor: 'Scat Urbam → Leclerc' },
