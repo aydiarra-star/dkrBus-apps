@@ -67,6 +67,9 @@ describe('adaptateur de preuves AFTU', () => {
     expect(route?.outbound.waypoints).toHaveLength(14)
     expect(route?.inbound.waypoints).toHaveLength(0)
     expect(route?.inbound.hasPerStopTimes).toBe(false)
+    expect(route?.inbound.sequenceStatus).toBe('missing')
+    expect(route?.outbound.sequenceStatus).toBe('documented')
+    expect(route?.serviceWindow).toEqual({ start: '05:30', end: '22:00', source: 'CETUD-network-default' })
   })
 
   it('conserve les deux séquences et les seuls horaires retour de la fiche 84', () => {
@@ -78,6 +81,9 @@ describe('adaptateur de preuves AFTU', () => {
     expect(route?.outbound.hasPerStopTimes).toBe(false)
     expect(route?.inbound.hasPerStopTimes).toBe(true)
     expect(route?.outbound.scheduleInterval).toBe('14 min')
+    expect(route?.outbound.sequenceStatus).toBe('documented')
+    expect(route?.inbound.sequenceStatus).toBe('documented')
+    expect(route?.serviceWindow).toMatchObject({ start: '05:30', end: '22:00' })
   })
 
   it('conserve les séquences distinctes de la fiche 85 sans créer des horaires par arrêt', () => {
