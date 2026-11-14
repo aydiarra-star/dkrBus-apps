@@ -5,7 +5,8 @@
  * pour « immédiatement autour », assez large pour croiser TER, BRT, DDD, AFTU
  * et TATA là où leurs arrêts de référence se rencontrent. Aucune position de
  * véhicule n’est inventée : seuls les arrêts déclarés du catalogue entrent
- * dans la liste, et seulement s’ils tombent dans le rayon.
+ * dans la liste, et seulement s’ils tombent dans le rayon. AFTU et TATA sont
+ * regroupés sous un même identifiant de réseau.
  */
 
 import {
@@ -24,22 +25,20 @@ import { MOBILITY_IDS, mobilityFromStopId, type MobilityId } from './mobilityCol
 export const NEARBY_MOBILITY_RADIUS_M = 1000
 
 /** Ordre d’affichage demandé : TER, BRT, DDD, puis AFTU / TATA. */
-export const NEARBY_MOBILITY_ORDER = ['ter', 'brt', 'ddd', 'aftu', 'tata'] as const satisfies readonly MobilityId[]
+export const NEARBY_MOBILITY_ORDER = ['ter', 'brt', 'ddd', 'aftu_tata'] as const satisfies readonly MobilityId[]
 
 export const NEARBY_MOBILITY_KIND: Record<CorridorNetworkId, string> = {
   ter: 'Arrêts TER',
   brt: 'Stations BRT',
   ddd: 'Bus DDD',
-  aftu: 'Arrêts AFTU',
-  tata: 'Arrêts TATA',
+  aftu_tata: 'Arrêts AFTU / TATA',
 }
 
 const STOPS_BY_NETWORK: Record<CorridorNetworkId, readonly CorridorStop[]> = {
   ter: TER_STOPS,
   brt: BRT_STOPS,
   ddd: DDD_STOPS,
-  aftu: AFTU_STOPS,
-  tata: TATA_STOPS,
+  aftu_tata: [...AFTU_STOPS, ...TATA_STOPS],
 }
 
 export interface NearbyMobilityHit {
@@ -84,7 +83,7 @@ export function detectNearbyMobilities(
   return hits
 }
 
-/** Regroupe les détections dans l’ordre des cinq mobilités, sans groupe vide. */
+/** Regroupe les détections dans l’ordre des quatre mobilités, sans groupe vide. */
 export function groupNearbyMobilities(hits: readonly NearbyMobilityHit[]): NearbyMobilityGroup[] {
   const byNetwork = new Map<CorridorNetworkId, NearbyMobilityHit[]>()
   for (const hit of hits) {
@@ -102,7 +101,7 @@ export function absentNearbyNetworks(groups: readonly NearbyMobilityGroup[]): Co
   return NEARBY_MOBILITY_ORDER.filter((network) => !present.has(network))
 }
 
-/** Phrase unique pour les réseaux sans arrêt dans le rayon. `null` si les cinq sont là. */
+/** Phrase unique pour les réseaux sans arrêt dans le rayon. `null` si les quatre sont là. */
 export function absentNearbyLabel(networks: readonly CorridorNetworkId[]): string | null {
   if (networks.length === 0) return null
   const labels = networks.map((id) => NEARBY_MOBILITY_KIND[id].replace(/^Arrêts |^Stations |^Bus /, ''))
@@ -112,7 +111,7 @@ export function absentNearbyLabel(networks: readonly CorridorNetworkId[]): strin
   return `Aucun arrêt ${joined} dans ce rayon.`
 }
 
-/** Garde-fou : les cinq identifiants de mobilité restent ceux du catalogue. */
+/** Garde-fou : les quatre identifiants de mobilité restent ceux du catalogue. */
 export function nearbyMobilityCatalogCoversAllNetworks(): boolean {
   return MOBILITY_IDS.every((id) => NEARBY_MOBILITY_ORDER.includes(id))
 }
