@@ -282,3 +282,25 @@ La page affiche un texte « Voir itinéraire » pour les lignes 1 à 83, avec de
 - Contact affiché sur le site : +221 33 859 02 88 ; siège annoncé : Zone de Captage, 440–441 Dakar, Sénégal.
 
 **Note de provenance :** les intitulés de corridor ci-dessus sont désormais directement corroborés par la page AFTU-Sénégal, en plus de l'index AFTU déjà examiné. Ils ne constituent toujours pas une séquence d'arrêts. La page AFTU ne confirme pas le sens aller/retour séparément.
+
+
+## Mise à jour opérationnelle — séquences directionnelles reçues dans le chantier (14 novembre 2026)
+
+Depuis l'enquête documentaire ci-dessus, des listes directionnelles détaillées ont été transmises au projet et intégrées dans les fichiers de données. Elles améliorent la couverture du dépôt, sans modifier le constat sur l'absence de pages publiques AFTU détaillées pour ces numéros.
+
+| Ligne | Aller | Retour | Provenance enregistrée | Statut |
+|---|---:|---:|---|---|
+| 88 | 78 occurrences | 81 occurrences | Site source communiqué par le responsable du projet | `user-provided-site-reference` |
+| 89 | 55 occurrences | 53 occurrences | Site source communiqué par le responsable du projet | `user-provided-site-reference` |
+| 91 | 70 occurrences | 70 occurrences | Application CETUD — listes transmises et validées par le responsable du projet | `user-validated-cetud-sequences` |
+
+Fichiers intégrés :
+- `src/data/aftu-88-directions.json`
+- `src/data/aftu-89-directions.json`
+- `src/data/aftu-91-directions.json`
+
+Les deux sens restent séparés et les occurrences répétées sont conservées. Pour les lignes 88 et 89, la provenance est celle du site source communiqué au projet ; elle ne doit pas être requalifiée comme une page officielle AFTU ou une validation opérateur indépendante sans preuve supplémentaire. Pour la ligne 91, le responsable du projet a explicitement validé les deux listes comme données CETUD.
+
+Cette mise à jour ne change pas les limites de l'enquête externe : les pages détaillées AFTU testées pour ces lignes restent indisponibles dans l'extraction publique, et les applications tierces examinées n'ont pas fourni de séquences indépendantes vérifiables. Les listes intégrées sont donc conservées avec leur provenance exacte, sans prétendre qu'elles ont été corroborées par Moovit, FastFey, Seddo, PassBi ou CAPTRANS.
+
+Aucun horaire individuel, fréquence, coordonnée ou terminus alternatif n'est déduit de ces séquences. Aucun retour n'est généré par inversion.
