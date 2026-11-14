@@ -284,8 +284,7 @@ export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = new Set(
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
   for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG, ...TATA_DETAILED_ADDITIONAL_PUBLIC_LINES]) {
-    const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
-    const key = detailedRouteKey(line)
+    const key = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
