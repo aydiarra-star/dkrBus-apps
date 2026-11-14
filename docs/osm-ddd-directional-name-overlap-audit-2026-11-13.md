@@ -81,3 +81,25 @@ L'ordre des membres est conservé séparément pour chaque relation. Les noms no
 ## Garde-fous
 
 Aucun arrêt n'est supprimé, fusionné ou renommé. Aucun sens retour n'est créé par inversion. Aucun horaire ou intervalle n'est déduit d'OSM. Aucun GTFS utilisé. Aucune écriture Supabase, aucun déploiement et aucune modification du catalogue passager ou des données TER/BRT protégées.
+
+
+## Contrôle supplémentaire de l'ordre des membres — 14 novembre 2026
+
+Un contrôle en lecture seule a comparé les noms des membres nommés dans les deux sens, puis la séquence A à la séquence B parcourue à l'envers. Les noms vides ont été exclus du calcul ; les membres nommés répétés ont été conservés. Il s'agit d'un indicateur d'ordre OSM, pas d'une validation de l'identité physique des arrêts.
+
+| Paire | Membres nommés A/B | Plus longue sous-séquence commune avec B inversée | Rapport sur la plus longue séquence |
+|---|---:|---:|---:|
+| DDD 4 | 11 / 7 | 3 | 0,273 |
+| DDD 9 | 10 / 8 | 6 | 0,600 |
+| DDD 10 | 5 / 2 | 1 | 0,200 |
+| BRT B1 | 50 / 50 | 50 | 1,000 |
+| DDD 7 | 14 / 11 | 7 | 0,500 |
+
+### Lecture des résultats
+
+- **BRT B1** : les 50 membres nommés de chaque relation correspondent exactement en ordre inverse après normalisation des noms. Les deux relations déclarent les terminus opposés Préfecture de Guédiawaye ↔ Petersen et portent le réseau OSM « SunuBRT ». Les champs opérateur ne fournissent toutefois pas de valeur explicite. C'est un signal communautaire très fort de cohérence directionnelle, mais cela ne remplace pas les 23 stations officielles ni les horaires BRT déjà validés.
+- **DDD 9** : le meilleur rapprochement DDD de cet échantillon, mais six noms seulement s'alignent en ordre inverse ; les séquences restent incomplètes ou différentes.
+- **DDD 7** : sept noms s'alignent en ordre inverse, mais le conflit Palais / Palais 1 demeure.
+- **DDD 4 et 10** : l'alignement inverse reste faible ; les terminus ne suffisent pas à justifier une fusion.
+
+**Décision conservatoire :** conserver les relations et leurs ordres bruts séparément. Ne modifier ni les données passager, ni les horaires, ni les fréquences BRT/TER. Le résultat B1 sert uniquement à corroborer la cohérence spatiale/directionnelle OSM et ne constitue pas une demande de modification du référentiel BRT.
