@@ -47,7 +47,7 @@ export const DDD_OFFICIAL_SOURCE_CROSSWALK: readonly DddOfficialSourceCrosswalkE
     { source: 'ddd_route_page', corridor: 'Parcelles Assainies → Place Leclerc ; séquence publiée de 22 repères' },
     { source: 'ddd_info_voyageurs', corridor: 'Parcelles Assainies → Leclerc ; premiers et derniers départs publiés séparément par terminus' },
     { source: 'cetud_joj_guide', corridor: 'Parcelles Assainies → Leclerc' },
-  ], 'Les trois sources concordent sur les terminus. La séquence officielle de 22 repères reste distincte des 38 points ArcGIS/OSM rapprochés ; la géométrie et l’ordre OSM ne prouvent pas à eux seuls un retour distinct.'),
+  ], 'Les trois sources concordent sur les terminus. La séquence officielle de 22 repères reste distincte des 38 arrêts OSM rapprochés du tracé ArcGIS ; la géométrie et l’ordre OSM ne prouvent pas à eux seuls un retour distinct.'),
   entry('4', 'source_corridor_conflict', [
     { source: 'ddd_route_page', corridor: 'Liberté 5 (Dieuppeul) → Place Leclerc' },
     { source: 'ddd_info_voyageurs', corridor: 'Liberté 5 → Place Leclerc' },
