@@ -112,3 +112,16 @@ Les tests Deno couvrent les quatre décisions (aucune référence, référence c
 Le journal `dakar_admin_audit_events` conserve maintenant un ordre `chain_sequence` sérialisé par verrouillage de la ligne d'état privée. Chaque événement reçoit automatiquement `previous_hash` et `event_hash` SHA-256 calculés sur son identifiant, sa séquence, son acteur, son action, sa cible, ses détails, son horodatage UTC représenté en microsecondes depuis l'époque Unix et le hash précédent. Les valeurs de chaîne et l'horodatage fournis par un appelant sont écrasés par le déclencheur serveur, qui affecte l'heure UTC courante. L'état de tête est inaccessible directement aux rôles applicatifs ; le journal reste append-only contre UPDATE, DELETE et TRUNCATE.
 
 La migration recalcule les éventuelles anciennes entrées dans l'ordre de leur identifiant avant de rétablir la protection append-only. Les tests SQL isolés vérifient la continuité, le recalcul des empreintes, l'indépendance au fuseau horaire, la tête de chaîne, les privilèges et le rejet des tentatives de modification. Un test PostgreSQL séparé insère aussi 24 événements simultanément et vérifie que la séquence, les liens SHA-256 et la tête restent continus. Cette chaîne rend les altérations détectables ; elle ne remplace ni les droits d'accès, ni une sauvegarde indépendante, ni la revue humaine.
+
+## Limiter les privilèges directs du service_role (14 novembre 2026)
+
+La migration `20261114190000_dakar_gtfs_staging_least_privilege.sql` réduit les droits SQL du credential `service_role` utilisé par l'intake :
+
+- `dakar_admin_staged_datasets` : lecture et insertion limitée aux colonnes de réception ; aucun UPDATE, DELETE, TRUNCATE, ni insertion directe des compteurs, rapports, statuts, leases ou métadonnées du validateur.
+- `dakar_admin_actors` : lecture seule ; le credential applicatif ne peut pas activer, désactiver ou promouvoir un acteur.
+- `dakar_admin_audit_events` : aucun accès direct ; les événements sont ajoutés par les fonctions serveur de confiance et leurs triggers.
+- Les nouveaux enregistrements reçoivent leurs états de quarantaine depuis les valeurs par défaut SQL : `PENDING_SERVER_CHECK`, `PENDING_REVIEW`, `NOT_PUBLISHED`, avec un rapport `PENDING_SERVER_VALIDATION`.
+
+Les fonctions `claim_dakar_gtfs_validation` et `complete_dakar_gtfs_validation` conservent leurs privilèges d'exécution `service_role` et effectuent leurs écritures sous `SECURITY DEFINER`. Cette limite empêche les écritures directes sur les colonnes protégées ; elle ne constitue pas une identité distincte du worker. Tant que l'intake et le worker partagent le credential Supabase `service_role`, toute compromission de ce secret pourrait encore appeler ces RPC. Une identité/clé dédiée au worker et la protection effective de l'environnement GitHub restent des prérequis avant activation réelle.
+
+Les tests de privilèges utilisent uniquement un PostgreSQL isolé et des lignes synthétiques. Aucune migration n'est appliquée à la base Supabase active ; aucun secret, import, dataset, horaire ou catalogue n'est modifié.

@@ -238,14 +238,6 @@ Deno.serve(async (req: Request) => {
     archive_sha256: actualSha256,
     archive_bytes: archiveBytes.byteLength,
     manifest_sha256: manifestSha256,
-    record_count: {},
-    validation_report: {
-      status: "PENDING_SERVER_VALIDATION",
-      note: "The upload checksum was verified. Full GTFS structure and cross-reference validation has not run.",
-    },
-    integrity_status: "PENDING_SERVER_CHECK",
-    review_status: "PENDING_REVIEW",
-    publication_status: "NOT_PUBLISHED",
     imported_by: user.id,
   });
 
