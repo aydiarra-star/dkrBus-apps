@@ -199,7 +199,7 @@ export const DDD_PUBLISHED_ROUTES: readonly DddPublishedRoute[] = [
     'Avenue Faidherbe', 'Avenue Lamine Gueye',
     'Avenue André Peytavin', 'Avenue Jean Jaurès',
     'Boulevard de la République', 'Avenue Nelson Mandela', 'Palais 2',
-  ]),
+  ], '2026-11-13', undefined, 'https://demdikk.sn/info-voyageurs/'),
   route('11', 'Keur Massar', 'Lat Dior', 'published_order', [
     'Terminus Keur Massar', 'Station Keur Massar', 'Croisement Keur Massar',
     'Fass Mbao', 'Diamaguène', 'Poste Thiaroye', 'Autoroute à péage',
