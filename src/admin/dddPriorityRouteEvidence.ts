@@ -64,7 +64,7 @@ export const DDD_PRIORITY_ROUTE_EVIDENCE: readonly DddPriorityRouteEvidence[] = 
   ]),
   evidence('16B', 'OFFICIAL_CORRIDOR_TEXT_MATCH', 0, null, [], [
     'La page officielle DDD publie 27 repères de Malika à Palais 1 ; la séquence est conservée dans le registre officiel.',
-    'Les 12 champs de segments ArcGIS reprennent le corridor Malika–Palais 1 de la fiche DDD.'
+    'Les 12 champs de segments ArcGIS reprennent le corridor Malika–Palais 1 de la fiche DDD.',
     'Aucune couche de points dédiée ; le tracé est daté du 6 décembre 2017.',
     'Aucune direction retour distincte n’est établie par ce rapprochement.',
   ]),
