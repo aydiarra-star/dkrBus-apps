@@ -164,3 +164,12 @@ La page publique AFTU-Sénégal `https://aftu-senegal.org/infos-pratiques/` conf
 La page opérateur DDD actuelle publie deux parcours circulaires distincts pour les lignes 18 et 20, avec des repères et un ordre différents. La séquence 18 passe notamment par Cité Derklé, Khar Yalla, Cité Marine, Castors, HLM et Colobane ; la séquence 20 commence par Allées Ababacar Sy, Jet d’Eau et Bourguiba, puis passe par Fann, UCAD, Gueule Tapée, Médina, Rebeuss, le port et Bel Air. Cette publication confirme la distinction des deux circuits textuels. Elle ne résout pas l'attribution géographique des 44 points ArcGIS stockés dans la couche 18 : les tracés 18 et 20 de 2017 sont presque superposés et les mêmes points sont proches des deux géométries. Les points restent donc sous leur identifiant source, sans duplication ni réattribution. Détail : `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md`.
 
 Source opérateur : https://demdikk.sn/reseau-urbain-dakar/ (consultée le 14 novembre 2026). Aucune donnée passager n'a été modifiée.
+
+
+## 2 undecies. AFTU ligne 88 — deux séquences directionnelles transmises le 14 novembre 2026
+
+Un relevé de terrain transmis directement pour le chantier fournit désormais deux listes indépendantes pour la ligne 88 : **78 entrées à l'aller, Terminus 88 → Terminus Liberté 5**, et **81 entrées au retour, Terminus Liberté 5 → Terminus 88**. Les deux listes complètes, avec leurs libellés et leur ordre d'origine, sont conservées dans `docs/aftu-line-88-user-provided-directional-stop-lists-2026-11-14.md`.
+
+Il s'agit d'une source de terrain fournie, pas encore d'une confirmation indépendante de l'opérateur. Un point doit être résolu avant toute validation : la page publique AFTU-Sénégal consultée précédemment donne pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) », alors que les deux séquences reçues décrivent un parcours entre Terminus 88 et Liberté 5 via Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes et Grand Yoff. Ne pas supposer qu'il s'agit du même service sans confirmation de l'opérateur ou autre preuve indépendante.
+
+**Décision provisoire :** enregistrer les deux sens séparément dans le dossier documentaire ; ne pas les injecter au catalogue passager et ne pas géocoder automatiquement les noms. Aucun horaire ni fréquence n'est associé à ces listes. Les libellés différents entre aller et retour restent distincts jusqu'à vérification.
