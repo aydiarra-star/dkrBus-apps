@@ -141,7 +141,8 @@ function adaptRoute(route: RawAftuRoute): AftuRouteEvidence | null {
       route,
     ),
     sourceStatus: nonEmptyString(route.sourceStatus),
-    inboundCorridorStatus: route.returnEvidence?.status === 'return-corridor-confirmed-sequence-unavailable'
+    inboundCorridorStatus: (route.returnEvidence?.status === 'return-corridor-confirmed-sequence-unavailable'
+      || route.returnEvidence?.status === 'return-direction-confirmed-partial-corridor-anchors')
       ? 'confirmed-sequence-unavailable'
       : null,
     inboundCorridorAnchors: stringList(route.returnEvidence?.orderedCorridorAnchors),
