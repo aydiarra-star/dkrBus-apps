@@ -354,7 +354,7 @@ function lineReply(line: BusLine, question: string): KnowledgeReply {
 export function busKnowledgeSummary(): string {
   const ddd = UNIFIED_BUS_LINES.filter((line) => line.network === 'ddd').length
   const aftuTata = uniqueEquivalentLines(UNIFIED_BUS_LINES.filter((line) => belongsToNetwork(line, 'aftu_tata'))).length
-  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
+  return `Mémoire documentaire DDD / AFTU / TATA : ${ddd} fiches DDD et ${aftuTata} parcours distincts AFTU / TATA, dont ${UNIFIED_BUS_LINES.filter((line) => line.waypoints.length).length} parcours avec points de passage transcrits. Consultation du ${KNOWLEDGE_CHECKED_AT}. Ce référentiel n’est pas exhaustif. Les parcours AFTU et TATA sont présentés dans un seul réseau ; les fiches sources restent conservées pour leur provenance. Les tarifs par bus, arrêts géolocalisés et correspondances garanties restent à compléter.`
 }
 
 export function generalFareReply(): string {
