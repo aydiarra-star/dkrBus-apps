@@ -303,11 +303,11 @@ function sameDetailedStopSequence(a: { waypoints?: readonly string[] }, b: { way
  */
 export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
   const shared = new Set<string>()
-  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]).filter((line) => line.network === 'aftu')
-  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]
+  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[]; inboundWaypoints?: string[] }[]).filter((line) => line.network === 'aftu')
+  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[]; inboundWaypoints?: string[] }[]
   for (const aftu of detailedAftu) {
     const key = detailedRouteKey(aftu)
-    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedRouteDirection(aftu, tata) && sameDetailedStopSequence(aftu, tata))
+    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedRouteDirection(aftu, tata) && sameDetailedStopSequence(aftu, tata) && sameDetailedStopSequence({ waypoints: aftu.inboundWaypoints }, { waypoints: tata.inboundWaypoints }))
     if (hasMatchingTata) shared.add(key)
   }
   return shared
