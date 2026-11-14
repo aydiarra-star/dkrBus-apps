@@ -12,28 +12,18 @@ import {
 } from './publicBusLineCatalog'
 
 describe('catalogues sources et réseau unifié AFTU / TATA', () => {
-  it('ne fusionne que les itinéraires dont la séquence ordonnée des arrêts est identique', () => {
-    const normalize = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
-    const keys = AFTU_TATA_PUBLIC_LINE_CATALOG.map((line) => {
-      const ends = [normalize(line.origin), normalize(line.destination)].sort()
-      return `${line.line}|${ends[0]}|${ends[1]}`
-    })
-    // Les terminus identiques peuvent désormais rester en deux fiches si les arrêts diffèrent.
-    expect(new Set(keys).size).toBeLessThan(keys.length)
+  it('affiche une seule fiche par numéro, car Tata est le nom usuel des minibus AFTU', () => {
+    const codes = AFTU_TATA_PUBLIC_LINE_CATALOG.map((line) => line.line)
+    expect(new Set(codes).size).toBe(codes.length)
     expect(AFTU_TATA_SHARED_ROUTE_KEYS.size).toBe(0)
     expect(AFTU_TATA_SHARED_LINE_CODES.size).toBe(0)
-    // Même si certains allers concordent, aucune fusion n'est permise sans séquence de retour documentée et identique.
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '1')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '4')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '33')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '5')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '39')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '42')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '53')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '65')).toHaveLength(2)
-    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.some((line) => line.line === '37' && line.origin === 'Cité APIX' && line.destination === 'UCAD (Claudel)')).toBe(true)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '84')).toHaveLength(1)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.find((line) => line.line === '84')?.network).toBe('aftu')
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.filter((line) => line.line === '90')).toHaveLength(1)
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.find((line) => line.line === '90')?.origin).toBe('Terminus 90 (Départ)')
+    expect(AFTU_TATA_PUBLIC_LINE_CATALOG.find((line) => line.line === '90')?.destination).toBe('Deni Birame Ndao Nord (Terminus)')
   })
-  it('sépare les lignes TATA des références AFTU', () => {
+  it('conserve les catalogues sources pour vérification, sans les afficher comme deux réseaux', () => {
     expect(TATA_PUBLIC_LINE_CATALOG.length).toBeGreaterThan(40)
     expect(TATA_PUBLIC_LINE_CATALOG.every((line) => line.network === 'tata')).toBe(true)
     expect(AFTU_PUBLIC_LINE_CATALOG.every((line) => line.network === 'aftu')).toBe(true)
@@ -58,22 +48,20 @@ describe('catalogues sources et réseau unifié AFTU / TATA', () => {
     }
   })
 
-  it('affiche une seule entrée par numéro tout en conservant les variantes d’itinéraire distinctes', () => {
+  it('regroupe une seule fiche par numéro dans le réseau commun', () => {
     const groups = groupPublicBusLinesByCode(AFTU_TATA_PUBLIC_LINE_CATALOG)
-    expect(groups).toHaveLength(72)
+    expect(groups).toHaveLength(AFTU_TATA_PUBLIC_LINE_CATALOG.length)
     expect(new Set(groups.map((group) => group.line)).size).toBe(groups.length)
-    expect(groups.find((group) => group.line === '5')?.variants.map((line) => line.network).sort()).toEqual(['aftu', 'tata'])
-    expect(groups.find((group) => group.line === '65')?.variants.map((line) => line.network).sort()).toEqual(['aftu', 'tata'])
-    expect(groups.reduce((total, group) => total + group.variants.length, 0)).toBe(AFTU_TATA_PUBLIC_LINE_CATALOG.length)
+    expect(groups.find((group) => group.line === '84')?.variants).toHaveLength(1)
+    expect(groups.find((group) => group.line === '90')?.variants).toHaveLength(1)
   })
-
   it('ne transforme pas un catalogue de parcours en horaires', () => {
-    expect(TATA_REFERENCE_POLICY.independentRouteCatalogAvailable).toBe(true)
+    expect(TATA_REFERENCE_POLICY.independentRouteCatalogAvailable).toBe(false)
     expect(TATA_REFERENCE_POLICY.independentScheduleAvailable).toBe(false)
   })
 
-  it('enregistre la ligne AFTU 84 dans le sens Jaxaay 2 vers UCAD', () => {
-    expect(AFTU_PUBLIC_LINE_CATALOG.some((line) => line.line === '84' && line.origin === 'Jaxaay 2' && line.destination === 'UCAD')).toBe(true)
+  it('enregistre la ligne AFTU 84 avec ses terminus détaillés', () => {
+    expect(AFTU_PUBLIC_LINE_CATALOG.some((line) => line.line === '84' && line.origin === 'Jaxaay 2 Pénitence' && line.destination === 'Terminus 84_54Derrière Ucad En Face Canal 4')).toBe(true)
   })
 
   it('reprend les terminus officiels AFTU de la ligne 85', () => {
