@@ -116,11 +116,13 @@ const search = withSupabase({ auth: "publishable" }, async (req, ctx) => {
       ? await db.rpc("get_mobility_stop_coordinates", { p_stop_ids: returnedStopIds })
       : { data: [], error: null };
     if (coordinatesResult.error) throw new Error(coordinatesResult.error.message);
-    const coordinates = new Map<string, { latitude: number | null; longitude: number | null }>(
-      (coordinatesResult.data ?? []).map((row: any) => [
-        row.stop_id, { latitude: row.latitude ?? null, longitude: row.longitude ?? null },
-      ] as const),
-    );
+    const coordinates = new Map<string, { latitude: number | null; longitude: number | null }>();
+    for (const row of (coordinatesResult.data ?? []) as any[]) {
+      coordinates.set(String(row.stop_id), {
+        latitude: typeof row.latitude === "number" ? row.latitude : null,
+        longitude: typeof row.longitude === "number" ? row.longitude : null,
+      });
+    }
 
     const orderedStops = new Map<string, any[]>();
     for (const row of returnedLineStops) {
