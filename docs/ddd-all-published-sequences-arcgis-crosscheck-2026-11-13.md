@@ -185,3 +185,42 @@ Le guide de mobilité JOJ ne fournit pas de séquences détaillées pour ces var
 - Guide officiel MITTA/CETUD JOJ 2026 : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
 
 Aucune donnée de circulation temporaire JOJ n'est considérée comme un horaire permanent. Aucun intervalle navette JOJ n'est attribué à un service DDD régulier. Aucun nouvel arrêt, sens ou temps de passage n'est inventé.
+
+
+## Vérification accélérée de la page « Info voyageurs » — 14 novembre 2026
+
+Source relue : https://demdikk.sn/info-voyageurs/ (page officielle DDD).
+
+### Séquence TAF TAF explicitement publiée
+
+La page « Info voyageurs » donne une séquence plus détaillée que le résumé précédent :
+
+Ouakam → Mamelles → Croisement Almadies → Ngor → Yoff → Route de l’Aéroport → Foire → VDN → Direction Générale DDD → Rond-Point JVC → Rond-Point Liberté 6 → itinéraire 213 → Police Grand Yoff → Pharmacie Patte d’Oie → Autoroute à péage → Diamniadio → AIBD.
+
+La même page précise qu’un circuit similaire dessert la Sphère Ministérielle à Diamniadio. Elle publie aussi les premiers et derniers départs déjà consignés plus haut. Elle ne donne pas d’horaires intermédiaires ni d’intervalle de passage. Les étapes « itinéraire 213 » et « Diamniadio » sont des repères/corridors tels qu'écrits par la source : ils ne sont pas développés en arrêts supplémentaires.
+
+### État des variantes 502A/B, 503A/B et 504A/B
+
+La page officielle « Info voyageurs » confirme les sept corridors suivants, mais n'affiche pas de liste d'arrêts intermédiaires pour ces variantes :
+
+| Variante | Corridor publié | Arrêts intermédiaires détaillés |
+|---|---|---|
+| 502A | Colobane ↔ UCAD | Non publiés sur cette page |
+| 502B | Colobane ↔ Abass Ndao | Non publiés sur cette page |
+| 503A | Colobane ↔ Môle 8 | Non publiés sur cette page |
+| 503B | Colobane ↔ Hydrocarbure | Non publiés sur cette page |
+| 504A | Gare Diamniadio ↔ Sphère Ministérielle | Non publiés sur cette page |
+| 504B | Sébikotane ↔ Gare Diamniadio | Non publiés sur cette page |
+
+Ne pas découper les anciennes boucles 502/503 en variantes A/B : la source ne permet pas de répartir les arrêts. Ne pas attribuer aux lignes 504A/B les quatre sites olympiques du guide JOJ comme arrêts de bus ordonnés : ce guide confirme un périmètre de desserte, pas une séquence routière.
+
+### Vérification complémentaire de la ligne 233
+
+La page « Info voyageurs » liste séparément 233 Baux Maraîchers ↔ Palais 1 et 232 Baux Maraîchers ↔ Aéroport LSS. La séquence détaillée actuellement affichée sous l'en-tête 233 sur la page « Réseau urbain » se termine pourtant à Aéroport LSS et reprend la séquence 232. Le terminus commercial de la 233 est confirmé, mais ses arrêts détaillés propres ne le sont toujours pas.
+
+### Décision de données
+
+- La séquence TAF TAF ci-dessus peut être conservée comme ordre de repères publié par la page officielle, distinct de TO1 et des lignes 502/503/504.
+- Les six variantes 502A/B, 503A/B et 504A/B sont confirmées comme services annoncés, mais restent sans séquence intermédiaire vérifiée.
+- Aucun sens retour distinct n'est reconstruit par inversion ; aucune fréquence n'est calculée à partir des premiers/derniers départs.
+- Aucun changement n'est apporté aux données passagers, à TER/BRT, à Supabase ou à la production dans le cadre de ce rapprochement documentaire.
