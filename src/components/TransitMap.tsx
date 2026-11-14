@@ -227,11 +227,11 @@ function TransitMapView({
   const uniqueCorridorStops = useMemo(() => corridorStops.filter((stop, index, all) => {
     const prefix = stop.id.split('-')[0]
     if (prefix !== 'aftu' && prefix !== 'tata') return true
-    const normalized = stop.name.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+    const normalized = stop.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
     const firstEquivalent = all.findIndex((candidate) => {
       const candidatePrefix = candidate.id.split('-')[0]
       if (candidatePrefix !== 'aftu' && candidatePrefix !== 'tata') return false
-      const candidateName = candidate.name.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+      const candidateName = candidate.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
       const meters = Math.hypot((candidate.lat - stop.lat) * 111_000, (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180))
       return candidateName === normalized && meters <= 150
     })
