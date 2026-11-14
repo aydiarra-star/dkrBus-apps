@@ -1,7 +1,45 @@
 # Inventaire des séquences directionnelles DDD / AFTU / TATA
 
-Date de l'inventaire : 2026-11-09  
+Date de mise à jour : 2026-11-14  
 Dépôt de référence : `aydiarra-star/dkrBus-apps`
+
+
+## Mise à jour de l'inventaire — 14 novembre 2026
+
+Cette mise à jour complète l'état historique ci-dessous : les chiffres du relevé du 9 novembre ne décrivent plus à eux seuls le dépôt actuel.
+
+### DDD — référentiels actuels
+
+- `src/data/dddPublishedRoutes.ts` contient 34 séquences de repères ordonnées.
+- Le registre agrégé `src/data/dddOfficialPublishedRoutes.ts` contient 39 séquences officielles uniques issues des registres urbain et périurbains. Ces 39 séquences ne s'ajoutent pas mécaniquement aux 34 précédentes : les sources et codes se recoupent.
+- 17 lignes identifiées sans groupe de points ArcGIS portant le même code disposent néanmoins d'une séquence textuelle exploitable. Voir `docs/ddd-missing-arcgis-route-sequence-coverage-2026-11-14.md`.
+- Les séquences de ces registres restent des ordres publiés, pas une preuve automatique de coordonnées, de sens retour ou de validation terrain.
+
+### AFTU — séquences directionnelles structurées
+
+Les fichiers directionnels séparés ont été complétés et contrôlés pour les lignes suivantes :
+
+| Ligne | Aller | Retour | Statut / précaution |
+|---:|---:|---:|---|
+| 30 | 77 | 74 | Deux séquences distinctes ; répétitions anonymes conservées |
+| 66 | 77 | 77 | Deux sources directionnelles séparées |
+| 83 | 14 | — | Retour absent, non reconstitué |
+| 84 | 73 | 73 | Deux sens conservés ; terminus à réconcilier |
+| 85 | 89 | 95 | Deux sens conservés ; répétitions préservées |
+| 86 | 68 | 64 | Heures transcrites invalidées et non publiables |
+| 87 | 68 | 71 | Séquences CETUD transmises ; divergence de terminus/corridor signalée |
+| 88 | 78 | 81 | Séquences des deux sens conservées |
+| 89 | 55 | 53 | Séquences des deux sens conservées |
+| 90 | 82 | 82 | Séquences des deux sens validées par le responsable du projet |
+| 91 | 70 | 70 | Séquences des deux sens validées à partir de la référence CETUD transmise |
+
+Les nombres désignent des occurrences ordonnées, pas nécessairement des arrêts géographiquement uniques. Les noms répétés et les positions anonymes ne sont pas supprimés. Les lignes 88–91 et leurs rapports sont détaillés dans `docs/aftu-88-91-directional-sequence-crosscheck-2026-11-14.md`.
+
+### Règle de lecture actualisée
+
+Les listes d'arrêts fournies et validées par le responsable du projet servent de références de travail. Les sources externes servent à corroborer, documenter une correspondance ou signaler une anomalie précise ; leur absence ne bloque pas la structuration d'une liste déjà fournie. Une séquence Aller ne prouve toujours pas le Retour : chaque sens reste indépendant.
+
+---
 
 ## Règles de lecture
 
