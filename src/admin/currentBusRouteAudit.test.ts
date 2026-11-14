@@ -6,11 +6,12 @@ describe('getCurrentBusRouteAudit', () => {
   it('audits every catalogue line and both directions without modifying the catalogue', () => {
     const before = JSON.stringify(BIDIRECTIONAL_BUS_LINES)
     const report = getCurrentBusRouteAudit()
+    const ownerValidatedDirections = 6
 
     expect(report.analyzedLines).toBe(BIDIRECTIONAL_BUS_LINES.length)
     expect(report.analyzedDirections).toBe(BIDIRECTIONAL_BUS_LINES.length * 2)
-    expect(report.completeLines).toBe(0)
-    expect(report.counts.DIRECTION_NOT_VERIFIED).toBe(report.analyzedDirections)
+    expect(report.completeLines).toBe(3)
+    expect(report.counts.DIRECTION_NOT_VERIFIED).toBe(report.analyzedDirections - ownerValidatedDirections)
     expect(report.findings.every((finding) => finding.status === 'NEEDS_HUMAN_REVIEW')).toBe(true)
     expect(JSON.stringify(BIDIRECTIONAL_BUS_LINES)).toBe(before)
   })
@@ -31,7 +32,7 @@ describe('getCurrentBusRouteAudit', () => {
       finding.direction === 'inbound' && finding.kind === 'MISSING_DIRECTION_STOPS',
     )
 
-    expect(inboundFindings).toHaveLength(BIDIRECTIONAL_BUS_LINES.length)
+    expect(inboundFindings).toHaveLength(BIDIRECTIONAL_BUS_LINES.length - 3)
     expect(inboundFindings.every((finding) => finding.stopCount === 0)).toBe(true)
   })
 
