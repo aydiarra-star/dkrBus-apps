@@ -45,7 +45,7 @@ export const AFTU_OFFICIAL_INDEX_CROSSWALK: readonly AftuOfficialIndexCrosswalkE
     line: '88',
     officialCorridor: 'MTOA – Liberté 5',
     status: 'corridor_overlap_endpoint_identity_unconfirmed',
-    observation: 'La séquence enregistrée va de « Terminus 88 » à « Terminus Liberté 5 » et contient « Station Mtoa » comme arrêt intermédiaire. Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
+    observation: 'La séquence enregistrée va de « Terminus 88 » à « Terminus Liberté 5 » et contient un repère MTOA dans chaque sens (« Devant Mtoa… » à l’aller, « Station Mtoa » au retour). Le lien entre « Terminus 88 » et MTOA n’est pas établi par le seul index.',
     stopSequenceValidatedByIndex: false,
   },
   {
