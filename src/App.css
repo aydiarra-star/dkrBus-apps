@@ -2140,6 +2140,7 @@ button:disabled { cursor: not-allowed; }
     --focus-ring: #3ee094;
     --panel-shadow: 0 16px 44px rgba(0, 0, 0, .55), 0 2px 8px rgba(0, 0, 0, .35);
   }
+}
 
 .app-shell.theme-dark .brand-name { color: var(--text); }
 .app-shell.theme-dark .brand-name > span { color: var(--green-700); }
