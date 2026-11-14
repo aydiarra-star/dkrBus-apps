@@ -24,12 +24,10 @@ describe('initial transport catalogue', () => {
     expect(aftu?.referenceData?.officialFrequencies).toEqual([])
   })
 
-  it('keeps a separate TATA display without counting it as an independent AFTU network', () => {
-    const aftu = NETWORK_SOURCES.find((network) => network.id === 'aftu')
-    const tata = NETWORK_SOURCES.find((network) => network.id === 'tata')
-    expect(aftu).toBeDefined()
-    expect(tata).toBeDefined()
-    expect(tata?.id).not.toBe(aftu?.id)
-    expect(tata?.referenceData).toMatchObject({ lineCount: null, vehicleCount: null, frequencyStatus: 'UNKNOWN' })
+  it('expose une seule entrée de réseau pour AFTU / TATA', () => {
+    const unified = NETWORK_SOURCES.filter((network) => network.id === 'aftu_tata')
+    expect(unified).toHaveLength(1)
+    expect(unified[0]).toMatchObject({ label: 'AFTU / TATA', referenceData: { lineCount: 72, vehicleCount: 2300, gieCount: 14, serviceStart: '06:00', serviceEnd: '22:50' } })
+    expect(NETWORK_SOURCES.some((network) => network.id === 'aftu' || network.id === 'tata')).toBe(false)
   })
 })
