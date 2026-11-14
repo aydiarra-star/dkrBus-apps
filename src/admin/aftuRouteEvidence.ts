@@ -25,6 +25,7 @@ export interface AftuRouteEvidence {
   inbound: AftuDirectionEvidence
   sourceStatus: string | null
   inboundCorridorStatus: 'confirmed-sequence-unavailable' | null
+  inboundCorridorAnchors: string[]
   serviceWindow: {
     start: string
     end: string
@@ -57,7 +58,7 @@ interface RawAftuRoute {
   inboundSchedule?: RawSchedule
   sourceLabel?: unknown
   sourceStatus?: unknown
-  returnEvidence?: { status?: unknown }
+  returnEvidence?: { status?: unknown; orderedCorridorAnchors?: unknown }
   frequency?: { intervalMinutes?: unknown; display?: unknown; countdownBasis?: unknown }
   detailSourceUrl?: unknown
   inboundDetailSourceUrl?: unknown
@@ -143,6 +144,7 @@ function adaptRoute(route: RawAftuRoute): AftuRouteEvidence | null {
     inboundCorridorStatus: route.returnEvidence?.status === 'return-corridor-confirmed-sequence-unavailable'
       ? 'confirmed-sequence-unavailable'
       : null,
+    inboundCorridorAnchors: stringList(route.returnEvidence?.orderedCorridorAnchors),
     serviceWindow: {
       ...AFTU_CETUD_SCHEDULE_SETTINGS.generalServiceWindow,
       source: 'CETUD-network-default',
