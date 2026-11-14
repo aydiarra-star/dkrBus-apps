@@ -1951,20 +1951,16 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     const section = openSettingsSection('mobility')
-    const tata = section.getByRole('button', { name: /TATA/ })
-    expect(tata.getAttribute('aria-pressed')).toBe('true')
-    fireEvent.click(tata)
-    expect(tata.getAttribute('aria-pressed')).toBe('false')
-    expect(section.getByText(/4 réseaux autorisés dans le calcul/)).toBeTruthy()
-    expect(JSON.parse(String(window.localStorage.getItem('dakar-bus:preferences:v1'))).mobility.networks.tata).toBe(false)
-    // Les trois autres sont retirés un à un : il ne reste qu'AFTU.
-    for (const label of [/Dakar Dem Dikk/, /BRT SunuBRT/, /TER/]) {
-      fireEvent.click(section.getByRole('button', { name: label }))
-    }
+    const unified = section.getByRole('button', { name: /AFTU \/ TATA/ })
+    expect(unified.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(unified)
+    expect(unified.getAttribute('aria-pressed')).toBe('false')
+    expect(section.getByText(/3 réseaux autorisés dans le calcul/)).toBeTruthy()
+    expect(JSON.parse(String(window.localStorage.getItem('dakar-bus:preferences:v1'))).mobility.networks.aftu_tata).toBe(false)
+    for (const label of [/Dakar Dem Dikk/, /BRT SunuBRT/, /TER/]) fireEvent.click(section.getByRole('button', { name: label }))
     expect(section.getByText(/1 réseau autorisé dans le calcul/)).toBeTruthy()
-    const last = section.getByRole('button', { name: /AFTU/ })
+    const last = section.getByRole('button', { name: /TER/ })
     expect(last.getAttribute('aria-pressed')).toBe('true')
-    fireEvent.click(last)
     // Le dernier réseau autorisé ne peut pas être retiré, et la raison est dite.
     expect(await screen.findByText(/Au moins un réseau doit rester autorisé/)).toBeTruthy()
     expect(last.getAttribute('aria-pressed')).toBe('true')
