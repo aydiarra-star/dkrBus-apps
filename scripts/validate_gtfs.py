@@ -100,7 +100,7 @@ class Report:
             "validated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "structure_valid": self.errors == 0,
             "production_ready": False,
-            "scope": "GTFS Static structure and reference checks only; this does not verify provenance, reuse rights, operator approval, current service, schedule freshness, or production readiness.",
+            "scope": "Supported GTFS Static core and selected optional-table structure/reference checks only; unrecognized or unvalidated root tables are rejected. This does not verify provenance, reuse rights, operator approval, current service, schedule freshness, or production readiness.",
             "counts": {"errors": self.errors, "warnings": self.warnings},
             "tables": self.tables,
             "issues": self.issues,
@@ -306,6 +306,13 @@ class GTFSValidator:
                     self.report.add("ERROR", "DUPLICATE_TABLE_FILE", f"Plusieurs entrées représentent la table « {canonical} ».", canonical)
                     continue
                 self.table_infos[canonical] = info
+            else:
+                self.report.add(
+                    "ERROR",
+                    "UNRECOGNIZED_TEXT_TABLE",
+                    f"Le fichier texte « {name} » à la racine GTFS n’est pas une table reconnue ; sa structure ne peut pas être attestée.",
+                    name,
+                )
 
         for filename in sorted(REQUIRED_TABLES):
             if filename not in self.table_infos:
@@ -553,10 +560,15 @@ class GTFSValidator:
         timepoint = self._value(row, "timepoint")
         if timepoint and timepoint not in {"0", "1"}:
             self.report.add("ERROR", "INVALID_TIMEPOINT", "timepoint doit valoir 0 ou 1 lorsqu’il est renseigné.", "stop_times.txt", line)
+        for column in ("pickup_type", "drop_off_type"):
+            value = self._value(row, column)
+            if value and value not in {"0", "1", "2", "3"}:
+                code = "INVALID_PICKUP_TYPE" if column == "pickup_type" else "INVALID_DROP_OFF_TYPE"
+                self.report.add("ERROR", code, f"{column} doit valoir 0, 1, 2 ou 3.", "stop_times.txt", line)
         if arrival is not None and departure is not None and departure < arrival:
             self.report.add("ERROR", "DEPARTURE_BEFORE_ARRIVAL", "departure_time précède arrival_time au même arrêt.", "stop_times.txt", line)
         if arrival is None and departure is None and timepoint != "0":
-            self.report.add("WARNING", "MISSING_STOP_TIME", "Aucun horaire à cet arrêt ; timepoint=0 est nécessaire pour indiquer une heure interpolée.", "stop_times.txt", line)
+            self.report.add("ERROR", "MISSING_STOP_TIME", "Lorsque arrival_time et departure_time sont tous deux vides, timepoint doit valoir 0.", "stop_times.txt", line)
 
         if sequence is not None and trip_id:
             previous_sequence = self.trip_last_sequence.get(trip_id)
@@ -705,7 +717,7 @@ class GTFSValidator:
 
     def _warn_unsupported_tables(self) -> None:
         for filename in sorted(set(self.table_infos).difference(SUPPORTED_TABLES)):
-            self.report.add("WARNING", "OPTIONAL_TABLE_NOT_VALIDATED", f"La table optionnelle « {filename} » est présente mais n’est pas encore contrôlée par cet outil.", filename)
+            self.report.add("ERROR", "OPTIONAL_TABLE_NOT_VALIDATED", f"La table optionnelle « {filename} » est présente mais n’est pas contrôlée ; l’archive reste non validée.", filename)
 
     def _record_stop_time_sequence(
         self,
