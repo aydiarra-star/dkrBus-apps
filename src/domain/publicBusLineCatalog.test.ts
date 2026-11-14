@@ -9,7 +9,7 @@ import {
 
 describe('catalogues sources et réseau unifié AFTU / TATA', () => {
   it('fusionne les doublons de numéro et de terminus sans écraser les parcours différents', () => {
-    const normalize = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+    const normalize = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
     const keys = AFTU_TATA_PUBLIC_LINE_CATALOG.map((line) => {
       const ends = [normalize(line.origin), normalize(line.destination)].sort()
       return `${line.line}|${ends[0]}|${ends[1]}`
