@@ -122,3 +122,52 @@ Références :
 ## 7. Protection du projet
 
 Cette enquête est documentaire. Aucun itinéraire passager n'est ajouté sur la seule base de terminus. Aucun horaire ou intervalle n'est estimé pour ces lignes. Les données TER/BRT restent inchangées. Aucune écriture Supabase, mise en production ou fusion de PR n'est effectuée.
+
+## 8. Vérification complémentaire — carte CETUD, accès aux données et applications (14 novembre 2026)
+
+### 8.1 Carte officielle AFTU accessible depuis le CETUD
+
+Le bouton « Télécharger le plan des lignes » de la page institutionnelle AFTU du CETUD a été suivi directement. Il mène à :
+https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-aftu.jpeg
+
+La carte est un document cartographique de novembre 2024. Elle donne un aperçu des corridors AFTU représentés à cette date, mais ne fournit ni liste d'arrêts ordonnée, ni tableau des deux directions, ni horaires. Elle ne permet pas d'identifier avec assez de certitude une séquence exploitable pour les lignes 88, 89 et 91. Elle ne doit donc pas servir à construire leurs arrêts intermédiaires.
+
+### 8.2 Point d'entrée institutionnel pour obtenir les données
+
+La page actuelle du système de données du CETUD précise explicitement :
+- les données d'exploitation des réseaux classiques AFTU et DDD proviennent de plateformes dédiées (CAPTRANS) et/ou d'enquêtes auprès des opérateurs ;
+- les fichiers GTFS du CETUD sont conçus pour contenir lignes, arrêts, itinéraires, trajets, tarifs et services ;
+- le contact de l'Observatoire est **observatoire@cetud.sn**, téléphone **+221 33 859 47 20**.
+
+Page de référence : https://cetud.sn/observatoire/systeme-de-donnees/
+
+Le site actuel de CAPTRANS donne les coordonnées suivantes : **captrans@captrans.sn**, **+221 33 877 60 38**, Guédiawaye, quartier Mbode 3. La page décrit la gestion et la supervision opérationnelle de bus AFTU, mais ne publie pas de fichiers d'itinéraires ni de données de séquences 88/89/91.
+
+Page : https://captrans.sn/index.php/aftu/
+
+Ces coordonnées constituent des voies de demande de données primaires. Elles ne signifient pas que CAPTRANS ou le CETUD ont déjà confirmé les parcours des trois lignes.
+
+### 8.3 Contrôle plus strict des fiches d'applications
+
+- **CETUD Mobilités** : sa fiche officielle CETUD indique que le réseau et le calcul d'itinéraires sont consultables sans compte. C'est la première interface à interroger directement. La fiche magasin ne donne toutefois aucune séquence ligne par ligne.
+- **FastFey** : les notes de version 2.0.0 (08/07/2025) annoncent un filtre AFTU (« lignes A »), BRT et TER. La fiche publique comporte aussi un avis utilisateur signalant des lignes manquantes. Cet avis n'est pas une preuve technique, mais rappelle qu'une absence ou présence dans l'application doit être contrôlée ligne par ligne.
+- **Seddo** : la fiche Google Play actuelle décrit la recherche d'itinéraires, les lignes et arrêts intermédiaires et la navigation vers les arrêts. Elle ne documente pas publiquement l'origine des données ni une couverture garantie de toutes les lignes AFTU. La promesse fonctionnelle ne suffit donc pas à corroborer 88/89/91.
+- **PassBi** : sa fiche Google Play précise que l'intégration AFTU est progressive, et que les sources déclarées comprennent les GTFS publics centralisés par le CETUD ainsi que des sources opérateurs. L'éditeur précise que l'application est indépendante et n'est pas affiliée à un organisme public. Il faut contrôler les identifiants et dates des données avant d'utiliser un itinéraire affiché comme preuve.
+- **SunuBRT** : sa fiche Google Play annonce la consultation de lignes, horaires, arrêts proches et calcul d'itinéraires multimodaux. Elle ne prouve pas que les trois lignes AFTU sont incluses.
+- **Bus Bii** : sa fiche décrit explicitement les itinéraires TATA et Dakar Dem Dikk. Elle n'est pas une source directe pour l'identité des lignes AFTU 88, 89 et 91.
+- **Dakar Transit** : son site promotionnel annonce 64 lignes AFTU, mais aucune fiche détaillée publique ni export exploitable des lignes 88/89/91 n'a été obtenu. Ne pas traiter le nombre annoncé comme une preuve de couverture de ces numéros.
+
+Références complémentaires :
+- CETUD Mobilités : https://apps.apple.com/sn/app/cetud-mobilit%C3%A9s/id6814449080
+- FastFey : https://apps.apple.com/fr/app/fastfey/id6739596735
+- Seddo : https://play.google.com/store/apps/details?id=com.wakana.seddo
+- PassBi : https://play.google.com/store/apps/details?id=com.senpassbi.app
+- SunuBRT : https://play.google.com/store/apps/details?hl=fr&id=prod.maasify.dakar
+- Bus Bii : https://play.google.com/store/apps/details?hl=fr&id=com.busbi.topandbrice
+- Dakar Transit : https://dakartransitsenegal.online/
+
+### 8.4 Conclusion opérationnelle mise à jour
+
+La recherche publique permet désormais de confirmer le meilleur chemin d'accès aux données primaires : CETUD / Observatoire et CAPTRANS. Elle n'a pas encore révélé de fichier public contenant les séquences complètes des lignes 88, 89 ou 91. Les applications tierces annoncent des fonctionnalités utiles, mais leurs fiches magasins ne prouvent pas la couverture des trois lignes.
+
+La prochaine vérification doit porter sur les données réellement servies dans les applications et, en parallèle, sur une demande ciblée au CETUD/CAPTRANS : fiches de ligne, arrêts ordonnés, sens aller/retour, identifiants d'arrêts, date de validité et source de la donnée. Toute séquence issue d'une application sera comparée à une source indépendante avant d'être qualifiée.
