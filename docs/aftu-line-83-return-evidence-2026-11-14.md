@@ -1,55 +1,31 @@
-# Ligne AFTU 83 — recherche des arrêts aller et retour
+# Ligne AFTU 83 — séquences aller et retour validées
 
 Date : 14 novembre 2026
 
-## Aller — séquence opérateur complète retrouvée
+## Validation des deux directions
 
-La fiche officielle AFTU Sénégal, publiée le 14 juillet 2026, donne l'itinéraire dans cet ordre :
+Les listes détaillées ci-dessous ont été transmises par le responsable du projet comme données CETUD et explicitement validées pour intégration. Elles sont conservées dans leur ordre d'origine, sans suppression des doublons ni normalisation des libellés.
 
-1. Terminus Rufisque Arafat
-2. HLM Rufisque
-3. Sedima
-4. Station Keur Massar
-5. Malika Plage
-6. VDN 3
-7. Rond-point Malibu
-8. Cité Nations Unies
-9. Case-Ba
-10. Pont de l’Émergence
-11. Grand-Yoff
-12. Route de Front de Terre
-13. CTO
-14. Terminus Zone de Captage
+- Aller : 93 occurrences, de « Sonadis près du Jardin En Face Hôtel De Ville (Départ) » à « Zone De Captage (Terminus) ».
+- Retour : 90 occurrences, de « Zone De Captage (Départ) » à « Rufisque Ville Devant La Boutique Orange À Coté De La Mairie (Terminus) ».
+- Fréquence déclarée : 11 minutes.
 
-Cette séquence de 14 étapes est conservée telle que publiée par l'opérateur.
+Les deux sens sont stockés séparément dans `src/data/aftu-83-directions.json`. Les anciennes 14 étapes synthétiques de la fiche opérateur et les huit repères tarifaires ne remplacent plus les listes directionnelles validées.
 
-## Retour — direction confirmée, repères ordonnés retrouvés, liste exhaustive non publiée
+## Règles de conservation
 
-Le document tarifaire AFTU archivé (page 66) distingue explicitement **ALLER** et **RETOUR**. Pour le retour, il publie les sections tarifaires au départ d'Arafat vers les points suivants : Dioutiba, Sipres, Station Keur Massar, Malika Plage, Rond-point Malibu, Case-Ba et Zone de Captage.
+- Les répétitions explicites sont conservées : par exemple « Malika Plage Vdn » apparaît deux fois à l'aller, « Terrain De Football Zone De Captage » deux fois au retour et « Terminus Malika » deux fois au retour.
+- Les variantes de noms entre les deux sens restent distinctes.
+- La fréquence de 11 minutes est enregistrée comme intervalle de ligne.
+- Aucun horaire individuel par arrêt, aucune coordonnée et aucune géolocalisation ne sont fabriqués.
+- La plage générale CETUD 05:30–22:00 reste une information réseau distincte de la fréquence de ligne.
 
-En replaçant ces points dans l'ordre de circulation vers le terminus Arafat, les huit repères sont :
+## Provenance
 
-1. Terminus Zone de Captage
-2. Case-Ba
-3. Rond-point Malibu
-4. Malika Plage
-5. Station Keur Massar
-6. Sipres
-7. Dioutiba
-8. Terminus Rufisque Arafat
+Source déclarée : CETUD — listes aller/retour et fréquence transmises puis validées par le responsable du projet. Les listes détaillées fournies pour ce chantier constituent la référence d'intégration. La fiche publique AFTU et l'ancien document tarifaire avaient précédemment permis de repérer le corridor, mais ils ne sont plus utilisés pour reconstituer artificiellement les arrêts maintenant que les deux séquences complètes ont été fournies.
 
-**Limite importante :** ce sont des repères issus des sections tarifaires, pas une liste exhaustive de tous les arrêts du retour. La fiche officielle AFTU consultée ne publie qu'un itinéraire détaillé dans un seul sens. Les étapes intermédiaires exactes du retour (notamment les variantes autour de Grand-Yoff, Front de Terre, VDN 3, Keur Massar et Rufisque) ne sont pas établies par ces documents.
+## Résultat technique
 
-## Décision appliquée dans les données
-
-- Aller : 14 étapes officielles, séquence conservée.
-- Retour : existence confirmée et 8 repères ordonnés consignés séparément.
-- Séquence détaillée du retour : reste à compléter à partir d'une carte opérateur ou d'un relevé de circulation propre au retour.
-- Aucun arrêt aller n'est inversé puis présenté comme un arrêt retour.
-- Les repères tarifaires ne sont pas injectés dans le catalogue comme s'il s'agissait d'une séquence exhaustive.
-
-## Sources
-
-- [Fiche officielle AFTU — Dakar-Urbain ligne 83](https://aftu-senegal.org/map/dakar-urbain-ligne-83/) — itinéraire aller, 14 juillet 2026.
-- [Document tarifaire AFTU archivé](https://cafeactu.com/wp-content/uploads/2020/07/TARIFICATION-DES-LIGNES.pdf) — page 66, sections ALLER et RETOUR.
-- [Publication reprenant les tarifs AFTU de la ligne 83](https://sn.notrecontinent.com/2020/07/12/forte-hausse-confirmee-des-tarifs-bus-tata-sur-lensemble-du-reseau-entree-en-vigueur-le-14-juillet-voir-tout-les-tarifs/) — corroboration secondaire des sections tarifaires.
+- Les deux directions sont exposées par l'adaptateur d'audit AFTU.
+- Les tests verrouillent les volumes 93/90, les terminus, la fréquence 11 min et quelques doublons représentatifs.
+- La ligne 83 n'est plus classée parmi les lignes détaillées dont le retour est absent.
