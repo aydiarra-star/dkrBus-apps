@@ -5,7 +5,7 @@
  */
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
-import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteKey } from './publicBusLineCatalog'
+import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteIdentity, detailedRouteKey } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
@@ -301,9 +301,8 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
   return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
 }
 function routeSignature(line: BusLine): string {
-  // Une même ligne n'est fusionnée que si son numéro et ses deux terminus
-  // concordent après normalisation, exactement comme dans le catalogue public.
-  return detailedRouteKey(line)
+  // Ne fusionner les fiches AFTU/TATA que lorsque les séquences détaillées concordent.
+  return detailedRouteIdentity(line)
 }
 function uniqueEquivalentLines(lines: readonly BusLine[]): BusLine[] {
   const merged = new Map<string, BusLine>()
