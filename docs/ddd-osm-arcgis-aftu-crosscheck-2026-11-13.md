@@ -166,10 +166,10 @@ La page opérateur DDD actuelle publie deux parcours circulaires distincts pour 
 Source opérateur : https://demdikk.sn/reseau-urbain-dakar/ (consultée le 14 novembre 2026). Aucune donnée passager n'a été modifiée.
 
 
-## 2 undecies. AFTU ligne 88 — deux séquences directionnelles transmises le 14 novembre 2026
+## 2 undecies. AFTU ligne 88 — deux séquences directionnelles relevées sur le site source (14 novembre 2026)
 
-Un relevé de terrain transmis directement pour le chantier fournit désormais deux listes indépendantes pour la ligne 88 : **78 entrées à l'aller, Terminus 88 → Terminus Liberté 5**, et **81 entrées au retour, Terminus Liberté 5 → Terminus 88**. Les deux listes complètes, avec leurs libellés et leur ordre d'origine, sont conservées dans `docs/aftu-line-88-user-provided-directional-stop-lists-2026-11-14.md`.
+Les deux séquences détaillées reprises du site web source indiqué pour ce chantier sont conservées indépendamment : **78 entrées à l'aller, Terminus 88 → Terminus Liberté 5**, et **81 entrées au retour, Terminus Liberté 5 → Terminus 88**. Les libellés et l'ordre affichés par le site sont préservés dans `docs/aftu-line-88-user-provided-directional-stop-lists-2026-11-14.md` ; aucune inversion, suppression ou création d'arrêt n'est appliquée.
 
-Il s'agit d'une source de terrain fournie, pas encore d'une confirmation indépendante de l'opérateur. Un point doit être résolu avant toute validation : la page publique AFTU-Sénégal consultée précédemment donne pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) », alors que les deux séquences reçues décrivent un parcours entre Terminus 88 et Liberté 5 via Keur Massar, Malika, Yeumbeul, Fass Mbao, Pikine, Maristes et Grand Yoff. Ne pas supposer qu'il s'agit du même service sans confirmation de l'opérateur ou autre preuve indépendante.
+La page d'index publique AFTU-Sénégal consultée séparément donne pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Cette différence entre l'index AFTU et le site source des séquences est conservée comme divergence documentaire : elle ne conduit pas à écarter ni réécrire les deux listes. Les séquences ne sont pas encore injectées dans le catalogue passager ; le lien exact de la page source doit être rattaché à la fiche pour assurer une traçabilité complète.
 
 **Décision provisoire :** enregistrer les deux sens séparément dans le dossier documentaire ; ne pas les injecter au catalogue passager et ne pas géocoder automatiquement les noms. Aucun horaire ni fréquence n'est associé à ces listes. Les libellés différents entre aller et retour restent distincts jusqu'à vérification.
