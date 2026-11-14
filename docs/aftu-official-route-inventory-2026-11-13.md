@@ -285,3 +285,28 @@ Ces fiches donnent un **corridor opérateur ordonné**, pas une table d'arrêts 
 - Source d'audit : artefact `aftu-official-route-pages` du workflow `43559037476`, généré le 14 novembre 2026 à 04:56 UTC.
 
 **Décision :** lignes 42–45 ajoutées au catalogue de corridors officiels à rapprocher, sans générer de retour ni de fréquences. Aucun horaire TER/BRT, donnée passager ou déploiement n'est modifié.
+
+
+## Croisement OSM après ajout des lignes 42–45 — audit du 14 novembre 2026
+
+Le workflow de lecture seule `43559116842` a terminé avec succès. Son extraction OSM contient 6 610 éléments, dont 25 relations de lignes et 2 relations `route_master` ; 23 relations sont des candidates dans le périmètre Dakar. L'analyse directionnelle a identifié 5 paires candidates (4 avec extrémités inversées, 1 partageant un `route_master`), 50 candidats de paires arrêt/quai entre les directions, 13 relations non appariées, 1 relation à références multiples ambiguës et 1 conflit de métadonnées de référence.
+
+### Résultat ciblé AFTU 42–45
+
+**Aucune relation de cette extraction ne porte la référence 42, 43, 44 ou 45, et aucune ne contient ces numéros dans son nom de ligne.** Cela ne prouve pas que les relations n'existent pas sur OSM : cela signifie uniquement qu'elles ne figurent pas dans cette extraction géographique et temporelle. On conserve donc les corridors des fiches officielles comme source principale et on ne fabrique pas de géométrie/arrêts OSM pour ces quatre lignes.
+
+La seule relation explicitement marquée AFTU dans l'extraction reste la relation OSM **3982642**, `Ligne 40`, avec `network=Tata` : 35 membres de type voie ordonnés, **aucun membre arrêt/quai**. Elle décrit un candidat de tracé routier, pas une séquence d'arrêts ni un retour validé.
+
+### Paires directionnelles DDD qui ressortent de l'extraction
+
+- Ligne 4 : relations 6990830 (Leclerc → Liberté 5) et 7203970 (Liberté 5 → Leclerc), candidate par extrémités inversées.
+- Ligne 9 : relations 6996431 (Palais 1 → Liberté 6) et 7487218 (Liberté 6 → Palais 1), candidate par extrémités inversées.
+- Ligne 10 : relations 6990845 (Palais 1 → Liberté 5) et 7488283 (Liberté 5 → Palais 1), candidate par extrémités inversées ; trois membres arrêt/quai sont communs.
+- B1 : relations 19961937 (Préfecture de Guédiawaye → Petersen) et 19961993 (Petersen → Préfecture de Guédiawaye), candidate par extrémités inversées ; cinq membres arrêt/quai sont communs.
+- Ligne 7 : relations 6990669 (Palais → Ouakam) et 7500475 (Ouakam → Palais 1), candidate partageant le `route_master` 7500597 ; les extrémités textuelles ne sont pas parfaitement identiques.
+
+Ces cinq paires restent des **candidates OSM**, pas des itinéraires opérateur certifiés. Les noms/positions d'arrêts, les séquences et la cohérence avec les fiches DDD doivent être vérifiés séparément avant intégration. Les directions sont conservées indépendamment ; aucune séquence n'est inversée automatiquement.
+
+Source : artefact `dakar-osm-route-candidates` du workflow `43559116842`, extraction du 14 novembre 2026 à 04:57 UTC. Les données OSM sont © contributeurs OpenStreetMap, ODbL.
+
+**Décision :** aucune modification des données voyageurs. Les lignes AFTU 42–45 restent en attente de correspondances OSM vérifiables ; la relation AFTU 40 reste un tracé sans arrêts ; les cinq paires DDD sont priorisées pour validation géographique.
