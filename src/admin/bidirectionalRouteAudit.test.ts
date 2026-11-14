@@ -39,6 +39,7 @@ function lineWith(
     network: 'aftu',
     line: '7',
     source,
+    serviceWindow: null,
     directions: { outbound, inbound },
   }
 }
