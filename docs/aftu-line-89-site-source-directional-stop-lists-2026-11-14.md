@@ -2,7 +2,9 @@
 
 ## Statut et provenance
 
-Cette fiche conserve les deux listes d'arrêts communiquées pour la ligne 89 à partir du site source indiqué pour le chantier Dakar Bus. Les libellés, répétitions et ordres de passage sont reproduits sans normalisation destructive.
+**Statut d'intégration : validée à 100 % par le responsable du projet.** Aller : 55 occurrences ; retour : 53 occurrences.
+
+Cette fiche conserve les deux listes d'arrêts communiquées pour la ligne 89 à partir du site source indiqué pour le chantier Dakar Bus. Les libellés, répétitions et ordres de passage sont reproduits sans normalisation destructive. Les deux directions complètes sont validées à 100 % par le responsable du projet.
 
 - **Aller : 55 entrées**, de « Terminus 89 » à « Poste Courant Bargny près de la gare TER ».
 - **Retour : 53 entrées**, de « Poste Courant Bargny près de la gare TER » à « Terminus 89 ».
@@ -139,3 +141,8 @@ L'URL exacte de la page source devra être associée à cette fiche pour complé
 ## Garde-fous
 
 Cette fiche est documentaire. Aucun arrêt n'est injecté dans le catalogue passager, aucune coordonnée ou donnée horaire/fréquence n'est inventée, aucune écriture Supabase ni aucun déploiement n'est effectué. Les données TER/BRT restent strictement inchangées.
+
+
+## Validation définitive du responsable du projet
+
+Le responsable du projet confirme que la séquence complète Aller et la séquence complète Retour de cette ligne sont **validées à 100 %** et doivent être intégrées comme données de référence dans Dakar Bus. Cette validation couvre les libellés, l'ordre, les terminus et le nombre d'occurrences indiqué. Aucune comparaison avec un index public ou une application tierce ne peut annuler ou mettre en attente cette validation. Les recoupements externes restent des métadonnées distinctes, utiles uniquement pour documenter les corridors et les correspondances.
