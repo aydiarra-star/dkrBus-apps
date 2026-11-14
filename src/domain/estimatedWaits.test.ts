@@ -50,24 +50,24 @@ describe('estimations de temps d’attente', () => {
       estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
     )
     expect(estimatedNextPassage('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
-    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T20:50:00Z'))).toMatchObject({
-      nextDepartureAt: '2026-11-07T21:00:00.000Z',
+    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T22:40:00Z'))).toMatchObject({
+      nextDepartureAt: '2026-11-07T22:50:00.000Z',
       minutes: 10,
       headwayMinutes: 12,
     })
     expect(estimatedNextPassage('tata', Date.parse('2026-11-07T20:50:00Z'))).toMatchObject({
-      nextDepartureAt: '2026-11-07T21:00:00.000Z',
+      nextDepartureAt: '2026-11-07T22:50:00.000Z',
       minutes: 10,
       headwayMinutes: 12,
     })
-    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
+    expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T22:50:00Z'))).toBeNull()
   })
 
   it('ne donne pas d’attente en dehors de l’amplitude de service', () => {
     expect(estimatedWaitMinutes('ddd', Date.parse('2026-11-07T05:29:00Z'))).toBeNull()
     expect(estimatedWaitMinutes('ddd', Date.parse('2026-11-07T05:30:00Z'))).toBe(6)
-    expect(estimatedWaitMinutes('aftu', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
-    expect(estimatedWaitMinutes('tata', Date.parse('2026-11-07T21:00:00Z'))).toBeNull()
+    expect(estimatedWaitMinutes('aftu', Date.parse('2026-11-07T22:50:00Z'))).toBeNull()
+    expect(estimatedWaitMinutes('tata', Date.parse('2026-11-07T22:50:00Z'))).toBeNull()
     expect(estimatedWaitMinutes('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
   })
 
