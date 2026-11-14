@@ -108,3 +108,30 @@ Le catalogue distinct `Ligne_inter_urbain` expose des couches dédiées aux lign
 Artefact de l'extraction ciblée : workflow GitHub Actions `43604447054`, artefact `ddd-updated-service-and-sequence-audit` (cinq fichiers, conservation 14 jours).
 
 La vérification ArcGIS ne lève donc pas la contradiction des terminus. Elle établit que les deux services cartographiques recensés dans cet audit ne contiennent pas d'entité 501 identifiée.
+
+
+## Recoupement complémentaire CETUD et guide DDD — 14 novembre 2026
+
+### Plan officiel des lignes DDD publié par le CETUD
+
+La page CETUD consacrée à DDD comporte un lien « Télécharger les lignes et horaires ». Le lien a été ouvert : il mène à une image JPEG intitulée `plan-lignes-ddd.jpeg`, publiée sous `/wp-content/uploads/2024/11/`.
+
+Ce document est un **plan cartographique du réseau**, pas un fichier d'horaires ni un jeu de données d'arrêts ordonnés. Il permet de visualiser des corridors et des numéros de lignes, mais ne fournit pas de séquence directionnelle exploitable pour la ligne 501. Il ne résout donc pas la divergence Gare de Dakar / Palais 2 / Leclerc.
+
+Sources :
+- Page CETUD DDD : https://cetud.sn/reseaux-de-transport/ddd/
+- Fichier lié « Je télécharge » : https://cetud.sn/wp-content/uploads/2024/11/plan-lignes-ddd.jpeg
+
+### Guide DDD hébergé sur le site officiel — septembre 2026
+
+La page DDD « Guide complet des services Dakar Dem Dikk » indique que le réseau urbain comprend des navettes connectées aux gares TER, dont les lignes spéciales 501 et 502. Elle recommande l'application Dem Dikk pour les trajets, correspondances et estimations en temps réel.
+
+Cette mention confirme le contexte de service spécial/connexion TER pour la ligne 501, mais le guide consulté ne donne ni liste d'arrêts 501, ni terminus détaillés, ni horaire propre à cette ligne, ni deux séquences indépendantes. Elle ne permet pas de trancher entre les deux intitulés officiels actuels.
+
+Source : https://demdikk.sn/chatbot-2303/ (guide annoncé comme document de référence, septembre 2026).
+
+### Conclusion après recoupement
+
+Le nouveau plan CETUD est cartographique et daté de 2024 ; le guide DDD de septembre 2026 confirme l'existence de navettes spéciales 501/502 liées aux gares TER sans en détailler le parcours. Ces éléments renforcent le contexte de la ligne mais ne lèvent pas le conflit sur ses terminus ni l'absence de retour indépendant.
+
+**Décision inchangée :** conserver le statut `CONFLICTING_SOURCES`. Ne pas injecter le parcours de six repères du PR #74 dans le catalogue passager et ne pas fabriquer de retour. Une confirmation opérationnelle DDD reste nécessaire.
