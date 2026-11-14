@@ -58,3 +58,24 @@ Prioriser le rapprochement des 62 fiches secondaires avec les 72 lignes de l'ind
 ## Garde-fous
 
 Cette revue ne modifie aucun catalogue passager, aucune séquence d'arrêts, aucun horaire ni aucune fréquence. Aucune écriture Supabase, aucun déploiement et aucune modification des données TER/BRT. GTFS n'est pas requis pour poursuivre.
+
+
+## Résultat du rapprochement des 62 codes avec le catalogue AFTU
+
+Un contrôle reproductible a comparé les 62 objets de `src/data/tata-lines.json` aux 72 fiches AFTU de `src/data/mobility-lines.json`, en normalisant les accents, la casse et la ponctuation des terminus. La comparaison a été faite sur les lignes portant le même code, sans comparer les séquences de waypoints à ce stade.
+
+| Résultat sur les 62 codes communs | Nombre | Codes |
+|---|---:|---|
+| Même origine et même destination normalisées | 26 | 1, 4, 30, 33, 34, 36, 39, 40, 41, 43, 44, 45, 46, 48, 49, 50, 51, 55, 56, 62, 66, 76, 78, 79, 80, 83 |
+| Terminus inversés | 5 | 35, 60, 61, 73, 84 |
+| Terminus différents ou non concordants | 31 | 2, 3, 5, 24–29, 31, 32, 37, 38, 42, 47, 52–54, 57–59, 63, 65, 67, 68, 71, 74, 75, 77, 81, 82 |
+
+### Interprétation
+
+- Les 26 correspondances de terminus dans le même sens sont des rapprochements forts à examiner en priorité, mais elles ne valident pas encore l'identité de toutes les rues, des arrêts intermédiaires ni du service actuel.
+- Les cinq cas inversés ne doivent pas être corrigés automatiquement : ils peuvent signaler un ordre de terminus inversé dans une fiche secondaire, une variante, ou une divergence réelle.
+- Les 31 cas restants nécessitent une comparaison des séquences et des sources ; un numéro identique ne suffit pas.
+- Le contrôle ne cherche pas à faire correspondre une fiche secondaire à une autre ligne AFTU de numéro différent ; les cas de renumérotation éventuelle restent donc à examiner.
+- Les 62 fiches TATA ne contiennent toujours aucune séquence retour indépendante.
+
+Ce résultat donne une base concrète pour la prochaine revue : traiter d'abord les 26 paires de terminus concordantes, puis les cinq inversions, sans fusionner automatiquement les enregistrements ni publier de retour.
