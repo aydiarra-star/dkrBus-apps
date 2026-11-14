@@ -12,7 +12,7 @@ export const BUS_LINES = catalog
 export type BusLine = typeof BUS_LINES[number] | (Omit<typeof BUS_LINES[number], 'network'> & { network: 'tata' })
 export const TATA_BUS_LINES = tataCatalog as unknown as readonly BusLine[]
 /** Tous les itinéraires documentés sous l'identité commune AFTU / TATA. */
-export const UNIFIED_BUS_LINES: readonly BusLine[] = [...BUS_LINES, ...TATA_BUS_LINES]
+export const UNIFIED_BUS_LINES: readonly BusLine[] = uniqueEquivalentLines([...BUS_LINES, ...TATA_BUS_LINES])
 export interface KnowledgeReply { text: string; lineId?: string }
 
 export interface RemoteTrafficIncident {
