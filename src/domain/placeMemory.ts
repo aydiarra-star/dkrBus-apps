@@ -30,8 +30,7 @@ const HUB_BY_KIND: Record<string, string> = {
   ter: 'ter-dakar',
   brt: 'brt-petersen',
   ddd: 'ddd-petersen',
-  aftu: 'aftu-lat-dior',
-  tata: 'tata-colobane',
+  aftu_tata: 'aftu-lat-dior',
 }
 
 const PLACE_LIMIT =
@@ -41,8 +40,7 @@ function networkLabel(place: PlaceEntry): string {
   if (place.kind === 'ter') return CORRIDOR_NETWORKS.ter.label
   if (place.kind === 'brt') return CORRIDOR_NETWORKS.brt.label
   if (place.kind === 'ddd') return CORRIDOR_NETWORKS.ddd.label
-  if (place.kind === 'aftu') return CORRIDOR_NETWORKS.aftu.label
-  if (place.kind === 'tata') return CORRIDOR_NETWORKS.tata.label
+  if (place.kind === 'aftu_tata') return CORRIDOR_NETWORKS.aftu_tata.label
   return 'Bus'
 }
 
@@ -58,11 +56,8 @@ function identityLine(place: PlaceEntry): string {
   if (place.kind === 'ddd') {
     return `${place.name} — arrêt DDD${note}, réseau urbain Dakar Dem Dikk  en pointillés légers + pastille.`
   }
-  if (place.kind === 'aftu') {
-    return `${place.name} — arrêt AFTU${note}, réseau minibus AFTU  en pointillés légers + pastille.`
-  }
-  if (place.kind === 'tata') {
-    return `${place.name} — arrêt TATA${note}, réseau TATA (marron #C05621, palette AFTU) en pointillés légers + pastille.`
+  if (place.kind === 'aftu_tata') {
+    return `${place.name} — arrêt AFTU / TATA${note}, réseau de minibus en pointillés légers + pastille terracotta.`
   }
   return `${place.name} — lieu cité par les fiches documentaires DDD/AFTU. Ce n'est ni une gare TER ni une station BRT : aucun arrêt géolocalisé ne lui est associé dans le référentiel.`
 }
@@ -85,11 +80,8 @@ function bestModeLine(place: PlaceEntry): string {
   if (place.kind === 'ddd') {
     return 'Mode le plus adapté : DDD — bus urbains, affichage en pointillés légers + pastilles pour éviter la surcharge.'
   }
-  if (place.kind === 'aftu') {
-    return 'Mode le plus adapté : AFTU — minibus, pointillés légers + pastilles.'
-  }
-  if (place.kind === 'tata') {
-    return 'Mode le plus adapté : TATA marron #C05621 — réseau indépendant, même palette AFTU, pointillés légers.'
+  if (place.kind === 'aftu_tata') {
+    return 'Mode le plus adapté : AFTU / TATA — minibus, pointillés légers + pastilles terracotta.'
   }
   return 'Mode le plus adapté : une ligne DDD ou AFTU, à confirmer auprès de l’opérateur : aucun arrêt de référence n’est rattaché à ce lieu.'
 }
