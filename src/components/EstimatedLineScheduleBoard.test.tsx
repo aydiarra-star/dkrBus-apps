@@ -18,7 +18,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(aftuFiveLabels).toHaveLength(2)
     const row = aftuFiveLabels.map((label) => label.closest('li')!).find((candidate) => candidate.textContent?.includes('Petersen'))!
     expect(row).toBeTruthy()
-    await waitFor(() => expect(within(row).getAllByText('10 min')).toHaveLength(1))
+    await waitFor(() => expect(within(row).getAllByText('5 min')).toHaveLength(1))
     const apostropheIcons = row.querySelectorAll('.station-board-double-apostrophe')
     expect(apostropheIcons.length).toBeGreaterThan(0)
     apostropheIcons.forEach((icon) => {
@@ -40,7 +40,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     act(() => {
       vi.advanceTimersByTime(60_000)
     })
-    expect(within(row).getAllByText('9 min')).toHaveLength(1)
+    expect(within(row).getAllByText('4 min')).toHaveLength(1)
   })
 
   it('ne transfère pas la fréquence AFTU à une TATA de même numéro mais de terminus différents', async () => {
