@@ -1,3 +1,6 @@
+import mobilityLines from '../data/mobility-lines.json'
+import tataLines from '../data/tata-lines.json'
+
 /**
  * Catalogue public des lignes à intégrer aux tableaux de passage par arrêt.
  * Ce registre identifie les lignes et leurs terminus ; il ne prétend pas fournir
@@ -223,21 +226,44 @@ export const TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = [
 }))
 
 function normalizeRouteEndpoint(value: string): string {
-  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').trim()
+}
+
+function detailedRouteKey(line: { code: string; origin: string; destination: string }): string {
+  const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
+  return `${line.code}|${ends[0]}|${ends[1]}`
 }
 
 /**
- * Catalogue d’affichage commun. Une même ligne n’est fusionnée que si son
- * numéro et ses deux terminus correspondent (dans un sens ou dans l’autre).
+ * Numéros dont les catalogues détaillés AFTU et TATA décrivent le même trajet.
+ * Les terminus sont comparés sans accents, parenthèses ni variante « Sébikhotane ».
+ * Les collisions de numéro dont les terminus diffèrent ne sont pas fusionnées.
+ */
+export const AFTU_TATA_SHARED_LINE_CODES: ReadonlySet<string> = (() => {
+  const codes = new Set<string>()
+  const detailedAftu = (mobilityLines as unknown as { network: string; code: string; origin: string; destination: string }[]).filter((line) => line.network === 'aftu')
+  const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string }[]
+  const tataKeys = new Set(detailedTata.map(detailedRouteKey))
+  for (const line of detailedAftu) if (tataKeys.has(detailedRouteKey(line))) codes.add(line.code)
+  for (const aftu of AFTU_PUBLIC_LINE_CATALOG) {
+    for (const tata of TATA_PUBLIC_LINE_CATALOG) {
+      if (aftu.line === tata.line && detailedRouteKey({ code: aftu.line, ...aftu }) === detailedRouteKey({ code: tata.line, ...tata })) codes.add(aftu.line)
+    }
+  }
+  return codes
+})()
+
+/**
+ * Catalogue d’affichage commun. Les doublons confirmés par les séquences
+ * détaillées sont fusionnés même si leurs libellés de terminus varient.
  * Les numéros identiques avec des parcours différents restent distincts.
- * En cas de doublon exact, la fiche AFTU est préférée ; les deux catalogues
- * sources restent intacts pour conserver la provenance des itinéraires.
+ * Les catalogues sources originaux restent intacts pour la provenance.
  */
 export const AFTU_TATA_PUBLIC_LINE_CATALOG: readonly PublicBusLineReference[] = (() => {
   const merged = new Map<string, PublicBusLineReference>()
   for (const line of [...AFTU_PUBLIC_LINE_CATALOG, ...TATA_PUBLIC_LINE_CATALOG]) {
     const ends = [normalizeRouteEndpoint(line.origin), normalizeRouteEndpoint(line.destination)].sort()
-    const key = `${line.line}|${ends[0]}|${ends[1]}`
+    const key = AFTU_TATA_SHARED_LINE_CODES.has(line.line) ? `${line.line}|shared` : `${line.line}|${ends[0]}|${ends[1]}`
     if (!merged.has(key)) merged.set(key, line)
   }
   return [...merged.values()].sort((a, b) => Number(a.line) - Number(b.line) || a.line.localeCompare(b.line) || a.origin.localeCompare(b.origin))
