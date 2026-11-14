@@ -23,8 +23,11 @@ describe('official AFTU public index crosswalk', () => {
     expect(getAftuOfficialIndexCrosswalk('86')?.officialCorridor).toBe('Tournalou Boune – Toubab Dialaw')
     expect(getAftuOfficialIndexCrosswalk('87')?.officialCorridor).toBe('Bambilor – Mosquée Massalikou Djinane')
     expect(getAftuOfficialIndexCrosswalk('88')?.officialCorridor).toBe('MTOA – Liberté 5')
+    expect(getAftuOfficialIndexCrosswalk('88')?.sequenceValidatedByProjectOwner).toBe(true)
     expect(getAftuOfficialIndexCrosswalk('89')?.officialCorridor).toBe('Bargny – Croisement Niague (Cité SICAP)')
+    expect(getAftuOfficialIndexCrosswalk('89')?.sequenceValidatedByProjectOwner).toBe(true)
     expect(getAftuOfficialIndexCrosswalk('91')?.officialCorridor).toBe('APIX – Dougar')
+    expect(getAftuOfficialIndexCrosswalk('91')?.sequenceValidatedByProjectOwner).toBe(true)
     expect(getAftuOfficialIndexCrosswalk('90')).toBeNull()
   })
 
