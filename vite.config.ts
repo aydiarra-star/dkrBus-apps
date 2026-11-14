@@ -12,7 +12,7 @@ const PRODUCTION_CSP = [
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
-  "connect-src 'self'",
+  "connect-src 'self' https://mdmuxzaewqzqutkqdylo.supabase.co",
   "font-src 'self' data:",
   "manifest-src 'self'",
   "worker-src 'self'",
