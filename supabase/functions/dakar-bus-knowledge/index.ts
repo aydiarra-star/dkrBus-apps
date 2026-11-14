@@ -326,8 +326,8 @@ const readKnowledge = withSupabase(
     // Archived line snapshots are excluded; derived return directions stay explicit.
     const directions = (directionsResult.data ?? []).filter((row) => {
       const relatedLine = Array.isArray(row.mobility_lines) ? row.mobility_lines[0] : row.mobility_lines;
-      return lineIds.has(row.line_id) && Boolean(relatedLine)
-        && activeStatuses.includes(relatedLine.status);
+      return Boolean(lineIds.has(row.line_id) && relatedLine
+        && activeStatuses.includes(relatedLine.status));
     });
     const directionIds = directions.map((row) => row.id);
     const directionSet = new Set(directionIds);
