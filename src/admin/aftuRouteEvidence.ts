@@ -24,6 +24,7 @@ export interface AftuRouteEvidence {
   outbound: AftuDirectionEvidence
   inbound: AftuDirectionEvidence
   sourceStatus: string | null
+  validatedByProjectOwner: boolean
   inboundCorridorStatus: 'confirmed-sequence-unavailable' | null
   inboundCorridorAnchors: string[]
   serviceWindow: {
@@ -58,6 +59,7 @@ interface RawAftuRoute {
   inboundSchedule?: RawSchedule
   sourceLabel?: unknown
   sourceStatus?: unknown
+  validatedByProjectOwner?: unknown
   returnEvidence?: { status?: unknown; orderedCorridorAnchors?: unknown }
   frequency?: { intervalMinutes?: unknown; display?: unknown; countdownBasis?: unknown }
   detailSourceUrl?: unknown
@@ -141,6 +143,7 @@ function adaptRoute(route: RawAftuRoute): AftuRouteEvidence | null {
       route,
     ),
     sourceStatus: nonEmptyString(route.sourceStatus),
+    validatedByProjectOwner: route.validatedByProjectOwner === true,
     inboundCorridorStatus: (route.returnEvidence?.status === 'return-corridor-confirmed-sequence-unavailable'
       || route.returnEvidence?.status === 'return-direction-confirmed-partial-corridor-anchors')
       ? 'confirmed-sequence-unavailable'
