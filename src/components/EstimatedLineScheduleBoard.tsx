@@ -199,18 +199,22 @@ function AftuTataScheduleBoard({
                 <div className="station-board-line-timetable" aria-label={`Affiche horaire ligne ${lineNumber}`}>
                   {variants.map((line) => {
                     const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-                    const sameNetworkCandidates = routeReferences.filter((item) =>
+                    const sameNetworkByCode = routeReferences.filter((item) =>
                       item.network === line.network
                       && item.code === line.line
                       && Boolean(item.origin && item.destination)
-                      && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+                    )
+                    const sameNetworkCandidates = sameNetworkByCode.filter((item) =>
+                      detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
                       && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin!, destination: item.destination! })
                     )
                     const matchingSameNetwork = sameNetworkCandidates.length === 1
                       ? sameNetworkCandidates
-                      : sameNetworkCandidates.filter((item) =>
-                        Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
-                      )
+                      : sameNetworkCandidates.length > 1
+                        ? sameNetworkCandidates.filter((item) =>
+                          Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
+                        )
+                        : sameNetworkByCode.length === 1 ? sameNetworkByCode : []
                     const ownRoute = matchingSameNetwork[0]
                     const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
                       ? routeReferences.filter((item) =>
