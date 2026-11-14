@@ -49,7 +49,7 @@ type SuppliedAftuSequence = {
   }>
   sourceLabel: string
   sourceStatus: string
-  validatedByProjectOwner: true
+  validatedByProjectOwner: boolean
 }
 
 const AFTU_VALIDATED_DIRECTIONAL_SEQUENCES: Readonly<Record<string, SuppliedAftuSequence>> = {
@@ -83,6 +83,7 @@ function makeValidatedAftuDirection(
   id: BusDirectionId,
   sequence: SuppliedAftuSequence['directions'][BusDirectionId],
   sourceLabel: string,
+  validatedByProjectOwner: boolean,
 ): BusDirection {
   return {
     id,
@@ -94,7 +95,7 @@ function makeValidatedAftuDirection(
     status: 'sequence_validated',
     sourceUrl: source.sourceUrl,
     sourceLabel: `${sourceLabel} · séquence validée par le responsable du projet`,
-    sequenceValidatedByProjectOwner: sequence.validatedByProjectOwner,
+    sequenceValidatedByProjectOwner: validatedByProjectOwner,
   }
 }
 
@@ -124,8 +125,8 @@ function registerLine(source: PublicBusLineReference): BidirectionalBusLine {
         source: 'CETUD-network-default',
       },
       directions: {
-        outbound: makeValidatedAftuDirection(source, 'outbound', aftuSequence.directions.outbound, aftuSequence.sourceLabel),
-        inbound: makeValidatedAftuDirection(source, 'inbound', aftuSequence.directions.inbound, aftuSequence.sourceLabel),
+        outbound: makeValidatedAftuDirection(source, 'outbound', aftuSequence.directions.outbound, aftuSequence.sourceLabel, aftuSequence.validatedByProjectOwner),
+        inbound: makeValidatedAftuDirection(source, 'inbound', aftuSequence.directions.inbound, aftuSequence.sourceLabel, aftuSequence.validatedByProjectOwner),
       },
     }
   }
