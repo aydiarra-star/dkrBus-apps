@@ -183,6 +183,7 @@ function AftuTataScheduleBoard({
                       : sameNetworkCandidates.filter((item) =>
                         Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                       )
+                    const ownRoute = matchingSameNetwork[0]
                     const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
                       ? routeReferences.filter((item) =>
                         item.network !== line.network
@@ -191,6 +192,7 @@ function AftuTataScheduleBoard({
                         && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
                         && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin ?? '', destination: item.destination ?? '' })
                         && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
+                        && Boolean(ownRoute?.inboundWaypoints?.length && item.inboundWaypoints?.length && sameOrderedStops(ownRoute.inboundWaypoints, item.inboundWaypoints))
                       )
                       : []
                     const candidates = [...matchingSameNetwork, ...sharedCandidates]
