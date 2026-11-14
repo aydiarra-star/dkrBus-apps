@@ -111,3 +111,44 @@ La page actuelle « Réseau urbain de Dakar » a été relue directement : https
 - La ligne 233 conserve un conflit réel entre son en-tête Palais 1 et sa séquence textuelle qui se termine à Aéroport LSS.
 
 **Important :** ces découvertes enrichissent les références documentaires et les terminus publiés. Elles ne créent toujours aucun groupe ArcGIS de même code, ne fournissent pas les coordonnées de chaque arrêt, ne valident pas un sens retour indépendant et ne donnent pas de fréquence. Les boucles 502/503 et la mention de retour de 311 doivent être conservées comme telles, sans être artificiellement séparées en deux séquences.
+
+
+## Nouvelle source DDD « Info voyageurs » — 14 novembre 2026
+
+La page officielle https://demdikk.sn/info-voyageurs/ a été consultée en complément de la page « Réseau urbain de Dakar ». Elle présente une liste de lignes et, pour TAF TAF, un descriptif de desserte avec premiers et derniers départs. Cette source est conservée séparément : ses nomenclatures ne doivent pas être fusionnées automatiquement avec les anciennes fiches détaillées.
+
+### Résolution partielle du conflit de la ligne 233
+
+La page « Info voyageurs » confirme explicitement **233 — Baux Maraîchers ↔ Palais 1** et **232 — Baux Maraîchers ↔ Aéroport LSS**. La page « Réseau urbain » conserve toutefois, sous l'en-tête 233, la même liste d'étapes que la 232 et termine à Aéroport LSS. Le terminus commercial annoncé pour 233 est donc confirmé par une seconde page officielle, mais la séquence détaillée d'arrêts de 233 reste à obtenir : **ne pas recopier la séquence de 232 dans 233**.
+
+### Nomenclature à conserver distincte
+
+La page « Info voyageurs » publie désormais les désignations suivantes :
+- **501 : Gare de Dakar ↔ Palais 2**, alors que la fiche « Réseau urbain » consultée affiche **Palais 2 ↔ Leclerc**. Conflit officiel entre deux pages DDD ; conserver les deux observations et ne pas choisir arbitrairement.
+- **502A : Colobane ↔ UCAD** et **502B : Colobane ↔ Abass Ndao** ; la fiche détaillée ancienne présente une boucle 502 Gare Colobane.
+- **503A : Colobane ↔ Môle 8** et **503B : Colobane ↔ Hydrocarbure** ; la fiche détaillée ancienne présente une boucle 503 Gare Colobane.
+- **504A : Gare Diamniadio ↔ Sphère Ministérielle** et **504B : Sébikotane ↔ Gare Diamniadio** ; ces deux variantes sont à inventorier séparément, sans extrapoler leurs arrêts.
+- La liste « Info voyageurs » répertorie aussi 15A & 15B, 16A & 16B, et les lignes banlieue 217/218 séparément. Garder la nomenclature affichée par source et ne pas assimiler la ligne 15 simple à 15A/15B sans confirmation.
+
+### TAF TAF : horaires publiés, mais fréquences non publiées
+
+La page « Info voyageurs » décrit deux dessertes depuis Ouakam, l'une vers AIBD et l'autre vers Sphère Ministérielle, avec les horaires de premier et dernier départ suivants :
+
+| Sens / destination publié | Premier départ | Dernier départ |
+|---|---:|---:|
+| Ouakam → AIBD | 06:00 | 21:00 |
+| Ouakam → Sphère Ministérielle | 05:45 | 21:00 |
+| AIBD → Ouakam | 06:00 | 21:00 |
+| Sphère Ministérielle → Ouakam | 06:00 | 20:30 |
+
+La page précise que le même circuit dessert Sphère Ministérielle, mais ne publie pas d'intervalle de passage. Ces heures ne permettent donc **pas** de déduire une fréquence ou un compte à rebours par arrêt. Les trajets AIBD et Sphère Ministérielle doivent être suivis comme deux variantes de destination, sans fusionner leurs horaires.
+
+### Actions de données
+
+1. Ajouter 502A/502B, 503A/503B et 504A/504B à l'inventaire des lignes à documenter, sans fabriquer leurs séquences d'arrêts.
+2. Marquer 233 comme terminus commercialement confirmé vers Palais 1 par la page « Info voyageurs », mais avec séquence détaillée encore contradictoire/incomplète.
+3. Marquer 501 comme conflit officiel entre « Info voyageurs » et « Réseau urbain ».
+4. Enregistrer les quatre couples premier/dernier départ TAF TAF comme horaires de service publiés, sans inventer de fréquence.
+5. Garder les pages sources, variantes et versions en provenance séparée ; ne pas supprimer les anciennes observations.
+
+**Garde-fous :** aucun arrêt n'est créé à partir d'un corridor, aucun sens retour n'est reconstruit par inversion, aucune fréquence n'est calculée à partir des seuls premiers/derniers départs, aucune donnée TER/BRT n'est modifiée. Audit documentaire uniquement, sans écriture Supabase ni déploiement.
