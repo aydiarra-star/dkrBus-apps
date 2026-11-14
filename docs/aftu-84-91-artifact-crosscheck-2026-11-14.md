@@ -405,3 +405,33 @@ Sources web consultées le 14 novembre 2026 :
 - Moovit, index AFTU Dakar : https://moovitapp.com/index/fr/transport_en_commun-lines-Dakar-5996-1618038.
 
 Cette recherche est documentaire uniquement : aucune donnée passager, aucun fichier JSON d'arrêts, aucune fréquence, TER/BRT, Supabase ou production n'est modifié.
+
+
+## Décision de méthode — adoption des listes d'étude fournies au projet (14 novembre 2026)
+
+**Cette décision remplace les formulations antérieures qui maintenaient les listes 88/89/90/91 en attente d'une corroboration publique externe.** Le chantier ne doit plus être bloqué par l'absence de fiches détaillées sur les sites web publics.
+
+### Référence de travail
+Les séquences aller et retour transmises au projet par le responsable, issues de ses études et relevés, sont adoptées comme **référentiel de travail** pour la reconstruction des lignes concernées. Leur ordre, leurs occurrences, leurs noms et les répétitions sont conservés. Une répétition de nom n'est pas, à elle seule, une erreur ou un doublon à supprimer.
+
+### Contrôles à effectuer pour les consolider
+1. Contrôle de structure : nombre d'occurrences, sens, premier et dernier arrêt, champs manquants et intégrité de la séquence.
+2. Contrôle de cohérence interne : continuité géographique, voisinage des repères, sens de progression et éventuelles ruptures manifestes.
+3. Contrôle de correspondance : rapprochement des libellés et tronçons partagés entre lignes, sans fusionner les lignes ni mélanger les directions.
+4. Contrôle des variantes : normalisation technique des accents/casse/espaces pour comparer, tout en préservant le libellé original affiché.
+5. Correction uniquement lorsqu'une anomalie est démontrée par les éléments de l'étude, une incohérence interne certaine ou une preuve géographique suffisamment forte. Sinon, conserver et annoter sans bloquer.
+
+### Place des sources externes
+Les pages AFTU, CETUD, les applications de mobilité, OSM et ArcGIS servent désormais à enrichir les métadonnées, à repérer des correspondances et à signaler des anomalies précises. Elles ne constituent plus un préalable obligatoire à l'adoption des séquences fournies au projet. Une différence de terminus publiée sur une page externe est notée à part ; elle ne déclenche pas la mise en attente ou la suppression de la séquence d'étude.
+
+La page AFTU consultée le 14 novembre 2026 affiche notamment 88 MTOA–Liberté 5 et 89 Bargny–Croisement Niague (Cité SICAP). Ces intitulés sont conservés comme métadonnées externes de référence, sans invalider les séquences directionnelles détaillées issues des études du projet. Source : https://aftu-senegal.org/infos-pratiques/.
+
+### Décision opérationnelle
+- Les listes 88, 89, 90 et 91 déjà archivées sont **adoptées comme base de travail** ; ne pas les renvoyer en statut bloquant uniquement faute de confirmation web indépendante.
+- Les 70 arrêts de chacun des sens de la ligne 91, déjà validés par le responsable du projet, restent validés.
+- Les comparaisons de libellés réalisées sur les lignes 88/89/91 sont des contrôles qualité utiles, pas des conditions de validation.
+- Les prochaines étapes sont l'exploitation, la consolidation géographique et la préparation des données, puis la poursuite des autres lignes DDD/AFTU.
+- Ne créer aucun arrêt, aucune coordonnée, aucun horaire ni aucune fréquence par supposition.
+- Ne modifier ni TER/BRT, ni les données de production, ni Supabase ; aucune fusion du PR ni aucun déploiement.
+
+**Statut de chantier : étape de mise en attente externe clôturée. Les listes d'étude sont la référence de travail et le chantier continue.**
