@@ -164,3 +164,47 @@ Source : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/g
 **Limite de portée :** ce guide est un document de mobilité événementielle, organisé par sites JOJ et trajets conseillés pour les déplacements liés aux sites, pendant la période du 31 octobre au 13 novembre 2026. Ses listes ne constituent pas un inventaire exhaustif de tout le réseau DDD. L'absence de 501 dans ces tableaux ne prouve donc ni la suppression de la ligne ni l'inexactitude de la page « Info voyageurs ». Elle ne permet pas davantage de trancher son terminus ou son retour.
 
 **Conséquence pour l'audit :** conserver cette source comme contexte institutionnel daté, sans l'utiliser pour modifier le statut CONFLICTING_SOURCES ni pour ajouter/supprimer des arrêts.
+
+
+## Observation de l'application DDD fournie par l'utilisateur — 14 novembre 2026
+
+Une capture d'écran de la fiche de la ligne 501 et une transcription du sens retour ont été fournies dans la conversation. Il s'agit d'une **observation utilisateur de l'application**, et non d'une extraction indépendante reproductible par cet audit. Les libellés sont conservés tels qu'ils apparaissent, sans normalisation silencieuse.
+
+### Sens aller — Port De Dakar → Terminus Palais 2
+
+La fiche affiche « Ligne 501 », 9 arrêts, fréquence « - » et longueur « - ». Séquence visible :
+
+1. Port De Dakar — départ, 14:38
+2. Cercle Mess Des Officiers Colonel Emmanuel Gomis Ou Embarcadère (Port Môle 08) — 14:39
+3. Poste Ponty — 14:41
+4. Devant Strass Avenue Ponpidou — 14:42
+5. Devant Cité Peytavin — 14:44
+6. Asecna — 14:45
+7. Prés Du Bureau Regional Pam — 14:48
+8. Prés De L'Hôpital Le Dantec — 14:50
+9. Terminus Palais 2 — terminus, 14:33
+
+### Sens retour — Terminus Palais 2 → Port De Dakar
+
+La transcription fournie affiche également 9 arrêts, fréquence « - » et longueur « - ». Séquence :
+
+1. Terminus Palais 2 — départ, 14:38
+2. Hopital Le Dantec — 14:40
+3. Face Bureau Regional Pam — 14:43
+4. En Face De La Direction Générale Du Budget — 14:45
+5. Avenue Ponpidou En Face Alimentation Catim — 14:47
+6. Cbao Ponty — 14:49
+7. Place De L'Indépendance Prés De La Cbao — 14:49
+8. Royal Air Maroc Place De L'Indépendance — 14:51
+9. Port De Dakar — terminus, 14:34
+
+### Contrôles et limites
+
+- Les deux sens sont consignés comme **deux séquences distinctes** ; aucun sens n'est fabriqué par inversion de l'autre.
+- Les variantes de libellés entre les sens (par exemple « Prés Du Bureau Regional Pam » / « Face Bureau Regional Pam », « Poste Ponty » / « Cbao Ponty ») sont conservées séparément.
+- Les horaires de terminus transcrits (14:33 à l'aller et 14:34 au retour) précèdent les départs affichés à 14:38. Cette anomalie apparente est signalée, sans correction ni déduction d'horaire.
+- La fiche affiche « Horaires théoriques · Peuvent varier selon le trafic » ; les heures sont consignées comme affichage observé, pas comme horaires opérationnels indépendamment vérifiés.
+- La capture ne fournit ni fréquence exploitable, ni longueur, ni preuve de la date de validité des données affichées. Les champs fréquence et longueur apparaissent « - ».
+- Cette observation utilisateur apporte deux séquences directionnelles de neuf arrêts à examiner pour l'intégration, mais elle ne résout pas à elle seule les contradictions entre les pages DDD sur les terminus « Gare de Dakar », « Palais 2 » et « Leclerc ».
+
+**Décision :** conserver ces deux séquences dans le dossier d'audit comme observation de l'application DDD fournie par l'utilisateur. Ne pas les présenter comme vérification indépendante, ne pas modifier les horaires, et ne pas injecter automatiquement les données en production dans le cadre de ce PR documentaire. Une validation de la source, de la date et de la cohérence des horaires reste nécessaire avant toute intégration applicative.
