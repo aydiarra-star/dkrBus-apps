@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
-import { classifyStagingObjectReferences, cleanupUploadedObjects, getExactlyOneFormValue, hasOnlyExpectedFormFields, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
+import { classifyManifestUploadFailure, classifyStagingObjectReferences, cleanupUploadedObjects, getExactlyOneFormValue, hasOnlyExpectedFormFields, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -184,6 +184,28 @@ Deno.serve(async (req: Request) => {
     upsert: false,
   });
   if (manifestUploadError) {
+    // A previous attempt may already have a staging row for this canonical path.
+    // Resolve that reference before deleting the archive; on an uncertain lookup,
+    // preserve the object rather than risk breaking a committed dataset.
+    const { data: existing, error: lookupError } = await admin
+      .from("dakar_admin_staged_datasets")
+      .select("archive_object_path, manifest_object_path")
+      .eq("dataset_id", datasetId)
+      .maybeSingle();
+
+    const cleanupDecision = classifyManifestUploadFailure(
+      existing,
+      Boolean(lookupError),
+      archivePath,
+      manifestPath,
+    );
+    if (cleanupDecision === "DATASET_ALREADY_REGISTERED") {
+      return reply(409, { error: "DATASET_ALREADY_REGISTERED" }, cors);
+    }
+    if (cleanupDecision === "OUTCOME_UNKNOWN") {
+      return reply(503, { error: "MANIFEST_UPLOAD_OUTCOME_UNKNOWN" }, cors);
+    }
+
     const cleanupSucceeded = await cleanupUploadedObjects(
       (paths) => admin.storage.from(BUCKET).remove(paths),
       [archivePath],
