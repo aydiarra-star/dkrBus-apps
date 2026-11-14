@@ -1631,7 +1631,7 @@ describe('fenêtre du copilote : questions et réponses visibles', () => {
     fireEvent.change(input, { target: { value: 'Itinéraire AFTU 53' } })
     fireEvent.submit(input.closest('form')!)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
-    expect(await within(panel).findByText(/AFTU 53 : Keur Massar/)).toBeTruthy()
+    expect(await within(panel).findByText(/AFTU \/ TATA 53 : Keur Massar/)).toBeTruthy()
     expect(within(panel).queryByRole('button', { name: /ouvrir dans trajet/i })).toBeNull()
     const summary = within(panel).getByText('Sources et date de consultation')
     expect(summary.closest('details')?.open).toBe(false)
