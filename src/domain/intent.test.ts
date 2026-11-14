@@ -28,10 +28,10 @@ describe('copilote local à intentions explicites', () => {
   })
 
   it('refuse de classer par prix dès qu’un réseau sans tarif déclaré est dans la chaîne', () => {
-    const cheapest = answerAssistant('Quel trajet de Petersen à Rufisque est le moins cher ?', CONTEXT, NOW)
-    // Petersen ↔ Rufisque fait intervenir AFTU : aucun tarif n'étant publié pour
-    // ce réseau, aucun total n'est avancé — et la raison nomme la ligne manquante.
-    expect(cheapest).toMatch(/Aucun tarif publié pour AFTU 1/)
+    const cheapest = answerAssistant('Quel trajet de Lat Dior à Rufisque est le moins cher ?', CONTEXT, NOW)
+    // Lat Dior ↔ Rufisque fait intervenir AFTU / TATA 53 : aucun tarif n'étant publié
+    // pour ce réseau, aucun total n'est avancé — et la raison nomme la ligne manquante.
+    expect(cheapest).toMatch(/Aucun tarif publié pour AFTU 53/)
     expect(cheapest).toMatch(/pas comparable/)
     expect(cheapest).not.toMatch(/total de \d+\s*F CFA/i)
   })
