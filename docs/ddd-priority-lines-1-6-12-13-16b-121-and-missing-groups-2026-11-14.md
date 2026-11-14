@@ -217,3 +217,42 @@ La ligne 20 ne présente pas cette différence entre `SHAPE_Leng` et `Shape__Len
 - Conserver les noms de couches et les champs atypiques, notamment `Nom__Ligne` pour 20 et `Npm_Ligne` pour 228.
 - Faire confirmer le système de coordonnées et les champs de longueur auprès de la source avant tout calcul de distance, projection sur voirie ou publication de coordonnées.
 - Ne déduire aucun arrêt, aucun ordre voyageurs, aucun retour ou horaire de ces polylignes.
+
+
+## 8. Contrôle OSM complémentaire sur les lignes prioritaires et les lignes sans groupe
+
+Artefact OSM rafraîchi : workflow `43562931338`, artefact `14101540011`, 6 610 éléments et 25 relations de lignes. Les références sont recherchées explicitement dans les tags OSM `ref`, sans attribuer une relation sur la seule ressemblance de son nom.
+
+### Ligne 1
+
+La relation OSM `6951328` porte `ref=1`, opérateur Dakar Dem Dikk et le corridor Parcelles Assainies → Leclerc. Elle contient 38 membres d'arrêt ordonnés. Le contrôle antérieur sur la polyligne ArcGIS donne 38/38 membres à 25 m ou moins, médiane 5,9 m, maximum 12,5 m et corrélation d'ordre/chaînage +0,9879. Cinq noms communs sont retrouvés dans l'ordre (Parcelles Assainies, Terrain Acapes, UCAD, Marché Tilène, Place de l'Indépendance).
+
+**Statut :** candidat fortement corroboré pour un seul sens. La relation n'a pas de route_master et aucun retour indépendant n'est prouvé. Les 38 membres ne remplacent pas automatiquement les 22 repères publiés.
+
+### Ligne 121
+
+Trois relations OSM portant `ref=121` apparaissent dans l'extraction :
+
+| Relation | Sens/terminus déclarés | Membres d'arrêt | Qualification |
+|---|---|---:|---|
+| 6990794 | HLM Grand Yoff → Leclerc | 27 | Candidat partiel ; le terminus de départ diffère de Scat Urbam dans la fiche DDD |
+| 6999013 | Leclerc → HLM Grand Medine | 7 | Candidat de sens opposé, mais incomplet et terminus de retour différent de Scat Urbam |
+| 2792903 | Aucun terminus déclaré | 3 | Fragment ; ses trois nœuds sont déjà présents dans 6990794, donc pas une troisième direction |
+
+Les contrôles géographiques précédents montrent que les deux premières relations suivent le même corridor dans des sens opposés, mais ne démontrent pas les deux terminus officiels Scat Urbam ↔ Leclerc. Les membres génériques et sans nom restent sans nom. Ne pas considérer 6999013 comme le retour officiel complet.
+
+### Ligne 6 : conflit de référence OSM
+
+La relation `7499433` porte `ref=6`, mais son nom est « 7 Palais 1 → Parcelles-Assainies » et elle ne contient qu'un seul membre d'arrêt. Elle est conservée comme conflit de métadonnées, pas comme séquence de la ligne 6. Les 60 points ArcGIS de la ligne 6 ne sont donc pas corroborés par une relation OSM directionnelle exploitable dans cette extraction.
+
+### Lignes 12, 13 et 16B
+
+Aucune relation OSM portant explicitement `ref=12`, `ref=13` ou `ref=16B` n'est présente dans l'extraction auditée. Les correspondances ArcGIS/DDD de ces lignes restent donc des rapprochements internes aux sources DDD, sans corroboration OSM de séquence dans ce jeu.
+
+### Lignes 20, 219 et 228 et autres lignes sans groupe
+
+Aucune relation OSM avec `ref=20`, `219` ou `228` n'est présente dans l'extraction actuelle. L'identification des géométries ArcGIS 20/219/228 n'est donc pas corroborée par une relation OSM portant ces références.
+
+De même, aucune relation avec les références 208, 213, 220, 221, 233, 234, 311, 327, 319, 501, 502 ou 503 n'a été trouvée dans cet artefact. TAF TAF/TO1 et la ligne 15 ne disposent pas non plus d'une relation OSM exploitable sous ces références. L'absence dans cette extraction ne prouve pas l'inexistence des lignes ; elle borne uniquement la couverture de l'archive interrogée.
+
+**Décision OSM :** garder chaque relation, ses membres ordonnés, ses tags et ses ambiguïtés séparés. Ne pas créer de retour par inversion, ne pas réattribuer la relation 7499433 à la ligne 7 ou 6 sans validation, et ne pas importer les séquences OSM directement dans le catalogue voyageurs.
