@@ -301,14 +301,9 @@ function belongsToNetwork(line: BusLine, network: string): boolean {
   return network === 'aftu_tata' ? line.network === 'aftu' || line.network === 'tata' : line.network === network
 }
 function routeSignature(line: BusLine): string {
-  // Une même ligne n'est fusionnée que si ses deux terminus concordent ; les
-  // alias éditoriaux connus (Sébikhotane, terminus, giratoire) sont normalisés.
-  const normalizeEndpoint = (value: string) => normalizeMobility(value.replace(/\([^)]*\)/g, ' '))
-    .replace(/\bsebikhotane\b/g, 'sebikotane')
-    .replace(/\bterminus\b/g, ' ')
-    .replace(/\b(rond[ -]?point|giratoire)\b/g, ' ')
-  const ends = [normalizeEndpoint(line.origin), normalizeEndpoint(line.destination)].sort()
-  return `${line.code}|${ends[0]}|${ends[1]}`
+  // Une même ligne n'est fusionnée que si son numéro et ses deux terminus
+  // concordent après normalisation, exactement comme dans le catalogue public.
+  return detailedRouteKey(line)
 }
 function uniqueEquivalentLines(lines: readonly BusLine[]): BusLine[] {
   const merged = new Map<string, BusLine>()
