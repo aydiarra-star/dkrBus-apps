@@ -119,3 +119,14 @@ Les workflows du commit `619fe9e08d6fbc679389c0455e0e1954300827c1` sont terminé
 
 **Décision maintenue :** aucun arrêt, sens retour, horaire, fréquence, fusion ou renumérotation n'est ajouté sur la base de ces résultats. Les corridors officiels de l'index restent des métadonnées de terminus, pas des listes d'arrêts. La recherche sitemap et les variantes de slugs restent ouvertes faute d'artefact sitemap brut.
 
+
+
+## Nouvelle source transmise — ligne AFTU 86 (14 novembre 2026)
+
+Le responsable du projet a transmis deux captures/transcriptions attribuées au CETUD : 68 arrêts dans le sens Yeumbeul → Terminus 86 / Touba Ngayame, et 64 arrêts dans le sens retour. Cette source utilisateur apporte désormais une séquence détaillée pour la ligne 86, malgré le HTTP 404 de sa fiche AFTU. Le statut de la fiche web reste 404 ; le statut des données de parcours dans le dépôt devient toutefois `user-provided-cetud-reference`.
+
+Les données ont été enregistrées séparément dans `src/data/aftu-86-directions.json` et contrôlées par `src/data/aftu-86-directions.test.ts` : 68 arrêts et 68 horaires à l'aller ; 64 arrêts au retour, sans horaires fournis. L'ordre, les libellés, les horaires et les répétitions ont été conservés tels que transmis. Aucun retour n'a été fabriqué par inversion de l'aller.
+
+**Anomalie horaire conservée, non corrigée :** les premiers horaires aller progressent de 05:47 à 05:50, puis les arrêts 9 à 11 reviennent à 05:38. La transcription contient ensuite des horaires qui reprennent leur progression. Cette rupture peut provenir d'une erreur de lecture/capture ou de source ; sans revoir les captures originales, il ne faut ni trier les arrêts ni corriger les heures. Le libellé « Kà«R Yaye » est également conservé exactement tel que fourni ; « Keur Yaye » n'est indiqué que dans la note de transcription.
+
+La ligne 86 ne doit donc plus être présentée comme entièrement sans parcours. Elle dispose maintenant d'une séquence aller/retour transmise par l'utilisateur comme provenant du CETUD, mais les horaires du retour et la validation indépendante de la séquence restent absents. Les lignes 87, 88, 89 et 91 restent `pending_missing_source` pour leurs détails d'arrêts ; 84 et 85 conservent leurs sources et fichiers précédents.
