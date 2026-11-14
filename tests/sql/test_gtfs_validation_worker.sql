@@ -248,7 +248,11 @@ begin
      where action = 'LEGACY_AUDIT_BACKFILL_TEST'
        and chain_sequence = 1
        and previous_hash = repeat('0', 64)
-       and event_hash ~ '^[a-f0-9]{64}
+       and event_hash ~ '^[a-f0-9]{64}$'
+  ) then
+    raise exception 'A pre-existing legacy audit event was not backfilled into the hash chain';
+  end if;
+
   if exists (
     select 1
       from public.dakar_admin_audit_events as event
