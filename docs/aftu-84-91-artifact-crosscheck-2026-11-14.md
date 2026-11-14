@@ -150,3 +150,11 @@ Le fichier `src/data/aftu-86-directions.json` a été corrigé :
 - aucun horaire n'est ajouté au sens retour.
 
 **Règle de publication :** la ligne AFTU 86 ne possède actuellement aucun horaire de départ ou de passage validé. Afficher les arrêts sans heure, jusqu'à obtention d'une source horaire fiable. Cette rectification ne modifie ni les parcours TER/BRT ni les autres lignes.
+
+## Ligne AFTU 87 — parcours transcrits depuis l’application CETUD (14 novembre 2026)
+
+Les captures CETUD transmises par l’utilisateur fournissent désormais les deux séquences directionnelles de la ligne 87 : 68 arrêts dans le sens Terminus 79 87 → Maristes Terminus 87 et 71 arrêts dans le sens Maristes Terminus 87 → Terminus 79 87.
+
+Les séquences sont enregistrées dans `src/data/aftu-87-directions.json`, séparément et dans l’ordre exact communiqué. Les répétitions, les variantes de libellés et l’encodage brut « Cité Fayà§Al » sont préservés. Les tests dédiés contrôlent les effectifs, les terminus, des répétitions et l’absence d’horaires.
+
+Aucun horaire de départ, horaire de passage ou fréquence n’a été fourni pour la ligne 87. Aucun n’est donc créé. Les données restent des parcours transcrits à partir des captures de l’application CETUD, sans prétendre à une validation indépendante des arrêts.
