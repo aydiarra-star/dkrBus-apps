@@ -98,3 +98,10 @@ Les sept URL canoniques de fiches détaillées ont encore renvoyé HTTP 404 dans
 Les recoupements de terminus observés dans les 65 autres fiches ne prouvent toujours aucune fusion ou renumérotation. Les lignes 84 et 85 conservent leurs fichiers de parcours et leurs provenances déjà présentes dans le dépôt. Pour 86, 87, 88, 89 et 91, conserver `pending_missing_source` pour les détails non documentés, sans supprimer les corridors officiels affichés dans l'index.
 
 Source primaire consultée : https://aftu-senegal.org/infos-pratiques/ (index officiel AFTU, vérifié le 14 novembre 2026).
+
+
+### Piste complémentaire — ancienne communication officielle sur la ligne 87
+
+Une publication du compte LinkedIn officiel AFTU Sénégal indique que l'itinéraire de la ligne 87 avait subi des changements et renvoie vers un « nouvel itinéraire » : https://sn.linkedin.com/posts/aftu-senegal_weekend-ligne87-diam-activity-6954111887911325696-_ZrF
+
+La publication est ancienne (environ quatre ans) et le visuel accessible dans la page consultée ne fournit pas de carte ou de séquence exploitable. Elle confirme qu'une version antérieure de l'itinéraire a existé, mais ne permet pas de reconstruire le tracé actuel. À conserver comme piste de recherche historique uniquement ; la ligne 87 reste `pending_missing_source` pour ses détails d'itinéraire.
