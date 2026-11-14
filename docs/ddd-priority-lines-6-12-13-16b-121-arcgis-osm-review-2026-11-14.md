@@ -134,3 +134,30 @@ Voir `docs/ddd-line-1-refreshed-osm-sequence-continuity-review-2026-11-13.md`.
 ## Garde-fous
 
 Aucune donnée passager n'a été modifiée. Aucun sens n'a été créé par inversion. Aucune fréquence ou heure n'a été inventée. Aucune écriture Supabase, aucun déploiement et aucune modification TER/BRT. GTFS reste non bloquant.
+
+## Addendum — contrôle institutionnel CETUD / MITTA / Dakar 2026 (14 novembre 2026)
+
+Une source institutionnelle supplémentaire a été examinée : le *Guide officiel de la mobilité — Se déplacer pendant les JOJ Dakar 2026*, portant les logos du ministère des Transports terrestres et aériens, de Dakar 2026 et du CETUD. Le guide couvre les JOJ du 31 octobre au 13 novembre 2026 ; il s'agit donc d'une source récente et institutionnelle, mais son contenu décrit les dessertes des sites de compétition pendant la période des Jeux, pas nécessairement le réseau permanent exhaustif.
+
+### Ligne 6 : troisième variante officielle du terminus
+
+Le croisement des sources donne maintenant trois informations différentes :
+- page DDD « Info voyageurs » : **Cambérène 2 ↔ Palais 2** ;
+- page DDD « Réseau urbain » : la séquence détaillée commence à **Guédiawaye** et se termine à **Palais 1** ;
+- guide officiel JOJ/CETUD 2026 : la ligne 6 est listée **Cambérène ↔ Palais 1** dans la liste des lignes desservant le Complexe Iba Mar Diop.
+
+Le guide JOJ ne résout donc pas le conflit : il confirme un corridor Cambérène–centre-ville, mais avec un terminus différent de la page « Info voyageurs » et sans fournir une séquence complète d'arrêts pour cette ligne. La relation OSM 7499433 reste incompatible (nom de ligne 7, référence 6, un seul arrêt ordonné). **Décision inchangée : aucune association automatique, aucune correction de terminus ni import de séquence pour la ligne 6.** Il faut une confirmation directe DDD sur le service permanent et sa variante actuelle.
+
+### Ligne 16B : présence dans le guide, mais pas validation de séquence
+
+Le guide JOJ ne liste pas la ligne 16B dans ses dessertes du Complexe Iba Mar Diop. Il ne faut pas interpréter cette absence comme une preuve d'inexistence : la liste est liée à un site et à une période événementielle. Elle n'annule pas la séquence publiée par DDD sur sa page réseau et le rapprochement textuel ArcGIS historique déjà décrit dans ce rapport.
+
+### AFTU 88, 89 et 91 : limite de la source JOJ
+
+Le guide affiche, selon les sites, des sélections différentes de lignes AFTU (par exemple 2, 3, 4, 24, 25, 29, 34, 38, 43, 46, 54, 58, 71 sur un site ; et 2, 3, 4, 5, 24, 25, 29, 34, 40, 41, 46, 48, 50, 55, 56, 82 sur un autre). Les lignes 88, 89 et 91 n'apparaissent pas dans ces listes de desserte de sites. Ce guide n'étant pas un annuaire AFTU exhaustif, cette absence n'établit ni l'inexistence ni la non-exploitation des lignes recherchées. Aucun arrêt ni itinéraire AFTU n'est extrait de ce guide pour le catalogue.
+
+### Référence
+
+- Guide officiel de la mobilité JOJ Dakar 2026 (MITTA, Dakar 2026, CETUD), notamment présentation institutionnelle et période aux pages d'ouverture, lignes de bus Dem Dikk/AFTU des clusters : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+- DDD « Info voyageurs » : https://demdikk.sn/info-voyageurs/
+- DDD « Réseau urbain » : https://demdikk.sn/reseau-urbain-dakar/
