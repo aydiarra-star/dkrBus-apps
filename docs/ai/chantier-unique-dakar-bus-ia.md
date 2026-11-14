@@ -62,6 +62,7 @@ Les documents de conception et de couverture ont été regroupés sous `docs/ai/
 - `schema-proposal-v1.sql` : proposition de schéma uniquement ; ce fichier n'est pas une migration et ne doit pas être exécuté tel quel.
 - `network-coverage-2026-11-12.md` : inventaire et limites de couverture des réseaux.
 - `gps-capteurs-alertes-ia.md` : cadrage de la collecte GPS, des capteurs et des alertes.
+- `audit-supabase-2026-11-14.md` : état réel des tables, statuts, fonctions Edge, privilèges et alertes de sécurité.
 
 ## Règles de livraison
 
@@ -76,7 +77,7 @@ Les documents de conception et de couverture ont été regroupés sous `docs/ai/
 - [x] Phase 1 : mémoire locale, durée maximale, validation des données et effacement sur désactivation.
 - [x] Protection GPS : arrêt du suivi en arrière-plan, reprise au premier plan et arrêt si le GPS est interdit.
 - [x] Correctif du parseur wolof « joge … dem … » récupéré de l'ancienne PR #107.
-- [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts (audit de la PR #109 en cours).
+- [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts (audit de #109 réalisé ; intégration sélective à faire).
 - [ ] Phase 3 : calcul d'itinéraires bus et multimodaux basé uniquement sur les données validées.
 - [ ] Phase 4 : observation et alertes avec niveaux de confiance.
 - [ ] Phase 5 : consolidation voix et wolof.
