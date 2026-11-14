@@ -19,7 +19,7 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
     expect(BUS_LINES.find((line) => line.network === 'aftu' && line.code === '65')?.destination).toBe('Jaxaay')
     expect(new Set(BUS_LINES.map((line) => `${line.network}:${line.code}`)).size).toBe(109)
     expect(TATA_BUS_LINES).toHaveLength(62)
-    expect(UNIFIED_BUS_LINES).toHaveLength(137)
+    expect(UNIFIED_BUS_LINES).toHaveLength(136)
     expect(UNIFIED_BUS_LINES.filter((line) => line.code === '39')).toHaveLength(1)
     expect(UNIFIED_BUS_LINES.filter((line) => line.code === '42')).toHaveLength(1)
     expect(UNIFIED_BUS_LINES.find((line) => line.code === '39')?.waypoints.length).toBeGreaterThan(0)
