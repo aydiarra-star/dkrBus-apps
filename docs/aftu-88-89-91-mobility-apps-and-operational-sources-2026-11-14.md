@@ -255,3 +255,30 @@ Aucune authentification, clé privée, donnée personnelle ou donnée d'exploita
 - Conditions d'utilisation PassBi (mises à jour le 3 octobre 2026) : https://senpassbi.com/terms
 
 Les conditions publiques rappellent que les contenus de l'application peuvent comporter des erreurs et ne sont pas garantis comme exacts, complets ou à jour. Toute donnée PassBi devra donc être datée et corroborée avant d'être traitée comme référence.
+
+## 12. Vérification directe du site AFTU-Sénégal — confirmation des corridors 88 et 89, aucun détail de séquence (14 novembre 2026)
+
+Une vérification directe supplémentaire a été menée sur la page publique « Infos pratiques » du site AFTU-Sénégal : https://aftu-senegal.org/infos-pratiques/ . La page présente explicitement les rubriques « Nos lignes sur Dakar » et les corridors suivants :
+
+| Ligne | Corridor affiché par AFTU-Sénégal | Ce que la page permet d'affirmer |
+|---|---|---|
+| 88 | Bargny – Croisement Niague (Cité SICAP) | Corridor confirmé par une page du site AFTU-Sénégal ; aucun arrêt intermédiaire ni tracé ordonné affiché |
+| 89 | APIX – Dougar | Corridor confirmé par une page du site AFTU-Sénégal ; aucun arrêt intermédiaire ni tracé ordonné affiché |
+| 91 | Le numéro « LIGNE 91 » apparaît, mais aucun libellé de corridor n'est affiché après lui | Numéro présent, corridor toujours inconnu |
+
+La page affiche un texte « Voir itinéraire » pour les lignes 1 à 83, avec des liens de détails accessibles sur certaines cartes. Pour les entrées 84 à 91, le texte « Voir itinéraire » est rendu comme texte non cliquable dans la page consultée ; aucun lien de détail public exploitable n'est fourni pour les lignes 88, 89 ou 91. L'archive publique « Dakar lignes urbaines » renvoie encore des fiches datées des 13–14 juillet 2026 pour les lignes 72 à 83 ; elle ne fournit pas les séquences recherchées des lignes 88/89/91.
+
+### Décision de données
+
+- Les corridors 88 et 89 peuvent être conservés comme métadonnées de ligne, avec attribution explicite à la page AFTU-Sénégal.
+- Ne pas ajouter d'arrêt intermédiaire, de géométrie, de sens aller/retour, de fréquence ou d'horaire : la page n'en fournit pas.
+- Pour la ligne 91, conserver uniquement le constat de présence du numéro ; ne pas inventer de corridor.
+- Ce résultat ne remplace pas une séquence opérateur détaillée ni une carte lisible des deux sens.
+
+### Références AFTU-Sénégal
+
+- Page officielle publique de présentation des lignes : https://aftu-senegal.org/infos-pratiques/
+- Archive des fiches Dakar urbain : https://aftu-senegal.org/collection/dakar-lignes-urbaines/
+- Contact affiché sur le site : +221 33 859 02 88 ; siège annoncé : Zone de Captage, 440–441 Dakar, Sénégal.
+
+**Note de provenance :** les intitulés de corridor ci-dessus sont désormais directement corroborés par la page AFTU-Sénégal, en plus de l'index AFTU déjà examiné. Ils ne constituent toujours pas une séquence d'arrêts. La page AFTU ne confirme pas le sens aller/retour séparément.
