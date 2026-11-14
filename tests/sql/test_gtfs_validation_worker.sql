@@ -41,6 +41,7 @@ declare
   audit_state public.dakar_admin_audit_chain_state%rowtype;
   latest_audit public.dakar_admin_audit_events%rowtype;
   appended_audit public.dakar_admin_audit_events%rowtype;
+  role_name text;
 begin
   if has_function_privilege('anon', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
      or has_function_privilege('authenticated', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
@@ -217,10 +218,22 @@ begin
   ) then
     raise exception 'Audit chain state must have RLS enabled';
   end if;
-  if has_table_privilege('anon', 'public.dakar_admin_audit_chain_state', 'SELECT')
-     or has_table_privilege('authenticated', 'public.dakar_admin_audit_chain_state', 'SELECT')
-     or has_table_privilege('service_role', 'public.dakar_admin_audit_chain_state', 'SELECT') then
-    raise exception 'Audit chain state must not be directly readable by application roles';
+  for role_name in
+    select unnest(array['anon', 'authenticated', 'service_role'])
+  loop
+    if has_table_privilege(role_name, 'public.dakar_admin_audit_chain_state', 'SELECT')
+       or has_table_privilege(role_name, 'public.dakar_admin_audit_chain_state', 'INSERT')
+       or has_table_privilege(role_name, 'public.dakar_admin_audit_chain_state', 'UPDATE')
+       or has_table_privilege(role_name, 'public.dakar_admin_audit_chain_state', 'DELETE')
+       or has_table_privilege(role_name, 'public.dakar_admin_audit_chain_state', 'TRUNCATE') then
+      raise exception 'Audit chain state must not be directly readable or writable by application roles';
+    end if;
+  end loop;
+
+  if has_function_privilege('anon', 'public.dakar_admin_hash_audit_event()', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.dakar_admin_hash_audit_event()', 'EXECUTE')
+     or has_function_privilege('service_role', 'public.dakar_admin_hash_audit_event()', 'EXECUTE') then
+    raise exception 'Audit hash trigger function must not be directly executable by application roles';
   end if;
   if has_function_privilege('anon', 'public.dakar_admin_sha256(text)', 'EXECUTE')
      or has_function_privilege('authenticated', 'public.dakar_admin_sha256(text)', 'EXECUTE')
