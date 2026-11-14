@@ -299,8 +299,8 @@ export const AFTU_TATA_SHARED_ROUTE_KEYS: ReadonlySet<string> = (() => {
   const detailedTata = tataLines as unknown as { network: string; code: string; origin: string; destination: string; waypoints?: string[] }[]
   for (const aftu of detailedAftu) {
     const key = detailedRouteKey(aftu)
-    const matchingTata = detailedTata.find((tata) => detailedRouteKey(tata) === key)
-    if (matchingTata && sameDetailedStopSequence(aftu, matchingTata)) shared.add(key)
+    const hasMatchingTata = detailedTata.some((tata) => detailedRouteKey(tata) === key && sameDetailedStopSequence(aftu, tata))
+    if (hasMatchingTata) shared.add(key)
   }
   return shared
 })()
