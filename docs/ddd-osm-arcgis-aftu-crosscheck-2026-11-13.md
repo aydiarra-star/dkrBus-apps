@@ -139,3 +139,11 @@ Cette extraction apporte les corridors textuels officiels/cartographiques et leu
 ## 2 quinquies. Revue ciblée des lignes DDD 1, 6, 12, 13, 16B et 121 — 14 novembre 2026
 
 Une revue croisée de la nouvelle extraction OSM et des couches ArcGIS a été ajoutée dans `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md`. Elle détaille notamment le conflit de terminus des deux pages officielles pour la ligne 6, les couches de points et de tracés des lignes 6 et 13, les anciens corridors ArcGIS 12 et 16B (métadonnées de tracé de décembre 2017), ainsi que les limites directionnelles des lignes 1 et 121. Aucun de ces rapprochements n'a été promu automatiquement au catalogue passager.
+
+## 2 sexies. Lignes DDD sans groupe ArcGIS de même code — couverture OSM et ambiguïté 18/20 (14 novembre 2026)
+
+La revue des 17 codes sans groupe de points ArcGIS de même code et de l'extraction OSM du 14 novembre est documentée dans `docs/ddd-missing-arcgis-groups-osm-coverage-review-2026-11-14.md`. Elle met en évidence que les tracés ArcGIS 18 et 20 sont presque superposés (distance de Hausdorff ~25,1 m) et que les 44 points de la couche 18 sont proches des deux géométries : ils ne peuvent pas être attribués à la ligne 20 ni utilisés pour distinguer les deux circuits. La relation OSM 18 ne contient aucun arrêt ordonné et aucune relation 20 n'a été trouvée. Les 15 autres lignes de la matrice n'ont ni géométrie/points ArcGIS de même code ni relation OSM de même référence dans cette extraction. Aucune donnée passager n'a été modifiée.
+
+## 2 septies. Revue détaillée des lignes 1, 6, 12, 13, 16B et 121 (14 novembre 2026)
+
+Voir `docs/ddd-priority-lines-6-12-13-16b-121-arcgis-osm-review-2026-11-14.md` pour les mesures de projection et les divergences, notamment le conflit des deux pages officielles DDD pour la ligne 6 et les couches historiques des lignes 12 et 16B.
