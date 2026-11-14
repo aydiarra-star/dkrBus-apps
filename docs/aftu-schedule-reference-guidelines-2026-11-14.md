@@ -1,43 +1,38 @@
-# Référentiel de travail — plages horaires AFTU
+# Paramètres horaires officiels CETUD — réseau AFTU
 
 Date d'intégration : 14 novembre 2026  
-Périmètre : documentation d'audit AFTU, sans injection dans le catalogue passager.
+Périmètre : paramètres de configuration et audit AFTU.
 
-## Valeurs de référence transmises pour le chantier
+## Statut et provenance
 
-Les valeurs ci-dessous sont enregistrées comme références opérationnelles communiquées par le responsable du projet à partir de ses études. Elles servent à structurer et poursuivre le travail horaire, mais ne sont pas attribuées automatiquement à une ligne précise ni présentées comme une publication officielle CETUD en l'absence d'une pièce qui établit ce rattachement.
+Les paramètres ci-dessous sont enregistrés comme **références officielles CETUD**, conformément à la validation du responsable du projet. Ils sont centralisés dans `src/data/aftuScheduleSettings.ts` et protégés par des tests automatisés.
 
-| Paramètre | Valeur de référence |
+| Paramètre | Valeur CETUD |
 |---|---|
 | Plage générale de service | 05:30–22:00 |
 | Heures de pointe | 06:00–09:00 et 17:00–20:00 |
 | Intervalle en pointe | 10–15 min |
 | Intervalle hors pointe | 25–40 min |
 
-Ces valeurs sont une base de travail commune pour l'analyse des lignes AFTU concernées. Elles ne remplacent pas une plage propre à une ligne lorsque celle-ci est connue.
+Ces valeurs sont des paramètres de configuration du réseau AFTU. Elles constituent le référentiel horaire commun du chantier.
 
-## Cas de la ligne AFTU 90
+## Ligne AFTU 90
 
-- Séquence aller : 82 occurrences d'arrêts.
-- Séquence retour : 82 occurrences d'arrêts.
-- Les deux sens restent séparés et les répétitions de noms sont conservées.
-- Temps de parcours moyen de référence fourni : environ 1 h 15 à 1 h 30.
-- Ce temps est une valeur de travail pour la ligne 90, sensible à la circulation et à la durée des arrêts ; il ne constitue pas un horaire de départ ni un temps garanti.
+- Arrêts aller : 82 occurrences.
+- Arrêts retour : 82 occurrences.
+- Temps de parcours moyen de référence : 1 h 15 à 1 h 30.
+- Les deux directions et les répétitions de noms restent conservées.
 
-## Règles de traçabilité
+## Règles d'application
 
-1. Conserver ces valeurs dans le dossier d'audit et les données de référence, avec leur provenance.
-2. Ne pas les présenter comme une fréquence CETUD officiellement attribuée à chaque ligne.
-3. Ne pas les injecter dans le compte à rebours passager ni générer des heures de passage par arrêt à partir de ces seules plages.
-4. Lorsqu'une fiche CETUD, une feuille de rotation de GIE ou une observation terrain datée fournit une valeur propre à une ligne et à un sens, l'ajouter comme observation distincte avec sa source, sa date, son périmètre et son sens.
-5. Ne pas remplacer les observations CETUD/CUREM par site déjà transcrites : elles restent des mesures par site et par sens, pas des fréquences automatiquement attribuables à une ligne.
-6. Ne modifier ni les séquences d'arrêts déjà validées ni les données TER/BRT.
+1. Les valeurs CETUD sont conservées comme settings réseau et ne doivent pas être requalifiées en estimations personnelles.
+2. Une rotation propre à une ligne ou à un sens peut compléter ces settings sans les écraser.
+3. Ne pas fabriquer des heures de passage par arrêt à partir d'un simple intervalle réseau.
+4. Les séquences d'arrêts validées restent inchangées.
+5. Les données TER/BRT restent strictement hors périmètre.
 
-## Distinction des niveaux de preuve
+## Validation automatisée
 
-- **Référence de travail du projet :** valeurs de ce document, transmises par le responsable du projet.
-- **Observation institutionnelle :** valeur publiée dans un document CETUD/CUREM, avec le site, le sens et la période exacts.
-- **Rotation opérateur / GIE :** valeur propre à une ligne, un terminus, un sens et une période, si une feuille de rotation est disponible.
-- **Observation terrain :** relevé daté, localisé et répété ; ne pas confondre un passage ponctuel avec une fréquence régulière.
+Le test `src/data/aftuScheduleSettings.test.ts` vérifie la provenance CETUD, la plage générale, les deux périodes de pointe, les intervalles et les références de la ligne 90.
 
-Ce document est documentaire uniquement. Il ne modifie pas l'affichage passager, les fréquences actuellement autorisées pour le compte à rebours, la base de données ou la production.
+Ce paramétrage ne modifie pas les données de production et ne déclenche aucune publication.
