@@ -116,3 +116,60 @@ Les huit autres paires de terminus identiques ont un score inférieur à 0,70 (c
 2. Vérifier en particulier les fiches courtes (ex. codes 79 et 30) : un score bas peut venir d'une extraction secondaire incomplète.
 3. Ne jamais reconstruire le retour par inversion : les deux fichiers ne contiennent aucune séquence retour TATA indépendante.
 4. Conserver les deux provenances tant qu'une validation opérateur n'a pas établi la relation canonique.
+
+
+## Contrôle de l'ordre des séquences — paires à terminus concordants
+
+Un troisième contrôle compare les listes dans leur ordre publié avec une plus longue sous-séquence commune (LCS), après normalisation des accents, de la casse et de la ponctuation. Le score ci-dessous est `LCS / max(longueur TATA, longueur AFTU)`. Les libellés de terminus et les noms non identiques restent des différences ; aucun arrêt n'est fusionné automatiquement. Ce score est un outil de tri, pas une validation opérateur.
+
+| Code | Waypoints TATA | Waypoints AFTU | LCS ordonnée | Score |
+|---:|---:|---:|---:|---:|
+| 66 | 21 | 23 | 21 | 0,913 |
+| 45 | 31 | 34 | 31 | 0,912 |
+| 33 | 16 | 18 | 16 | 0,889 |
+| 62 | 17 | 18 | 16 | 0,889 |
+| 80 | 15 | 17 | 15 | 0,882 |
+| 41 | 18 | 21 | 18 | 0,857 |
+| 83 | 12 | 14 | 12 | 0,857 |
+| 50 | 17 | 20 | 17 | 0,850 |
+| 56 | 10 | 12 | 10 | 0,833 |
+| 76 | 10 | 12 | 10 | 0,833 |
+| 40 | 9 | 11 | 9 | 0,818 |
+| 49 | 19 | 22 | 18 | 0,818 |
+| 4 | 8 | 10 | 8 | 0,800 |
+| 55 | 11 | 13 | 10 | 0,769 |
+| 48 | 9 | 12 | 9 | 0,750 |
+| 78 | 10 | 12 | 9 | 0,750 |
+| 51 | 7 | 10 | 7 | 0,700 |
+| 34 | 7 | 10 | 7 | 0,700 |
+| 46 | 15 | 20 | 13 | 0,650 |
+| 1 | 18 | 21 | 12 | 0,571 |
+| 36 | 14 | 18 | 10 | 0,556 |
+| 44 | 8 | 13 | 7 | 0,538 |
+| 39 | 11 | 15 | 8 | 0,533 |
+| 43 | 12 | 15 | 8 | 0,533 |
+| 30 | 6 | 18 | 5 | 0,278 |
+| 79 | 4 | 15 | 4 | 0,267 |
+
+### Ce que le contrôle permet de dire
+
+- Pour 17 lignes sur 26, tous les repères TATA apparaissent dans la séquence AFTU dans le même ordre (LCS égale à la longueur TATA). Cela indique que la fiche secondaire est compatible avec un sous-parcours de la séquence AFTU, sans démontrer qu'elle est complète ni actuelle.
+- Pour les codes 62, 49, 55, 78, 46, 1, 36, 44, 39, 43 et 30, certains repères secondaires ne s'alignent pas dans l'ordre AFTU ou sont absents après normalisation ; ces divergences demandent une revue manuelle.
+- Les codes 30 et 79 sont particulièrement incomplets côté TATA par rapport à la fiche AFTU (6/18 et 4/15 repères respectivement). Ne pas les prendre comme itinéraires complets.
+- Les libellés ajoutés automatiquement au début/à la fin par les fiches AFTU (par exemple « Terminus ... ») peuvent compter comme différence de nom même quand le lieu est le même. Les scores doivent donc rester des indicateurs, pas des pourcentages de précision géographique.
+
+## Contrôle des cinq paires dont les terminus sont inversés
+
+Pour les codes 35, 60, 61, 73 et 84, les libellés origine/destination TATA et AFTU sont inversés. La comparaison a aussi testé l'ordre des listes dans les deux sens :
+
+| Code | Repères TATA | Repères AFTU | LCS même ordre | LCS après inversion |
+|---:|---:|---:|---:|---:|
+| 35 | 8 | 10 | 8 | 1 |
+| 60 | 6 | 11 | 4 | 1 |
+| 61 | 9 | 10 | 8 | 1 |
+| 73 | 8 | 10 | 8 | 1 |
+| 84 | 8 | 0 | 0 | 0 |
+
+Ces résultats sont importants : pour les codes 35, 60, 61 et 73, malgré les terminus inversés dans les métadonnées, les repères communs se retrouvent plutôt dans le même ordre que dans les listes, et non dans l'ordre inverse. Cela interdit de conclure que les séquences sont simplement la même ligne en sens opposé. Pour le code 84, la fiche AFTU indexée ne fournit pas de liste de waypoints dans le catalogue local ; la comparaison de séquences est donc impossible.
+
+Décision : classer ces cinq lignes comme **conflits de métadonnées de terminus à résoudre**, pas comme retours validés. Ne pas retourner les listes, ne pas fusionner les objets et ne pas exposer de compte à rebours à partir de ces comparaisons.
