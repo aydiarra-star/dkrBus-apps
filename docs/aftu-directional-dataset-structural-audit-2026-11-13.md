@@ -64,7 +64,7 @@ Décision : conserver les 73+73 points et la fréquence CETUD transmise ; ne pas
 - Deux libellés sont répétés dans chaque sens ; les séquences contiennent notamment des retours locaux et des variantes de desserte.
 - La fréquence de 17,5 minutes et les plages 10–15 / 15–25 minutes sont des valeurs candidates transmises, non une fréquence officielle AFTU par ligne établie par la fiche officielle consultée.
 
-Décision : conserver les deux ordres tels quels, mais ne pas promouvoir la fréquence en donnée opérateur officielle sans preuve CETUD/opérateur rattachée à la ligne.
+Décision : conserver les deux ordres tels quels, mais ne pas promouvoir la fréquence en donnée opérateur officielle sans preuve CETUD/opérateur rattachée à la ligne. Un test dédié `src/data/aftu-85-directions.test.ts` protège désormais les compteurs 89/95, les quatre répétitions de terminus/repère, les deux directions distinctes et l'absence d'horaires individuels.
 
 ### Ligne 83 — deux séquences CETUD validées (mise à jour du 14 novembre 2026)
 
