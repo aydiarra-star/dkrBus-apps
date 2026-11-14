@@ -210,5 +210,6 @@
   },
   "sourceLabel": "CETUD — listes aller et retour transmises et validées par le responsable du projet",
   "sourceStatus": "user-validated-cetud-sequences",
+  "validatedByProjectOwner": true,
   "note": "Les deux listes de la ligne 83 ont été transmises et validées par le responsable du projet comme données CETUD. Les 93 occurrences à l'aller et 90 occurrences au retour sont conservées dans leur ordre exact, y compris les libellés répétés. Fréquence déclarée : 11 minutes. Aucun horaire individuel par arrêt, aucune coordonnée et aucune correction de libellé ne sont déduits."
 }
