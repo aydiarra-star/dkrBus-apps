@@ -108,6 +108,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
   const [now, setNow] = useState(() => Date.now())
   const [routeReferences, setRouteReferences] = useState<MobilityRouteReference[]>([])
   const [openedDirection, setOpenedDirection] = useState<{ line: string; direction: DirectionId } | null>(null)
+  const [openedLine, setOpenedLine] = useState<string | null>(null)
   const referenceStops = network === 'ddd' ? DDD_STOPS : [...AFTU_STOPS, ...TATA_STOPS]
   const nearestStop = useMemo(() => {
     if (!location || referenceStops.length === 0) return null
@@ -262,36 +263,73 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const routeKey = `${line.network}:${line.line}:${line.origin}:${line.destination}`
           return (
             <li key={routeKey} className="station-board-line-group">
-              {directions.map((direction) => {
-                const selected = openedDirection?.line === routeKey && openedDirection.direction === direction.id
-                const publishedStops = direction.id === 'outbound'
-                  ? (route?.waypoints?.length ? route.waypoints : network === 'ddd' ? [...(dddPublishedStopsByLine.get(line.line) ?? [])] : [])
-                  : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
-                return (
-                  <div key={direction.id} className="station-board-direction-detail">
-                    <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
-                      <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
-                      <span className="station-board-direction-action">
-                        <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : network === 'ddd' ? 'Fin de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
-                        <span aria-hidden="true">{selected ? '−' : '+'}</span>
-                      </span>
-                    </button>
-                    {selected && (
-                      <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} ligne ${line.line}`}>
-                        {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
-                        {publishedStops.length > 0 ? (
-                          <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
-                        ) : direction.id === 'inbound' ? (
-                          <p className="station-board-itinerary-pending">Les arrêts de ce sens ne sont pas encore documentés séparément.</p>
-                        ) : (
-                          <p className="station-board-itinerary-pending">Le détail des arrêts de cet aller n’est pas encore disponible.</p>
-                        )}
-                        {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+              {network === 'aftu_tata' ? (
+                <>
+                  <button
+                    type="button"
+                    className={`station-board-row station-board-row-static station-board-direction-row station-board-line-toggle${openedLine === routeKey ? ' is-expanded' : ''}`}
+                    aria-expanded={openedLine === routeKey}
+                    onClick={() => setOpenedLine(openedLine === routeKey ? null : routeKey)}
+                  >
+                    <span className="station-board-stop"><strong>Ligne {line.line}</strong></span>
+                    <span className="station-board-direction-action">
+                      <span className="station-board-open-label">Affiche horaire</span>
+                      <span aria-hidden="true">{openedLine === routeKey ? '−' : '→'}</span>
+                    </span>
+                  </button>
+                  {openedLine === routeKey && (
+                    <div className="station-board-line-timetable" aria-label={`Affiche horaire ligne ${line.line}`}>
+                      {directions.map((direction) => {
+                        const publishedStops = direction.id === 'outbound'
+                          ? (route?.waypoints?.length ? route.waypoints : [])
+                          : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
+                        return (
+                          <section key={direction.id} className="station-board-line-direction">
+                            <div className="station-board-line-direction-heading">
+                              <strong>{direction.label}</strong>
+                              <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status">
+                                <strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>
+                                {direction.serviceState.status !== 'ACTIVE' && direction.serviceWindow && <small>Reprise à {direction.serviceWindow.start}</small>}
+                              </span>
+                            </div>
+                            <p className="station-board-line-endpoints">{direction.from} → {direction.to}</p>
+                            {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
+                            {publishedStops.length > 0
+                              ? <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
+                              : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts de ce sens ne sont pas encore documentés séparément.' : 'Le détail des arrêts de cet aller n’est pas encore disponible.'}</p>}
+                            {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
+                          </section>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                directions.map((direction) => {
+                  const selected = openedDirection?.line === routeKey && openedDirection.direction === direction.id
+                  const publishedStops = direction.id === 'outbound'
+                    ? (route?.waypoints?.length ? route.waypoints : [...(dddPublishedStopsByLine.get(line.line) ?? [])])
+                    : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
+                  return (
+                    <div key={direction.id} className="station-board-direction-detail">
+                      <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
+                        <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
+                        <span className="station-board-direction-action">
+                          <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
+                          <span aria-hidden="true">{selected ? '−' : '+'}</span>
+                        </span>
+                      </button>
+                      {selected && (
+                        <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} ligne ${line.line}`}>
+                          {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
+                          {publishedStops.length > 0 ? <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol> : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts de ce sens ne sont pas encore documentés séparément.' : 'Le détail des arrêts de cet aller n’est pas encore disponible.'}</p>}
+                          {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+              )}
             </li>
           )
         })}
