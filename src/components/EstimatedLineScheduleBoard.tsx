@@ -185,7 +185,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
           const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
           const routeCandidates = routeReferences.filter((item) => {
             if (item.code !== line.line) return false
-            if (!item.origin || !item.destination) return item.network === line.network
+            // La fiche détaillée du même sous-réseau reste prioritaire, même si
+            // ses libellés de terminus sont plus précis que le catalogue public.
+            if (item.network === line.network) return true
+            if (!item.origin || !item.destination) return false
             return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
           })
           const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
