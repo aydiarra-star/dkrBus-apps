@@ -42,6 +42,14 @@ Sources :
 
 Ces métadonnées confirment l'existence de couches d'arrêts et d'itinéraires, mais ne prouvent pas à elles seules que leurs enregistrements décrivent la ligne 501 actuelle, ses deux directions, ou la divergence Gare de Dakar / Leclerc. Les deux couches datent de septembre 2024 et ne constituent pas une preuve de l'exploitation actuelle en 2026.
 
+### Source de presse historique — connexion TER / DDD (21 février 2022)
+
+Un article de Directactu, attribué au journal *Le Soleil*, rapporte qu'en février 2022 des voyageurs sortant de la gare TER de Dakar recherchent le bus de la ligne 501 « qui quitte la gare de Dakar pour le Camp Leclerc ». Un agent indique un stationnement devant Dakarnave ; l'article rapporte aussi le témoignage d'un voyageur évoquant la prolongation du trajet jusqu'à Leclerc.
+
+Source : https://directactu.net/2022/02/21/connexion-ter-dakar-dem-dikk-aibd-le-transport-multimodal-prend-forme-a-dakar/
+
+Cette source de presse renforce l'existence historique d'une liaison 501 entre la gare de Dakar et le secteur/terminus Leclerc en 2022. Elle ne publie toutefois ni liste complète d'arrêts, ni parcours directionnel vérifiable, ni preuve que le service de 2022 est identique à la configuration affichée sur les pages DDD en 2026. Elle ne permet pas de conclure que « Gare de Dakar », « Camp Leclerc » et « Terminus Leclerc » sont des libellés strictement interchangeables.
+
 ## Analyse et décision
 
 Les deux pages officielles ne concordent pas sur le terminus associé à la ligne 501 :
@@ -49,7 +57,7 @@ Les deux pages officielles ne concordent pas sur le terminus associé à la lign
 - « Gare de Dakar » sur Info voyageurs ;
 - « Palais 2 » et « Leclerc » sur la page Réseau urbain.
 
-Il n'existe pas, dans ces publications, de preuve permettant d'affirmer que « Gare de Dakar » est interchangeable avec « Leclerc », ni de reconstruire un retour indépendant. Les métadonnées ArcGIS disponibles ne résolvent pas cet écart sans examen ciblé des entités de la ligne.
+Les pages officielles actuelles ne publient pas une séquence unique cohérente. La source de presse de 2022 confirme un lien historique Gare de Dakar–Camp Leclerc pour la ligne 501, mais ne permet pas d'identifier avec certitude le terminus actuel ni de reconstruire un retour indépendant. Les deux services ArcGIS examinés ne contiennent aucun enregistrement 501.
 
 **Décision :** conserver l'écart documentaire ouvert. Ne pas fusionner les terminus, ne pas renommer « LECLERCL » silencieusement, ne pas créer de retour par inversion automatique et ne pas modifier la séquence de production sur la seule base de cet audit.
 
