@@ -271,13 +271,13 @@ export function detailedRouteKey(line: { code: string; origin: string; destinati
  * intermédiaires et sont retirées avant la comparaison.
  */
 function normalizeRouteStop(value: string): string {
-  return value.replace(/\\([^)]*\\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\\bsebikhotane\\b/g, 'sebikotane').replace(/\\bsham\\b/g, 'sahm').replace(/\\s+/g, ' ').trim()
+  return value.replace(/\([^)]*\)/g, ' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/\bsebikhotane\b/g, 'sebikotane').replace(/\bsham\b/g, 'sahm').replace(/\s+/g, ' ').trim()
 }
 
 function normalizedRouteStops(stops: readonly string[]): string[] {
   const copy = [...stops]
-  if (copy.length && /^terminus\\b/i.test(copy[0].trim())) copy.shift()
-  if (copy.length && /^terminus\\b/i.test(copy[copy.length - 1].trim())) copy.pop()
+  if (copy.length && /^terminus\b/i.test(copy[0].trim())) copy.shift()
+  if (copy.length && /^terminus\b/i.test(copy[copy.length - 1].trim())) copy.pop()
   return copy.map(normalizeRouteStop).filter(Boolean)
 }
 
