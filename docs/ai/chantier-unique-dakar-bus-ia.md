@@ -30,6 +30,11 @@ Faire évoluer l'assistant existant en copilote de mobilité fiable. Le copilote
 
 ### Phase 2 — connaissance réseau consolidée
 
+- [x] Client Supabase en lecture seule, cache cinq minutes et repli sur le moteur local si indisponible.
+- [x] Réponses du copilote branchées sur le snapshot central ; TATA reste séparé d'AFTU.
+- [x] Les réponses indiquent les statuts candidat/vérifié/publié et ne présentent pas une fiche candidate comme une fiche validée.
+- [x] État trafic distant lu séparément ; incidents expirés exclus et ancien snapshot non réutilisé si la lecture échoue.
+- [x] Sources des Edge Functions actives et configuration des accès versionnées dans le dépôt.
 - Une seule couche de lecture pour les fiches DDD, AFTU, TATA, TER et BRT.
 - Conserver les statuts de validation, les sources, les dates et les deux directions.
 - Ne jamais présenter une donnée candidate comme une donnée validée.
@@ -77,9 +82,11 @@ Les documents de conception et de couverture ont été regroupés sous `docs/ai/
 - [x] Phase 1 : mémoire locale, durée maximale, validation des données et effacement sur désactivation.
 - [x] Protection GPS : arrêt du suivi en arrière-plan, reprise au premier plan et arrêt si le GPS est interdit.
 - [x] Correctif du parseur wolof « joge … dem … » récupéré de l'ancienne PR #107.
-- [ ] Phase 2 : couche unique de connaissance réseau, avec provenance et statuts (audit de #109 réalisé ; intégration sélective à faire).
+- [ ] Phase 2 : rapprocher les validations propriétaires et les sources ligne par ligne dans Supabase ; les fiches candidates restent candidates jusqu'à preuve.
 - [ ] Phase 3 : calcul d'itinéraires bus et multimodaux basé uniquement sur les données validées.
-- [ ] Phase 4 : observation et alertes avec niveaux de confiance.
+- [x] Phase 4 (lecture) : consulter l'état des alertes et distinguer confirmé/candidat/expiré.
+- [ ] Phase 4 (observation) : connecter une vraie source opérateur/capteur après preuve d'accès ; aucune n'est vérifiée aujourd'hui.
 - [ ] Phase 5 : consolidation voix et wolof.
 - [ ] CI complète et revue finale.
+- [ ] Test réel de l'appel Edge Function depuis l'application publiée.
 - [ ] Fusion et vérification du déploiement.
