@@ -3,12 +3,12 @@
  * suivies et tous les arrêts réellement déclarés dans l'application.
  *
  * Périmètre honnête :
- *  - les cinq mobilités de Dakar (TER, BRT, DDD, AFTU, TATA) sont cherchables
+ *  - les quatre réseaux de Dakar (TER, BRT, DDD, AFTU / TATA) sont cherchables
  *    par leur nom, leur sigle et leur autorité (SETER, SunuBRT, CETUD…) ;
  *  - seuls les arrêts réellement connus sont proposés comme point de départ
  *    ou d'arrivée : les gares TER (référence SETER), les stations BRT
  *    (référence SunuBRT) et les arrêts du snapshot publié ;
- *  - une mobilité dont les arrêts ne sont pas déclarés (AFTU, DDD, TATA)
+ *  - une mobilité dont les arrêts ne sont pas déclarés (AFTU / TATA, DDD)
  *    apparaît dans les résultats pour être trouvée, mais elle explique
  *    aussitôt pourquoi elle ne peut pas servir de point : aucune liste
  *    d'arrêts n'est inventée pour « faire joli ».
