@@ -5,7 +5,7 @@
  */
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
-import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_LINE_CODES } from './publicBusLineCatalog'
+import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteKey } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
@@ -17,7 +17,7 @@ const detailedAftuCodes = new Set(BUS_LINES.filter((line) => line.network === 'a
 /** Deux lignes TATA ont un terminus publié mais pas encore de séquence détaillée. */
 export const TATA_CATALOG_FALLBACK_LINES: readonly BusLine[] = AFTU_TATA_PUBLIC_LINE_CATALOG
   .filter((line) => line.network === 'tata' && !detailedTataCodes.has(line.line)
-    && !(AFTU_TATA_SHARED_LINE_CODES.has(line.line) && detailedAftuCodes.has(line.line)))
+    && !AFTU_TATA_SHARED_ROUTE_KEYS.has(detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })))
   .map((line) => ({
     network: 'tata' as const,
     code: line.line,
