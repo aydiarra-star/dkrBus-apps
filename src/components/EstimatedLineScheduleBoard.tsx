@@ -27,11 +27,11 @@ import {
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
 type RouteSourceNetwork = 'ddd' | 'aftu' | 'tata'
 type DirectionId = 'outbound' | 'inbound'
-type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; note: string | null }
+type MobilityRouteReference = { network: RouteSourceNetwork; code: string; origin?: string; destination?: string; waypoints: string[]; outboundSchedule?: EstimatedLineSchedule | null; inboundWaypoints?: string[]; inboundSchedule?: EstimatedLineSchedule | null; frequency?: { intervalMinutes: number; display: string }; detailSourceUrl: string | null; inboundDetailSourceUrl?: string | null; outboundOrigin?: string; outboundDestination?: string; inboundOrigin?: string; inboundDestination?: string; note: string | null }
 type DirectionalRouteData = Partial<MobilityRouteReference> & {
   directions?: {
     outbound?: { origin?: string; destination?: string; waypoints?: string[] }
-    inbound?: { waypoints?: string[] }
+    inbound?: { origin?: string; destination?: string; waypoints?: string[] }
   }
 }
 
@@ -40,8 +40,10 @@ function normalizeRouteDetails(data: DirectionalRouteData): Partial<MobilityRout
     ...data,
     waypoints: data.waypoints ?? data.directions?.outbound?.waypoints ?? [],
     inboundWaypoints: data.inboundWaypoints ?? data.directions?.inbound?.waypoints ?? [],
-    origin: data.origin ?? data.directions?.outbound?.origin,
-    destination: data.destination ?? data.directions?.outbound?.destination,
+    outboundOrigin: data.directions?.outbound?.origin,
+    outboundDestination: data.directions?.outbound?.destination,
+    inboundOrigin: data.directions?.inbound?.origin,
+    inboundDestination: data.directions?.inbound?.destination,
   }
 }
 
@@ -216,6 +218,10 @@ function AftuTataScheduleBoard({
                     const route = [...candidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
                     const outboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
                     const inboundStops = route?.inboundWaypoints ?? []
+                    const outboundOrigin = route?.outboundOrigin ?? line.origin
+                    const outboundDestination = route?.outboundDestination ?? line.destination
+                    const inboundOrigin = route?.inboundOrigin ?? outboundDestination
+                    const inboundDestination = route?.inboundDestination ?? outboundOrigin
                     const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
                     const serviceLabel = serviceState.status === 'UPCOMING'
                       ? serviceState.label
@@ -226,7 +232,7 @@ function AftuTataScheduleBoard({
                     return (
                       <section key={`${line.network}:${lineRouteKey}:${line.origin}:${line.destination}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`} className="station-board-line-direction">
                         <div className="station-board-line-variant-heading">
-                          <strong>{variants.length > 1 ? `${line.network === 'aftu' ? 'AFTU' : 'TATA'} · ` : ''}{line.origin} → {line.destination}</strong>
+                          <strong>{variants.length > 1 ? `${line.network === 'aftu' ? 'AFTU' : 'TATA'} · ` : ''}{outboundOrigin} → {outboundDestination}</strong>
                         </div>
                         {(['outbound', 'inbound'] as const).map((direction) => {
                           const stops = direction === 'outbound' ? outboundStops : inboundStops
@@ -239,7 +245,7 @@ function AftuTataScheduleBoard({
                                   {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
                                 </span>
                               </div>
-                              <p className="station-board-line-endpoints">{direction === 'outbound' ? line.origin + ' → ' + line.destination : line.destination + ' → ' + line.origin}</p>
+                              <p className="station-board-line-endpoints">{direction === 'outbound' ? outboundOrigin + ' → ' + outboundDestination : inboundOrigin + ' → ' + inboundDestination}</p>
                               {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
                               {stops.length > 0
                                 ? <ol className="station-board-itinerary-list">{stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
@@ -302,13 +308,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-73-directions.json'),
       import('../data/aftu-70-directions.json'),
       import('../data/aftu-71-directions.json'),
-      import('../data/aftu-86-directions.json'),
-      import('../data/aftu-87-directions.json'),
       import('../data/aftu-88-directions.json'),
       import('../data/aftu-89-directions.json'),
-      import('../data/aftu-90-directions.json'),
       import('../data/aftu-91-directions.json'),
-    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
+    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu88, aftu89, aftu91]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -327,11 +330,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '81': aftu81.default as Partial<MobilityRouteReference>,
         '70': aftu70.default as Partial<MobilityRouteReference>,
         '71': aftu71.default as Partial<MobilityRouteReference>,
-        '86': normalizeRouteDetails(aftu86.default),
-        '87': normalizeRouteDetails(aftu87.default),
         '88': normalizeRouteDetails(aftu88.default),
         '89': normalizeRouteDetails(aftu89.default),
-        '90': normalizeRouteDetails(aftu90.default),
         '91': normalizeRouteDetails(aftu91.default),
         '83': normalizeRouteDetails(aftu83Directions),
         '84': normalizeRouteDetails(aftu84Directions),
