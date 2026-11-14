@@ -131,7 +131,7 @@ function AftuTataScheduleBoard({
   schedulesByLine: Map<string, EstimatedLineSchedule>
   now: number
   location: UserLocation | null
-  nearestStop: { stop: (typeof AFTU_STOPS)[number] | (typeof TATA_STOPS)[number]; distance: number } | null
+  nearestStop: { stop: { name: string }; distance: number } | null
 }) {
   const [openedLine, setOpenedLine] = useState<string | null>(null)
   const groups = useMemo(() => groupPublicBusLinesByCode(catalogue), [catalogue])
