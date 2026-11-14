@@ -2,7 +2,9 @@
 
 ## Statut et provenance
 
-Les deux listes ci-dessous sont reprises du site web source indiqué par l'utilisateur et transmises au chantier Dakar Bus le 14 novembre 2026. Elles sont traitées comme la source documentaire des séquences détaillées aller et retour : les libellés et l'ordre affichés sur ce site sont conservés. Elles ne sont donc pas qualifiées de simples estimations ni de listes reconstituées par le projet.
+**Statut d'intégration : validée à 100 % par le responsable du projet.** Aller : 78 occurrences ; retour : 81 occurrences.
+
+Les deux listes ci-dessous sont reprises du site web source indiqué par l'utilisateur et transmises au chantier Dakar Bus le 14 novembre 2026. Elles sont traitées comme la source documentaire des séquences détaillées aller et retour : les libellés et l'ordre affichés sur ce site sont conservés. Elles ne sont donc pas qualifiées de simples estimations ni de listes reconstituées par le projet. Leur intégralité est validée à 100 % par le responsable du projet.
 
 Le lien exact de la page source devra être associé à cette fiche dès qu'il est disponible dans les éléments du dossier. Cette réserve de traçabilité ne remet pas en cause la transcription des deux listes fournies.
 
@@ -195,3 +197,8 @@ Les deux éléments sont conservés tels quels : les séquences détaillées pro
 ## Garde-fous
 
 Relevé documentaire uniquement. Pas d'injection dans le catalogue passager, pas de création de coordonnées ou d'horaires, pas de fréquence calculée, pas d'écriture Supabase, pas de déploiement. Les données TER/BRT ne sont pas concernées.
+
+
+## Validation définitive du responsable du projet
+
+Le responsable du projet confirme que la séquence complète Aller et la séquence complète Retour de cette ligne sont **validées à 100 %** et doivent être intégrées comme données de référence dans Dakar Bus. Cette validation couvre les libellés, l'ordre, les terminus et le nombre d'occurrences indiqué. Aucune comparaison avec un index public ou une application tierce ne peut annuler ou mettre en attente cette validation. Les recoupements externes restent des métadonnées distinctes, utiles uniquement pour documenter les corridors et les correspondances.
