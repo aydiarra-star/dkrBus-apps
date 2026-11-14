@@ -36,8 +36,6 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
   })
 
   it('n’affiche qu’une seule fiche pour une ligne appelée AFTU ou Tata', async () => {
-    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
-    vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
 
     const lineButtons = getLineButtons(container, '65')
@@ -52,8 +50,6 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     await waitFor(() => expect(routeCards[0].querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy())
   })
   it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
-    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
-    vi.setSystemTime(new Date('2026-11-09T07:40:00.000Z'))
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const expected = [
       { line: '83', outbound: 93, inbound: 90 },
