@@ -76,3 +76,38 @@ Le nouvel artefact de comparaison globale confirme les **17 séquences sans grou
 4. **501, 502, 503, TAF_TAF et 15** : retrouver d'abord une fiche officielle donnant les terminus ; ne pas déduire les extrémités à partir du seul code.
 
 Ce contrôle reste un rapprochement de sources. Il ne valide ni sens retour, ni ordre de passage, ni fréquence. Aucun parcours passager n'est modifié et aucun point n'est automatiquement réaffecté.
+
+
+## Complément officiel retrouvé sur la page DDD — 14 novembre 2026
+
+La page actuelle « Réseau urbain de Dakar » a été relue directement : https://demdikk.sn/reseau-urbain-dakar/. Elle fournit des terminus et des séquences publiées pour plusieurs lignes qui étaient jusque-là décrites dans ce rapport comme ayant des terminus non renseignés. Cette page corrige donc le statut documentaire, sans changer le constat ArcGIS : ces lignes n'ont toujours pas de groupe de points portant le même code dans la couche comparée.
+
+| Code | Terminus / corridor désormais visibles sur la page DDD | Détail publié |
+|---|---|---|
+| 20 | Dieuppeul ↔ Centre-ville | Séquence publiée détaillée |
+| 208 | Bayakh ↔ Rufisque | Gorom 01, Gorom 02, Bambilor, Noflaye, Sangalkam, Keur Ndiaye Lo, Rufisque |
+| 213 | Rufisque ↔ Dieuppeul | Séquence publiée détaillée |
+| 219 | Daroukhane ↔ Ouakam | 19 repères publiés ; la séquence ArcGIS candidate reste sous l'étiquette source 218 |
+| 220 | Rufisque ↔ Guédiawaye | Séquence publiée détaillée |
+| 221 | Gadaye ↔ Almadies | Séquence publiée détaillée |
+| 233 | Baux Maraîchers ↔ Palais 1 | **Conflit maintenu** : la liste de repères se termine à Aéroport LSS |
+| 234 | Jaxaay ↔ Leclerc | Séquence publiée détaillée |
+| 311 | Lac Rose ↔ Croisement Keur Massar | Séquence courte publiée ; la page mentionne « Retour vers Lac Rose » |
+| 327 | Keur Massar ↔ Terminus Parcelles | Séquence publiée détaillée |
+| 319 | Liberté 6 ↔ Ouakam | Séquence publiée détaillée |
+| TO1 | Ouakam ↔ Palais 2 | Séquence publiée détaillée |
+| 501 | Palais 2 ↔ Leclerc | Séquence publiée détaillée |
+| 502 | Gare Colobane ↔ Gare Colobane | Boucle publiée |
+| 503 | Gare Colobane ↔ Gare Colobane | Boucle publiée |
+| TAF_TAF | Ouakam → AIBD dans la séquence affichée | Liste publiée ; le titre ne précise pas de terminus opposé |
+| 15 | Rufisque ↔ Palais 1 | Séquence publiée détaillée |
+
+### Corrections d'interprétation
+
+- Les terminus de 501, 502 et 503 ne sont plus « non renseignés » : la page DDD affiche Palais 2 ↔ Leclerc pour 501 et des boucles Colobane pour 502/503.
+- Le libellé TAF_TAF reste distinct de TO1 : la page affiche une desserte Ouakam–AIBD pour TAF TAF, tandis que TO1 est explicitement Ouakam–Palais 2. Ne pas les fusionner.
+- La ligne 15 est publiée comme Rufisque ↔ Palais 1 ; conserver cette ligne distincte de 15A/15B tant que la nomenclature officielle ne confirme pas une équivalence.
+- La ligne 219 est maintenant confirmée par la page officielle avec terminus Ouakam et 19 repères. Le nom ArcGIS « Daroukhane – marché Ndiarème » correspond à un libellé de géométrie, pas à une preuve de terminus final au marché Ndiarème.
+- La ligne 233 conserve un conflit réel entre son en-tête Palais 1 et sa séquence textuelle qui se termine à Aéroport LSS.
+
+**Important :** ces découvertes enrichissent les références documentaires et les terminus publiés. Elles ne créent toujours aucun groupe ArcGIS de même code, ne fournissent pas les coordonnées de chaque arrêt, ne valident pas un sens retour indépendant et ne donnent pas de fréquence. Les boucles 502/503 et la mention de retour de 311 doivent être conservées comme telles, sans être artificiellement séparées en deux séquences.
