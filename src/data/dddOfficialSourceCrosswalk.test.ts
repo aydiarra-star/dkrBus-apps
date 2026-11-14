@@ -13,8 +13,11 @@ describe('DDD official source crosswalk', () => {
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.infoPage).toBe('https://demdikk.sn/info-voyageurs/')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.cetudGuide).toContain('guide-mobilite-dakar-joj-2026.pdf')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgis2024).toContain('Dem_dikk_mise_a_jour/FeatureServer')
+    expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.arcgisLine23Stops).toContain('Ligne_inter_urbain/FeatureServer/10')
+    expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.moovitLine23Outbound).toContain('18051449-0')
+    expect(DDD_OFFICIAL_SOURCE_CROSSWALK_URLS.moovitLine23Return).toContain('18051449-1')
     expect(DDD_OFFICIAL_SOURCE_CROSSWALK.map(({ line }) => line)).toEqual([
-      '4', '6', '12', '7', '9', '10', '13', '16B', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
+      '1', '4', '6', '12', '7', '9', '10', '13', '16B', '15', '23', '121', '233', '501', '502', '503', 'TAF_TAF / TO1',
     ])
     for (const item of DDD_OFFICIAL_SOURCE_CROSSWALK) {
       expect(item.claims.length).toBeGreaterThan(1)
@@ -22,6 +25,15 @@ describe('DDD official source crosswalk', () => {
       expect(item.passengerCatalogueChanged).toBe(false)
       expect(item.reverseSequenceCreated).toBe(false)
     }
+  })
+
+  it('records the line 1, 13 and 121 source checks without promoting geometry to passenger stops', () => {
+    expect(getDddOfficialSourceCrosswalk('1')?.claims[0].corridor).toContain('22 repères')
+    expect(getDddOfficialSourceCrosswalk('1')?.claims.at(-1)?.corridor).toBe('Parcelles Assainies → Leclerc')
+    expect(getDddOfficialSourceCrosswalk('13')?.claims[0].corridor).toContain('24 repères')
+    expect(getDddOfficialSourceCrosswalk('13')?.decision).toContain('23 points ArcGIS')
+    expect(getDddOfficialSourceCrosswalk('121')?.claims[0].corridor).toContain('25 repères')
+    expect(getDddOfficialSourceCrosswalk('121')?.decision).toContain('ne pas les dédupliquer')
   })
 
   it('records the official line 12 and 16B sequences separately from historic ArcGIS corridor evidence', () => {
@@ -50,9 +62,15 @@ describe('DDD official source crosswalk', () => {
   it('records the line 23 title/last-stop conflict and the limited ArcGIS crosscheck', () => {
     const line = getDddOfficialSourceCrosswalk('23')!
     expect(line.kind).toBe('published_title_sequence_conflict')
-    expect(line.claims[0].corridor).toContain('dernier repère publié : Terminus Palais 2')
-    expect(line.claims[1].corridor).toContain('54 points codés LIgne_23')
-    expect(line.decision).toContain('aucune fusion ni correction automatique')
+    expect(line.claims[0].corridor).toContain('séquence détaillée de 40 repères')
+    expect(line.claims[1].corridor).toBe('Parcelles Assainies ↔ Palais 1')
+    expect(line.claims[2].corridor).toBe('Parcelles Assainies → Palais 1')
+    expect(line.claims[3].corridor).toContain('FeatureServer/10')
+    expect(line.claims[4].source).toBe('moovit_2026')
+    expect(line.claims[4].corridor).toContain('57 arrêts')
+    expect(line.claims[4].corridor).toContain('56 arrêts')
+    expect(line.decision).toContain('ne concordent pas exactement avec les 40 repères DDD')
+    expect(line.decision).toContain('aucune fusion, inversion ou correction automatique')
   })
 
   it('does not merge line-number variants or distinct TAF TAF services', () => {
