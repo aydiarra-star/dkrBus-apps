@@ -173,3 +173,12 @@ Les deux séquences détaillées reprises du site web source indiqué pour ce ch
 La page d'index publique AFTU-Sénégal consultée séparément donne pour la ligne 88 le corridor « Bargny – Croisement Niague (Cité SICAP) ». Cette différence entre l'index AFTU et le site source des séquences est conservée comme divergence documentaire : elle ne conduit pas à écarter ni réécrire les deux listes. Les séquences ne sont pas encore injectées dans le catalogue passager ; le lien exact de la page source doit être rattaché à la fiche pour assurer une traçabilité complète.
 
 **Décision provisoire :** enregistrer les deux sens séparément dans le dossier documentaire ; ne pas les injecter au catalogue passager et ne pas géocoder automatiquement les noms. Aucun horaire ni fréquence n'est associé à ces listes. Les libellés différents entre aller et retour restent distincts jusqu'à vérification.
+
+
+## 2 duodecies. AFTU ligne 89 — deux séquences directionnelles relevées sur le site source (14 novembre 2026)
+
+Les deux séquences détaillées reprises du site web source communiqué pour le chantier sont conservées séparément : **55 entrées à l'aller, Terminus 89 → Poste Courant Bargny près de la gare TER**, et **53 entrées au retour, Poste Courant Bargny près de la gare TER → Terminus 89**. Les listes complètes et leur ordre d'origine figurent dans `docs/aftu-line-89-site-source-directional-stop-lists-2026-11-14.md`.
+
+La page d'index AFTU-Sénégal consultée séparément publie pour la ligne 89 le corridor « APIX – Dougar ». La séquence détaillée du site source communiquée ici décrit un parcours différent, passant notamment par Niague, Tivaoune Peulh, Keur Massar, Keur Mbaye Fall, Zac Mbao, Rufisque et Bargny. Les deux publications sont conservées comme sources distinctes : la différence ne justifie ni d'écarter ni de réécrire les 55 et 53 entrées. L'URL exacte de la page source doit être rattachée à la fiche pour compléter la traçabilité.
+
+Les répétitions et variantes de noms sont préservées. Aucun arrêt, sens, horaire, fréquence ou coordonnée n'est généré à partir de l'autre direction ; aucune donnée n'est injectée dans le catalogue passager.
