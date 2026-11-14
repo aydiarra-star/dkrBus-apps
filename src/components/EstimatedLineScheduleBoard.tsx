@@ -21,6 +21,7 @@ import {
   AFTU_TATA_SHARED_ROUTE_KEYS,
   type PublicBusLineReference,
   groupPublicBusLinesByCode,
+  sameDetailedRouteDirection,
 } from '../domain/publicBusLineCatalog'
 
 type EstimatedScheduleNetwork = 'ddd' | 'aftu_tata'
@@ -175,6 +176,7 @@ function AftuTataScheduleBoard({
                       && item.code === line.line
                       && Boolean(item.origin && item.destination)
                       && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+                      && sameDetailedRouteDirection(line, item)
                     )
                     const matchingSameNetwork = sameNetworkCandidates.length === 1
                       ? sameNetworkCandidates
@@ -187,6 +189,7 @@ function AftuTataScheduleBoard({
                         && item.code === line.line
                         && Boolean(item.origin && item.destination)
                         && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+                        && sameDetailedRouteDirection(line, item)
                         && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                       )
                       : []
@@ -202,7 +205,7 @@ function AftuTataScheduleBoard({
                         : minutes === null ? 'En service' : formatPassageCountdown(minutes)
 
                     return (
-                      <section key={`${line.network}:${lineRouteKey}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`} className="station-board-line-direction">
+                      <section key={`${line.network}:${lineRouteKey}:${line.origin}:${line.destination}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`} className="station-board-line-direction">
                         <div className="station-board-line-variant-heading">
                           <strong>{variants.length > 1 ? `${line.network === 'aftu' ? 'AFTU' : 'TATA'} · ` : ''}{line.origin} → {line.destination}</strong>
                         </div>
