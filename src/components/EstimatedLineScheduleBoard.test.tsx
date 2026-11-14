@@ -52,7 +52,7 @@ describe('affiches de comptes à rebours DDD, AFTU et TATA', () => {
     await waitFor(() => {
       expect(within(aftuSixtySix).getByText("Service terminé pour aujourd'hui")).toBeTruthy()
     })
-    expect(within(aftuSixtySix).getByText('En service')).toBeTruthy()
+    expect(within(aftuSixtySix).getByText('3 min')).toBeTruthy()
   })
 
   it('affiche les lignes DDD, sans fabriquer de créneau pour une ligne sans horaire concordant', () => {
