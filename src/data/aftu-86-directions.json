@@ -389,6 +389,6 @@
     "sourceStatus": "user-provided-operating-reference",
     "caveat": "Repères de fonctionnement variables, pas des horaires garantis. Ne pas interpoler des heures de passage aux arrêts à partir de ces seules données.",
     "lineSpecificFirstDeparture": null,
-    "note": "Pour la ligne 86, seule l’amplitude générale AFTU est disponible ici : premier départ entre 05:30 et 06:30 selon le terminus ; dernier départ autour de 21:00. L’heure exacte de départ de la ligne 86 reste inconnue. Les anciennes heures transcrites invalidées restent non publiables."
+    "note": "Pour la ligne 86, seule l’amplitude générale AFTU est disponible ici : premier départ entre 05:30 et 06:30 selon le terminus ; dernier départ autour de 21:00. L’heure exacte de départ de la ligne 86 reste inconnue. Les anciennes heures transcrites invalidées restent non publiables. Divergence importante de référencement : l’index officiel AFTU consulté le 14 novembre 2026 associe actuellement le numéro 86 au corridor Bambilor–Mosquée Massalikou Djinane (et le numéro 85 à Tournalou Boune–Toubab Dialaw), tandis que la référence de fonctionnement communiquée au projet rattache la ligne 86 à Tournalou Boune–Toubab Dialaw et les captures de parcours enregistrées portent Yeumbeul–Touba Ngayame. Ne pas fusionner ces trois références ni modifier le numéro du fichier sans confirmation CETUD."
   }
 }
