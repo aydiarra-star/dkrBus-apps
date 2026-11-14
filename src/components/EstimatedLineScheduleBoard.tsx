@@ -189,7 +189,7 @@ function AftuTataScheduleBoard({
                         && item.code === line.line
                         && Boolean(item.origin && item.destination)
                         && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                        && sameDetailedRouteDirection(line, item)
+                        && sameDetailedRouteDirection(line, { origin: item.origin ?? '', destination: item.destination ?? '' })
                         && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                       )
                       : []
