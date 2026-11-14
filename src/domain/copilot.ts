@@ -612,7 +612,7 @@ export function copilotAnswer(
     }
     return { text: language === 'wo' ? woFrenchFallbackPrefix() + remoteKnowledge : remoteKnowledge, language: 'fr' }
   }
-  if (includesAny(text, ['tata']) && !context.remoteMobilityKnowledge) {
+  if (/\btata\b/.test(text) && !context.remoteMobilityKnowledge) {
     const message = 'Le catalogue TATA est distinct de celui de l’AFTU. La connexion au référentiel central est momentanément indisponible ; je ne vais pas remplacer une ligne TATA par une ligne AFTU.'
     memory.lastAnswer = message
     return { text: message, language: 'fr' }
