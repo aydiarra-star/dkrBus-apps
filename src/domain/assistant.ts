@@ -113,8 +113,7 @@ const BOARDING_NETWORKS: readonly { id: CorridorNetworkId; words: readonly strin
   { id: 'brt', words: ['brt', 'sunubrt', 'bus rapide', 'b1'] },
   { id: 'ter', words: ['ter', 'train', 'gare express'] },
   { id: 'ddd', words: ['ddd', 'dakar dem dikk', 'dem dikk'] },
-  { id: 'aftu', words: ['aftu'] },
-  { id: 'tata', words: ['tata'] },
+  { id: 'aftu_tata', words: ['aftu', 'tata'] },
 ]
 
 /**
@@ -140,7 +139,7 @@ function whereToBoardReply(question: string, text: string, context: AssistantCon
     const frequency = id === 'brt' || id === 'ter'
       ? officialFrequencyAnswer(id)
       : (() => {
-        const data = NETWORK_REFERENCE_DATA[id === 'tata' ? 'aftu' : id]
+        const data = NETWORK_REFERENCE_DATA[id]
         return data
           ? `${data.operator} : Estimation ; service ${data.serviceStart}–${data.serviceEnd}.`
           : `${reference.operator} : fréquence par ligne non publiée dans cette mémoire.`
@@ -364,7 +363,7 @@ ${HONEST_LIMIT}`
     const requestedNetwork = requestedFrequencyNetwork(text)
     const unknownFrequencyNetwork = includesAny(text, ['ddd', 'dakar dem dikk'])
       ? NETWORK_REFERENCE_DATA.ddd
-      : includesAny(text, ['aftu']) ? NETWORK_REFERENCE_DATA.aftu : null
+      : includesAny(text, ['aftu', 'tata']) ? NETWORK_REFERENCE_DATA.aftu_tata : null
     if (unknownFrequencyNetwork) {
       const counts = unknownFrequencyNetwork.id === 'ddd'
         ? `${unknownFrequencyNetwork.lineCount} lignes et ${unknownFrequencyNetwork.vehicleCount} bus`
@@ -394,10 +393,10 @@ ${HONEST_LIMIT}`
       officialFrequencyAnswer('ter'),
     ].join('\n')
     const ddd = NETWORK_REFERENCE_DATA.ddd
-    const aftu = NETWORK_REFERENCE_DATA.aftu
+    const aftuTata = NETWORK_REFERENCE_DATA.aftu_tata
     const unknownFrequencyNetworks = [
       `• DDD : ${ddd.lineCount} lignes, ${ddd.vehicleCount} bus, ${ddd.serviceWindow} ; ${estimatedFrequencyReference('ddd')} ; Estimation ${estimatedWaitMinutes('ddd', now) ?? '—'} min.`,
-      `• AFTU : ${aftu.lineCount} lignes, ${aftu.vehicleCount?.toLocaleString('fr-FR')} bus, ${aftu.gieCount} GIE, ${aftu.serviceStart}–${aftu.serviceEnd} ; ${estimatedFrequencyReference('aftu')} ; Estimation ${estimatedWaitMinutes('aftu', now) ?? '—'} min.`,
+      `• AFTU / TATA : ${aftuTata.lineCount} lignes, ${aftuTata.vehicleCount?.toLocaleString('fr-FR')} bus, ${aftuTata.gieCount} GIE, ${aftuTata.serviceStart}–${aftuTata.serviceEnd} ; ${estimatedFrequencyReference('aftu_tata')} ; Estimation ${estimatedWaitMinutes('aftu_tata', now) ?? '—'} min.`,
     ].join('\n')
     return `${frequencies}\n${unknownFrequencyNetworks}`
   }
@@ -431,9 +430,9 @@ ${BRT_STOPS.map((stop, index) => `${index + 1}. ${stop.name}`).join('\n')}
       const reference = NETWORK_REFERENCE_DATA.ddd
       return `${reference.operator} (${reference.shortName}) : ${reference.lineCount} lignes, ${reference.vehicleCount} bus, service ${reference.serviceWindow}. ${estimatedFrequencyReference('ddd')}. Estimation : ${estimatedWaitMinutes('ddd', now) ?? '—'} min d’attente moyenne.`
     }
-    if (includesAny(text, ['aftu'])) {
-      const reference = NETWORK_REFERENCE_DATA.aftu
-      return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. ${estimatedFrequencyReference('aftu')}. Estimation : ${estimatedWaitMinutes('aftu', now) ?? '—'} min d’attente moyenne.`
+    if (includesAny(text, ['aftu', 'tata'])) {
+      const reference = NETWORK_REFERENCE_DATA.aftu_tata
+      return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. ${estimatedFrequencyReference('aftu_tata')}. Estimation : ${estimatedWaitMinutes('aftu_tata', now) ?? '—'} min d’attente moyenne.`
     }
     if (wantsTer && !wantsBrt) {
       return `Les 13 gares et haltes du TER, de Dakar à Diamniadio :
