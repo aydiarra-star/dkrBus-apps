@@ -200,9 +200,7 @@ function AftuTataScheduleBoard({
                   {variants.map((line) => {
                     const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
                     const sameNetworkByCode = routeReferences.filter((item) =>
-                      item.network === line.network
-                      && item.code === line.line
-                      && Boolean(item.origin && item.destination)
+                      item.network === line.network && item.code === line.line
                     )
                     const sameNetworkCandidates = sameNetworkByCode.filter((item) =>
                       detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
@@ -356,13 +354,35 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '84': normalizeRouteDetails(aftu84Directions),
         '85': normalizeRouteDetails(aftu85Directions),
       }
-      if (active) setRouteReferences([
-        ...(mobility.default as MobilityRouteReference[]).map((item) => {
-          const details = item.network === 'aftu' ? overrides[item.code] : undefined
-          return details ? { ...item, ...details } : item
-        }),
-        ...(tata.default as MobilityRouteReference[]),
-      ])
+      if (active) {
+        const baseReferences: MobilityRouteReference[] = [
+          ...(mobility.default as MobilityRouteReference[]).map((item) => {
+            const details = item.network === 'aftu' ? overrides[item.code] : undefined
+            return details ? { ...item, ...details } : item
+          }),
+          ...(tata.default as MobilityRouteReference[]),
+        ]
+        const knownAftuCodes = new Set(baseReferences.filter((item) => item.network === 'aftu').map((item) => item.code))
+        for (const line of AFTU_PUBLIC_LINE_CATALOG) {
+          if (knownAftuCodes.has(line.line)) continue
+          const base = {
+            network: 'aftu' as const,
+            code: line.line,
+            origin: line.origin,
+            destination: line.destination,
+            waypoints: line.waypoints ?? [],
+            inboundWaypoints: [],
+            sourceUrl: line.sourceUrl,
+            detailSourceUrl: line.sourceUrl,
+            inboundDetailSourceUrl: null,
+            outboundSchedule: null,
+            inboundSchedule: null,
+            note: null,
+          }
+          baseReferences.push({ ...base, ...(overrides[line.line] ?? {}) } as MobilityRouteReference)
+        }
+        setRouteReferences(baseReferences)
+      }
     })
     return () => { active = false }
   }, [])
