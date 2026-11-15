@@ -23,7 +23,8 @@ describe('getCurrentBusRouteAudit', () => {
     expect(report.aftuEvidence.find((route) => route.line === '87')?.inbound.waypoints).toHaveLength(71)
     expect(report.aftuEvidence.find((route) => route.line === '83')?.inbound.waypoints).toHaveLength(90)
     expect(report.aftuEvidence.find((route) => route.line === '84')?.inbound.timetableEntries).toBe(73)
-    expect(report.aftuEvidence.find((route) => route.line === '85')?.outbound.hasPerStopTimes).toBe(false)
+    expect(report.aftuEvidence.find((route) => route.line === '85-unverified')?.outbound.hasPerStopTimes).toBe(false)
+    expect(report.aftuEvidence.some((route) => route.line === '85')).toBe(false)
   })
 
   it('does not infer inbound stops from outbound stops', () => {
