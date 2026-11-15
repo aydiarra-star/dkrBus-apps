@@ -113,6 +113,10 @@ describe('prochains créneaux théoriques', () => {
     expect(holiday.status).toBe('RUNNING')
   })
 
+  it('n’invente pas de créneau TER pour une année sans calendrier férié confirmé', () => {
+    expect(nextReferencePassage(TER, at('2027-01-04T12:00:00Z'))).toBeNull()
+  })
+
   it('ne renvoie rien quand aucune fréquence exploitable n’est déclarée', () => {
     expect(nextReferencePassage([], Date.now())).toBeNull()
     expect(nextReferencePassage([{ ...BRT[0], headwayMinutes: 0 }], Date.now())).toBeNull()
