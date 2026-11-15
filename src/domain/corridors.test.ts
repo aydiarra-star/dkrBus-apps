@@ -152,7 +152,7 @@ describe('réseau de référence TER/BRT', () => {
 
   it('calcule des distances plausibles (Dakar → Diamniadio ≈ 25 km à vol d’oiseau)', () => {
     const dakar = TER_STOPS[0]
-    const diamniadio = TER_STOPS[TER_STOPS.length - 1]
+    const diamniadio = TER_STOPS.find((stop) => stop.id === 'ter-diamniadio')!
     const distance = haversineMeters(dakar, diamniadio)
     expect(distance).toBeGreaterThan(20_000)
     expect(distance).toBeLessThan(30_000)
