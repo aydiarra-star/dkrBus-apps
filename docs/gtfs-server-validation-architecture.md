@@ -125,3 +125,9 @@ La migration `20261114190000_dakar_gtfs_staging_least_privilege.sql` réduit les
 Les fonctions `claim_dakar_gtfs_validation` et `complete_dakar_gtfs_validation` conservent leurs privilèges d'exécution `service_role` et effectuent leurs écritures sous `SECURITY DEFINER`. Cette limite empêche les écritures directes sur les colonnes protégées ; elle ne constitue pas une identité distincte du worker. Tant que l'intake et le worker partagent le credential Supabase `service_role`, toute compromission de ce secret pourrait encore appeler ces RPC. Une identité/clé dédiée au worker et la protection effective de l'environnement GitHub restent des prérequis avant activation réelle.
 
 Les tests de privilèges utilisent uniquement un PostgreSQL isolé et des lignes synthétiques. Aucune migration n'est appliquée à la base Supabase active ; aucun secret, import, dataset, horaire ou catalogue n'est modifié.
+
+## Isolation stricte du bucket privé (14 novembre 2026)
+
+La migration `20261114193000_dakar_gtfs_storage_isolation.sql` active explicitement RLS sur `storage.objects` et ajoute une politique restrictive `dakar_gtfs_staging_deny_non_bypass_roles`. Elle refuse l'accès au bucket `dakar-gtfs-staging` à tout rôle soumis à RLS, même si une autre politique permissive générale est ajoutée ultérieurement pour d'autres buckets. Le `service_role` conserve l'accès serveur attendu via son attribut BYPASSRLS et les droits limités définis par la migration précédente.
+
+La migration retire aussi explicitement les ACL héritées de `PUBLIC` sur les trois tables administratives, en plus des rôles `anon` et `authenticated`. Les tests isolés simulent volontairement une politique Storage permissive globale, puis vérifient que les rôles applicatifs ne peuvent ni lire ni écrire le bucket GTFS, tandis que le rôle serveur le voit. Aucun objet réel n'est créé ; les seules lignes Storage du test sont synthétiques et locales à PostgreSQL CI.
