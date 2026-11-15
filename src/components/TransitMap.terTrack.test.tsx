@@ -155,7 +155,7 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
         return meters <= 35
       })
       if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="ter"')
-      expect(marker.icon.options.iconSize).toEqual([30, 18])
+      expect(marker.icon.options.iconSize).toEqual([25, 16])
     }
   })
 
@@ -173,7 +173,7 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
     expect(markers.every((marker) =>
       String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
       String(marker.icon.options.html).includes(`>${label}</span>`) &&
-      marker.icon.options.iconSize[0] === 30,
+      marker.icon.options.iconSize[0] === 25,
     )).toBe(true)
     if (network === 'aftu_tata') {
       expect(markers.every((marker) => !String(marker.icon.options.html).includes('TATA'))).toBe(true)
