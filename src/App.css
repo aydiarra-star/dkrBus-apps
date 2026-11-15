@@ -552,7 +552,11 @@ button:disabled { cursor: not-allowed; }
 .toast-message button:hover { background: #eff6f3; }
 .is-spinning { animation: spin 1s linear infinite; }
 
-@keyframes mobility-route-flow { from { stroke-dashoffset: 26; } to { stroke-dashoffset: 0; } }
+@keyframes mobility-route-flow { from { stroke-dashoffset: 18; } to { stroke-dashoffset: 0; } }
+@keyframes mobility-route-halo {
+  0%, 100% { opacity: .18; }
+  50% { opacity: .62; }
+}
 @keyframes location-pulse { 0% { transform: scale(.75); opacity: .8; } 100% { transform: scale(1.45); opacity: 0; } }
 @keyframes panel-enter { from { opacity: .7; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pop-in { from { opacity: 0; transform: translateY(4px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -2881,11 +2885,19 @@ button:disabled { cursor: not-allowed; }
 .station-board-itinerary-source { display: inline-block; margin-top: 10px; font-size: .88rem; }
 
 
-/* Carte aérée : tracés plus fins et flux directionnel discret, lisible à Dakar. */
-.mobility-route-flow {
-  animation: mobility-route-flow 1.25s linear infinite;
+/* Corridors animés : halo pulsant + flux lumineux continu dans le sens du tracé. */
+.mobility-route-halo {
+  animation: mobility-route-halo 2.2s ease-in-out infinite;
   stroke-linecap: round;
   pointer-events: none;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+.mobility-route-flow {
+  animation: mobility-route-flow 1.15s linear infinite;
+  stroke-dasharray: 2 16 !important;
+  stroke-linecap: round;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px currentColor);
 }
 .mobility-stop-badge {
   width: 25px;
@@ -2895,7 +2907,7 @@ button:disabled { cursor: not-allowed; }
   box-shadow: 0 1px 3px rgba(15, 35, 25, .2);
 }
 @media (prefers-reduced-motion: reduce) {
-  .mobility-route-flow { animation: none !important; }
+  .mobility-route-flow, .mobility-route-halo { animation: none !important; filter: none !important; }
 }
 
 

@@ -402,7 +402,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round', className: 'mobility-route-halo mobility-route-halo-rail' }}
             />
           ))
         })}
@@ -477,6 +477,7 @@ function TransitMapView({
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
+                className: `mobility-route-halo mobility-route-halo-${line.network}`,
               }}
             >
               <Tooltip direction="center" sticky opacity={0.9} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
@@ -507,10 +508,10 @@ function TransitMapView({
             interactive={false}
             pathOptions={{
               color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 1.9 : 1.15,
-              opacity: 0.82,
-              dashArray: '3 24',
-              dashOffset: '27',
+              weight: line.network === 'ter' || line.network === 'brt' ? 2.1 : 1.35,
+              opacity: 0.96,
+              dashArray: '2 16',
+              dashOffset: '18',
               lineCap: 'round',
               lineJoin: 'round',
               className: 'mobility-route-flow',
