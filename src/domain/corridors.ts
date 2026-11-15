@@ -92,7 +92,7 @@ export interface CorridorNetwork {
 }
 
 /** Enveloppe géographique couvrant la région : Almadies → Rufisque/Bargny,
- *  étendue jusqu'à Diamniadio (terminus TER) et Guédiawaye (terminus BRT). */
+ *  étendue jusqu'à AIBD (terminus TER) et Guédiawaye (terminus BRT). */
 export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: number; maxLon: number } = {
   minLat: 14.60,
   minLon: -17.56,
@@ -249,7 +249,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     id: 'ter-dakar-diamniadio',
     network: 'ter',
     shortName: 'TER',
-    longName: 'Dakar ↔ Diamniadio',
+    longName: 'Dakar ↔ AIBD',
     color: MOBILITY_PALETTE.ter.core,
     stopIds: TER_STOPS.map((stop) => stop.id),
     // L'estimateur de correspondance n'a pas d'heure/jour de départ : il
