@@ -2350,6 +2350,16 @@ function StationPassageCell({
       </span>
     )
   }
+  // Avant l'ouverture, annoncer la reprise en neutre : le vert est réservé
+  // aux passages d'un service déjà démarré.
+  if (passage.status === 'BEFORE_SERVICE') {
+    return (
+      <span className="network-summary-passage is-upcoming station-board-passage" title={passage.note}>
+        <strong>Reprise dans {formatPassageCountdown(passage.minutes)}</strong>
+        <small>Service à {passage.clockLabel}</small>
+      </span>
+    )
+  }
   return (
     <span className="network-summary-passage station-board-passage" title={passage.note}>
       <strong>{formatPassageCountdown(passage.minutes)}</strong>
