@@ -31,6 +31,34 @@ export interface ServiceDisplayState {
   showCountdown: boolean
 }
 
+export interface ServiceWindow {
+  start: string
+  end: string
+}
+
+/**
+ * Retient l'amplitude réelle déclarée pour le jour courant.
+ * Les réseaux à plusieurs périodes (notamment le TER) ne doivent pas être
+ * évalués avec une heure de début générique qui ignore les horaires du dimanche.
+ * Les réseaux sans grille journalière conservent leur fenêtre de référence.
+ */
+export function serviceWindowForDay<T extends { serviceStart: string; serviceEnd: string; days: readonly string[] }>(
+  utcNow: number,
+  frequencies: readonly T[],
+  fallback: ServiceWindow,
+): ServiceWindow {
+  if (!Number.isFinite(utcNow) || frequencies.length === 0) return fallback
+  const dayByWeekday = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
+  const day = dayByWeekday[new Date(utcNow).getUTCDay()]
+  const applicable = frequencies.filter((frequency) => frequency.days.includes(day))
+  if (applicable.length === 0) return fallback
+  const starts = applicable.map((frequency) => parseClockMinutes(frequency.serviceStart)).filter((value): value is number => value !== null)
+  const ends = applicable.map((frequency) => parseClockMinutes(frequency.serviceEnd)).filter((value): value is number => value !== null)
+  if (starts.length === 0 || ends.length === 0) return fallback
+  const toClock = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
+  return { start: toClock(Math.min(...starts)), end: toClock(Math.max(...ends)) }
+}
+
 /** « 06:00 » → 360 (minutes après minuit). Null si format invalide. */
 function parseClockMinutes(value: string): number | null {
   const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim())
