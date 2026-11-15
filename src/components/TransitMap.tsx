@@ -38,6 +38,8 @@ export interface RegionBounds {
 interface TransitMapProps {
   location: UserLocation | null
   routePoints: Partial<Record<RoutePointKey, Coordinates>>
+  /** Géométrie routière complète calculée depuis la recherche de lieux. */
+  searchRoute?: readonly Coordinates[] | null
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
   zoomAction: { delta: number; nonce: number } | null
@@ -164,6 +166,16 @@ function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   return null
 }
 
+/** Cadre automatiquement l’itinéraire routier complet après son calcul. */
+function MapSearchRouteFit({ positions }: { positions: [number, number][] }) {
+  const map = useMap()
+  useEffect(() => {
+    if (positions.length < 2) return
+    map.fitBounds(positions, { padding: [38, 38], maxZoom: 15, animate: true, duration: 0.8 })
+  }, [map, positions])
+  return null
+}
+
 /**
  * Recalcul maîtrisé de la carte.
  *
@@ -270,6 +282,7 @@ function paintFor(network: string | undefined, stopId?: string): MobilityPaint |
 function TransitMapView({
   location,
   routePoints,
+  searchRoute = null,
   pickingPoint,
   recenterTo,
   zoomAction,
@@ -287,6 +300,10 @@ function TransitMapView({
   const originIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-origin', 'Départ sélectionné', '#146b43'), [])
   const destinationIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-destination', 'Destination sélectionnée', '#d78a32'), [])
   const stops = useMemo(() => mappableStops(publishedStops), [publishedStops])
+  const searchRoutePositions = useMemo(
+    () => (searchRoute ?? []).map((point) => [point.lat, point.lng] as [number, number]),
+    [searchRoute],
+  )
   const uniqueCorridorStops = useMemo(() => {
     const unique = corridorStops.filter((stop, index, all) => {
       const prefix = stop.id.split('-')[0]
@@ -384,6 +401,7 @@ function TransitMapView({
       <MapClickHandler pickingPoint={pickingPoint} onChoosePoint={onChoosePoint} />
       <MapController recenterTo={recenterTo} zoomAction={zoomAction} />
       <MapInitialFit bounds={initialBounds} />
+      <MapSearchRouteFit positions={searchRoutePositions} />
       <MapResizeController />
       <MapStopDensityController />
 
@@ -534,6 +552,20 @@ function TransitMapView({
             pathOptions={{ color: '#198754', weight: 1, fillColor: '#198754', fillOpacity: 0.11 }}
           />
           <Marker position={[location.lat, location.lng]} icon={userIcon} keyboard title="Votre position" />
+        </>
+      )}
+
+      {searchRoutePositions.length > 1 && (
+        <>
+          <Polyline
+            positions={searchRoutePositions}
+            interactive={false}
+            pathOptions={{ color: '#ffffff', weight: 9, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
+          />
+          <Polyline
+            positions={searchRoutePositions}
+            pathOptions={{ color: '#087f5b', weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+          />
         </>
       )}
 
