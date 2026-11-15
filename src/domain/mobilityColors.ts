@@ -46,8 +46,8 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     name: 'Bleu nuit / ferroviaire',
     badge: '#003366',
     ink: '#FFFFFF',
-    bright: '#1D4ED8',
-    core: '#1D4ED8',
+    bright: '#003366',
+    core: '#003366',
     casing: '#003366',
   },
   brt: {
@@ -56,9 +56,9 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     name: 'Vert électrique / émeraude',
     badge: '#00A859',
     ink: '#1C1408',
-    bright: '#10B981',
+    bright: '#00A859',
     core: '#00A859',
-    casing: '#10B981',
+    casing: '#00A859',
   },
   ddd: {
     id: 'ddd',
@@ -66,9 +66,9 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     name: 'Jaune / or national',
     badge: '#F59E0B',
     ink: '#1C1408',
-    bright: '#EAB308',
+    bright: '#F59E0B',
     core: '#F59E0B',
-    casing: '#EAB308',
+    casing: '#F59E0B',
   },
   aftu_tata: {
     id: 'aftu_tata',
@@ -76,9 +76,9 @@ export const MOBILITY_PALETTE: Record<MobilityId, MobilityPaint> = {
     name: 'Terracotta',
     badge: '#C05621',
     ink: '#FFFFFF',
-    bright: '#D97706',
+    bright: '#C05621',
     core: '#C05621',
-    casing: '#D97706',
+    casing: '#C05621',
   },
 }
 
