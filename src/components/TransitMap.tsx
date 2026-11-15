@@ -497,27 +497,45 @@ function TransitMapView({
           )
         })}
 
-      {/* Flux lumineux animé : chaque segment suit l'ordre réel des points de son itinéraire. */}
+      {/* Flux lumineux directionnel : halo blanc + segment coloré sur chaque géométrie existante. */}
       {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
         const paint = paintFor(line.network)
         const tracks = [positions, ...(additionalPositions ?? [])]
-        return tracks.map((track, directionIndex) => (
-          <Polyline
-            key={`mobility-flow-${line.id}-${directionIndex}`}
-            positions={track}
-            interactive={false}
-            pathOptions={{
-              color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 3.4 : 2.4,
-              opacity: 1,
-              dashArray: '0 24 12 24',
-              dashOffset: '56',
-              lineCap: 'round',
-              lineJoin: 'round',
-              className: 'mobility-route-flow',
-            }}
-          />
-        ))
+        return tracks.flatMap((track, directionIndex) => {
+          const isRailOrBrt = line.network === 'ter' || line.network === 'brt'
+          return [
+            <Polyline
+              key={`mobility-flow-glow-${line.id}-${directionIndex}`}
+              positions={track}
+              interactive={false}
+              pathOptions={{
+                color: '#ffffff',
+                weight: isRailOrBrt ? 9 : 7,
+                opacity: 0.88,
+                dashArray: '32 52',
+                dashOffset: '84',
+                lineCap: 'round',
+                lineJoin: 'round',
+                className: 'mobility-route-flow-glow',
+              }}
+            />,
+            <Polyline
+              key={`mobility-flow-core-${line.id}-${directionIndex}`}
+              positions={track}
+              interactive={false}
+              pathOptions={{
+                color: paint?.bright ?? line.color,
+                weight: isRailOrBrt ? 4.8 : 3.8,
+                opacity: 1,
+                dashArray: '32 52',
+                dashOffset: '84',
+                lineCap: 'round',
+                lineJoin: 'round',
+                className: 'mobility-route-flow',
+              }}
+            />,
+          ]
+        })
       })}
 
       {/* Pastilles compactes : sigle du réseau directement sur chaque arrêt. */}
