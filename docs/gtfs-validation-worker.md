@@ -24,7 +24,7 @@ Le worker `scripts/process_gtfs_staging.py` :
 
 Le validateur contrôle les tables GTFS prises en charge, les en-têtes CSV, les identifiants et références, les séquences, les heures, les calendriers, les coordonnées, les fréquences, les chemins ZIP, les entrées dupliquées ou dangereuses, les liens symboliques, les méthodes de compression et les limites de ressources. Les tables optionnelles non prises en charge ou non validées sont refusées plutôt que considérées valides.
 
-Limites appliquées : archive 100 MiB, 1 000 entrées ZIP, 200 MiB par membre, 500 MiB décompressés au total, 2 000 000 lignes par table et 200 détails d'anomalie dans le rapport.
+Limites appliquées : archive 100 MiB, 1 000 entrées ZIP, 200 MiB par membre, 500 MiB décompressés au total, 2 000 000 lignes par table et 200 détails d'anomalie dans le rapport. Chaque détail est borné à 100 caractères pour le code, 100 pour le nom de table et 500 pour le message ; le RPC SQL impose les mêmes bornes, la version exacte du validateur et l'égalité stricte des limites déclarées.
 
 Une structure valide signifie uniquement **GTFS Static structurellement valide**. Le rapport conserve `production_ready=false`. Il ne certifie ni la provenance, ni les droits de réutilisation, ni l'autorité de l'opérateur, ni l'actualité du service. La revue humaine reste `PENDING_REVIEW` et la publication reste `NOT_PUBLISHED`.
 
