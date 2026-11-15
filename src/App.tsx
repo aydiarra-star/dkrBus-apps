@@ -964,7 +964,7 @@ function App() {
         setSearchRoute(result.coordinates.map(({ lat, lng }) => ({ lat, lng })))
         setRouteAttempted(false)
         setJourney(IDLE_JOURNEY)
-        setActiveTab('explore')
+        setActiveTab('route')
         const distance = (result.distanceMeters / 1000).toFixed(1).replace('.', ',')
         const minutes = Math.max(1, Math.round(result.durationSeconds / 60))
         const message = `Itinéraire routier affiché : ${result.origin.label} → ${result.destination.label}, environ ${distance} km et ${minutes} min hors conditions de circulation en direct.`
@@ -1064,11 +1064,9 @@ function App() {
   }
 
   function startPointSelection(key: RoutePointKey) {
-    // La carte n’est montée que dans l’onglet « Explorer » : on y emmène
-    // l’utilisateur pour désigner le point, puis on le ramène au trajet.
+    // La carte est visible directement dans Trajet : le choix reste sur place.
     setPendingShortcut(null)
     setPickReturnTab('route')
-    setActiveTab('explore')
     setPickingPoint(key)
     setRouteAttempted(false)
     setJourney(IDLE_JOURNEY)
@@ -1096,7 +1094,6 @@ function App() {
 
     setPendingShortcut(id)
     setPickReturnTab('route')
-    setActiveTab('explore')
     setPickingPoint('destination')
     setRouteAttempted(false)
     setJourney(IDLE_JOURNEY)
