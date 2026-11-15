@@ -176,7 +176,7 @@ Liberté 5 (Dieuppeul) → Palais 2 :
 19. Tunnel de Soumbédioune
 20. Village artisanal de Soumbédioune
 21. Prison Rebeus
-22. Tribunal de Dakar
+22. « Turbinal de Dakar » (libellé tel que publié ; ne pas normaliser sans validation)
 23. Boulevard de la République
 24. Sorano
 25. Avenue Léopold Sédar Senghor
