@@ -1229,7 +1229,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
     const rows = (networkId === 'aftu_tata'
-      ? [...board.querySelectorAll('.station-board-line-toggle')]
+      ? [...board.querySelectorAll('.station-board-direction-toggle')]
       : [...board.querySelectorAll('.station-board-row')]) as HTMLElement[]
     expect(rows.length).toBeGreaterThan(1)
     expect(rows.every((row) => row.querySelector('.station-board-stop strong'))).toBe(true)
@@ -1285,12 +1285,14 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const board = detail.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
       if (network === 'aftu_tata') {
-        const lineButtons = [...board.querySelectorAll('.station-board-line-toggle')]
-        expect(lineButtons).toHaveLength(73)
-        fireEvent.click(lineButtons[0])
-        const opened = lineButtons[0].closest('li')!
-        expect(opened.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(2)
-        expect(opened.querySelectorAll('.station-board-passage strong')).toHaveLength(2)
+        const directionButtons = [...board.querySelectorAll('.station-board-direction-toggle')]
+        expect(directionButtons).toHaveLength(146)
+        expect(board.querySelectorAll('.station-board-line-group')).toHaveLength(73)
+        fireEvent.click(directionButtons[0])
+        const opened = directionButtons[0].closest('li')!
+        expect(opened.querySelectorAll('.station-board-itinerary')).toHaveLength(1)
+        expect(directionButtons[0].getAttribute('aria-expanded')).toBe('true')
+        expect(directionButtons[1].getAttribute('aria-expanded')).toBe('false')
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)
