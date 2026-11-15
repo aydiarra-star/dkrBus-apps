@@ -1497,12 +1497,11 @@ function App() {
   // Les géométries de base TER/BRT restent celles du référentiel existant.
   const highlightedJourney = journeyPlan?.ok ? journeyPlan.options[0]?.result ?? null : null
   const highlightedJourneyLineIds = highlightedJourney
-    ? [...new Set(highlightedJourney.legs.filter((leg) => leg.kind === 'ride' && leg.line).map((leg) => leg.line!.id))]
+    ? [...new Set(highlightedJourney.legs.flatMap((leg) => leg.kind === 'ride' && leg.line ? [leg.line.id] : []))]
     : []
   const highlightedJourneyStopIds = highlightedJourney
     ? [...new Set(highlightedJourney.legs
-        .filter((leg) => leg.kind === 'ride')
-        .flatMap((leg) => [leg.fromId, ...(leg.intermediateStopIds ?? []), leg.toId])
+        .flatMap((leg) => leg.kind === 'ride' ? [leg.fromId, ...(leg.intermediateStopIds ?? []), leg.toId] : [])
         .filter((stopId): stopId is string => Boolean(stopId)))]
     : []
 
