@@ -552,7 +552,7 @@ button:disabled { cursor: not-allowed; }
 .toast-message button:hover { background: #eff6f3; }
 .is-spinning { animation: spin 1s linear infinite; }
 
-@keyframes mobility-route-flow { from { stroke-dashoffset: 18; } to { stroke-dashoffset: 0; } }
+@keyframes mobility-route-flow { from { stroke-dashoffset: 56; } to { stroke-dashoffset: 0; } }
 @keyframes mobility-route-halo {
   0%, 100% { opacity: .18; }
   50% { opacity: .62; }
@@ -2893,11 +2893,15 @@ button:disabled { cursor: not-allowed; }
   filter: drop-shadow(0 0 2px currentColor);
 }
 .mobility-route-flow {
-  animation: mobility-route-flow 1.15s linear infinite;
-  stroke-dasharray: 2 16 !important;
+  /* Segment lumineux long et espacé : son déplacement doit être perceptible sur mobile. */
+  animation: mobility-route-flow 1.35s linear infinite !important;
+  stroke-dasharray: 0 24 12 24 !important;
+  stroke-dashoffset: 56;
   stroke-linecap: round;
+  stroke-linejoin: round;
   pointer-events: none;
-  filter: drop-shadow(0 0 2px currentColor);
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, .95)) drop-shadow(0 0 5px currentColor);
+  will-change: stroke-dashoffset;
 }
 .mobility-stop-badge {
   width: 25px;
