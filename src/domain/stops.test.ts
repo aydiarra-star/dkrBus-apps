@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { BRT_STOPS, TER_STOPS } from './corridors'
+import { AFTU_STOPS, BRT_STOPS, DDD_STOPS, TATA_STOPS, TER_STOPS } from './corridors'
 import type { PublishedStop } from './published'
 import {
+  GROUP_AFTU_TATA,
   GROUP_BRT,
+  GROUP_DDD,
   GROUP_MOBILITY,
   GROUP_PUBLISHED,
   GROUP_TER,
@@ -26,6 +28,8 @@ describe('index de recherche du Trajet', () => {
     expect(mobility.map((option) => option.label)).toEqual(['TER', 'BRT', 'DDD', 'AFTU / TATA'])
     expect(index.filter((option) => option.group === GROUP_TER)).toHaveLength(TER_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_BRT)).toHaveLength(BRT_STOPS.length)
+    expect(index.filter((option) => option.group === GROUP_DDD)).toHaveLength(DDD_STOPS.length)
+    expect(index.filter((option) => option.group === GROUP_AFTU_TATA)).toHaveLength(AFTU_STOPS.length + TATA_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_PUBLISHED).map((option) => option.stopId)).toEqual(['D6'])
   })
 
@@ -43,6 +47,15 @@ describe('index de recherche du Trajet', () => {
     expect(labels('guediawaye')[0]).toMatch(/Guédiawaye/)
     expect(labels('prefecture')[0]).toMatch(/Préfecture/)
     expect(labels('keur mbaye')[0]).toBe('Keur Mbaye Fall')
+  })
+
+  it('rend sélectionnables les pôles DDD, AFTU et TATA dans la recherche principale', () => {
+    for (const value of ['ref:ddd-liberte-5', 'ref:aftu-ouakam', 'ref:tata-colobane']) {
+      expect(findStopOption(index, value)?.selectable).toBe(true)
+    }
+    expect(findStopOption(index, 'ref:ddd-liberte-5')?.networkId).toBe('ddd')
+    expect(findStopOption(index, 'ref:aftu-ouakam')?.networkId).toBe('aftu_tata')
+    expect(findStopOption(index, 'ref:tata-colobane')?.networkId).toBe('aftu_tata')
   })
 
   it('trouve un arrêt publié et un alias', () => {
@@ -63,7 +76,7 @@ describe('index de recherche du Trajet', () => {
   it('marque comme non sélectionnable une mobilité sans arrêt déclaré', () => {
     const aftu = index.find((option) => option.value === 'network:aftu_tata')!
     expect(aftu.selectable).toBe(false)
-    expect(aftu.hint).toMatch(/arrêts non publiés/)
+    expect(aftu.hint).toMatch(/pôles de référence/)
     const ter = index.find((option) => option.value === 'network:ter')!
     expect(ter.hint).toMatch(/14 gares/)
   })

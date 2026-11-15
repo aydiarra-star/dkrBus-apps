@@ -286,7 +286,7 @@ describe('Dakar Bus experience safety', () => {
     ])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'mbaye', /keur mbaye fall/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
@@ -393,7 +393,7 @@ describe('isolation de la vue carte', () => {
     render(<App />)
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
 
     // Deux arrêts du réseau de référence suffisent : aucun passage par la carte.
@@ -1369,12 +1369,12 @@ describe('barre de recherche du Trajet', () => {
 
     // Chaque mobilité est trouvable par son sigle comme par son autorité.
     for (const [query, expected] of [
-      ['aftu', /AFTU/],
+      ['aftu', /72 lignes.*non utilisable/],
       ['cetud', /DDD/],
       ['senter', /TER/],
       ['sunubrt', /BRT/],
       ['dakar dem dikk', /DDD/],
-      ['tata', /AFTU \/ TATA/],
+      ['tata', /72 lignes.*non utilisable/],
     ] as const) {
       fireEvent.change(input, { target: { value: query } })
       expect(within(list).getAllByRole('option').length).toBeGreaterThan(0)
@@ -1397,7 +1397,7 @@ describe('barre de recherche du Trajet', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'aftu' } })
     const list = screen.getByRole('listbox', { name: /départ : arrêts et mobilités/i })
-    fireEvent.click(within(list).getByRole('option', { name: /AFTU/ }))
+    fireEvent.click(within(list).getByRole('option', { name: /72 lignes.*non utilisable/ }))
 
     // Aucun point n’est créé : le réseau dit pourquoi il n’est pas utilisable.
     expect(screen.getByText(/aucun arrêt n’est inventé/i)).toBeTruthy()
@@ -1425,7 +1425,7 @@ describe('barre de recherche du Trajet', () => {
     render(<App />)
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
     await act(async () => {
@@ -2090,8 +2090,8 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
-    chooseStopInField('Destination', 'rufisque', /rufisque/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
+    chooseStopInField('Destination', 'rufisque', /rufisque.*TER/i)
     const region = screen.getByRole('region', { name: /itinéraires de référence/i })
     const metric = region.textContent ?? ''
     expect(metric).toMatch(/\d+ m|\d+,\d km/)

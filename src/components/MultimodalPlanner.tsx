@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, Footprints, Info, Route as RouteIcon } from 'lucide-react'
-import { ALL_CORRIDOR_STOPS, BRT_STOPS, TER_STOPS, type CorridorStop } from '../domain/corridors'
+import { ALL_CORRIDOR_STOPS, networkLabelOf } from '../domain/corridors'
 import { formatMeters, planReferenceJourney, type PlannerEndpoint, type PlannerOutcome } from '../domain/planner'
 import { MobilityLineBadges } from './MobilityBadge'
 import { PlannerLegList } from './PlannerLegList'
@@ -20,6 +20,8 @@ interface MultimodalPlannerProps {
 
 const MAP_ORIGIN_VALUE = '__map_origin__'
 const MAP_DESTINATION_VALUE = '__map_destination__'
+const DEFAULT_ORIGIN_STOP_ID = 'ter-dakar'
+const DEFAULT_DESTINATION_STOP_ID = 'brt-prefecture-guediawaye'
 
 function pointKey(point: PlannerPoint | null | undefined): string {
   return point ? `${point.lat},${point.lng}` : ''
@@ -41,12 +43,12 @@ function endpointFromSelection(value: string, mapPoint: PlannerPoint | null, kin
  * modifie la recherche de courses directes publiée existante.
  */
 export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: MultimodalPlannerProps) {
-  const [pickedOrigin, setOriginValue] = useState<string>(TER_STOPS[0].id)
-  const [pickedDestination, setDestinationValue] = useState<string>(BRT_STOPS[BRT_STOPS.length - 1].id)
+  const [pickedOrigin, setOriginValue] = useState<string>('ter-dakar')
+  const [pickedDestination, setDestinationValue] = useState<string>('brt-prefecture-guediawaye')
   // Si le point choisi sur la carte disparaît, le champ revient à un arrêt réel
   // (sinon le <select> afficherait une option absente de la liste).
-  const originValue = pickedOrigin === MAP_ORIGIN_VALUE && !mapOrigin ? TER_STOPS[0].id : pickedOrigin
-  const destinationValue = pickedDestination === MAP_DESTINATION_VALUE && !mapDestination ? BRT_STOPS[BRT_STOPS.length - 1].id : pickedDestination
+  const originValue = pickedOrigin === MAP_ORIGIN_VALUE && !mapOrigin ? DEFAULT_ORIGIN_STOP_ID : pickedOrigin
+  const destinationValue = pickedDestination === MAP_DESTINATION_VALUE && !mapDestination ? DEFAULT_DESTINATION_STOP_ID : pickedDestination
   const [result, setResult] = useState<{ key: string; outcome: PlannerOutcome } | null>(null)
 
   // Le résultat n’est affiché que tant que les points demandés sont inchangés :
@@ -57,16 +59,14 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
   const originOptions = useMemo(
     () => [
       ...(mapOrigin ? [{ value: MAP_ORIGIN_VALUE, label: `📍 ${mapOrigin.label} (carte)` }] : []),
-      ...TER_STOPS.map((stop: CorridorStop) => ({ value: stop.id, label: `TER · ${stop.name}` })),
-      ...BRT_STOPS.map((stop: CorridorStop) => ({ value: stop.id, label: `BRT · ${stop.name}` })),
+      ...ALL_CORRIDOR_STOPS.map((stop) => ({ value: stop.id, label: `${networkLabelOf(stop.id)} · ${stop.name}` })),
     ],
     [mapOrigin],
   )
   const destinationOptions = useMemo(
     () => [
       ...(mapDestination ? [{ value: MAP_DESTINATION_VALUE, label: `📍 ${mapDestination.label} (carte)` }] : []),
-      ...TER_STOPS.map((stop: CorridorStop) => ({ value: stop.id, label: `TER · ${stop.name}` })),
-      ...BRT_STOPS.map((stop: CorridorStop) => ({ value: stop.id, label: `BRT · ${stop.name}` })),
+      ...ALL_CORRIDOR_STOPS.map((stop) => ({ value: stop.id, label: `${networkLabelOf(stop.id)} · ${stop.name}` })),
     ],
     [mapDestination],
   )
@@ -83,12 +83,12 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
   }
 
   return (
-    <section className="planner-card" aria-label="Calculateur de correspondances multimodal">
+    <section className="planner-card" aria-label="Calculateur de trajets multimodaux">
       <div className="planner-head">
         <span className="planner-head-icon"><RouteIcon size={16} /></span>
         <div>
-          <strong>Calculateur de correspondances (TER + BRT)</strong>
-          <span>Réseau de référence : combinaisons TER/BRT avec temps de marche et d’attente estimés.</span>
+          <strong>Calculateur de trajets multimodaux</strong>
+          <span>Réseau de référence : combinaisons TER, BRT, DDD et AFTU / TATA avec marche et attente estimées.</span>
         </div>
       </div>
 
