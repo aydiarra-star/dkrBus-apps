@@ -1481,9 +1481,9 @@ function App() {
     ? NETWORK_SOURCES
     : NETWORK_SOURCES.filter((network) => network.id === exploreFilter)
 
-  // La carte n'existe que sur l'onglet « Explorer » : ailleurs, elle est
-  // démontée du DOM. Dans Explorer, elle occupe le tiers supérieur de l’écran.
-  const mapVisible = activeTab === 'explore'
+  // La carte accompagne Explorer et Trajet : le calcul multimodal reste visible
+  // pendant la recherche, sans remplacer les géométries du réseau.
+  const mapVisible = activeTab === 'explore' || activeTab === 'route'
   const showStopCard = activeTab === 'explore' || activeTab === 'route'
 
   // Comparaison des itinéraires sur les mêmes points que le formulaire : dès que
@@ -1492,6 +1492,19 @@ function App() {
   const journeyPlan = routePoints.origin && routePoints.destination
     ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
     : null
+
+  // La carte met en évidence le premier itinéraire calculé (le plus rapide).
+  // Les géométries de base TER/BRT restent celles du référentiel existant.
+  const highlightedJourney = journeyPlan?.ok ? journeyPlan.options[0]?.result ?? null : null
+  const highlightedJourneyLineIds = highlightedJourney
+    ? [...new Set(highlightedJourney.legs.filter((leg) => leg.kind === 'ride' && leg.line).map((leg) => leg.line!.id))]
+    : []
+  const highlightedJourneyStopIds = highlightedJourney
+    ? [...new Set(highlightedJourney.legs
+        .filter((leg) => leg.kind === 'ride')
+        .flatMap((leg) => [leg.fromId, ...(leg.intermediateStopIds ?? []), leg.toId])
+        .filter((stopId): stopId is string => Boolean(stopId)))]
+    : []
 
   // « Annoncer le premier résultat » : la première option est énoncée une seule
   // fois par calcul — pas à chaque tic d'horloge ni à chaque changement d'onglet.
@@ -1551,6 +1564,8 @@ function App() {
           initialBounds={DAKAR_REGION_BOUNDS}
           corridorLines={visibleCorridorLines}
           corridorStops={visibleCorridorStops}
+          highlightedLineIds={highlightedJourneyLineIds}
+          highlightedStopIds={highlightedJourneyStopIds}
           onSelectCorridorStop={stableCorridorStop}
         />
 
