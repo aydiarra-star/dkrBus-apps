@@ -496,6 +496,27 @@ function TransitMapView({
           )
         })}
 
+      {/* Halo pulsant sur chaque corridor, y compris les lignes DDD/AFTU/TATA. */}
+      {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
+        const paint = paintFor(line.network)
+        const tracks = [positions, ...(additionalPositions ?? [])]
+        return tracks.filter((track) => track.length > 1).map((track, directionIndex) => (
+          <Polyline
+            key={`mobility-halo-pulse-${line.id}-${directionIndex}`}
+            positions={track}
+            interactive={false}
+            pathOptions={{
+              color: paint?.bright ?? paint?.core ?? line.color,
+              weight: line.network === 'ter' || line.network === 'brt' ? 5.2 : 3.6,
+              opacity: 0.24,
+              lineCap: 'round',
+              lineJoin: 'round',
+              className: 'mobility-route-halo',
+            }}
+          />
+        ))
+      })}
+
       {/* Flux lumineux animé : chaque segment suit l'ordre réel des points de son itinéraire. */}
       {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
         const paint = paintFor(line.network)
@@ -507,10 +528,10 @@ function TransitMapView({
             interactive={false}
             pathOptions={{
               color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 1.9 : 1.15,
-              opacity: 0.82,
-              dashArray: '3 24',
-              dashOffset: '27',
+              weight: line.network === 'ter' || line.network === 'brt' ? 2.1 : 1.35,
+              opacity: 0.96,
+              dashArray: '2 16',
+              dashOffset: '18',
               lineCap: 'round',
               lineJoin: 'round',
               className: 'mobility-route-flow',
