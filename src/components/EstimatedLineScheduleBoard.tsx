@@ -18,7 +18,6 @@ import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
-  AFTU_TATA_SHARED_ROUTE_KEYS,
   type PublicBusLineReference,
   groupPublicBusLinesByCode,
   sameDetailedRouteDirection,
@@ -212,25 +211,10 @@ function AftuTataScheduleBoard({
                         ? sameNetworkCandidates.filter((item) =>
                           Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                         )
-                        : sameNetworkByCode.length === 1 ? sameNetworkByCode : []
-                    const crossNetworkByCode = routeReferences.filter((item) => item.code === line.line && item.network !== line.network)
-                    const matchingCrossNetwork = matchingSameNetwork.length === 0 && crossNetworkByCode.length === 1
-                      ? crossNetworkByCode
-                      : []
-                    const ownRoute = matchingSameNetwork[0] ?? matchingCrossNetwork[0]
-                    const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
-                      ? routeReferences.filter((item) =>
-                        item.network !== line.network
-                        && item.code === line.line
-                        && Boolean(item.origin && item.destination)
-                        && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                        && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin ?? '', destination: item.destination ?? '' })
-                        && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
-                        && Boolean(ownRoute?.inboundWaypoints?.length && item.inboundWaypoints?.length && sameOrderedStops(ownRoute.inboundWaypoints, item.inboundWaypoints))
-                      )
-                      : []
-                    const candidates = [...matchingSameNetwork, ...sharedCandidates]
-                    const route = [...candidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+                        : []
+                    // AFTU et TATA sont un seul réseau : on ne mélange jamais
+                    // les fiches de deux sources comme s'il s'agissait de deux variantes.
+                    const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
                     const outboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
                     const inboundStops = route?.inboundWaypoints ?? []
                     const outboundOrigin = route?.outboundOrigin ?? line.origin
@@ -305,7 +289,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
     let active = true
     Promise.all([
       import('../data/mobility-lines.json'),
-      import('../data/tata-lines.json'),
       import('../data/aftu-66-return.json'),
       import('../data/aftu-57-directions.json'),
       import('../data/aftu-30-directions.json'),
@@ -329,7 +312,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-89-directions.json'),
       import('../data/aftu-90-directions.json'),
       import('../data/aftu-91-directions.json'),
-    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
+    ]).then(([mobility, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -364,7 +347,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             const details = item.network === 'aftu' ? overrides[item.code] : undefined
             return details ? { ...item, ...details } : item
           }),
-          ...(tata.default as MobilityRouteReference[]),
         ]
         const knownAftuCodes = new Set(baseReferences.filter((item) => item.network === 'aftu').map((item) => item.code))
         for (const line of AFTU_TATA_PUBLIC_LINE_CATALOG) {
