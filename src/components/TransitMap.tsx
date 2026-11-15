@@ -169,7 +169,7 @@ function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   return null
 }
 
-/** Cadre automatiquement l’itinéraire routier complet après son calcul. */
+/** Cadre automatiquement le trajet multimodal entre ses deux points. */
 function MapRoutePointsFit({
   origin,
   destination,
