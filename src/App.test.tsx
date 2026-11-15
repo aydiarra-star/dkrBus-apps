@@ -12,11 +12,15 @@ vi.mock('./components/TransitMap', () => ({
     onChoosePoint,
     publishedStops,
     recenterTo,
+    highlightedLineIds = [],
+    highlightedStopIds = [],
   }: {
     recenterTo: { lat: number; lng: number } | null
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
+    highlightedLineIds?: readonly string[]
+    highlightedStopIds?: readonly string[]
   }) => (
     <div aria-label="Carte de test">
       <button
@@ -29,6 +33,8 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
+      <span data-testid="highlighted-lines">{highlightedLineIds.join(',')}</span>
+      <span data-testid="highlighted-stops">{highlightedStopIds.join(',')}</span>
     </div>
   ),
 }))
@@ -1354,6 +1360,21 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(backToLight)
     expect(container.querySelector('.app-shell')?.classList.contains('theme-light')).toBe(true)
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
+  })
+})
+
+describe('carte du trajet multimodal', () => {
+  it('affiche la carte dans Trajet et met en évidence le corridor calculé', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
+    chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
+
+    expect(screen.getByTestId('highlighted-lines').textContent).toContain('brt-b1')
+    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-petersen')
   })
 })
 
