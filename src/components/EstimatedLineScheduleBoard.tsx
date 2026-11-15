@@ -328,7 +328,7 @@ function AftuTataScheduleBoard({
                             <section key={direction} className={`station-board-line-direction-detail station-board-line-direction-${direction}`}>
                               <div className="station-board-line-direction-heading">
                                 <strong>{direction === 'outbound' ? 'Aller' : 'Retour'}</strong>
-                                <span className={`network-summary-passage station-board-passage${minutes === null ? ' is-undeclared' : ''}`} role="status">
+                                <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
                                   <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{serviceLabel}</strong>
                                   {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
                                 </span>
@@ -579,7 +579,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                           <section key={direction.id} className="station-board-line-direction">
                             <div className="station-board-line-direction-heading">
                               <strong>{direction.label}</strong>
-                              <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status">
+                              <span className={`network-summary-passage station-board-passage${direction.serviceState.status === 'UPCOMING' ? ' is-upcoming' : direction.serviceState.status === 'FINISHED' ? ' is-finished' : direction.minutes === null ? ' is-undeclared' : ''}`} role="status">
                                 <strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>
                                 {direction.serviceState.status !== 'ACTIVE' && direction.serviceWindow && <small>Reprise à {direction.serviceWindow.start}</small>}
                               </span>
