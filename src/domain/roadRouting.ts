@@ -46,9 +46,9 @@ export function parseRoadRouteQuery(query: string): { origin: string; destinatio
   return { origin, destination }
 }
 
-async function geocodeDakarPlace(place: string): Promise<RoadRoutePlace> {
+async function geocodePlace(place: string): Promise<RoadRoutePlace> {
   await waitForPublicRequest()
-  const params = new URLSearchParams({ q: `${place}, Sénégal`, limit: '8', lang: 'fr', lat: '14.7167', lon: '-17.4677' })
+  const params = new URLSearchParams({ q: place, limit: '8', lang: 'fr' })
   const response = await fetch(`https://photon.komoot.io/api/?${params.toString()}`, {
     headers: { Accept: 'application/json' },
     signal: AbortSignal.timeout(12_000),
@@ -59,15 +59,16 @@ async function geocodeDakarPlace(place: string): Promise<RoadRoutePlace> {
     throw new Error('La recherche de lieu a renvoyé une réponse illisible.')
   }
   const features = payload.features as PhotonFeature[]
+  // Photon classe ses résultats par pertinence. On prend le premier résultat
+  // géographique valide, quel que soit le pays ; l'utilisateur peut préciser
+  // le pays dans le champ (ex. « Pikine, Sénégal ») en cas d'homonymie.
   const feature = features.find((candidate) => {
-    const country = candidate.properties?.country ?? ''
     const coordinates = candidate.geometry?.coordinates
-    return normalized(country) === 'senegal' &&
-      Array.isArray(coordinates) && coordinates.length >= 2 &&
+    return Array.isArray(coordinates) && coordinates.length >= 2 &&
       Number.isFinite(coordinates[0]) && Number.isFinite(coordinates[1])
   })
   if (!feature?.geometry?.coordinates) {
-    throw new Error(`« ${place} » n’a pas été trouvé au Sénégal. Précisez le quartier ou la commune.`)
+    throw new Error(`« ${place} » n’a pas été trouvé. Vérifiez l’orthographe ou précisez la ville et le pays.`)
   }
   const [lng, lat] = feature.geometry.coordinates
   const label = feature.properties?.name ?? feature.properties?.city ?? feature.properties?.district ?? place
@@ -75,13 +76,13 @@ async function geocodeDakarPlace(place: string): Promise<RoadRoutePlace> {
 }
 
 /**
- * Calcule un itinéraire routier réel à partir des routes OpenStreetMap.
+ * Calcule un itinéraire routier partout où le réseau OpenStreetMap/OSRM dispose d'une route.
  * Ce résultat décrit un parcours routier calculé, pas un itinéraire de bus ni
  * un trafic en direct. Les services publics utilisés peuvent être indisponibles.
  */
 export async function calculateRoadRoute(originName: string, destinationName: string): Promise<RoadRouteResult> {
-  const origin = await geocodeDakarPlace(originName)
-  const destination = await geocodeDakarPlace(destinationName)
+  const origin = await geocodePlace(originName)
+  const destination = await geocodePlace(destinationName)
   await waitForPublicRequest()
   const params = new URLSearchParams({ overview: 'full', geometries: 'geojson', steps: 'false' })
   const url = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?${params.toString()}`
