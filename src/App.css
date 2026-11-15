@@ -2305,30 +2305,30 @@ button:disabled { cursor: not-allowed; }
 .mobility-ter {
   --mobility-badge: var(--mobility-ter);
   --mobility-ink: var(--mobility-ter-ink);
-  --mobility-stroke: var(--mobility-ter-bright);
-  --mobility-bright: var(--mobility-ter-bright);
-  --dot: var(--mobility-ter-bright);
+  --mobility-stroke: var(--mobility-ter);
+  --mobility-bright: var(--mobility-ter);
+  --dot: var(--mobility-ter);
 }
 .mobility-brt {
   --mobility-badge: var(--mobility-brt);
   --mobility-ink: var(--mobility-brt-ink);
   --mobility-stroke: var(--mobility-brt);
-  --mobility-bright: var(--mobility-brt-bright);
+  --mobility-bright: var(--mobility-brt);
   --dot: var(--mobility-brt);
 }
 .mobility-ddd {
   --mobility-badge: var(--mobility-ddd);
   --mobility-ink: var(--mobility-ddd-ink);
   --mobility-stroke: var(--mobility-ddd);
-  --mobility-bright: var(--mobility-ddd-bright);
+  --mobility-bright: var(--mobility-ddd);
   --dot: var(--mobility-ddd);
 }
 .mobility-aftu_tata {
   --mobility-badge: var(--mobility-aftu-tata);
   --mobility-ink: var(--mobility-aftu-tata-ink);
   --mobility-stroke: var(--mobility-aftu-tata);
-  --mobility-bright: var(--mobility-aftu-tata-bright);
-  --dot: var(--mobility-aftu-tata-bright);
+  --mobility-bright: var(--mobility-aftu-tata);
+  --dot: var(--mobility-aftu-tata);
 }
 
 .mobility-badge {
