@@ -94,6 +94,44 @@ describe('calculateur multimodal de référence', () => {
   })
 })
 
+
+describe('couverture des réseaux de bus dans le moteur multimodal', () => {
+  function endpoint(stopId: string) {
+    const stop = getCorridorStop(stopId)!
+    return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
+  }
+
+  it('calcule un trajet sur une ligne DDD entre deux pôles connus', () => {
+    const outcome = planReferenceJourney(endpoint('ddd-parcelles'), endpoint('ddd-leclerc'), 'fastest', {
+      allowedNetworks: ['ddd'],
+    })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('DDD 1')
+    expect(outcome.networksUsed).toEqual(['ddd'])
+  })
+
+  it('calcule un trajet sur une ligne AFTU sans basculer sur le TER ou le BRT', () => {
+    const outcome = planReferenceJourney(endpoint('aftu-guediawaye'), endpoint('aftu-ouakam'), 'fastest', {
+      allowedNetworks: ['aftu_tata'],
+    })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU 42')
+    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+  })
+
+  it('calcule un trajet sur une ligne TATA depuis les arrêts de son propre référentiel', () => {
+    const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', {
+      allowedNetworks: ['aftu_tata'],
+    })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('TATA')
+    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+  })
+})
+
 describe('cohérence des coûts du calculateur', () => {
   it('ne propose pas un détour à pied quand aucun véhicule n’est emprunté', () => {
     // Deux points à ~110 m l’un de l’autre, mais chacun à ~1,2 km de la gare de
