@@ -9,7 +9,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
 import { TER_TRACK, TER_TRACK_ATTRIBUTION } from '../domain/terTrackGeometry'
 import { BRT_B1_TRACKS, BRT_TRACK_ATTRIBUTION } from '../domain/brtTrackGeometry'
-import { MOBILITY_PALETTE } from '../domain/mobilityColors'
 
 interface DrawnPolyline {
   positions: Array<[number, number]>
