@@ -86,9 +86,11 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const button = getLineButtons(container, '1')[0]
     fireEvent.click(button)
     const row = button.closest('li')!
-    expect(row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')).toBeNull()
-    expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
-    expect(container.textContent).toMatch(/1 \(/)
+    await waitFor(() => {
+      expect(row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')).toBeNull()
+      expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
+      expect(container.querySelector('.station-board-pending-group')?.textContent).toMatch(/1 \(/)
+    })
   })
 
   it('classe la séquence de la ligne 82 en Retour quand ses terminus sont inversés', async () => {
