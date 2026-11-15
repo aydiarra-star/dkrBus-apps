@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo } from 'react'
 import { Circle, CircleMarker, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
-import { TER_STOPS, type CorridorLine, type CorridorStop } from '../domain/corridors'
+import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
 import { safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityPaint } from '../domain/mobilityColors'
@@ -291,30 +291,31 @@ function TransitMapView({
     [corridorLines, corridorStops],
   )
 
-  // Masquer uniquement les arrêts d'autres réseaux posés sur les voies TER.
-  // Les arrêts TER, leurs coordonnées et la géométrie ferroviaire restent intacts.
-  const corridorStopsToRender = useMemo(() => {
-    const terTracks = corridorLineStops
+  // Sur le corridor ferroviaire, seules les pastilles TER sont autorisées,
+  // y compris au droit des gares : aucune pastille bus ne se superpose au TER.
+  const terTracks = useMemo(
+    () => corridorLineStops
       .filter(({ line }) => line.network === 'ter')
       .map(({ positions }) => positions)
-      .filter((positions) => positions.length > 1)
-    if (terTracks.length === 0) return uniqueCorridorStops
-    return uniqueCorridorStops.filter((stop) => {
-      if (stop.id.startsWith('ter-')) return true
-      // Une correspondance à moins de 30 m d'une gare TER reste représentée
-      // au pôle ; seules les pastilles posées sur le parcours entre les gares
-      // sont masquées.
-      const atTerStation = TER_STOPS.some((station) =>
-        distanceToSegmentMeters(stop, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
-      )
-      if (atTerStation) return true
-      return !terTracks.some((positions) =>
-        positions.slice(1).some((end, index) =>
-          distanceToSegmentMeters(stop, positions[index], end) <= 35,
-        ),
-      )
-    })
-  }, [corridorLineStops, uniqueCorridorStops])
+      .filter((positions) => positions.length > 1),
+    [corridorLineStops],
+  )
+  const isOnTerTrack = (point: { lat: number; lon: number }) =>
+    terTracks.some((positions) =>
+      positions.slice(1).some((end, index) =>
+        distanceToSegmentMeters(point, positions[index], end) <= 35,
+      ),
+    )
+  const corridorStopsToRender = useMemo(
+    () => uniqueCorridorStops.filter((stop) => stop.id.startsWith('ter-') || !isOnTerTrack(stop)),
+    [uniqueCorridorStops, terTracks],
+  )
+  const publishedStopsToRender = useMemo(
+    () => stops.filter((stop) =>
+      mobilityFromStopId(stop.stopId) === 'ter' || !isOnTerTrack({ lat: stop.lat, lon: stop.lon }),
+    ),
+    [stops, terTracks],
+  )
 
   return (
     <MapContainer
@@ -356,7 +357,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 4.2, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: line.network === 'brt' ? 2.2 : 4.2, opacity: line.network === 'brt' ? 0.72 : 0.9, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -370,7 +371,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: 2.8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: line.network === 'brt' ? 1.4 : 2.8, opacity: line.network === 'brt' ? 0.9 : 0.96, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -384,7 +385,7 @@ function TransitMapView({
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: 1.8, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: line.network === 'brt' ? 0.9 : 1.8, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
@@ -422,8 +423,8 @@ function TransitMapView({
               positions={positions}
               pathOptions={{
                 color: paint?.core ?? line.color,
-                weight: 1.25,
-                opacity: 0.48,
+                weight: 0.8,
+                opacity: 0.36,
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
@@ -442,20 +443,7 @@ function TransitMapView({
             </Polyline>
           )
         })}
-      {/* Anneau TER discret aux gares qui accueillent une correspondance. */}
-      {TER_STOPS.filter((station) =>
-        uniqueCorridorStops.some((candidate) =>
-          !candidate.id.startsWith('ter-') &&
-          distanceToSegmentMeters(candidate, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
-        ),
-      ).map((station) => (
-        <CircleMarker
-          key={`ter-interchange-${station.id}`}
-          center={[station.lat, station.lon]}
-          radius={7.5}
-          pathOptions={{ color: '#003366', weight: 1.5, fillColor: '#003366', fillOpacity: 0 }}
-        />
-      ))}
+
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
@@ -464,10 +452,10 @@ function TransitMapView({
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={paint?.id === 'ddd' || paint?.id === 'aftu_tata' ? 3.5 : 4.5}
+            radius={2}
             pathOptions={{
               color: paint?.badge ?? line?.color ?? '#475569',
-              weight: 2,
+              weight: 0.8,
               fillColor: paint?.badge ?? line?.color ?? '#475569',
               fillOpacity: 1,
             }}
@@ -510,15 +498,15 @@ function TransitMapView({
         />
       )}
 
-      {stops.map((stop) => (
+      {publishedStopsToRender.map((stop) => (
         <CircleMarker
           key={stop.stopId}
           center={[stop.lat, stop.lon]}
-          radius={stop.stopId === selectedStopId ? 9 : 6}
+          radius={stop.stopId === selectedStopId ? 3.2 : 2.2}
           pathOptions={
             stop.stopId === selectedStopId
-              ? { color: '#ffffff', weight: 3, fillColor: '#146a42', fillOpacity: 1 }
-              : { color: '#ffffff', weight: 2, fillColor: '#198754', fillOpacity: 0.92 }
+              ? { color: '#ffffff', weight: 0.8, fillColor: '#146a42', fillOpacity: 1 }
+              : { color: '#ffffff', weight: 0.7, fillColor: '#198754', fillOpacity: 0.92 }
           }
           eventHandlers={onSelectStop ? { click: () => onSelectStop(stop) } : undefined}
         >
