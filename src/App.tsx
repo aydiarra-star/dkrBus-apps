@@ -74,6 +74,7 @@ import {
   haversineMeters,
   linesServingStop,
   searchCorridorStops,
+  networkLabelOf,
   type CorridorStop,
 } from './domain/corridors'
 import {
@@ -577,7 +578,7 @@ function App() {
     setRecenterTo({ lat: stop.lat, lng: stop.lon })
     const lines = linesServingStop(stop.id)
     announce(
-      `${stop.name} — ${CORRIDOR_NETWORKS[stop.id.startsWith('ter') ? 'ter' : 'brt'].label} (réseau de référence)` +
+      `${stop.name} — ${networkLabelOf(stop.id)} (réseau de référence)` +
         (lines.length > 0 ? ` · ligne${lines.length > 1 ? 's' : ''} ${lines.map((line) => line.shortName).join(', ')}` : ''),
     )
   }
