@@ -1,11 +1,11 @@
 import { memo, useEffect, useMemo } from 'react'
-import { Circle, CircleMarker, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
 import { safeHttpUrl } from '../domain/http'
-import { mobilityFromStopId, mobilityPaint, type MobilityPaint } from '../domain/mobilityColors'
+import { mobilityFromStopId, mobilityPaint, type MobilityId, type MobilityPaint } from '../domain/mobilityColors'
 import { TER_TRACK_ATTRIBUTION, TER_TRACK_LINE_ID, trackPositionsForLine } from '../domain/terTrackGeometry'
 import { BRT_TRACK_ATTRIBUTION, brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
@@ -222,6 +222,17 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
+function makeMobilityStopIcon(mobility: MobilityId | null, label: string): DivIcon {
+  const symbol = mobility === 'ter' ? '🚆' : '🚍'
+  const mobilityLabel = mobility === 'ter' ? 'TER' : mobility === 'brt' ? 'BRT' : mobility === 'ddd' ? 'DDD' : 'AFTU / TATA'
+  return L.divIcon({
+    className: 'mobility-stop-image-shell',
+    html: `<span role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}" title="${escapeHtml(mobilityLabel)}" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;font-size:15px;line-height:18px;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #fff)">${symbol}</span>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  })
+}
+
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {
   return mobilityPaint(network) ?? mobilityPaint(mobilityFromStopId(stopId ?? ''))
 }
@@ -234,7 +245,6 @@ function TransitMapView({
   zoomAction,
   onChoosePoint,
   publishedStops = [],
-  selectedStopId = null,
   coverage = null,
   showCoverage = true,
   onSelectStop,
@@ -361,7 +371,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: line.network === 'brt' ? 2.2 : 4.2, opacity: line.network === 'brt' ? 0.72 : 0.9, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -375,7 +385,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: line.network === 'brt' ? 1.4 : 2.8, opacity: line.network === 'brt' ? 0.9 : 0.96, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: 4.5, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -389,7 +399,7 @@ function TransitMapView({
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: line.network === 'brt' ? 0.9 : 1.8, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
@@ -427,8 +437,8 @@ function TransitMapView({
               positions={positions}
               pathOptions={{
                 color: paint?.core ?? line.color,
-                weight: 0.8,
-                opacity: 0.36,
+                weight: 2.2,
+                opacity: 0.55,
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
@@ -448,24 +458,20 @@ function TransitMapView({
           )
         })}
 
-      {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
+      {/* Icônes de mobilité aux arrêts : pictogrammes train et bus, sans pastilles */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
         return (
-          <CircleMarker
+          <Marker
             key={`corridor-stop-${stop.id}`}
-            center={[stop.lat, stop.lon]}
-            radius={2}
-            pathOptions={{
-              color: paint?.badge ?? line?.color ?? '#475569',
-              weight: 0.8,
-              fillColor: paint?.badge ?? line?.color ?? '#475569',
-              fillOpacity: 1,
-            }}
+            position={[stop.lat, stop.lon]}
+            icon={makeMobilityStopIcon(paint?.id ?? null, stop.name)}
+            keyboard
+            title={`${paint?.label ?? 'Mobilité'} — ${stop.name}`}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
           >
-            <Tooltip direction="top" offset={[0, -8]} opacity={1} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
+            <Tooltip direction="top" offset={[0, -10]} opacity={1} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
               <div className="map-frequency-tooltip">
                 <strong>
                   {paint && <span className={`mobility-badge mobility-${paint.id}`}>{paint.label}</span>}
@@ -488,7 +494,7 @@ function TransitMapView({
                 {line && <span className="map-frequency-disclaimer">Fréquence de service uniquement · pas un prochain passage.</span>}
               </div>
             </Tooltip>
-          </CircleMarker>
+          </Marker>
         )
       })}
 
@@ -503,21 +509,18 @@ function TransitMapView({
       )}
 
       {publishedStopsToRender.map((stop) => (
-        <CircleMarker
+        <Marker
           key={stop.stopId}
-          center={[stop.lat, stop.lon]}
-          radius={stop.stopId === selectedStopId ? 3.2 : 2.2}
-          pathOptions={
-            stop.stopId === selectedStopId
-              ? { color: '#ffffff', weight: 0.8, fillColor: '#146a42', fillOpacity: 1 }
-              : { color: '#ffffff', weight: 0.7, fillColor: '#198754', fillOpacity: 0.92 }
-          }
+          position={[stop.lat, stop.lon]}
+          icon={makeMobilityStopIcon(mobilityFromStopId(stop.stopId), stop.stopName)}
+          keyboard
+          title={stop.stopName}
           eventHandlers={onSelectStop ? { click: () => onSelectStop(stop) } : undefined}
         >
-          <Tooltip direction="top" offset={[0, -6]} opacity={1} className="stop-tooltip">
+          <Tooltip direction="top" offset={[0, -10]} opacity={1} className="stop-tooltip">
             {stop.stopName}
           </Tooltip>
-        </CircleMarker>
+        </Marker>
       ))}
 
       {location && (
