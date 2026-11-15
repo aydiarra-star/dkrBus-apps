@@ -3,12 +3,11 @@
  *
  * CE MODULE N'EST PAS UN FLUX TEMPS RÉEL ET N'EN SIMULE PAS UN.
  *
- * Pour chaque ligne qui publie une fréquence officielle (aujourd'hui TER et
- * BRT, réseau de référence), il projette la grille déclarée au départ de
- * chaque terminus sur l'ensemble des stations : le créneau d'une station est
- * le départ théorique du terminus augmenté du temps de parcours de référence
- * (distance à vol d'oiseau entre stations consécutives / vitesse commerciale
- * déclarée + arrêts intermédiaires). Les deux sens sont distincts :
+ * Pour chaque ligne qui publie une fréquence officielle (TER et BRT), il
+ * projette la grille déclarée au départ de chaque terminus. Le TER utilise
+ * les durées cumulées observées par gare ; le BRT conserve son calcul de
+ * référence (distance à vol d'oiseau / vitesse commerciale + arrêts).
+ * Les deux sens sont distincts :
  * - sens aller : grille projetée depuis le terminus d'origine de la ligne ;
  * - sens retour : grille projetée depuis le terminus opposé.
  *
