@@ -12,6 +12,7 @@ from scripts.process_gtfs_staging import (
     NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
+    VALIDATOR_VERSION,
     SupabaseRest,
     WorkerError,
     validate_claimed_job,
@@ -51,6 +52,9 @@ def valid_job() -> dict:
 
 
 class GTFSWorkerTests(unittest.TestCase):
+    def test_validator_version_tracks_the_current_structural_rules(self) -> None:
+        self.assertEqual(VALIDATOR_VERSION, "dakar-gtfs-validator-v3")
+
     def test_archive_hash_and_size_are_verified(self) -> None:
         payload = b"PK\x03\x04synthetic-test"
         verify_archive_bytes(payload, len(payload), hashlib.sha256(payload).hexdigest())

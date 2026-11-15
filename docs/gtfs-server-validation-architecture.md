@@ -113,7 +113,7 @@ Le validateur vérifie maintenant les règles conditionnelles de `stop_times.txt
 
 Pour `transfers.txt`, les références facultatives `from_route_id`, `to_route_id`, `from_trip_id` et `to_trip_id` sont vérifiées. Lorsqu'un trip et sa route sont tous deux fournis, leur association doit correspondre à `trips.txt`. `min_transfer_time` est requis pour `transfer_type=2` et doit être un entier non négatif lorsqu'il est présent. Les transferts de type 4 et 5 doivent référencer les deux trajets.
 
-Les tests ajoutés utilisent uniquement des archives synthétiques en mémoire/temporaires. Ils ne chargent aucun flux réel, n'écrivent pas dans Supabase et ne modifient aucune donnée de transport. Une structure valide reste distincte de la provenance, de l'autorisation de réutilisation, de la revue humaine et de toute publication.
+Les tests ajoutés utilisent uniquement des archives synthétiques en mémoire/temporaires. Ils ne chargent aucun flux réel, n'écrivent pas dans Supabase et ne modifient aucune donnée de transport. Une structure valide reste distincte de la provenance, de l'autorisation de réutilisation, de la revue humaine et de toute publication. La version du worker passe à `dakar-gtfs-validator-v3` pour distinguer ces règles des rapports produits par la version v2.
 
 ## Journal administratif chaîné (14 novembre 2026)
 
