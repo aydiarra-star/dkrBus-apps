@@ -76,7 +76,7 @@ describe('index de recherche du Trajet', () => {
   it('marque comme non sélectionnable une mobilité sans arrêt déclaré', () => {
     const aftu = index.find((option) => option.value === 'network:aftu_tata')!
     expect(aftu.selectable).toBe(false)
-    expect(aftu.hint).toMatch(/arrêts non publiés/)
+    expect(aftu.hint).toMatch(/pôles de référence/)
     const ter = index.find((option) => option.value === 'network:ter')!
     expect(ter.hint).toMatch(/14 gares/)
   })
