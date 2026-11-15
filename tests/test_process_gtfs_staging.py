@@ -125,6 +125,29 @@ class GTFSWorkerTests(unittest.TestCase):
         with self.assertRaisesRegex(WorkerError, "VALIDATOR_REPORT_ISSUE_INVALID"):
             validate_report(report, VALID_SHA, 128)
 
+    def test_report_rejects_table_counts_above_the_validator_limit(self) -> None:
+        report = valid_report()
+        report["tables"]["stops.txt"] = EXPECTED_VALIDATOR_LIMITS["max_rows_per_table"] + 1
+        with self.assertRaisesRegex(WorkerError, "VALIDATOR_REPORT_TABLE_COUNT_INVALID"):
+            validate_report(report, VALID_SHA, 128)
+
+    def test_report_requires_a_timezone_aware_validation_timestamp(self) -> None:
+        for timestamp in ["not-a-date", "2026-11-15T18:00:00"]:
+            report = valid_report()
+            report["validated_at"] = timestamp
+            with self.subTest(timestamp=timestamp), self.assertRaisesRegex(
+                WorkerError, "VALIDATOR_REPORT_TIMESTAMP_INVALID"
+            ):
+                validate_report(report, VALID_SHA, 128)
+
+    def test_report_rejects_oversized_issue_text(self) -> None:
+        report = valid_report()
+        report["counts"]["errors"] = 1
+        report["structure_valid"] = False
+        report["issues"] = [{"severity": "ERROR", "code": "E", "message": "x" * 501}]
+        with self.assertRaisesRegex(WorkerError, "VALIDATOR_REPORT_ISSUE_INVALID"):
+            validate_report(report, VALID_SHA, 128)
+
     def test_report_must_use_the_expected_validator_resource_limits(self) -> None:
         report = valid_report()
         report["limits"]["max_archive_bytes"] += 1
