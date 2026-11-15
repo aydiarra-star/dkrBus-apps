@@ -81,6 +81,30 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(inbound?.lastElementChild?.textContent).toContain('Université Cheikh Anta Diop')
   })
 
+  it('ne publie pas une séquence isolée dont les terminus contredisent la fiche', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const button = getLineButtons(container, '1')[0]
+    fireEvent.click(button)
+    const row = button.closest('li')!
+    expect(row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')).toBeNull()
+    expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
+    expect(container.textContent).toContain('1 (Aller / Retour)')
+  })
+
+  it('classe la séquence de la ligne 82 en Retour quand ses terminus sont inversés', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const button = getLineButtons(container, '82')[0]
+    fireEvent.click(button)
+    const row = button.closest('li')!
+    await waitFor(() => {
+      expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy()
+    })
+    expect(row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')).toBeNull()
+    const inbound = row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')
+    expect(inbound?.firstElementChild?.textContent).toContain('Comico')
+    expect(inbound?.lastElementChild?.textContent).toContain('Lat Dior')
+  })
+
   it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const expected = [
