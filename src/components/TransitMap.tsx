@@ -356,7 +356,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 4.2, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -370,7 +370,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: 4.5, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: 2.8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -384,7 +384,7 @@ function TransitMapView({
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: 1.8, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
@@ -422,8 +422,8 @@ function TransitMapView({
               positions={positions}
               pathOptions={{
                 color: paint?.core ?? line.color,
-                weight: 2.2,
-                opacity: 0.55,
+                weight: 1.25,
+                opacity: 0.48,
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
@@ -452,8 +452,8 @@ function TransitMapView({
         <CircleMarker
           key={`ter-interchange-${station.id}`}
           center={[station.lat, station.lon]}
-          radius={10}
-          pathOptions={{ color: '#003366', weight: 3, fillColor: '#003366', fillOpacity: 0 }}
+          radius={7.5}
+          pathOptions={{ color: '#003366', weight: 1.5, fillColor: '#003366', fillOpacity: 0 }}
         />
       ))}
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
@@ -464,7 +464,7 @@ function TransitMapView({
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={paint?.id === 'ddd' || paint?.id === 'aftu_tata' ? 5 : 7}
+            radius={paint?.id === 'ddd' || paint?.id === 'aftu_tata' ? 3.5 : 4.5}
             pathOptions={{
               color: paint?.badge ?? line?.color ?? '#475569',
               weight: 2,
