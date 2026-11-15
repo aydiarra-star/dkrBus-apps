@@ -6,6 +6,7 @@ import type { CorridorLine, CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
 import { safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityPaint } from '../domain/mobilityColors'
+import { TER_TRACK_ATTRIBUTION, TER_TRACK_LINE_ID, trackPositionsForLine } from '../domain/terTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
 
@@ -241,10 +242,14 @@ function TransitMapView({
     () =>
       corridorLines.map((line) => ({
         line,
-        positions: line.stopIds
-          .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
-          .filter((stop): stop is CorridorStop => stop !== undefined)
-          .map((stop) => [stop.lat, stop.lon] as [number, number]),
+        // Le TER suit la géométrie des voies livrée dans data/ter/ ; les autres
+        // lignes relient leurs arrêts dans l'ordre de desserte, comme avant.
+        positions:
+          (trackPositionsForLine(line.id) as [number, number][] | undefined) ??
+          line.stopIds
+            .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
+            .filter((stop): stop is CorridorStop => stop !== undefined)
+            .map((stop) => [stop.lat, stop.lon] as [number, number]),
       })),
     [corridorLines, corridorStops],
   )
@@ -316,6 +321,7 @@ function TransitMapView({
             <Polyline
               key={`corridor-${line.id}`}
               positions={positions}
+              attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : undefined}
               pathOptions={{ color: paint?.core ?? line.color, weight: 4.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
