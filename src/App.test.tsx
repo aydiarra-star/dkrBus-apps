@@ -286,7 +286,7 @@ describe('Dakar Bus experience safety', () => {
     ])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'mbaye', /keur mbaye fall/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
@@ -393,7 +393,7 @@ describe('isolation de la vue carte', () => {
     render(<App />)
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
 
     // Deux arrêts du réseau de référence suffisent : aucun passage par la carte.
@@ -1425,7 +1425,7 @@ describe('barre de recherche du Trajet', () => {
     render(<App />)
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
     await act(async () => {
@@ -2090,7 +2090,7 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen/i)
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'rufisque', /rufisque/i)
     const region = screen.getByRole('region', { name: /itinéraires de référence/i })
     const metric = region.textContent ?? ''
