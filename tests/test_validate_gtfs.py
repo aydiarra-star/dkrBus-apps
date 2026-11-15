@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.validate_gtfs import ValidationLimits, validate_gtfs_archive
+from scripts.validate_gtfs import Report, ValidationLimits, validate_gtfs_archive
 
 
 VALID_TABLES = {
@@ -48,6 +48,14 @@ class GTFSValidatorTests(unittest.TestCase):
     @staticmethod
     def issue_codes(report: dict[str, object]) -> set[str]:
         return {str(issue["code"]) for issue in report["issues"]}  # type: ignore[index]
+
+    def test_report_diagnostic_fields_are_bounded(self) -> None:
+        report = Report("feed.zip", ValidationLimits())
+        report.add("ERROR", "C" * 200, "M" * 2_000, table="T" * 200, row=1)
+        issue = report.issues[0]
+        self.assertEqual(len(issue["code"]), 100)
+        self.assertEqual(len(issue["message"]), 500)
+        self.assertEqual(len(issue["table"]), 100)
 
     def test_valid_feed_accepts_gtfs_times_after_midnight(self) -> None:
         report = validate_gtfs_archive(self.make_archive(VALID_TABLES))
