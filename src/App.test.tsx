@@ -1221,7 +1221,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const outRows = [...outbound.querySelectorAll('.station-board-row')]
     const inRows = [...inbound.querySelectorAll('.station-board-row')]
     expect(outRows[0].textContent).toMatch(/^Dakar/)
-    expect(inRows[0].textContent).toMatch(/^AIBD/)
+    expect(inRows[0].textContent).toMatch(/^Aéroport de Dakar – AIBD/)
 
     // Une gare intermédiaire : un créneau isolé par sens, au format du résumé.
     const colobaneOut = outRows.find((row) => row.textContent!.includes('Colobane'))!
@@ -1778,7 +1778,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(form)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
     expect(within(panel).getAllByText('liste des gares TER')).toHaveLength(1)
-    expect(await within(panel).findByText(/Les 13 gares et haltes du TER/i)).toBeTruthy()
+    expect(await within(panel).findByText(/Les 14 gares et haltes du TER/i)).toBeTruthy()
     expect(within(panel).getByRole('log')).toBeTruthy()
   })
 
