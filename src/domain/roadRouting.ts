@@ -42,7 +42,11 @@ export function parseRoadRouteQuery(query: string): { origin: string; destinatio
   if (!match) return null
   const origin = match[1].replace(/^(?:itin[eé]raire|trajet)\s+(?:de\s+)?/i, '').trim()
   const destination = match[2].trim()
-  if (!origin || !destination || normalized(origin) === normalized(destination)) return null
+  // Ne pas détourner les questions en langage naturel adressées au copilote.
+  // Une recherche routière directe doit commencer par un lieu, éventuellement
+  // précédé de « Trajet de » ou « Itinéraire de ».
+  if (/^(?:compare|montre|trouve|recherche|cherche|donne|explique|quel(?:le)?|comment)\b/i.test(origin)) return null
+  if (!origin || !destination || /[,;!?]/.test(destination) || normalized(origin) === normalized(destination)) return null
   return { origin, destination }
 }
 
