@@ -453,6 +453,11 @@ function TransitMapView({
                   <span className="map-frequency-disclaimer">Fréquence de service uniquement · pas un prochain passage.</span>
                 </div>
               </Tooltip>
+              {directionIndex === 0 && (
+                <Tooltip permanent direction="center" opacity={0.88} className="mobility-route-name-label">
+                  {line.shortName}
+                </Tooltip>
+              )}
             </Polyline>
           ))
         })}
@@ -484,6 +489,9 @@ function TransitMapView({
                   <small>Bus {paint?.label ?? line.network.toUpperCase()} – tracé léger en pointillés + arrêts en pastilles</small>
                   <span className="map-frequency-disclaimer">Géométrie de référence simplifiée – pas un tracé métrique.</span>
                 </div>
+              </Tooltip>
+              <Tooltip permanent direction="center" opacity={0.88} className="mobility-route-name-label">
+                {line.shortName}
               </Tooltip>
             </Polyline>
           )
