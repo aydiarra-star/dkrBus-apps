@@ -92,7 +92,7 @@ export interface CorridorNetwork {
 }
 
 /** Enveloppe géographique couvrant la région : Almadies → Rufisque/Bargny,
- *  étendue jusqu'à Diamniadio (terminus TER) et Guédiawaye (terminus BRT). */
+ *  étendue jusqu'à AIBD (terminus TER) et Guédiawaye (terminus BRT). */
 export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: number; maxLon: number } = {
   minLat: 14.60,
   minLon: -17.56,
@@ -148,7 +148,7 @@ export const TER_STOPS: readonly CorridorStop[] = [
   { id: 'ter-thiaroye', name: 'Thiaroye', lat: 14.758771, lon: -17.3802989, order: 6, aliases: ['thiaroye gare'], note: 'Zone 2' },
   { id: 'ter-yeumbeul', name: 'Yeumbeul', lat: 14.764913, lon: -17.3565049, order: 7, aliases: [], note: 'Zone 2' },
   { id: 'ter-mbao', name: 'Keur Mbaye Fall', lat: 14.744079, lon: -17.3138934, order: 8, aliases: ['mbao', 'keur massar'], note: 'Zone 3' },
-  { id: 'ter-pnr', name: 'PNR', lat: 14.7231692, lon: -17.2839425, order: 9, aliases: ['pole nouvelle rufisque'], note: 'Zone 3' },
+  { id: 'ter-pnr', name: 'PNR Rufisque', shortName: 'PNR', lat: 14.7231692, lon: -17.2839425, order: 9, aliases: ['pnr', 'pole nouvelle rufisque', 'pôle nouvelle rufisque'], note: 'Zone 3' },
   { id: 'ter-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 10, aliases: [], note: 'Zone 3' },
   { id: 'ter-bargny', name: 'Bargny', lat: 14.6981798, lon: -17.2292043, order: 11, aliases: [], note: 'Zone 3' },
   { id: 'ter-diamniadio', name: 'Diamniadio', lat: 14.7160641, lon: -17.1984512, order: 12, aliases: ['ville nouvelle'], note: 'Zone 3' },
