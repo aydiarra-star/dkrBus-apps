@@ -2896,27 +2896,40 @@ button:disabled { cursor: not-allowed; }
 }
 
 
-/* Densité progressive des arrêts : points compacts à l'échelle de la ville,
-   pastilles intermédiaires par quartier, libellés complets en zoom rapproché. */
+/* Noms de mobilité conservés à chaque arrêt, en petit format à tous les zooms.
+   Les marqueurs restent compacts sans redevenir des pastilles muettes. */
 .leaflet-map--citywide .mobility-stop-badge {
-  position: relative;
-  top: 4.5px;
-  left: 9px;
-  width: 7px;
-  height: 7px;
+  width: 16px;
+  height: 8px;
   border-width: 1px;
-  font-size: 0;
-}
-.leaflet-map--citywide .mobility-stop-badge > span,
-.leaflet-map--district .mobility-stop-badge > span {
-  display: none;
+  border-radius: 3px;
+  font-size: 5.2px;
+  letter-spacing: -.045em;
+  box-shadow: 0 0 2px rgba(255, 255, 255, .72);
 }
 .leaflet-map--district .mobility-stop-badge {
-  position: relative;
-  top: 2px;
-  left: 6.5px;
-  width: 12px;
-  height: 12px;
+  width: 19px;
+  height: 10px;
   border-width: 1px;
-  font-size: 0;
+  border-radius: 3px;
+  font-size: 6px;
+  letter-spacing: -.04em;
+  box-shadow: 0 0 2px rgba(255, 255, 255, .72);
+}
+/* Un seul nom court par itinéraire, placé discrètement sur son tracé. */
+.leaflet-tooltip.mobility-route-name-label {
+  margin: 0;
+  padding: 0 1px;
+  border: 0;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: none;
+  color: #263b31;
+  font-size: 7px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -.045em;
+  white-space: nowrap;
+  text-shadow: 0 0 2px rgba(255, 255, 255, .9);
+  pointer-events: none;
 }
