@@ -112,7 +112,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(credited[0].positions).toHaveLength(491)
   })
 
-  it('applique les mêmes règles de trait au TER et aux deux sens réels du BRT', () => {
+  it('conserve le trait TER et affine fortement les deux sens réels du BRT', () => {
     const polylines = drawMap([lineOf('ter')[0], lineOf('brt')[0]])
     const ter = polylines.filter((polyline) => polyline.positions.length === 491)
     const brt = polylines.filter((polyline) => polyline.positions.length !== 491)
@@ -123,14 +123,14 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
       BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
     ])
-    // Les deux sens du BRT gardent les mêmes couches visuelles que le TER.
-    expect(ter.map(styleOf)).toEqual([brt[0], brt[2], brt[4]].map(styleOf))
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
+    // Le TER conserve son rendu ; le BRT devient beaucoup plus fin.
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
+    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([2.2, 1.4, 0.9])
   })
 })
 
 describe('carte : visibilité des gares TER et correspondances', () => {
-  it('affiche les 14 gares TER et garde visibles les pastilles aux pôles partagés', () => {
+  it('ne garde que les micro-pastilles TER sur toute la géométrie ferroviaire', () => {
     drawMap()
     const markers = drawn.markers as Array<{
       center: [number, number]
@@ -143,23 +143,27 @@ describe('carte : visibilité des gares TER et correspondances', () => {
         marker.center[0] === stop.lat && marker.center[1] === stop.lon,
       )
       expect(atStation.length, stop.name).toBeGreaterThan(0)
+      expect(atStation.every((marker) =>
+        marker.radius === 2 &&
+        marker.pathOptions.fillOpacity === 1 &&
+        marker.pathOptions.fillColor === '#003366',
+      ), stop.name).toBe(true)
+    }
 
-      const shared = ALL_CORRIDOR_STOPS.some((candidate) => {
-        if (candidate.id.startsWith('ter-')) return false
+    // Aucune pastille d'une autre mobilité, même au niveau d'une gare partagée.
+    for (const marker of markers) {
+      const nearTerTrack = TER_TRACK.positions.slice(1).some((end, index) => {
+        const start = TER_TRACK.positions[index]
+        const lat = (start[0] + end[0]) / 2
         const meters = Math.hypot(
-          (candidate.lat - stop.lat) * 111_000,
-          (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180),
+          (marker.center[0] - lat) * 111_000,
+          (marker.center[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
         )
-        return meters <= 30
+        return meters <= 35
       })
-
-      if (shared) {
-        // La pastille du réseau correspondant reste visible sous l'anneau TER.
-        expect(atStation.some((marker) => marker.pathOptions.fillOpacity > 0), stop.name).toBe(true)
-        expect(atStation.some((marker) => marker.radius === 7.5 && marker.pathOptions.fillOpacity === 0), stop.name).toBe(true)
-      } else {
-        expect(atStation.some((marker) => marker.radius === 4.5 && marker.pathOptions.fillOpacity === 1), stop.name).toBe(true)
-      }
+      if (nearTerTrack) expect(marker.pathOptions.fillColor).toBe('#003366')
+      expect(marker.radius).toBe(2)
+      expect(marker.pathOptions.weight).toBe(0.8)
     }
   })
 })
