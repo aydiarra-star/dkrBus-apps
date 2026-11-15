@@ -564,7 +564,7 @@ function TransitMapView({
           />
           <Polyline
             positions={searchRoutePositions}
-            pathOptions={{ color: '#087f5b', weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+            pathOptions={{ color: '#7c3aed', weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
           />
         </>
       )}
