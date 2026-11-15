@@ -1369,12 +1369,12 @@ describe('barre de recherche du Trajet', () => {
 
     // Chaque mobilité est trouvable par son sigle comme par son autorité.
     for (const [query, expected] of [
-      ['aftu', /AFTU/],
+      ['aftu', /72 lignes.*non utilisable/],
       ['cetud', /DDD/],
       ['senter', /TER/],
       ['sunubrt', /BRT/],
       ['dakar dem dikk', /DDD/],
-      ['tata', /AFTU \/ TATA/],
+      ['tata', /72 lignes.*non utilisable/],
     ] as const) {
       fireEvent.change(input, { target: { value: query } })
       expect(within(list).getAllByRole('option').length).toBeGreaterThan(0)
@@ -1397,7 +1397,7 @@ describe('barre de recherche du Trajet', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'aftu' } })
     const list = screen.getByRole('listbox', { name: /départ : arrêts et mobilités/i })
-    fireEvent.click(within(list).getByRole('option', { name: /19 pôles de référence.*non utilisable/ }))
+    fireEvent.click(within(list).getByRole('option', { name: /72 lignes.*non utilisable/ }))
 
     // Aucun point n’est créé : le réseau dit pourquoi il n’est pas utilisable.
     expect(screen.getByText(/aucun arrêt n’est inventé/i)).toBeTruthy()
