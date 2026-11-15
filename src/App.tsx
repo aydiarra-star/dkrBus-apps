@@ -98,6 +98,7 @@ import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
 import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { getServiceDisplayState, serviceWindowForDay, type ServiceDisplayState } from './domain/serviceStatus'
+import { hasSenegalPublicHolidayCalendar } from './domain/senegalPublicHolidays'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
 import {
@@ -2202,7 +2203,11 @@ function ReferenceNetworkSummary({
     if (!refData) return null
     return serviceWindowForDay(now, refData.officialFrequencies, { start: refData.serviceStart, end: refData.serviceEnd })
   })
-  const serviceStates = networks.map((_, index): ServiceDisplayState => {
+  const holidayCalendarAvailable = hasSenegalPublicHolidayCalendar(now)
+  const serviceStates = networks.map((network, index): ServiceDisplayState => {
+    if (network.id === 'ter' && !holidayCalendarAvailable) {
+      return { status: 'FINISHED', label: 'Calendrier à confirmer', showCountdown: false }
+    }
     const window = serviceWindows[index]
     if (!window) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
     return getServiceDisplayState(now, window.start, window.end)
@@ -2243,9 +2248,9 @@ function ReferenceNetworkSummary({
                   ? <MobilityBadge id={network.id}>{refData?.shortName ?? network.label}</MobilityBadge>
                   : <span className="network-summary-name">{refData?.shortName ?? network.label}</span>}
                 {serviceState.status === 'FINISHED' ? (
-                  <span className="network-summary-passage is-finished" role="status" aria-label={`${refData?.shortName ?? network.label} : fin de service.`}>
-                    <strong>Fin de service</strong>
-                    <small>{refData ? `Reprise à ${serviceWindows[index]?.start ?? refData.serviceStart}` : networkMetaLabel(network)}</small>
+                  <span className="network-summary-passage is-finished" role="status" aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}>
+                    <strong>{serviceState.label === 'Calendrier à confirmer' ? serviceState.label : 'Fin de service'}</strong>
+                    <small>{serviceState.label === 'Calendrier à confirmer' ? 'Dates fériées à actualiser' : refData ? `Reprise à ${serviceWindows[index]?.start ?? refData.serviceStart}` : networkMetaLabel(network)}</small>
                   </span>
                 ) : serviceState.status === 'UPCOMING' ? (
                   <span className="network-summary-passage is-upcoming" role="status" aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}>
@@ -2284,7 +2289,7 @@ function ReferenceNetworkSummary({
                     <>
                       <span className="station-board-context">
                         {refData ? `${refData.coverage} · Service ${refData.serviceWindow}` : network.description}
-                        {serviceState.status === 'FINISHED' && ' · Service terminé pour la nuit'}
+                        {serviceState.status === 'FINISHED' && (network.id === 'ter' && !holidayCalendarAvailable ? ' · Calendrier férié à actualiser' : ' · Service terminé pour la nuit')}
                         {serviceState.status === 'UPCOMING' && ' · Reprise imminente'}
                       </span>
                       {boards.length > 0 && serviceState.status === 'ACTIVE' ? (
@@ -2292,6 +2297,10 @@ function ReferenceNetworkSummary({
                       ) : boards.length > 0 && serviceState.status === 'UPCOMING' ? (
                         <p className="station-board-pending">
                           Le service n’a pas encore démarré. Les créneaux par station seront affichés dès {refData?.serviceStart ?? 'le début du service'}.
+                        </p>
+                      ) : serviceState.status === 'FINISHED' && network.id === 'ter' && !holidayCalendarAvailable ? (
+                        <p className="station-board-pending">
+                          Le calendrier annuel des jours fériés sénégalais doit être confirmé avant de publier les prochains créneaux TER. Aucun compte à rebours n’est inventé.
                         </p>
                       ) : serviceState.status === 'FINISHED' ? (
                         <p className="station-board-pending">
