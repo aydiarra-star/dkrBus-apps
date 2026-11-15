@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { AFTU_ROUTE_EVIDENCE, getAftuRouteEvidence } from './aftuRouteEvidence'
 
 describe('adaptateur de preuves AFTU', () => {
-  it('charge les 27 fiches de parcours sans les injecter dans le catalogue public', () => {
-    expect(AFTU_ROUTE_EVIDENCE).toHaveLength(27)
-    expect(new Set(AFTU_ROUTE_EVIDENCE.map((route) => route.line)).size).toBe(27)
+  it('charge les 28 fiches de parcours sans les injecter dans le catalogue public', () => {
+    expect(AFTU_ROUTE_EVIDENCE).toHaveLength(28)
+    expect(new Set(AFTU_ROUTE_EVIDENCE.map((route) => route.line)).size).toBe(28)
     expect(getAftuRouteEvidence('86')?.outbound.waypoints).toHaveLength(68)
+    expect(getAftuRouteEvidence('82')?.outbound.waypoints).toHaveLength(51)
+    expect(getAftuRouteEvidence('82')?.inbound.waypoints).toHaveLength(49)
     expect(getAftuRouteEvidence('86')?.inbound.waypoints).toHaveLength(64)
     expect(getAftuRouteEvidence('87')?.outbound.waypoints).toHaveLength(68)
     expect(getAftuRouteEvidence('87')?.inbound.waypoints).toHaveLength(71)
@@ -72,7 +74,7 @@ describe('adaptateur de preuves AFTU', () => {
     expect(getAftuRouteEvidence('91')?.sourceStatus).toBe('user-validated-cetud-sequences')
   })
 
-  it('identifie toutes les séquences retour manquantes dans les 27 fiches détaillées chargées', () => {
+  it('identifie toutes les séquences retour manquantes dans les 28 fiches détaillées chargées', () => {
     const missing = AFTU_ROUTE_EVIDENCE
       .filter((route) => route.inbound.sequenceStatus === 'missing')
       .map((route) => route.line)
