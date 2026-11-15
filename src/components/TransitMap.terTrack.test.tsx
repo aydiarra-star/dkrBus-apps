@@ -68,7 +68,7 @@ function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CO
       corridorStops={stops}
     />,
   )
-  return drawn.polylines.filter((polyline) => (polyline as DrawnPolyline).pathOptions.className !== 'mobility-route-flow') as DrawnPolyline[]
+  return drawn.polylines.filter((polyline) => !['mobility-route-flow', 'mobility-route-flow-glow'].includes((polyline as DrawnPolyline).pathOptions.className ?? '')) as DrawnPolyline[]
 }
 
 /** Dessin d'avant la modification : les arrêts de la ligne reliés dans l'ordre de desserte. */
