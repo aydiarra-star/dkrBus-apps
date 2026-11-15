@@ -68,6 +68,20 @@ jobs:
       - name: Extract DDD ArcGIS stop and route features (read-only)
         run: node scripts/extract_ddd_arcgis_feature_layers.mjs
 
+      - name: Check DDD ArcGIS geometric crosswalk script
+        run: node --check scripts/audit_ddd_arcgis_geometry_crosswalk.mjs
+
+      - name: Audit DDD ArcGIS stop-to-route geometry (read-only)
+        run: node scripts/audit_ddd_arcgis_geometry_crosswalk.mjs
+
+      - name: Upload ArcGIS stop-to-route crosswalk and audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-stop-route-crosswalk
+          path: artifacts/ddd/arcgis-2024-audit/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload raw ArcGIS and GeoJSON evidence
         uses: actions/upload-artifact@v4
         with:
