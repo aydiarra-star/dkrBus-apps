@@ -62,6 +62,37 @@ function routeCompleteness(route: MobilityRouteReference): number {
   return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
 }
 
+function endpointTokens(value: string): string[] {
+  return value.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\\u0300-\\u036f]/g, '')
+    .replace(/\\bucad\\b/g, 'universite cheikh anta diop')
+    .replace(/\\bsham\\b/g, 'sahm')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\\b(terminus|gare|routiere|station|arret|rond|point|giratoire|route|principale|des|de|du|la|le|les)\\b/g, ' ')
+    .split(/\\s+/)
+    .filter((token) => token.length > 1)
+}
+
+function stopMatchesEndpoint(stop: string, endpoint: string): boolean {
+  const stopParts = endpointTokens(stop)
+  const endpointParts = endpointTokens(endpoint)
+  return endpointParts.length > 0 && endpointParts.every((part) => stopParts.includes(part))
+}
+
+function classifyStopSequence(
+  stops: readonly string[],
+  origin: string,
+  destination: string,
+): 'outbound' | 'inbound' | 'unknown' {
+  if (stops.length < 2) return 'unknown'
+  const first = stops[0]
+  const last = stops[stops.length - 1]
+  if (stopMatchesEndpoint(first, origin) && stopMatchesEndpoint(last, destination)) return 'outbound'
+  if (stopMatchesEndpoint(first, destination) && stopMatchesEndpoint(last, origin)) return 'inbound'
+  return 'unknown'
+}
+
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
 
@@ -216,12 +247,27 @@ function AftuTataScheduleBoard({
                     // AFTU et TATA sont un seul réseau : on ne mélange jamais
                     // les fiches de deux sources comme s'il s'agissait de deux variantes.
                     const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
-                    const outboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
-                    const inboundStops = route?.inboundWaypoints ?? []
                     const outboundOrigin = route?.outboundOrigin ?? line.origin
                     const outboundDestination = route?.outboundDestination ?? line.destination
                     const inboundOrigin = route?.inboundOrigin ?? outboundDestination
                     const inboundDestination = route?.inboundDestination ?? outboundOrigin
+                    const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
+                    const rawInboundStops = route?.inboundWaypoints ?? []
+                    const outboundSequenceDirection = classifyStopSequence(rawOutboundStops, outboundOrigin, outboundDestination)
+                    const inboundSequenceDirection = classifyStopSequence(rawInboundStops, inboundOrigin, inboundDestination)
+                    // Les listes sont déjà ordonnées par leur source. Si les
+                    // terminus prouvent qu'elles ont été étiquetées à l'envers,
+                    // on les affecte au bon sens sans jamais inverser une liste.
+                    const outboundStops = outboundSequenceDirection === 'inbound'
+                      ? inboundSequenceDirection === 'outbound' ? rawInboundStops : []
+                      : inboundSequenceDirection === 'outbound' && outboundSequenceDirection === 'unknown'
+                        ? rawInboundStops
+                        : rawOutboundStops
+                    const inboundStops = outboundSequenceDirection === 'inbound'
+                      ? inboundSequenceDirection === 'outbound' ? rawOutboundStops : rawOutboundStops
+                      : inboundSequenceDirection === 'outbound' && outboundSequenceDirection === 'unknown'
+                        ? rawOutboundStops
+                        : rawInboundStops
                     const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
                     const serviceLabel = serviceState.status === 'UPCOMING'
                       ? serviceState.label
