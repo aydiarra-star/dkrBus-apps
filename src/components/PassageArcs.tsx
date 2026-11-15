@@ -1,7 +1,8 @@
 /**
- * Les deux arcs verts scintillants affichés devant chaque décompte de créneau
- * théorique (« 17 min ») des tableaux horaires de toutes les mobilités
- * (TER, BRT, DDD, AFTU/TATA).
+ * Les deux arcs verts scintillants (un grand arc externe et un petit arc
+ * interne imbriqué à sa droite) affichés devant chaque décompte de créneau
+ * théorique (« 17 min », « 50 min ») des tableaux horaires de toutes les
+ * mobilités (TER, BRT, DDD, AFTU/TATA).
  *
  * Strictement identiques partout : même tracé, même classe
  * (`station-board-double-apostrophe`), même animation CSS
@@ -17,9 +18,9 @@
  */
 export function PassageArcs() {
   return (
-    <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false">
-      <path d="M4 8 C4.5 6.5 5.5 4.5 7 2" />
-      <path d="M9 8 C9.5 6.5 10.5 4.5 12 2" />
+    <svg className="station-board-double-apostrophe" viewBox="0 0 15 24" aria-hidden="true" focusable="false">
+      <path d="M6.3 2.6 A13.6 13.6 0 0 0 6.3 21.4" />
+      <path d="M11.9 8.6 A5.4 5.4 0 0 0 11.9 15.4" />
     </svg>
   )
 }

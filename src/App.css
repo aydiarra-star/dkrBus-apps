@@ -1623,10 +1623,10 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: .025em;
 }
 .network-summary-passage { display: grid; justify-items: end; gap: 1px; text-align: right; }
-.station-board-double-apostrophe { display: inline-block; width: 11px; height: 9px; margin-right: 5px; vertical-align: -1px; overflow: visible; fill: none; stroke: var(--passage-green); stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 1px color-mix(in srgb, var(--passage-green) 55%, transparent)); animation: station-board-apostrophe-twinkle 1.35s ease-in-out infinite; }
+.station-board-double-apostrophe { display: inline-block; flex: 0 0 auto; width: 0.5625em; height: 0.9em; margin-right: 0.35em; vertical-align: -0.09em; overflow: visible; fill: none; stroke: var(--passage-green); stroke-width: 4.6; stroke-linecap: round; filter: drop-shadow(0 0 0.8px color-mix(in srgb, var(--passage-green) 50%, transparent)); animation: station-board-apostrophe-twinkle 1.35s ease-in-out infinite; }
 @keyframes station-board-apostrophe-twinkle {
-  0%, 100% { opacity: .62; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--passage-green) 25%, transparent)); }
-  50% { opacity: 1; filter: drop-shadow(0 0 2px color-mix(in srgb, var(--passage-green) 72%, transparent)); }
+  0%, 100% { opacity: .65; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--passage-green) 25%, transparent)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 1.2px color-mix(in srgb, var(--passage-green) 68%, transparent)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .station-board-double-apostrophe { animation: none; opacity: 1; }
