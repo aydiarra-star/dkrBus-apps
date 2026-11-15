@@ -1,0 +1,409 @@
+{
+  "generated_at": "2026-11-15T11:26:00.667Z",
+  "offline": false,
+  "captures": [
+    {
+      "file": "app-parcours-complet.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 12,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 5
+      }
+    },
+    {
+      "file": "app-dakar-z16.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 16,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "app-dakar-z18.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 18,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "app-diamniadio-z16.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 16,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "app-diamniadio-z18.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 18,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "app-aibd-z16.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 16,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "app-aibd-z18.jpg",
+      "kind": "application",
+      "base": "osm",
+      "zoom": 18,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "controle-dakar-osm-z19.jpg",
+      "kind": "controle",
+      "base": "osm",
+      "zoom": 19,
+      "tiles": {
+        "total": 28,
+        "loaded": 28,
+        "pending": 0
+      },
+      "http": {
+        "200": 28
+      }
+    },
+    {
+      "file": "controle-dakar-satellite-z19.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 19,
+      "tiles": {
+        "total": 28,
+        "loaded": 28,
+        "pending": 0
+      },
+      "http": {
+        "200": 28
+      }
+    },
+    {
+      "file": "controle-dakar-satellite-z18.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 18,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-dakar-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 28,
+        "loaded": 28,
+        "pending": 0
+      },
+      "http": {
+        "200": 28
+      }
+    },
+    {
+      "file": "controle-diamniadio-osm-z18.jpg",
+      "kind": "controle",
+      "base": "osm",
+      "zoom": 18,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-diamniadio-satellite-z18.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 18,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-diamniadio-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "controle-aibd-osm-z19.jpg",
+      "kind": "controle",
+      "base": "osm",
+      "zoom": 19,
+      "tiles": {
+        "total": 30,
+        "loaded": 30,
+        "pending": 0
+      },
+      "http": {
+        "200": 30
+      }
+    },
+    {
+      "file": "controle-aibd-satellite-z19.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 19,
+      "tiles": {
+        "total": 30,
+        "loaded": 30,
+        "pending": 0
+      },
+      "http": {
+        "200": 30
+      }
+    },
+    {
+      "file": "controle-aibd-satellite-z18.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 18,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "controle-aibd-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 30,
+        "loaded": 30,
+        "pending": 0
+      },
+      "http": {
+        "200": 30
+      }
+    },
+    {
+      "file": "controle-ligne-phase1-sommet-60-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-ligne-phase1-sommet-150-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-ligne-phase1-sommet-240-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 28,
+        "loaded": 28,
+        "pending": 0
+      },
+      "http": {
+        "200": 28
+      }
+    },
+    {
+      "file": "controle-ligne-phase1-sommet-290-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "controle-ligne-phase2-sommet-345-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    },
+    {
+      "file": "controle-ligne-phase2-sommet-385-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 35,
+        "loaded": 35,
+        "pending": 0
+      },
+      "http": {
+        "200": 35
+      }
+    },
+    {
+      "file": "controle-ligne-phase2-sommet-425-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 30,
+        "loaded": 30,
+        "pending": 0
+      },
+      "http": {
+        "200": 30
+      }
+    },
+    {
+      "file": "controle-ligne-phase2-sommet-465-satellite-z17.jpg",
+      "kind": "controle",
+      "base": "sat",
+      "zoom": 17,
+      "tiles": {
+        "total": 24,
+        "loaded": 24,
+        "pending": 0
+      },
+      "http": {
+        "200": 24
+      }
+    }
+  ],
+  "app": {
+    "attribution": "© OpenStreetMap, Tracé TER : © les contributeurs d’OpenStreetMap (licence ODbL)",
+    "polylines_total": 13,
+    "ter_polylines": [
+      {
+        "count": 491,
+        "color": "#ffffff",
+        "weight": 11,
+        "dash": null,
+        "identical": true
+      },
+      {
+        "count": 491,
+        "color": "#003366",
+        "weight": 8,
+        "dash": null,
+        "identical": true
+      },
+      {
+        "count": 491,
+        "color": "#1D4ED8",
+        "weight": 4.5,
+        "dash": null,
+        "identical": true
+      }
+    ],
+    "other_polylines_vertex_counts": [
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      7,
+      23,
+      23,
+      23
+    ]
+  }
+}
