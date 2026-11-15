@@ -723,6 +723,15 @@ class GTFSValidator:
         self._check_stop_time_chronology()
         self._check_frequency_ranges()
         self._check_shape_distances()
+        if "calendar.txt" in self.table_infos:
+            for service_id in sorted(self.calendar_date_ids.difference(self.calendar_ids)):
+                self.report.add(
+                    "ERROR",
+                    "UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE",
+                    f"calendar_dates.txt référence un service « {service_id} » absent de calendar.txt.",
+                    "calendar_dates.txt",
+                )
+
         if self.agency_rows > 1:
             for line in self.agency_missing_id_rows:
                 self.report.add("ERROR", "MISSING_AGENCY_ID", "agency_id est requis lorsque plusieurs agences sont définies.", "agency.txt", line)
