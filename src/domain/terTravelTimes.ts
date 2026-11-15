@@ -27,6 +27,8 @@ export interface TerSegmentTravelTime {
   derivation: 'difference-of-cumulative-ranges'
 }
 
+export const TER_DURATIONS_SAME_BOTH_DIRECTIONS = true as const
+
 export const TER_STATION_TRAVEL_TIMES: readonly TerStationTravelTime[] = [
   { stopId: 'ter-dakar', station: 'Dakar', cumulativeFromDakar: { min: 0, max: 0 } },
   { stopId: 'ter-colobane', station: 'Colobane', cumulativeFromDakar: { min: 3, max: 3 } },
