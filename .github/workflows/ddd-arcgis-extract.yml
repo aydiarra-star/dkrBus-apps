@@ -1,0 +1,39 @@
+name: DDD ArcGIS read-only extraction
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/extract_ddd_arcgis_feature_layers.mjs'
+      - '.github/workflows/ddd-arcgis-extract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    name: Extract DDD ArcGIS source features
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check extraction script syntax
+        run: node --check scripts/extract_ddd_arcgis_feature_layers.mjs
+
+      - name: Extract ArcGIS stop and route features (read-only)
+        run: node scripts/extract_ddd_arcgis_feature_layers.mjs
+
+      - name: Upload raw ArcGIS and GeoJSON evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-2024-source-extract
+          path: artifacts/ddd/arcgis-2024-extract/
+          if-no-files-found: error
+          retention-days: 30
