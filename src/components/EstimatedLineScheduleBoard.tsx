@@ -628,7 +628,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       </ul>
       {(() => {
         const incompleteLines = catalogue.flatMap((line) => {
-          const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
           const routeCandidates = routeReferences.filter((item) => matchesDirectionalRoute(line, item))
           const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           const outboundOrigin = route?.outboundOrigin ?? line.origin
