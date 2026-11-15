@@ -258,16 +258,19 @@ function AftuTataScheduleBoard({
                     // Les listes sont déjà ordonnées par leur source. Si les
                     // terminus prouvent qu'elles ont été étiquetées à l'envers,
                     // on les affecte au bon sens sans jamais inverser une liste.
-                    const outboundStops = outboundSequenceDirection === 'inbound'
-                      ? inboundSequenceDirection === 'outbound' ? rawInboundStops : []
-                      : inboundSequenceDirection === 'outbound' && outboundSequenceDirection === 'unknown'
-                        ? rawInboundStops
-                        : rawOutboundStops
-                    const inboundStops = outboundSequenceDirection === 'inbound'
-                      ? inboundSequenceDirection === 'outbound' ? rawOutboundStops : rawOutboundStops
-                      : inboundSequenceDirection === 'outbound' && outboundSequenceDirection === 'unknown'
-                        ? rawOutboundStops
-                        : rawInboundStops
+                    let outboundStops = rawOutboundStops
+                    let inboundStops = rawInboundStops
+                    if (outboundSequenceDirection === 'inbound') {
+                      if (inboundSequenceDirection === 'outbound') {
+                        outboundStops = rawInboundStops
+                        inboundStops = rawOutboundStops
+                      } else {
+                        outboundStops = []
+                        inboundStops = rawOutboundStops
+                      }
+                    } else if (inboundSequenceDirection === 'inbound') {
+                      inboundStops = []
+                    }
                     const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
                     const serviceLabel = serviceState.status === 'UPCOMING'
                       ? serviceState.label
