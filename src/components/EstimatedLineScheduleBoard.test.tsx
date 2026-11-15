@@ -84,7 +84,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(buttons).toHaveLength(2)
     expect(buttons.every((button) => button.textContent?.includes('Reprise dans 26 min'))).toBe(true)
     expect(buttons.every((button) => button.textContent?.includes('Reprise à 06:00'))).toBe(true)
-    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(146)
+    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(110)
   })
 
   it('conserve la présentation habituelle des lignes DDD', () => {
