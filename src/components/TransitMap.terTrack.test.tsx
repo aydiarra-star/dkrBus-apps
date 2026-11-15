@@ -7,8 +7,8 @@ import type { ReactNode } from 'react'
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
-import { TER_TRACK, TER_TRACK_ATTRIBUTION } from '../domain/terTrackGeometry'
-import { BRT_B1_TRACKS, BRT_TRACK_ATTRIBUTION } from '../domain/brtTrackGeometry'
+import { TER_TRACK } from '../domain/terTrackGeometry'
+import { BRT_B1_TRACKS } from '../domain/brtTrackGeometry'
 
 interface DrawnPolyline {
   positions: Array<[number, number]>
@@ -105,10 +105,10 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(drawMap().some((polyline) => polyline.positions.length === straight.length && polyline.positions.every((position, index) => position[0] === straight[index][0] && position[1] === straight[index][1]))).toBe(false)
   })
 
-  it('crédite OpenStreetMap sur le trait du TER, et seulement sur lui', () => {
-    const credited = drawMap().filter((polyline) => polyline.attribution === TER_TRACK_ATTRIBUTION)
-    expect(credited).toHaveLength(1)
-    expect(credited[0].positions).toHaveLength(491)
+  it('ne répète pas les crédits OSM sur les traits du TER (crédit unique sur le fond de carte)', () => {
+    const ter = drawMap().filter((polyline) => polyline.positions.length === 491)
+    expect(ter).toHaveLength(3)
+    expect(ter.every((polyline) => polyline.attribution === undefined)).toBe(true)
   })
 
   it('rétablit les épaisseurs historiques du TER et des deux sens réels du BRT', () => {
@@ -197,7 +197,7 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
 })
 
 describe('carte : les autres mobilités ne changent pas', () => {
-  it('trace le BRT sur ses deux géométries OSM et crédite la source', () => {
+  it('trace le BRT sur ses deux géométries OSM sans répéter les crédits sur chaque trait', () => {
     const lines = lineOf('brt')
     expect(lines.length).toBeGreaterThan(0)
     const polylines = drawMap(lines)
@@ -209,7 +209,7 @@ describe('carte : les autres mobilités ne changent pas', () => {
     ]
     for (const [index, polyline] of polylines.entries()) {
       expect(polyline.positions).toEqual(expectedTracks[index])
-      expect(polyline.attribution).toBe(index >= 4 ? BRT_TRACK_ATTRIBUTION : undefined)
+      expect(polyline.attribution).toBeUndefined()
     }
   })
 
