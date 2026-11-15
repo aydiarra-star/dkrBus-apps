@@ -7,6 +7,7 @@ import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequ
 import { safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityPaint } from '../domain/mobilityColors'
 import { TER_TRACK_ATTRIBUTION, TER_TRACK_LINE_ID, trackPositionsForLine } from '../domain/terTrackGeometry'
+import { BRT_TRACK_ATTRIBUTION, brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
 
@@ -270,17 +271,23 @@ function TransitMapView({
   }, [corridorStops])
   const corridorLineStops = useMemo(
     () =>
-      corridorLines.map((line) => ({
-        line,
-        // Le TER suit la géométrie des voies livrée dans data/ter/ ; les autres
-        // lignes relient leurs arrêts dans l'ordre de desserte, comme avant.
-        positions:
-          (trackPositionsForLine(line.id) as [number, number][] | undefined) ??
-          line.stopIds
-            .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
-            .filter((stop): stop is CorridorStop => stop !== undefined)
-            .map((stop) => [stop.lat, stop.lon] as [number, number]),
-      })),
+      corridorLines.map((line) => {
+        const terTrack = trackPositionsForLine(line.id) as [number, number][] | undefined
+        const brtTracks = brtTrackPositionsForLine(line.id) as readonly (readonly [number, number][])[] | undefined
+        return {
+          line,
+          // Le TER et le BRT suivent les géométries OSM de leurs voies.
+          // Les autres lignes conservent leurs tracés de référence actuels.
+          positions:
+            terTrack ??
+            (brtTracks?.[0] as [number, number][] | undefined) ??
+            line.stopIds
+              .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
+              .filter((stop): stop is CorridorStop => stop !== undefined)
+              .map((stop) => [stop.lat, stop.lon] as [number, number]),
+          additionalPositions: brtTracks?.slice(1) as [number, number][][] | undefined,
+        }
+      }),
     [corridorLines, corridorStops],
   )
 
@@ -341,42 +348,42 @@ function TransitMapView({
       {/* Halo + casing pour TER/BRT uniquement */}
       {corridorLineStops
         .filter(({ line }) => line.network === 'ter' || line.network === 'brt')
-        .map(({ line, positions }) => {
+        .flatMap(({ line, positions, additionalPositions }) => {
           const paint = paintFor(line.network)
-          if (!paint) return null
-          return (
+          if (!paint) return []
+          return [positions, ...(additionalPositions ?? [])].map((track, directionIndex) => (
             <Polyline
-              key={`corridor-halo-${line.id}`}
-              positions={positions}
+              key={`corridor-halo-${line.id}-${directionIndex}`}
+              positions={track}
               interactive={false}
               pathOptions={{ color: '#ffffff', weight: 11, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
             />
-          )
+          ))
         })}
       {corridorLineStops
         .filter(({ line }) => line.network === 'ter' || line.network === 'brt')
-        .map(({ line, positions }) => {
+        .flatMap(({ line, positions, additionalPositions }) => {
           const paint = paintFor(line.network)
-          if (!paint) return null
-          return (
+          if (!paint) return []
+          return [positions, ...(additionalPositions ?? [])].map((track, directionIndex) => (
             <Polyline
-              key={`corridor-casing-${line.id}`}
-              positions={positions}
+              key={`corridor-casing-${line.id}-${directionIndex}`}
+              positions={track}
               interactive={false}
               pathOptions={{ color: paint.casing, weight: 8, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
             />
-          )
+          ))
         })}
       {/* Tracés continus TER/BRT */}
       {corridorLineStops
         .filter(({ line }) => line.network === 'ter' || line.network === 'brt')
-        .map(({ line, positions }) => {
+        .flatMap(({ line, positions, additionalPositions }) => {
           const paint = paintFor(line.network)
-          return (
+          return [positions, ...(additionalPositions ?? [])].map((track, directionIndex) => (
             <Polyline
-              key={`corridor-${line.id}`}
-              positions={positions}
-              attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : undefined}
+              key={`corridor-${line.id}-${directionIndex}`}
+              positions={track}
+              attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
               pathOptions={{ color: paint?.core ?? line.color, weight: 4.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
