@@ -96,7 +96,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       expect(polyline.positions).toEqual(TER_TRACK.positions)
     }
     // Halo blanc, liseré, trait plein : les mêmes épaisseurs qu'avant.
-    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([11, 8, 4.5])
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 
   it('ne relie plus les gares du TER par des segments droits', () => {
@@ -126,7 +126,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     ])
     // Les deux sens du BRT gardent les mêmes couches visuelles que le TER.
     expect(ter.map(styleOf)).toEqual([brt[0], brt[2], brt[4]].map(styleOf))
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([11, 8, 4.5])
+    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 })
 
