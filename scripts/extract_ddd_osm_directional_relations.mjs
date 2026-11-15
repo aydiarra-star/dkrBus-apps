@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from 'node:fs/promises';
 const out='artifacts/ddd/osm-217-218-219-228';
-const query='[out:json][timeout:90];\n(\n relation["type"="route"]["route"="bus"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\n relation["type"="route_master"]["route_master"="bus"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\n relation["type"="route"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\n);\nout body geom;';
+const query='[out:json][timeout:90];\\n(\\n relation["type"="route"]["route"="bus"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\\n relation["type"="route_master"]["route_master"="bus"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["ref"~"^(217|218|219|228)$"](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["route"="bus"]["name"~"Dakar|Dem Dikk|217|218|219|228|Daroukhane|Ouakam|Thiaroye|Yenne",i](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["route"="bus"]["from"~"Daroukhane|Thiaroye|Rufisque",i](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["route"="bus"]["to"~"Ouakam|Aéroport|Yenne|Rufisque",i](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["route"="bus"]["network"~"Dakar|Dem Dikk",i](12.0,-17.9,15.2,-16.0);\\n relation["type"="route"]["route"="bus"]["operator"~"Dakar|Dem Dikk",i](12.0,-17.9,15.2,-16.0);\\n);\\nout body geom;';
 const endpoints=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
 let data=null,usedEndpoint=null,lastError=null;
 for(const endpoint of endpoints){
