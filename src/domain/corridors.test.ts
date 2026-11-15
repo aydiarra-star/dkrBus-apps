@@ -15,8 +15,8 @@ import {
 } from './corridors'
 
 describe('réseau de référence TER/BRT', () => {
-  it('porte les 13 gares TER et les 23 stations BRT annoncées publiquement', () => {
-    expect(TER_STOPS).toHaveLength(13)
+  it('porte les 14 gares TER jusqu’à AIBD et les 23 stations BRT annoncées publiquement', () => {
+    expect(TER_STOPS).toHaveLength(14)
     expect(BRT_STOPS).toHaveLength(23)
   })
 
@@ -134,7 +134,8 @@ describe('réseau de référence TER/BRT', () => {
     expect(searchCorridorStops('diamniadio')[0]?.id).toBe('ter-diamniadio')
     expect(searchCorridorStops('Keur Mbaye Fall')[0]?.id).toBe('ter-mbao')
     expect(searchCorridorStops('Mbao')[0]?.name).toBe('Keur Mbaye Fall')
-    expect(searchCorridorStops('aéroport blaise diagne')).toHaveLength(0)
+    expect(searchCorridorStops('aéroport blaise diagne')[0]?.id).toBe('ter-aibd')
+    expect(searchCorridorStops('AIBD')[0]?.id).toBe('ter-aibd')
   })
 
   it('ne renvoie rien plutôt que deviner un lieu inconnu', () => {
