@@ -35,7 +35,10 @@ vi.mock('react-leaflet', () => {
     TileLayer: Leaf,
     Tooltip: Leaf,
     Circle: Leaf,
-    CircleMarker: (props: Record<string, unknown>) => {\n      drawn.markers.push(props)\n      return null\n    },
+    CircleMarker: (props: Record<string, unknown>) => {
+      drawn.markers.push(props)
+      return null
+    },
     Marker: Leaf,
     Rectangle: Leaf,
     Polyline: (props: Record<string, unknown>) => {
@@ -51,6 +54,7 @@ import { TransitMap } from './TransitMap'
 
 function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES) {
   drawn.polylines.length = 0
+  drawn.markers.length = 0
   render(
     <TransitMap
       location={null}
@@ -79,6 +83,7 @@ const styleOf = ({ pathOptions, interactive }: DrawnPolyline) => ({ ...pathOptio
 
 beforeEach(() => {
   drawn.polylines.length = 0
+  drawn.markers.length = 0
 })
 afterEach(cleanup)
 
