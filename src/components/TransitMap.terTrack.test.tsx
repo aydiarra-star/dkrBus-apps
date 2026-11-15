@@ -96,7 +96,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       expect(polyline.positions).toEqual(TER_TRACK.positions)
     }
     // Halo blanc, liseré, trait plein : les mêmes épaisseurs qu'avant.
-    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
   })
 
   it('ne relie plus les gares du TER par des segments droits', () => {
@@ -156,9 +156,9 @@ describe('carte : visibilité des gares TER et correspondances', () => {
       if (shared) {
         // La pastille du réseau correspondant reste visible sous l'anneau TER.
         expect(atStation.some((marker) => marker.pathOptions.fillOpacity > 0), stop.name).toBe(true)
-        expect(atStation.some((marker) => marker.radius === 10 && marker.pathOptions.fillOpacity === 0), stop.name).toBe(true)
+        expect(atStation.some((marker) => marker.radius === 7.5 && marker.pathOptions.fillOpacity === 0), stop.name).toBe(true)
       } else {
-        expect(atStation.some((marker) => marker.radius === 7 && marker.pathOptions.fillOpacity === 1), stop.name).toBe(true)
+        expect(atStation.some((marker) => marker.radius === 4.5 && marker.pathOptions.fillOpacity === 1), stop.name).toBe(true)
       }
     }
   })
