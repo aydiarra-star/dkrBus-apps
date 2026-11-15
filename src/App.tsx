@@ -49,6 +49,7 @@ import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBo
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
 import { PlannerLegList } from './components/PlannerLegList'
+import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { JourneyOptions } from './components/JourneyOptions'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { optionSummaryLine, planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
@@ -474,6 +475,8 @@ function App() {
   const [zoomAction, setZoomAction] = useState<{ delta: number; nonce: number } | null>(null)
   const [nextZoomNonce, setNextZoomNonce] = useState(0)
   const [routePoints, setRoutePoints] = useState<Partial<Record<RoutePointKey, MapPoint>>>({})
+  const [searchRoute, setSearchRoute] = useState<Coordinates[] | null>(null)
+  const roadRouteRequestId = useRef(0)
   /** Comparaison calculée pour l'écran Trajet, conservée entre les onglets. */
   const [pickingPoint, setPickingPoint] = useState<RoutePointKey | null>(null)
   const [savedDestinations, setSavedDestinations] = useState(() => readSavedDestinations())
@@ -941,6 +944,42 @@ function App() {
       setAssistantAnswer(null)
       return
     }
+
+    // Une saisie « Dakar à Pikine » demande un véritable tracé routier :
+    // géocodage des deux lieux, calcul OSRM sur le réseau routier OSM, puis
+    // affichage de la géométrie complète sur la carte existante.
+    const roadQuery = parseRoadRouteQuery(question)
+    if (roadQuery) {
+      const requestId = ++roadRouteRequestId.current
+      setSearchRoute(null)
+      setAssistantAnswer({ question, answer: `Calcul de l’itinéraire routier entre ${roadQuery.origin} et ${roadQuery.destination}…` })
+      setStopSearch({ status: 'idle', query: '', stops: [], error: null })
+      announce(`Recherche de l’itinéraire entre ${roadQuery.origin} et ${roadQuery.destination}…`)
+      void calculateRoadRoute(roadQuery.origin, roadQuery.destination).then((result) => {
+        if (requestId !== roadRouteRequestId.current) return
+        const origin: MapPoint = { ...result.origin }
+        const destination: MapPoint = { ...result.destination }
+        setRoutePoints({ origin, destination })
+        setSearchRoute(result.coordinates.map(({ lat, lng }) => ({ lat, lng })))
+        setRouteAttempted(false)
+        setJourney(IDLE_JOURNEY)
+        setActiveTab('explore')
+        const distance = (result.distanceMeters / 1000).toFixed(1).replace('.', ',')
+        const minutes = Math.max(1, Math.round(result.durationSeconds / 60))
+        const message = `Itinéraire routier affiché : ${result.origin.label} → ${result.destination.label}, environ ${distance} km et ${minutes} min hors conditions de circulation en direct.`
+        setAssistantAnswer({ question, answer: message })
+        announce(message)
+      }).catch((error: unknown) => {
+        if (requestId !== roadRouteRequestId.current) return
+        const message = error instanceof Error ? error.message : 'Le calcul de cet itinéraire a échoué. Réessayez.'
+        setAssistantAnswer({ question, answer: message })
+        announce(message)
+      })
+      return
+    }
+
+    // Une nouvelle recherche non routière invalide toute réponse routière plus ancienne.
+    roadRouteRequestId.current += 1
     const context: AssistantContext = {
       publishedAvailable: dataAvailable,
       adminOnline: governance.status === 'ready',
@@ -1498,6 +1537,7 @@ function App() {
         <TransitMap
           location={location}
           routePoints={routePoints}
+          searchRoute={searchRoute}
           pickingPoint={pickingPoint}
           recenterTo={recenterTo}
           zoomAction={zoomAction}
@@ -1747,7 +1787,7 @@ function App() {
                 onSelectStop={selectRoutePoint}
                 onUseLocation={() => requestLocation('origin')}
                 onSwap={swapRoutePoints}
-                onClear={() => { setRoutePoints({}); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
+                onClear={() => { roadRouteRequestId.current += 1; setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
                 onClearPoint={clearRoutePoint}
                 onSubmit={submitRoute}
                 dataAvailable={dataAvailable}
