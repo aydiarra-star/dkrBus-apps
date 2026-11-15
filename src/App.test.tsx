@@ -1143,7 +1143,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(terHeader)
     expect(vibrateMock).toHaveBeenCalledWith(12)
     expect(terItem.classList.contains('is-selected')).toBe(true)
-    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ Diamniadio/i)
+    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ AIBD/i)
 
     // Toucher le contenu déplié ne replie pas l'accordéon.
     fireEvent.click(terItem.querySelector('.station-board-head')!)
@@ -1203,10 +1203,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
-    // Deux sections distinctes, chacune avec les 13 gares empilées.
+    // Deux sections distinctes, chacune avec les 14 gares empilées.
     const outbound = board.querySelector('.station-direction-outbound') as HTMLElement
     const inbound = board.querySelector('.station-direction-inbound') as HTMLElement
-    expect(outbound.querySelectorAll('.station-board-row')).toHaveLength(13)
+    expect(outbound.querySelectorAll('.station-board-row')).toHaveLength(14)
     expect(inbound.querySelectorAll('.station-board-row')).toHaveLength(13)
     expect(within(outbound).getByText('Colobane')).toBeTruthy()
     expect(within(outbound).getByText('Dalifort')).toBeTruthy()
@@ -1778,7 +1778,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(form)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
     expect(within(panel).getAllByText('liste des gares TER')).toHaveLength(1)
-    expect(await within(panel).findByText(/Les 13 gares et haltes du TER/i)).toBeTruthy()
+    expect(await within(panel).findByText(/Les 14 gares du TER/i)).toBeTruthy()
     expect(within(panel).getByRole('log')).toBeTruthy()
   })
 
