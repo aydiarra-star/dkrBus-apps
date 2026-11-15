@@ -1203,32 +1203,32 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
-    // Deux sections distinctes, chacune avec les 13 gares empilées.
+    // Deux sections distinctes, chacune avec les 14 gares empilées.
     const outbound = board.querySelector('.station-direction-outbound') as HTMLElement
     const inbound = board.querySelector('.station-direction-inbound') as HTMLElement
-    expect(outbound.querySelectorAll('.station-board-row')).toHaveLength(13)
-    expect(inbound.querySelectorAll('.station-board-row')).toHaveLength(13)
+    expect(outbound.querySelectorAll('.station-board-row')).toHaveLength(14)
+    expect(inbound.querySelectorAll('.station-board-row')).toHaveLength(14)
     expect(within(outbound).getByText('Colobane')).toBeTruthy()
     expect(within(outbound).getByText('Dalifort')).toBeTruthy()
 
     // La direction est explicite, avec les terminus.
     expect(outbound.querySelector('.station-direction-kicker')!.textContent).toMatch(/Direction Aller/)
-    expect(outbound.querySelector('.station-direction-route')!.textContent).toBe('Dakar ➔ Diamniadio')
+    expect(outbound.querySelector('.station-direction-route')!.textContent).toBe('Dakar ➔ AIBD')
     expect(inbound.querySelector('.station-direction-kicker')!.textContent).toMatch(/Direction Retour/)
-    expect(inbound.querySelector('.station-direction-route')!.textContent).toBe('Diamniadio ➔ Dakar')
+    expect(inbound.querySelector('.station-direction-route')!.textContent).toBe('AIBD ➔ Dakar')
 
-    // Aller : Dakar en tête, Diamniadio en dernier ; retour : ordre inversé.
+    // Aller : Dakar en tête, AIBD en dernier ; retour : ordre inversé.
     const outRows = [...outbound.querySelectorAll('.station-board-row')]
     const inRows = [...inbound.querySelectorAll('.station-board-row')]
     expect(outRows[0].textContent).toMatch(/^Dakar/)
-    expect(inRows[0].textContent).toMatch(/^Diamniadio/)
+    expect(inRows[0].textContent).toMatch(/^Aéroport de Dakar – AIBD/)
 
     // Une gare intermédiaire : un créneau isolé par sens, au format du résumé.
     const colobaneOut = outRows.find((row) => row.textContent!.includes('Colobane'))!
     const colobaneIn = inRows.find((row) => row.textContent!.includes('Colobane'))!
     expect(colobaneOut.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
     expect(colobaneOut.textContent).toMatch(/créneau 12:03 · 10 min/)
-    expect(colobaneIn.textContent).toMatch(/créneau 12:04 · 10 min/)
+    expect(colobaneIn.textContent).toMatch(/créneau 12:03 · 10 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
     expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
@@ -1237,18 +1237,18 @@ describe('décomptes dynamiques de l’Explorer', () => {
     // Toucher une gare ne replie pas le tableau.
     fireEvent.click(within(outbound).getByText('Colobane'))
     expect(container.querySelector('.network-item-ter')!.classList.contains('is-selected')).toBe(true)
-    expect(container.querySelectorAll('.station-board-row')).toHaveLength(26)
+    expect(container.querySelectorAll('.station-board-row')).toHaveLength(28)
 
     const colobaneTimes = () => [colobaneOut, colobaneIn].map((row) => row.querySelector('.station-board-passage > strong')!.textContent)
     // Les créneaux par station descendent au même rythme que les réseaux.
     // (Avancement par pas : chaque tic réarme le suivant après le rendu.)
-    expect(colobaneTimes()).toEqual(['4 min', '5 min'])
+    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
     for (let step = 0; step < 20; step += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(2_000)
       })
     }
-    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
+    expect(colobaneTimes()).toEqual(['3 min', '3 min'])
     vi.useRealTimers()
   })
 
@@ -1778,7 +1778,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.submit(form)
     const panel = screen.getByRole('region', { name: /assistant mobilité/i })
     expect(within(panel).getAllByText('liste des gares TER')).toHaveLength(1)
-    expect(await within(panel).findByText(/Les 13 gares et haltes du TER/i)).toBeTruthy()
+    expect(await within(panel).findByText(/Les 14 gares et haltes du TER/i)).toBeTruthy()
     expect(within(panel).getByRole('log')).toBeTruthy()
   })
 

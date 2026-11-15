@@ -10,19 +10,22 @@ describe('tableau des créneaux par station et par sens', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
     expect(board).toBeTruthy()
+    expect(board.rows).toHaveLength(14)
     expect(board.rows).toHaveLength(TER_STOPS.length)
     expect(board.originStop.id).toBe('ter-dakar')
-    expect(board.destinationStop.id).toBe('ter-diamniadio')
+    expect(board.destinationStop.id).toBe('ter-aibd')
 
     // Une gare intermédiaire (Colobane) : un créneau par sens, distincts.
     const colobane = board.rows.find((row) => row.stop.id === 'ter-colobane')!
     expect(colobane.outbound).toBeTruthy()
     expect(colobane.inbound).toBeTruthy()
-    // Les temps de parcours depuis les deux terminus diffèrent : les créneaux
-    // affichés dans chaque sens sont donc calculés séparément.
+    // Les plages observées sont symétriques, mais chaque sens projette sa
+    // grille depuis son propre terminus.
     expect(colobane.offsetFromOriginMin).toBeGreaterThan(0)
     expect(colobane.offsetFromDestinationMin).toBeGreaterThan(0)
     expect(colobane.offsetFromDestinationMin).toBeGreaterThan(colobane.offsetFromOriginMin)
+    expect(colobane.offsetFromOriginMin).toBe(3)
+    expect(colobane.offsetFromDestinationMin).toBe(53.5)
 
     // Le créneau aller est projeté depuis Dakar : il suit la grille déclarée.
     expect(colobane.outbound!.headwayMinutes).toBe(10)
@@ -37,10 +40,11 @@ describe('tableau des créneaux par station et par sens', () => {
     // départ de Dakar à 12:10.
     const dakar = board.rows[0]
     expect(dakar.outbound!.clockLabel).toBe('12:10')
-    // Dalifort (4e gare) est atteinte ~11 min après Dakar : à 12:00, le
+    // Dalifort (4e gare) est atteinte entre 10 et 11 min après Dakar : à 12:00, le
     // départ de grille 11:50 y passe encore, projeté vers 12:01. Chaque
     // station affiche bien le prochain passage *chez elle*.
     const dalifort = board.rows.find((row) => row.stop.id === 'ter-dalifort')!
+    expect(dalifort.offsetFromOriginMin).toBe(10.5)
     expect(dalifort.offsetFromOriginMin).toBeGreaterThan(dakar.offsetFromOriginMin)
     expect(dalifort.outbound!.clockLabel).toBe('12:00')
     expect(dalifort.outbound!.minutes).toBe(1)

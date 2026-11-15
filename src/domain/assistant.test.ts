@@ -4,13 +4,14 @@ import { answerAssistant, extractJourneyRequest, getAssistantCountdownMinutes, t
 const CONTEXT: AssistantContext = { publishedAvailable: false, adminOnline: true }
 
 describe('assistant mobilité', () => {
-  it('maîtrise les 23 stations BRT et les 13 gares TER', () => {
+  it('maîtrise les 23 stations BRT et les 14 gares TER', () => {
     const brt = answerAssistant('Quelles sont les stations du BRT ?', CONTEXT)
     expect(brt).toContain('23')
     expect(brt).toContain('Préfecture de Guédiawaye')
     expect(brt).toContain('Petersen')
     const ter = answerAssistant('liste des gares TER', CONTEXT)
-    expect(ter).toContain('13')
+    expect(ter).toContain('14')
+    expect(ter).toContain('Aéroport de Dakar – AIBD')
     expect(ter).toContain('Diamniadio')
     expect(ter).toContain('Rufisque')
   })
@@ -161,7 +162,7 @@ describe('point d’embarquement demandé au guichet', () => {
 
   it('borne la réponse au réseau nommé et compte chaque arrêt une fois', () => {
     const ter = answerAssistant('Où monter le TER ?', CONTEXT)
-    expect(ter).toMatch(/13 arrêts déclarés/)
+    expect(ter).toMatch(/14 arrêts déclarés/)
     expect(ter).not.toMatch(/BRT \(SunuBRT\)/)
     const both = answerAssistant('Où prendre le TER ou le BRT ?', CONTEXT)
     expect(both).toMatch(/• TER/)

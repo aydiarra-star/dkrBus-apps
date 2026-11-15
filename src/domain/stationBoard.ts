@@ -3,12 +3,11 @@
  *
  * CE MODULE N'EST PAS UN FLUX TEMPS RÉEL ET N'EN SIMULE PAS UN.
  *
- * Pour chaque ligne qui publie une fréquence officielle (aujourd'hui TER et
- * BRT, réseau de référence), il projette la grille déclarée au départ de
- * chaque terminus sur l'ensemble des stations : le créneau d'une station est
- * le départ théorique du terminus augmenté du temps de parcours de référence
- * (distance à vol d'oiseau entre stations consécutives / vitesse commerciale
- * déclarée + arrêts intermédiaires). Les deux sens sont distincts :
+ * Pour chaque ligne qui publie une fréquence officielle (TER et BRT), il
+ * projette la grille déclarée au départ de chaque terminus. Le TER utilise
+ * les durées cumulées observées par gare ; le BRT conserve son calcul de
+ * référence (distance à vol d'oiseau / vitesse commerciale + arrêts).
+ * Les deux sens sont distincts :
  * - sens aller : grille projetée depuis le terminus d'origine de la ligne ;
  * - sens retour : grille projetée depuis le terminus opposé.
  *
@@ -24,6 +23,7 @@
  */
 
 import { CORRIDOR_LINES, getCorridorStop, haversineMeters, type CorridorStop } from './corridors'
+import { terTravelTimeMidpointMinutes } from './terTravelTimes'
 import type { OfficialFrequency } from './frequencies'
 import { dwellMinutes } from './assumptions'
 import { nextReferencePassage, type NextPassage } from './headways'
@@ -87,14 +87,23 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
   const destinationStop = stops[stops.length - 1]
 
   const rows: StationRow[] = stops.map((stop, index) => {
-    // Parcours cumulé depuis l'origine : segments + arrêts intermédiaires.
+    // TER : plages cumulées observées par gare ; leur milieu sert uniquement
+    // à projeter un créneau sur l'horloge. Les valeurs min/max restent intactes
+    // dans terTravelTimes.ts. Le retour est calculé depuis AIBD, avec les mêmes
+    // durées par tronçon que l'aller.
     let fromOrigin = 0
-    for (let i = 0; i < index; i += 1) fromOrigin += segmentMinutes(line, i)
-    fromOrigin += Math.max(0, index - 1) * dwell
-    // Parcours cumulé depuis le terminus opposé, symétrique.
     let fromDestination = 0
-    for (let i = index; i < stops.length - 1; i += 1) fromDestination += segmentMinutes(line, i)
-    fromDestination += Math.max(0, stops.length - 2 - index) * dwell
+    if (line.network === 'ter') {
+      fromOrigin = terTravelTimeMidpointMinutes(stop.id)
+      const total = terTravelTimeMidpointMinutes(destinationStop.id)
+      fromDestination = Math.max(0, total - fromOrigin)
+    } else {
+      // Les autres réseaux gardent leur calcul historique.
+      for (let i = 0; i < index; i += 1) fromOrigin += segmentMinutes(line, i)
+      fromOrigin += Math.max(0, index - 1) * dwell
+      for (let i = index; i < stops.length - 1; i += 1) fromDestination += segmentMinutes(line, i)
+      fromDestination += Math.max(0, stops.length - 2 - index) * dwell
+    }
 
     return {
       stop,

@@ -435,12 +435,12 @@ ${BRT_STOPS.map((stop, index) => `${index + 1}. ${stop.name}`).join('\n')}
       return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. ${estimatedFrequencyReference('aftu_tata')}. Estimation : ${estimatedWaitMinutes('aftu_tata', now) ?? '—'} min d’attente moyenne.`
     }
     if (wantsTer && !wantsBrt) {
-      return `Les 13 gares et haltes du TER, de Dakar à Diamniadio :
+      return `Les 14 gares et haltes du TER, de Dakar à AIBD :
 ${TER_STOPS.map((stop, index) => `${index + 1}. ${stop.name}${stop.note ? ` — ${stop.note}` : ''}`).join('\n')}
 Fréquences officielles de référence : ${OFFICIAL_REFERENCE_FREQUENCIES.ter.map(formatFrequencyPeriod).join('; ')}. Source : TER / SETER (${NETWORK_REFERENCE_DATA.ter.source.sourceUrl}). ${formatSourceVerification(NETWORK_REFERENCE_DATA.ter.source)}.`
     }
     return `Le réseau de référence couvre :
-• TER — ${TER_STOPS.length} gares, Dakar ↔ Diamniadio (${CORRIDOR_NETWORKS.ter.operator}) ;
+• TER — ${TER_STOPS.length} gares, Dakar ↔ AIBD (${CORRIDOR_NETWORKS.ter.operator}) ;
 • BRT — ${BRT_STOPS.length} stations, Petersen ↔ Préfecture de Guédiawaye (${CORRIDOR_NETWORKS.brt.operator}).
 Demandez-moi « liste des stations BRT » ou « liste des gares TER » pour le détail.`
   }

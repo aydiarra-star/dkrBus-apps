@@ -65,7 +65,7 @@ describe('index de recherche du Trajet', () => {
     expect(aftu.selectable).toBe(false)
     expect(aftu.hint).toMatch(/arrêts non publiés/)
     const ter = index.find((option) => option.value === 'network:ter')!
-    expect(ter.hint).toMatch(/13 gares/)
+    expect(ter.hint).toMatch(/14 gares/)
   })
 
   it('retrouve une option par sa valeur, ou rien', () => {

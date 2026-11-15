@@ -11,8 +11,8 @@ import {
 } from './places'
 
 describe('mémoire des lieux de Dakar', () => {
-  it('couvre les 13 gares TER, les 23 stations BRT, les arrêts DDD et AFTU / TATA en pointillés et les lieux des fiches bus', () => {
-    expect(REFERENCE_PLACES.filter((place) => place.kind === 'ter')).toHaveLength(13)
+  it('couvre les 14 gares TER, les 23 stations BRT, les arrêts DDD et AFTU / TATA en pointillés et les lieux des fiches bus', () => {
+    expect(REFERENCE_PLACES.filter((place) => place.kind === 'ter')).toHaveLength(14)
     expect(REFERENCE_PLACES.filter((place) => place.kind === 'brt')).toHaveLength(23)
     // DDD (jaune #F59E0B) et AFTU/TATA (terracotta #C05621) en pointillés légers + pastilles
     expect(REFERENCE_PLACES.filter((place) => place.kind === 'ddd').length).toBeGreaterThanOrEqual(10)
