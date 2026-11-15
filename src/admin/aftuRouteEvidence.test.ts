@@ -117,12 +117,14 @@ describe('adaptateur de preuves AFTU', () => {
   })
 
   it('conserve les séquences distinctes de la fiche 85 sans créer des horaires par arrêt', () => {
-    const route = getAftuRouteEvidence('85')
+    const route = getAftuRouteEvidence('85-unverified')
     expect(route?.outbound.waypoints).toHaveLength(89)
     expect(route?.inbound.waypoints).toHaveLength(95)
     expect(route?.outbound.timetableEntries).toBe(0)
     expect(route?.inbound.timetableEntries).toBe(0)
     expect(route?.outbound.scheduleInterval).toContain('10–15 min')
+    expect(route?.sourceStatus).toBe('unassigned-route-reference')
+    expect(getAftuRouteEvidence('85')).toBeNull()
   })
 
   it('verrouille les volumes directionnels des lignes AFTU 30 et 66', () => {
