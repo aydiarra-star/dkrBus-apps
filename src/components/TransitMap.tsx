@@ -460,65 +460,6 @@ function TransitMapView({
             </Polyline>
           ))
         })}
-      {/* Pointillés très légers DDD/AFTU/TATA */}
-      {corridorLineStops
-        .filter(({ line }) => line.network === 'ddd' || line.network === 'aftu_tata')
-        .map(({ line, positions }) => {
-          const paint = paintFor(line.network)
-          const isDDD = line.network === 'ddd'
-          return (
-            <Polyline
-              key={`corridor-dotted-${line.id}`}
-              positions={positions}
-              pathOptions={{
-                color: paint?.core ?? line.color,
-                weight: 2.2,
-                opacity: 0.55,
-                dashArray: isDDD ? '2 12' : '3 12',
-                lineCap: 'round',
-                lineJoin: 'round',
-              }}
-            >
-              <Tooltip direction="center" sticky opacity={0.9} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
-                <div className="map-frequency-tooltip">
-                  <strong>
-                    {paint && <span className={`mobility-badge mobility-${paint.id}`}>{line.shortName}</span>}
-                    {' '}{line.longName}
-                  </strong>
-                  <small>Bus {paint?.label ?? line.network.toUpperCase()} – tracé léger en pointillés + arrêts en pastilles</small>
-                  <span className="map-frequency-disclaimer">Géométrie de référence simplifiée – pas un tracé métrique.</span>
-                </div>
-              </Tooltip>
-              <Tooltip permanent direction="center" opacity={0.88} className="mobility-route-name-label">
-                {line.shortName}
-              </Tooltip>
-            </Polyline>
-          )
-        })}
-
-      {/* Flux lumineux animé : chaque segment suit l'ordre réel des points de son itinéraire. */}
-      {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
-        const paint = paintFor(line.network)
-        const tracks = [positions, ...(additionalPositions ?? [])]
-        return tracks.map((track, directionIndex) => (
-          <Polyline
-            key={`mobility-flow-${line.id}-${directionIndex}`}
-            positions={track}
-            interactive={false}
-            pathOptions={{
-              color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 1.9 : 1.15,
-              opacity: 0.82,
-              dashArray: '3 24',
-              dashOffset: '27',
-              lineCap: 'round',
-              lineJoin: 'round',
-              className: 'mobility-route-flow',
-            }}
-          />
-        ))
-      })}
-
       {/* Pastilles compactes : sigle du réseau directement sur chaque arrêt. */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
