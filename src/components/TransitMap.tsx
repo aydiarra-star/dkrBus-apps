@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo } from 'react'
 import { Circle, CircleMarker, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
-import type { CorridorLine, CorridorStop } from '../domain/corridors'
+import { TER_STOPS, type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
 import { safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityPaint } from '../domain/mobilityColors'
@@ -62,6 +62,27 @@ export type MappablePublishedStop = PublishedStop & { lat: number; lon: number }
 /** Stops are only mapped where the feed declares coordinates. */
 export function mappableStops(stops: readonly PublishedStop[]): MappablePublishedStop[] {
   return stops.filter((stop): stop is MappablePublishedStop => stop.lat !== null && stop.lon !== null)
+}
+
+/** Distance minimale d'un arrêt à un segment géographique, en mètres. */
+function distanceToSegmentMeters(
+  point: { lat: number; lon: number },
+  start: [number, number],
+  end: [number, number],
+): number {
+  const radians = Math.PI / 180
+  const cosLat = Math.cos(point.lat * radians)
+  const project = (lat: number, lon: number): [number, number] => [
+    (lon - point.lon) * radians * 6_371_000 * cosLat,
+    (lat - point.lat) * radians * 6_371_000,
+  ]
+  const [ax, ay] = project(start[0], start[1])
+  const [bx, by] = project(end[0], end[1])
+  const dx = bx - ax
+  const dy = by - ay
+  const lengthSquared = dx * dx + dy * dy
+  const t = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, -(ax * dx + ay * dy) / lengthSquared))
+  return Math.hypot(ax + t * dx, ay + t * dy)
 }
 
 function MapClickHandler({
@@ -263,6 +284,31 @@ function TransitMapView({
     [corridorLines, corridorStops],
   )
 
+  // Masquer uniquement les arrêts d'autres réseaux posés sur les voies TER.
+  // Les arrêts TER, leurs coordonnées et la géométrie ferroviaire restent intacts.
+  const corridorStopsToRender = useMemo(() => {
+    const terTracks = corridorLineStops
+      .filter(({ line }) => line.network === 'ter')
+      .map(({ positions }) => positions)
+      .filter((positions) => positions.length > 1)
+    if (terTracks.length === 0) return uniqueCorridorStops
+    return uniqueCorridorStops.filter((stop) => {
+      if (stop.id.startsWith('ter-')) return true
+      // Une correspondance à moins de 30 m d'une gare TER reste représentée
+      // au pôle ; seules les pastilles posées sur le parcours entre les gares
+      // sont masquées.
+      const atTerStation = TER_STOPS.some((station) =>
+        distanceToSegmentMeters(stop, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
+      )
+      if (atTerStation) return true
+      return !terTracks.some((positions) =>
+        positions.slice(1).some((end, index) =>
+          distanceToSegmentMeters(stop, positions[index], end) <= 35,
+        ),
+      )
+    })
+  }, [corridorLineStops, uniqueCorridorStops])
+
   return (
     <MapContainer
       center={DAKAR_CENTER}
@@ -389,29 +435,34 @@ function TransitMapView({
             </Polyline>
           )
         })}
+      {/* Anneau TER discret aux gares qui accueillent une correspondance. */}
+      {TER_STOPS.filter((station) =>
+        uniqueCorridorStops.some((candidate) =>
+          !candidate.id.startsWith('ter-') &&
+          distanceToSegmentMeters(candidate, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
+        ),
+      ).map((station) => (
+        <CircleMarker
+          key={`ter-interchange-${station.id}`}
+          center={[station.lat, station.lon]}
+          radius={10}
+          pathOptions={{ color: '#003366', weight: 3, fillColor: '#003366', fillOpacity: 0 }}
+        />
+      ))}
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
-      {uniqueCorridorStops.map((stop) => {
+      {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
-        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'
-        const isTerInterchange = stop.id.startsWith('ter-') && corridorStops.some((candidate) => {
-          if (candidate.id.startsWith('ter-')) return false
-          const meters = Math.hypot(
-            (candidate.lat - stop.lat) * 111_000,
-            (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180),
-          )
-          return meters <= 30
-        })
         return (
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={isTerInterchange ? 10 : isLightNetwork ? 5 : 7}
+            radius={paint?.id === 'ddd' || paint?.id === 'aftu_tata' ? 5 : 7}
             pathOptions={{
-              color: isTerInterchange ? (paint?.core ?? line?.color ?? '#003366') : '#ffffff',
-              weight: isTerInterchange ? 3 : isLightNetwork ? 1.5 : 2,
-              fillColor: paint?.badge ?? '#475569',
-              fillOpacity: isTerInterchange ? 0 : isLightNetwork ? 0.95 : 1,
+              color: paint?.badge ?? line?.color ?? '#475569',
+              weight: 2,
+              fillColor: paint?.badge ?? line?.color ?? '#475569',
+              fillOpacity: 1,
             }}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
           >
