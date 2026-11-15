@@ -11,6 +11,10 @@
  *   au chargement de la carte.
  * - Les tracés relient ces arrêts dans l'ordre encodé pour cette couche de
  *   référence ; ils ne sont ni un tracé métrique des voies, ni un flux GTFS.
+ *   Exception, pour le dessin sur la carte uniquement : le TER est tracé avec
+ *   la géométrie des voies de `data/ter/ter-dakar-aibd.geojson` (voir
+ *   `terTrackGeometry.ts`). Les arrêts et les calculs de ce module n'en
+ *   dépendent pas.
  *
  * Ce module ne publie donc rien au sens du pipeline de gouvernance du dépôt :
  * il alimente une couche cartographique et un calculateur explicitement
@@ -107,7 +111,7 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
     operator: 'SETER (Sen TER)',
     description: 'Train express régional Dakar ↔ Diamniadio ↔ AIBD — 55 km, 14 gares et haltes.',
     provenance:
-      'Gares : plan de transport sentersa.sn et positions OpenStreetMap (opérateur SETER). Tracé de référence simplifié.',
+      'Gares : plan de transport sentersa.sn et positions OpenStreetMap (opérateur SETER). Tracé sur la carte : voies voyageurs d’après OpenStreetMap (relation 13645077, extrait du 15/11/2026), © les contributeurs d’OpenStreetMap, licence ODbL. Ce n’est pas un levé ferroviaire certifié.',
   },
   brt: {
     id: 'brt',

@@ -119,3 +119,26 @@ Pour comparer avec l'état courant d'OSM :
 - géométrie complète d'une voie : `https://api.openstreetmap.org/api/0.6/way/<id>/full.json`
 
 Attribution obligatoire en cas de réutilisation : « © les contributeurs d'OpenStreetMap », licence ODbL 1.0.
+
+## Utilisation dans l'application
+
+La carte de Dakar Bus dessine la ligne TER avec `ter-dakar-aibd.geojson`, lu tel quel par `src/domain/terTrackGeometry.ts` : les 491 sommets, sans lissage, simplification ni point ajouté. Seul l'ordre des coordonnées change (longitude, latitude dans le fichier ; latitude, longitude pour Leaflet).
+
+Ce fichier ne sert qu'au dessin. Les gares, les fréquences, les temps de parcours, les prochains passages et le calculateur continuent de s'appuyer sur `src/domain/corridors.ts`. Le BRT, DDD et AFTU/TATA sont dessinés comme avant.
+
+Contrôles automatiques (`npm test`) :
+
+- `src/domain/terTrackGeometry.test.ts` : fidélité au fichier, coordonnées WGS 84 et emprise, continuité, phase 1 et phase 2 séparément, raccord de Diamniadio, extrémités de Dakar et de l'aéroport, aucune géométrie fournie aux autres lignes.
+- `src/components/TransitMap.terTrack.test.tsx` : ce que la carte reçoit réellement pour le TER, le BRT, DDD et AFTU/TATA.
+
+Écart des gares de `corridors.ts` au tracé, mesuré le 15 novembre 2026 :
+
+| Gare | Écart au tracé |
+|---|---|
+| Dakar | 11 m |
+| Les douze gares et haltes de Colobane à Diamniadio | 1 à 2 m chacune |
+| AIBD | 41 m |
+
+Ces positions de gares viennent elles aussi d'OpenStreetMap : cet accord montre que les deux jeux de données sont cohérents entre eux, il ne constitue pas un contrôle indépendant de la position des voies.
+
+À l'aéroport, le repère de gare de `corridors.ts` (nœud OSM 14160412786) n'est pas posé sur la voie : il se trouve 41 m au-delà du heurtoir. À fort zoom, la ligne s'arrête donc un peu avant la pastille de la gare. La ligne n'a pas été prolongée et la gare n'a pas été déplacée.
