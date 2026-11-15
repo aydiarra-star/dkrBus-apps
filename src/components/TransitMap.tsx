@@ -239,8 +239,8 @@ function makeMobilityStopIcon(mobility: MobilityId | null, label: string): DivIc
   return L.divIcon({
     className: 'mobility-stop-image-shell',
     html: iconUrl
-      ? `<img class="mobility-stop-vehicle" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`
-      : `<span class="mobility-stop-fallback" role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}">🚌</span>`,
+      ? `<img class="mobility-stop-vehicle" data-mobility="${mobility ?? 'unknown'}" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`
+      : `<span class="mobility-stop-fallback" data-mobility="unknown" role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}">🚌</span>`,
     iconSize: [34, 24],
     iconAnchor: [17, 12],
   })
