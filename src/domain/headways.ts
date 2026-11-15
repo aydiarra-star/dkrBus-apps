@@ -16,7 +16,7 @@
  */
 
 import { formatFrequencyPeriod, type OfficialFrequency, type ServiceDay } from './frequencies'
-import { isSenegalPublicHoliday } from './senegalPublicHolidays'
+import { hasSenegalPublicHolidayCalendar, isSenegalPublicHoliday } from './senegalPublicHolidays'
 
 const MINUTE_MS = 60_000
 const DAY_MS = 86_400_000
@@ -106,6 +106,10 @@ function frequenciesForDakarDate(
   dayStart: number,
 ): OfficialFrequency[] {
   const weekday = new Date(dayStart).getUTCDay()
+  // Une grille qui exclut les jours fériés ne peut pas être projetée sans
+  // calendrier annuel confirmé : mieux vaut ne rien afficher qu'un faux vert.
+  if (frequencies.some((frequency) => frequency.excludesPublicHolidays === true)
+    && !hasSenegalPublicHolidayCalendar(dayStart)) return []
   if (isSenegalPublicHoliday(dayStart)) {
     const holidayGrid = frequencies.filter((frequency) => frequency.appliesToPublicHolidays === true)
     if (holidayGrid.length > 0) return holidayGrid
