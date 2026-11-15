@@ -49,6 +49,22 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(routeCards[0].textContent).not.toContain('TATA ·')
     await waitFor(() => expect(routeCards[0].querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy())
   })
+  it('ne crée jamais une deuxième fiche à partir des anciens enregistrements TATA', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    for (const line of ['1', '2', '24', '35', '60', '61', '73', '79', '82', '84']) {
+      const buttons = getLineButtons(container, line)
+      expect(buttons).toHaveLength(1)
+      fireEvent.click(buttons[0])
+      const row = buttons[0].closest('li')!
+      await waitFor(() => {
+        expect(row.querySelectorAll('.station-board-line-direction')).toHaveLength(1)
+        expect(row.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(2)
+      })
+      expect(row.textContent).not.toContain('TATA ·')
+      fireEvent.click(buttons[0])
+    }
+  })
+
   it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const expected = [
