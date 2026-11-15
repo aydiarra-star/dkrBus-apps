@@ -364,7 +364,7 @@ describe('isolation de la vue carte', () => {
     expect(screen.queryByText(/votre ville, votre rythme/i)).toBeNull()
   })
 
-  it('emmène choisir un point sur la carte puis ramène à l’itinéraire', async () => {
+  it('permet de choisir un point sur la carte sans quitter Trajet', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
@@ -377,7 +377,7 @@ describe('isolation de la vue carte', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
 
-    // Retour automatique à l’itinéraire, point enregistré.
+    // Le point est enregistré dans le formulaire Trajet.
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
     expect(screen.getByText('Point choisi sur la carte')).toBeTruthy()
   })
@@ -474,7 +474,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.queryByRole('tab', { name: /gouvernance/i })).toBeNull()
   })
 
-  it('shows the map and destination guide only in Explorer', async () => {
+  it('shows the map in Explorer and Trajet, and the destination guide only in Explorer', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
