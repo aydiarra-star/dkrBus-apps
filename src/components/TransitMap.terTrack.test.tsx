@@ -178,7 +178,7 @@ describe('carte : les autres mobilités ne changent pas', () => {
     ]
     for (const [index, polyline] of polylines.entries()) {
       expect(polyline.positions).toEqual(expectedTracks[index])
-      expect(polyline.attribution).toBe(BRT_TRACK_ATTRIBUTION)
+      expect(polyline.attribution).toBe(index >= 4 ? BRT_TRACK_ATTRIBUTION : undefined)
     }
   })
 
