@@ -349,7 +349,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}`}
               positions={positions}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 11, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.82, lineCap: 'round', lineJoin: 'round' }}
             />
           )
         })}
@@ -363,7 +363,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}`}
               positions={positions}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: 8, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: 4.5, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
             />
           )
         })}
@@ -377,7 +377,7 @@ function TransitMapView({
               key={`corridor-${line.id}`}
               positions={positions}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: 4.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
