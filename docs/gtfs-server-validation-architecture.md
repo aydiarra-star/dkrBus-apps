@@ -149,3 +149,8 @@ Pour chaque table prise en charge, le validateur maintient une liste explicite d
 ## Racine ZIP conforme au GTFS (15 novembre 2026)
 
 La référence GTFS exige que les fichiers du dataset soient directement à la racine de l'archive ZIP, et non dans un sous-dossier. Le validateur n'accepte donc plus les dossiers enveloppes de fournisseur. Il refuse également les tables texte imbriquées même si les tables principales sont présentes à la racine, afin qu'une seconde copie ou une table non contrôlée ne soit pas ignorée. Les tests positifs et négatifs utilisent uniquement des archives synthétiques. Référence : https://gtfs.org/documentation/schedule/reference/ (section « File Requirements »).
+
+
+## Références calendar_dates.txt (15 novembre 2026)
+
+Lorsque `calendar.txt` est présent, chaque `calendar_dates.service_id` doit référencer un `calendar.service_id`. Le validateur refuse maintenant les exceptions orphelines avec `UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE`. Le mode alternatif `calendar_dates.txt` seul reste accepté, conformément à la spécification. Les tests utilisent une archive synthétique avec une référence inconnue et conservent le test positif du calendrier par dates seul. La version du worker est passée à `dakar-gtfs-validator-v4` pour identifier les nouveaux contrôles de structure, de racine ZIP et de colonnes.
