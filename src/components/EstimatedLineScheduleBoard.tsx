@@ -68,6 +68,7 @@ function endpointTokens(value: string): string[] {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/\bucad\b/g, 'universite cheikh anta diop')
     .replace(/\bsham\b/g, 'sahm')
+    .replace(/\bcomico\s+yeumbeul\b/g, 'comico')
     .replace(/[^a-z0-9]+/g, ' ')
     .replace(/\b(terminus|gare|routiere|station|arret|rond|point|giratoire|route|principale|des|de|du|la|le|les)\b/g, ' ')
     .split(/\s+/)
@@ -105,6 +106,12 @@ function assignDirectionStopSequences(
   let inbound = rawInboundStops
   const outboundDirection = classifyStopSequence(rawOutboundStops, outboundOrigin, outboundDestination)
   const inboundDirection = classifyStopSequence(rawInboundStops, inboundOrigin, inboundDestination)
+
+  // Une séquence isolée dont les extrémités ne correspondent à aucun des
+  // terminus annoncés n'est pas publiée sous un sens supposé.
+  if (rawInboundStops.length === 0 && outboundDirection === 'unknown') {
+    return { outbound: [], inbound: [] }
+  }
 
   if (outboundDirection === 'inbound') {
     if (inboundDirection === 'inbound') {
