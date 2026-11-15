@@ -47,6 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
+import { PassageArcs } from './components/PassageArcs'
 import { PlannerLegList } from './components/PlannerLegList'
 import { JourneyOptions } from './components/JourneyOptions'
 import { SettingsPreferences } from './components/SettingsPreferences'
@@ -2264,12 +2265,12 @@ function ReferenceNetworkSummary({
                     title={passage.note}
                     aria-label={`${refData?.shortName ?? network.label} : prochain créneau théorique à ${passage.clockLabel}, dans ${passage.minutes} minute${passage.minutes > 1 ? 's' : ''}.`}
                   >
-                    <strong>{formatPassageCountdown(passage.minutes)}</strong>
+                    <strong><PassageArcs />{formatPassageCountdown(passage.minutes)}</strong>
                     <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
                   </span>
                 ) : estimatedPassage ? (
                   <span className="network-summary-passage" role="status" title="Créneau théorique calculé depuis la fréquence de référence, sans suivi GPS.">
-                    <strong>{formatPassageCountdown(estimatedPassage.minutes)}</strong>
+                    <strong><PassageArcs />{formatPassageCountdown(estimatedPassage.minutes)}</strong>
                     <small>créneau {new Date(estimatedPassage.nextDepartureAt).toISOString().slice(11, 16)}</small>
                   </span>
                 ) : (
@@ -2376,7 +2377,7 @@ function StationPassageCell({
   }
   return (
     <span className="network-summary-passage station-board-passage" title={passage.note}>
-      <strong>{formatPassageCountdown(passage.minutes)}</strong>
+      <strong><PassageArcs />{formatPassageCountdown(passage.minutes)}</strong>
       <small>créneau {passage.clockLabel} · {passage.headwayMinutes} min</small>
     </span>
   )
@@ -2894,7 +2895,7 @@ function JourneyCard({ journey, localDay, now }: { journey: Journey; localDay: s
         {journey.routeLongName && <span className="journey-route-name">{journey.routeLongName}</span>}
         {countdownMinutes !== null && (
           <span className="journey-countdown" role="status" aria-label={`Départ programmé dans ${countdownMinutes} minute${countdownMinutes > 1 ? 's' : ''}`}>
-            <span className="live-dot" aria-hidden="true" />
+            <PassageArcs />
             Départ programmé dans {formatPassageCountdown(countdownMinutes)}
           </span>
         )}
