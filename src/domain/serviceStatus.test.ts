@@ -131,6 +131,25 @@ describe('serviceWindowForDay', () => {
     expect(state.showCountdown).toBe(false)
   })
 
+  it('applique la grille TER des jours fériés à 06:30 même un jour de semaine', () => {
+    const holiday = Date.UTC(2026, 11, 25, 6, 0)
+    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
+    expect(window).toEqual({ start: '06:30', end: '22:00' })
+    expect(getServiceDisplayState(holiday, window.start, window.end).status).toBe('UPCOMING')
+  })
+
+  it('applique aussi la grille fériée lorsque le jour férié tombe un samedi', () => {
+    const holiday = Date.UTC(2026, 2, 21, 6, 0)
+    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
+    expect(window).toEqual({ start: '06:30', end: '22:00' })
+  })
+
+  it('ne présume pas les horaires ordinaires lorsqu’une année n’a pas de calendrier férié confirmé', () => {
+    const nextYear = Date.UTC(2027, 0, 4, 5, 0)
+    const fallback = { start: '05:30', end: '22:00' }
+    expect(serviceWindowForDay(nextYear, OFFICIAL_REFERENCE_FREQUENCIES.ter, fallback)).toEqual(fallback)
+  })
+
   it('retient le début TER de semaine à 05:30', () => {
     const monday = Date.UTC(2026, 9, 12, 5, 20)
     const window = serviceWindowForDay(monday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })

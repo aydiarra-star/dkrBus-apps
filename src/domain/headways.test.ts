@@ -97,6 +97,26 @@ describe('prochains créneaux théoriques', () => {
     expect(sunday.minutes).toBe(30)
   })
 
+  it('applique la grille spéciale TER un jour férié en semaine', () => {
+    // Noël 2026 tombe un vendredi : la grille normale 05:30–21:00 est exclue.
+    const holiday = nextReferencePassage(TER, at('2026-12-25T06:00:00Z'))!
+    expect(holiday.clockLabel).toBe('06:30')
+    expect(holiday.headwayMinutes).toBe(20)
+    expect(holiday.status).toBe('BEFORE_SERVICE')
+    expect(holiday.holidayCaveat).toBe(false)
+  })
+
+  it('applique la grille spéciale TER un jour férié qui tombe un samedi', () => {
+    const holiday = nextReferencePassage(TER, at('2026-03-21T06:40:00Z'))!
+    expect(holiday.clockLabel).toBe('06:50')
+    expect(holiday.headwayMinutes).toBe(20)
+    expect(holiday.status).toBe('RUNNING')
+  })
+
+  it('n’invente pas de créneau TER pour une année sans calendrier férié confirmé', () => {
+    expect(nextReferencePassage(TER, at('2027-01-04T12:00:00Z'))).toBeNull()
+  })
+
   it('ne renvoie rien quand aucune fréquence exploitable n’est déclarée', () => {
     expect(nextReferencePassage([], Date.now())).toBeNull()
     expect(nextReferencePassage([{ ...BRT[0], headwayMinutes: 0 }], Date.now())).toBeNull()

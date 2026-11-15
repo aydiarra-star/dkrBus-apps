@@ -21,6 +21,8 @@
  * de service déclarée (debut, fin) sur l'horloge de Dakar.
  */
 
+import { hasSenegalPublicHolidayCalendar, isSenegalPublicHoliday } from './senegalPublicHolidays'
+
 export type ServiceDisplayStatus = 'FINISHED' | 'UPCOMING' | 'ACTIVE'
 
 export interface ServiceDisplayState {
@@ -50,7 +52,19 @@ export function serviceWindowForDay<T extends { serviceStart: string; serviceEnd
   if (!Number.isFinite(utcNow) || frequencies.length === 0) return fallback
   const dayByWeekday = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
   const day = dayByWeekday[new Date(utcNow).getUTCDay()]
-  const applicable = frequencies.filter((frequency) => frequency.days.includes(day))
+  // Si l'année n'a pas encore de calendrier confirmé, ne pas prétendre
+  // connaître la grille TER ordinaire (qui exclut les jours fériés).
+  if (frequencies.some((frequency) => 'excludesPublicHolidays' in frequency && frequency.excludesPublicHolidays === true)
+    && !hasSenegalPublicHolidayCalendar(utcNow)) return fallback
+  const isPublicHoliday = isSenegalPublicHoliday(utcNow)
+  // Une fréquence explicitement prévue les jours fériés remplace la grille
+  // ordinaire, même si le jour férié tombe un lundi, mardi… ou samedi.
+  const holidayFrequencies = isPublicHoliday
+    ? frequencies.filter((frequency) => 'appliesToPublicHolidays' in frequency && frequency.appliesToPublicHolidays === true)
+    : []
+  const applicable = holidayFrequencies.length > 0
+    ? holidayFrequencies
+    : frequencies.filter((frequency) => frequency.days.includes(day) && !(isPublicHoliday && 'excludesPublicHolidays' in frequency && frequency.excludesPublicHolidays === true))
   if (applicable.length === 0) return fallback
   const starts = applicable.map((frequency) => parseClockMinutes(frequency.serviceStart)).filter((value): value is number => value !== null)
   const ends = applicable.map((frequency) => parseClockMinutes(frequency.serviceEnd)).filter((value): value is number => value !== null)

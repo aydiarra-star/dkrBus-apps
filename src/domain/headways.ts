@@ -16,6 +16,7 @@
  */
 
 import { formatFrequencyPeriod, type OfficialFrequency, type ServiceDay } from './frequencies'
+import { hasSenegalPublicHolidayCalendar, isSenegalPublicHoliday } from './senegalPublicHolidays'
 
 const MINUTE_MS = 60_000
 const DAY_MS = 86_400_000
@@ -99,6 +100,24 @@ function servesWeekday(frequency: OfficialFrequency, weekday: number): boolean {
   return frequency.days.some((day) => WEEKDAY_BY_SERVICE_DAY[day] === weekday)
 }
 
+/** Sélectionne la grille réellement applicable à une date de Dakar. */
+function frequenciesForDakarDate(
+  frequencies: readonly OfficialFrequency[],
+  dayStart: number,
+): OfficialFrequency[] {
+  const weekday = new Date(dayStart).getUTCDay()
+  // Une grille qui exclut les jours fériés ne peut pas être projetée sans
+  // calendrier annuel confirmé : mieux vaut ne rien afficher qu'un faux vert.
+  if (frequencies.some((frequency) => frequency.excludesPublicHolidays === true)
+    && !hasSenegalPublicHolidayCalendar(dayStart)) return []
+  if (isSenegalPublicHoliday(dayStart)) {
+    const holidayGrid = frequencies.filter((frequency) => frequency.appliesToPublicHolidays === true)
+    if (holidayGrid.length > 0) return holidayGrid
+    return frequencies.filter((frequency) => servesWeekday(frequency, weekday) && frequency.excludesPublicHolidays !== true)
+  }
+  return frequencies.filter((frequency) => servesWeekday(frequency, weekday))
+}
+
 function noteFor(status: PassageStatus, clockLabel: string, headwayMinutes: number): string {
   switch (status) {
     case 'RUNNING':
@@ -138,11 +157,10 @@ export function nextReferencePassage(
 
   for (let offset = 0; offset < SEARCH_DAYS; offset += 1) {
     const dayStart = todayStart + offset * DAY_MS
-    const weekday = new Date(dayStart).getUTCDay()
+    const applicableFrequencies = frequenciesForDakarDate(usable, dayStart)
     let best: { at: number; slot: number; frequency: OfficialFrequency } | null = null
 
-    for (const frequency of usable) {
-      if (!servesWeekday(frequency, weekday)) continue
+    for (const frequency of applicableFrequencies) {
       const start = windowStart(dayStart, frequency)
       const end = windowEnd(dayStart, frequency)
       if (end <= start) continue
@@ -163,13 +181,10 @@ export function nextReferencePassage(
     // L'état de service se lit sur le DÉPART retenu, pas sur l'arrivée projetée :
     // la dernière course d'un service part avant sa fermeture et peut arriver
     // après. La qualifier de « service non commencé » serait un contresens.
-    const todayWeekday = new Date(todayStart).getUTCDay()
+    const todayFrequencies = frequenciesForDakarDate(usable, todayStart)
     const slotIsToday = best.slot >= todayStart && best.slot - todayStart < DAY_MS
-    const serviceOpenNow = usable.some(
-      (frequency) =>
-        servesWeekday(frequency, todayWeekday) &&
-        windowStart(todayStart, frequency) <= now &&
-        now < windowEnd(todayStart, frequency),
+    const serviceOpenNow = todayFrequencies.some(
+      (frequency) => windowStart(todayStart, frequency) <= now && now < windowEnd(todayStart, frequency),
     )
     const status: PassageStatus = slotIsToday
       ? windowStart(todayStart, best.frequency) <= now
@@ -188,7 +203,7 @@ export function nextReferencePassage(
       periodLabel: formatFrequencyPeriod(best.frequency),
       clockLabel,
       note: noteFor(status, clockLabel, best.frequency.headwayMinutes),
-      holidayCaveat: best.frequency.excludesPublicHolidays === true,
+      holidayCaveat: best.frequency.excludesPublicHolidays === true && !isSenegalPublicHoliday(best.slot),
     }
   }
 
