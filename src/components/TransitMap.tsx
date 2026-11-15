@@ -415,7 +415,7 @@ function TransitMapView({
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={isLightNetwork ? 5 : 7}
+            radius={paint?.id === 'ddd' || paint?.id === 'aftu_tata' ? 5 : 7}
             pathOptions={{
               color: paint?.badge ?? line?.color ?? '#475569',
               weight: 2,
