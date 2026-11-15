@@ -2876,3 +2876,21 @@ button:disabled { cursor: not-allowed; }
 .station-board-itinerary-list li { padding-left: 3px; }
 .station-board-itinerary-pending, .station-board-nearest-stop { margin: 0 0 10px; font-size: .88rem; line-height: 1.45; }
 .station-board-itinerary-source { display: inline-block; margin-top: 10px; font-size: .88rem; }
+
+
+/* Carte aérée : tracés plus fins et flux directionnel discret, lisible à Dakar. */
+.mobility-route-flow {
+  animation: mobility-route-flow 1.25s linear infinite;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.mobility-stop-badge {
+  width: 25px;
+  height: 16px;
+  font-size: 7.5px;
+  border-width: 1px;
+  box-shadow: 0 1px 3px rgba(15, 35, 25, .2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobility-route-flow { animation: none !important; }
+}
