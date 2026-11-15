@@ -381,8 +381,8 @@ def main() -> int:
         return 2
     try:
         outcome = process_one(SupabaseRest(base_url, service_key))
-    except (WorkerError, subprocess.TimeoutExpired, OSError) as error:
-        print(f"Échec du traitement GTFS : {error}", file=sys.stderr)
+    except Exception as error:
+        print(f"Échec du traitement GTFS : {worker_error_code(error)}", file=sys.stderr)
         return 1
     print(f"Traitement GTFS terminé : {outcome}")
     return 0
