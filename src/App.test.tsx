@@ -1239,13 +1239,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board.textContent).toContain('En service')
       expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
     } else {
-      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(73)
+      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
+      expect(board.querySelectorAll('.station-board-direction-toggle')).toHaveLength(146)
+      expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
+      expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
+      expect(rows.every((row) => /^\d+ min$|^En service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
       fireEvent.click(rows[0])
-      const opened = rows[0].closest('li')!
-      const variants = [...opened.querySelectorAll('.station-board-line-direction')]
-      expect(variants.length).toBeGreaterThan(0)
-      expect(variants.every((variant) => variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong').length === 2)).toBe(true)
-      expect(variants.every((variant) => [...variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong')].every((passage) => /^\d+ min$|^En service$/.test(passage.textContent!.trim())))).toBe(true)
+      expect(rows[0].getAttribute('aria-expanded')).toBe('true')
+      expect(rows[1].getAttribute('aria-expanded')).toBe('false')
+      expect(rows[0].closest('li')!.querySelectorAll('.station-board-itinerary')).toHaveLength(1)
     }
     expect(board.textContent).not.toMatch(/(?:intervalle|fréquence|moyenne du réseau)/i)
     vi.useRealTimers()
