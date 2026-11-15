@@ -217,3 +217,15 @@ Sources publiques :
 - Résoudre définitivement les terminus Palais 1 / Palais 2 / Palais de Justice : non résolu.
 - Obtenir une relation OSM dédiée et fiable pour 218/219 : non résolu dans les sources OSM extraites.
 - Modifier les parcours passagers ou déployer une correction : non autorisé par cet audit et non effectué.
+
+## 7. Tentative OSM extraction — infrastructure failure on 15 November 2026
+
+A targeted read-only Overpass query was attempted for refs 217, 218, 219 and 228, with three public instances tried in sequence. No OSM response was obtained:
+
+- `overpass.private.coffee` : timeout after 45 seconds;
+- `maps.mail.ru` : HTTP 504;
+- `overpass-api.de` : HTTP 502.
+
+The workflow step therefore exited with an error; the CI workflow is configured to continue so that the independent ArcGIS extraction, crosswalk, frontend build and tests can still complete. No OSM raw artifact was produced or uploaded. **This is not evidence that the relations or routes are absent from OSM.** The OSM cross-check for these four refs remains open and must be retried when an Overpass endpoint is responsive, preferably with smaller individual queries or a local OSM extract.
+
+This PR's validated deliverable is the ArcGIS read-only extraction and geometric crosswalk. It does not claim to complete the OSM side of the three-source audit.
