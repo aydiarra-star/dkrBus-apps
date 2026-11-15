@@ -6,7 +6,7 @@
 import type { ReactNode } from 'react'
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, type CorridorLine } from '../domain/corridors'
+import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
 import { TER_TRACK, TER_TRACK_ATTRIBUTION } from '../domain/terTrackGeometry'
 
 interface DrawnPolyline {
@@ -16,7 +16,7 @@ interface DrawnPolyline {
   pathOptions: { color: string; weight: number; opacity: number; dashArray?: string; lineCap?: string; lineJoin?: string }
 }
 
-const drawn = vi.hoisted(() => ({ polylines: [] as unknown[] }))
+const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[] }))
 
 vi.mock('react-leaflet', () => {
   const Layer = ({ children }: { children?: ReactNode }) => <>{children}</>
@@ -35,7 +35,7 @@ vi.mock('react-leaflet', () => {
     TileLayer: Leaf,
     Tooltip: Leaf,
     Circle: Leaf,
-    CircleMarker: Leaf,
+    CircleMarker: (props: Record<string, unknown>) => {\n      drawn.markers.push(props)\n      return null\n    },
     Marker: Leaf,
     Rectangle: Leaf,
     Polyline: (props: Record<string, unknown>) => {
@@ -115,6 +115,41 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(brt).toHaveLength(3)
     // Mêmes épaisseurs, opacités, extrémités et interactivité ; seule la couleur distingue les réseaux.
     expect(ter.map(styleOf)).toEqual(brt.map(styleOf))
+  })
+})
+
+describe('carte : visibilité des gares TER et correspondances', () => {
+  it('affiche les 14 gares TER et garde visibles les pastilles aux pôles partagés', () => {
+    drawMap()
+    const markers = drawn.markers as Array<{
+      center: [number, number]
+      radius: number
+      pathOptions: { fillOpacity: number; color: string; fillColor: string; weight: number }
+    }>
+
+    for (const stop of TER_STOPS) {
+      const atStation = markers.filter((marker) =>
+        marker.center[0] === stop.lat && marker.center[1] === stop.lon,
+      )
+      expect(atStation.length, stop.name).toBeGreaterThan(0)
+
+      const shared = ALL_CORRIDOR_STOPS.some((candidate) => {
+        if (candidate.id.startsWith('ter-')) return false
+        const meters = Math.hypot(
+          (candidate.lat - stop.lat) * 111_000,
+          (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180),
+        )
+        return meters <= 30
+      })
+
+      if (shared) {
+        // La pastille du réseau correspondant reste visible sous l'anneau TER.
+        expect(atStation.some((marker) => marker.pathOptions.fillOpacity > 0), stop.name).toBe(true)
+        expect(atStation.some((marker) => marker.radius === 10 && marker.pathOptions.fillOpacity === 0), stop.name).toBe(true)
+      } else {
+        expect(atStation.some((marker) => marker.radius === 7 && marker.pathOptions.fillOpacity === 1), stop.name).toBe(true)
+      }
+    }
   })
 })
 
