@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
 import { TER_TRACK, TER_TRACK_ATTRIBUTION } from '../domain/terTrackGeometry'
 import { BRT_B1_TRACKS, BRT_TRACK_ATTRIBUTION } from '../domain/brtTrackGeometry'
+import { MOBILITY_PALETTE } from '../domain/mobilityColors'
 
 interface DrawnPolyline {
   positions: Array<[number, number]>
@@ -169,6 +170,15 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
     expect(markers.every((marker) => String(marker.icon.options.html).includes(network === 'brt' ? 'brt.svg' : network === 'ddd' ? 'ddd.svg' : 'aftu-tata.svg'))).toBe(true)
   })
 })
+
+  it.each(['ter', 'brt', 'ddd', 'aftu_tata'] as const)('colore le flux animé de %s avec sa couleur officielle', (network) => {
+    drawMap(lineOf(network))
+    const flows = drawn.polylines.filter((entry) =>
+      (entry as DrawnPolyline).pathOptions.className === 'mobility-route-flow',
+    ) as DrawnPolyline[]
+    expect(flows.length).toBeGreaterThan(0)
+    expect(flows.every((flow) => flow.pathOptions.color === MOBILITY_PALETTE[network].bright)).toBe(true)
+  })
 
   it('superpose un flux animé de la couleur officielle sur chaque géométrie, sans remplacer le tracé', () => {
     drawMap()
