@@ -170,6 +170,62 @@ class GTFSValidatorTests(unittest.TestCase):
         valid_report = validate_gtfs_archive(self.make_archive(tables))
         self.assertTrue(valid_report["structure_valid"], valid_report["issues"])
 
+
+    def test_first_and_last_stop_require_arrival_time(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence,timepoint\n"
+            "T1,,08:00:00,S1,1,0\n"
+            "T1,08:20:00,08:20:00,S2,2,1\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("MISSING_TERMINAL_ARRIVAL_TIME", self.issue_codes(report))
+
+    def test_timepoint_one_requires_both_arrival_and_departure(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence,timepoint\n"
+            "T1,08:00:00,,S1,1,1\n"
+            "T1,08:20:00,08:20:00,S2,2,1\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("MISSING_DEPARTURE_TIME", self.issue_codes(report))
+
+    def test_stop_times_must_reference_platforms_not_parent_stations(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stops.txt"] = (
+            "stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station\n"
+            "S1,Parent Station,14.7000,-17.4500,1,\n"
+            "S2,Stop Two,14.7100,-17.4600,0,\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("INVALID_STOP_TIME_LOCATION_TYPE", self.issue_codes(report))
+
+    def test_transfer_optional_references_and_conditional_fields_are_validated(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["transfers.txt"] = (
+            "from_stop_id,to_stop_id,transfer_type,from_route_id,to_route_id,from_trip_id,to_trip_id,min_transfer_time\n"
+            "S1,S2,2,R1,R1,T1,T1,120\n"
+        )
+        valid_report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertTrue(valid_report["structure_valid"], valid_report["issues"])
+
+        tables["transfers.txt"] = (
+            "from_stop_id,to_stop_id,transfer_type,from_route_id,to_route_id,from_trip_id,to_trip_id,min_transfer_time\n"
+            "S1,S2,2,UNKNOWN_ROUTE,,UNKNOWN_TRIP,,,\n"
+            "S1,S2,4,,,,,,\n"
+        )
+        invalid_report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(invalid_report["structure_valid"])
+        codes = self.issue_codes(invalid_report)
+        self.assertIn("UNKNOWN_TRANSFER_ROUTE_REFERENCE", codes)
+        self.assertIn("UNKNOWN_TRANSFER_TRIP_REFERENCE", codes)
+        self.assertIn("MISSING_MIN_TRANSFER_TIME", codes)
+        self.assertIn("MISSING_IN_SEAT_TRANSFER_TRIPS", codes)
+
     def test_pickup_and_drop_off_types_must_use_gtfs_values(self) -> None:
         tables = dict(VALID_TABLES)
         tables["stop_times.txt"] = (

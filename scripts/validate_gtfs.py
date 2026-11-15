@@ -145,6 +145,7 @@ class GTFSValidator:
         self.validation_db: sqlite3.Connection | None = None
         self.stop_time_trip_ids: set[str] = set()
         self.stop_time_stop_ids: set[str] = set()
+        self.stop_time_stop_refs: list[tuple[int, str]] = []
         self.frequency_trip_ids: list[tuple[int, str]] = []
         self.frequency_ranges: dict[str, list[tuple[int, int, int]]] = {}
         self.frequency_exact_times: dict[str, tuple[str, int]] = {}
@@ -152,6 +153,8 @@ class GTFSValidator:
         self.shape_ids: set[str] = set()
         self.trip_shape_ids: list[tuple[int, str, str]] = []
         self.transfer_stop_ids: list[tuple[int, str, str]] = []
+        self.transfer_route_refs: list[tuple[int, str, str]] = []
+        self.transfer_trip_refs: list[tuple[int, str, str, str, str]] = []
 
     def validate(self) -> dict[str, object]:
         try:
@@ -551,14 +554,22 @@ class GTFSValidator:
             self.report.add("ERROR", "EMPTY_STOP_REFERENCE", "stop_id est vide.", "stop_times.txt", line)
         else:
             self.stop_time_stop_ids.add(stop_id)
+            self.stop_time_stop_refs.append((line, stop_id))
 
-        arrival = self._time(self._value(row, "arrival_time"), "arrival_time", line)
-        departure = self._time(self._value(row, "departure_time"), "departure_time", line)
+        arrival_raw = self._value(row, "arrival_time")
+        departure_raw = self._value(row, "departure_time")
+        arrival = self._time(arrival_raw, "arrival_time", line)
+        departure = self._time(departure_raw, "departure_time", line)
         if sequence is not None and trip_id and self._record_stop_time_sequence(trip_id, sequence, arrival, departure, line):
             self.report.add("ERROR", "DUPLICATE_STOP_SEQUENCE", f"stop_sequence {sequence} répété pour le trip « {trip_id} ».", "stop_times.txt", line)
         timepoint = self._value(row, "timepoint")
         if timepoint and timepoint not in {"0", "1"}:
             self.report.add("ERROR", "INVALID_TIMEPOINT", "timepoint doit valoir 0 ou 1 lorsqu’il est renseigné.", "stop_times.txt", line)
+        if timepoint == "1":
+            if not arrival_raw:
+                self.report.add("ERROR", "MISSING_ARRIVAL_TIME", "arrival_time est requis lorsque timepoint=1.", "stop_times.txt", line)
+            if not departure_raw:
+                self.report.add("ERROR", "MISSING_DEPARTURE_TIME", "departure_time est requis lorsque timepoint=1.", "stop_times.txt", line)
         for column in ("pickup_type", "drop_off_type"):
             value = self._value(row, column)
             if value and value not in {"0", "1", "2", "3"}:
@@ -566,7 +577,7 @@ class GTFSValidator:
                 self.report.add("ERROR", code, f"{column} doit valoir 0, 1, 2 ou 3.", "stop_times.txt", line)
         if arrival is not None and departure is not None and departure < arrival:
             self.report.add("ERROR", "DEPARTURE_BEFORE_ARRIVAL", "departure_time précède arrival_time au même arrêt.", "stop_times.txt", line)
-        if arrival is None and departure is None and timepoint != "0":
+        if arrival is None and departure is None and timepoint != "0" and timepoint != "1":
             self.report.add("ERROR", "MISSING_STOP_TIME", "Lorsque arrival_time et departure_time sont tous deux vides, timepoint doit valoir 0.", "stop_times.txt", line)
 
         if sequence is not None and trip_id:
@@ -643,10 +654,25 @@ class GTFSValidator:
     def _transfer_row(self, row: dict[str, str | None], line: int) -> None:
         from_stop = self._value(row, "from_stop_id")
         to_stop = self._value(row, "to_stop_id")
+        from_route = self._value(row, "from_route_id")
+        to_route = self._value(row, "to_route_id")
+        from_trip = self._value(row, "from_trip_id")
+        to_trip = self._value(row, "to_trip_id")
         transfer_type = self._integer(self._value(row, "transfer_type"), "transfer_type", "transfers.txt", line, required=True)
+        min_transfer_time = self._integer(self._value(row, "min_transfer_time"), "min_transfer_time", "transfers.txt", line, required=False)
+
         if transfer_type is not None and transfer_type not in {0, 1, 2, 3, 4, 5}:
             self.report.add("ERROR", "INVALID_TRANSFER_TYPE", "transfer_type doit être une valeur GTFS reconnue (0 à 5).", "transfers.txt", line)
+        if transfer_type == 2 and min_transfer_time is None:
+            self.report.add("ERROR", "MISSING_MIN_TRANSFER_TIME", "min_transfer_time est requis lorsque transfer_type=2.", "transfers.txt", line)
+        if min_transfer_time is not None and min_transfer_time < 0:
+            self.report.add("ERROR", "INVALID_MIN_TRANSFER_TIME", "min_transfer_time doit être un entier non négatif.", "transfers.txt", line)
+        if transfer_type in {4, 5} and (not from_trip or not to_trip):
+            self.report.add("ERROR", "MISSING_IN_SEAT_TRANSFER_TRIPS", "from_trip_id et to_trip_id sont requis pour transfer_type=4 ou 5.", "transfers.txt", line)
+
         self.transfer_stop_ids.append((line, from_stop, to_stop))
+        self.transfer_route_refs.append((line, from_route, to_route))
+        self.transfer_trip_refs.append((line, from_trip, to_trip, from_route, to_route))
 
     def _feed_info_row(self, row: dict[str, str | None], line: int) -> None:
         for column in ("feed_publisher_name", "feed_publisher_url", "feed_lang"):
@@ -686,9 +712,11 @@ class GTFSValidator:
         for line, trip_id in self.frequency_trip_ids:
             if trip_id not in self.trip_rows:
                 self.report.add("ERROR", "UNKNOWN_TRIP_REFERENCE", f"frequencies.txt référence un trip inconnu « {trip_id} ».", "frequencies.txt", line)
-        for stop_id in self.stop_time_stop_ids:
+        for line, stop_id in self.stop_time_stop_refs:
             if stop_id not in self.stop_ids:
-                self.report.add("ERROR", "UNKNOWN_STOP_REFERENCE", f"stop_times.txt référence un arrêt inconnu « {stop_id} ».", "stop_times.txt")
+                self.report.add("ERROR", "UNKNOWN_STOP_REFERENCE", f"stop_times.txt référence un arrêt inconnu « {stop_id} ».", "stop_times.txt", line)
+            elif self.stop_types.get(stop_id, 0) != 0:
+                self.report.add("ERROR", "INVALID_STOP_TIME_LOCATION_TYPE", f"stop_times.txt doit référencer un arrêt/une plateforme (location_type=0), pas « {stop_id} ».", "stop_times.txt", line)
 
         for line, child_id, parent_id in self.parent_stations:
             if parent_id not in self.stop_ids:
@@ -705,6 +733,24 @@ class GTFSValidator:
                 self.report.add("ERROR", "UNKNOWN_TRANSFER_STOP", f"from_stop_id « {from_stop} » est inconnu.", "transfers.txt", line)
             if to_stop not in self.stop_ids:
                 self.report.add("ERROR", "UNKNOWN_TRANSFER_STOP", f"to_stop_id « {to_stop} » est inconnu.", "transfers.txt", line)
+
+        for line, from_route, to_route in self.transfer_route_refs:
+            if from_route and from_route not in self.route_ids:
+                self.report.add("ERROR", "UNKNOWN_TRANSFER_ROUTE_REFERENCE", f"from_route_id « {from_route} » est inconnu.", "transfers.txt", line)
+            if to_route and to_route not in self.route_ids:
+                self.report.add("ERROR", "UNKNOWN_TRANSFER_ROUTE_REFERENCE", f"to_route_id « {to_route} » est inconnu.", "transfers.txt", line)
+
+        for line, from_trip, to_trip, from_route, to_route in self.transfer_trip_refs:
+            if from_trip:
+                if from_trip not in self.trip_rows:
+                    self.report.add("ERROR", "UNKNOWN_TRANSFER_TRIP_REFERENCE", f"from_trip_id « {from_trip} » est inconnu.", "transfers.txt", line)
+                elif from_route and self.trip_rows[from_trip][0] != from_route:
+                    self.report.add("ERROR", "TRANSFER_TRIP_ROUTE_MISMATCH", f"from_trip_id « {from_trip} » n’appartient pas à from_route_id « {from_route} ».", "transfers.txt", line)
+            if to_trip:
+                if to_trip not in self.trip_rows:
+                    self.report.add("ERROR", "UNKNOWN_TRANSFER_TRIP_REFERENCE", f"to_trip_id « {to_trip} » est inconnu.", "transfers.txt", line)
+                elif to_route and self.trip_rows[to_trip][0] != to_route:
+                    self.report.add("ERROR", "TRANSFER_TRIP_ROUTE_MISMATCH", f"to_trip_id « {to_trip} » n’appartient pas à to_route_id « {to_route} ».", "transfers.txt", line)
 
         for route_id in self.route_ids:
             if self.route_trip_counts.get(route_id, 0) == 0:
@@ -771,6 +817,25 @@ class GTFSValidator:
     def _check_stop_time_chronology(self) -> None:
         if self.validation_db is None:
             raise RuntimeError("Validation index is not initialized")
+        terminal_rows = self.validation_db.execute(
+            "SELECT s.trip_id, s.sequence, s.arrival_time, s.source_line "
+            "FROM stop_sequences AS s "
+            "JOIN (SELECT trip_id, MIN(sequence) AS first_sequence, MAX(sequence) AS last_sequence "
+            "      FROM stop_sequences GROUP BY trip_id) AS bounds "
+            "  ON bounds.trip_id = s.trip_id "
+            " AND (s.sequence = bounds.first_sequence OR s.sequence = bounds.last_sequence) "
+            "ORDER BY s.trip_id, s.sequence"
+        )
+        for trip_id, sequence, arrival_time, source_line in terminal_rows:
+            if arrival_time is None:
+                self.report.add(
+                    "ERROR",
+                    "MISSING_TERMINAL_ARRIVAL_TIME",
+                    f"arrival_time est requis au premier et au dernier arrêt du trajet « {trip_id} » (stop_sequence={sequence}).",
+                    "stop_times.txt",
+                    source_line,
+                )
+
         cursor = self.validation_db.execute(
             "SELECT trip_id, arrival_time, departure_time, source_line "
             "FROM stop_sequences ORDER BY trip_id, sequence"
