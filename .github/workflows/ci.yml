@@ -62,6 +62,51 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Check read-only DDD ArcGIS feature extractor
+        run: node --check scripts/extract_ddd_arcgis_feature_layers.mjs
+
+      - name: Extract DDD ArcGIS stop and route features (read-only)
+        run: node scripts/extract_ddd_arcgis_feature_layers.mjs
+
+      - name: Check DDD ArcGIS geometric crosswalk script
+        run: node --check scripts/audit_ddd_arcgis_geometry_crosswalk.mjs
+
+      - name: Audit DDD ArcGIS stop-to-route geometry (read-only)
+        run: node scripts/audit_ddd_arcgis_geometry_crosswalk.mjs
+
+      - name: Upload ArcGIS stop-to-route crosswalk and audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-stop-route-crosswalk
+          path: artifacts/ddd/arcgis-2024-audit/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Check read-only OSM directional relation extractor
+        run: node --check scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
+        id: osm_relations
+        continue-on-error: true
+        run: node scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Upload OSM directional relation evidence
+        if: always() && steps.osm_relations.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-osm-217-218-219-228
+          path: artifacts/ddd/osm-217-218-219-228/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload raw ArcGIS and GeoJSON evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-2024-source-extract
+          path: artifacts/ddd/arcgis-2024-extract/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Build frontend
         run: npm run build
 
