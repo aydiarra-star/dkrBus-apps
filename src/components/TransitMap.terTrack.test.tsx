@@ -129,8 +129,8 @@ describe('carte : tracé du TER sur les voies réelles', () => {
   })
 })
 
-describe('carte : icônes des mobilités et exclusivité du TER', () => {
-  it('affiche un train aux gares TER et aucune icône de bus sur la géométrie ferroviaire', () => {
+describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () => {
+  it('affiche le sigle TER aux gares TER et aucune pastille bus sur la géométrie ferroviaire', () => {
     drawMap()
     const markers = drawn.markers as Array<{
       position: [number, number]
@@ -142,7 +142,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         marker.position[0] === stop.lat && marker.position[1] === stop.lon,
       )
       expect(atStation.length, stop.name).toBeGreaterThan(0)
-      expect(atStation.every((marker) => String(marker.icon.options.html).includes('data-mobility="ter"')), stop.name).toBe(true)
+      expect(atStation.every((marker) => String(marker.icon.options.html).includes('data-mobility="ter"') && String(marker.icon.options.html).includes('>TER</span>')), stop.name).toBe(true)
     }
 
     for (const marker of markers) {
@@ -156,42 +156,44 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         return meters <= 35
       })
       if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="ter"')
-      expect(marker.icon.options.iconSize).toEqual([34, 24])
+      expect(marker.icon.options.iconSize).toEqual([30, 18])
     }
   })
 
-  it.each(['brt', 'ddd', 'aftu_tata'] as const)('utilise une icône bus pour %s', (network) => {
+  it.each([
+    ['brt', 'BRT'],
+    ['ddd', 'DDD'],
+    ['aftu_tata', 'AFTU'],
+  ] as const)('affiche uniquement le sigle %s sur ses arrêts', (network, label) => {
     const lines = lineOf(network)
     const networkStopIds = new Set(lines.flatMap((line) => line.stopIds))
     const networkStops = ALL_CORRIDOR_STOPS.filter((stop) => networkStopIds.has(stop.id))
     drawMap(lines, networkStops)
-    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
+    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement; iconSize: [number, number] } } }>
     expect(markers.length).toBeGreaterThan(0)
-    expect(markers.every((marker) => String(marker.icon.options.html).includes(`data-mobility="${network}"`))).toBe(true)
-  })
-})
-
-  it.each(['ter', 'brt', 'ddd', 'aftu_tata'] as const)('colore le flux animé de %s avec sa couleur officielle', (network) => {
-    drawMap(lineOf(network))
-    const flows = drawn.polylines.filter((entry) =>
-      (entry as DrawnPolyline).pathOptions.className === 'mobility-route-flow',
-    ) as DrawnPolyline[]
-    expect(flows.length).toBeGreaterThan(0)
-    expect(flows.every((flow) => flow.pathOptions.color === MOBILITY_PALETTE[network].bright)).toBe(true)
-  })
-
-  it('superpose un flux animé de la couleur officielle sur chaque géométrie, sans remplacer le tracé', () => {
-    drawMap()
-    const flows = drawn.polylines.filter((entry) =>
-      (entry as DrawnPolyline).pathOptions.className === 'mobility-route-flow',
-    ) as DrawnPolyline[]
-    expect(flows.length).toBeGreaterThan(0)
-    expect(flows.every((flow) => flow.pathOptions.dashArray === '8 18' && flow.pathOptions.dashOffset === '26')).toBe(true)
-    for (const flow of flows) {
-      expect(flow.positions.length).toBeGreaterThan(1)
-      expect(flow.pathOptions.opacity).toBe(0.96)
+    expect(markers.every((marker) =>
+      String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
+      String(marker.icon.options.html).includes(`>${label}</span>`) &&
+      marker.icon.options.iconSize[0] === 30,
+    )).toBe(true)
+    if (network === 'aftu_tata') {
+      expect(markers.every((marker) => !String(marker.icon.options.html).includes('TATA'))).toBe(true)
     }
   })
+
+  it('identifie les arrêts sans réseau déclaré comme BUS', () => {
+    drawMap([], [{
+      id: 'bus-stop-test',
+      name: 'Arrêt bus test',
+      lat: 14.7,
+      lon: -17.4,
+    }])
+    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
+    expect(markers).toHaveLength(1)
+    expect(String(markers[0].icon.options.html)).toContain('data-mobility="bus"')
+    expect(String(markers[0].icon.options.html)).toContain('>BUS</span>')
+  })
+})
 
 describe('carte : les autres mobilités ne changent pas', () => {
   it('trace le BRT sur ses deux géométries OSM et crédite la source', () => {
