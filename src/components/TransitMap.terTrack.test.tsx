@@ -53,7 +53,7 @@ vi.mock('react-leaflet', () => {
 
 import { TransitMap } from './TransitMap'
 
-function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES) {
+function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CORRIDOR_STOPS) {
   drawn.polylines.length = 0
   drawn.markers.length = 0
   render(
@@ -65,7 +65,7 @@ function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES) {
       zoomAction={null}
       onChoosePoint={() => undefined}
       corridorLines={lines}
-      corridorStops={ALL_CORRIDOR_STOPS}
+      corridorStops={stops}
     />,
   )
   return drawn.polylines as DrawnPolyline[]
@@ -160,7 +160,10 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
   })
 
   it.each(['brt', 'ddd', 'aftu_tata'] as const)('utilise une icône bus pour %s', (network) => {
-    drawMap(lineOf(network))
+    const lines = lineOf(network)
+    const networkStopIds = new Set(lines.flatMap((line) => line.stopIds))
+    const networkStops = ALL_CORRIDOR_STOPS.filter((stop) => networkStopIds.has(stop.id))
+    drawMap(lines, networkStops)
     const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
     expect(markers.length).toBeGreaterThan(0)
     expect(markers.every((marker) => String(marker.icon.options.html).includes('🚍'))).toBe(true)
