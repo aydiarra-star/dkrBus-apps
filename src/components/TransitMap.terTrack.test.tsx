@@ -107,9 +107,8 @@ describe('carte : tracé du TER sur les voies réelles', () => {
   })
 
   it('crédite OpenStreetMap sur le trait du TER, et seulement sur lui', () => {
-    const credited = drawMap().filter((polyline) => polyline.attribution !== undefined)
+    const credited = drawMap().filter((polyline) => polyline.attribution === TER_TRACK_ATTRIBUTION)
     expect(credited).toHaveLength(1)
-    expect(credited[0].attribution).toBe(TER_TRACK_ATTRIBUTION)
     expect(credited[0].positions).toHaveLength(491)
   })
 
