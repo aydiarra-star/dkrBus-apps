@@ -108,22 +108,22 @@ Ouakam → Palais 2 :
 2. Cité Assemblée
 3. Cité Comico
 4. Sortie Ouakam
-5. Hôpital IHO
+5. Hopital IHO
 6. Mermoz
 7. ENEA
 8. École Normale
 9. UCAD
 10. Rond-point Sham
-11. Marché Tilène
+11. Marché Tilen
 12. Poste Médina
 13. Difoncé
 14. Sandaga
 15. Avenue George Pompidou
 16. Place de l’Indépendance
 17. Avenue Léopold Sédar Senghor
-18. Hôpital Principal
-19. Rond-point Assemblée nationale
-20. Institut Pasteur
+18. Hopitale Principale
+19. Rond point assemblée nationale
+20. Institut pasteur
 21. Terminus Palais 2
 
 ### Ligne 9 — séquence officielle publiée
@@ -138,8 +138,8 @@ Liberté 6 → Palais 2 :
 8. Niary Tally
 9. Église Sainte-Thérèse
 10. Lycée Blaise Diagne
-11. Lycée Kennedy
-12. Obélisque
+11. Lycée Kenedy
+12. Obelisque
 13. Centenaire
 14. Rond-point RTS
 15. Poste Médina
@@ -148,40 +148,40 @@ Liberté 6 → Palais 2 :
 18. Avenue George Pompidou
 19. Place de l’Indépendance
 20. Avenue Léopold Sédar Senghor
-21. Hôpital Principal
-22. Rond-point Assemblée nationale
-23. Institut Pasteur
+21. Hopitale Principale
+22. Rond point assemblée nationale
+23. Institut pasteur
 24. Terminus Palais 2
 
 ### Ligne 10 — séquence officielle publiée
 Liberté 5 (Dieuppeul) → Palais 2 :
-1. Terminus Liberté 5 (Dieuppeul)
+1. Terminus liberté 5 (Dieuppeul)
 2. Cité Derklé
-3. Rond-point Liberté 6
+3. Rond point Liberté 6
 4. Khar Yalla
 5. Cité Marine
 6. CEM Ousmane Socé Diop
-7. Église Martyrs de l’Ouganda
+7. Eglise Martyrs de l’Ouganda
 8. SDE
-9. Dakar Sacré Cœur
+9. Dakar sacré coeur
 10. Stade Demba Diop
 11. Avenue Bourguiba
-12. École Normale
+12. Ecole Normale
 13. Poste Fann
-14. Rue Aimé Césaire
+14. Rue Aimé césaire
 15. Ministère de la Santé
 16. Corniche Ouest
 17. IFAN
-18. Hôtel Terrou
-19. Tunnel de Soumbédioune
-20. Village artisanal de Soumbédioune
+18. Hotel Terrou
+19. Tunnel de soumbédioune
+20. Village Artisanal de Soumbédioune
 21. Prison Rebeus
-22. « Turbinal de Dakar » (libellé tel que publié ; ne pas normaliser sans validation)
+22. « Turbinal de dakar » (libellé exact publié ; ne pas normaliser sans validation)
 23. Boulevard de la République
 24. Sorano
 25. Avenue Léopold Sédar Senghor
-26. Hôpital Principal
-27. Rond-point Assemblée nationale
+26. Hopitale Principale
+27. Rond point assemblée nationale
 28. Institut Pasteur
 29. Terminus Palais 2
 
