@@ -215,8 +215,8 @@ class GTFSValidatorTests(unittest.TestCase):
 
         tables["transfers.txt"] = (
             "from_stop_id,to_stop_id,transfer_type,from_route_id,to_route_id,from_trip_id,to_trip_id,min_transfer_time\n"
-            "S1,S2,2,UNKNOWN_ROUTE,,UNKNOWN_TRIP,,,\n"
-            "S1,S2,4,,,,,,\n"
+            "S1,S2,2,UNKNOWN_ROUTE,,UNKNOWN_TRIP,,\n"
+            "S1,S2,4,,,,,\n"
         )
         invalid_report = validate_gtfs_archive(self.make_archive(tables))
         self.assertFalse(invalid_report["structure_valid"])
