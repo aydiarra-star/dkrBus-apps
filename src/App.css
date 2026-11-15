@@ -2894,3 +2894,29 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .mobility-route-flow { animation: none !important; }
 }
+
+
+/* Densité progressive des arrêts : points compacts à l'échelle de la ville,
+   pastilles intermédiaires par quartier, libellés complets en zoom rapproché. */
+.leaflet-map--citywide .mobility-stop-badge {
+  position: relative;
+  top: 4.5px;
+  left: 9px;
+  width: 7px;
+  height: 7px;
+  border-width: 1px;
+  font-size: 0;
+}
+.leaflet-map--citywide .mobility-stop-badge > span,
+.leaflet-map--district .mobility-stop-badge > span {
+  display: none;
+}
+.leaflet-map--district .mobility-stop-badge {
+  position: relative;
+  top: 2px;
+  left: 6.5px;
+  width: 12px;
+  height: 12px;
+  border-width: 1px;
+  font-size: 0;
+}
