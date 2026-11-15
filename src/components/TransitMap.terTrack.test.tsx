@@ -80,7 +80,6 @@ function stopToStop(line: CorridorLine): Array<[number, number]> {
 }
 
 const lineOf = (network: CorridorLine['network']) => CORRIDOR_LINES.filter((line) => line.network === network)
-const styleOf = ({ pathOptions, interactive }: DrawnPolyline) => ({ ...pathOptions, color: undefined, interactive })
 
 beforeEach(() => {
   drawn.polylines.length = 0
