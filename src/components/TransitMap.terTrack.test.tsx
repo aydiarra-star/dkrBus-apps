@@ -14,7 +14,7 @@ interface DrawnPolyline {
   positions: Array<[number, number]>
   attribution?: string
   interactive?: boolean
-  pathOptions: { color: string; weight: number; opacity: number; dashArray?: string; lineCap?: string; lineJoin?: string }
+  pathOptions: { color: string; weight: number; opacity: number; dashArray?: string; dashOffset?: string; className?: string; lineCap?: string; lineJoin?: string }
 }
 
 const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[] }))
@@ -68,7 +68,7 @@ function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CO
       corridorStops={stops}
     />,
   )
-  return drawn.polylines as DrawnPolyline[]
+  return drawn.polylines.filter((polyline) => (polyline as DrawnPolyline).pathOptions.className !== 'mobility-route-flow') as DrawnPolyline[]
 }
 
 /** Dessin d'avant la modification : les arrêts de la ligne reliés dans l'ordre de desserte. */
@@ -141,7 +141,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         marker.position[0] === stop.lat && marker.position[1] === stop.lon,
       )
       expect(atStation.length, stop.name).toBeGreaterThan(0)
-      expect(atStation.every((marker) => String(marker.icon.options.html).includes('🚆')), stop.name).toBe(true)
+      expect(atStation.every((marker) => String(marker.icon.options.html).includes('ter.svg')), stop.name).toBe(true)
     }
 
     for (const marker of markers) {
@@ -155,7 +155,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         return meters <= 35
       })
       if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('🚆')
-      expect(marker.icon.options.iconSize).toEqual([18, 18])
+      expect(marker.icon.options.iconSize).toEqual([34, 24])
     }
   })
 
@@ -166,9 +166,22 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
     drawMap(lines, networkStops)
     const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
     expect(markers.length).toBeGreaterThan(0)
-    expect(markers.every((marker) => String(marker.icon.options.html).includes('🚍'))).toBe(true)
+    expect(markers.every((marker) => String(marker.icon.options.html).includes(network === 'brt' ? 'brt.svg' : network === 'ddd' ? 'ddd.svg' : 'aftu-tata.svg'))).toBe(true)
   })
 })
+
+  it('superpose un flux animé de la couleur officielle sur chaque géométrie, sans remplacer le tracé', () => {
+    drawMap()
+    const flows = drawn.polylines.filter((entry) =>
+      (entry as DrawnPolyline).pathOptions.className === 'mobility-route-flow',
+    ) as DrawnPolyline[]
+    expect(flows.length).toBeGreaterThan(0)
+    expect(flows.every((flow) => flow.pathOptions.dashArray === '8 18' && flow.pathOptions.dashOffset === '26')).toBe(true)
+    for (const flow of flows) {
+      expect(flow.positions.length).toBeGreaterThan(1)
+      expect(flow.pathOptions.opacity).toBe(0.96)
+    }
+  })
 
 describe('carte : les autres mobilités ne changent pas', () => {
   it('trace le BRT sur ses deux géométries OSM et crédite la source', () => {
