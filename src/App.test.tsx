@@ -1397,7 +1397,7 @@ describe('barre de recherche du Trajet', () => {
     fireEvent.focus(input)
     fireEvent.change(input, { target: { value: 'aftu' } })
     const list = screen.getByRole('listbox', { name: /départ : arrêts et mobilités/i })
-    fireEvent.click(within(list).getByRole('option', { name: /AFTU/ }))
+    fireEvent.click(within(list).getByRole('option', { name: /19 pôles de référence.*non utilisable/ }))
 
     // Aucun point n’est créé : le réseau dit pourquoi il n’est pas utilisable.
     expect(screen.getByText(/aucun arrêt n’est inventé/i)).toBeTruthy()
@@ -2091,7 +2091,7 @@ describe('réglages appliqués réellement à l’application', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'rufisque', /rufisque/i)
+    chooseStopInField('Destination', 'rufisque', /rufisque.*TER/i)
     const region = screen.getByRole('region', { name: /itinéraires de référence/i })
     const metric = region.textContent ?? ''
     expect(metric).toMatch(/\d+ m|\d+,\d km/)
