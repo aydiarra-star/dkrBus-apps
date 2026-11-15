@@ -7,8 +7,8 @@
  * BRT, réseau de référence), il projette la grille déclarée au départ de
  * chaque terminus sur l'ensemble des stations : le créneau d'une station est
  * le départ théorique du terminus augmenté du temps de parcours de référence
- * (distance à vol d'oiseau entre stations consécutives / vitesse commerciale
- * déclarée + arrêts intermédiaires). Les deux sens sont distincts :
+ * (durées observées dans TER INFOS pour le TER ; distance à vol d'oiseau /
+ * vitesse commerciale déclarée + arrêts intermédiaires pour les autres réseaux). Les deux sens sont distincts :
  * - sens aller : grille projetée depuis le terminus d'origine de la ligne ;
  * - sens retour : grille projetée depuis le terminus opposé.
  *
