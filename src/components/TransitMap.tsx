@@ -64,6 +64,27 @@ export function mappableStops(stops: readonly PublishedStop[]): MappablePublishe
   return stops.filter((stop): stop is MappablePublishedStop => stop.lat !== null && stop.lon !== null)
 }
 
+/** Distance minimale d'un arrêt à un segment géographique, en mètres. */
+function distanceToSegmentMeters(
+  point: { lat: number; lon: number },
+  start: [number, number],
+  end: [number, number],
+): number {
+  const radians = Math.PI / 180
+  const cosLat = Math.cos(point.lat * radians)
+  const project = (lat: number, lon: number): [number, number] => [
+    (lon - point.lon) * radians * 6_371_000 * cosLat,
+    (lat - point.lat) * radians * 6_371_000,
+  ]
+  const [ax, ay] = project(start[0], start[1])
+  const [bx, by] = project(end[0], end[1])
+  const dx = bx - ax
+  const dy = by - ay
+  const lengthSquared = dx * dx + dy * dy
+  const t = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, -(ax * dx + ay * dy) / lengthSquared))
+  return Math.hypot(ax + t * dx, ay + t * dy)
+}
+
 function MapClickHandler({
   pickingPoint,
   onChoosePoint,
