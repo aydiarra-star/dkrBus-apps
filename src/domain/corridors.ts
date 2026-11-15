@@ -97,7 +97,7 @@ export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: numb
   minLat: 14.60,
   minLon: -17.56,
   maxLat: 14.84,
-  maxLon: -17.16,
+  maxLon: -17.04,
 }
 
 export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
@@ -105,7 +105,7 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
     id: 'ter',
     label: 'TER',
     operator: 'SETER (Sen TER)',
-    description: 'Train express régional Dakar ↔ Diamniadio — 36 km, 13 gares et haltes.',
+    description: 'Train express régional Dakar ↔ Diamniadio ↔ AIBD — 55 km, 14 gares et haltes.',
     provenance:
       'Gares : plan de transport sentersa.sn et positions OpenStreetMap (opérateur SETER). Tracé de référence simplifié.',
   },
@@ -135,7 +135,7 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
   },
 }
 
-/** Les 13 gares et haltes du TER, Dakar → Diamniadio.
+/** Les 14 gares et haltes du TER, Dakar → AIBD.
  *  Coordonnées : OpenStreetMap, nœuds railway=station, operator=SETER. */
 export const TER_STOPS: readonly CorridorStop[] = [
   { id: 'ter-dakar', name: 'Dakar', lat: 14.6759856, lon: -17.4335181, order: 0, aliases: ['gare de dakar', 'plateau', 'gare centrale'], note: 'Zone 1' },
@@ -150,7 +150,9 @@ export const TER_STOPS: readonly CorridorStop[] = [
   { id: 'ter-pnr', name: 'PNR', lat: 14.7231692, lon: -17.2839425, order: 9, aliases: ['pole nouvelle rufisque'], note: 'Zone 3' },
   { id: 'ter-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 10, aliases: [], note: 'Zone 3' },
   { id: 'ter-bargny', name: 'Bargny', lat: 14.6981798, lon: -17.2292043, order: 11, aliases: [], note: 'Zone 3' },
-  { id: 'ter-diamniadio', name: 'Diamniadio', lat: 14.7160641, lon: -17.1984512, order: 12, aliases: ['ville nouvelle'], note: 'Zone 3 · terminus' },
+  { id: 'ter-diamniadio', name: 'Diamniadio', lat: 14.7160641, lon: -17.1984512, order: 12, aliases: ['ville nouvelle'], note: 'Zone 3' },
+  // Gare AIBD : nœud OSM 14160412786 (railway=station / public_transport=station).
+  { id: 'ter-aibd', name: 'Aéroport de Dakar – AIBD', shortName: 'AIBD', lat: 14.67227, lon: -17.06456, order: 13, aliases: ['aibd', 'aeroport blaise diagne', 'aéroport blaise diagne', 'gare aibd'], note: 'Terminus' },
 ]
 
 /** Référence de 23 stations BRT, Petersen – Papa Gueye Fall → Préfecture de Guédiawaye.
