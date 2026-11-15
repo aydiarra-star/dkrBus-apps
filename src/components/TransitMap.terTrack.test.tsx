@@ -187,6 +187,8 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
       name: 'Arrêt bus test',
       lat: 14.7,
       lon: -17.4,
+      order: 0,
+      aliases: [],
     }])
     const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
     expect(markers).toHaveLength(1)
