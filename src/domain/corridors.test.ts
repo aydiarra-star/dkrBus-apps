@@ -18,6 +18,7 @@ describe('réseau de référence TER/BRT', () => {
   it('porte les 14 gares TER jusqu’à AIBD et les 23 stations BRT annoncées publiquement', () => {
     expect(TER_STOPS).toHaveLength(14)
     expect(BRT_STOPS).toHaveLength(23)
+    expect(TER_STOPS[13]).toMatchObject({ id: 'ter-aibd', lat: 14.67227, lon: -17.06456, osmNodeId: 14160412786 })
   })
 
   it('verrouille la séquence officielle des 23 stations BRT', () => {
