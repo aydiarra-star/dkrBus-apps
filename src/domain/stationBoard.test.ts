@@ -10,9 +10,9 @@ describe('tableau des créneaux par station et par sens', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
     expect(board).toBeTruthy()
-    expect(board.rows).toHaveLength(TER_STOPS.length)
+    expect(board.rows).toHaveLength(14)
     expect(board.originStop.id).toBe('ter-dakar')
-    expect(board.destinationStop.id).toBe('ter-diamniadio')
+    expect(board.destinationStop.id).toBe('ter-aibd')
 
     // Une gare intermédiaire (Colobane) : un créneau par sens, distincts.
     const colobane = board.rows.find((row) => row.stop.id === 'ter-colobane')!
@@ -28,6 +28,17 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(colobane.outbound!.headwayMinutes).toBe(10)
     expect(colobane.outbound!.clockLabel).toMatch(/^\d{2}:\d{2}$/)
     expect(colobane.inbound!.headwayMinutes).toBe(10)
+  })
+
+  it('utilise les durées TER observées jusqu’à AIBD, sans ajouter de temps d’arrêt fictif', () => {
+    const line = boardLinesForNetwork('ter')[0]
+    const board = buildStationBoard(line, NOW)!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+    const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
+    expect(diamniadio.offsetFromOriginMin).toBe(44.5)
+    expect(aibd.offsetFromOriginMin).toBe(56.5)
+    expect(aibd.offsetFromDestinationMin).toBe(0)
+    expect(diamniadio.offsetFromDestinationMin).toBe(12)
   })
 
   it('projette le créneau aller avec le temps de parcours depuis le terminus', () => {
