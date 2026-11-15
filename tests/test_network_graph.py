@@ -89,7 +89,7 @@ TRANSFER_TABLES: dict[str, str] = {
         "T-TRANSFER,06:20:00,06:20:00,T3,2\n"
     ),
     "calendar_dates.txt": "service_id,date,exception_type\n",
-    "transfers.txt": "from_stop_id,to_stop_id,transfer_type\nT1,T2,2\n",
+    "transfers.txt": "from_stop_id,to_stop_id,transfer_type,min_transfer_time\nT1,T2,2,120\n",
 }
 
 
