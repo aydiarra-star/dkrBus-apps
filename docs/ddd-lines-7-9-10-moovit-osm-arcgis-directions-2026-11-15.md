@@ -96,3 +96,115 @@ Sources Moovit :
 - Aucune inversion de séquence, aucun arrêt générique renommé, aucun terminus fusionné.
 - Aucun horaire ou fréquence Moovit n'est importé.
 - Aucun code de production, TER/BRT, donnée Supabase ou déploiement modifié dans cet audit.
+
+
+## Contrôle complémentaire — séquences officielles DDD et fraîcheur ArcGIS
+
+Source officielle de référence : https://demdikk.sn/reseau-urbain-dakar/ (page « Réseau urbain Dakar », consultée le 15 novembre 2026). Elle donne les séquences commerciales suivantes, dans le sens terminus de départ → terminus d'arrivée.
+
+### Ligne 7 — séquence officielle publiée
+Ouakam → Palais 2 :
+1. Terminus Ouakam
+2. Cité Assemblée
+3. Cité Comico
+4. Sortie Ouakam
+5. Hôpital IHO
+6. Mermoz
+7. ENEA
+8. École Normale
+9. UCAD
+10. Rond-point Sham
+11. Marché Tilène
+12. Poste Médina
+13. Difoncé
+14. Sandaga
+15. Avenue George Pompidou
+16. Place de l’Indépendance
+17. Avenue Léopold Sédar Senghor
+18. Hôpital Principal
+19. Rond-point Assemblée nationale
+20. Institut Pasteur
+21. Terminus Palais 2
+
+### Ligne 9 — séquence officielle publiée
+Liberté 6 → Palais 2 :
+1. Terminus Liberté 6
+2. Rond-point JVC
+3. Sacré Cœur
+4. IPG
+5. Terminus Dieuppeul
+6. Allées Ababacar Sy
+7. Rond-point Jet d’Eau
+8. Niary Tally
+9. Église Sainte-Thérèse
+10. Lycée Blaise Diagne
+11. Lycée Kennedy
+12. Obélisque
+13. Centenaire
+14. Rond-point RTS
+15. Poste Médina
+16. Difoncé
+17. Sandaga
+18. Avenue George Pompidou
+19. Place de l’Indépendance
+20. Avenue Léopold Sédar Senghor
+21. Hôpital Principal
+22. Rond-point Assemblée nationale
+23. Institut Pasteur
+24. Terminus Palais 2
+
+### Ligne 10 — séquence officielle publiée
+Liberté 5 (Dieuppeul) → Palais 2 :
+1. Terminus Liberté 5 (Dieuppeul)
+2. Cité Derklé
+3. Rond-point Liberté 6
+4. Khar Yalla
+5. Cité Marine
+6. CEM Ousmane Socé Diop
+7. Église Martyrs de l’Ouganda
+8. SDE
+9. Dakar Sacré Cœur
+10. Stade Demba Diop
+11. Avenue Bourguiba
+12. École Normale
+13. Poste Fann
+14. Rue Aimé Césaire
+15. Ministère de la Santé
+16. Corniche Ouest
+17. IFAN
+18. Hôtel Terrou
+19. Tunnel de Soumbédioune
+20. Village artisanal de Soumbédioune
+21. Prison Rebeus
+22. Tribunal de Dakar
+23. Boulevard de la République
+24. Sorano
+25. Avenue Léopold Sédar Senghor
+26. Hôpital Principal
+27. Rond-point Assemblée nationale
+28. Institut Pasteur
+29. Terminus Palais 2
+
+### Alerte de fraîcheur des couches ArcGIS historiques
+
+Les couches route spécifiques consultées dans le service `Ligne_inter_urbain` sont bien des polylignes, mais leurs métadonnées indiquent toutes une dernière modification des données au **13 décembre 2017** :
+- ligne 7 : polyligne couche 19 ; référence spatiale EPSG:32628 ; HasM=true ;
+- ligne 9 : polyligne couche 21 ; EPSG:32628 ; HasM=false ;
+- ligne 10 : polyligne couche 22 ; EPSG:32628 ; HasM=false.
+Les couches de points associées sont respectivement 2, 4 et 6 (34, 36 et 26 points selon les estimations du service).
+
+**Conséquence :** ces couches de 2017 ne peuvent pas être présentées comme une validation géographique actuelle à elles seules. Elles constituent un témoin historique utile pour confronter les corridors, pas une vérité terrain 2026. Le service séparé `Dem_dikk_mise_a_jour` expose une couche unifiée d'arrêts et une couche unifiée d'itinéraires, avec des données éditées le 24 septembre 2024 pour la couche d'arrêts ; cependant, les enregistrements et géométries individuels n'ont pas été extraits et contrôlés ici. Aucun rapprochement géométrique récent ne doit donc être déclaré terminé sur cette seule base.
+
+Sources ArcGIS :
+- https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/19
+- https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/21
+- https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer/22
+- https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/0
+
+## Décision après ce contrôle
+
+- Les listes de la page DDD sont la référence commerciale pour les terminus et l'ordre publié des repères.
+- Moovit demeure une source secondaire pour les listes détaillées par sens ; ses noms de rue et arrêts génériques ne remplacent pas les repères DDD.
+- Les couches ArcGIS spécifiques 2017 ne doivent pas être utilisées comme preuve d'un tracé actuel sans validation complémentaire.
+- Le service ArcGIS mis à jour en 2024 doit être interrogé et ses géométries réelles extraites avant de produire un crosswalk géographique arrêt par arrêt.
+- Aucune géométrie, aucun arrêt, aucun horaire et aucune fréquence n'a été modifié dans l'application à la suite de cet audit.
