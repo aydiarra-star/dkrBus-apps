@@ -245,7 +245,6 @@ function TransitMapView({
   zoomAction,
   onChoosePoint,
   publishedStops = [],
-  selectedStopId = null,
   coverage = null,
   showCoverage = true,
   onSelectStop,
