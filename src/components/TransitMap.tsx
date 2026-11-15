@@ -225,19 +225,28 @@ function TransitMapView({
   const originIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-origin', 'Départ sélectionné', '#146b43'), [])
   const destinationIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-destination', 'Destination sélectionnée', '#d78a32'), [])
   const stops = useMemo(() => mappableStops(publishedStops), [publishedStops])
-  const uniqueCorridorStops = useMemo(() => corridorStops.filter((stop, index, all) => {
-    const prefix = stop.id.split('-')[0]
-    if (prefix !== 'aftu' && prefix !== 'tata') return true
-    const normalized = stop.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
-    const firstEquivalent = all.findIndex((candidate) => {
-      const candidatePrefix = candidate.id.split('-')[0]
-      if (candidatePrefix !== 'aftu' && candidatePrefix !== 'tata') return false
-      const candidateName = candidate.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
-      const meters = Math.hypot((candidate.lat - stop.lat) * 111_000, (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180))
-      return candidateName === normalized && meters <= 150
+  const uniqueCorridorStops = useMemo(() => {
+    const unique = corridorStops.filter((stop, index, all) => {
+      const prefix = stop.id.split('-')[0]
+      if (prefix !== 'aftu' && prefix !== 'tata') return true
+      const normalized = stop.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+      const firstEquivalent = all.findIndex((candidate) => {
+        const candidatePrefix = candidate.id.split('-')[0]
+        if (candidatePrefix !== 'aftu' && candidatePrefix !== 'tata') return false
+        const candidateName = candidate.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+        const meters = Math.hypot((candidate.lat - stop.lat) * 111_000, (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180))
+        return candidateName === normalized && meters <= 150
+      })
+      return firstEquivalent === index
     })
-    return firstEquivalent === index
-  }), [corridorStops])
+
+    // Draw TER markers last: shared stations must not be hidden by later
+    // DDD/BRT/AFTU/TATA markers at the same geographic position.
+    return [
+      ...unique.filter((stop) => !stop.id.startsWith('ter-')),
+      ...unique.filter((stop) => stop.id.startsWith('ter-')),
+    ]
+  }, [corridorStops])
   const corridorLineStops = useMemo(
     () =>
       corridorLines.map((line) => ({
@@ -385,16 +394,24 @@ function TransitMapView({
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
         const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'
+        const isTerInterchange = stop.id.startsWith('ter-') && corridorStops.some((candidate) => {
+          if (candidate.id.startsWith('ter-')) return false
+          const meters = Math.hypot(
+            (candidate.lat - stop.lat) * 111_000,
+            (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180),
+          )
+          return meters <= 30
+        })
         return (
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={isLightNetwork ? 5 : 7}
+            radius={isTerInterchange ? 10 : isLightNetwork ? 5 : 7}
             pathOptions={{
-              color: '#ffffff',
-              weight: isLightNetwork ? 1.5 : 2,
+              color: isTerInterchange ? (paint?.core ?? line?.color ?? '#003366') : '#ffffff',
+              weight: isTerInterchange ? 3 : isLightNetwork ? 1.5 : 2,
               fillColor: paint?.badge ?? '#475569',
-              fillOpacity: isLightNetwork ? 0.95 : 1,
+              fillOpacity: isTerInterchange ? 0 : isLightNetwork ? 0.95 : 1,
             }}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
           >
