@@ -1,7 +1,6 @@
 import {
-  AFTU_PUBLIC_LINE_CATALOG,
+  AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
-  TATA_PUBLIC_LINE_CATALOG,
   type PublicBusLineReference,
 } from './publicBusLineCatalog'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
@@ -252,15 +251,17 @@ function registerLine(source: PublicBusLineReference): BidirectionalBusLine {
 
 export const BIDIRECTIONAL_BUS_LINES: readonly BidirectionalBusLine[] = [
   ...DDD_PUBLIC_LINE_CATALOG,
-  ...AFTU_PUBLIC_LINE_CATALOG,
-  ...TATA_PUBLIC_LINE_CATALOG,
+  ...AFTU_TATA_PUBLIC_LINE_CATALOG,
 ].map(registerLine)
 
 export function getBusLineDirections(
   network: BidirectionalBusLine['network'],
   line: string,
 ): BidirectionalBusLine | null {
-  return BIDIRECTIONAL_BUS_LINES.find((item) => item.network === network && item.line === line) ?? null
+  // TATA est une appellation usuelle du réseau AFTU : les anciens appels
+  // utilisant "tata" sont redirigés vers l'unique fiche AFTU / TATA.
+  const canonicalNetwork = network === 'tata' ? 'aftu' : network
+  return BIDIRECTIONAL_BUS_LINES.find((item) => item.network === canonicalNetwork && item.line === line) ?? null
 }
 
 export function validateBusDirection(direction: BusDirection): string[] {
