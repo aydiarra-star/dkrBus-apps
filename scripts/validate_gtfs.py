@@ -52,6 +52,28 @@ OPTIONAL_HEADERS = {
 KNOWN_TABLES = set(REQUIRED_TABLES) | CALENDAR_TABLES | set(OPTIONAL_HEADERS) | EXTENDED_TABLES
 SUPPORTED_TABLES = set(REQUIRED_TABLES) | CALENDAR_TABLES | {"frequencies.txt", "shapes.txt", "transfers.txt", "feed_info.txt"}
 
+# A file is accepted only when every declared column is actually checked below.
+# Standard GTFS columns that are not implemented yet fail closed instead of
+# being silently ignored and allowing a false structural-validity result.
+VALIDATED_COLUMNS = {
+    "agency.txt": {"agency_id", "agency_name", "agency_url", "agency_timezone"},
+    "stops.txt": {"stop_id", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station"},
+    "routes.txt": {"route_id", "agency_id", "route_short_name", "route_long_name", "route_type"},
+    "trips.txt": {"route_id", "service_id", "trip_id", "direction_id", "shape_id"},
+    "stop_times.txt": {
+        "trip_id", "arrival_time", "departure_time", "stop_id", "stop_sequence",
+        "timepoint", "pickup_type", "drop_off_type",
+    },
+    "calendar.txt": OPTIONAL_HEADERS["calendar.txt"],
+    "calendar_dates.txt": OPTIONAL_HEADERS["calendar_dates.txt"],
+    "frequencies.txt": OPTIONAL_HEADERS["frequencies.txt"] | {"exact_times"},
+    "shapes.txt": OPTIONAL_HEADERS["shapes.txt"] | {"shape_dist_traveled"},
+    "transfers.txt": OPTIONAL_HEADERS["transfers.txt"] | {
+        "from_route_id", "to_route_id", "from_trip_id", "to_trip_id", "min_transfer_time",
+    },
+    "feed_info.txt": OPTIONAL_HEADERS["feed_info.txt"] | {"feed_start_date", "feed_end_date"},
+}
+
 TIME_RE = re.compile(r"^(\d{1,3}):(\d{2}):(\d{2})$")
 
 
@@ -383,6 +405,15 @@ class GTFSValidator:
                         return
                     if len(headers) != len(set(headers)):
                         self.report.add("ERROR", "DUPLICATE_COLUMN", "La table contient des noms de colonnes dupliqués.", filename, 1)
+                    allowed_headers = VALIDATED_COLUMNS.get(filename, set())
+                    for column in sorted(set(headers).difference(allowed_headers)):
+                        self.report.add(
+                            "ERROR",
+                            "UNVALIDATED_COLUMN",
+                            f"La colonne « {column} » de « {filename} » n’est pas encore contrôlée ; l’archive reste non validée.",
+                            filename,
+                            1,
+                        )
                     missing_headers = sorted(required_headers.difference(headers))
                     if missing_headers:
                         self.report.add("ERROR", "MISSING_COLUMNS", f"Colonnes requises absentes : {', '.join(missing_headers)}.", filename, 1)
