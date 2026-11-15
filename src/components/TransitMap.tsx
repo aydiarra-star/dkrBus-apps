@@ -122,6 +122,28 @@ function MapController({ recenterTo, zoomAction }: Pick<TransitMapProps, 'recent
 }
 
 /** Cadrage initial : englobe toute la région utile au chargement de la carte. */
+/** Réduit la densité des pastilles selon le niveau de zoom, sans déplacer les arrêts. */
+function MapStopDensityController() {
+  const map = useMap()
+
+  useEffect(() => {
+    const container = map.getContainer()
+    const syncDensity = () => {
+      const zoom = map.getZoom()
+      container.classList.toggle('leaflet-map--citywide', zoom <= 12)
+      container.classList.toggle('leaflet-map--district', zoom > 12 && zoom <= 13)
+    }
+    syncDensity()
+    map.on('zoomend', syncDensity)
+    return () => {
+      map.off('zoomend', syncDensity)
+      container.classList.remove('leaflet-map--citywide', 'leaflet-map--district')
+    }
+  }, [map])
+
+  return null
+}
+
 function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   const map = useMap()
   useEffect(() => {
@@ -360,6 +382,7 @@ function TransitMapView({
       <MapController recenterTo={recenterTo} zoomAction={zoomAction} />
       <MapInitialFit bounds={initialBounds} />
       <MapResizeController />
+      <MapStopDensityController />
 
       {/* Réseau de référence :
           - TER #003366 bleu et BRT #00A859 vert émeraude : tracés continus complets (halo + casing + core)
@@ -376,7 +399,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 4.8, opacity: 0.78, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -390,7 +413,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: 3.5, opacity: 0.88, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: 4.5, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -404,7 +427,7 @@ function TransitMapView({
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: 2.4, opacity: 0.94, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
@@ -442,8 +465,8 @@ function TransitMapView({
               positions={positions}
               pathOptions={{
                 color: paint?.core ?? line.color,
-                weight: 1.35,
-                opacity: 0.34,
+                weight: 2.2,
+                opacity: 0.55,
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
