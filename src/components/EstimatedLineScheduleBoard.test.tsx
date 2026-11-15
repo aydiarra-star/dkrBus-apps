@@ -65,6 +65,22 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     }
   })
 
+  it('place une séquence dans le sens prouvé par ses terminus, sans la renverser', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const button = getLineButtons(container, '24')[0]
+    expect(button).toBeTruthy()
+    fireEvent.click(button)
+    const row = button.closest('li')!
+    await waitFor(() => {
+      expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeTruthy()
+    })
+    const outbound = row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')
+    const inbound = row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')
+    expect(outbound).toBeNull()
+    expect(inbound?.firstElementChild?.textContent).toContain('Notaire')
+    expect(inbound?.lastElementChild?.textContent).toContain('Université Cheikh Anta Diop')
+  })
+
   it('affiche les séquences AFTU validées séparément à l’aller et au retour', async () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const expected = [
