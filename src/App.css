@@ -552,7 +552,7 @@ button:disabled { cursor: not-allowed; }
 .toast-message button:hover { background: #eff6f3; }
 .is-spinning { animation: spin 1s linear infinite; }
 
-@keyframes mobility-route-flow { from { stroke-dashoffset: 56; } to { stroke-dashoffset: 0; } }
+@keyframes mobility-route-flow { from { stroke-dashoffset: 84; } to { stroke-dashoffset: 0; } }
 @keyframes mobility-route-halo {
   0%, 100% { opacity: .18; }
   50% { opacity: .62; }
@@ -2892,15 +2892,26 @@ button:disabled { cursor: not-allowed; }
   pointer-events: none;
   filter: drop-shadow(0 0 2px currentColor);
 }
-.mobility-route-flow {
-  /* Segment lumineux long et espacé : son déplacement doit être perceptible sur mobile. */
-  animation: mobility-route-flow 1.35s linear infinite !important;
-  stroke-dasharray: 0 24 12 24 !important;
-  stroke-dashoffset: 56;
+.mobility-route-flow-glow {
+  /* Halo blanc mobile sous le trait coloré : le mouvement reste lisible à petite échelle. */
+  animation: mobility-route-flow 1.05s linear infinite !important;
+  stroke-dasharray: 32 52 !important;
+  stroke-dashoffset: 84;
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, .95)) drop-shadow(0 0 5px currentColor);
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, .98)) drop-shadow(0 0 8px rgba(255, 255, 255, .62));
+  will-change: stroke-dashoffset;
+}
+.mobility-route-flow {
+  /* Long segment coloré animé dans le sens des points de chaque itinéraire. */
+  animation: mobility-route-flow 1.05s linear infinite !important;
+  stroke-dasharray: 32 52 !important;
+  stroke-dashoffset: 84;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, .98));
   will-change: stroke-dashoffset;
 }
 .mobility-stop-badge {
