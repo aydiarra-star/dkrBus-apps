@@ -15,9 +15,11 @@ from scripts.process_gtfs_staging import (
     SupabaseRest,
     WorkerError,
     validate_claimed_job,
+    process_one,
     validate_report,
     validate_supabase_url,
     verify_archive_bytes,
+    worker_error_code,
 )
 
 VALID_SHA = "a" * 64
@@ -196,6 +198,43 @@ class GTFSWorkerTests(unittest.TestCase):
         client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
         with self.assertRaisesRegex(WorkerError, "UNSAFE_ARCHIVE_OBJECT_REFERENCE"):
             client.download(STAGING_BUCKET, "../../secrets")
+
+    def test_worker_failure_codes_are_bounded_and_non_sensitive(self) -> None:
+        self.assertEqual(worker_error_code(WorkerError("ARCHIVE_DOWNLOAD_FAILED")), "ARCHIVE_DOWNLOAD_FAILED")
+        self.assertEqual(worker_error_code(WorkerError("secret\nvalue")), "WORKER_ERROR")
+        self.assertEqual(worker_error_code(OSError("synthetic")), "WORKER_IO_ERROR")
+
+    def test_worker_requeues_a_claim_after_download_failure(self) -> None:
+        job = valid_job()
+        client = Mock()
+        client.claim.return_value = job
+        client.download.side_effect = WorkerError("ARCHIVE_DOWNLOAD_FAILED")
+
+        with self.assertRaisesRegex(WorkerError, "ARCHIVE_DOWNLOAD_FAILED"):
+            process_one(client)
+
+        client.fail.assert_called_once_with(job, "ARCHIVE_DOWNLOAD_FAILED")
+        client.complete.assert_not_called()
+
+    def test_failure_rpc_uses_only_the_claimed_dataset_and_lease(self) -> None:
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        job = valid_job()
+        with patch.object(client, "request", return_value=True) as request:
+            self.assertTrue(client.fail(job, "ARCHIVE_DOWNLOAD_FAILED"))
+        request.assert_called_once_with(
+            "/rest/v1/rpc/fail_dakar_gtfs_validation",
+            method="POST",
+            payload={
+                "p_dataset_id": job["dataset_id"],
+                "p_lease_token": job["lease_token"],
+                "p_error_code": "ARCHIVE_DOWNLOAD_FAILED",
+            },
+        )
+
+    def test_failure_rpc_rejects_unbounded_error_text(self) -> None:
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        with self.assertRaisesRegex(WorkerError, "WORKER_ERROR_CODE_INVALID"):
+            client.fail(valid_job(), "secret value")
 
 
 if __name__ == "__main__":

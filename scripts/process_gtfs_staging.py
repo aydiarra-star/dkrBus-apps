@@ -50,6 +50,18 @@ class WorkerError(RuntimeError):
     pass
 
 
+def worker_error_code(error: Exception) -> str:
+    """Return a bounded, non-sensitive code suitable for the staging audit log."""
+    if isinstance(error, WorkerError):
+        candidate = str(error)
+        return candidate if re.fullmatch(r"[A-Z0-9_]{1,80}", candidate) else "WORKER_ERROR"
+    if isinstance(error, subprocess.TimeoutExpired):
+        return "VALIDATOR_TIMEOUT"
+    if isinstance(error, OSError):
+        return "WORKER_IO_ERROR"
+    return "WORKER_UNEXPECTED_ERROR"
+
+
 class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     """Never forward the service-role credential through an HTTP redirect."""
 
@@ -292,41 +304,73 @@ class SupabaseRest:
         )
         return result is True
 
+    def fail(self, job: dict[str, Any], error_code: str) -> bool:
+        if not isinstance(error_code, str) or not re.fullmatch(r"[A-Z0-9_]{1,80}", error_code):
+            raise WorkerError("WORKER_ERROR_CODE_INVALID")
+        result = self.request(
+            "/rest/v1/rpc/fail_dakar_gtfs_validation",
+            method="POST",
+            payload={
+                "p_dataset_id": job["dataset_id"],
+                "p_lease_token": job["lease_token"],
+                "p_error_code": error_code,
+            },
+        )
+        return result is True
+
 
 def process_one(client: SupabaseRest) -> str:
     job = client.claim()
     if job is None:
         return "QUEUE_EMPTY"
-    archive_bytes = validate_claimed_job(job)
-    payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
-    verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
+    try:
+        archive_bytes = validate_claimed_job(job)
+        payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
+        verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
 
-    with tempfile.TemporaryDirectory(prefix="dakar-gtfs-worker-") as directory:
-        archive = Path(directory) / "feed.zip"
-        archive.write_bytes(payload)
-        completed = subprocess.run(
-            [sys.executable, str(VALIDATOR), str(archive)],
-            capture_output=True,
-            text=True,
-            timeout=600,
-            check=False,
-            # Do not pass the Supabase service-role key to the validator subprocess.
-            env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"},
-        )
-        if completed.returncode not in (0, 1):
-            raise WorkerError("VALIDATOR_EXECUTION_FAILED")
-        try:
-            report = validate_report(
-                json.loads(completed.stdout),
-                str(job["archive_sha256"]),
-                archive_bytes,
+        with tempfile.TemporaryDirectory(prefix="dakar-gtfs-worker-") as directory:
+            archive = Path(directory) / "feed.zip"
+            archive.write_bytes(payload)
+            completed = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(archive)],
+                capture_output=True,
+                text=True,
+                timeout=600,
+                check=False,
+                # Do not pass the Supabase service-role key to the validator subprocess.
+                env={"PATH": os.environ.get("PATH", ""), "PYTHONIOENCODING": "utf-8"},
             )
-        except json.JSONDecodeError as error:
-            raise WorkerError("VALIDATOR_OUTPUT_INVALID_JSON") from error
+            if completed.returncode not in (0, 1):
+                raise WorkerError("VALIDATOR_EXECUTION_FAILED")
+            try:
+                report = validate_report(
+                    json.loads(completed.stdout),
+                    str(job["archive_sha256"]),
+                    archive_bytes,
+                )
+            except json.JSONDecodeError as error:
+                raise WorkerError("VALIDATOR_OUTPUT_INVALID_JSON") from error
 
-    if not client.complete(job, report):
-        raise WorkerError("VALIDATION_LEASE_EXPIRED_OR_HASH_MISMATCH")
-    return "VALID" if report["structure_valid"] else "INVALID"
+        if not client.complete(job, report):
+            raise WorkerError("VALIDATION_LEASE_EXPIRED_OR_HASH_MISMATCH")
+        return "VALID" if report["structure_valid"] else "INVALID"
+    except Exception as error:
+        # Transient worker failures release the lease and return the dataset to
+        # quarantine immediately. If the lease expired or the RPC is unavailable,
+        # the SQL lease-expiry recovery remains the fallback.
+        if (
+            isinstance(job, dict)
+            and isinstance(job.get("dataset_id"), str)
+            and DATASET_ID_RE.fullmatch(job["dataset_id"])
+            and isinstance(job.get("lease_token"), str)
+            and LEASE_TOKEN_RE.fullmatch(job["lease_token"])
+        ):
+            try:
+                client.fail(job, worker_error_code(error))
+            except Exception:
+                # Preserve the original failure; the lease can still expire safely.
+                pass
+        raise
 
 
 def main() -> int:
@@ -337,8 +381,8 @@ def main() -> int:
         return 2
     try:
         outcome = process_one(SupabaseRest(base_url, service_key))
-    except (WorkerError, subprocess.TimeoutExpired, OSError) as error:
-        print(f"Échec du traitement GTFS : {error}", file=sys.stderr)
+    except Exception as error:
+        print(f"Échec du traitement GTFS : {worker_error_code(error)}", file=sys.stderr)
         return 1
     print(f"Traitement GTFS terminé : {outcome}")
     return 0
