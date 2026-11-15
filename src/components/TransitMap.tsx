@@ -294,6 +294,13 @@ function TransitMapView({
     if (terTracks.length === 0) return uniqueCorridorStops
     return uniqueCorridorStops.filter((stop) => {
       if (stop.id.startsWith('ter-')) return true
+      // Une correspondance à moins de 30 m d'une gare TER reste représentée
+      // au pôle ; seules les pastilles posées sur le parcours entre les gares
+      // sont masquées.
+      const atTerStation = TER_STOPS.some((station) =>
+        distanceToSegmentMeters(stop, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
+      )
+      if (atTerStation) return true
       return !terTracks.some((positions) =>
         positions.slice(1).some((end, index) =>
           distanceToSegmentMeters(stop, positions[index], end) <= 35,
@@ -428,6 +435,20 @@ function TransitMapView({
             </Polyline>
           )
         })}
+      {/* Anneau TER discret aux gares qui accueillent une correspondance. */}
+      {TER_STOPS.filter((station) =>
+        uniqueCorridorStops.some((candidate) =>
+          !candidate.id.startsWith('ter-') &&
+          distanceToSegmentMeters(candidate, [station.lat, station.lon], [station.lat, station.lon]) <= 30,
+        ),
+      ).map((station) => (
+        <CircleMarker
+          key={`ter-interchange-${station.id}`}
+          center={[station.lat, station.lon]}
+          radius={10}
+          pathOptions={{ color: '#003366', weight: 3, fillColor: '#003366', fillOpacity: 0 }}
+        />
+      ))}
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
