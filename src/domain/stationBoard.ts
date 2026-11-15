@@ -26,6 +26,7 @@
 import { CORRIDOR_LINES, getCorridorStop, haversineMeters, type CorridorStop } from './corridors'
 import type { OfficialFrequency } from './frequencies'
 import { dwellMinutes } from './assumptions'
+import { terSegmentMidpoint } from './terTravelTimes'
 import { nextReferencePassage, type NextPassage } from './headways'
 import type { NetworkId } from './network'
 
@@ -68,6 +69,12 @@ function segmentMinutes(line: BoardLine, index: number): number {
   const a = getCorridorStop(line.stopIds[index])
   const b = getCorridorStop(line.stopIds[index + 1])
   if (!a || !b) return 0
+  // Le TER utilise les durées observées depuis TER INFOS ; les autres réseaux
+  // conservent leur estimation géographique historique.
+  if (line.network === 'ter') {
+    const observed = terSegmentMidpoint(a.id, b.id)
+    if (observed !== null) return observed
+  }
   return (haversineMeters(a, b) / 1000 / line.speedKph) * 60
 }
 
@@ -82,7 +89,9 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
     .filter((stop): stop is CorridorStop => stop !== null)
   if (stops.length < 2) return null
 
-  const dwell = dwellMinutes(line.network)
+  // Les durées TER relevées incluent déjà le temps réel entre les gares ;
+  // ne pas ajouter une seconde fois l'hypothèse d'arrêt intermédiaire.
+  const dwell = line.network === 'ter' ? 0 : dwellMinutes(line.network)
   const originStop = stops[0]
   const destinationStop = stops[stops.length - 1]
 
