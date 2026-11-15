@@ -1038,6 +1038,40 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
+  it('affiche les deux arcs verts scintillants sur tous les horaires de toutes les mobilités', () => {
+    vi.useFakeTimers()
+    // Jeudi 8 octobre 2026, 12:00 UTC : TER, BRT, DDD et AFTU/TATA sont en service actif.
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    // Les quatre réseaux décomptent : chacun affiche les deux arcs devant ses minutes.
+    for (const network of ['ter', 'brt', 'ddd', 'aftu_tata'] as const) {
+      const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
+      expect(passage?.textContent).toMatch(/\d+ min/)
+      expect(passage?.querySelector('.station-board-double-apostrophe')).not.toBeNull()
+    }
+
+    // Les tableaux par station / par ligne : chaque créneau qui décompte affiche
+    // les deux arcs, y compris en dépliant DDD et AFTU / TATA.
+    const expectArcsOnCountdowns = (root: ParentNode) => {
+      const countdowns = [...root.querySelectorAll('.station-board-passage strong')]
+        .filter((strong) => /\d+ min/.test(strong.textContent ?? ''))
+      expect(countdowns.length).toBeGreaterThan(0)
+      for (const strong of countdowns) {
+        expect(strong.querySelector('.station-board-double-apostrophe')).not.toBeNull()
+      }
+    }
+    for (const network of ['ter', 'ddd', 'aftu_tata'] as const) {
+      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
+      const board = container.querySelector('.station-board') as HTMLElement
+      expect(board).toBeTruthy()
+      expectArcsOnCountdowns(board)
+      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
+    }
+    vi.useRealTimers()
+  })
+
   it('place « Mes destinations » au-dessus des réseaux de référence', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
@@ -1371,7 +1405,7 @@ describe('barre de recherche du Trajet', () => {
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toHaveProperty('disabled', true)
   })
 
-  it('affiche durée, correspondances et prochain départ avec son point vert', async () => {
+  it('affiche durée, correspondances et prochain départ avec les deux arcs verts', async () => {
     stubApi([
       { match: '/api/network', respond: () => jsonResponse(NETWORK_PUBLISHED) },
       { match: '/api/routes', respond: () => jsonResponse(ROUTES_PAYLOAD) },
@@ -1403,7 +1437,7 @@ describe('barre de recherche du Trajet', () => {
     // vérifie qu'il est dit, pas qu'il est dit une seule fois.
     expect(screen.getAllByText(/sans correspondance/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/départ programmé dans 6 min/i)).toBeTruthy()
-    expect(document.querySelectorAll('.journey-countdown .live-dot')).toHaveLength(1)
+    expect(document.querySelectorAll('.journey-countdown .station-board-double-apostrophe')).toHaveLength(1)
   })
 })
 

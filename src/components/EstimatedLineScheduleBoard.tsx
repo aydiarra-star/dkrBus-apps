@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { formatPassageCountdown } from '../domain/headways'
+import { PassageArcs } from './PassageArcs'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import aftu84Directions from '../data/aftu-84-directions.json'
 import aftu85Directions from '../data/aftu-85-directions.json'
@@ -321,7 +322,7 @@ function AftuTataScheduleBoard({
                         </span>
                         <span className="station-board-direction-action">
                           <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
-                            <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{serviceLabel}</strong>
+                            <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <PassageArcs />}{serviceLabel}</strong>
                             {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
                           </span>
                           <span aria-hidden="true">{selected ? '−' : '+'}</span>
@@ -573,7 +574,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                             <div className="station-board-line-direction-heading">
                               <strong>{direction.label}</strong>
                               <span className={`network-summary-passage station-board-passage${direction.serviceState.status === 'UPCOMING' ? ' is-upcoming' : direction.serviceState.status === 'FINISHED' ? ' is-finished' : direction.minutes === null ? ' is-undeclared' : ''}`} role="status">
-                                <strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>
+                                <strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <PassageArcs />}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : "Service terminé pour aujourd'hui") : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>
                                 {direction.serviceState.status !== 'ACTIVE' && direction.serviceWindow && <small>Reprise à {direction.serviceWindow.start}</small>}
                               </span>
                             </div>
@@ -600,7 +601,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                       <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
                         <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                         <span className="station-board-direction-action">
-                          <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
+                          <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <PassageArcs />}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
                           <span aria-hidden="true">{selected ? '−' : '+'}</span>
                         </span>
                       </button>
