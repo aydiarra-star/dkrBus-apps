@@ -111,6 +111,13 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertIn("UNKNOWN_STOP_REFERENCE", codes)
         self.assertIn("TRIP_WITHOUT_STOP_TIMES", codes)
 
+    def test_calendar_dates_services_must_reference_calendar_when_present(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["calendar_dates.txt"] = "service_id,date,exception_type\nUNKNOWN,20260102,1\n"
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE", self.issue_codes(report))
+
     def test_trip_service_must_exist_in_a_calendar(self) -> None:
         tables = dict(VALID_TABLES)
         tables["trips.txt"] = "route_id,service_id,trip_id\nR1,UNKNOWN,T1\n"
