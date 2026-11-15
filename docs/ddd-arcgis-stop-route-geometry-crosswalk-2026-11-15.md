@@ -155,9 +155,31 @@ Les deux groupes suivent la même géométrie de la ligne 13 ; chaque point du p
 
 **Décision :** conserver les deux graphies, les deux comptes et les identifiants d'origine ; aucune fusion.
 
-## 7. Ligne 217 — un point à contrôler
+## 7. Lignes 217 et 218 — contradiction des sources officielles et secondaires
 
 29 des 30 points du groupe `ligne_217` sont à 25 m ou moins de la géométrie de la ligne 217. Le point source `OBJECTID 124`, nommé « Terminus 2017 2018 », est à 62,2 m. Il reste un candidat à vérifier, pas une raison de déplacer automatiquement le point.
+
+### Géométries ArcGIS distinctes
+
+- Ligne 217 / OID 6 : 23,879 km ; 30 points source, dont 29 à 25 m ou moins.
+- Ligne 218 / OID 7 : 25,598 km ; 37 points source identifiés dans le groupe mélangé `ligne_218`, tous à 25 m ou moins.
+- Les deux polylignes partagent un corridor (distance minimale 0 m), mais leurs extrémités ne sont pas identiques : une extrémité est séparée de 33,3 m et l'autre d'environ 1,56 km. Leur distance de Hausdorff est d'environ 2,97 km. Elles ne doivent donc pas être fusionnées.
+
+### Contradiction de la page officielle DDD
+
+La page officielle affiche des titres distincts :
+- ligne 217 : Thiaroye ↔ Ouakam ;
+- ligne 218 : Thiaroye ↔ Aéroport LSS.
+
+Cependant, la liste des 15 repères publiée sous ces deux titres est identique, et les deux listes se terminent par « Terminus aéroport LSS ». La séquence de la ligne 217 est donc contradictoire avec son propre titre de terminus. C'est une incohérence de la source DDD à faire confirmer par l'opérateur, pas une raison de modifier la géométrie.
+
+### Contradiction Moovit
+
+- Moovit 217 affiche des extrémités « Rue Okm 282, 222 » / « Stade Municipal » et « Terminus Rufisque » selon le sens.
+- Moovit 218 affiche « Terminus Rufisque » → « Aeroport » et le retour « Aeroport » → « Terminus Rufisque ».
+- Ces terminus ne concordent pas littéralement avec les terminus DDD Thiaroye / Ouakam / Aéroport ni avec les points ArcGIS « Dépôt Thiaroye » et « Terminus Aéroport L.S.S ».
+
+**Décision :** pour 217/218, conserver séparément les deux géométries ArcGIS et les séquences DDD publiées, marquer le conflit de terminus/sequence, et ne pas importer les séquences Moovit comme correction. Il faut une confirmation DDD ou une preuve OSM directionnelle fiable pour trancher.
 
 ## 8. Couverture OSM et limites de la validation
 
