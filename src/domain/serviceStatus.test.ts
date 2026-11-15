@@ -144,6 +144,12 @@ describe('serviceWindowForDay', () => {
     expect(window).toEqual({ start: '06:30', end: '22:00' })
   })
 
+  it('ne présume pas les horaires ordinaires lorsqu’une année n’a pas de calendrier férié confirmé', () => {
+    const nextYear = Date.UTC(2027, 0, 4, 5, 0)
+    const fallback = { start: '05:30', end: '22:00' }
+    expect(serviceWindowForDay(nextYear, OFFICIAL_REFERENCE_FREQUENCIES.ter, fallback)).toEqual(fallback)
+  })
+
   it('retient le début TER de semaine à 05:30', () => {
     const monday = Date.UTC(2026, 9, 12, 5, 20)
     const window = serviceWindowForDay(monday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
