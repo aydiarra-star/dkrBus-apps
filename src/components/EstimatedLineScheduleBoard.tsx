@@ -65,12 +65,12 @@ function routeCompleteness(route: MobilityRouteReference): number {
 function endpointTokens(value: string): string[] {
   return value.toLowerCase()
     .normalize('NFD')
-    .replace(/[\\u0300-\\u036f]/g, '')
-    .replace(/\\bucad\\b/g, 'universite cheikh anta diop')
-    .replace(/\\bsham\\b/g, 'sahm')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\bucad\b/g, 'universite cheikh anta diop')
+    .replace(/\bsham\b/g, 'sahm')
     .replace(/[^a-z0-9]+/g, ' ')
-    .replace(/\\b(terminus|gare|routiere|station|arret|rond|point|giratoire|route|principale|des|de|du|la|le|les)\\b/g, ' ')
-    .split(/\\s+/)
+    .replace(/\b(terminus|gare|routiere|station|arret|rond|point|giratoire|route|principale|des|de|du|la|le|les)\b/g, ' ')
+    .split(/\s+/)
     .filter((token) => token.length > 1)
 }
 
@@ -645,7 +645,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             <p>{incompleteLines.join(' · ')}</p>
           </div>
         ) : null
-      })()}}
+      })()}
     </section>
   )
 }
