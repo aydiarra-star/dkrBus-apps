@@ -48,7 +48,8 @@ export function parseRoadRouteQuery(query: string): { origin: string; destinatio
 
 async function geocodePlace(place: string): Promise<RoadRoutePlace> {
   await waitForPublicRequest()
-  const params = new URLSearchParams({ q: place, limit: '8', lang: 'fr' })
+  const searchPlace = /s[ée]n[ée]gal/i.test(place) ? place : `${place}, Sénégal`
+  const params = new URLSearchParams({ q: searchPlace, limit: '12', lang: 'fr' })
   const response = await fetch(`https://photon.komoot.io/api/?${params.toString()}`, {
     headers: { Accept: 'application/json' },
     signal: AbortSignal.timeout(12_000),
@@ -59,12 +60,12 @@ async function geocodePlace(place: string): Promise<RoadRoutePlace> {
     throw new Error('La recherche de lieu a renvoyé une réponse illisible.')
   }
   const features = payload.features as PhotonFeature[]
-  // Photon classe ses résultats par pertinence. On prend le premier résultat
-  // géographique valide, quel que soit le pays ; l'utilisateur peut préciser
-  // le pays dans le champ (ex. « Pikine, Sénégal ») en cas d'homonymie.
+  // La recherche est volontairement limitée au Sénégal : on ne doit jamais
+  // sélectionner un homonyme situé dans un autre pays.
   const feature = features.find((candidate) => {
     const coordinates = candidate.geometry?.coordinates
-    return Array.isArray(coordinates) && coordinates.length >= 2 &&
+    return normalized(candidate.properties?.country ?? '') === 'senegal' &&
+      Array.isArray(coordinates) && coordinates.length >= 2 &&
       Number.isFinite(coordinates[0]) && Number.isFinite(coordinates[1])
   })
   if (!feature?.geometry?.coordinates) {
@@ -76,9 +77,9 @@ async function geocodePlace(place: string): Promise<RoadRoutePlace> {
 }
 
 /**
- * Calcule un itinéraire routier partout où le réseau OpenStreetMap/OSRM dispose d'une route.
- * Ce résultat décrit un parcours routier calculé, pas un itinéraire de bus ni
- * un trafic en direct. Les services publics utilisés peuvent être indisponibles.
+ * Calcule un itinéraire routier entre deux lieux situés au Sénégal, là où le
+ * réseau OpenStreetMap/OSRM dispose d'une route. Ce résultat décrit un parcours
+ * routier, pas un itinéraire de transport collectif ni un trafic en direct.
  */
 export async function calculateRoadRoute(originName: string, destinationName: string): Promise<RoadRouteResult> {
   const origin = await geocodePlace(originName)
