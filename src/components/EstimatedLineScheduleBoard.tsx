@@ -93,6 +93,35 @@ function classifyStopSequence(
   return 'unknown'
 }
 
+function assignDirectionStopSequences(
+  rawOutboundStops: readonly string[],
+  rawInboundStops: readonly string[],
+  outboundOrigin: string,
+  outboundDestination: string,
+  inboundOrigin: string,
+  inboundDestination: string,
+): { outbound: readonly string[]; inbound: readonly string[] } {
+  let outbound = rawOutboundStops
+  let inbound = rawInboundStops
+  const outboundDirection = classifyStopSequence(rawOutboundStops, outboundOrigin, outboundDestination)
+  const inboundDirection = classifyStopSequence(rawInboundStops, inboundOrigin, inboundDestination)
+
+  if (outboundDirection === 'inbound') {
+    if (inboundDirection === 'inbound') {
+      outbound = rawInboundStops
+      inbound = rawOutboundStops
+    } else {
+      outbound = []
+      if (inboundDirection !== 'outbound') inbound = rawOutboundStops
+    }
+  } else if (inboundDirection === 'inbound') {
+    if (outboundDirection !== 'outbound') outbound = rawInboundStops
+    inbound = []
+  }
+
+  return { outbound, inbound }
+}
+
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
 
@@ -253,25 +282,16 @@ function AftuTataScheduleBoard({
                     const inboundDestination = route?.inboundDestination ?? outboundOrigin
                     const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
                     const rawInboundStops = route?.inboundWaypoints ?? []
-                    const outboundSequenceDirection = classifyStopSequence(rawOutboundStops, outboundOrigin, outboundDestination)
-                    const inboundSequenceDirection = classifyStopSequence(rawInboundStops, inboundOrigin, inboundDestination)
-                    // Les listes sont déjà ordonnées par leur source. Si les
-                    // terminus prouvent qu'elles ont été étiquetées à l'envers,
-                    // on les affecte au bon sens sans jamais inverser une liste.
-                    let outboundStops: readonly string[] = rawOutboundStops
-                    let inboundStops: readonly string[] = rawInboundStops
-                    if (outboundSequenceDirection === 'inbound') {
-                      if (inboundSequenceDirection === 'inbound') {
-                        outboundStops = rawInboundStops
-                        inboundStops = rawOutboundStops
-                      } else {
-                        outboundStops = []
-                        if (inboundSequenceDirection !== 'outbound') inboundStops = rawOutboundStops
-                      }
-                    } else if (inboundSequenceDirection === 'inbound') {
-                      if (outboundSequenceDirection !== 'outbound') outboundStops = rawInboundStops
-                      inboundStops = []
-                    }
+                    // Les listes restent dans l'ordre fourni par la source ;
+                    // seule leur affectation Aller/Retour peut être corrigée.
+                    const { outbound: outboundStops, inbound: inboundStops } = assignDirectionStopSequences(
+                      rawOutboundStops,
+                      rawInboundStops,
+                      outboundOrigin,
+                      outboundDestination,
+                      inboundOrigin,
+                      inboundDestination,
+                    )
                     const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
                     const serviceLabel = serviceState.status === 'UPCOMING'
                       ? serviceState.label
@@ -589,24 +609,43 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         })}
       </ul>
       {(() => {
-        const linesWithoutAnyStops = catalogue.filter((line) => {
-          const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-          const route = routeReferences.find((item) => item.code === line.line
-            && (!item.origin || !item.destination
-              ? item.network === line.network
-              : detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === routeKey))
-          const hasOutbound = Boolean(route?.waypoints?.length)
+        const incompleteLines = catalogue.flatMap((line) => {
+          const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+          const routeCandidates = routeReferences.filter((item) =>
+            item.code === line.line
+            && item.network === line.network
+            && Boolean(item.origin && item.destination)
+            && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
+            && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin!, destination: item.destination! })
+          )
+          const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+          const outboundOrigin = route?.outboundOrigin ?? line.origin
+          const outboundDestination = route?.outboundDestination ?? line.destination
+          const inboundOrigin = route?.inboundOrigin ?? outboundDestination
+          const inboundDestination = route?.inboundDestination ?? outboundOrigin
+          const { outbound, inbound } = assignDirectionStopSequences(
+            route?.waypoints?.length ? route.waypoints : line.waypoints ?? [],
+            route?.inboundWaypoints ?? [],
+            outboundOrigin,
+            outboundDestination,
+            inboundOrigin,
+            inboundDestination,
+          )
+          const hasOutbound = outbound.length > 0
             || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
-          const hasInbound = Boolean(route?.inboundWaypoints?.length)
-          return !hasOutbound || !hasInbound
+          const hasInbound = inbound.length > 0
+          const missing: string[] = []
+          if (!hasOutbound) missing.push('Aller')
+          if (!hasInbound) missing.push('Retour')
+          return missing.length > 0 ? [`${line.line} (${missing.join(' / ')})`] : []
         })
-        return linesWithoutAnyStops.length > 0 ? (
+        return incompleteLines.length > 0 ? (
           <div className="station-board-itinerary-pending station-board-pending-group">
-            <strong>Arrêts Aller et Retour à compléter</strong>
-            <p>{linesWithoutAnyStops.map((line) => line.line).join(' · ')}</p>
+            <strong>Arrêts à compléter par sens</strong>
+            <p>{incompleteLines.join(' · ')}</p>
           </div>
         ) : null
-      })()}
+      })()}}
     </section>
   )
 }
