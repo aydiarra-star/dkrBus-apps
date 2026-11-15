@@ -6,6 +6,8 @@ describe('parseRoadRouteQuery', () => {
     expect(parseRoadRouteQuery('Dakar à Pikine')).toEqual({ origin: 'Dakar', destination: 'Pikine' })
     expect(parseRoadRouteQuery('Trajet de Dakar vers Pikine')).toEqual({ origin: 'Dakar', destination: 'Pikine' })
     expect(parseRoadRouteQuery('Dakar → Pikine')).toEqual({ origin: 'Dakar', destination: 'Pikine' })
+    expect(parseRoadRouteQuery('Paris à Lyon')).toEqual({ origin: 'Paris', destination: 'Lyon' })
+    expect(parseRoadRouteQuery('New York vers Tokyo')).toEqual({ origin: 'New York', destination: 'Tokyo' })
   })
 
   it('ignore une recherche qui ne contient pas deux lieux distincts', () => {
