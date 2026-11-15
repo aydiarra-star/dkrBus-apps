@@ -152,7 +152,7 @@ export const TER_STOPS: readonly CorridorStop[] = [
   { id: 'ter-bargny', name: 'Bargny', lat: 14.6981798, lon: -17.2292043, order: 11, aliases: [], note: 'Zone 3' },
   { id: 'ter-diamniadio', name: 'Diamniadio', lat: 14.7160641, lon: -17.1984512, order: 12, aliases: ['ville nouvelle'], note: 'Zone 3' },
   // Gare AIBD : nœud OSM 14160412786 (railway=station / public_transport=station).
-  { id: 'ter-aibd', name: 'Aéroport de Dakar – AIBD', shortName: 'AIBD', lat: 14.67227, lon: -17.06456, order: 13, aliases: ['aibd', 'aeroport blaise diagne', 'aéroport blaise diagne', 'gare aibd'], note: 'Terminus' },
+  { id: 'ter-aibd', name: 'Aéroport de Dakar – AIBD', shortName: 'AIBD', lat: 14.67227, lon: -17.06456, order: 13, aliases: ['aibd', 'aeroport blaise diagne', 'aéroport blaise diagne', 'gare aibd'], note: 'Terminus', osmNodeId: 14160412786 },
 ]
 
 /** Référence de 23 stations BRT, Petersen – Papa Gueye Fall → Préfecture de Guédiawaye.
