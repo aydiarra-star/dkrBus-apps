@@ -596,7 +596,8 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
               : detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === routeKey))
           const hasOutbound = Boolean(route?.waypoints?.length)
             || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
-          return !hasOutbound
+          const hasInbound = Boolean(route?.inboundWaypoints?.length)
+          return !hasOutbound || !hasInbound
         })
         return linesWithoutAnyStops.length > 0 ? (
           <div className="station-board-itinerary-pending station-board-pending-group">
