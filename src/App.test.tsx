@@ -333,16 +333,20 @@ describe('Dakar Bus experience safety', () => {
 })
 
 describe('isolation de la vue carte', () => {
-  it('ne monte la carte Leaflet que sur l’onglet Explorer', async () => {
+  it('monte la carte sur Explorer et Trajet, et la masque sur Alertes et Paramètres', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
     expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
 
-    for (const tab of [/trajet/i, /alertes/i, /paramètres/i]) {
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
+
+    for (const tab of [/alertes/i, /paramètres/i]) {
       fireEvent.click(screen.getByRole('tab', { name: tab }))
-      // La carte est démontée du DOM : plus de tuiles, plus de place occupée.
+      // Les onglets sans recherche de trajet ne montent pas la carte.
       expect(screen.queryByLabelText('Carte de test')).toBeNull()
       expect(container.querySelector('.app-shell')?.className).toContain('is-map-hidden')
     }
@@ -367,7 +371,7 @@ describe('isolation de la vue carte', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     fireEvent.click(screen.getAllByRole('button', { name: /choisir un point sur la carte/i })[0])
 
-    // Choisir un point passe par l’onglet Explorer : la carte n’existe que là.
+    // La carte reste visible dans Trajet pendant le choix du point.
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
     expect(screen.getByText(/choisissez un point de départ sur la carte/i)).toBeTruthy()
 
@@ -402,10 +406,10 @@ describe('isolation de la vue carte', () => {
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
 
-    // Deux arrêts du réseau de référence suffisent : aucun passage par la carte.
+    // Les deux arrêts sont sélectionnés et leur itinéraire reste visible sur la carte.
     const submit = screen.getByRole('button', { name: /rechercher mon itinéraire/i }) as HTMLButtonElement
     expect(submit.disabled).toBe(false)
-    expect(screen.queryByLabelText('Carte de test')).toBeNull()
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
   })
 })
 
@@ -480,7 +484,12 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByRole('button', { name: /définir le boulot sur la carte/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir une adresse sur la carte/i })).toBeTruthy()
 
-    for (const tab of [/trajet/i, /alertes/i, /paramètres/i]) {
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.queryByPlaceholderText('On va où ?')).toBeNull()
+    expect(screen.queryByRole('search')).toBeNull()
+
+    for (const tab of [/alertes/i, /paramètres/i]) {
       fireEvent.click(screen.getByRole('tab', { name: tab }))
       expect(screen.queryByLabelText('Carte de test')).toBeNull()
       expect(screen.queryByPlaceholderText('On va où ?')).toBeNull()
