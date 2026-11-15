@@ -1366,33 +1366,33 @@ button:disabled { cursor: not-allowed; }
 .destination-shortcuts { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; padding-top: 0; }
 .destination-shortcuts-title { flex: 0 0 auto; color: var(--muted); font-size: 9.5px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
 .destination-shortcuts-row {
-  display: flex;
+  display: grid;
   flex: 1 1 auto;
   min-width: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  gap: 5px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  gap: 8px;
+  overflow: visible;
   padding: 1px 0;
 }
 .destination-shortcuts-row::-webkit-scrollbar { display: none; }
 .destination-shortcut {
   display: inline-flex;
-  flex: 0 0 auto;
+  width: 100%;
+  flex: 1 1 0;
   min-width: 0;
   min-height: 25px;
   align-items: center;
   justify-content: center;
-  padding: 0 8px;
+  padding: 0 5px;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--surface-card);
   color: var(--text);
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 650;
-  gap: 4px;
+  gap: 3px;
   white-space: nowrap;
   transition: background .18s cubic-bezier(.22, 1, .36, 1), border-color .18s ease, transform .16s cubic-bezier(.22, 1, .36, 1), box-shadow .18s ease;
 }
@@ -2380,6 +2380,19 @@ button:disabled { cursor: not-allowed; }
   width: 5px;
   height: 5px;
 }
+/* AFTU / TATA reste entièrement lisible : même hauteur et même style,
+   avec uniquement la largeur nécessaire au libellé complet. */
+.network-summary-item .mobility-aftu_tata,
+.network-reference-card .mobility-aftu_tata,
+.map-mobility-legend .mobility-aftu_tata,
+.station-direction-kicker .mobility-aftu_tata,
+.map-frequency-tooltip .mobility-aftu_tata {
+  width: max-content;
+  max-width: 68px;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+}
 /* Barre de couleur horizontale : jamais plus de 1 cm, format pilule */
 .network-summary-dot {
   max-width: 1cm;
@@ -2604,7 +2617,7 @@ button:disabled { cursor: not-allowed; }
 .map-mobility-legend {
   position: absolute;
   z-index: 450;
-  bottom: 28px;
+  bottom: 20px;
   left: 12px;
   display: grid;
   max-width: min(360px, calc(100% - 78px));
@@ -2627,8 +2640,7 @@ button:disabled { cursor: not-allowed; }
 .leaflet-tooltip .mobility-badge { margin-right: 4px; }
 
 @media (max-width: 820px) {
-  .map-mobility-legend { bottom: 26px; left: 8px; max-width: calc(100% - 62px); padding: 6px; }
-  .map-mobility-legend .mobility-aftu_tata { max-width: none; }
+  .map-mobility-legend { bottom: 20px; left: 8px; max-width: calc(100% - 62px); padding: 6px; }
   .map-mobility-legend small { display: none; }
 }
 
