@@ -134,9 +134,12 @@ function MapStopDensityController() {
       container.classList.toggle('leaflet-map--district', zoom > 12 && zoom <= 13)
     }
     syncDensity()
-    map.on('zoomend', syncDensity)
+    // Les tests unitaires utilisent une carte Leaflet simulée sans Evented.
+    // En production, l'instance Leaflet expose bien on/off.
+    const supportsZoomEvents = typeof map.on === 'function' && typeof map.off === 'function'
+    if (supportsZoomEvents) map.on('zoomend', syncDensity)
     return () => {
-      map.off('zoomend', syncDensity)
+      if (supportsZoomEvents) map.off('zoomend', syncDensity)
       container.classList.remove('leaflet-map--citywide', 'leaflet-map--district')
     }
   }, [map])
