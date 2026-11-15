@@ -97,7 +97,7 @@ import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
 import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
-import { getServiceDisplayState, type ServiceDisplayState } from './domain/serviceStatus'
+import { getServiceDisplayState, serviceWindowForDay, type ServiceDisplayState } from './domain/serviceStatus'
 import { boardLinesForNetwork, buildStationBoard, stationShortName, type StationBoard, type StationRow } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
 import {
@@ -2197,10 +2197,15 @@ function ReferenceNetworkSummary({
     nextReferencePassage(network.referenceData?.officialFrequencies ?? [], now),
   )
   /** Les limites horaires déclarées s'appliquent avant tout calcul de passage. */
-  const serviceStates = networks.map((network): ServiceDisplayState => {
+  const serviceWindows = networks.map((network) => {
     const refData = network.referenceData
-    if (!refData) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
-    return getServiceDisplayState(now, refData.serviceStart, refData.serviceEnd)
+    if (!refData) return null
+    return serviceWindowForDay(now, refData.officialFrequencies, { start: refData.serviceStart, end: refData.serviceEnd })
+  })
+  const serviceStates = networks.map((network, index): ServiceDisplayState => {
+    const window = serviceWindows[index]
+    if (!window) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
+    return getServiceDisplayState(now, window.start, window.end)
   })
 
   return (
@@ -2240,12 +2245,12 @@ function ReferenceNetworkSummary({
                 {serviceState.status === 'FINISHED' ? (
                   <span className="network-summary-passage is-finished" role="status" aria-label={`${refData?.shortName ?? network.label} : fin de service.`}>
                     <strong>Fin de service</strong>
-                    <small>{refData ? `Reprise à ${refData.serviceStart}` : networkMetaLabel(network)}</small>
+                    <small>{refData ? `Reprise à ${serviceWindows[index]?.start ?? refData.serviceStart}` : networkMetaLabel(network)}</small>
                   </span>
                 ) : serviceState.status === 'UPCOMING' ? (
                   <span className="network-summary-passage is-upcoming" role="status" aria-label={`${refData?.shortName ?? network.label} : ${serviceState.label}.`}>
                     <strong>{serviceState.label}</strong>
-                    <small>{`Reprise à ${refData?.serviceStart ?? '—'}`}</small>
+                    <small>{`Reprise à ${serviceWindows[index]?.start ?? refData?.serviceStart ?? '—'}`}</small>
                   </span>
                 ) : !hasEstimatedMinutes && showCountdown && passage ? (
                   <span
@@ -2265,7 +2270,7 @@ function ReferenceNetworkSummary({
                 ) : (
                   <span className="network-summary-passage is-undeclared" role="status">
                     <strong>En service</strong>
-                    <small>{refData ? `${refData.serviceStart}–${refData.serviceEnd}` : '—'}</small>
+                    <small>{refData ? `${serviceWindows[index]?.start ?? refData.serviceStart}–${serviceWindows[index]?.end ?? refData.serviceEnd}` : '—'}</small>
                   </span>
                 )}
               </button>
