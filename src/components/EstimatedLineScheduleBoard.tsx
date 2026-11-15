@@ -62,6 +62,20 @@ function routeCompleteness(route: MobilityRouteReference): number {
   return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
 }
 
+function matchesDirectionalRoute(line: PublicBusLineReference, route: MobilityRouteReference): boolean {
+  if (route.code !== line.line || route.network !== line.network) return false
+  // Les fichiers AFTU avec deux sens explicitement documentés font foi,
+  // même si leur terminus a évolué par rapport à l'ancien catalogue.
+  if (route.outboundOrigin && route.outboundDestination) return true
+  if (!route.origin || !route.destination) return false
+  return detailedRouteKey({ code: route.code, origin: route.origin, destination: route.destination })
+      === detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+    && sameDetailedRouteDirection(
+      { origin: line.origin, destination: line.destination },
+      { origin: route.origin, destination: route.destination },
+    )
+}
+
 function endpointTokens(value: string): string[] {
   return value.toLowerCase()
     .normalize('NFD')
@@ -269,10 +283,7 @@ function AftuTataScheduleBoard({
                     const sameNetworkByCode = routeReferences.filter((item) =>
                       item.network === line.network && item.code === line.line
                     )
-                    const sameNetworkCandidates = sameNetworkByCode.filter((item) =>
-                      detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                      && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin!, destination: item.destination! })
-                    )
+                    const sameNetworkCandidates = sameNetworkByCode.filter((item) => matchesDirectionalRoute(line, item))
                     const matchingSameNetwork = sameNetworkCandidates.length === 1
                       ? sameNetworkCandidates
                       : sameNetworkCandidates.length > 1
@@ -618,13 +629,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       {(() => {
         const incompleteLines = catalogue.flatMap((line) => {
           const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-          const routeCandidates = routeReferences.filter((item) =>
-            item.code === line.line
-            && item.network === line.network
-            && Boolean(item.origin && item.destination)
-            && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-            && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin!, destination: item.destination! })
-          )
+          const routeCandidates = routeReferences.filter((item) => matchesDirectionalRoute(line, item))
           const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           const outboundOrigin = route?.outboundOrigin ?? line.origin
           const outboundDestination = route?.outboundDestination ?? line.destination
