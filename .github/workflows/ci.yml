@@ -82,6 +82,23 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Check read-only OSM directional relation extractor
+        run: node --check scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
+        id: osm_relations
+        continue-on-error: true
+        run: node scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Upload OSM directional relation evidence
+        if: always() && steps.osm_relations.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-osm-217-218-219-228
+          path: artifacts/ddd/osm-217-218-219-228/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload raw ArcGIS and GeoJSON evidence
         uses: actions/upload-artifact@v4
         with:
