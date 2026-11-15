@@ -40,6 +40,9 @@ interface TransitMapProps {
   routePoints: Partial<Record<RoutePointKey, Coordinates>>
   /** Géométrie routière complète calculée depuis la recherche de lieux. */
   searchRoute?: readonly Coordinates[] | null
+  /** Lignes et arrêts du premier itinéraire multimodal calculé. */
+  highlightedLineIds?: readonly string[]
+  highlightedStopIds?: readonly string[]
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
   zoomAction: { delta: number; nonce: number } | null
@@ -166,7 +169,27 @@ function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   return null
 }
 
-/** Cadre automatiquement l’itinéraire routier complet après son calcul. */
+/** Cadre automatiquement le trajet multimodal entre ses deux points. */
+function MapRoutePointsFit({
+  origin,
+  destination,
+  hasSearchRoute,
+}: {
+  origin: Coordinates | null
+  destination: Coordinates | null
+  hasSearchRoute: boolean
+}) {
+  const map = useMap()
+  useEffect(() => {
+    if (hasSearchRoute || !origin || !destination) return
+    map.fitBounds(
+      [[origin.lat, origin.lng], [destination.lat, destination.lng]],
+      { padding: [38, 38], maxZoom: 15, animate: true, duration: 0.8 },
+    )
+  }, [map, origin?.lat, origin?.lng, destination?.lat, destination?.lng, hasSearchRoute])
+  return null
+}
+
 function MapSearchRouteFit({ positions }: { positions: [number, number][] }) {
   const map = useMap()
   useEffect(() => {
@@ -294,6 +317,8 @@ function TransitMapView({
   initialBounds = null,
   corridorLines = [],
   corridorStops = [],
+  highlightedLineIds = [],
+  highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
   const userIcon = useMemo(() => makeMarker('map-user-marker', 'Votre position', '#198754'), [])
@@ -357,6 +382,8 @@ function TransitMapView({
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
+  const highlightedLineIdSet = useMemo(() => new Set(highlightedLineIds), [highlightedLineIds])
+  const highlightedStopIdSet = useMemo(() => new Set(highlightedStopIds), [highlightedStopIds])
   const corridorStopsToRender = useMemo(
     () => uniqueCorridorStops.filter((stop) =>
       stop.id.startsWith('ter-') || !terTracks.some((positions) =>
@@ -402,6 +429,11 @@ function TransitMapView({
       <MapController recenterTo={recenterTo} zoomAction={zoomAction} />
       <MapInitialFit bounds={initialBounds} />
       <MapSearchRouteFit positions={searchRoutePositions} />
+      <MapRoutePointsFit
+        origin={routePoints.origin ?? null}
+        destination={routePoints.destination ?? null}
+        hasSearchRoute={searchRoutePositions.length > 1}
+      />
       <MapResizeController />
       <MapStopDensityController />
 
@@ -478,6 +510,44 @@ function TransitMapView({
             </Polyline>
           ))
         })}
+      {/* Mise en évidence du trajet calculé : mêmes géométries de référence, sans les remplacer. */}
+      {corridorLineStops
+        .filter(({ line }) => highlightedLineIdSet.has(line.id))
+        .flatMap(({ line, positions, additionalPositions }) => {
+          const paint = paintFor(line.network)
+          const tracks = [positions, ...(additionalPositions ?? [])]
+          const isContinuousTrack = line.network === 'ter' || line.network === 'brt'
+          return tracks.flatMap((track, directionIndex) => [
+            <Polyline
+              key={`journey-halo-${line.id}-${directionIndex}`}
+              positions={track}
+              interactive={false}
+              pathOptions={{ color: '#ffffff', weight: isContinuousTrack ? 8 : 6, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+            />,
+            <Polyline
+              key={`journey-line-${line.id}-${directionIndex}`}
+              positions={track}
+              interactive={false}
+              pathOptions={{ color: paint?.core ?? line.color, weight: isContinuousTrack ? 5.5 : 4, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+            />,
+          ])
+        })}
+      {corridorStops
+        .filter((stop) => highlightedStopIdSet.has(stop.id))
+        .map((stop) => {
+          const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
+          const paint = paintFor(line?.network, stop.id)
+          return (
+            <Circle
+              key={`journey-stop-${stop.id}`}
+              center={[stop.lat, stop.lon]}
+              radius={72}
+              interactive={false}
+              pathOptions={{ color: paint?.core ?? '#198754', weight: 2, fillColor: paint?.core ?? '#198754', fillOpacity: 0.2 }}
+            />
+          )
+        })}
+
       {/* Pastilles compactes : sigle du réseau directement sur chaque arrêt. */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))

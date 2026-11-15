@@ -828,8 +828,8 @@ button:disabled { cursor: not-allowed; }
 }
 
 /* --- Isolation de la vue carte -----------------------------------------
-   La carte Leaflet n’est montée que sur l’onglet « Carte ». Sur les autres
-   onglets, elle est absente du DOM et le panneau occupe toute la surface. */
+   La carte Leaflet accompagne Explorer et Trajet. Sur les autres onglets,
+   elle est absente du DOM et le panneau occupe toute la surface. */
 .point-stop-select { width: 100%; margin-top: 3px; padding: 5px 7px; border: 1px solid #e4eee9; border-radius: 9px; background: #fbfdfc; color: #4a6257; font-size: 9.5px; }
 .point-stop-select:focus-visible { border-color: #b2e3cc; outline: 2px solid #e8f6ef; }
 

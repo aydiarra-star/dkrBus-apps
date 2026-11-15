@@ -12,11 +12,15 @@ vi.mock('./components/TransitMap', () => ({
     onChoosePoint,
     publishedStops,
     recenterTo,
+    highlightedLineIds = [],
+    highlightedStopIds = [],
   }: {
     recenterTo: { lat: number; lng: number } | null
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
+    highlightedLineIds?: readonly string[]
+    highlightedStopIds?: readonly string[]
   }) => (
     <div aria-label="Carte de test">
       <button
@@ -29,6 +33,8 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
+      <span data-testid="highlighted-lines">{highlightedLineIds.join(',')}</span>
+      <span data-testid="highlighted-stops">{highlightedStopIds.join(',')}</span>
     </div>
   ),
 }))
@@ -327,16 +333,20 @@ describe('Dakar Bus experience safety', () => {
 })
 
 describe('isolation de la vue carte', () => {
-  it('ne monte la carte Leaflet que sur l’onglet Explorer', async () => {
+  it('monte la carte sur Explorer et Trajet, et la masque sur Alertes et Paramètres', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
     expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
 
-    for (const tab of [/trajet/i, /alertes/i, /paramètres/i]) {
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
+
+    for (const tab of [/alertes/i, /paramètres/i]) {
       fireEvent.click(screen.getByRole('tab', { name: tab }))
-      // La carte est démontée du DOM : plus de tuiles, plus de place occupée.
+      // Les onglets sans recherche de trajet ne montent pas la carte.
       expect(screen.queryByLabelText('Carte de test')).toBeNull()
       expect(container.querySelector('.app-shell')?.className).toContain('is-map-hidden')
     }
@@ -354,20 +364,20 @@ describe('isolation de la vue carte', () => {
     expect(screen.queryByText(/votre ville, votre rythme/i)).toBeNull()
   })
 
-  it('emmène choisir un point sur la carte puis ramène à l’itinéraire', async () => {
+  it('permet de choisir un point sur la carte sans quitter Trajet', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     fireEvent.click(screen.getAllByRole('button', { name: /choisir un point sur la carte/i })[0])
 
-    // Choisir un point passe par l’onglet Explorer : la carte n’existe que là.
+    // La carte reste visible dans Trajet pendant le choix du point.
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
     expect(screen.getByText(/choisissez un point de départ sur la carte/i)).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
 
-    // Retour automatique à l’itinéraire, point enregistré.
+    // Le point est enregistré dans le formulaire Trajet.
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
     expect(screen.getByText('Point choisi sur la carte')).toBeTruthy()
   })
@@ -396,10 +406,10 @@ describe('isolation de la vue carte', () => {
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
 
-    // Deux arrêts du réseau de référence suffisent : aucun passage par la carte.
+    // Les deux arrêts sont sélectionnés et leur itinéraire reste visible sur la carte.
     const submit = screen.getByRole('button', { name: /rechercher mon itinéraire/i }) as HTMLButtonElement
     expect(submit.disabled).toBe(false)
-    expect(screen.queryByLabelText('Carte de test')).toBeNull()
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
   })
 })
 
@@ -464,7 +474,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.queryByRole('tab', { name: /gouvernance/i })).toBeNull()
   })
 
-  it('shows the map and destination guide only in Explorer', async () => {
+  it('shows the map in Explorer and Trajet, and the destination guide only in Explorer', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
@@ -474,7 +484,12 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByRole('button', { name: /définir le boulot sur la carte/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir une adresse sur la carte/i })).toBeTruthy()
 
-    for (const tab of [/trajet/i, /alertes/i, /paramètres/i]) {
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.queryByPlaceholderText('On va où ?')).toBeNull()
+    expect(screen.queryByRole('search')).toBeNull()
+
+    for (const tab of [/alertes/i, /paramètres/i]) {
       fireEvent.click(screen.getByRole('tab', { name: tab }))
       expect(screen.queryByLabelText('Carte de test')).toBeNull()
       expect(screen.queryByPlaceholderText('On va où ?')).toBeNull()
@@ -1354,6 +1369,21 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(backToLight)
     expect(container.querySelector('.app-shell')?.classList.contains('theme-light')).toBe(true)
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
+  })
+})
+
+describe('carte du trajet multimodal', () => {
+  it('affiche la carte dans Trajet et met en évidence le corridor calculé', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
+    chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
+
+    expect(screen.getByTestId('highlighted-lines').textContent).toContain('brt-b1')
+    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-petersen')
   })
 })
 
