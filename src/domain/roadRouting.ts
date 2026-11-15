@@ -12,6 +12,15 @@ export interface RoadRouteResult {
   durationSeconds: number
 }
 
+// Les services publics sont partagés : limiter les appels à une requête par seconde.
+let lastPublicRequestAt = 0
+
+async function waitForPublicRequest(): Promise<void> {
+  const remaining = 1_000 - (Date.now() - lastPublicRequestAt)
+  if (remaining > 0) await new Promise<void>((resolve) => window.setTimeout(resolve, remaining))
+  lastPublicRequestAt = Date.now()
+}
+
 interface PhotonFeature {
   properties?: {
     name?: string
@@ -38,6 +47,7 @@ export function parseRoadRouteQuery(query: string): { origin: string; destinatio
 }
 
 async function geocodeDakarPlace(place: string): Promise<RoadRoutePlace> {
+  await waitForPublicRequest()
   const params = new URLSearchParams({ q: `${place}, Sénégal`, limit: '8', lang: 'fr', lat: '14.7167', lon: '-17.4677' })
   const response = await fetch(`https://photon.komoot.io/api/?${params.toString()}`, {
     headers: { Accept: 'application/json' },
@@ -70,10 +80,9 @@ async function geocodeDakarPlace(place: string): Promise<RoadRoutePlace> {
  * un trafic en direct. Les services publics utilisés peuvent être indisponibles.
  */
 export async function calculateRoadRoute(originName: string, destinationName: string): Promise<RoadRouteResult> {
-  const [origin, destination] = await Promise.all([
-    geocodeDakarPlace(originName),
-    geocodeDakarPlace(destinationName),
-  ])
+  const origin = await geocodeDakarPlace(originName)
+  const destination = await geocodeDakarPlace(destinationName)
+  await waitForPublicRequest()
   const params = new URLSearchParams({ overview: 'full', geometries: 'geojson', steps: 'false' })
   const url = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?${params.toString()}`
   const response = await fetch(url, {
