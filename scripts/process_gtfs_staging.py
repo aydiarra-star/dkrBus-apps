@@ -20,6 +20,7 @@ import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -43,6 +44,11 @@ EXPECTED_VALIDATOR_LIMITS = {
     "max_total_uncompressed_bytes": 500 * 1024 * 1024,
     "max_rows_per_table": 2_000_000,
     "max_issue_details": 200,
+}
+EXPECTED_VALIDATOR_TABLES = {
+    "agency.txt", "stops.txt", "routes.txt", "trips.txt", "stop_times.txt",
+    "calendar.txt", "calendar_dates.txt", "frequencies.txt", "shapes.txt",
+    "transfers.txt", "feed_info.txt",
 }
 
 
@@ -165,9 +171,18 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
     if not isinstance(reported_bytes, int) or isinstance(reported_bytes, bool) or reported_bytes != expected_bytes:
         raise WorkerError("VALIDATOR_REPORT_SIZE_MISMATCH")
 
-    if not isinstance(report.get("validated_at"), str) or not report["validated_at"].strip():
+    validated_at = report.get("validated_at")
+    if not isinstance(validated_at, str) or not validated_at.strip():
         raise WorkerError("VALIDATOR_REPORT_TIMESTAMP_MISSING")
-    if not isinstance(report.get("scope"), str) or not report["scope"].strip():
+    try:
+        parsed_timestamp = datetime.fromisoformat(validated_at.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise WorkerError("VALIDATOR_REPORT_TIMESTAMP_INVALID") from error
+    if parsed_timestamp.tzinfo is None or parsed_timestamp.utcoffset() is None:
+        raise WorkerError("VALIDATOR_REPORT_TIMESTAMP_INVALID")
+
+    scope = report.get("scope")
+    if not isinstance(scope, str) or not scope.strip() or len(scope) > 1_000:
         raise WorkerError("VALIDATOR_REPORT_SCOPE_MISSING")
     if report.get("production_ready") is not False:
         raise WorkerError("VALIDATOR_REPORT_PRODUCTION_READY_FORBIDDEN")
@@ -193,7 +208,14 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
     if not isinstance(tables, dict):
         raise WorkerError("VALIDATOR_REPORT_TABLES_INVALID")
     for name, count in tables.items():
-        if not isinstance(name, str) or not name or not isinstance(count, int) or isinstance(count, bool) or count < 0:
+        if (
+            not isinstance(name, str)
+            or name not in EXPECTED_VALIDATOR_TABLES
+            or not isinstance(count, int)
+            or isinstance(count, bool)
+            or count < 0
+            or count > EXPECTED_VALIDATOR_LIMITS["max_rows_per_table"]
+        ):
             raise WorkerError("VALIDATOR_REPORT_TABLE_COUNT_INVALID")
 
     issues = report.get("issues")
@@ -207,11 +229,23 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
         severity = issue.get("severity")
         if not isinstance(severity, str) or severity not in {"ERROR", "WARNING"}:
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
-        if not isinstance(issue.get("code"), str) or not issue["code"].strip():
+        if (
+            not isinstance(issue.get("code"), str)
+            or not issue["code"].strip()
+            or len(issue["code"]) > 100
+        ):
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
-        if not isinstance(issue.get("message"), str) or not issue["message"].strip():
+        if (
+            not isinstance(issue.get("message"), str)
+            or not issue["message"].strip()
+            or len(issue["message"]) > 500
+        ):
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
-        if "table" in issue and not isinstance(issue["table"], str):
+        if "table" in issue and (
+            not isinstance(issue["table"], str)
+            or not issue["table"]
+            or len(issue["table"]) > 100
+        ):
             raise WorkerError("VALIDATOR_REPORT_ISSUE_INVALID")
         if "row" in issue and (
             not isinstance(issue["row"], int) or isinstance(issue["row"], bool) or issue["row"] <= 0
