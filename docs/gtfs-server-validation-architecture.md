@@ -144,3 +144,8 @@ La migration retire aussi explicitement les ACL héritées de `PUBLIC` sur les t
 ## Refus des colonnes non contrôlées (15 novembre 2026)
 
 Pour chaque table prise en charge, le validateur maintient une liste explicite des colonnes dont les règles sont effectivement contrôlées. Toute colonne supplémentaire — y compris une colonne GTFS standard optionnelle dont les règles conditionnelles ne sont pas encore implémentées — produit `UNVALIDATED_COLUMN` et empêche `structure_valid=true`. Cela peut refuser temporairement un flux GTFS valide, mais évite d'ignorer silencieusement des champs qui changent la sémantique du service (par exemple les fenêtres de prise en charge à la demande). Une nouvelle colonne ne doit être ajoutée à la liste qu'avec ses contrôles et ses tests positifs/négatifs correspondants. Les fixtures restent synthétiques ; aucun flux réel ni aucune base active n'est utilisé.
+
+
+## Racine ZIP conforme au GTFS (15 novembre 2026)
+
+La référence GTFS exige que les fichiers du dataset soient directement à la racine de l'archive ZIP, et non dans un sous-dossier. Le validateur n'accepte donc plus les dossiers enveloppes de fournisseur. Il refuse également les tables texte imbriquées même si les tables principales sont présentes à la racine, afin qu'une seconde copie ou une table non contrôlée ne soit pas ignorée. Les tests positifs et négatifs utilisent uniquement des archives synthétiques. Référence : https://gtfs.org/documentation/schedule/reference/ (section « File Requirements »).
