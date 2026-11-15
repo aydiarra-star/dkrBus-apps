@@ -1229,7 +1229,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
     const rows = (networkId === 'aftu_tata'
-      ? [...board.querySelectorAll('.station-board-line-toggle')]
+      ? [...board.querySelectorAll('.station-board-direction-toggle')]
       : [...board.querySelectorAll('.station-board-row')]) as HTMLElement[]
     expect(rows.length).toBeGreaterThan(1)
     expect(rows.every((row) => row.querySelector('.station-board-stop strong'))).toBe(true)
@@ -1239,13 +1239,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board.textContent).toContain('En service')
       expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
     } else {
-      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(73)
+      expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
+      expect(board.querySelectorAll('.station-board-direction-toggle')).toHaveLength(146)
+      expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
+      expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
+      expect(rows.every((row) => /^\d+ min$|^En service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
       fireEvent.click(rows[0])
-      const opened = rows[0].closest('li')!
-      const variants = [...opened.querySelectorAll('.station-board-line-direction')]
-      expect(variants.length).toBeGreaterThan(0)
-      expect(variants.every((variant) => variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong').length === 2)).toBe(true)
-      expect(variants.every((variant) => [...variant.querySelectorAll('.station-board-line-direction-detail .station-board-passage strong')].every((passage) => /^\d+ min$|^En service$/.test(passage.textContent!.trim())))).toBe(true)
+      expect(rows[0].getAttribute('aria-expanded')).toBe('true')
+      expect(rows[1].getAttribute('aria-expanded')).toBe('false')
+      expect(rows[0].closest('li')!.querySelectorAll('.station-board-itinerary')).toHaveLength(1)
     }
     expect(board.textContent).not.toMatch(/(?:intervalle|fréquence|moyenne du réseau)/i)
     vi.useRealTimers()
@@ -1285,12 +1287,14 @@ describe('décomptes dynamiques de l’Explorer', () => {
       const board = detail.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
       if (network === 'aftu_tata') {
-        const lineButtons = [...board.querySelectorAll('.station-board-line-toggle')]
-        expect(lineButtons).toHaveLength(73)
-        fireEvent.click(lineButtons[0])
-        const opened = lineButtons[0].closest('li')!
-        expect(opened.querySelectorAll('.station-board-line-direction-detail')).toHaveLength(2)
-        expect(opened.querySelectorAll('.station-board-passage strong')).toHaveLength(2)
+        const directionButtons = [...board.querySelectorAll('.station-board-direction-toggle')]
+        expect(directionButtons).toHaveLength(146)
+        expect(board.querySelectorAll('.station-board-line-group')).toHaveLength(73)
+        fireEvent.click(directionButtons[0])
+        const opened = directionButtons[0].closest('li')!
+        expect(opened.querySelectorAll('.station-board-itinerary')).toHaveLength(1)
+        expect(directionButtons[0].getAttribute('aria-expanded')).toBe('true')
+        expect(directionButtons[1].getAttribute('aria-expanded')).toBe('false')
       } else {
         expect(board.querySelectorAll('.station-board-row').length).toBeGreaterThan(1)
         expect(board.querySelectorAll('.station-board-passage strong').length).toBe(board.querySelectorAll('.station-board-row').length)

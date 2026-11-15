@@ -243,7 +243,7 @@ function AftuTataScheduleBoard({
   location: UserLocation | null
   nearestStop: { stop: { name: string }; distance: number } | null
 }) {
-  const [openedLine, setOpenedLine] = useState<string | null>(null)
+  const [openedDirection, setOpenedDirection] = useState<{ key: string; direction: DirectionId } | null>(null)
   const groups = useMemo(() => groupPublicBusLinesByCode(catalogue), [catalogue])
   const weekday = new Date(now).getUTCDay()
 
@@ -260,95 +260,88 @@ function AftuTataScheduleBoard({
           const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
           const countdownSchedule = { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
           const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-          const expanded = openedLine === lineNumber
 
-          return (
-            <li key={lineNumber} className="station-board-line-group" data-line-code={lineNumber}>
-              <button
-                type="button"
-                className={`station-board-row station-board-row-static station-board-direction-row station-board-line-toggle${expanded ? ' is-expanded' : ''}`}
-                aria-expanded={expanded}
-                onClick={() => setOpenedLine(expanded ? null : lineNumber)}
-              >
-                <span className="station-board-stop"><strong>Ligne {lineNumber}</strong></span>
-                <span className="station-board-direction-action">
-                  <span className="station-board-open-label">Affiche horaire</span>
-                  <span aria-hidden="true">{expanded ? '−' : '→'}</span>
-                </span>
-              </button>
-              {expanded && (
-                <div className="station-board-line-timetable" aria-label={`Affiche horaire ligne ${lineNumber}`}>
-                  {variants.map((line) => {
-                    const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-                    const sameNetworkByCode = routeReferences.filter((item) =>
-                      item.network === line.network && item.code === line.line
-                    )
-                    const sameNetworkCandidates = sameNetworkByCode.filter((item) => matchesDirectionalRoute(line, item))
-                    const matchingSameNetwork = sameNetworkCandidates.length === 1
-                      ? sameNetworkCandidates
-                      : sameNetworkCandidates.length > 1
-                        ? sameNetworkCandidates.filter((item) =>
-                          Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
-                        )
-                        : []
-                    // AFTU et TATA sont un seul réseau : on ne mélange jamais
-                    // les fiches de deux sources comme s'il s'agissait de deux variantes.
-                    const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
-                    const outboundOrigin = route?.outboundOrigin ?? line.origin
-                    const outboundDestination = route?.outboundDestination ?? line.destination
-                    const inboundOrigin = route?.inboundOrigin ?? outboundDestination
-                    const inboundDestination = route?.inboundDestination ?? outboundOrigin
-                    const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
-                    const rawInboundStops = route?.inboundWaypoints ?? []
-                    // Les listes restent dans l'ordre fourni par la source ;
-                    // seule leur affectation Aller/Retour peut être corrigée.
-                    const { outbound: outboundStops, inbound: inboundStops } = assignDirectionStopSequences(
-                      rawOutboundStops,
-                      rawInboundStops,
-                      outboundOrigin,
-                      outboundDestination,
-                      inboundOrigin,
-                      inboundDestination,
-                    )
-                    const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
-                    const serviceLabel = serviceState.status === 'UPCOMING'
-                      ? serviceState.label
-                      : serviceState.status === 'FINISHED'
-                        ? "Service terminé pour aujourd'hui"
-                        : minutes === null ? 'En service' : formatPassageCountdown(minutes)
+          return variants.map((line) => {
+            const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+            const sameNetworkByCode = routeReferences.filter((item) =>
+              item.network === line.network && item.code === line.line
+            )
+            const sameNetworkCandidates = sameNetworkByCode.filter((item) => matchesDirectionalRoute(line, item))
+            const matchingSameNetwork = sameNetworkCandidates.length === 1
+              ? sameNetworkCandidates
+              : sameNetworkCandidates.length > 1
+                ? sameNetworkCandidates.filter((item) =>
+                  Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
+                )
+                : []
+            // AFTU et TATA partagent l'affichage, mais les arrêts restent
+            // strictement rattachés à la fiche de leur propre itinéraire.
+            const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+            const outboundOrigin = route?.outboundOrigin ?? line.origin
+            const outboundDestination = route?.outboundDestination ?? line.destination
+            const inboundOrigin = route?.inboundOrigin ?? outboundDestination
+            const inboundDestination = route?.inboundDestination ?? outboundOrigin
+            const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
+            const rawInboundStops = route?.inboundWaypoints ?? []
+            const { outbound: outboundStops, inbound: inboundStops } = assignDirectionStopSequences(
+              rawOutboundStops,
+              rawInboundStops,
+              outboundOrigin,
+              outboundDestination,
+              inboundOrigin,
+              inboundDestination,
+            )
+            const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
+            const routeKey = `${line.network}:${lineRouteKey}:${line.origin}:${line.destination}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`
+            const directions = [
+              { id: 'outbound' as const, label: 'Aller', from: outboundOrigin, to: outboundDestination, stops: outboundStops },
+              { id: 'inbound' as const, label: 'Retour', from: inboundOrigin, to: inboundDestination, stops: inboundStops },
+            ]
 
-                    return (
-                      <section key={`${line.network}:${lineRouteKey}:${line.origin}:${line.destination}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`} className="station-board-line-direction">
-                        <div className="station-board-line-variant-heading">
-                          <strong>{variants.length > 1 ? `${line.network === 'aftu' ? 'AFTU' : 'TATA'} · ` : ''}{outboundOrigin} → {outboundDestination}</strong>
+            return (
+              <li key={routeKey} className="station-board-line-group" data-line-code={lineNumber}>
+                {directions.map((direction) => {
+                  const selected = openedDirection?.key === routeKey && openedDirection.direction === direction.id
+                  const serviceLabel = serviceState.status === 'UPCOMING'
+                    ? serviceState.label
+                    : serviceState.status === 'FINISHED'
+                      ? "Service terminé pour aujourd'hui"
+                      : minutes === null ? 'En service' : formatPassageCountdown(minutes)
+                  return (
+                    <div key={direction.id} className="station-board-direction-detail">
+                      <button
+                        type="button"
+                        className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`}
+                        aria-expanded={selected}
+                        onClick={() => setOpenedDirection(selected ? null : { key: routeKey, direction: direction.id })}
+                      >
+                        <span className="station-board-stop">
+                          <strong>AFTU / TATA {lineNumber}</strong>
+                          <small>{direction.label} · {direction.from} → {direction.to}</small>
+                        </span>
+                        <span className="station-board-direction-action">
+                          <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
+                            <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{serviceLabel}</strong>
+                            {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
+                          </span>
+                          <span aria-hidden="true">{selected ? '−' : '+'}</span>
+                        </span>
+                      </button>
+                      {selected && (
+                        <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} AFTU / TATA ${lineNumber}`}>
+                          {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
+                          {direction.stops.length > 0
+                            ? <ol className="station-board-itinerary-list">{direction.stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
+                            : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}
+                          {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
                         </div>
-                        {(['outbound', 'inbound'] as const).map((direction) => {
-                          const stops = direction === 'outbound' ? outboundStops : inboundStops
-                          return (
-                            <section key={direction} className={`station-board-line-direction-detail station-board-line-direction-${direction}`}>
-                              <div className="station-board-line-direction-heading">
-                                <strong>{direction === 'outbound' ? 'Aller' : 'Retour'}</strong>
-                                <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
-                                  <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <svg className="station-board-double-apostrophe" viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M4 8 C4.5 6.5 5.5 4.5 7 2" /><path d="M9 8 C9.5 6.5 10.5 4.5 12 2" /></svg>}{serviceLabel}</strong>
-                                  {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
-                                </span>
-                              </div>
-                              <p className="station-board-line-endpoints">{direction === 'outbound' ? outboundOrigin + ' → ' + outboundDestination : inboundOrigin + ' → ' + inboundDestination}</p>
-                              {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
-                              {stops.length > 0
-                                ? <ol className="station-board-itinerary-list">{stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
-                                : <p className="station-board-itinerary-pending">{direction === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}
-                              {sourceUrl && <a className="station-board-itinerary-source" href={direction === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
-                            </section>
-                          )
-                        })}
-                      </section>
-                    )
-                  })}
-                </div>
-              )}
-            </li>
-          )
+                      )}
+                    </div>
+                  )
+                })}
+              </li>
+            )
+          })
         })}
       </ul>
     </section>
