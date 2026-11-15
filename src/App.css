@@ -42,16 +42,16 @@
      TER bleu nuit / ferroviaire, BRT vert électrique / émeraude,
      DDD jaune / or national, AFTU ambre, TATA marron. */
   --mobility-ter: #003366;
-  --mobility-ter-bright: #1D4ED8;
+  --mobility-ter-bright: #003366;
   --mobility-ter-ink: #FFFFFF;
   --mobility-brt: #00A859;
-  --mobility-brt-bright: #10B981;
+  --mobility-brt-bright: #00A859;
   --mobility-brt-ink: #1C1408;
   --mobility-ddd: #F59E0B;
-  --mobility-ddd-bright: #EAB308;
+  --mobility-ddd-bright: #F59E0B;
   --mobility-ddd-ink: #1C1408;
   --mobility-aftu-tata: #C05621;
-  --mobility-aftu-tata-bright: #D97706;
+  --mobility-aftu-tata-bright: #C05621;
   --mobility-aftu-tata-ink: #FFFFFF;
   /* Surfaces légèrement teintées : moins de blanc pur, même lisibilité. */
   --surface-shell: #f3f8f5;
