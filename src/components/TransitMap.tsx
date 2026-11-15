@@ -1,10 +1,6 @@
 import { memo, useEffect, useMemo } from 'react'
 import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
-import terMobilityIcon from '../assets/mobility-icons/ter.svg'
-import brtMobilityIcon from '../assets/mobility-icons/brt.svg'
-import dddMobilityIcon from '../assets/mobility-icons/ddd.svg'
-import aftuTataMobilityIcon from '../assets/mobility-icons/aftu-tata.svg'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
@@ -226,26 +222,22 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
-const MOBILITY_ICON_URLS: Record<MobilityId, string> = {
-  ter: terMobilityIcon,
-  brt: brtMobilityIcon,
-  ddd: dddMobilityIcon,
-  aftu_tata: aftuTataMobilityIcon,
-}
-
-function makeMobilityStopIcon(mobility: MobilityId | null, label: string): DivIcon {
-  const iconUrl = mobility ? MOBILITY_ICON_URLS[mobility] : null
-  const mobilityLabel = mobility === 'ter' ? 'TER' : mobility === 'brt' ? 'BRT' : mobility === 'ddd' ? 'DDD' : mobility === 'aftu_tata' ? 'AFTU / TATA' : 'Mobilité'
+function makeMobilityStopBadge(mobility: MobilityId | null, label: string): DivIcon {
+  const paint = mobility ? mobilityPaint(mobility) : null
+  const shortLabel = mobility === 'ter' ? 'TER'
+    : mobility === 'brt' ? 'BRT'
+      : mobility === 'ddd' ? 'DDD'
+        : mobility === 'aftu_tata' ? 'AFTU' : 'BUS'
+  const color = paint?.badge ?? '#64748B'
+  const ink = paint?.ink ?? '#FFFFFF'
+  const network = mobility ?? 'bus'
   return L.divIcon({
-    className: 'mobility-stop-image-shell',
-    html: iconUrl
-      ? `<img class="mobility-stop-vehicle" data-mobility="${mobility ?? 'unknown'}" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`
-      : `<span class="mobility-stop-fallback" data-mobility="unknown" role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}">🚌</span>`,
-    iconSize: [34, 24],
-    iconAnchor: [17, 12],
+    className: 'mobility-stop-badge-shell',
+    html: `<span class="mobility-stop-badge mobility-stop-badge-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`Arrêt ${shortLabel} — ${label}`)}" style="--stop-badge-color:${escapeHtml(color)};--stop-badge-ink:${escapeHtml(ink)}"><span>${shortLabel}</span></span>`,
+    iconSize: [30, 18],
+    iconAnchor: [15, 9],
   })
 }
-
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {
   return mobilityPaint(network) ?? mobilityPaint(mobilityFromStopId(stopId ?? ''))
 }
@@ -494,15 +486,16 @@ function TransitMapView({
         ))
       })}
 
-      {/* Icônes de mobilité aux arrêts : pictogrammes train et bus, sans pastilles */}
+      {/* Pastilles compactes : sigle du réseau directement sur chaque arrêt. */}
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
-        const paint = paintFor(line?.network, stop.id)
+        const mobility = mobilityFromStopId(stop.id) ?? (line?.network as MobilityId | undefined) ?? null
+        const paint = paintFor(mobility ?? undefined, stop.id)
         return (
           <Marker
             key={`corridor-stop-${stop.id}`}
             position={[stop.lat, stop.lon]}
-            icon={makeMobilityStopIcon(paint?.id ?? null, stop.name)}
+            icon={makeMobilityStopBadge(paint?.id ?? null, stop.name)}
             keyboard
             title={`${paint?.label ?? 'Mobilité'} — ${stop.name}`}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
@@ -548,7 +541,7 @@ function TransitMapView({
         <Marker
           key={stop.stopId}
           position={[stop.lat, stop.lon]}
-          icon={makeMobilityStopIcon(mobilityFromStopId(stop.stopId), stop.stopName)}
+          icon={makeMobilityStopBadge(mobilityFromStopId(stop.stopId), stop.stopName)}
           keyboard
           title={stop.stopName}
           eventHandlers={onSelectStop ? { click: () => onSelectStop(stop) } : undefined}
