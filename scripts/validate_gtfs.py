@@ -82,9 +82,15 @@ class Report:
         else:
             self.warnings += 1
         if len(self.issues) < self.limits.max_issue_details:
-            issue: dict[str, object] = {"severity": severity, "code": code, "message": message}
+            # Bound every user-derived diagnostic field so a hostile feed cannot
+            # inflate the JSON report sent to the administrative database.
+            issue: dict[str, object] = {
+                "severity": severity,
+                "code": code[:100],
+                "message": message[:500],
+            }
             if table:
-                issue["table"] = table
+                issue["table"] = table[:100]
             if row is not None:
                 issue["row"] = row
             self.issues.append(issue)
