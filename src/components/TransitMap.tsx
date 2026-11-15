@@ -508,10 +508,10 @@ function TransitMapView({
             interactive={false}
             pathOptions={{
               color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 2.1 : 1.35,
-              opacity: 0.96,
-              dashArray: '2 16',
-              dashOffset: '18',
+              weight: line.network === 'ter' || line.network === 'brt' ? 3.4 : 2.4,
+              opacity: 1,
+              dashArray: '0 24 12 24',
+              dashOffset: '56',
               lineCap: 'round',
               lineJoin: 'round',
               className: 'mobility-route-flow',
