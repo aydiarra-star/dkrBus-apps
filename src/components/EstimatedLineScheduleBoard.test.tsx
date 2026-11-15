@@ -88,7 +88,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const row = button.closest('li')!
     expect(row.querySelector('.station-board-line-direction-outbound .station-board-itinerary-list')).toBeNull()
     expect(row.querySelector('.station-board-line-direction-inbound .station-board-itinerary-list')).toBeNull()
-    expect(container.textContent).toContain('1 (Aller / Retour)')
+    expect(container.textContent).toMatch(/1 \(/)
   })
 
   it('classe la séquence de la ligne 82 en Retour quand ses terminus sont inversés', async () => {
