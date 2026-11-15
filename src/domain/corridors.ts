@@ -97,7 +97,7 @@ export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: numb
   minLat: 14.60,
   minLon: -17.56,
   maxLat: 14.84,
-  maxLon: -17.16,
+  maxLon: -17.04,
 }
 
 export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
