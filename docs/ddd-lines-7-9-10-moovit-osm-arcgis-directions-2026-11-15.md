@@ -113,7 +113,7 @@ Ouakam → Palais 2 :
 7. ENEA
 8. École Normale
 9. UCAD
-10. Rond-point Sham
+10. Rond point Sham
 11. Marché Tilen
 12. Poste Médina
 13. Difoncé
@@ -129,19 +129,19 @@ Ouakam → Palais 2 :
 ### Ligne 9 — séquence officielle publiée
 Liberté 6 → Palais 2 :
 1. Terminus Liberté 6
-2. Rond-point JVC
+2. Rond Point JVC
 3. Sacré Cœur
 4. IPG
 5. Terminus Dieuppeul
 6. Allées Ababacar Sy
-7. Rond-point Jet d’Eau
+7. Rond Point Jet d’Eau
 8. Niary Tally
-9. Église Sainte-Thérèse
+9. Eglise Sainte Thérèse
 10. Lycée Blaise Diagne
 11. Lycée Kenedy
 12. Obelisque
 13. Centenaire
-14. Rond-point RTS
+14. Rond point RTS
 15. Poste Médina
 16. Difoncé
 17. Sandaga
