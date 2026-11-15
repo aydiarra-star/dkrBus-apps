@@ -411,16 +411,16 @@ function TransitMapView({
       {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
-        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'\n        return (
+        return (
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
             radius={isLightNetwork ? 5 : 7}
             pathOptions={{
-              color: isTerInterchange ? (paint?.core ?? line?.color ?? '#003366') : '#ffffff',
-              weight: isTerInterchange ? 3 : isLightNetwork ? 1.5 : 2,
-              fillColor: paint?.badge ?? '#475569',
-              fillOpacity: isTerInterchange ? 0 : isLightNetwork ? 0.95 : 1,
+              color: paint?.badge ?? line?.color ?? '#475569',
+              weight: 2,
+              fillColor: paint?.badge ?? line?.color ?? '#475569',
+              fillOpacity: 1,
             }}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
           >
