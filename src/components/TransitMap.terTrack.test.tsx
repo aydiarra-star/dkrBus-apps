@@ -36,11 +36,11 @@ vi.mock('react-leaflet', () => {
     TileLayer: Leaf,
     Tooltip: Leaf,
     Circle: Leaf,
-    CircleMarker: (props: Record<string, unknown>) => {
+    CircleMarker: Leaf,
+    Marker: (props: Record<string, unknown>) => {
       drawn.markers.push(props)
       return null
     },
-    Marker: Leaf,
     Rectangle: Leaf,
     Polyline: (props: Record<string, unknown>) => {
       drawn.polylines.push(props)
@@ -95,7 +95,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       expect(polyline.positions).toEqual(TER_TRACK.positions)
     }
     // Halo blanc, liseré, trait plein : les mêmes épaisseurs qu'avant.
-    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 
   it('ne relie plus les gares du TER par des segments droits', () => {
@@ -111,7 +111,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(credited[0].positions).toHaveLength(491)
   })
 
-  it('conserve le trait TER et affine fortement les deux sens réels du BRT', () => {
+  it('rétablit les épaisseurs historiques du TER et des deux sens réels du BRT', () => {
     const polylines = drawMap([lineOf('ter')[0], lineOf('brt')[0]])
     const ter = polylines.filter((polyline) => polyline.positions.length === 491)
     const brt = polylines.filter((polyline) => polyline.positions.length !== 491)
@@ -122,48 +122,48 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
       BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
     ])
-    // Le TER conserve son rendu ; le BRT devient beaucoup plus fin.
-    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([2.2, 1.4, 0.9])
+    // TER et BRT retrouvent les épaisseurs historiques d'avant les réductions.
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 })
 
-describe('carte : visibilité des gares TER et correspondances', () => {
-  it('ne garde que les micro-pastilles TER sur toute la géométrie ferroviaire', () => {
+describe('carte : icônes des mobilités et exclusivité du TER', () => {
+  it('affiche un train aux gares TER et aucune icône de bus sur la géométrie ferroviaire', () => {
     drawMap()
     const markers = drawn.markers as Array<{
-      center: [number, number]
-      radius: number
-      pathOptions: { fillOpacity: number; color: string; fillColor: string; weight: number }
+      position: [number, number]
+      icon: { options: { html: string | HTMLElement; iconSize: [number, number] } }
     }>
 
     for (const stop of TER_STOPS) {
       const atStation = markers.filter((marker) =>
-        marker.center[0] === stop.lat && marker.center[1] === stop.lon,
+        marker.position[0] === stop.lat && marker.position[1] === stop.lon,
       )
       expect(atStation.length, stop.name).toBeGreaterThan(0)
-      expect(atStation.every((marker) =>
-        marker.radius === 2 &&
-        marker.pathOptions.fillOpacity === 1 &&
-        marker.pathOptions.fillColor === '#003366',
-      ), stop.name).toBe(true)
+      expect(atStation.every((marker) => String(marker.icon.options.html).includes('🚆')), stop.name).toBe(true)
     }
 
-    // Aucune pastille d'une autre mobilité, même au niveau d'une gare partagée.
     for (const marker of markers) {
       const nearTerTrack = TER_TRACK.positions.slice(1).some((end, index) => {
         const start = TER_TRACK.positions[index]
         const lat = (start[0] + end[0]) / 2
         const meters = Math.hypot(
-          (marker.center[0] - lat) * 111_000,
-          (marker.center[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
+          (marker.position[0] - lat) * 111_000,
+          (marker.position[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
         )
         return meters <= 35
       })
-      if (nearTerTrack) expect(marker.pathOptions.fillColor).toBe('#003366')
-      expect(marker.radius).toBe(2)
-      expect(marker.pathOptions.weight).toBe(0.8)
+      if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('🚆')
+      expect(marker.icon.options.iconSize).toEqual([18, 18])
     }
+  })
+
+  it.each(['brt', 'ddd', 'aftu_tata'] as const)('utilise une icône bus pour %s', (network) => {
+    drawMap(lineOf(network))
+    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
+    expect(markers.length).toBeGreaterThan(0)
+    expect(markers.every((marker) => String(marker.icon.options.html).includes('🚍'))).toBe(true)
   })
 })
 
@@ -192,6 +192,7 @@ describe('carte : les autres mobilités ne changent pas', () => {
     for (const [index, polyline] of polylines.entries()) {
       expect(polyline.positions).toEqual(stopToStop(lines[index]))
       expect(polyline.pathOptions.dashArray).toBeDefined()
+      expect(polyline.pathOptions.weight).toBe(2.2)
       expect(polyline.attribution).toBeUndefined()
     }
   })
