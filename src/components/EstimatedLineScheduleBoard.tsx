@@ -4,6 +4,7 @@ import { PassageArcs } from './PassageArcs'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import aftu84Directions from '../data/aftu-84-directions.json'
 import aftu85Directions from '../data/aftu-85-directions.json'
+import aftu82Directions from '../data/aftu-82-directions.json'
 import aftu83Directions from '../data/aftu-83-directions.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
 import type { UserLocation } from './TransitMap'
@@ -420,6 +421,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '89': normalizeRouteDetails(aftu89.default),
         '90': normalizeRouteDetails(aftu90.default),
         '91': normalizeRouteDetails(aftu91.default),
+        '82': normalizeRouteDetails(aftu82Directions),
         '83': normalizeRouteDetails(aftu83Directions),
         '84': normalizeRouteDetails(aftu84Directions),
         '85': normalizeRouteDetails(aftu85Directions),
