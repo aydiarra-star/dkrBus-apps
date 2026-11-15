@@ -6,8 +6,8 @@ import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
 import { safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityId, type MobilityPaint } from '../domain/mobilityColors'
-import { TER_TRACK_ATTRIBUTION, TER_TRACK_LINE_ID, trackPositionsForLine } from '../domain/terTrackGeometry'
-import { BRT_TRACK_ATTRIBUTION, brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
+import { trackPositionsForLine } from '../domain/terTrackGeometry'
+import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
 
@@ -429,7 +429,6 @@ function TransitMapView({
             <Polyline
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
-              attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
               pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
