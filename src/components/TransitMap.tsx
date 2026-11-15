@@ -234,8 +234,8 @@ function makeMobilityStopBadge(mobility: MobilityId | null, label: string): DivI
   return L.divIcon({
     className: 'mobility-stop-badge-shell',
     html: `<span class="mobility-stop-badge mobility-stop-badge-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`Arrêt ${shortLabel} — ${label}`)}" style="--stop-badge-color:${escapeHtml(color)};--stop-badge-ink:${escapeHtml(ink)}"><span>${shortLabel}</span></span>`,
-    iconSize: [30, 18],
-    iconAnchor: [15, 9],
+    iconSize: [25, 16],
+    iconAnchor: [12.5, 8],
   })
 }
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {
@@ -376,7 +376,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 4.8, opacity: 0.78, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -390,7 +390,7 @@ function TransitMapView({
               key={`corridor-casing-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: paint.casing, weight: 4.5, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint.casing, weight: 3.5, opacity: 0.88, lineCap: 'round', lineJoin: 'round' }}
             />
           ))
         })}
@@ -404,7 +404,7 @@ function TransitMapView({
               key={`corridor-${line.id}-${directionIndex}`}
               positions={track}
               attribution={line.id === TER_TRACK_LINE_ID ? TER_TRACK_ATTRIBUTION : line.id === 'brt-b1' ? BRT_TRACK_ATTRIBUTION : undefined}
-              pathOptions={{ color: paint?.core ?? line.color, weight: 3, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: paint?.core ?? line.color, weight: 2.4, opacity: 0.94, lineCap: 'round', lineJoin: 'round' }}
             >
               <Tooltip direction="center" sticky opacity={0.95} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
                 <div className="map-frequency-tooltip">
@@ -442,8 +442,8 @@ function TransitMapView({
               positions={positions}
               pathOptions={{
                 color: paint?.core ?? line.color,
-                weight: 2.2,
-                opacity: 0.55,
+                weight: 1.35,
+                opacity: 0.34,
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
@@ -474,10 +474,10 @@ function TransitMapView({
             interactive={false}
             pathOptions={{
               color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 2.4 : 1.8,
-              opacity: 0.96,
-              dashArray: '8 18',
-              dashOffset: '26',
+              weight: line.network === 'ter' || line.network === 'brt' ? 1.9 : 1.15,
+              opacity: 0.82,
+              dashArray: '3 24',
+              dashOffset: '27',
               lineCap: 'round',
               lineJoin: 'round',
               className: 'mobility-route-flow',
