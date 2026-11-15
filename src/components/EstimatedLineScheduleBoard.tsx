@@ -643,7 +643,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             inboundDestination,
           )
           const hasOutbound = outbound.length > 0
-            || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
           const hasInbound = inbound.length > 0
           const missing: string[] = []
           if (!hasOutbound) missing.push('Aller')
