@@ -164,7 +164,8 @@ class GTFSValidatorTests(unittest.TestCase):
         )
         invalid_report = validate_gtfs_archive(self.make_archive(tables))
         self.assertFalse(invalid_report["structure_valid"])
-        self.assertIn("MISSING_STOP_TIME", self.issue_codes(invalid_report))
+        self.assertIn("MISSING_ARRIVAL_TIME", self.issue_codes(invalid_report))
+        self.assertIn("MISSING_DEPARTURE_TIME", self.issue_codes(invalid_report))
 
         tables["stop_times.txt"] = tables["stop_times.txt"].replace("T1,,,S2,2,1", "T1,,,S2,2,0")
         valid_report = validate_gtfs_archive(self.make_archive(tables))
