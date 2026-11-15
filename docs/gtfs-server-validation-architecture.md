@@ -131,3 +131,8 @@ Les tests de privilèges utilisent uniquement un PostgreSQL isolé et des lignes
 La migration `20261114193000_dakar_gtfs_storage_isolation.sql` active explicitement RLS sur `storage.objects` et ajoute une politique restrictive `dakar_gtfs_staging_deny_non_bypass_roles`. Elle refuse l'accès au bucket `dakar-gtfs-staging` à tout rôle soumis à RLS, même si une autre politique permissive générale est ajoutée ultérieurement pour d'autres buckets. Le `service_role` conserve l'accès serveur attendu via son attribut BYPASSRLS et les droits limités définis par la migration précédente.
 
 La migration retire aussi explicitement les ACL héritées de `PUBLIC` sur les trois tables administratives, en plus des rôles `anon` et `authenticated`. Les tests isolés simulent volontairement une politique Storage permissive globale, puis vérifient que les rôles applicatifs ne peuvent ni lire ni écrire le bucket GTFS, tandis que le rôle serveur le voit. Aucun objet réel n'est créé ; les seules lignes Storage du test sont synthétiques et locales à PostgreSQL CI.
+
+
+## Épinglage du projet Supabase de réception (15 novembre 2026)
+
+La fonction `dakar-gtfs-ingest` refuse de démarrer si `SUPABASE_URL` ne correspond pas exactement à `https://mdmuxzaewzqzqutkqdylo.supabase.co` (HTTPS, hôte, port et chemin canoniques, sans identifiants, query ni fragment). Cette garde évite qu'une mauvaise configuration dirige les fichiers GTFS privés ou leurs métadonnées vers un autre projet Supabase. Les tests vérifient l'URL Dakar Bus, un autre projet, HTTP, les ports, chemins et paramètres non canoniques. Aucun secret, projet Supabase actif, objet ou dataset n'est modifié ; la fonction n'est pas déployée.
