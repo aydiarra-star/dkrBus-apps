@@ -213,21 +213,14 @@ describe('carte : les autres mobilités ne changent pas', () => {
     }
   })
 
-  it.each(['ddd', 'aftu_tata'] as const)('trace le réseau %s comme avant, en pointillés d’arrêt en arrêt', (network) => {
+  it.each(['ddd', 'aftu_tata'] as const)('ne dessine aucun tracé routier parasite pour %s', (network) => {
     const lines = lineOf(network)
     expect(lines.length).toBeGreaterThan(0)
-    const polylines = drawMap(lines)
-    expect(polylines).toHaveLength(lines.length)
-    for (const [index, polyline] of polylines.entries()) {
-      expect(polyline.positions).toEqual(stopToStop(lines[index]))
-      expect(polyline.pathOptions.dashArray).toBeDefined()
-      expect(polyline.pathOptions.weight).toBe(2.2)
-      expect(polyline.attribution).toBeUndefined()
-    }
+    expect(drawMap(lines)).toHaveLength(0)
   })
 
-  it('n’ajoute ni ne retire aucun trait sur la carte complète', () => {
-    const expected = 3 * lineOf('ter').length + 6 * lineOf('brt').length + lineOf('ddd').length + lineOf('aftu_tata').length
+  it('ne conserve sur la carte complète que les traits TER et BRT', () => {
+    const expected = 3 * lineOf('ter').length + 6 * lineOf('brt').length
     expect(drawMap()).toHaveLength(expected)
   })
 })
