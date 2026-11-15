@@ -116,6 +116,15 @@ Cette lecture est cohérente avec la page officielle DDD, qui distingue bien :
 - ligne 218 : Thiaroye ↔ Aéroport LSS ;
 - ligne 219 : Daroukhane ↔ Ouakam.
 
+### Contrôle de l'ordre géométrique par chainage
+
+Les points de chaque bloc suivent aussi le sens de la polyligne correspondante :
+
+- **Ligne 218 / OID 7**, de « Terminus Dépôt Thiaroye 218 » (0,00 km) à « Terminus Aéroport L.S.S » (25,60 km). Repères intermédiaires : RN (0,91), Pikine RN (3,17), Croisement Cambérène (5,49), Entrée Patte d’Oie (6,52), Avenue Seydina Limamoulaye (7,47), VDN (10,29), Ancienne Piste (14,35), Avenue Cheikh Anta Diop (16,22), Route de Ouakam (16,56), Stade municipal de Ouakam (18,04), Mamelles (19,46), Corniche Ouest (20,01), Route de l’Aéroport (22,99), Virage (24,35).
+- **Ligne 219 / OID 8**, de « Terminus Daroukhane » (0,00 km) à « Arret Ouakam » (20,77 km). Repères intermédiaires : Stade de Ndiarème (0,68), Terminus DDD Guédiawaye (2,35), Rond Point Marché Jeudi (4,52), Case ba (8,82), Rond Point 6 (13,47), Liberté 6 (13,96), 2 voies Sacré Cœur (14,62), Ancienne Piste (15,79), Avenue Cheikh Anta Diop (17,26), Ouakam (18,00), Marché Ouakam (20,19).
+
+Ce chainage provient de l'ordre des segments de la polyligne ArcGIS et de la projection des points dessus. Il vérifie la cohérence des deux blocs, mais les libellés génériques ArcGIS ne sont pas automatiquement assimilés aux 19 repères commerciaux DDD.
+
 Moovit confirme une ligne 219 distincte avec deux directions (83 arrêts Daroukhane → Ouakam et 80 dans le sens opposé). Les extrémités sont cohérentes au niveau du corridor, mais ses listes très détaillées ne sont pas équivalentes aux 19 repères publiés par DDD.
 
 **Décision :** signaler les 33 positions comme candidates de la ligne 219 dans le crosswalk, garder leurs deux copies et tous leurs IDs dans les données brutes, et ne pas réécrire le code source `ligne_218` ni le catalogue passager avant une validation opérateur/OSM complémentaire.
