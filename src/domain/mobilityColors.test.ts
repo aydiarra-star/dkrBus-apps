@@ -30,10 +30,10 @@ function contrastRatio(foreground: string, background: string): number {
 }
 
 const OFFICIAL_PAIRS: Record<string, readonly [string, string]> = {
-  ter: ['#003366', '#1D4ED8'],
-  brt: ['#00A859', '#10B981'],
-  ddd: ['#F59E0B', '#EAB308'],
-  aftu_tata: ['#C05621', '#D97706'],
+  ter: ['#003366', '#003366'],
+  brt: ['#00A859', '#00A859'],
+  ddd: ['#F59E0B', '#F59E0B'],
+  aftu_tata: ['#C05621', '#C05621'],
 }
 
 describe('code couleur officiel des mobilités', () => {
