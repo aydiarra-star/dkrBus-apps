@@ -73,7 +73,9 @@ function toGeoJson(layer, objectIdField, features) {
     } else if (layer.key === 'stops' && Number.isFinite(geometry.x) && Number.isFinite(geometry.y)) {
       geoGeometry = { type: 'Point', coordinates: [geometry.x, geometry.y] };
     } else if (layer.key === 'routes' && Array.isArray(geometry.paths)) {
-      const paths = geometry.paths.filter((path) => Array.isArray(path) && path.length >= 2);
+      const paths = geometry.paths
+        .filter((path) => Array.isArray(path) && path.length >= 2)
+        .map((path) => path.map((coordinate) => [coordinate[0], coordinate[1]]));
       if (paths.length === 1) geoGeometry = { type: 'LineString', coordinates: paths[0] };
       else if (paths.length > 1) geoGeometry = { type: 'MultiLineString', coordinates: paths };
       else unsupportedGeometry += 1;
