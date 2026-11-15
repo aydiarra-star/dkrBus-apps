@@ -263,6 +263,24 @@ function TransitMapView({
     [corridorLines, corridorStops],
   )
 
+  // Masquer uniquement les arrêts d'autres réseaux posés sur les voies TER.
+  // Les arrêts TER, leurs coordonnées et la géométrie ferroviaire restent intacts.
+  const corridorStopsToRender = useMemo(() => {
+    const terTracks = corridorLineStops
+      .filter(({ line }) => line.network === 'ter')
+      .map(({ positions }) => positions)
+      .filter((positions) => positions.length > 1)
+    if (terTracks.length === 0) return uniqueCorridorStops
+    return uniqueCorridorStops.filter((stop) => {
+      if (stop.id.startsWith('ter-')) return true
+      return !terTracks.some((positions) =>
+        positions.slice(1).some((end, index) =>
+          distanceToSegmentMeters(stop, positions[index], end) <= 35,
+        ),
+      )
+    })
+  }, [corridorLineStops, uniqueCorridorStops])
+
   return (
     <MapContainer
       center={DAKAR_CENTER}
@@ -390,23 +408,14 @@ function TransitMapView({
           )
         })}
       {/* Pastilles arrêts : toutes mobilités, couleur stricte */}
-      {uniqueCorridorStops.map((stop) => {
+      {corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const paint = paintFor(line?.network, stop.id)
-        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'
-        const isTerInterchange = stop.id.startsWith('ter-') && corridorStops.some((candidate) => {
-          if (candidate.id.startsWith('ter-')) return false
-          const meters = Math.hypot(
-            (candidate.lat - stop.lat) * 111_000,
-            (candidate.lon - stop.lon) * 111_000 * Math.cos(stop.lat * Math.PI / 180),
-          )
-          return meters <= 30
-        })
-        return (
+        const isLightNetwork = line?.network === 'ddd' || line?.network === 'aftu_tata'\n        return (
           <CircleMarker
             key={`corridor-stop-${stop.id}`}
             center={[stop.lat, stop.lon]}
-            radius={isTerInterchange ? 10 : isLightNetwork ? 5 : 7}
+            radius={isLightNetwork ? 5 : 7}
             pathOptions={{
               color: isTerInterchange ? (paint?.core ?? line?.color ?? '#003366') : '#ffffff',
               weight: isTerInterchange ? 3 : isLightNetwork ? 1.5 : 2,
