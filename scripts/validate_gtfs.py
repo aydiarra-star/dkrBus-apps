@@ -317,8 +317,20 @@ class GTFSValidator:
             try:
                 relative = path.relative_to(root)
             except ValueError:
+                self.report.add(
+                    "ERROR",
+                    "NESTED_GTFS_TABLE",
+                    f"La table « {info.filename} » n’est pas directement à la racine de l’archive ZIP.",
+                    info.filename,
+                )
                 continue
             if len(relative.parts) != 1:
+                self.report.add(
+                    "ERROR",
+                    "NESTED_GTFS_TABLE",
+                    f"La table « {info.filename} » n’est pas directement à la racine de l’archive ZIP.",
+                    info.filename,
+                )
                 continue
             name = relative.name
             canonical = name.lower()
@@ -353,18 +365,11 @@ class GTFSValidator:
         if core.intersection(root_files):
             return PurePosixPath(".")
 
-        parents = {path.parent for path in paths}
-        if len(parents) == 1:
-            return next(iter(parents))
-
-        # Accept a single wrapper folder, but don't guess between multiple feeds.
-        first_parts = {path.parts[0] for path in paths if path.parts}
-        if len(first_parts) == 1 and all(len(path.parts) >= 2 for path in paths):
-            root = PurePosixPath(next(iter(first_parts)))
-            if all(path.is_relative_to(root) for path in paths):
-                return root
-
-        self.report.add("ERROR", "AMBIGUOUS_FEED_ROOT", "Impossible d’identifier une racine GTFS unique dans l’archive.")
+        self.report.add(
+            "ERROR",
+            "GTFS_TABLES_NOT_AT_ROOT",
+            "Les tables GTFS doivent être placées directement à la racine de l’archive ZIP, sans dossier enveloppe.",
+        )
         return None
 
     def _scan_tables(self) -> None:
