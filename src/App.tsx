@@ -978,6 +978,8 @@ function App() {
       return
     }
 
+    // Une nouvelle recherche non routière invalide toute réponse routière plus ancienne.
+    roadRouteRequestId.current += 1
     const context: AssistantContext = {
       publishedAvailable: dataAvailable,
       adminOnline: governance.status === 'ready',
@@ -1785,7 +1787,7 @@ function App() {
                 onSelectStop={selectRoutePoint}
                 onUseLocation={() => requestLocation('origin')}
                 onSwap={swapRoutePoints}
-                onClear={() => { setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
+                onClear={() => { roadRouteRequestId.current += 1; setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
                 onClearPoint={clearRoutePoint}
                 onSubmit={submitRoute}
                 dataAvailable={dataAvailable}
