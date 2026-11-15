@@ -122,6 +122,31 @@ function MapController({ recenterTo, zoomAction }: Pick<TransitMapProps, 'recent
 }
 
 /** Cadrage initial : englobe toute la région utile au chargement de la carte. */
+/** Réduit la densité des pastilles selon le niveau de zoom, sans déplacer les arrêts. */
+function MapStopDensityController() {
+  const map = useMap()
+
+  useEffect(() => {
+    const container = map.getContainer()
+    const syncDensity = () => {
+      const zoom = map.getZoom()
+      container.classList.toggle('leaflet-map--citywide', zoom <= 12)
+      container.classList.toggle('leaflet-map--district', zoom > 12 && zoom <= 13)
+    }
+    syncDensity()
+    // Les tests unitaires utilisent une carte Leaflet simulée sans Evented.
+    // En production, l'instance Leaflet expose bien on/off.
+    const supportsZoomEvents = typeof map.on === 'function' && typeof map.off === 'function'
+    if (supportsZoomEvents) map.on('zoomend', syncDensity)
+    return () => {
+      if (supportsZoomEvents) map.off('zoomend', syncDensity)
+      container.classList.remove('leaflet-map--citywide', 'leaflet-map--district')
+    }
+  }, [map])
+
+  return null
+}
+
 function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   const map = useMap()
   useEffect(() => {
@@ -234,8 +259,8 @@ function makeMobilityStopBadge(mobility: MobilityId | null, label: string): DivI
   return L.divIcon({
     className: 'mobility-stop-badge-shell',
     html: `<span class="mobility-stop-badge mobility-stop-badge-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`Arrêt ${shortLabel} — ${label}`)}" style="--stop-badge-color:${escapeHtml(color)};--stop-badge-ink:${escapeHtml(ink)}"><span>${shortLabel}</span></span>`,
-    iconSize: [30, 18],
-    iconAnchor: [15, 9],
+    iconSize: [25, 16],
+    iconAnchor: [12.5, 8],
   })
 }
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {
@@ -360,6 +385,7 @@ function TransitMapView({
       <MapController recenterTo={recenterTo} zoomAction={zoomAction} />
       <MapInitialFit bounds={initialBounds} />
       <MapResizeController />
+      <MapStopDensityController />
 
       {/* Réseau de référence :
           - TER #003366 bleu et BRT #00A859 vert émeraude : tracés continus complets (halo + casing + core)
@@ -474,10 +500,10 @@ function TransitMapView({
             interactive={false}
             pathOptions={{
               color: paint?.bright ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 2.4 : 1.8,
-              opacity: 0.96,
-              dashArray: '8 18',
-              dashOffset: '26',
+              weight: line.network === 'ter' || line.network === 'brt' ? 1.9 : 1.15,
+              opacity: 0.82,
+              dashArray: '3 24',
+              dashOffset: '27',
               lineCap: 'round',
               lineJoin: 'round',
               className: 'mobility-route-flow',
