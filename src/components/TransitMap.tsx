@@ -1,6 +1,10 @@
 import { memo, useEffect, useMemo } from 'react'
 import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
+import terMobilityIcon from '../assets/mobility-icons/ter.svg'
+import brtMobilityIcon from '../assets/mobility-icons/brt.svg'
+import dddMobilityIcon from '../assets/mobility-icons/ddd.svg'
+import aftuTataMobilityIcon from '../assets/mobility-icons/aftu-tata.svg'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
@@ -222,14 +226,22 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
+const MOBILITY_ICON_URLS: Record<MobilityId, string> = {
+  ter: terMobilityIcon,
+  brt: brtMobilityIcon,
+  ddd: dddMobilityIcon,
+  aftu_tata: aftuTataMobilityIcon,
+}
+
 function makeMobilityStopIcon(mobility: MobilityId | null, label: string): DivIcon {
-  const symbol = mobility === 'ter' ? '🚆' : '🚍'
-  const mobilityLabel = mobility === 'ter' ? 'TER' : mobility === 'brt' ? 'BRT' : mobility === 'ddd' ? 'DDD' : 'AFTU / TATA'
+  const iconMobility = mobility ?? 'aftu_tata'
+  const iconUrl = MOBILITY_ICON_URLS[iconMobility]
+  const mobilityLabel = mobility === 'ter' ? 'TER' : mobility === 'brt' ? 'BRT' : mobility === 'ddd' ? 'DDD' : mobility === 'aftu_tata' ? 'AFTU / TATA' : 'Mobilité'
   return L.divIcon({
     className: 'mobility-stop-image-shell',
-    html: `<span role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}" title="${escapeHtml(mobilityLabel)}" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;font-size:15px;line-height:18px;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px #fff)">${symbol}</span>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    html: `<img class="mobility-stop-vehicle" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`,
+    iconSize: [34, 24],
+    iconAnchor: [17, 12],
   })
 }
 
@@ -457,6 +469,29 @@ function TransitMapView({
             </Polyline>
           )
         })}
+
+      {/* Flux lumineux animé : chaque segment suit l'ordre réel des points de son itinéraire. */}
+      {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
+        const paint = paintFor(line.network)
+        const tracks = [positions, ...(additionalPositions ?? [])]
+        return tracks.map((track, directionIndex) => (
+          <Polyline
+            key={`mobility-flow-${line.id}-${directionIndex}`}
+            positions={track}
+            interactive={false}
+            pathOptions={{
+              color: paint?.bright ?? line.color,
+              weight: line.network === 'ter' || line.network === 'brt' ? 2.4 : 1.8,
+              opacity: 0.96,
+              dashArray: '8 18',
+              dashOffset: '26',
+              lineCap: 'round',
+              lineJoin: 'round',
+              className: 'mobility-route-flow',
+            }}
+          />
+        ))
+      })}
 
       {/* Icônes de mobilité aux arrêts : pictogrammes train et bus, sans pastilles */}
       {corridorStopsToRender.map((stop) => {
