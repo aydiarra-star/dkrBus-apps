@@ -107,6 +107,14 @@ Si le téléversement du manifeste échoue après celui de l'archive, l'Edge Fun
 
 Les tests Deno couvrent les quatre décisions (aucune référence, référence complète, référence partielle et lecture SQL incertaine). Ils restent synthétiques et n'effectuent aucun accès ou écriture Supabase.
 
+## Règles conditionnelles supplémentaires GTFS (15 novembre 2026)
+
+Le validateur vérifie maintenant les règles conditionnelles de `stop_times.txt` : `arrival_time` doit être présent au premier et au dernier arrêt de chaque trajet ; lorsque `timepoint=1`, `arrival_time` et `departure_time` doivent tous deux être renseignés. Un `stop_id` de `stop_times.txt` doit désigner un arrêt ou une plateforme (`location_type=0` ou absent), et non une station parente, entrée, sortie ou generic node.
+
+Pour `transfers.txt`, les références facultatives `from_route_id`, `to_route_id`, `from_trip_id` et `to_trip_id` sont vérifiées. Lorsqu'un trip et sa route sont tous deux fournis, leur association doit correspondre à `trips.txt`. `min_transfer_time` est requis pour `transfer_type=2` et doit être un entier non négatif lorsqu'il est présent. Les transferts de type 4 et 5 doivent référencer les deux trajets.
+
+Les tests ajoutés utilisent uniquement des archives synthétiques en mémoire/temporaires. Ils ne chargent aucun flux réel, n'écrivent pas dans Supabase et ne modifient aucune donnée de transport. Une structure valide reste distincte de la provenance, de l'autorisation de réutilisation, de la revue humaine et de toute publication.
+
 ## Journal administratif chaîné (14 novembre 2026)
 
 Le journal `dakar_admin_audit_events` conserve maintenant un ordre `chain_sequence` sérialisé par verrouillage de la ligne d'état privée. Chaque événement reçoit automatiquement `previous_hash` et `event_hash` SHA-256 calculés sur son identifiant, sa séquence, son acteur, son action, sa cible, ses détails, son horodatage UTC représenté en microsecondes depuis l'époque Unix et le hash précédent. Les valeurs de chaîne et l'horodatage fournis par un appelant sont écrasés par le déclencheur serveur, qui affecte l'heure UTC courante. L'état de tête est inaccessible directement aux rôles applicatifs ; le journal reste append-only contre UPDATE, DELETE et TRUNCATE.
