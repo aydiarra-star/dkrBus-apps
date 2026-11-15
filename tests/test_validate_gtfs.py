@@ -240,6 +240,18 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertIn("INVALID_PICKUP_TYPE", codes)
         self.assertIn("INVALID_DROP_OFF_TYPE", codes)
 
+    def test_unvalidated_standard_columns_are_rejected_in_supported_tables(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stop_times.txt"] = (
+            "trip_id,arrival_time,departure_time,stop_id,stop_sequence,"
+            "start_pickup_drop_off_window,end_pickup_drop_off_window\\n"
+            "T1,25:10:00,25:10:00,S1,1,25:00:00,25:05:00\\n"
+            "T1,25:20:00,25:20:00,S2,2,25:15:00,25:20:00\\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNVALIDATED_COLUMN", self.issue_codes(report))
+
     def test_unsafe_archive_paths_are_rejected_without_extraction(self) -> None:
         tables = dict(VALID_TABLES)
         tables["../outside.txt"] = "should_not_be_written\n"
