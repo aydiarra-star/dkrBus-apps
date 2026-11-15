@@ -142,7 +142,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         marker.position[0] === stop.lat && marker.position[1] === stop.lon,
       )
       expect(atStation.length, stop.name).toBeGreaterThan(0)
-      expect(atStation.every((marker) => String(marker.icon.options.html).includes('ter.svg')), stop.name).toBe(true)
+      expect(atStation.every((marker) => String(marker.icon.options.html).includes('data-mobility="ter"')), stop.name).toBe(true)
     }
 
     for (const marker of markers) {
@@ -167,7 +167,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
     drawMap(lines, networkStops)
     const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
     expect(markers.length).toBeGreaterThan(0)
-    expect(markers.every((marker) => String(marker.icon.options.html).includes(network === 'brt' ? 'brt.svg' : network === 'ddd' ? 'ddd.svg' : 'aftu-tata.svg'))).toBe(true)
+    expect(markers.every((marker) => String(marker.icon.options.html).includes(`data-mobility="${network}"`))).toBe(true)
   })
 })
 
