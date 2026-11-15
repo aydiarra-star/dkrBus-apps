@@ -57,9 +57,17 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertEqual(report["tables"]["stop_times.txt"], 2)  # type: ignore[index]
         self.assertIn("sha256", report["dataset"])  # type: ignore[operator]
 
-    def test_accepts_a_single_enclosing_directory_in_the_zip(self) -> None:
+    def test_rejects_a_single_enclosing_directory_in_the_zip(self) -> None:
         report = validate_gtfs_archive(self.make_archive(VALID_TABLES, wrapper="provider-export"))
-        self.assertTrue(report["structure_valid"])
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("GTFS_TABLES_NOT_AT_ROOT", self.issue_codes(report))
+
+    def test_rejects_nested_gtfs_tables_even_when_root_tables_exist(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["provider-copy/agency.txt"] = "agency_id,agency_name,agency_url,agency_timezone\nA,Copy,https://example.invalid,Africa/Dakar\n"
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("NESTED_GTFS_TABLE", self.issue_codes(report))
 
     def test_cli_emits_json_and_success_exit_code_for_a_valid_feed(self) -> None:
         archive = self.make_archive(VALID_TABLES)
