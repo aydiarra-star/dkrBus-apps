@@ -23,6 +23,7 @@
  */
 
 import { CORRIDOR_LINES, getCorridorStop, haversineMeters, type CorridorStop } from './corridors'
+import { terTravelTimeMidpointMinutes } from './terTravelTimes'
 import type { OfficialFrequency } from './frequencies'
 import { dwellMinutes } from './assumptions'
 import { nextReferencePassage, type NextPassage } from './headways'
@@ -86,14 +87,23 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
   const destinationStop = stops[stops.length - 1]
 
   const rows: StationRow[] = stops.map((stop, index) => {
-    // Parcours cumulé depuis l'origine : segments + arrêts intermédiaires.
+    // TER : plages cumulées observées par gare ; leur milieu sert uniquement
+    // à projeter un créneau sur l'horloge. Les valeurs min/max restent intactes
+    // dans terTravelTimes.ts. Le retour est calculé depuis AIBD, avec les mêmes
+    // durées par tronçon que l'aller.
     let fromOrigin = 0
-    for (let i = 0; i < index; i += 1) fromOrigin += segmentMinutes(line, i)
-    fromOrigin += Math.max(0, index - 1) * dwell
-    // Parcours cumulé depuis le terminus opposé, symétrique.
     let fromDestination = 0
-    for (let i = index; i < stops.length - 1; i += 1) fromDestination += segmentMinutes(line, i)
-    fromDestination += Math.max(0, stops.length - 2 - index) * dwell
+    if (line.network === 'ter') {
+      fromOrigin = terTravelTimeMidpointMinutes(stop.id)
+      const total = terTravelTimeMidpointMinutes(destinationStop.id)
+      fromDestination = Math.max(0, total - fromOrigin)
+    } else {
+      // Les autres réseaux gardent leur calcul historique.
+      for (let i = 0; i < index; i += 1) fromOrigin += segmentMinutes(line, i)
+      fromOrigin += Math.max(0, index - 1) * dwell
+      for (let i = index; i < stops.length - 1; i += 1) fromDestination += segmentMinutes(line, i)
+      fromDestination += Math.max(0, stops.length - 2 - index) * dwell
+    }
 
     return {
       stop,
