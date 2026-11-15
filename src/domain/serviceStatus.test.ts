@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { getServiceDisplayState } from './serviceStatus'
+import { getServiceDisplayState, serviceWindowForDay } from './serviceStatus'
+import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
 
 /** Construit un instant UTC à partir de l'heure et des minutes de Dakar (UTC+0). */
 function dakarTime(hours: number, minutes: number): number {
@@ -116,5 +117,28 @@ describe('getServiceDisplayState', () => {
       expect(result.status).toBe('FINISHED')
       expect(result.showCountdown).toBe(false)
     })
+  })
+})
+
+
+describe('serviceWindowForDay', () => {
+  it('retient le début TER du dimanche à 06:30 et non le début générique de semaine', () => {
+    const sunday = dakarTime(6, 5)
+    const window = serviceWindowForDay(sunday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
+    expect(window).toEqual({ start: '06:30', end: '22:00' })
+    const state = getServiceDisplayState(sunday, window.start, window.end)
+    expect(state.status).toBe('UPCOMING')
+    expect(state.showCountdown).toBe(false)
+  })
+
+  it('retient le début TER de semaine à 05:30', () => {
+    const monday = Date.UTC(2026, 9, 12, 5, 20)
+    const window = serviceWindowForDay(monday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
+    expect(window).toEqual({ start: '05:30', end: '22:00' })
+  })
+
+  it('conserve la fenêtre de référence des réseaux sans grille journalière', () => {
+    const window = serviceWindowForDay(dakarTime(5, 30), [], { start: '06:00', end: '22:50' })
+    expect(window).toEqual({ start: '06:00', end: '22:50' })
   })
 })
