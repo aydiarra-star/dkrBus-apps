@@ -3702,8 +3702,8 @@ function ChangelogSection() {
       date: '2026-10-09',
       title: 'Horaires par station et par sens',
       items: [
-        'Explorer : chaque réseau de référence se décline station par station — TER (13 gares, de Dakar à Diamniadio) et BRT (23 stations, de Petersen à Guédiawaye) affichent pour chaque arrêt le prochain créneau théorique dans chaque sens (aller et retour), dans le format de décompte habituel. Toucher une station la recentre sur la carte.',
-        'Explorer : les créneaux par station descendent au même rythme que les décomptes des réseaux, projetés depuis la grille officielle déclarée et les temps de parcours de référence — jamais du temps réel.',
+        'Explorer : chaque réseau de référence se décline station par station — TER (14 gares, de Dakar à AIBD) et BRT (23 stations, de Petersen à Guédiawaye) affichent pour chaque arrêt le prochain créneau théorique dans chaque sens (aller et retour), dans le format de décompte habituel. Toucher une station la recentre sur la carte.',
+        'Explorer : les créneaux par station descendent au même rythme que les décomptes des réseaux, projetés depuis la grille officielle déclarée et les durées TER observées / temps de référence des autres réseaux — jamais du temps réel.',
         'Explorer : AFTU, TATA et DDD entrent dans la même structure — leurs horaires par arrêt et par sens s’afficheront dès que des lignes seront publiées ; en attendant, aucun horaire n’est inventé.',
         'Explorer : raccourcis Maison, Boulot et Adresse plus compacts, et rapprochement des sections (recherche, destinations, réseaux) pour maximiser la zone visible des horaires.',
       ],
@@ -3767,7 +3767,7 @@ function ChangelogSection() {
       date: '2026-10 (précédent)',
       title: 'Réseau de référence et assistant',
       items: [
-        'Réseau de référence TER (13 gares) + BRT, tracé superposé au fond OpenStreetMap avec arrêts cliquables.',
+        'Réseau de référence TER (14 gares jusqu’à AIBD) + BRT, tracé superposé au fond OpenStreetMap avec arrêts cliquables.',
         'Calculateur multimodal TER + BRT et assistant local répondant sur les mêmes données.',
         'Itinéraires directs déclarés dans le snapshot publié (une montée, une descente).',
       ],
