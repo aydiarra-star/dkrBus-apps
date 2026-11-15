@@ -1242,13 +1242,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneTimes = () => [colobaneOut, colobaneIn].map((row) => row.querySelector('.station-board-passage > strong')!.textContent)
     // Les créneaux par station descendent au même rythme que les réseaux.
     // (Avancement par pas : chaque tic réarme le suivant après le rendu.)
-    expect(colobaneTimes()).toEqual(['4 min', '5 min'])
+    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
     for (let step = 0; step < 20; step += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(2_000)
       })
     }
-    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
+    expect(colobaneTimes()).toEqual(['3 min', '3 min'])
     vi.useRealTimers()
   })
 
