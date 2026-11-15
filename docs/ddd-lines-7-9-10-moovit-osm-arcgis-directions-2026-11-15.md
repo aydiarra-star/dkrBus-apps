@@ -206,5 +206,15 @@ Sources ArcGIS :
 - Les listes de la page DDD sont la référence commerciale pour les terminus et l'ordre publié des repères.
 - Moovit demeure une source secondaire pour les listes détaillées par sens ; ses noms de rue et arrêts génériques ne remplacent pas les repères DDD.
 - Les couches ArcGIS spécifiques 2017 ne doivent pas être utilisées comme preuve d'un tracé actuel sans validation complémentaire.
-- Le service ArcGIS mis à jour en 2024 doit être interrogé et ses géométries réelles extraites avant de produire un crosswalk géographique arrêt par arrêt.
+- Le service ArcGIS unifié doit être interrogé et ses géométries réelles extraites avant de produire un crosswalk géographique arrêt par arrêt. Attention : la couche d'arrêts affiche une dernière modification des données au 24 septembre 2024, mais la couche unifiée des itinéraires affiche une dernière modification des données au 11 janvier 2019 (même si les métadonnées de la couche ont été modifiées en 2024).
 - Aucune géométrie, aucun arrêt, aucun horaire et aucune fréquence n'a été modifié dans l'application à la suite de cet audit.
+
+
+### Précision de date — couche unifiée des itinéraires
+L'inspection directe de la couche 1 de `Dem_dikk_mise_a_jour` confirme qu'il s'agit d'une polyligne EPSG:32628 avec mesures M et plusieurs champs d'itinéraire directionnels. Sa métadonnée distingue :
+- dernière modification de la couche / schéma : 24 septembre 2024 ;
+- **dernière modification des données géométriques : 11 janvier 2019**.
+
+Il ne faut donc pas qualifier la géométrie du réseau de « géométrie 2024 ». La couche d'arrêts 0 a, elle, une date de données au 24 septembre 2024. Cette différence de fraîcheur est déterminante : les arrêts peuvent être plus récents que les itinéraires associés.
+
+Source : https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/1
