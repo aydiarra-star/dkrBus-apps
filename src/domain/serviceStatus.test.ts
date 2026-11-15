@@ -47,20 +47,20 @@ describe('getServiceDisplayState', () => {
     it('est UPCOMING à 5h00 (1h avant le démarrage)', () => {
       const result = getServiceDisplayState(dakarTime(5, 0), START, END)
       expect(result.status).toBe('UPCOMING')
-      expect(result.showCountdown).toBe(true)
+      expect(result.showCountdown).toBe(false)
       expect(result.label).toContain('Reprise')
     })
 
     it('est UPCOMING à 5h30 (30 min avant le démarrage)', () => {
       const result = getServiceDisplayState(dakarTime(5, 30), START, END)
       expect(result.status).toBe('UPCOMING')
-      expect(result.showCountdown).toBe(true)
+      expect(result.showCountdown).toBe(false)
     })
 
     it('est UPCOMING à 5h59 (1 min avant le démarrage)', () => {
       const result = getServiceDisplayState(dakarTime(5, 59), START, END)
       expect(result.status).toBe('UPCOMING')
-      expect(result.showCountdown).toBe(true)
+      expect(result.showCountdown).toBe(false)
     })
   })
 
@@ -88,7 +88,7 @@ describe('getServiceDisplayState', () => {
     it('est UPCOMING à 4h30 (1h avant le démarrage à 05:30)', () => {
       const result = getServiceDisplayState(dakarTime(4, 30), START, END)
       expect(result.status).toBe('UPCOMING')
-      expect(result.showCountdown).toBe(true)
+      expect(result.showCountdown).toBe(false)
     })
 
     it('est FINISHED à 4h29 (avant la fenêtre de reprise)', () => {

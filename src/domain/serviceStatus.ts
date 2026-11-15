@@ -9,12 +9,13 @@
  * | Plage horaire                                              | État      | Action                                              |
  * |------------------------------------------------------------|-----------|-----------------------------------------------------|
  * | Après fin du service jusqu'à (Début - 1h)                  | FINISHED  | « Fin de service » (masquer le compte à rebours)    |
- * | Entre (Début - 1h) et Démarrage                            | UPCOMING  | Afficher compte à rebours / créneau 1er départ      |
+ * | Entre (Début - 1h) et Démarrage                            | UPCOMING  | Annoncer la reprise sans compte à rebours vert      |
  * | Pendant les heures d'ouverture                             | ACTIVE    | Intervalle et temps d'attente habituel              |
  *
  * La fenêtre « UPCOMING » (reprise annoncée) couvre la dernière heure avant
  * le démarrage effectif : par exemple pour un service démarrant à 06h00,
- * la bascule se fait à 05h00 — l'usager voit « Reprise dans 47 min · créneau 06:00 ».
+ * la bascule se fait à 05h00 — l'usager voit une annonce de reprise neutre,
+ * jamais un compte à rebours vert avant l'ouverture.
  *
  * Ce module ne produit aucune donnée temps réel : il projette l'amplitude
  * de service déclarée (debut, fin) sur l'horloge de Dakar.
@@ -98,7 +99,7 @@ export function getServiceDisplayState(
     return {
       status: 'UPCOMING',
       label: `Reprise ${countdownLabel}`,
-      showCountdown: true,
+      showCountdown: false,
     }
   }
 
@@ -127,9 +128,9 @@ function formatCountdownLabel(minutes: number): string {
  * pour un réseau donné, en combinant l'état de service et le passage calculé.
  *
  * Un passage existe mais le service est terminé → masquer le décompte.
- * Un passage existe et le service est en reprise → afficher.
- * Un passage existe et le service est actif → afficher.
+ * Avant l'ouverture → annoncer la reprise en couleur neutre.
+ * Un passage existe et le service est actif → afficher en vert.
  */
 export function shouldShowPassage(state: ServiceDisplayState): boolean {
-  return state.showCountdown
+  return state.status === 'ACTIVE' && state.showCountdown
 }
