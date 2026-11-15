@@ -125,7 +125,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     ])
     // Les deux sens du BRT gardent les mêmes couches visuelles que le TER.
     expect(ter.map(styleOf)).toEqual([brt[0], brt[2], brt[4]].map(styleOf))
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([4.2, 2.8, 1.8])
   })
 })
 
