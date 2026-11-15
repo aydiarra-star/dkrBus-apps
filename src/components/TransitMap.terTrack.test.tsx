@@ -155,7 +155,7 @@ describe('carte : icônes des mobilités et exclusivité du TER', () => {
         )
         return meters <= 35
       })
-      if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('🚆')
+      if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="ter"')
       expect(marker.icon.options.iconSize).toEqual([34, 24])
     }
   })
