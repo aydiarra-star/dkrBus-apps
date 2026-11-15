@@ -234,12 +234,13 @@ const MOBILITY_ICON_URLS: Record<MobilityId, string> = {
 }
 
 function makeMobilityStopIcon(mobility: MobilityId | null, label: string): DivIcon {
-  const iconMobility = mobility ?? 'aftu_tata'
-  const iconUrl = MOBILITY_ICON_URLS[iconMobility]
+  const iconUrl = mobility ? MOBILITY_ICON_URLS[mobility] : null
   const mobilityLabel = mobility === 'ter' ? 'TER' : mobility === 'brt' ? 'BRT' : mobility === 'ddd' ? 'DDD' : mobility === 'aftu_tata' ? 'AFTU / TATA' : 'Mobilité'
   return L.divIcon({
     className: 'mobility-stop-image-shell',
-    html: `<img class="mobility-stop-vehicle" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`,
+    html: iconUrl
+      ? `<img class="mobility-stop-vehicle" src="${escapeHtml(iconUrl)}" alt="${escapeHtml(`${mobilityLabel} — ${label}`)}" width="34" height="24" decoding="async" />`
+      : `<span class="mobility-stop-fallback" role="img" aria-label="${escapeHtml(`${mobilityLabel} — ${label}`)}">🚌</span>`,
     iconSize: [34, 24],
     iconAnchor: [17, 12],
   })
@@ -351,7 +352,7 @@ function TransitMapView({
       maxZoom={19}
       zoomControl={false}
       scrollWheelZoom
-      preferCanvas
+      /* Le rendu SVG est nécessaire à l'animation directionnelle des itinéraires. */
       /* Leaflet n'écoute plus `resize` : le clavier mobile ne redimensionne
          plus la carte. MapResizeController décide du recalcul. */
       trackResize={false}
