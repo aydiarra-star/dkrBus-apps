@@ -2202,7 +2202,7 @@ function ReferenceNetworkSummary({
     if (!refData) return null
     return serviceWindowForDay(now, refData.officialFrequencies, { start: refData.serviceStart, end: refData.serviceEnd })
   })
-  const serviceStates = networks.map((network, index): ServiceDisplayState => {
+  const serviceStates = networks.map((_, index): ServiceDisplayState => {
     const window = serviceWindows[index]
     if (!window) return { status: 'FINISHED', label: 'Non déclaré', showCountdown: false }
     return getServiceDisplayState(now, window.start, window.end)
