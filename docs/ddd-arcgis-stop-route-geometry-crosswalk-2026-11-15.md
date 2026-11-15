@@ -141,9 +141,11 @@ La couche des arrêts contient 4 points sous le code `ligne_228`. La couche des 
 - « Terminus Rufisque – ville de Rufisque » ;
 - « Bargny – Diamniadio Yenne ».
 
-Sur les 4 points `ligne_228`, 3 sont à 25 m ou moins de cette polyligne et le quatrième à 85,5 m. La page DDD publie une ligne « Terminus Rufisque ↔ Yenne ».
+Sur les 4 points `ligne_228`, 3 sont à 25 m ou moins de cette polyligne et le quatrième à 85,5 m. La page DDD publie une ligne « Terminus Rufisque ↔ Yenne » avec quatre repères : Terminus Rufisque, Ville de Rufisque, Bargny et Diamniadio Yenne. Moovit publie deux directions distinctes de la ligne 228, 53 arrêts chacune, mais ses terminus sont « Toubab Dialaw » et « Terminus Rufisque ».
 
-C'est une correspondance candidate forte, mais l'entité OID 10 n'a aucun numéro de ligne. **Ne pas attribuer OID 10 à la ligne 228 automatiquement.** Il faut une clé opérateur ou une preuve indépendante qui relie explicitement cette géométrie à 228.
+La polyligne OID 10 mesure 28,697 km et ses champs de corridor concordent avec les deux segments DDD Rufisque–ville de Rufisque et Bargny–Diamniadio Yenne. Les 4 points `ligne_228` sont à 85,5 m au plus de cette polyligne, dont 3 à 25 m ou moins. Les noms ArcGIS mentionnent « Gare Routière de Rufisque », « Mairie de Yène » et « Toubab Dialaw/Rufisque ».
+
+La correspondance avec 228 est donc fortement plausible au niveau du corridor et des sources secondaires, mais deux limites subsistent : OID 10 n'a pas de numéro de ligne et le terminus DDD « Diamniadio Yenne » ne correspond pas littéralement au terminus Moovit/ArcGIS « Toubab Dialaw ». **Ne pas attribuer OID 10 à la ligne 228 automatiquement.** Il faut une clé opérateur ou une preuve indépendante qui résolve cette différence de terminus.
 
 ## 6. Ligne 13 — deux groupes à conserver séparément
 
