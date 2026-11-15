@@ -8,6 +8,7 @@ import { cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
 import { TER_TRACK, TER_TRACK_ATTRIBUTION } from '../domain/terTrackGeometry'
+import { BRT_B1_TRACKS, BRT_TRACK_ATTRIBUTION } from '../domain/brtTrackGeometry'
 
 interface DrawnPolyline {
   positions: Array<[number, number]>
@@ -95,7 +96,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       expect(polyline.positions).toEqual(TER_TRACK.positions)
     }
     // Halo blanc, liseré, trait plein : les mêmes épaisseurs qu'avant.
-    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([11, 8, 4.5])
+    expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 
   it('ne relie plus les gares du TER par des segments droits', () => {
@@ -106,20 +107,25 @@ describe('carte : tracé du TER sur les voies réelles', () => {
   })
 
   it('crédite OpenStreetMap sur le trait du TER, et seulement sur lui', () => {
-    const credited = drawMap().filter((polyline) => polyline.attribution !== undefined)
+    const credited = drawMap().filter((polyline) => polyline.attribution === TER_TRACK_ATTRIBUTION)
     expect(credited).toHaveLength(1)
-    expect(credited[0].attribution).toBe(TER_TRACK_ATTRIBUTION)
     expect(credited[0].positions).toHaveLength(491)
   })
 
-  it('applique au TER les mêmes règles de trait qu’au BRT', () => {
+  it('applique les mêmes règles de trait au TER et aux deux sens réels du BRT', () => {
     const polylines = drawMap([lineOf('ter')[0], lineOf('brt')[0]])
     const ter = polylines.filter((polyline) => polyline.positions.length === 491)
     const brt = polylines.filter((polyline) => polyline.positions.length !== 491)
     expect(ter).toHaveLength(3)
-    expect(brt).toHaveLength(3)
-    // Mêmes épaisseurs, opacités, extrémités et interactivité ; seule la couleur distingue les réseaux.
-    expect(ter.map(styleOf)).toEqual(brt.map(styleOf))
+    expect(brt).toHaveLength(6)
+    expect(brt.map((polyline) => polyline.positions)).toEqual([
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+    ])
+    // Les deux sens du BRT gardent les mêmes couches visuelles que le TER.
+    expect(ter.map(styleOf)).toEqual([brt[0], brt[2], brt[4]].map(styleOf))
+    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 })
 
@@ -159,14 +165,19 @@ describe('carte : visibilité des gares TER et correspondances', () => {
 })
 
 describe('carte : les autres mobilités ne changent pas', () => {
-  it('trace le BRT comme avant, arrêt après arrêt', () => {
+  it('trace le BRT sur ses deux géométries OSM et crédite la source', () => {
     const lines = lineOf('brt')
     expect(lines.length).toBeGreaterThan(0)
     const polylines = drawMap(lines)
-    expect(polylines).toHaveLength(3 * lines.length)
+    expect(polylines).toHaveLength(6 * lines.length)
+    const expectedTracks = [
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+    ]
     for (const [index, polyline] of polylines.entries()) {
-      expect(polyline.positions).toEqual(stopToStop(lines[index % lines.length]))
-      expect(polyline.attribution).toBeUndefined()
+      expect(polyline.positions).toEqual(expectedTracks[index])
+      expect(polyline.attribution).toBe(index >= 4 ? BRT_TRACK_ATTRIBUTION : undefined)
     }
   })
 
@@ -183,7 +194,7 @@ describe('carte : les autres mobilités ne changent pas', () => {
   })
 
   it('n’ajoute ni ne retire aucun trait sur la carte complète', () => {
-    const expected = 3 * (lineOf('ter').length + lineOf('brt').length) + lineOf('ddd').length + lineOf('aftu_tata').length
+    const expected = 3 * lineOf('ter').length + 6 * lineOf('brt').length + lineOf('ddd').length + lineOf('aftu_tata').length
     expect(drawMap()).toHaveLength(expected)
   })
 })
