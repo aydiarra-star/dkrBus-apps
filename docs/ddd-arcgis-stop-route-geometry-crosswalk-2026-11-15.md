@@ -37,6 +37,37 @@ Résultat global du rapprochement strict par numéro :
 
 Les 52 écarts supérieurs à 100 m ne sont pas 52 erreurs indépendantes : l'analyse détaillée montre qu'ils proviennent du mélange de lignes dans le groupe source `ligne_218` décrit ci-dessous.
 
+### Résultats par groupe source avec géométrie nommée
+
+| Ligne | Points source | Points à ≤25 m | Distance maximale | Lecture |
+|---|---:|---:|---:|---|
+| 1 | 44 | 44 | 14,9 m | cohérence spatiale forte |
+| 2 | 32 | 32 | 15,0 m | cohérence spatiale forte |
+| 4 | 29 | 29 | 12,2 m | cohérence spatiale forte |
+| 5 | 18 | 18 | 9,5 m | cohérence spatiale forte |
+| 6 | 60 | 60 | 11,6 m | cohérence spatiale forte |
+| 7 | 33 | 33 | 14,3 m | cohérence spatiale forte, terminus à vérifier |
+| 8 | 49 | 49 | 12,1 m | cohérence spatiale forte |
+| 9 | 36 | 36 | 15,3 m | cohérence spatiale forte, terminus à vérifier |
+| 10 | 26 | 26 | 12,2 m | cohérence spatiale forte, terminus à vérifier |
+| 11 | 23 | 23 | 17,1 m | cohérence spatiale forte |
+| 12 | 40 | 40 | 9,5 m | cohérence spatiale forte |
+| 13 — `LIgne_13` | 22 | 22 | 10,7 m | groupe source distinct |
+| 13 — `ligne_13` | 23 | 23 | 10,5 m | groupe source distinct, ne pas fusionner |
+| 16A | 13 | 13 | 13,4 m | cohérence spatiale forte |
+| 16B | 30 | 30 | 16,8 m | cohérence spatiale forte |
+| 18 | 44 | 44 | 8,4 m | cohérence spatiale forte |
+| 23 | 54 | 54 | 10,5 m | cohérence spatiale forte |
+| 121 | 31 | 31 | 10,9 m | cohérence spatiale forte |
+| 217 | 30 | 29 | 62,2 m | 1 point à contrôler |
+| 218 | 103 | 51 | 3 922,4 m | groupe mélangé : 37 positions 218 + 33 positions candidates 219, ces dernières dupliquées |
+| 219 | aucun groupe nommé | — | — | 33 positions candidates présentes sous `ligne_218` |
+| 227 | 8 | 8 | 9,0 m | cohérence spatiale forte |
+| 228 | 4 | — | 85,5 m max | géométrie candidate OID 10 non numérotée, pas de match explicite |
+| 232 | 23 | 23 | 9,7 m | cohérence spatiale forte |
+
+Les distances maximales sont calculées par rapport à la géométrie de même numéro lorsqu'elle existe. Pour la ligne 218, le maximum brut est trompeur tant que les points candidats de la ligne 219 restent regroupés sous `ligne_218`.
+
 ## 3. Contrôle des lignes 7, 9 et 10
 
 | Ligne | Groupe d'arrêts | Géométrie ArcGIS | Longueur | Points à ≤25 m |
