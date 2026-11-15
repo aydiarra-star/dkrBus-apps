@@ -6,15 +6,14 @@
  *  - les quatre réseaux de Dakar (TER, BRT, DDD, AFTU / TATA) sont cherchables
  *    par leur nom, leur sigle et leur autorité (SETER, SunuBRT, CETUD…) ;
  *  - seuls les arrêts réellement connus sont proposés comme point de départ
- *    ou d'arrivée : les gares TER (référence SETER), les stations BRT
- *    (référence SunuBRT) et les arrêts du snapshot publié ;
- *  - une mobilité dont les arrêts ne sont pas déclarés (AFTU / TATA, DDD)
- *    apparaît dans les résultats pour être trouvée, mais elle explique
- *    aussitôt pourquoi elle ne peut pas servir de point : aucune liste
- *    d'arrêts n'est inventée pour « faire joli ».
+ *    ou d'arrivée : gares TER, stations BRT, pôles de référence DDD et
+ *    AFTU/TATA, ainsi que les arrêts géolocalisés du snapshot publié ;
+ *  - les arrêts DDD/AFTU/TATA restent explicitement des pôles de référence
+ *    simplifiés : ils ne prétendent pas remplacer les séquences complètes de
+ *    chaque ligne ni constituer une position de véhicule en temps réel.
  */
 
-import { BRT_STOPS, TER_STOPS, type CorridorStop } from './corridors'
+import { AFTU_STOPS, BRT_STOPS, DDD_STOPS, TATA_STOPS, TER_STOPS, type CorridorStop } from './corridors'
 import { NETWORK_SOURCES, type NetworkId } from './network'
 import type { PublishedStop } from './published'
 
@@ -42,6 +41,8 @@ export const GROUP_MOBILITY = 'Mobilités'
 export const GROUP_PUBLISHED = 'Arrêts publiés'
 export const GROUP_TER = 'TER · SETER'
 export const GROUP_BRT = 'BRT · SunuBRT'
+export const GROUP_DDD = 'DDD · Dakar Dem Dikk'
+export const GROUP_AFTU_TATA = 'AFTU / TATA · minibus'
 
 /** Mots-clés cherchables par réseau : sigles, exploitants et autorités cités. */
 const NETWORK_KEYWORDS: Record<NetworkId, readonly string[]> = {
@@ -79,7 +80,11 @@ function networkHint(id: NetworkId, stopCount: number | null): string {
     network?.referenceData?.vehicleCount ? `${network.referenceData.vehicleCount.toLocaleString('fr-FR')} bus` : null,
   ].filter((value): value is string => value !== null)
   const detail = counts.length > 0 ? counts.join(' · ') : NETWORK_SOURCE_LABEL[id]
-  return `${detail} · arrêts non publiés`
+  return `${detail} · ${stopCount ?? 0} pôles de référence`
+}
+
+const NETWORK_SHORT_LABEL: Record<NetworkId, string> = {
+  ter: 'TER', brt: 'BRT', ddd: 'DDD', aftu_tata: 'AFTU / TATA', other: 'Autre',
 }
 
 function corridorOption(stop: CorridorStop, network: NetworkId, group: string): StopOption {
@@ -88,7 +93,7 @@ function corridorOption(stop: CorridorStop, network: NetworkId, group: string): 
     kind: 'reference',
     label: stop.name,
     group,
-    hint: `${network === 'ter' ? 'TER' : 'BRT'} · ${stop.note ?? NETWORK_SOURCE_LABEL[network]}`,
+    hint: `${NETWORK_SHORT_LABEL[network]} · ${stop.note ?? NETWORK_SOURCE_LABEL[network]}`,
     selectable: true,
     networkId: network,
     stopId: stop.id,
@@ -118,7 +123,10 @@ function publishedOption(stop: PublishedStop): StopOption {
 export function buildStopIndex(publishedStops: readonly PublishedStop[]): StopOption[] {
   const networks: StopOption[] = NETWORK_SOURCES.map((network) => {
     const stopCount =
-      network.id === 'ter' ? TER_STOPS.length : network.id === 'brt' ? BRT_STOPS.length : null
+      network.id === 'ter' ? TER_STOPS.length
+        : network.id === 'brt' ? BRT_STOPS.length
+          : network.id === 'ddd' ? DDD_STOPS.length
+            : network.id === 'aftu_tata' ? AFTU_STOPS.length + TATA_STOPS.length : null
     return {
       value: `network:${network.id}`,
       kind: 'network' as const,
@@ -139,6 +147,9 @@ export function buildStopIndex(publishedStops: readonly PublishedStop[]): StopOp
     ...publishedStops.filter((stop) => stop.lat !== null && stop.lon !== null).map(publishedOption),
     ...TER_STOPS.map((stop) => corridorOption(stop, 'ter', GROUP_TER)),
     ...BRT_STOPS.map((stop) => corridorOption(stop, 'brt', GROUP_BRT)),
+    ...DDD_STOPS.map((stop) => corridorOption(stop, 'ddd', GROUP_DDD)),
+    ...AFTU_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
+    ...TATA_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
   ]
 }
 
@@ -158,7 +169,7 @@ function scoreOption(option: StopOption, needle: string): number | null {
   return null
 }
 
-const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT]
+const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT, GROUP_DDD, GROUP_AFTU_TATA]
 
 /**
  * Recherche tolérante (accents, apostrophes, tirets) sur l'index complet.
