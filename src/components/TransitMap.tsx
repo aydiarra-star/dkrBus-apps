@@ -402,7 +402,7 @@ function TransitMapView({
               key={`corridor-halo-${line.id}-${directionIndex}`}
               positions={track}
               interactive={false}
-              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round' }}
+              pathOptions={{ color: '#ffffff', weight: 6, opacity: 0.92, lineCap: 'round', lineJoin: 'round', className: 'mobility-route-halo mobility-route-halo-rail' }}
             />
           ))
         })}
@@ -477,6 +477,7 @@ function TransitMapView({
                 dashArray: isDDD ? '2 12' : '3 12',
                 lineCap: 'round',
                 lineJoin: 'round',
+                className: `mobility-route-halo mobility-route-halo-${line.network}`,
               }}
             >
               <Tooltip direction="center" sticky opacity={0.9} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
@@ -495,27 +496,6 @@ function TransitMapView({
             </Polyline>
           )
         })}
-
-      {/* Halo pulsant sur chaque corridor, y compris les lignes DDD/AFTU/TATA. */}
-      {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
-        const paint = paintFor(line.network)
-        const tracks = [positions, ...(additionalPositions ?? [])]
-        return tracks.filter((track) => track.length > 1).map((track, directionIndex) => (
-          <Polyline
-            key={`mobility-halo-pulse-${line.id}-${directionIndex}`}
-            positions={track}
-            interactive={false}
-            pathOptions={{
-              color: paint?.bright ?? paint?.core ?? line.color,
-              weight: line.network === 'ter' || line.network === 'brt' ? 5.2 : 3.6,
-              opacity: 0.24,
-              lineCap: 'round',
-              lineJoin: 'round',
-              className: 'mobility-route-halo',
-            }}
-          />
-        ))
-      })}
 
       {/* Flux lumineux animé : chaque segment suit l'ordre réel des points de son itinéraire. */}
       {corridorLineStops.flatMap(({ line, positions, additionalPositions }) => {
