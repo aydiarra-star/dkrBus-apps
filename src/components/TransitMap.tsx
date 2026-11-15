@@ -300,19 +300,23 @@ function TransitMapView({
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
-  const isOnTerTrack = (point: { lat: number; lon: number }) =>
-    terTracks.some((positions) =>
-      positions.slice(1).some((end, index) =>
-        distanceToSegmentMeters(point, positions[index], end) <= 35,
-      ),
-    )
   const corridorStopsToRender = useMemo(
-    () => uniqueCorridorStops.filter((stop) => stop.id.startsWith('ter-') || !isOnTerTrack(stop)),
+    () => uniqueCorridorStops.filter((stop) =>
+      stop.id.startsWith('ter-') || !terTracks.some((positions) =>
+        positions.slice(1).some((end, index) =>
+          distanceToSegmentMeters(stop, positions[index], end) <= 35,
+        ),
+      ),
+    ),
     [uniqueCorridorStops, terTracks],
   )
   const publishedStopsToRender = useMemo(
     () => stops.filter((stop) =>
-      mobilityFromStopId(stop.stopId) === 'ter' || !isOnTerTrack({ lat: stop.lat, lon: stop.lon }),
+      mobilityFromStopId(stop.stopId) === 'ter' || !terTracks.some((positions) =>
+        positions.slice(1).some((end, index) =>
+          distanceToSegmentMeters({ lat: stop.lat, lon: stop.lon }, positions[index], end) <= 35,
+        ),
+      ),
     ),
     [stops, terTracks],
   )
