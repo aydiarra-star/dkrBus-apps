@@ -17,17 +17,23 @@ describe('bidirectional bus line registry', () => {
     }
   })
 
-  it('applies the CETUD 05:30–22:00 service window to every AFTU catalogue line only', () => {
+  it('applies the CETUD 05:30–22:00 service window to every unified AFTU / TATA line', () => {
     const aftuLines = BIDIRECTIONAL_BUS_LINES.filter((line) => line.network === 'aftu')
     expect(aftuLines).toHaveLength(73)
     expect(aftuLines.every((line) => line.serviceWindow?.start === '05:30' && line.serviceWindow.end === '22:00')).toBe(true)
     expect(BIDIRECTIONAL_BUS_LINES.filter((line) => line.network !== 'aftu').every((line) => line.serviceWindow === null)).toBe(true)
   })
 
-  it('keeps DDD, AFTU and TATA line identifiers in separate namespaces', () => {
+  it('keeps one canonical AFTU / TATA record per line and treats TATA as an alias', () => {
     expect(getBusLineDirections('ddd', '1')?.network).toBe('ddd')
     expect(getBusLineDirections('aftu', '1')?.network).toBe('aftu')
-    expect(getBusLineDirections('tata', '1')?.network).toBe('tata')
+    expect(getBusLineDirections('tata', '1')?.network).toBe('aftu')
+    expect(BIDIRECTIONAL_BUS_LINES.filter((line) => line.network === 'tata')).toHaveLength(0)
+    const unifiedAftuLines = BIDIRECTIONAL_BUS_LINES.filter((line) => line.network === 'aftu')
+    expect(unifiedAftuLines).toHaveLength(73)
+    expect(new Set(unifiedAftuLines.map((line) => line.line)).size).toBe(unifiedAftuLines.length)
+    expect(BIDIRECTIONAL_BUS_LINES.filter((line) => line.network !== 'ddd' && line.line === '1')).toHaveLength(1)
+    expect(BIDIRECTIONAL_BUS_LINES.filter((line) => line.network !== 'ddd' && line.line === '84')).toHaveLength(1)
   })
 
   it('integrates published DDD one-way sequences into their own outbound direction', () => {
@@ -118,16 +124,14 @@ describe('bidirectional bus line registry', () => {
     }
   })
 
-  it('does not invent stop sequences for other AFTU lines or TATA', () => {
+  it('does not invent stop sequences for AFTU / TATA lines without a validated source', () => {
     const validatedAftuLines = ['83', '88', '89', '91']
-    for (const network of ['aftu', 'tata'] as const) {
-      for (const line of BIDIRECTIONAL_BUS_LINES.filter((item) => item.network === network)) {
-        if (network === 'aftu' && validatedAftuLines.includes(line.line)) continue
-        expect(line.directions.outbound.status).toBe('awaiting_stops')
-        expect(line.directions.inbound.status).toBe('awaiting_stops')
-        expect(line.directions.outbound.stopNames).toEqual([])
-        expect(line.directions.inbound.stopNames).toEqual([])
-      }
+    for (const line of BIDIRECTIONAL_BUS_LINES.filter((item) => item.network === 'aftu')) {
+      if (validatedAftuLines.includes(line.line)) continue
+      expect(line.directions.outbound.status).toBe('awaiting_stops')
+      expect(line.directions.inbound.status).toBe('awaiting_stops')
+      expect(line.directions.outbound.stopNames).toEqual([])
+      expect(line.directions.inbound.stopNames).toEqual([])
     }
   })
 

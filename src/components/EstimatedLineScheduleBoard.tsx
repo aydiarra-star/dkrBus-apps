@@ -62,6 +62,87 @@ function routeCompleteness(route: MobilityRouteReference): number {
   return route.waypoints.length + (route.inboundWaypoints?.length ?? 0)
 }
 
+function matchesDirectionalRoute(line: PublicBusLineReference, route: MobilityRouteReference): boolean {
+  if (route.code !== line.line || route.network !== line.network) return false
+  // Les fichiers AFTU avec deux sens explicitement documentés font foi,
+  // même si leur terminus a évolué par rapport à l'ancien catalogue.
+  if (route.outboundOrigin && route.outboundDestination) return true
+  if (!route.origin || !route.destination) return false
+  return detailedRouteKey({ code: route.code, origin: route.origin, destination: route.destination })
+      === detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
+    && sameDetailedRouteDirection(
+      { origin: line.origin, destination: line.destination },
+      { origin: route.origin, destination: route.destination },
+    )
+}
+
+function endpointTokens(value: string): string[] {
+  return value.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\bucad\b/g, 'universite cheikh anta diop')
+    .replace(/\bsham\b/g, 'sahm')
+    .replace(/\bcomico\s+yeumbeul\b/g, 'comico')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b(terminus|gare|routiere|station|arret|rond|point|giratoire|route|principale|des|de|du|la|le|les)\b/g, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 1)
+}
+
+function stopMatchesEndpoint(stop: string, endpoint: string): boolean {
+  const stopParts = endpointTokens(stop)
+  const endpointParts = endpointTokens(endpoint)
+  return endpointParts.length > 0 && endpointParts.every((part) => stopParts.includes(part))
+}
+
+function classifyStopSequence(
+  stops: readonly string[],
+  origin: string,
+  destination: string,
+): 'outbound' | 'inbound' | 'unknown' {
+  if (stops.length < 2) return 'unknown'
+  const first = stops[0]
+  const last = stops[stops.length - 1]
+  if (stopMatchesEndpoint(first, origin) && stopMatchesEndpoint(last, destination)) return 'outbound'
+  if (stopMatchesEndpoint(first, destination) && stopMatchesEndpoint(last, origin)) return 'inbound'
+  return 'unknown'
+}
+
+function assignDirectionStopSequences(
+  rawOutboundStops: readonly string[],
+  rawInboundStops: readonly string[],
+  outboundOrigin: string,
+  outboundDestination: string,
+  inboundOrigin: string,
+  inboundDestination: string,
+): { outbound: readonly string[]; inbound: readonly string[] } {
+  let outbound = rawOutboundStops
+  let inbound = rawInboundStops
+  const outboundDirection = classifyStopSequence(rawOutboundStops, outboundOrigin, outboundDestination)
+  const inboundDirection = classifyStopSequence(rawInboundStops, inboundOrigin, inboundDestination)
+
+  // Une séquence isolée dont les extrémités ne correspondent à aucun des
+  // terminus annoncés n'est pas publiée sous un sens supposé.
+  if (rawInboundStops.length === 0 && outboundDirection === 'unknown') {
+    return { outbound: [], inbound: [] }
+  }
+
+  if (outboundDirection === 'inbound') {
+    if (inboundDirection === 'inbound') {
+      outbound = rawInboundStops
+      inbound = rawOutboundStops
+    } else {
+      outbound = []
+      if (inboundDirection !== 'outbound') inbound = rawOutboundStops
+    }
+  } else if (inboundDirection === 'inbound') {
+    if (outboundDirection !== 'outbound') outbound = rawInboundStops
+    inbound = []
+  }
+
+  return { outbound, inbound }
+}
+
 const MINUTE_MS = 60_000
 const DAY_MS = 24 * 60 * MINUTE_MS
 
@@ -202,41 +283,33 @@ function AftuTataScheduleBoard({
                     const sameNetworkByCode = routeReferences.filter((item) =>
                       item.network === line.network && item.code === line.line
                     )
-                    const sameNetworkCandidates = sameNetworkByCode.filter((item) =>
-                      detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                      && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin!, destination: item.destination! })
-                    )
+                    const sameNetworkCandidates = sameNetworkByCode.filter((item) => matchesDirectionalRoute(line, item))
                     const matchingSameNetwork = sameNetworkCandidates.length === 1
                       ? sameNetworkCandidates
                       : sameNetworkCandidates.length > 1
                         ? sameNetworkCandidates.filter((item) =>
                           Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
                         )
-                        : sameNetworkByCode.length === 1 ? sameNetworkByCode : []
-                    const crossNetworkByCode = routeReferences.filter((item) => item.code === line.line && item.network !== line.network)
-                    const matchingCrossNetwork = matchingSameNetwork.length === 0 && crossNetworkByCode.length === 1
-                      ? crossNetworkByCode
-                      : []
-                    const ownRoute = matchingSameNetwork[0] ?? matchingCrossNetwork[0]
-                    const sharedCandidates = AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey)
-                      ? routeReferences.filter((item) =>
-                        item.network !== line.network
-                        && item.code === line.line
-                        && Boolean(item.origin && item.destination)
-                        && detailedRouteKey({ code: item.code, origin: item.origin!, destination: item.destination! }) === lineRouteKey
-                        && sameDetailedRouteDirection({ origin: line.origin, destination: line.destination }, { origin: item.origin ?? '', destination: item.destination ?? '' })
-                        && Boolean(line.waypoints?.length && item.waypoints.length && sameOrderedStops(line.waypoints, item.waypoints))
-                        && Boolean(ownRoute?.inboundWaypoints?.length && item.inboundWaypoints?.length && sameOrderedStops(ownRoute.inboundWaypoints, item.inboundWaypoints))
-                      )
-                      : []
-                    const candidates = [...matchingSameNetwork, ...sharedCandidates]
-                    const route = [...candidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
-                    const outboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
-                    const inboundStops = route?.inboundWaypoints ?? []
+                        : []
+                    // AFTU et TATA sont un seul réseau : on ne mélange jamais
+                    // les fiches de deux sources comme s'il s'agissait de deux variantes.
+                    const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
                     const outboundOrigin = route?.outboundOrigin ?? line.origin
                     const outboundDestination = route?.outboundDestination ?? line.destination
                     const inboundOrigin = route?.inboundOrigin ?? outboundDestination
                     const inboundDestination = route?.inboundDestination ?? outboundOrigin
+                    const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
+                    const rawInboundStops = route?.inboundWaypoints ?? []
+                    // Les listes restent dans l'ordre fourni par la source ;
+                    // seule leur affectation Aller/Retour peut être corrigée.
+                    const { outbound: outboundStops, inbound: inboundStops } = assignDirectionStopSequences(
+                      rawOutboundStops,
+                      rawInboundStops,
+                      outboundOrigin,
+                      outboundDestination,
+                      inboundOrigin,
+                      inboundDestination,
+                    )
                     const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
                     const serviceLabel = serviceState.status === 'UPCOMING'
                       ? serviceState.label
@@ -305,7 +378,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
     let active = true
     Promise.all([
       import('../data/mobility-lines.json'),
-      import('../data/tata-lines.json'),
       import('../data/aftu-66-return.json'),
       import('../data/aftu-57-directions.json'),
       import('../data/aftu-30-directions.json'),
@@ -329,7 +401,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
       import('../data/aftu-89-directions.json'),
       import('../data/aftu-90-directions.json'),
       import('../data/aftu-91-directions.json'),
-    ]).then(([mobility, tata, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
+    ]).then(([mobility, aftu66, aftu57, aftu30, aftu58, aftu67, aftu62, aftu64, aftu65, aftu75, aftu74, aftu79, aftu80, aftu81, aftu72, aftu73, aftu70, aftu71, aftu86, aftu87, aftu88, aftu89, aftu90, aftu91]) => {
       const overrides: Record<string, Partial<MobilityRouteReference>> = {
         '66': aftu66.default as Partial<MobilityRouteReference>,
         '57': aftu57.default as Partial<MobilityRouteReference>,
@@ -364,7 +436,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             const details = item.network === 'aftu' ? overrides[item.code] : undefined
             return details ? { ...item, ...details } : item
           }),
-          ...(tata.default as MobilityRouteReference[]),
         ]
         const knownAftuCodes = new Set(baseReferences.filter((item) => item.network === 'aftu').map((item) => item.code))
         for (const line of AFTU_TATA_PUBLIC_LINE_CATALOG) {
@@ -556,20 +627,32 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         })}
       </ul>
       {(() => {
-        const linesWithoutAnyStops = catalogue.filter((line) => {
-          const routeKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
-          const route = routeReferences.find((item) => item.code === line.line
-            && (!item.origin || !item.destination
-              ? item.network === line.network
-              : detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === routeKey))
-          const hasOutbound = Boolean(route?.waypoints?.length)
-            || (network === 'ddd' && Boolean(dddPublishedStopsByLine.get(line.line)?.length))
-          return !hasOutbound
+        const incompleteLines = catalogue.flatMap((line) => {
+          const routeCandidates = routeReferences.filter((item) => matchesDirectionalRoute(line, item))
+          const route = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+          const outboundOrigin = route?.outboundOrigin ?? line.origin
+          const outboundDestination = route?.outboundDestination ?? line.destination
+          const inboundOrigin = route?.inboundOrigin ?? outboundDestination
+          const inboundDestination = route?.inboundDestination ?? outboundOrigin
+          const { outbound, inbound } = assignDirectionStopSequences(
+            route?.waypoints?.length ? route.waypoints : line.waypoints ?? [],
+            route?.inboundWaypoints ?? [],
+            outboundOrigin,
+            outboundDestination,
+            inboundOrigin,
+            inboundDestination,
+          )
+          const hasOutbound = outbound.length > 0
+          const hasInbound = inbound.length > 0
+          const missing: string[] = []
+          if (!hasOutbound) missing.push('Aller')
+          if (!hasInbound) missing.push('Retour')
+          return missing.length > 0 ? [`${line.line} (${missing.join(' / ')})`] : []
         })
-        return linesWithoutAnyStops.length > 0 ? (
+        return incompleteLines.length > 0 ? (
           <div className="station-board-itinerary-pending station-board-pending-group">
-            <strong>Arrêts Aller et Retour à compléter</strong>
-            <p>{linesWithoutAnyStops.map((line) => line.line).join(' · ')}</p>
+            <strong>Arrêts à compléter par sens</strong>
+            <p>{incompleteLines.join(' · ')}</p>
           </div>
         ) : null
       })()}
