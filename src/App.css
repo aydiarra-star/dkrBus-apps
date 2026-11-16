@@ -3924,3 +3924,14 @@ button:disabled { cursor: not-allowed; }
 .app-shell.theme-dark .route-fields-card,
 .app-shell.theme-dark .route-fields-card .swap-route { background: var(--surface-card); }
 .app-shell.theme-dark .journey-option-recommended { background: #173d2c; color: #a9dfbf; }
+
+.route-network-filter.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-card);
+  color: var(--text);
+}
+.app-shell.theme-dark .route-network-filter.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-card);
+  color: var(--text);
+}
