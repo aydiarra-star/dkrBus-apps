@@ -6,7 +6,7 @@ Périmètre : comparaison des corridors simplifiés de `src/domain/corridors.ts`
 
 ## Résultat principal
 
-Les fiches détaillées de l'opérateur permettent désormais de reconstituer des séquences de desserte pour les lignes 1, 42 et 53. Elles confirment des écarts importants avec les corridors simplifiés actuels.
+Les fiches détaillées de l'opérateur permettent de reconstituer des séquences de desserte pour les lignes 1, 42 et 53. Elles confirment des écarts importants avec les corridors simplifiés actuels.
 
 ### Ligne AFTU 1
 
@@ -17,7 +17,7 @@ Les fiches détaillées de l'opérateur permettent désormais de reconstituer de
 
 ### Ligne AFTU 42
 
-- Séquence publiée : **Gadaye – Corniche Guédiawaye – Cité des Enseignants – croisement Béthio – route des Niayes – Case Ba – Police des Parcelles Assainies – route du stade LSS (Taliboubess) – VDN – ancienne piste d'envol – avenue Cheikh Anta Diop – route principale de Ouakam (marché) – Boutikou Diallo – terminus Ouakam Baye**.
+- Séquence publiée : **Gadaye – Corniche Guédiawaye – Cité des Enseignants – croisement Béthio – route des Niayes – Case Ba – Police des Parcelles Assainies – route du stade LSS (Taliboubess) – VDN – ancienne piste d’envol – avenue Cheikh Anta Diop – route principale de Ouakam (marché) – Boutikou Diallo – terminus Ouakam Baye**.
 - Corridor actuel : `aftu-1`, affiché « AFTU 42 », long nom « Gadaye ↔ Ouakam ».
 - Écart : le terminus doit être précisé « Ouakam Baye » ; les arrêts intermédiaires du corridor simplifié ne sont pas la séquence officielle publiée.
 - Décision : conserver la ligne 42, mais corriger son référentiel uniquement après géolocalisation des repères et validation du terminus.
@@ -28,6 +28,27 @@ Les fiches détaillées de l'opérateur permettent désormais de reconstituer de
 - Corridor actuel : `aftu-2`, affiché « AFTU 53 », séquence simplifiée `Keur Massar → Pikine → Rufisque → Lat Dior`.
 - Écart majeur : le terminus officiel Sébikotane est absent et Lat Dior est ajouté à la place ; le corridor actuel ne reflète pas la fiche officielle.
 - Décision : ne pas utiliser le corridor actuel comme tracé fiable de la ligne 53. Reconstituer les arrêts géolocalisés sur l'axe Keur Massar–Sébikotane avant calcul d'itinéraire.
+
+## Corroborations géographiques et correspondances candidates
+
+### AFTU 42 – secteur Dalal Jamm / Croisement Béthio
+
+- La fiche AFTU 42 confirme le passage par le croisement Béthio et la route des Niayes.
+- Moovit recense la ligne 42 à l'arrêt « Hôpital Dallal Jamm » ; la page donne également des arrêts voisins « Route de Niaye / Las Palmas » et « Arrêt de Bus ».
+- Le BRT possède une station de référence Dalal Jamm dans le référentiel du dépôt.
+- Conclusion : **candidat de correspondance AFTU 42 ↔ BRT Dalal Jamm**, à conserver en audit seulement. La position exacte du quai AFTU et le cheminement piéton porte-à-porte ne sont pas établis par les sources consultées ; aucune liaison n'est activée.
+
+### AFTU 42 – Police des Parcelles
+
+- La fiche AFTU 42 cite explicitement Police des Parcelles Assainies.
+- Le corridor BRT comprend une station Police des Parcelles.
+- Conclusion : proximité fonctionnelle prometteuse, mais le point d'arrêt AFTU, le côté de chaussée et l'accès piéton exact restent à établir. Aucune liaison n'est activée.
+
+### AFTU 53 – secteur Keur Massar
+
+- Moovit recense la ligne 53 à l'arrêt « École Keur Massar » et indique une desserte vers Sébikhotane.
+- Cette donnée corrobore l'axe de la ligne 53 mais ne prouve pas que l'arrêt « École Keur Massar » est le terminus « Marché de Keur Massar » publié par l'AFTU.
+- Conclusion : conserver les deux lieux distincts jusqu'à vérification de leur position et de leur rôle dans le parcours.
 
 ## Limite importante : sens retour
 
@@ -49,14 +70,16 @@ Les fiches AFTU consultées donnent une séquence de desserte, mais ne publient 
 2. Rechercher des preuves distinctes pour les sens retour.
 3. Comparer ces repères avec les arrêts DDD et les points OSM/ArcGIS, sans fusionner automatiquement les arrêts proches.
 4. Ajouter des tests de cohérence entre numéro de ligne, terminus officiels et séquences géolocalisées.
-5. N'activer les correspondances DDD/AFTU qu'après vérification des quais et du cheminement piéton.
+5. Vérifier les quais et cheminements piétons pour les deux correspondances candidates de la ligne 42.
 
-## Sources officielles
+## Sources officielles et de corroboration
 
 - Catalogue des lignes AFTU : https://aftu-senegal.org/infos-pratiques/
 - Fiche détaillée AFTU 1 : https://aftu-senegal.org/map/dakar-urbain-ligne-1/
 - Fiche détaillée AFTU 42 : https://aftu-senegal.org/map/dakar-urbain-ligne-42/
 - Fiche détaillée AFTU 53 : https://aftu-senegal.org/map/dakar-urbain-ligne-53/
+- Moovit, arrêt Hôpital Dalal Jamm : https://moovitapp.com/index/fr/transport_en_commun-Hopital_Dallal_Jamm-Dakar-stop_37703146-5996
+- Moovit, arrêt École Keur Massar : https://moovitapp.com/index/fr/transport_en_commun-%C3%89cole_Keur_Massar-Dakar-stop_37702667-5996
 
 ## Périmètre de cet ajout
 
