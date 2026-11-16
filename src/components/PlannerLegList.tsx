@@ -1,8 +1,9 @@
-import { BusFront, Footprints, TrainFront } from 'lucide-react'
+import { ArrowLeftRight, BusFront, Footprints, TrainFront } from 'lucide-react'
 import { MobilityBadge, MobilityText } from './MobilityBadge'
 import { formatMeters, type PlannerLeg } from '../domain/planner'
 
 function LegIcon({ leg }: { leg: PlannerLeg }) {
+  if (leg.kind === 'walk_transfer' && leg.distanceM === 0) return <ArrowLeftRight size={15} />
   if (leg.kind === 'ride' && leg.line?.network === 'ter') return <TrainFront size={15} />
   if (leg.kind === 'ride') return <BusFront size={15} />
   return <Footprints size={15} />
