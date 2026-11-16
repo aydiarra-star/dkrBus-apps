@@ -2759,7 +2759,7 @@ function RoutePanel({
           <strong>Réseaux à utiliser</strong>
           <span>Activez les transports à inclure dans le calcul</span>
         </div>
-        <div className="route-network-filters" role="group" aria-label="Filtres de transport">
+        <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
           {MOBILITY_IDS.map((id) => {
             const active = preferences.mobility.networks[id]
             const activeNetworkCount = MOBILITY_IDS.filter((networkId) => preferences.mobility.networks[networkId]).length
@@ -2769,7 +2769,7 @@ function RoutePanel({
                 type="button"
                 className={`route-network-filter${active ? ' is-active' : ' is-inactive'}`}
                 aria-pressed={active}
-                aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} : ${active ? 'actif' : 'désactivé'}`}
+                aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} ${active ? 'actif' : 'désactivé'}`}
                 disabled={active && activeNetworkCount === 1}
                 onClick={() => onToggleNetwork(id)}
               >
