@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
@@ -10,6 +10,8 @@ import { trackPositionsForLine } from '../domain/terTrackGeometry'
 import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
+import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { dddArcgisFeatureTracks, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 
 export interface Coordinates {
   lat: number
@@ -321,6 +323,56 @@ function TransitMapView({
   highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
+  const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
+
+  // Les tracés DDD ArcGIS sont une couche cartographique distincte du
+  // calculateur : ils élargissent la couverture sans injecter des horaires,
+  // des sens non validés ou des arrêts historiques dans le graphe voyageur.
+  useEffect(() => {
+    const controller = new AbortController()
+    const urbanServiceUrl = 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer'
+    const layers = [
+      ...DDD_BANLIEUE_ARCGIS_LAYERS.map((layer) => ({ line: layer.line, url: layer.layerUrl })),
+      ...DDD_URBAN_ARCGIS_ROUTE_LAYERS.map((layer) => ({
+        line: layer.line,
+        url: `${urbanServiceUrl}/${layer.layerId}`,
+      })),
+    ]
+    const loadTracks = async () => {
+      const tracks: DddArcgisMapTrack[] = []
+      let nextIndex = 0
+      const worker = async () => {
+        while (nextIndex < layers.length && !controller.signal.aborted) {
+          const layer = layers[nextIndex]
+          nextIndex += 1
+          try {
+            const query = new URLSearchParams({
+              where: '1=1',
+              outFields: '*',
+              returnGeometry: 'true',
+              outSR: '4326',
+              f: 'geojson',
+            })
+            const response = await fetch(`${layer.url}/query?${query.toString()}`, {
+              signal: controller.signal,
+            })
+            if (!response.ok) continue
+            const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureTracks>[1] }
+            tracks.push(...dddArcgisFeatureTracks(layer.line, collection.features ?? []))
+          } catch {
+            // Une couche ArcGIS indisponible ne bloque jamais la carte ni le réseau TER/BRT.
+          }
+        }
+      }
+      await Promise.all(Array.from({ length: 4 }, () => worker()))
+      if (!controller.signal.aborted) {
+        setDddArcgisTracks(tracks.sort((a, b) => a.line.localeCompare(b.line, 'fr', { numeric: true }) || a.part - b.part))
+      }
+    }
+    void loadTracks()
+    return () => controller.abort()
+  }, [])
+
   const userIcon = useMemo(() => makeMarker('map-user-marker', 'Votre position', '#198754'), [])
   const originIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-origin', 'Départ sélectionné', '#146b43'), [])
   const destinationIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-destination', 'Destination sélectionnée', '#d78a32'), [])
@@ -436,6 +488,28 @@ function TransitMapView({
       />
       <MapResizeController />
       <MapStopDensityController />
+
+      {/* Couverture DDD élargie : géométries routières ArcGIS conservées
+          hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
+      {dddArcgisTracks.map((track) => (
+        <Polyline
+          key={track.id}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor('ddd')?.core ?? '#F59E0B',
+            weight: 1.8,
+            opacity: 0.62,
+            dashArray: '5 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>DDD {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
 
       {/* Réseau de référence :
           - TER #003366 bleu et BRT #00A859 vert émeraude : tracés continus complets (halo + casing + core)
