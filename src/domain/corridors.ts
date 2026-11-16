@@ -18,12 +18,7 @@
  * distinctes des horaires GTFS et du temps réel (aucune position de véhicule).
  */
 
-import {
-  CROW_FLIES_TO_WALK_FACTOR,
-  MIN_TRANSFER_WALK_M,
-  REFERENCE_COMMERCIAL_SPEED_KPH,
-  SAME_POLE_MATCH_M,
-} from './assumptions'
+import { REFERENCE_COMMERCIAL_SPEED_KPH } from './assumptions'
 import { FREQUENCY_SOURCES, OFFICIAL_REFERENCE_FREQUENCIES, type FrequencySource, type FrequencyStatus, type OfficialFrequency } from './frequencies'
 import { MOBILITY_PALETTE } from './mobilityColors'
 
@@ -424,80 +419,19 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
 export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT_STOPS, ...DDD_STOPS, ...AFTU_STOPS, ...TATA_STOPS]
 
 /**
- * Correspondances intermodales calculées entre réseaux au même pôle.
+ * Correspondances utilisables par le calculateur.
  *
- * Les deux seules correspondances officiellement déclarées dans le dépôt
- * (`CORRIDOR_TRANSFERS`) relient le TER au BRT. Pour calculer un trajet
- * TER → BRT → bus de quartier, il fallait des points de passage entre les
- * autres réseaux : ils sont ici **dérivés des positions déjà enregistrées**,
- * avec la même règle que les deux correspondances déclarées (≈ 1,3 × la
- * distance à vol d'oiseau, plancher de 150 m, plafond de 1 500 m).
- *
- * Ce sont donc des correspondances **estimées**, pas des cheminements validés :
- * un quai partagé, un terre-plein ou un simple carrefour produisent la même
- * distance à vol d'oiseau. Elles ne créent aucun arrêt, aucune ligne, aucun
- * horaire : elles rendent seulement possible un changement de véhicule entre
- * deux arrêts déjà présents dans le référentiel. Les deux correspondances
- * déclarées restent prioritaires et ne sont jamais remplacées.
+ * Les positions DDD/AFTU/TATA de ce référentiel sont parfois des points de
+ * quartier approximatifs ou repris d'un autre réseau. Une distance inférieure
+ * à 120 m ne suffit donc pas à prouver un pôle d'échange réel. Seules les
+ * correspondances explicitement documentées dans CORRIDOR_TRANSFERS sont
+ * activées ; les rapprochements géographiques restent des pistes d'audit et
+ * ne créent aucun changement de véhicule dans le calculateur.
  */
-const TRANSFER_PROXIMITY_FACTOR = CROW_FLIES_TO_WALK_FACTOR
-
-function pairKey(a: string, b: string): string {
-  return a < b ? `${a}|${b}` : `${b}|${a}`
-}
-
-/** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
-export function networkOfStopId(stopId: string): CorridorNetworkId | null {
-  const prefix = stopId.split('-')[0]
-  if (prefix === 'aftu' || prefix === 'tata') return 'aftu_tata'
-  return prefix === 'ter' || prefix === 'brt' || prefix === 'ddd' ? prefix : null
-}
-
-export function networkLabelOf(stopId: string): string {
-  const network = networkOfStopId(stopId)
-  // Identité publique : AFTU regroupe les dessertes AFTU/TATA dans l'interface.
-  if (network === 'aftu_tata') return 'AFTU'
-  return network ? CORRIDOR_NETWORKS[network].label : 'réseau de référence'
-}
-
-function estimatedWalkMeters(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
-  return Math.max(MIN_TRANSFER_WALK_M, Math.round(haversineMeters(a, b) * TRANSFER_PROXIMITY_FACTOR))
-}
-
-function buildIntermodalTransfers(): CorridorTransfer[] {
-  const declared = new Set(CORRIDOR_TRANSFERS.map((transfer) => pairKey(transfer.fromStopId, transfer.toStopId)))
-  const out: CorridorTransfer[] = []
-  for (let index = 0; index < ALL_CORRIDOR_STOPS.length; index += 1) {
-    const from = ALL_CORRIDOR_STOPS[index]
-    const fromNetwork = networkOfStopId(from.id)
-    if (!fromNetwork) continue
-    for (let other = index + 1; other < ALL_CORRIDOR_STOPS.length; other += 1) {
-      const to = ALL_CORRIDOR_STOPS[other]
-      const toNetwork = networkOfStopId(to.id)
-      if (!toNetwork || fromNetwork === toNetwork) continue
-      const key = pairKey(from.id, to.id)
-      if (declared.has(key)) continue
-      const straight = haversineMeters(from, to)
-      // Uniquement les pôles partagés : le référentiel ne déclare aucun autre
-      // cheminement piéton entre deux réseaux.
-      if (straight > SAME_POLE_MATCH_M) continue
-      out.push({
-        fromStopId: from.id,
-        toStopId: to.id,
-        walkM: estimatedWalkMeters(from, to),
-        label: `${from.name} (${CORRIDOR_NETWORKS[fromNetwork].label}) ↔ ${to.name} (${CORRIDOR_NETWORKS[toNetwork].label}) — marche estimée d’après les positions déclarées`,
-        declared: false,
-      })
-    }
-  }
-  return out
-}
-
-/** Toutes les correspondances connues : les déclarées d'abord, puis les estimées. */
-export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = [
-  ...CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })),
-  ...buildIntermodalTransfers(),
-]
+export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS.map((transfer) => ({
+  ...transfer,
+  declared: true,
+}))
 
 /** Index des correspondances par arrêt, pour le calculateur. */
 export const TRANSFER_INDEX: ReadonlyMap<string, readonly CorridorTransfer[]> = (() => {
