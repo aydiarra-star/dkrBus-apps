@@ -649,7 +649,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU/TATA'} {track.line}</strong>
+            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU'} {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
@@ -668,7 +668,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>TATA {track.line}</strong>
+            <strong>AFTU {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
@@ -692,7 +692,7 @@ function TransitMapView({
               <strong>{point.name}</strong>
               <div>Zone desservie</div>
               {dddLines.length > 0 && <div>DDD · {dddLines.join(', ')}</div>}
-              {aftuLines.length > 0 && <div>AFTU/TATA · {aftuLines.join(', ')}</div>}
+              {aftuLines.length > 0 && <div>AFTU · {aftuLines.join(', ')}</div>}
             </Tooltip>
           </Marker>
         )
