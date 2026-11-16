@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { JourneyOptions } from './JourneyOptions'
+import { PlannerLegList } from './PlannerLegList'
 import { getCorridorStop } from '../domain/corridors'
 import { planJourneyOptions } from '../domain/journeyOptions'
 
@@ -22,5 +23,25 @@ describe('résumé du trajet recommandé', () => {
 
     expect(screen.getByText(/TRAJET RECOMMANDÉ · RÉSEAU DE RÉFÉRENCE/i)).toBeTruthy()
     expect(screen.getAllByText(/Arrivée estimée si départ maintenant/i).length).toBeGreaterThan(0)
+  })
+})
+
+
+describe('correspondance dans un même pôle', () => {
+  it('ne présente pas une liaison de terminal comme une marche mesurée de zéro minute', () => {
+    render(
+      <PlannerLegList
+        legs={[{
+          kind: 'walk_transfer',
+          from: 'Petersen BRT',
+          to: 'Petersen DDD',
+          distanceM: 0,
+          minutes: 0,
+        }]}
+      />,
+    )
+    expect(screen.getByText(/distance de marche interne non mesurée/i)).toBeTruthy()
+    expect(screen.getByText('Même pôle')).toBeTruthy()
+    expect(screen.queryByText(/0 min/)).toBeNull()
   })
 })
