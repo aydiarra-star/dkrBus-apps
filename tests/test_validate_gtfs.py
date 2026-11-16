@@ -57,6 +57,33 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertEqual(report["tables"]["stop_times.txt"], 2)  # type: ignore[index]
         self.assertIn("sha256", report["dataset"])  # type: ignore[operator]
 
+    def test_agency_url_must_be_an_absolute_http_url(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["agency.txt"] = (
+            "agency_id,agency_name,agency_url,agency_timezone\n"
+            ",Test Agency,javascript:alert(1),Africa/Dakar\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("INVALID_URL", self.issue_codes(report))
+
+    def test_feed_publisher_url_must_be_an_absolute_http_url(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["feed_info.txt"] = (
+            "feed_publisher_name,feed_publisher_url,feed_lang\n"
+            "Publisher,ftp://example.invalid,en\n"
+        )
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("INVALID_URL", self.issue_codes(report))
+
+    def test_missing_iana_timezone_database_fails_closed(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with patch("scripts.validate_gtfs.available_timezones", return_value=set()):
+            report = validate_gtfs_archive(archive)
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("TIMEZONE_DATABASE_UNAVAILABLE", self.issue_codes(report))
+
     def test_rejects_a_single_enclosing_directory_in_the_zip(self) -> None:
         report = validate_gtfs_archive(self.make_archive(VALID_TABLES, wrapper="provider-export"))
         self.assertFalse(report["structure_valid"])
