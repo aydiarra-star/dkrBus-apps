@@ -80,25 +80,16 @@ export function accessRadiusOf(preset: AccessRadiusPreset | undefined): number {
 }
 
 /**
- * Géométrie des correspondances entre réseaux au même pôle.
- * `CROW_FLIES_TO_WALK_FACTOR` convertit une distance à vol d'oiseau en distance
- * de marche : c'est le facteur déjà utilisé pour les deux correspondances
- * TER ↔ BRT déclarées (770 m → ~1 km, 1 080 m → ~1,4 km). `MIN_TRANSFER_WALK_M`
- * évite une marche de 0 m entre deux arrêts partagés : traverser un quai ou un
- * parvis se paie en minutes. Au-delà de `MAX_TRANSFER_WALK_M`, la correspondance
- * n'est plus proposée : marcher plus loin qu'un quart d'heure pour changer de
- * réseau relève du trajet à pied, pas d'une correspondance.
+ * Seuils historiques d'analyse de proximité géographique.
+ *
+ * Ils peuvent servir à repérer des candidats de pôles pour un audit, mais ne
+ * sont plus utilisés pour créer des correspondances dans le graphe passager.
+ * Une position approximative ou copiée d'un autre réseau ne prouve pas un
+ * cheminement piéton.
  */
 export const CROW_FLIES_TO_WALK_FACTOR = 1.3
 export const MIN_TRANSFER_WALK_M = 150
 export const MAX_TRANSFER_WALK_M = 1500
-/**
- * Une correspondance entre deux réseaux n'est modélisée que si les deux arrêts
- * sont au **même pôle** : leurs positions déclarées sont à moins de
- * `SAME_POLE_MATCH_M` l'une de l'autre. Au-delà, le référentiel ne dit rien d'un
- * cheminement commun et le moteur refuse de l'inventer. Les deux correspondances
- * TER ↔ BRT déclarées dans `CORRIDOR_TRANSFERS` restent admises telles quelles.
- */
 export const SAME_POLE_MATCH_M = 120
 /**
  * Pénalité de fiabilité, appliquée à la recherche uniquement (jamais aux minutes
