@@ -112,6 +112,14 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 
 **Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 61 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
 
+### Extrémité Almadies / Mamelles de la ligne AFTU 61
+
+- La fiche Moovit de la ligne 61 confirme 54 arrêts dans chaque sens et cite notamment Carrefour Mbao, Thiaroy, Stade de Ngor, Aéroport et Terminus 61.
+- Le terminus AFTU « Terminus 61 » à Almadies est situé à **31 m / 1 min à pied** de l'arrêt OSM « Arrêt autobus 217 et 218 – Dakar Dem Dikk », node 9562676804, **14.73475, -17.50863**.
+- Moovit indique que le pôle Terminus 61 est desservi par AFTU et Dakar Dem Dikk. Le calculateur utilise ce point comme repère GPS de l'extrémité Almadies de l'AFTU 61 ; il ne prétend pas que le quai AFTU est exactement sur le point DDD.
+- **Correspondance candidate supplémentaire : AFTU 61 ↔ DDD 217/218**, marche Moovit 31 m. Elle n'est pas encore activée : les lignes DDD 217/218 ne sont pas encore intégrées au graphe du calculateur.
+- Le point « Rond-point Ngor » reste un repère cartographique de corridor ; il n'est pas présenté comme un quai AFTU 61 tant que son attribution précise n'est pas confirmée.
+
 ### Autres pôles Keur Massar — à ne pas fusionner
 
 - **Terminus 52 (TATA)**, node 5286379847 : **14.77419, -17.31767**, réseau TATA selon OSM. Il est distinct du terminus DDD/AFTU 61.
@@ -125,7 +133,7 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 - **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
 - **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0`). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
 - Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 61 (54 arrêts par sens sur Moovit), avec cinq repères GPS de corridor pour DDD 227 et quatre arrêts de référence pour AFTU 61. Le tracé cartographique passe par Ngor, mais le point OSM du rond-point n'est pas présenté comme un quai AFTU 61 tant que son attribution exacte n'est pas confirmée. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
-- Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 61, 42 min comme valeur prudente (Moovit indique 22 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
+- Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 61, 42 min comme valeur prudente (Moovit indique environ 20 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
 - DDD 11 partage le même terminus GPS, mais n'est pas encore ajouté au calculateur : la séquence officielle DDD annonce Lat Dior tandis que la fiche Moovit consultée annonce Leclerc. Ce désaccord doit être résolu avant d'intégrer cette ligne.
 - Aucune donnée, station, séquence ou fréquence TER/BRT n'est modifiée.
 
@@ -158,7 +166,8 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - AFTU, fiche détaillée ligne 61 : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
 - DDD, ligne 227 — séquence officielle : https://demdikk.sn/reseau-urbain-dakar/
 - Moovit, DDD ligne 227 — deux sens et horaires : https://moovitapp.com/index/fr/transport_en_commun-line-227-Dakar-5996-1618037-18051447-1
-- Moovit, AFTU ligne 61 — deux sens et horaires : https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1
+- Moovit, AFTU ligne 61 — deux sens et 54 arrêts : https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1
+- Moovit, AFTU ligne 61 — grille de départs : https://moovitapp.com/index/fr/transport_en_commun-time-61-Dakar-5996-1618038-18051490-4256300-0
 - AFTU, fiche détaillée ligne 62 : https://aftu-senegal.org/map/dakar-urbain-ligne-62/
 - AFTU, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
 - AFTU, fiche détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
@@ -173,6 +182,8 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - Garage clando Bargny : https://mapcarta.com/fr/N4846093863
 - Terminus Dakar Dem Dik : https://mapcarta.com/fr/N3580321801
 - Terminus minibus n°61 : https://mapcarta.com/fr/N5286379844
+- Arrêt DDD 217/218 proche du Terminus 61 : https://mapcarta.com/N9562676804
+- Moovit, Terminus 61 Almadies (31 m à pied du quai DDD voisin) : https://moovitapp.com/index/fr/transport_en_commun-Terminus_61-Dakar-stop_37703727-5996
 - Terminus Dakar dem dikk P11 : https://mapcarta.com/fr/N5286379845
 - Terminus 52 (TATA) : https://mapcarta.com/fr/N5286379847
 - Gare routière de Keur Massar : https://mapcarta.com/fr/W335756472
