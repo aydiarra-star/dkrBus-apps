@@ -1435,6 +1435,38 @@ describe('barre de recherche du Trajet', () => {
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toHaveProperty('disabled', true)
   })
 
+  it('rend les filtres réseau explicites et empêche de désactiver le dernier réseau', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+
+    const filters = screen.getByRole('group', { name: /réseaux à utiliser/i })
+    const ter = within(filters).getByRole('button', { name: /ter actif/i })
+    const brt = within(filters).getByRole('button', { name: /brt actif/i })
+    expect(ter.getAttribute('aria-pressed')).toBe('true')
+    expect(brt.getAttribute('aria-pressed')).toBe('true')
+
+    fireEvent.click(brt)
+    expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
+
+    for (const network of ['ter', 'ddd', 'aftu_tata'] as const) {
+      const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu \\/ tata' : network, 'i') })
+      if (button.getAttribute('aria-pressed') === 'true') fireEvent.click(button)
+    }
+    const remaining = within(filters).getByRole('button', { name: /brt désactivé/i })
+    expect(remaining).toHaveProperty('disabled', false)
+  })
+
+  it('affiche le libellé d’action court et le bouton d’inversion dans le formulaire', () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+
+    expect(screen.getByText('Rechercher un trajet')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /inverser départ et destination/i })).toBeTruthy()
+    expect(screen.getByRole('group', { name: /réseaux à utiliser/i })).toBeTruthy()
+  })
+
   it('affiche durée, correspondances et prochain départ avec les deux arcs verts', async () => {
     stubApi([
       { match: '/api/network', respond: () => jsonResponse(NETWORK_PUBLISHED) },
