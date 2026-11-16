@@ -10,7 +10,7 @@ import { trackPositionsForLine } from '../domain/terTrackGeometry'
 import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
-import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
@@ -403,19 +403,37 @@ function TransitMapView({
       }
     }
     const loadStops = async () => {
-      const collections = await Promise.all(DDD_URBAN_ARCGIS_STOP_LAYERS.map(async (layer) => {
-        try {
-          const response = await fetch(queryUrl(layer.layerUrl), { signal: controller.signal })
-          if (!response.ok) return []
-          const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureStops>[1] }
-          return dddArcgisFeatureStops(layer.line, collection.features ?? [])
-        } catch {
-          return []
-        }
-      }))
+      const [urbanCollections, suburbanStops] = await Promise.all([
+        Promise.all(DDD_URBAN_ARCGIS_STOP_LAYERS.map(async (layer) => {
+          try {
+            const response = await fetch(queryUrl(layer.layerUrl), { signal: controller.signal })
+            if (!response.ok) return []
+            const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureStops>[1] }
+            return dddArcgisFeatureStops(layer.line, collection.features ?? [])
+          } catch {
+            return []
+          }
+        })),
+        (async () => {
+          try {
+            const response = await fetch(queryUrl(DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL), { signal: controller.signal })
+            if (!response.ok) return []
+            const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureStops>[1] }
+            const features = collection.features ?? []
+            return DDD_BANLIEUE_ARCGIS_STOP_GROUPS.flatMap((group) =>
+              dddArcgisFeatureStops(
+                group.line,
+                features.filter((feature) => feature.properties?.Nom_Ligne === group.sourceGroup),
+              ),
+            )
+          } catch {
+            return []
+          }
+        })(),
+      ])
       if (!controller.signal.aborted) {
         const unique = new Map<string, DddArcgisMapStop>()
-        for (const stop of collections.flat()) unique.set(stop.id, stop)
+        for (const stop of [...urbanCollections.flat(), ...suburbanStops]) unique.set(stop.id, stop)
         setDddArcgisStops([...unique.values()])
       }
     }
@@ -649,7 +667,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU/TATA'} {track.line}</strong>
+            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU'} {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
@@ -668,7 +686,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>TATA {track.line}</strong>
+            <strong>AFTU {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
@@ -692,7 +710,7 @@ function TransitMapView({
               <strong>{point.name}</strong>
               <div>Zone desservie</div>
               {dddLines.length > 0 && <div>DDD · {dddLines.join(', ')}</div>}
-              {aftuLines.length > 0 && <div>AFTU/TATA · {aftuLines.join(', ')}</div>}
+              {aftuLines.length > 0 && <div>AFTU · {aftuLines.join(', ')}</div>}
             </Tooltip>
           </Marker>
         )
@@ -703,10 +721,11 @@ function TransitMapView({
           position={stop.position}
           icon={makeMobilityStopLabel('ddd', `ligne ${stop.line}`)}
           keyboard
-          title={`DDD — ligne ${stop.line}`}
+          title={stop.name ? `DDD — ${stop.name} · ligne ${stop.line}` : `DDD — ligne ${stop.line}`}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>Arrêt de référence DDD · ligne {stop.line}</strong>
+            <strong>{stop.name || `Arrêt de référence DDD · ligne ${stop.line}`}</strong>
+            <div>DDD · ligne {stop.line}</div>
             <div>Repère cartographique historique</div>
           </Tooltip>
         </Marker>

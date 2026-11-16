@@ -68,6 +68,38 @@ export interface DddUrbanArcgisStopLayerReference {
   sourceAge: 'historical'
 }
 
+/**
+ * Groupes de points d'arrêt suburbains de la couche DDD actualisée 2024.
+ * Ils sont cohérents avec une géométrie nommée (tous à <=25 m), sans certifier
+ * l'exploitation actuelle ni le sens commercial. Usage cartographique seulement.
+ */
+export interface DddBanlieueArcgisStopGroupReference {
+  sourceGroup: string
+  line: string
+  featureCount: number
+}
+
+const updatedStopServiceUrl =
+  'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer'
+
+export const DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL = `${updatedStopServiceUrl}/0`
+
+export const DDD_BANLIEUE_ARCGIS_STOP_GROUPS: readonly DddBanlieueArcgisStopGroupReference[] = [
+  { sourceGroup: 'ligne_2', line: '2', featureCount: 32 },
+  { sourceGroup: 'ligne_5', line: '5', featureCount: 18 },
+  { sourceGroup: 'Ligne_11', line: '11', featureCount: 23 },
+  { sourceGroup: 'Ligne_12', line: '12', featureCount: 40 },
+  { sourceGroup: 'ligne_16A', line: '16A', featureCount: 13 },
+  { sourceGroup: 'ligne_16B', line: '16B', featureCount: 30 },
+  { sourceGroup: 'ligne_227', line: '227', featureCount: 8 },
+  { sourceGroup: 'ligne_232', line: '232', featureCount: 23 },
+] as const
+
+export const DDD_BANLIEUE_ARCGIS_STOP_GROUP_TOTALS = {
+  groups: DDD_BANLIEUE_ARCGIS_STOP_GROUPS.length,
+  candidateStops: DDD_BANLIEUE_ARCGIS_STOP_GROUPS.reduce((sum, group) => sum + group.featureCount, 0),
+} as const
+
 const urbanServiceUrl =
   'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer'
 

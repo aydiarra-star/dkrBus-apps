@@ -1,11 +1,36 @@
 import { describe, expect, it } from 'vitest'
-import { getCorridorStop } from './corridors'
-import { describeLeg, planReferenceJourney, type PlannerResult } from './planner'
+import { CORRIDOR_LINES, getCorridorStop, networkLabelOf, type CorridorLine } from './corridors'
+import { describeLeg, directedStopSequences, planReferenceJourney, type PlannerResult } from './planner'
 
 const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
 // Point à ~110 m de la station BRT « Préfecture de Guédiawaye » (position OSM).
 const GUEDIAWAYE = { label: 'Guédiawaye (point carte)', lat: 14.7725, lon: -17.3860 }
 const RUFISQUE = { label: 'Rufisque (point carte)', lat: 14.7145, lon: -17.2725 }
+
+describe('libellés publics des réseaux', () => {
+  it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
+    expect(networkLabelOf('aftu-guediawaye')).toBe('AFTU')
+    expect(networkLabelOf('tata-guediawaye')).toBe('AFTU')
+  })
+})
+
+describe('séquences directionnelles des lignes', () => {
+  it('conserve les deux sens historiques tant qu’aucune direction explicite n’est fournie', () => {
+    const ter = CORRIDOR_LINES.find((line) => line.id === 'ter-dakar-diamniadio')!
+    const sequences = directedStopSequences(ter)
+    expect(sequences).toHaveLength(2)
+    expect(sequences[0]).toEqual(ter.stopIds)
+    expect(sequences[1]).toEqual([...ter.stopIds].reverse())
+  })
+
+  it('n’inverse jamais une séquence quand les sens documentés sont fournis', () => {
+    const base = CORRIDOR_LINES.find((line) => line.id === 'ddd-1')!
+    const outbound = ['ddd-parcelles', 'ddd-grand-yoff', 'ddd-leclerc']
+    const explicit = { ...base, directions: [outbound] } as CorridorLine
+    expect(directedStopSequences(explicit)).toEqual([outbound])
+    expect(directedStopSequences(explicit)).not.toContain([...outbound].reverse())
+  })
+})
 
 describe('calculateur multimodal de référence', () => {
   it('relie le Plateau à Guédiawaye en BRT sans inventer de correspondance', () => {
@@ -36,18 +61,32 @@ describe('calculateur multimodal de référence', () => {
     expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
   })
 
-  it('enchaîne réellement un bus de quartier et le TER, sans correspondance inventée', () => {
-    // Le graphe relie désormais les réseaux au même pôle : un bus peut précéder ou
-    // suivre le TER. Chaque correspondance affichée doit citer sa source.
+  it('n’enchaîne pas DDD/AFTU au TER sur la seule proximité de coordonnées approximatives', () => {
+    // Les correspondances DDD/AFTU/TATA non confirmées ne sont pas des liens du graphe.
+    // Le trajet multimodal reste possible via les deux liaisons TER ↔ BRT déclarées.
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
-    expect(result.legs.filter((leg) => leg.kind === 'ride').length).toBeGreaterThanOrEqual(1)
+    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
+    expect(result.networksUsed.every((network) => network === 'brt' || network === 'ter')).toBe(true)
     for (const leg of result.legs.filter((entry) => entry.kind === 'walk_transfer')) {
-      expect(leg.note).toMatch(/positions déclarées|marche de référence/)
+      expect(leg.note).toMatch(/marche de référence/)
     }
-    // Le trajet arrive bien à Rufisque en TER, quel que soit le réseau d'accès.
     expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
+  })
+
+  it('calcule les trois variantes sur le même réseau et expose leurs métriques', () => {
+    const fastest = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest')
+    const fewerTransfers = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fewerTransfers')
+    const lessWalking = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'lessWalking')
+    for (const outcome of [fastest, fewerTransfers, lessWalking]) {
+      expect(outcome.ok).toBe(true)
+      if (!outcome.ok) continue
+      expect(outcome.totalMinutes).toBeGreaterThan(0)
+      expect(outcome.totalWalkM).toBeGreaterThanOrEqual(0)
+      expect(outcome.transfers).toBeGreaterThanOrEqual(0)
+      expect(outcome.legs.some((leg) => leg.kind === 'ride')).toBe(true)
+    }
   })
 
   it('refuse un départ trop éloigné du réseau de référence au lieu de deviner', () => {
@@ -121,13 +160,13 @@ describe('couverture des réseaux de bus dans le moteur multimodal', () => {
     expect(outcome.networksUsed).toEqual(['aftu_tata'])
   })
 
-  it('calcule un trajet sur une ligne TATA depuis les arrêts de son propre référentiel', () => {
+  it('calcule un trajet AFTU depuis les anciens arrêts TATA du référentiel', () => {
     const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', {
       allowedNetworks: ['aftu_tata'],
     })
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('TATA')
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU')
     expect(outcome.networksUsed).toEqual(['aftu_tata'])
   })
 })

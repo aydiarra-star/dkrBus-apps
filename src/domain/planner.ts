@@ -15,9 +15,9 @@
  *   la fréquence de repli du modèle et le signale (`fallbacks`) avec une marge
  *   d'incertitude plus large — il ne présente jamais ce repli comme une
  *   information opérateur ;
- * - aucune correspondance n'est inventée : elles proviennent de
- *   `CORRIDOR_TRANSFERS` (déclarées) ou de `INTERMODAL_TRANSFERS` (estimées à
- *   partir des positions déjà enregistrées), et chacune est annoncée comme telle ;
+ * - aucune correspondance n'est inventée : `INTERMODAL_TRANSFERS` ne contient que
+ *   les liens explicitement déclarés dans `CORRIDOR_TRANSFERS`. Les rapprochements
+ *   géographiques de positions approximatives ne sont pas activés dans le graphe ;
  * - si aucune chaîne n'existe dans le graphe de référence, la réponse le dit.
  *
  * Espace de recherche : un état = (arrêt, situation) où la situation est « à
@@ -175,15 +175,29 @@ function onFootKey(stopId: string): string {
   return `@${stopId}`
 }
 
-function onBoardKey(stopId: string, lineId: string): string {
-  return `~${stopId}|${lineId}`
+function onBoardKey(stopId: string, lineId: string, directionIndex: number): string {
+  return `~${stopId}|${lineId}|${directionIndex}`
 }
 
-function parseKey(key: string): { stopId: string; lineId: string | null } {
-  if (key.startsWith('@')) return { stopId: key.slice(1), lineId: null }
+function parseKey(key: string): { stopId: string; lineId: string | null; directionIndex: number | null } {
+  if (key.startsWith('@')) return { stopId: key.slice(1), lineId: null, directionIndex: null }
   const body = key.slice(1)
-  const index = body.lastIndexOf('|')
-  return { stopId: body.slice(0, index), lineId: body.slice(index + 1) }
+  const directionSeparator = body.lastIndexOf('|')
+  const directionIndex = Number(body.slice(directionSeparator + 1))
+  const lineAndStop = body.slice(0, directionSeparator)
+  const lineSeparator = lineAndStop.lastIndexOf('|')
+  return {
+    stopId: lineAndStop.slice(0, lineSeparator),
+    lineId: lineAndStop.slice(lineSeparator + 1),
+    directionIndex: Number.isInteger(directionIndex) ? directionIndex : null,
+  }
+}
+
+/** Les anciennes lignes gardent leur double-sens historique ; une ligne munie
+ * de séquences explicites n'emprunte que les sens réellement déclarés. */
+export function directedStopSequences(line: CorridorLine): readonly (readonly string[])[] {
+  if (line.directions?.length) return line.directions
+  return [line.stopIds, [...line.stopIds].reverse()]
 }
 
 /** Intervalle réellement appliqué à une ligne, et sa nature.
@@ -204,18 +218,18 @@ export function headwayForLine(line: CorridorLine): { minutes: number; basis: 'o
   }
 }
 
-function rideMinutes(line: CorridorLine, fromOrder: number, toOrder: number): { minutes: number; distanceM: number; intermediate: string[]; intermediateIds: string[] } {
+function rideMinutes(line: CorridorLine, sequence: readonly string[], fromOrder: number, toOrder: number): { minutes: number; distanceM: number; intermediate: string[]; intermediateIds: string[] } {
   const start = Math.min(fromOrder, toOrder)
   const end = Math.max(fromOrder, toOrder)
   let distanceM = 0
   for (let index = start; index < end; index += 1) {
-    const a = getCorridorStop(line.stopIds[index])
-    const b = getCorridorStop(line.stopIds[index + 1])
+    const a = getCorridorStop(sequence[index])
+    const b = getCorridorStop(sequence[index + 1])
     if (a && b) distanceM += haversineMeters(a, b)
   }
   const travel = (distanceM / 1000 / line.speedKph) * 60
   const dwell = (end - start - 1) * dwellMinutes(line.network)
-  const intermediateIds = line.stopIds.slice(start + 1, end)
+  const intermediateIds = sequence.slice(start + 1, end)
   const intermediate = intermediateIds.map((id) => getCorridorStop(id)?.name ?? id)
   return { minutes: travel + dwell, distanceM, intermediate, intermediateIds }
 }
@@ -231,7 +245,7 @@ function walkLeg(kind: PlannerLegKind, from: string, to: string, meters: number,
 }
 
 function linesAt(stopId: string, allowed: readonly MobilityId[] | null): CorridorLine[] {
-  return CORRIDOR_LINES.filter((line) => line.stopIds.includes(stopId) && (!allowed || allowed.includes(line.network)))
+  return CORRIDOR_LINES.filter((line) => directedStopSequences(line).some((sequence) => sequence.includes(stopId)) && (!allowed || allowed.includes(line.network)))
 }
 
 /**
@@ -347,7 +361,7 @@ function planWith(
     const current = states.get(currentKey)
     expanded += 1
     if (!current) continue
-    const { stopId: currentStopId, lineId: ridingLineId } = parseKey(currentKey)
+    const { stopId: currentStopId, lineId: ridingLineId, directionIndex } = parseKey(currentKey)
     const currentStop = getCorridorStop(currentStopId)
     if (!currentStop) continue
 
@@ -360,20 +374,23 @@ function planWith(
         // reste proposée (son estimation est affichée), mais elle ne détrône pas
         // un réseau à fréquence publiée à durée égale.
         const reliabilityPenalty = headway.basis === 'officialReference' ? 0 : RELIABILITY_PENALTY_MIN
-        relax(currentKey, {
-          to: onBoardKey(currentStopId, line.id),
-          cost: wait + reliabilityPenalty,
-          elapsed: wait,
-          leg: {
-            kind: 'wait',
-            line,
-            from: currentStop.name,
-            to: currentStop.name,
-            toId: currentStopId,
-            minutes: Math.max(1, Math.round(wait)),
-            frequencyBasis: headway.basis,
-            note: headway.fallback ?? undefined,
-          },
+        directedStopSequences(line).forEach((sequence, sequenceIndex) => {
+          if (!sequence.includes(currentStopId)) return
+          relax(currentKey, {
+            to: onBoardKey(currentStopId, line.id, sequenceIndex),
+            cost: wait + reliabilityPenalty,
+            elapsed: wait,
+            leg: {
+              kind: 'wait',
+              line,
+              from: currentStop.name,
+              to: currentStop.name,
+              toId: currentStopId,
+              minutes: Math.max(1, Math.round(wait)),
+              frequencyBasis: headway.basis,
+              note: headway.fallback ?? undefined,
+            },
+          })
         })
       }
 
@@ -407,37 +424,40 @@ function planWith(
     // 3) À bord : avancer d'un arrêt, ou descendre ici.
     const line = CORRIDOR_LINES.find((candidate) => candidate.id === ridingLineId)
     if (!line) continue
-    const fromOrder = line.stopIds.indexOf(currentStopId)
+    const sequence = directionIndex === null ? null : directedStopSequences(line)[directionIndex]
+    if (!sequence) continue
+    const fromOrder = sequence.indexOf(currentStopId)
     if (fromOrder < 0) continue
-    const neighbours = [fromOrder - 1, fromOrder + 1]
-    for (const toOrder of neighbours) {
-      if (toOrder < 0 || toOrder >= line.stopIds.length) continue
-      const targetId = line.stopIds[toOrder]
+    // Une séquence directionnelle ne progresse que vers l'arrêt suivant.
+    const toOrder = fromOrder + 1
+    if (toOrder < sequence.length) {
+      const targetId = sequence[toOrder]
       const target = getCorridorStop(targetId)
-      if (!target) continue
-      const segment = rideMinutes(line, fromOrder, toOrder)
-      const dwell = dwellMinutes(line.network)
-      const minutes = segment.minutes + dwell
-      const fare = fareForJourney([{ line, fromStopId: currentStopId, toStopId: targetId }], { terClass: options.terClass })
-      relax(currentKey, {
-        to: onBoardKey(targetId, line.id),
-        cost: minutes + (fare.totalCfa ?? fare.knownSubtotalCfa ?? 0) * fareWeight,
-        elapsed: minutes,
-        leg: {
-          kind: 'ride',
-          line,
-          from: currentStop.name,
-          to: target.name,
-          fromId: currentStopId,
-          toId: targetId,
-          distanceM: Math.round(segment.distanceM),
-          minutes: Math.max(1, Math.round(minutes)),
-          travelMinutes: Math.max(1, Math.round(segment.minutes)),
-          intermediateStops: segment.intermediate,
-          intermediateStopIds: segment.intermediateIds,
-          frequencyBasis: headwayForLine(line).basis,
-        },
-      })
+      if (target) {
+        const segment = rideMinutes(line, sequence, fromOrder, toOrder)
+        const dwell = dwellMinutes(line.network)
+        const minutes = segment.minutes + dwell
+        const fare = fareForJourney([{ line, fromStopId: currentStopId, toStopId: targetId }], { terClass: options.terClass })
+        relax(currentKey, {
+          to: onBoardKey(targetId, line.id, directionIndex!),
+          cost: minutes + (fare.totalCfa ?? fare.knownSubtotalCfa ?? 0) * fareWeight,
+          elapsed: minutes,
+          leg: {
+            kind: 'ride',
+            line,
+            from: currentStop.name,
+            to: target.name,
+            fromId: currentStopId,
+            toId: targetId,
+            distanceM: Math.round(segment.distanceM),
+            minutes: Math.max(1, Math.round(minutes)),
+            travelMinutes: Math.max(1, Math.round(segment.minutes)),
+            intermediateStops: segment.intermediate,
+            intermediateStopIds: segment.intermediateIds,
+            frequencyBasis: headwayForLine(line).basis,
+          },
+        })
+      }
     }
     // Descendre à l'arrêt courant : coût nul, mais un état « à pied » existe déjà
     // ou est créé ici pour permettre la poursuite à pied / en correspondance.

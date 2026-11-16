@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   DDD_BANLIEUE_ARCGIS_LAYERS,
+  DDD_BANLIEUE_ARCGIS_STOP_GROUPS,
+  DDD_BANLIEUE_ARCGIS_STOP_GROUP_TOTALS,
+  DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL,
   DDD_URBAN_ARCGIS_AUDIT_TOTALS,
   DDD_URBAN_ARCGIS_ROUTE_LAYERS,
   DDD_URBAN_ARCGIS_STOP_LAYERS,
@@ -32,6 +35,17 @@ describe('DDD suburban ArcGIS route references', () => {
 
   it('does not invent a GIS layer for line 233', () => {
     expect(getDddBanlieueArcgisLayer('233')).toBeNull()
+  })
+})
+
+describe('DDD suburban ArcGIS stop candidates', () => {
+  it('loads only the eight clean source groups, totalling 187 historical map stops', () => {
+    expect(DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL).toContain('Dem_dikk_mise_a_jour/FeatureServer/0')
+    expect(DDD_BANLIEUE_ARCGIS_STOP_GROUPS.map((group) => group.sourceGroup)).toEqual([
+      'ligne_2', 'ligne_5', 'Ligne_11', 'Ligne_12', 'ligne_16A', 'ligne_16B', 'ligne_227', 'ligne_232',
+    ])
+    expect(DDD_BANLIEUE_ARCGIS_STOP_GROUP_TOTALS).toEqual({ groups: 8, candidateStops: 187 })
+    expect(DDD_BANLIEUE_ARCGIS_STOP_GROUPS.some((group) => ['ligne_217', 'ligne_218', 'ligne_228'].includes(group.sourceGroup))).toBe(false)
   })
 })
 

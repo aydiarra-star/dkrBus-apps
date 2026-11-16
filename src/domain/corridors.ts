@@ -18,12 +18,7 @@
  * distinctes des horaires GTFS et du temps réel (aucune position de véhicule).
  */
 
-import {
-  CROW_FLIES_TO_WALK_FACTOR,
-  MIN_TRANSFER_WALK_M,
-  REFERENCE_COMMERCIAL_SPEED_KPH,
-  SAME_POLE_MATCH_M,
-} from './assumptions'
+import { REFERENCE_COMMERCIAL_SPEED_KPH } from './assumptions'
 import { FREQUENCY_SOURCES, OFFICIAL_REFERENCE_FREQUENCIES, type FrequencySource, type FrequencyStatus, type OfficialFrequency } from './frequencies'
 import { MOBILITY_PALETTE } from './mobilityColors'
 
@@ -52,8 +47,14 @@ export interface CorridorLine {
   shortName: string
   longName: string
   color: string
-  /** Identifiants d'arrêts desservis, dans l'ordre de parcours. */
+  /** Identifiants d'arrêts desservis, dans l'ordre de parcours (compatibilité historique). */
   stopIds: readonly string[]
+  /**
+   * Séquences directionnelles explicitement documentées. Quand elles existent,
+   * elles remplacent le double-sens implicite de `stopIds`. Chaque séquence
+   * décrit un seul sens ; ne jamais fabriquer le retour par inversion.
+   */
+  directions?: readonly (readonly string[])[]
   /**
    * Entrée technique du calculateur (attente théorique uniquement). Pour TER,
    * utilise le headway officiel maximal, faute de date/heure dans ce plan.
@@ -77,8 +78,7 @@ export interface CorridorTransfer {
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
-  /** `true` quand la correspondance est déclarée dans le référentiel ; `false`
-   *  quand elle est estimée à partir des positions déjà enregistrées. */
+  /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
 
@@ -128,11 +128,11 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
   },
   aftu_tata: {
     id: 'aftu_tata',
-    label: 'AFTU / TATA',
-    operator: 'AFTU · minibus TATA',
-    description: 'Réseau unifié de minibus AFTU / TATA — arrêts et lignes regroupés.',
+    label: 'AFTU',
+    operator: 'AFTU',
+    description: 'Réseau de minibus AFTU — arrêts et lignes regroupés.',
     provenance:
-      'Les fiches AFTU et TATA sont regroupées sous une seule identité d’exploitation. Les catalogues sources restent conservés pour tracer la provenance de chaque itinéraire.',
+      'Les dessertes de minibus sont regroupées sous l’identité publique AFTU. Les catalogues sources restent conservés dans le référentiel interne.',
   },
 }
 
@@ -231,12 +231,12 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
-  { id: 'tata-colobane', name: 'Colobane', lat: 14.7008, lon: -17.442, order: 0, aliases: ['colobane tata'], note: 'TATA' },
-  { id: 'tata-pikine', name: 'Pikine', lat: 14.75, lon: -17.392, order: 1, aliases: ['pikine tata'], note: 'TATA' },
-  { id: 'tata-keur-massar', name: 'Keur Massar', lat: 14.7905, lon: -17.3105, order: 2, aliases: ['keur massar tata'], note: 'TATA' },
-  { id: 'tata-rufisque', name: 'Rufisque', lat: 14.7165, lon: -17.2705, order: 3, aliases: ['rufisque tata'], note: 'TATA' },
-  { id: 'tata-guediawaye', name: 'Guédiawaye', shortName: 'Guédiawaye', lat: 14.7725, lon: -17.3875, order: 4, aliases: ['guediawaye tata'], note: 'TATA' },
-  { id: 'tata-parcelles', name: 'Parcelles Assainies', shortName: 'Parcelles', lat: 14.763, lon: -17.425, order: 5, aliases: ['parcelles tata'], note: 'TATA' },
+  { id: 'tata-colobane', name: 'Colobane', lat: 14.7008, lon: -17.442, order: 0, aliases: ['colobane tata'], note: 'AFTU' },
+  { id: 'tata-pikine', name: 'Pikine', lat: 14.75, lon: -17.392, order: 1, aliases: ['pikine tata'], note: 'AFTU' },
+  { id: 'tata-keur-massar', name: 'Keur Massar', lat: 14.7905, lon: -17.3105, order: 2, aliases: ['keur massar tata'], note: 'AFTU' },
+  { id: 'tata-rufisque', name: 'Rufisque', lat: 14.7165, lon: -17.2705, order: 3, aliases: ['rufisque tata'], note: 'AFTU' },
+  { id: 'tata-guediawaye', name: 'Guédiawaye', shortName: 'Guédiawaye', lat: 14.7725, lon: -17.3875, order: 4, aliases: ['guediawaye tata'], note: 'AFTU' },
+  { id: 'tata-parcelles', name: 'Parcelles Assainies', shortName: 'Parcelles', lat: 14.763, lon: -17.425, order: 5, aliases: ['parcelles tata'], note: 'AFTU' },
 ]
 
 /** Plus grand headway officiel déclaré, en minutes : l'entrée prudente du
@@ -381,15 +381,15 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   {
     id: 'tata-1',
     network: 'aftu_tata',
-    shortName: 'TATA',
-    longName: 'Colobane ↔ Guédiawaye (référence TATA)',
+    shortName: 'AFTU',
+    longName: 'Colobane ↔ Guédiawaye (référence AFTU)',
     color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['tata-colobane', 'tata-pikine', 'tata-guediawaye', 'tata-parcelles'],
     headwayMin: 15,
     frequencyStatus: 'UNKNOWN',
     frequencySource: FREQUENCY_SOURCES.cetud,
     officialFrequencies: [],
-    serviceWindow: '06:00–21:00 · TATA',
+    serviceWindow: '06:00–21:00 · AFTU',
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.tata,
   },
 ]
@@ -418,27 +418,19 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
 export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT_STOPS, ...DDD_STOPS, ...AFTU_STOPS, ...TATA_STOPS]
 
 /**
- * Correspondances intermodales calculées entre réseaux au même pôle.
+ * Correspondances utilisables par le calculateur.
  *
- * Les deux seules correspondances officiellement déclarées dans le dépôt
- * (`CORRIDOR_TRANSFERS`) relient le TER au BRT. Pour calculer un trajet
- * TER → BRT → bus de quartier, il fallait des points de passage entre les
- * autres réseaux : ils sont ici **dérivés des positions déjà enregistrées**,
- * avec la même règle que les deux correspondances déclarées (≈ 1,3 × la
- * distance à vol d'oiseau, plancher de 150 m, plafond de 1 500 m).
- *
- * Ce sont donc des correspondances **estimées**, pas des cheminements validés :
- * un quai partagé, un terre-plein ou un simple carrefour produisent la même
- * distance à vol d'oiseau. Elles ne créent aucun arrêt, aucune ligne, aucun
- * horaire : elles rendent seulement possible un changement de véhicule entre
- * deux arrêts déjà présents dans le référentiel. Les deux correspondances
- * déclarées restent prioritaires et ne sont jamais remplacées.
+ * Les positions DDD/AFTU/TATA de ce référentiel sont parfois des points de
+ * quartier approximatifs ou repris d'un autre réseau. Une distance inférieure
+ * à 120 m ne suffit donc pas à prouver un pôle d'échange réel. Seules les
+ * correspondances explicitement documentées dans CORRIDOR_TRANSFERS sont
+ * activées ; les rapprochements géographiques restent des pistes d'audit et
+ * ne créent aucun changement de véhicule dans le calculateur.
  */
-const TRANSFER_PROXIMITY_FACTOR = CROW_FLIES_TO_WALK_FACTOR
-
-function pairKey(a: string, b: string): string {
-  return a < b ? `${a}|${b}` : `${b}|${a}`
-}
+export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS.map((transfer) => ({
+  ...transfer,
+  declared: true,
+}))
 
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
 export function networkOfStopId(stopId: string): CorridorNetworkId | null {
@@ -449,47 +441,10 @@ export function networkOfStopId(stopId: string): CorridorNetworkId | null {
 
 export function networkLabelOf(stopId: string): string {
   const network = networkOfStopId(stopId)
+  // Identité publique : AFTU regroupe les dessertes AFTU/TATA dans l'interface.
+  if (network === 'aftu_tata') return 'AFTU'
   return network ? CORRIDOR_NETWORKS[network].label : 'réseau de référence'
 }
-
-function estimatedWalkMeters(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
-  return Math.max(MIN_TRANSFER_WALK_M, Math.round(haversineMeters(a, b) * TRANSFER_PROXIMITY_FACTOR))
-}
-
-function buildIntermodalTransfers(): CorridorTransfer[] {
-  const declared = new Set(CORRIDOR_TRANSFERS.map((transfer) => pairKey(transfer.fromStopId, transfer.toStopId)))
-  const out: CorridorTransfer[] = []
-  for (let index = 0; index < ALL_CORRIDOR_STOPS.length; index += 1) {
-    const from = ALL_CORRIDOR_STOPS[index]
-    const fromNetwork = networkOfStopId(from.id)
-    if (!fromNetwork) continue
-    for (let other = index + 1; other < ALL_CORRIDOR_STOPS.length; other += 1) {
-      const to = ALL_CORRIDOR_STOPS[other]
-      const toNetwork = networkOfStopId(to.id)
-      if (!toNetwork || fromNetwork === toNetwork) continue
-      const key = pairKey(from.id, to.id)
-      if (declared.has(key)) continue
-      const straight = haversineMeters(from, to)
-      // Uniquement les pôles partagés : le référentiel ne déclare aucun autre
-      // cheminement piéton entre deux réseaux.
-      if (straight > SAME_POLE_MATCH_M) continue
-      out.push({
-        fromStopId: from.id,
-        toStopId: to.id,
-        walkM: estimatedWalkMeters(from, to),
-        label: `${from.name} (${CORRIDOR_NETWORKS[fromNetwork].label}) ↔ ${to.name} (${CORRIDOR_NETWORKS[toNetwork].label}) — marche estimée d’après les positions déclarées`,
-        declared: false,
-      })
-    }
-  }
-  return out
-}
-
-/** Toutes les correspondances connues : les déclarées d'abord, puis les estimées. */
-export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = [
-  ...CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })),
-  ...buildIntermodalTransfers(),
-]
 
 /** Index des correspondances par arrêt, pour le calculateur. */
 export const TRANSFER_INDEX: ReadonlyMap<string, readonly CorridorTransfer[]> = (() => {

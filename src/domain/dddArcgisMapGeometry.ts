@@ -1,4 +1,5 @@
 export interface DddArcgisGeoJsonFeature {
+  properties?: Record<string, unknown> | null
   geometry?: {
     type?: string
     coordinates?: unknown
@@ -51,6 +52,7 @@ export function dddArcgisFeatureTracks(
 export interface DddArcgisMapStop {
   id: string
   line: string
+  name?: string
   position: [number, number]
 }
 
@@ -70,9 +72,13 @@ export function dddArcgisFeatureStops(
     ) return []
     const longitude = lon as number
     const latitude = lat as number
+    const name = typeof feature.properties?.Nom_Arret === 'string'
+      ? feature.properties.Nom_Arret.trim()
+      : ''
     return [{
       id: `ddd-arcgis-stop-${line}-${latitude.toFixed(5)}-${longitude.toFixed(5)}`,
       line,
+      ...(name ? { name } : {}),
       position: [latitude, longitude] as [number, number],
     }]
   })

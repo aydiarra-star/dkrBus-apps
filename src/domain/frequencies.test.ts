@@ -51,7 +51,7 @@ describe('références officielles de fréquence', () => {
     })
   })
 
-  it('keeps DDD and shared AFTU / TATA fleet counts separate from unavailable line frequencies', () => {
+  it('keeps DDD and AFTU fleet counts separate from unavailable line frequencies', () => {
     expect(NETWORK_REFERENCE_DATA.ddd).toMatchObject({
       lineCount: 38,
       vehicleCount: 400,
@@ -83,11 +83,13 @@ describe('références officielles de fréquence', () => {
     })
   })
 
-  it('publie une seule référence partagée AFTU / TATA', () => {
+  it('publie une seule identité publique AFTU', () => {
     expect(NETWORK_REFERENCE_DATA.aftu_tata).toMatchObject({
       id: 'aftu_tata',
-      operator: 'AFTU · minibus TATA',
-      coverage: 'Réseau unifié de minibus AFTU / TATA',
+      label: 'AFTU',
+      shortName: 'AFTU',
+      operator: 'AFTU',
+      coverage: 'Réseau de minibus AFTU',
       lineCount: 72,
       vehicleCount: 2300,
       frequencyStatus: 'UNKNOWN',

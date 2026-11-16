@@ -44,6 +44,18 @@ describe('points d’arrêt DDD ArcGIS', () => {
     }])
   })
 
+  it('préserve le nom d’arrêt source pour les infobulles de la carte', () => {
+    const stops = dddArcgisFeatureStops('2', [{
+      properties: { Nom_Arret: 'Terminus Daroukhane' },
+      geometry: { type: 'Point', coordinates: [-17.31, 14.78] },
+    }])
+    expect(stops[0]).toMatchObject({
+      line: '2',
+      name: 'Terminus Daroukhane',
+      position: [14.78, -17.31],
+    })
+  })
+
   it('ignore les géométries non ponctuelles et les points hors zone', () => {
     expect(dddArcgisFeatureStops('8', [
       { geometry: { type: 'LineString', coordinates: [[-17.4, 14.7], [-17.3, 14.8]] } },

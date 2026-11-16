@@ -25,7 +25,7 @@ const labels = (query: string, limit?: number) => searchStopIndex(index, query, 
 describe('index de recherche du Trajet', () => {
   it('couvre les quatre réseaux et tous les arrêts déclarés', () => {
     const mobility = index.filter((option) => option.group === GROUP_MOBILITY)
-    expect(mobility.map((option) => option.label)).toEqual(['TER', 'BRT', 'DDD', 'AFTU / TATA'])
+    expect(mobility.map((option) => option.label)).toEqual(['TER', 'BRT', 'DDD', 'AFTU'])
     expect(index.filter((option) => option.group === GROUP_TER)).toHaveLength(TER_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_BRT)).toHaveLength(BRT_STOPS.length)
     expect(index.filter((option) => option.group === GROUP_DDD)).toHaveLength(DDD_STOPS.length)
@@ -34,12 +34,12 @@ describe('index de recherche du Trajet', () => {
   })
 
   it('trouve chaque mobilité par son sigle ou son autorité', () => {
-    expect(labels('aftu')[0]).toBe('AFTU / TATA')
-    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU / TATA']))
+    expect(labels('aftu')[0]).toBe('AFTU')
+    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU']))
     expect(labels('senter')[0]).toBe('TER')
     expect(labels('sunubrt')[0]).toBe('BRT')
     expect(labels('dakar dem dikk')[0]).toBe('DDD')
-    expect(labels('tata')[0]).toBe('AFTU / TATA')
+    expect(labels('tata')[0]).toBe('AFTU')
   })
 
   it('trouve un arrêt de référence par son nom, accentué ou non', () => {
