@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dddArcgisFeatureTracks } from './dddArcgisMapGeometry'
+import { dddArcgisFeatureStops, dddArcgisFeatureTracks } from './dddArcgisMapGeometry'
 
 describe('géométries cartographiques DDD ArcGIS', () => {
   it('convertit les coordonnées GeoJSON longitude/latitude en latitude/longitude Leaflet', () => {
@@ -19,6 +19,18 @@ describe('géométries cartographiques DDD ArcGIS', () => {
     }])
     expect(tracks).toHaveLength(2)
     expect(tracks[0].id).not.toBe(tracks[1].id)
+  })
+
+
+  it('extrait les arrêts ponctuels DDD avec leur ligne et ignore les points hors zone', () => {
+    const stops = dddArcgisFeatureStops('8', [
+      { geometry: { type: 'Point', coordinates: [-17.49, 14.74] } },
+      { geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
+      { geometry: { type: 'LineString', coordinates: [[-17.3, 14.7], [-17.2, 14.8]] } },
+    ])
+    expect(stops).toHaveLength(1)
+    expect(stops[0].line).toBe('8')
+    expect(stops[0].position).toEqual([14.74, -17.49])
   })
 
   it('ignore les géométries invalides, hors Sénégal ou trop courtes', () => {
