@@ -24,15 +24,23 @@ Le catalogue courant AFTU affiche :
 - **54** : Terminus Rufisque Sonadis – Petersen ;
 - **56** : Liberté 6 – Rufisque ;
 - **59** : Colobane – Bargny ;
-- **61** : Arrêt Chérif (Rufisque) – Penc Mi ;
-- **62** : Terminus Camp Marchand Rufisque – Stade LSS ;
-- **63** : Guédiawaye – Rufisque ;
-- **66** : Ouakam – Thiawlène Rufisque ;
+- **61** : Almadies – Keur Massar ;
+- **62** : Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) ;
+- **63** : Terminus Camp Marchand Rufisque – Stade LSS ;
+- **64** : Guédiawaye – Rufisque ;
+- **66** : Yoff – Gorom 1 ;
+- **67** : Ouakam – Thiawlène Rufisque ;
+- **68** : Yeumbeul – Sébikotane ;
+- **69** : Diamalaye – Terminus Tivaouane Peul ;
+- **70** : Daroukhane – Jaxaay 2 ;
+- **71** : Keur Massar – Claudel ;
+- **72** : Guédiawaye – Kounoune ;
 - **73** : Terminus Bargny (gare ferroviaire) – Tivaouane Peul ;
 - **76** : Rufisque – Liberté 5 ;
 - **78** : Sangalkam – Cambérène ;
 - **82** : Rufisque Arafat – Zone de Captage ;
-- **88** : Bargny – Croisement Niague (Cité SICAP).
+- **88** : Bargny – Croisement Niague (Cité SICAP) ;
+- **89** : APIX – Dougar.
 
 Les fiches détaillées AFTU accessibles donnent des séquences utiles mais certaines pages ne correspondent pas clairement à l'intitulé du catalogue :
 - Fiche détaillée **60** : Colobane → autoroute → RN1 → Diamaguène → Sicap Mbao → Fass Mbao → Croisement Keur Massar → Dioutyba (Rufisque) → Sonadis → Sococim → Bargny.
@@ -87,29 +95,35 @@ Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cet
 
 Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
 
-## 4. Keur Massar — deux pôles à ne pas fusionner
+## 4. Keur Massar — terminus commun DDD / AFTU 61 et autres pôles séparés
 
-### Points GPS
+### Terminus principal DDD / AFTU 61 — pôle commun confirmé
 
-- **Gare routière de Keur Massar** (OSM way 335756472) : **14.76984, -17.31840**.
-- **Service spéciale DDD** (OSM node 5602711037, highway=bus_stop) : **14.77054, -17.31875**.
-- **Station MTOA** (OSM way 339556843, station-service) : **14.78288, -17.32369**.
+Les données géographiques DDD (couche d'arrêts ArcGIS, séquences des lignes 11 et 227) placent « Terminus Keur Massar » à :
+- DDD 11 : **14.785391, -17.309223**.
+- DDD 227 : **14.785436, -17.309195**.
 
-L'arrêt OSM « Service spéciale DDD » est très proche de la gare routière (environ 80 m à vol d'oiseau) et est donc un candidat de pôle DDD/gare routière. Il n'est cependant pas attribué à une ligne DDD précise dans la fiche OSM.
+OpenStreetMap identifie au même endroit :
+- « Terminus Dakar Dem Dik », node 3580321801 : **14.78540, -17.30922**, amenity=bus_station.
+- « Terminus minibus n°61 », node 5286379844 : **14.78545, -17.30922**, amenity=bus_station et public_transport=station.
+- « Terminus Dakar dem dikk P11 », node 5286379845 : **14.78556, -17.30891**, gare routière voisine.
 
-La station MTOA est un repère de station-service, pas un arrêt de bus. Elle est distincte de la gare routière ; la distance en ligne droite entre ces deux repères est d'environ 1,5 km.
+Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa fiche détaillée (mise à jour le 7 juillet 2026) décrit : Terminus Keur Massar → Route nationale 1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies.
 
-### Desserte et correspondances candidates
+**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est une correspondance DDD 11/227 ↔ AFTU 61 confirmée au niveau du pôle terminal. Les positions exactes des quais de départ dans l'enceinte et le cheminement entre plateformes restent à relever. Le calculateur ne doit activer le lien qu'une fois les séquences directionnelles des lignes 11, 227 et 61 raccordées à ces arrêts.
 
-- DDD publie plusieurs lignes passant par Station Keur Massar / Croisement Keur Massar : 11, 15, 16B, 220, 227, 234, 311 et 327.
-- AFTU catalogue annonce la relation MTOA Keur Massar–UCAD (ligne 53) ; la fiche détaillée 54 décrit MTOA, Station Keur Massar et le corridor vers UCAD.
-- La fiche AFTU détaillée 74 passe par Station Shell Keur Massar puis Terminus Keur Massar.
+### Autres pôles Keur Massar — à ne pas fusionner
 
-Deux pôles doivent donc être cartographiés séparément :
-1. Gare routière / arrêt DDD « Service spéciale DDD » ;
-2. Terminus/Station MTOA.
+- **Terminus 52 (TATA)**, node 5286379847 : **14.77419, -17.31767**, réseau TATA selon OSM. Il est distinct du terminus DDD/AFTU 61.
+- **Gare routière de Keur Massar**, OSM way 335756472 : **14.76984, -17.31840**. C'est un autre site, environ 1,8 km du terminus DDD/AFTU 61 à vol d'oiseau.
+- **Service spéciale DDD**, node 5602711037 : **14.77054, -17.31875**. Arrêt OSM proche de la gare routière précédente, mais distinct du terminus DDD des lignes 11/227 ; ne pas le rattacher automatiquement à ces lignes.
+- **Station MTOA**, OSM way 339556843 : **14.78288, -17.32369**. C'est une station-service, pas un quai. Le catalogue AFTU indique **ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD** ; son quai MTOA doit rester distinct du terminus principal DDD/AFTU 61.
 
-Le premier est un candidat de correspondance DDD↔AFTU pour les lignes terminus Keur Massar, sous réserve de confirmer le quai AFTU. Le second concerne les lignes qui desservent réellement MTOA. Ne pas connecter automatiquement MTOA à la gare routière ou au point DDD.
+### Décision
+
+- **Correspondance commune confirmée au niveau du pôle : DDD 11/227 ↔ AFTU 61**, terminus principal **14.7854, -17.30922**.
+- **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
+- Le lien de transfert n'est pas encore activé dans le graphe : le planner ne contient pas encore les séquences directionnelles complètes des lignes DDD 11/227 et AFTU 61. Il faut intégrer leurs sens documentés avant que la correspondance soit réellement exploitable par le calculateur.
 
 ## 5. Sangalkam et corridor vers Rufisque
 
@@ -147,7 +161,12 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - Gare routière de Rufisque : https://mapcarta.com/fr/W178908478
 - Gare de Rufisque : https://mapcarta.com/fr/W206847948
 - Gare de Bargny : https://mapcarta.com/fr/W1016285847
+- Terminus bus Bargny : https://mapcarta.com/fr/N2366463127
 - Garage clando Bargny : https://mapcarta.com/fr/N4846093863
+- Terminus Dakar Dem Dik : https://mapcarta.com/fr/N3580321801
+- Terminus minibus n°61 : https://mapcarta.com/fr/N5286379844
+- Terminus Dakar dem dikk P11 : https://mapcarta.com/fr/N5286379845
+- Terminus 52 (TATA) : https://mapcarta.com/fr/N5286379847
 - Gare routière de Keur Massar : https://mapcarta.com/fr/W335756472
 - Arrêt Service spéciale DDD : https://mapcarta.com/fr/N5602711037
 - Station MTOA : https://mapcarta.com/fr/W339556843
