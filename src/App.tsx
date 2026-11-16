@@ -2727,6 +2727,7 @@ function RoutePanel({
                 key={id}
                 type="button"
                 className={`route-network-filter mobility-${id}${active ? ' is-active' : ''}`}
+                aria-label={`${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()} ${active ? 'Actif' : 'Désactivé'}`}
                 aria-pressed={active}
                 disabled={active && activeCount === 1}
                 onClick={() => updatePreferences('mobility', {
