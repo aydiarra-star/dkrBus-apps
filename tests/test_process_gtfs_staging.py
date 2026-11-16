@@ -190,7 +190,7 @@ class GTFSWorkerTests(unittest.TestCase):
                 "synthetic-password",
             )
 
-    def test_authenticate_uses_password_grant_and_keeps_the_worker_token_private(self) -> None
+    def test_authenticate_uses_password_grant_and_keeps_the_worker_token_private(self) -> None:
         with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
             opener = Mock()
             opener.open.return_value = io.BytesIO(b'{"access_token":"synthetic-access-token"}')
