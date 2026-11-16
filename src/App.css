@@ -2921,3 +2921,236 @@ button:disabled { cursor: not-allowed; }
   text-shadow: 0 0 2px rgba(255, 255, 255, .9);
   pointer-events: none;
 }
+
+
+/* Trajet mobile : carte sur le tiers supérieur, formulaire dans le panneau inférieur. */
+@media (max-width: 820px) {
+  .app-shell.tab-route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 33.333%) minmax(0, 1fr);
+    height: var(--app-height, 100svh);
+    min-height: 0;
+  }
+  .app-shell.tab-route .map-stage {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    min-height: 0;
+  }
+  .app-shell.tab-route .sidebar {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--surface-panel);
+    pointer-events: auto;
+  }
+  .app-shell.tab-route .sidebar-top {
+    position: absolute;
+    z-index: 20;
+    right: 12px;
+    bottom: calc(100% + 8px);
+    left: 12px;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+  .app-shell.tab-route .brand-row {
+    height: 46px;
+    padding: 0 11px;
+    border: 1px solid rgba(228, 241, 236, .95);
+    border-radius: 15px;
+    background: rgba(var(--overlay), .96);
+    box-shadow: 0 4px 15px rgba(25, 52, 35, .12);
+    pointer-events: auto;
+    backdrop-filter: blur(16px);
+  }
+  .app-shell.tab-route .brand-symbol { width: 34px; height: 34px; }
+  .app-shell.tab-route .desktop-tabs,
+  .app-shell.tab-route .sidebar-footer { display: none; }
+  .app-shell.tab-route .panel-content {
+    position: relative;
+    inset: auto;
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    padding: 8px 0 calc(78px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 0;
+    background: var(--surface-panel);
+    box-shadow: none;
+    backdrop-filter: none;
+    overscroll-behavior: contain;
+  }
+  .app-shell.tab-route .route-panel {
+    margin: 0;
+    padding: 8px 16px 14px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-panel > .panel-heading-row { display: none; }
+  .app-shell.tab-route .route-fields-wrap {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+  }
+  .app-shell.tab-route .route-connector { display: none; }
+  .app-shell.tab-route .route-origin-group {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 9px 11px 7px;
+    border: 1.5px solid var(--green-600);
+    border-radius: 15px;
+    background: var(--surface-card);
+  }
+  .app-shell.tab-route .route-origin-group .point-field {
+    min-height: 55px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-origin-group .use-location-action {
+    min-height: 34px;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0 2px;
+    border: 0;
+    border-top: 1px solid var(--green-100);
+    border-radius: 0;
+    background: transparent;
+    color: var(--green-800);
+    font-size: 12px;
+    font-weight: 750;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-fields-wrap > .point-field {
+    min-height: 67px;
+    padding: 10px 11px;
+    border: 1.5px solid var(--green-600);
+    border-radius: 15px;
+    background: var(--surface-card);
+  }
+  .app-shell.tab-route .route-origin-group + .swap-route { display: none; }
+  .app-shell.tab-route .route-submit {
+    min-height: 48px;
+    margin: 9px 0 0;
+    border-radius: 14px;
+    background: var(--green-700);
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 5px 14px rgba(21, 115, 71, .18);
+  }
+  .app-shell.tab-route .route-truth-card,
+  .app-shell.tab-route .route-unavailable { margin-top: 10px; }
+  .app-shell.tab-route .advanced-planner { display: none; }
+  .app-shell.tab-route .map-heading-overlay,
+  .app-shell.tab-route .map-actions-top { top: 8px; }
+  .app-shell.tab-route .map-heading-overlay { left: 12px; }
+  .app-shell.tab-route .map-actions-top { right: 12px; }
+  .app-shell.tab-route .map-mobility-legend { display: none; }
+  .app-shell.tab-route .map-controls { right: 10px; bottom: 8px; }
+  .app-shell.tab-route .map-attribution-note { bottom: 4px; left: 10px; }
+  .app-shell.tab-route .map-pick-banner { top: 54px; }
+  .app-shell.tab-route .mobile-nav {
+    position: absolute;
+    z-index: 700;
+    right: 12px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 12px;
+  }
+}
+@media (max-width: 480px) {
+  .app-shell.tab-route .route-panel { padding-right: 13px; padding-left: 13px; }
+  .app-shell.tab-route .route-fields-wrap { gap: 7px; }
+  .app-shell.tab-route .route-origin-group .point-field { min-height: 50px; }
+  .app-shell.tab-route .route-fields-wrap > .point-field { min-height: 62px; }
+  .app-shell.tab-route .route-submit { min-height: 46px; }
+}
+
+
+/* En-tête du guide de trajet : visible au-dessus des champs sur mobile. */
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-panel > .panel-heading-row {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 0 10px;
+    padding: 0 2px;
+  }
+  .app-shell.tab-route .route-panel .panel-heading-row .eyebrow {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--green-700);
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .13em;
+  }
+  .app-shell.tab-route .route-panel .panel-heading-row h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+  .app-shell.tab-route .route-panel .route-coverage {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 9px;
+    width: 100%;
+    margin: 9px 0 0 !important;
+    padding: 0 0 5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .app-shell.tab-route .route-panel .route-coverage::-webkit-scrollbar { display: none; }
+  .app-shell.tab-route .route-panel .route-coverage .mobility-badge {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    max-width: none;
+    min-width: 43px;
+    min-height: 22px;
+    padding: 2px 7px 5px;
+    overflow: visible;
+    border-radius: 7px 7px 3px 3px;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: .02em;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-panel .route-coverage .mobility-badge::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--mobility-bright, var(--mobility-badge));
+    content: '';
+  }
+  .app-shell.tab-route .route-panel .route-fields-wrap { margin-top: 0; }
+}
