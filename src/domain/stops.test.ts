@@ -35,7 +35,7 @@ describe('index de recherche du Trajet', () => {
 
   it('trouve chaque mobilité par son sigle ou son autorité', () => {
     expect(labels('aftu')[0]).toBe('AFTU')
-    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU / TATA']))
+    expect(labels('cetud').map((value) => value)).toEqual(expect.arrayContaining(['DDD', 'AFTU']))
     expect(labels('senter')[0]).toBe('TER')
     expect(labels('sunubrt')[0]).toBe('BRT')
     expect(labels('dakar dem dikk')[0]).toBe('DDD')
