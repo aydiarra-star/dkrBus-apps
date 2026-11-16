@@ -430,6 +430,12 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     walkM: 0,
     label: 'Gare routière Petersen : DDD ↔ AFTU',
   },
+  {
+    fromStopId: 'brt-prefecture-guediawaye',
+    toStopId: 'ddd-guediawaye',
+    walkM: 0,
+    label: 'Pôle d’échange de Guédiawaye : BRT ↔ DDD (terminus de rabattement)',
+  },
 ]
 
 export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT_STOPS, ...DDD_STOPS, ...AFTU_STOPS, ...TATA_STOPS]
