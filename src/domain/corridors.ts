@@ -128,11 +128,11 @@ export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
   },
   aftu_tata: {
     id: 'aftu_tata',
-    label: 'AFTU / TATA',
-    operator: 'AFTU · minibus TATA',
-    description: 'Réseau unifié de minibus AFTU / TATA — arrêts et lignes regroupés.',
+    label: 'AFTU',
+    operator: 'AFTU',
+    description: 'Réseau de minibus AFTU — arrêts et lignes regroupés.',
     provenance:
-      'Les fiches AFTU et TATA sont regroupées sous une seule identité d’exploitation. Les catalogues sources restent conservés pour tracer la provenance de chaque itinéraire.',
+      'Les dessertes de minibus sont regroupées sous l’identité publique AFTU. Les catalogues sources restent conservés dans le référentiel interne.',
   },
 }
 
@@ -231,12 +231,12 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
-  { id: 'tata-colobane', name: 'Colobane', lat: 14.7008, lon: -17.442, order: 0, aliases: ['colobane tata'], note: 'TATA' },
-  { id: 'tata-pikine', name: 'Pikine', lat: 14.75, lon: -17.392, order: 1, aliases: ['pikine tata'], note: 'TATA' },
-  { id: 'tata-keur-massar', name: 'Keur Massar', lat: 14.7905, lon: -17.3105, order: 2, aliases: ['keur massar tata'], note: 'TATA' },
-  { id: 'tata-rufisque', name: 'Rufisque', lat: 14.7165, lon: -17.2705, order: 3, aliases: ['rufisque tata'], note: 'TATA' },
-  { id: 'tata-guediawaye', name: 'Guédiawaye', shortName: 'Guédiawaye', lat: 14.7725, lon: -17.3875, order: 4, aliases: ['guediawaye tata'], note: 'TATA' },
-  { id: 'tata-parcelles', name: 'Parcelles Assainies', shortName: 'Parcelles', lat: 14.763, lon: -17.425, order: 5, aliases: ['parcelles tata'], note: 'TATA' },
+  { id: 'tata-colobane', name: 'Colobane', lat: 14.7008, lon: -17.442, order: 0, aliases: ['colobane tata'], note: 'AFTU' },
+  { id: 'tata-pikine', name: 'Pikine', lat: 14.75, lon: -17.392, order: 1, aliases: ['pikine tata'], note: 'AFTU' },
+  { id: 'tata-keur-massar', name: 'Keur Massar', lat: 14.7905, lon: -17.3105, order: 2, aliases: ['keur massar tata'], note: 'AFTU' },
+  { id: 'tata-rufisque', name: 'Rufisque', lat: 14.7165, lon: -17.2705, order: 3, aliases: ['rufisque tata'], note: 'AFTU' },
+  { id: 'tata-guediawaye', name: 'Guédiawaye', shortName: 'Guédiawaye', lat: 14.7725, lon: -17.3875, order: 4, aliases: ['guediawaye tata'], note: 'AFTU' },
+  { id: 'tata-parcelles', name: 'Parcelles Assainies', shortName: 'Parcelles', lat: 14.763, lon: -17.425, order: 5, aliases: ['parcelles tata'], note: 'AFTU' },
 ]
 
 /** Plus grand headway officiel déclaré, en minutes : l'entrée prudente du
@@ -381,15 +381,15 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   {
     id: 'tata-1',
     network: 'aftu_tata',
-    shortName: 'TATA',
-    longName: 'Colobane ↔ Guédiawaye (référence TATA)',
+    shortName: 'AFTU',
+    longName: 'Colobane ↔ Guédiawaye (référence AFTU)',
     color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['tata-colobane', 'tata-pikine', 'tata-guediawaye', 'tata-parcelles'],
     headwayMin: 15,
     frequencyStatus: 'UNKNOWN',
     frequencySource: FREQUENCY_SOURCES.cetud,
     officialFrequencies: [],
-    serviceWindow: '06:00–21:00 · TATA',
+    serviceWindow: '06:00–21:00 · AFTU',
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.tata,
   },
 ]
