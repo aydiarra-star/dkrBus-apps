@@ -55,7 +55,7 @@ def valid_job() -> dict:
 
 class GTFSWorkerTests(unittest.TestCase):
     def test_validator_version_tracks_the_current_structural_rules(self) -> None:
-        self.assertEqual(VALIDATOR_VERSION, "dakar-gtfs-validator-v4")
+        self.assertEqual(VALIDATOR_VERSION, "dakar-gtfs-validator-v5")
 
     def test_archive_hash_and_size_are_verified(self) -> None:
         payload = b"PK\x03\x04synthetic-test"
