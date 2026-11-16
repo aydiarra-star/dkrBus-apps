@@ -52,11 +52,11 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     id: 'aftu-61',
     line: '61',
     waypoints: [
+      { name: 'Keur Massar', lat: 14.78542, lon: -17.30922 },
+      { name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952 },
+      { name: 'Thiaroy', lat: 14.7504, lon: -17.3776 },
+      { name: 'Rond-point Ngor', lat: 14.74894, lon: -17.5144 },
       { name: 'Almadies', lat: 14.74, lon: -17.53 },
-      { name: 'Yoff', lat: 14.7619, lon: -17.4807 },
-      { name: 'Thiaroye', lat: 14.758771, lon: -17.3802989 },
-      { name: 'Mbao', lat: 14.74154, lon: -17.32615 },
-      { name: 'Keur Massar', lat: 14.79, lon: -17.31 },
     ],
   },
   {
