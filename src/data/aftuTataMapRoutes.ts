@@ -108,6 +108,22 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
+    id: 'aftu-86',
+    line: '86',
+    waypoints: [
+      { name: 'Toubab Dialaw', lat: 14.60653, lon: -17.14706 },
+      { name: 'Boune', lat: 14.76623, lon: -17.33729 },
+    ],
+  },
+  {
+    id: 'aftu-89',
+    line: '89',
+    waypoints: [
+      { name: 'Bargny', lat: 14.6938, lon: -17.2297 },
+      { name: 'Marché de Niague', lat: 14.80986, lon: -17.25161 },
+    ],
+  },
+  {
     id: 'aftu-87',
     line: '87',
     waypoints: [
