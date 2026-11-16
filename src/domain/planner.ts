@@ -15,9 +15,9 @@
  *   la fréquence de repli du modèle et le signale (`fallbacks`) avec une marge
  *   d'incertitude plus large — il ne présente jamais ce repli comme une
  *   information opérateur ;
- * - aucune correspondance n'est inventée : elles proviennent de
- *   `CORRIDOR_TRANSFERS` (déclarées) ou de `INTERMODAL_TRANSFERS` (estimées à
- *   partir des positions déjà enregistrées), et chacune est annoncée comme telle ;
+ * - aucune correspondance n'est inventée : `INTERMODAL_TRANSFERS` ne contient que
+ *   les liens explicitement déclarés dans `CORRIDOR_TRANSFERS`. Les rapprochements
+ *   géographiques de positions approximatives ne sont pas activés dans le graphe ;
  * - si aucune chaîne n'existe dans le graphe de référence, la réponse le dit.
  *
  * Espace de recherche : un état = (arrêt, situation) où la situation est « à
