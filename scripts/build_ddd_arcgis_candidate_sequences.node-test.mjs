@@ -48,6 +48,16 @@ test('joins CSV route IDs serialized as decimals to integer GeoJSON IDs', () => 
   assert.equal(result.candidates[0].routeObjectId, 1);
 });
 
+test('does not turn a blank route ID into numeric zero', () => {
+  const result = buildCandidateSequences({
+    rows: [row('ligne_1', 1, 100, { route_objectid_12: '' }), row('ligne_1', 2, 200, { route_objectid_12: '' })],
+    routes: { features: [route(0, 'Ligne 1')] },
+    metadata,
+  });
+  assert.equal(result.summary.candidateLines, 0);
+  assert.equal(result.excludedGroups[0].reason, 'AMBIGUOUS_ROUTE_ASSOCIATION');
+});
+
 test('builds an ordered candidate only when the entire source group is spatially coherent', () => {
   const result = buildCandidateSequences({
     rows: [row('ligne_1', 1, 200), row('ligne_1', 2, 100)],
