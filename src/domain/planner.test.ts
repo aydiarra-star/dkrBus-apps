@@ -1,11 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { getCorridorStop } from './corridors'
+import { getCorridorStop, networkLabelOf } from './corridors'
 import { describeLeg, planReferenceJourney, type PlannerResult } from './planner'
 
 const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
 // Point à ~110 m de la station BRT « Préfecture de Guédiawaye » (position OSM).
 const GUEDIAWAYE = { label: 'Guédiawaye (point carte)', lat: 14.7725, lon: -17.3860 }
 const RUFISQUE = { label: 'Rufisque (point carte)', lat: 14.7145, lon: -17.2725 }
+
+describe('libellés publics des réseaux', () => {
+  it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
+    expect(networkLabelOf('aftu-guediawaye')).toBe('AFTU')
+    expect(networkLabelOf('tata-guediawaye')).toBe('AFTU')
+  })
+})
 
 describe('calculateur multimodal de référence', () => {
   it('relie le Plateau à Guédiawaye en BRT sans inventer de correspondance', () => {
