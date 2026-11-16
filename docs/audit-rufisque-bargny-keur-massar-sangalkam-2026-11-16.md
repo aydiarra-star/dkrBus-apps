@@ -140,7 +140,7 @@ La desserte des deux réseaux est donc confirmée à l'échelle de la localité 
 
 | Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
-| 1 | **DDD 11/227 ↔ AFTU 61, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | Raccorder les séquences aller/retour documentées au hub et relever les quais internes |
+| 1 | **DDD 227 ↔ AFTU 61, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | <badge color="success">Intégré au calculateur</badge> · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
 | 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | La fiche AFTU 74 décrit explicitement le terminus « Bargny (gare ferroviaire) » ; les quais bus précis restent non identifiés | Relever le quai AFTU réel et tracer le cheminement piéton depuis l'accès TER |
 | 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes ; point GPS du quai Sonadis absent | Géocoder les arrêts exacts et les quais dans les deux sens |
 | 4 | DDD 213 ↔ AFTU Camp Marchand / gare de Rufisque | Les terminus et gares OSM sont distincts ; correspondance non prouvée | Identifier le quai DDD « Gare de Rufisque » et le terminus AFTU Camp Marchand |
