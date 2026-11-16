@@ -147,6 +147,7 @@ describe('réseau de référence TER/BRT', () => {
     expect(aftu).toMatchObject({ lat: 14.78542, lon: -17.30922 })
     expect(linesServingStop('ddd-keur-massar-227').map((line) => line.shortName)).toContain('DDD 227')
     expect(linesServingStop('aftu-keur-massar-61').map((line) => line.shortName)).toContain('AFTU 61')
+    expect(getCorridorStop('aftu-almadies')).toMatchObject({ lat: 14.73475, lon: -17.50863 })
   })
 
   it('affiche les anciennes dessertes TATA sous le seul nom public AFTU', () => {
