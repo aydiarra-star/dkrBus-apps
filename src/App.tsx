@@ -1289,7 +1289,7 @@ function App() {
 
   /** Lance le calcul pour deux points explicites. Partagé par le formulaire et
    *  par toutes les actions qui définissent un trajet d’un seul geste. */
-  const runJourneySearch = useCallback(async (origin: MapPoint, destination: MapPoint) => {
+  const runJourneySearch = useCallback(async (origin: MapPoint, destination: MapPoint, searchPreferences: Preferences = preferences) => {
     const id = beginRequest('journey')
     setRouteAttempted(true)
     setJourney({ status: 'loading', search: null, error: null, errorCode: null })
@@ -1309,7 +1309,7 @@ function App() {
     addPoint('destination', destination)
     parameters.set('at', new Date().toISOString())
     parameters.set('max_walk_m', String(ROUTE_MAX_WALK_M))
-    const activeNetworks = MOBILITY_IDS.filter((network) => preferences.mobility.networks[network])
+    const activeNetworks = MOBILITY_IDS.filter((network) => searchPreferences.mobility.networks[network])
     parameters.set('networks', activeNetworks.join(','))
 
     const result = await fetchApi(`/api/journeys?${parameters.toString()}`)
@@ -1317,7 +1317,7 @@ function App() {
     if (!isLatestRequest('journey', id)) return
     if (!result.ok) {
       if (shouldUseReferenceFallback(result)) {
-        const referenceOutcome = planReferencePoints(origin, destination, preferences)
+        const referenceOutcome = planReferencePoints(origin, destination, searchPreferences)
         const referenceNotice = result.code === 'NOT_PUBLISHED'
           ? 'Aucun jeu de transport publié : le calcul utilise le réseau de référence local (TER, BRT, DDD et AFTU).'
           : 'Le serveur d’horaires est indisponible : calcul local sur le réseau de référence (TER, BRT, DDD et AFTU), sans horaires publiés complets ni temps réel.'
@@ -1835,6 +1835,14 @@ function App() {
                 onClear={() => { roadRouteRequestId.current += 1; setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
                 onClearPoint={clearRoutePoint}
                 onSubmit={submitRoute}
+                onToggleNetwork={(id) => {
+                  const nextPreferences = updatePreferences('mobility', {
+                    networks: { ...preferences.mobility.networks, [id]: !preferences.mobility.networks[id] },
+                  })
+                  if (routeAttempted && routePoints.origin && routePoints.destination) {
+                    void runJourneySearch(routePoints.origin, routePoints.destination, nextPreferences)
+                  }
+                }}
                 dataAvailable={dataAvailable}
                 journey={journey}
                 countdownNow={countdownNow}
@@ -2708,6 +2716,7 @@ function RoutePanel({
   onClear,
   onClearPoint,
   onSubmit,
+  onToggleNetwork,
   dataAvailable,
   journey,
   countdownNow,
@@ -2725,6 +2734,7 @@ function RoutePanel({
   onClear: () => void
   onClearPoint: (key: RoutePointKey) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  onToggleNetwork: (id: MobilityId) => void
   dataAvailable: boolean
   journey: JourneyState
   countdownNow: number
@@ -2755,9 +2765,7 @@ function RoutePanel({
                     aria-pressed={active}
                     aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} : ${active ? 'actif' : 'désactivé'}`}
                     disabled={active && enabledNetworkCount === 1}
-                    onClick={() => updatePreferences('mobility', {
-                      networks: { ...preferences.mobility.networks, [id]: !active },
-                    })}
+                    onClick={() => onToggleNetwork(id)}
                   >
                     <span className="route-coverage-item">
                       <MobilityBadge id={id} />
