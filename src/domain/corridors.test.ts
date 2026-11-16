@@ -107,8 +107,21 @@ describe('réseau de référence TER/BRT', () => {
 
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(2)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(5)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
+  })
+
+  it('active les trois transferts documentés dans le pôle d’échange Petersen', () => {
+    const petersenTransfers = CORRIDOR_TRANSFERS.filter((transfer) =>
+      [transfer.fromStopId, transfer.toStopId].every((id) => id.includes('petersen')),
+    )
+    expect(petersenTransfers).toHaveLength(3)
+    expect(petersenTransfers.map((transfer) => [transfer.fromStopId, transfer.toStopId])).toEqual([
+      ['brt-petersen', 'ddd-petersen'],
+      ['brt-petersen', 'aftu-petersen'],
+      ['ddd-petersen', 'aftu-petersen'],
+    ])
+    expect(petersenTransfers.every((transfer) => transfer.walkM === 0)).toBe(true)
   })
 
   it('affiche les anciennes dessertes TATA sous le seul nom public AFTU', () => {
