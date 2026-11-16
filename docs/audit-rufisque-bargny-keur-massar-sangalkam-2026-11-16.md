@@ -123,7 +123,11 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 
 - **Correspondance commune confirmée au niveau du pôle : DDD 11/227 ↔ AFTU 61**, terminus principal **14.7854, -17.30922**.
 - **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
-- Le lien de transfert n'est pas encore activé dans le graphe : le planner ne contient pas encore les séquences directionnelles complètes des lignes DDD 11/227 et AFTU 61. Il faut intégrer leurs sens documentés avant que la correspondance soit réellement exploitable par le calculateur.
+- **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0)). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
+- Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 61 (54 arrêts par sens sur Moovit), avec cinq repères GPS de corridor pour chaque ligne. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
+- Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 61, 42 min comme valeur prudente (Moovit indique 22 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
+- DDD 11 partage le même terminus GPS, mais n'est pas encore ajouté au calculateur : la séquence officielle DDD annonce Lat Dior tandis que la fiche Moovit consultée annonce Leclerc. Ce désaccord doit être résolu avant d'intégrer cette ligne.
+- Aucune donnée, station, séquence ou fréquence TER/BRT n'est modifiée.
 
 ## 5. Sangalkam et corridor vers Rufisque
 
