@@ -135,10 +135,10 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
     if (item.generic) status = 'GENERIC_LABEL_NO_GEOCODE';
     else if (clusters.length > 1) status = 'AMBIGUOUS_MULTIPLE_LOCATIONS';
     else if (clusters.length === 1 && clusters[0].length > 1) status = 'SINGLE_AREA_MULTIPLE_OSM_NODES';
-    else if (clusters.length === 1 && networkNodes.length === 1) status = 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE';
+    else if (clusters.length === 1 && networkNodes.length === 1) status = 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE';
     else if (clusters.length === 1) status = 'CROSS_NETWORK_OSM_REFERENCE_ONLY';
 
-    const candidateLocation = status === 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE'
+    const candidateLocation = status === 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE'
       ? { lat: networkNodes[0].lat, lon: networkNodes[0].lon, osmElementId: networkNodes[0].osmElementId, osmElementType: networkNodes[0].osmElementType }
       : null;
     return {
@@ -155,7 +155,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
 
   const summary = {
     uniqueWaypointNames: matches.length,
-    exactAftuTataOsmNodeCandidates: matches.filter((x) => x.status === 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE').length,
+    exactAftuTataOsmFeatureCandidates: matches.filter((x) => x.status === 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE').length,
     crossNetworkReferencesOnly: matches.filter((x) => x.status === 'CROSS_NETWORK_OSM_REFERENCE_ONLY').length,
     singleAreaMultipleNodes: matches.filter((x) => x.status === 'SINGLE_AREA_MULTIPLE_OSM_NODES').length,
     ambiguousMultipleLocations: matches.filter((x) => x.status === 'AMBIGUOUS_MULTIPLE_LOCATIONS').length,
