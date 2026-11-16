@@ -398,9 +398,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
  *  Les distances nulles à Petersen signifient que les réseaux partagent le
  *  même pôle d’échange dans la gare routière : aucune marche inter-pôle n’est
  *  ajoutée au calcul. Les distances TER ↔ BRT historiques restent inchangées.
- *  Les liaisons seulement supposées à partir de coordonnées ne sont pas activées.t les plus
- *  proches du réseau : Petersen ↔ Gare de Dakar (770 m à vol d’oiseau) et
- *  Place de la Nation ↔ Colobane (1 080 m à vol d’oiseau). */
+ *  Les liaisons seulement supposées à partir de coordonnées ne sont pas activées. */
 export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
   {
     fromStopId: 'ter-dakar',
