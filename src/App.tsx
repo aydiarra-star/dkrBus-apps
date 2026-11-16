@@ -377,8 +377,8 @@ function referenceEndpoint(point: MapPoint): PlannerEndpoint {
   }
 }
 
-function planReferencePoints(origin: MapPoint, destination: MapPoint): PlannerOutcome {
-  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination))
+function planReferencePoints(origin: MapPoint, destination: MapPoint, preferences: Preferences): PlannerOutcome {
+  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination), 'fastest', plannerPreferences(preferences))
 }
 
 /**
@@ -1289,7 +1289,7 @@ function App() {
 
   /** Lance le calcul pour deux points explicites. Partagé par le formulaire et
    *  par toutes les actions qui définissent un trajet d’un seul geste. */
-  const runJourneySearch = useCallback(async (origin: MapPoint, destination: MapPoint) => {
+  const runJourneySearch = useCallback(async (origin: MapPoint, destination: MapPoint, searchPreferences: Preferences = preferences) => {
     const id = beginRequest('journey')
     setRouteAttempted(true)
     setJourney({ status: 'loading', search: null, error: null, errorCode: null })
@@ -1309,19 +1309,21 @@ function App() {
     addPoint('destination', destination)
     parameters.set('at', new Date().toISOString())
     parameters.set('max_walk_m', String(ROUTE_MAX_WALK_M))
+    const activeNetworks = MOBILITY_IDS.filter((network) => searchPreferences.mobility.networks[network])
+    parameters.set('networks', activeNetworks.join(','))
 
     const result = await fetchApi(`/api/journeys?${parameters.toString()}`)
     // Un calcul plus ancien que le dernier ne doit ni afficher ni annoncer son résultat.
     if (!isLatestRequest('journey', id)) return
     if (!result.ok) {
       if (shouldUseReferenceFallback(result)) {
-        const referenceOutcome = planReferencePoints(origin, destination)
+        const referenceOutcome = planReferencePoints(origin, destination, searchPreferences)
         const referenceNotice = result.code === 'NOT_PUBLISHED'
-          ? 'Aucun jeu de transport publié : cette estimation utilise uniquement la référence locale TER/BRT.'
-          : 'Le serveur d’horaires est indisponible sur cet hébergement : estimation locale TER/BRT, sans horaire déclaré ni temps réel.'
+          ? 'Aucun jeu de transport publié : le calcul utilise le réseau de référence local (TER, BRT, DDD et AFTU).'
+          : 'Le serveur d’horaires est indisponible : calcul local sur le réseau de référence (TER, BRT, DDD et AFTU), sans horaires publiés complets ni temps réel.'
         setJourney({ status: 'ready', search: null, error: null, errorCode: null, referenceOutcome, referenceNotice })
         announce(referenceOutcome.ok
-          ? `Estimation locale TER/BRT : environ ${referenceOutcome.totalMinutes} minutes. Pas de prochain passage ni de temps réel.`
+          ? `Estimation locale multimodale : environ ${referenceOutcome.totalMinutes} minutes. Les lignes sans horaire publié restent estimées ; aucun temps réel n’est disponible.`
           : `${referenceNotice} ${referenceOutcome.message}`)
         return
       }
@@ -1336,14 +1338,47 @@ function App() {
       announce(parsed.reason)
       return
     }
-    setJourney({ status: 'ready', search: parsed.value, error: null, errorCode: null })
-    const found = parsed.value.results.length
+    let unclassifiedExcluded = 0
+    let disabledNetworkExcluded = 0
+    const filteredResults = parsed.value.results.filter((candidate) => {
+      const network = mobilityFromLabel(`${candidate.routeShortName ?? ''} ${candidate.routeLongName ?? ''} ${candidate.routeId}`)
+      if (network) {
+        if (activeNetworks.includes(network)) return true
+        disabledNetworkExcluded += 1
+        return false
+      }
+      if (activeNetworks.length === MOBILITY_IDS.length) return true
+      unclassifiedExcluded += 1
+      return false
+    })
+    const filterNotes = [
+      disabledNetworkExcluded > 0
+        ? `${disabledNetworkExcluded} course${disabledNetworkExcluded > 1 ? 's' : ''} appartenant à un réseau désactivé ${disabledNetworkExcluded > 1 ? 'ont été écartées' : 'a été écartée'}.`
+        : null,
+      unclassifiedExcluded > 0
+        ? `${unclassifiedExcluded} course${unclassifiedExcluded > 1 ? 's' : ''} sans réseau identifiable ${unclassifiedExcluded > 1 ? 'ont été écartées' : 'a été écartée'} avec les filtres actifs.`
+        : null,
+    ].filter(Boolean)
+    const filteredSearch: JourneySearch = {
+      ...parsed.value,
+      results: filteredResults,
+      reason: filteredResults.length > 0 ? 'DIRECT_RIDE_FOUND' : 'NO_DIRECT_SERVICE',
+      message: filteredResults.length === 0
+        ? parsed.value.results.length > 0
+          ? 'Aucune course directe ne correspond aux réseaux actuellement activés.'
+          : 'Aucune course directe déclarée par le service horaires. Le calcul multimodal de référence est présenté séparément lorsqu’il est disponible.'
+        : parsed.value.message,
+      nextServiceDate: parsed.value.results.length > 0 && filteredResults.length === 0 ? null : parsed.value.nextServiceDate,
+      limitations: [parsed.value.limitations, ...filterNotes].filter(Boolean).join(' ') || null,
+    }
+    setJourney({ status: 'ready', search: filteredSearch, error: null, errorCode: null })
+    const found = filteredSearch.results.length
     announce(
       found > 0
-        ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''}.`
-        : 'Aucune course directe déclarée ne relie ces deux points. Aucun trajet indirect n’est proposé.',
+        ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''} avec les réseaux autorisés.`
+        : 'Aucune course directe identifiée avec les réseaux autorisés. Le calcul multimodal de référence reste affiché séparément si disponible.',
     )
-  }, [beginRequest, isLatestRequest])
+  }, [beginRequest, isLatestRequest, preferences])
 
   /** Un geste qui complète un trajet va jusqu’au calcul, sans s’arrêter au
    *  milieu : c’est la règle « aucun bouton mort ». */
@@ -1802,6 +1837,14 @@ function App() {
                 onClear={() => { roadRouteRequestId.current += 1; setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
                 onClearPoint={clearRoutePoint}
                 onSubmit={submitRoute}
+                onToggleNetwork={(id) => {
+                  const nextPreferences = updatePreferences('mobility', {
+                    networks: { ...preferences.mobility.networks, [id]: !preferences.mobility.networks[id] },
+                  })
+                  if (routeAttempted && routePoints.origin && routePoints.destination) {
+                    void runJourneySearch(routePoints.origin, routePoints.destination, nextPreferences)
+                  }
+                }}
                 dataAvailable={dataAvailable}
                 journey={journey}
                 countdownNow={countdownNow}
@@ -2675,6 +2718,7 @@ function RoutePanel({
   onClear,
   onClearPoint,
   onSubmit,
+  onToggleNetwork,
   dataAvailable,
   journey,
   countdownNow,
@@ -2692,6 +2736,7 @@ function RoutePanel({
   onClear: () => void
   onClearPoint: (key: RoutePointKey) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  onToggleNetwork: (id: MobilityId) => void
   dataAvailable: boolean
   journey: JourneyState
   countdownNow: number
@@ -2704,37 +2749,34 @@ function RoutePanel({
         <div>
           <span className="eyebrow">GUIDE DE TRAJET</span>
           <h2>Planifier un trajet</h2>
-          <div className="route-coverage" aria-label="Mobilités couvertes">
-            {MOBILITY_IDS.map((id) => (
-              <span key={id} className="route-coverage-item">
-                <MobilityBadge id={id} />
-                <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
-              </span>
-            ))}
-          </div>
+
         </div>
         {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
       </div>
 
-      <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
-        <span className="route-network-filters-label">Réseaux à utiliser</span>
-        <div className="route-network-filter-list">
+      <div className="route-network-filter-block">
+        <div className="route-network-filter-heading">
+          <strong>Réseaux à utiliser</strong>
+          <span>Activez les transports à inclure dans le calcul</span>
+        </div>
+        <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
           {MOBILITY_IDS.map((id) => {
             const active = preferences.mobility.networks[id]
-            const activeCount = MOBILITY_IDS.filter((networkId) => preferences.mobility.networks[networkId]).length
+            const activeNetworkCount = MOBILITY_IDS.filter((networkId) => preferences.mobility.networks[networkId]).length
             return (
               <button
                 key={id}
                 type="button"
-                className={`route-network-filter mobility-${id}${active ? ' is-active' : ''}`}
+                className={`route-network-filter${active ? ' is-active' : ' is-inactive'}`}
                 aria-pressed={active}
-                disabled={active && activeCount === 1}
-                onClick={() => updatePreferences('mobility', {
-                  networks: { ...preferences.mobility.networks, [id]: !active },
-                })}
+                aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} ${active ? 'actif' : 'désactivé'}`}
+                disabled={active && activeNetworkCount === 1}
+                onClick={() => onToggleNetwork(id)}
               >
-                <span className="route-network-filter-dot" aria-hidden="true" />
-                {id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}
+                <span className="route-coverage-item">
+                  <MobilityBadge id={id} />
+                  <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
+                </span>
                 <span className="route-network-filter-state">{active ? 'Actif' : 'Désactivé'}</span>
               </button>
             )
@@ -2744,33 +2786,38 @@ function RoutePanel({
 
       <form onSubmit={onSubmit}>
         <div className="route-fields-wrap">
-          <div className="route-connector" aria-hidden="true"><i /><span /><i /></div>
-          <div className="route-origin-group">
-            <PointComboboxField
-              title="Départ"
-              point={routePoints.origin}
-              pointKey="origin"
-              isPicking={pickingPoint === 'origin'}
-              stopOptions={stopOptions}
-              onPick={onSelectStop}
-              onClear={() => onClearPoint('origin')}
-              onPickOnMap={onSelectPoint}
-            />
-            <button type="button" className="use-location-action" onClick={onUseLocation}>
-              <LocateFixed size={15} /> Utiliser ma position comme départ
+          <div className="route-fields-card">
+            <div className="route-origin-group">
+              <PointComboboxField
+                title="Départ"
+                point={routePoints.origin}
+                pointKey="origin"
+                isPicking={pickingPoint === 'origin'}
+                stopOptions={stopOptions}
+                onPick={onSelectStop}
+                onClear={() => onClearPoint('origin')}
+                onPickOnMap={onSelectPoint}
+              />
+              <button type="button" className="use-location-action" onClick={onUseLocation}>
+                <LocateFixed size={15} /> Utiliser ma position comme départ
+              </button>
+            </div>
+            <button type="button" className="swap-route" aria-label="Inverser départ et destination" title="Inverser départ et destination" onClick={onSwap}>
+              <ArrowDownUp size={16} />
             </button>
+            <div className="route-destination-group">
+              <PointComboboxField
+                title="Destination"
+                point={routePoints.destination}
+                pointKey="destination"
+                isPicking={pickingPoint === 'destination'}
+                stopOptions={stopOptions}
+                onPick={onSelectStop}
+                onClear={() => onClearPoint('destination')}
+                onPickOnMap={onSelectPoint}
+              />
+            </div>
           </div>
-          <button type="button" className="swap-route" aria-label="Inverser départ et destination" title="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /><span>Inverser</span></button>
-          <PointComboboxField
-            title="Destination"
-            point={routePoints.destination}
-            pointKey="destination"
-            isPicking={pickingPoint === 'destination'}
-            stopOptions={stopOptions}
-            onPick={onSelectStop}
-            onClear={() => onClearPoint('destination')}
-            onPickOnMap={onSelectPoint}
-          />
         </div>
 
 
@@ -2785,9 +2832,9 @@ function RoutePanel({
         <div className="route-truth-card">
           <div className="route-truth-icon"><ShieldCheck size={17} /></div>
           {dataAvailable ? (
-            <div><strong>Horaires théoriques disponibles</strong><span>Courses directes déclarées ; estimation TER/BRT si le serveur est indisponible.</span></div>
+            <div><strong>Horaires théoriques disponibles</strong><span>Courses directes publiées ; calcul multimodal de référence si le serveur d’horaires est indisponible.</span></div>
           ) : (
-            <div><strong>Estimation TER/BRT disponible</strong><span>Réseau de référence, durées estimées — pas de prochains passages.</span></div>
+            <div><strong>Estimation multimodale disponible</strong><span>TER, BRT, DDD et AFTU : durées calculées sur les données de référence disponibles ; pas de prochains passages ni de temps réel.</span></div>
           )}
         </div>
       )}
@@ -2934,7 +2981,7 @@ function ReferenceJourneyOutcome({ outcome, notice, originLabel, destinationLabe
       <div className="route-unavailable reference-route-unavailable" role="status" aria-live="polite">
         <div className="unavailable-icon"><AlertTriangle size={18} /></div>
         <div>
-          <strong>Aucun trajet TER/BRT de référence trouvé</strong>
+          <strong>Aucun trajet multimodal de référence trouvé</strong>
           <p>{notice}</p>
           <p className="route-unavailable-note">{outcome.message}</p>
         </div>
@@ -2943,9 +2990,9 @@ function ReferenceJourneyOutcome({ outcome, notice, originLabel, destinationLabe
   }
 
   return (
-    <section className="journey-results reference-journey-results" aria-label="Estimation de trajet TER/BRT">
+    <section className="journey-results reference-journey-results" aria-label="Estimation de trajet multimodal">
       <div className="journey-results-head">
-        <span className="eyebrow">ESTIMATION LOCALE · TER + BRT</span>
+        <span className="eyebrow">ESTIMATION LOCALE · MULTIMODALE</span>
         <span className="journey-count-chip">Réseau de référence</span>
       </div>
       <p className="reference-journey-notice">{notice}</p>

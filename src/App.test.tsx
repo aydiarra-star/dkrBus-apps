@@ -201,7 +201,7 @@ const JOURNEYS_NO_RIDE = {
   next_service_date: '2026-10-12',
   reason: 'NO_DIRECT_SERVICE',
   message:
-    'Aucune course directe déclarée ne relie ces deux lieux dans le rayon de marche demandé. La première course directe déclarée est le 2026-10-12. Le moteur à correspondances n’est pas implémenté : aucun trajet indirect n’est proposé.',
+    'Aucune course directe déclarée ne relie ces deux lieux dans le rayon de marche demandé. La première course directe déclarée est le 2026-10-12. Le calcul multimodal de référence est présenté séparément lorsqu’il est disponible.',
 }
 
 const SEARCH_PAYLOAD = {
@@ -279,13 +279,13 @@ describe('Dakar Bus experience safety', () => {
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
 
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
-    expect(await screen.findByText(/aucun trajet ter\/brt de référence trouvé/i)).toBeTruthy()
+    expect(await screen.findByText(/aucun trajet multimodal de référence trouvé/i)).toBeTruthy()
     expect(screen.getAllByText(/aucun jeu de transport publié/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/départ et la destination sont identiques/i).length).toBeGreaterThan(0)
     expect(screen.queryByText(/^≈ \d+ min$/)).toBeNull()
   })
 
-  it('uses the local TER/BRT planner on GitHub Pages when no journey API server exists', async () => {
+  it('uses the local multimodal planner on GitHub Pages when no journey API server exists', async () => {
     stubApi([
       { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
       { match: '/api/journeys', respond: () => ({ ok: false, status: 404, json: async () => { throw new Error('Pages 404 HTML') } }) },
@@ -296,10 +296,10 @@ describe('Dakar Bus experience safety', () => {
     chooseStopInField('Destination', 'mbaye', /keur mbaye fall/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
-    expect(await screen.findByRole('region', { name: 'Estimation de trajet TER/BRT' })).toBeTruthy()
+    expect(await screen.findByRole('region', { name: 'Estimation de trajet multimodal' })).toBeTruthy()
     expect(screen.getByText(/serveur d’horaires est indisponible/i)).toBeTruthy()
     expect(screen.getByText(/≈ \d+ min/)).toBeTruthy()
-    const estimate = screen.getByRole('region', { name: 'Estimation de trajet TER/BRT' })
+    const estimate = screen.getByRole('region', { name: 'Estimation de trajet multimodal' })
     expect(estimate.textContent).toContain('Petersen')
     expect(estimate.textContent).toContain('Keur Mbaye Fall')
     expect(estimate.textContent).toMatch(/ce n’est ni un horaire, ni du temps réel/i)
@@ -681,6 +681,39 @@ describe('published snapshot in the app', () => {
     expect(query.get('destination')).toBe('D6')
     expect(query.get('at')).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     expect(query.get('max_walk_m')).toBe('900')
+    expect(query.get('networks')).toBe('ter,brt,ddd,aftu_tata')
+  })
+
+  it('applies the selected network filters to published direct journey results', async () => {
+    updatePreferences('mobility', {
+      networks: { ter: true, brt: false, ddd: false, aftu_tata: false },
+    })
+    const terRide = {
+      ...JOURNEYS_PAYLOAD.results[0],
+      trip_id: 'TER-REFERENCE-1',
+      route: { ...JOURNEYS_PAYLOAD.results[0].route, route_id: 'TER-1', short_name: 'TER', long_name: 'TER Dakar – Diamniadio' },
+    }
+    const dddRide = {
+      ...JOURNEYS_PAYLOAD.results[0],
+      trip_id: 'DDD-REFERENCE-1',
+      route: { ...JOURNEYS_PAYLOAD.results[0].route, route_id: 'DDD-1', short_name: 'DDD 1', long_name: 'Dakar Dem Dikk' },
+    }
+    const fetchMock = stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/journeys', respond: () => jsonResponse({ ...JOURNEYS_PAYLOAD, results: [terRide, dddRide], result_count: 2 }) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
+    chooseStopInField('Destination', 'keur mbaye', /keur mbaye fall/i)
+    fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
+
+    const results = await screen.findByRole('region', { name: /courses directes proposées/i })
+    expect(results.textContent).toContain('TER')
+    expect(results.textContent).not.toContain('Dakar Dem Dikk')
+    const journeyCall = fetchMock.mock.calls.map((call) => String(call[0])).find((url) => url.startsWith('/api/journeys'))
+    expect(journeyCall).toBeDefined()
+    expect(new URLSearchParams(journeyCall!.split('?')[1]).get('networks')).toBe('ter')
   })
 
   it('actualise le compte à rebours programmé sans recharger et nettoie son timer', async () => {
@@ -746,7 +779,7 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
     expect((await screen.findAllByText(/aucune course directe déclarée/i)).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/aucun trajet indirect n’est proposé/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/calcul multimodal de référence est présenté séparément/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/12\/10\/2026/)).toBeTruthy()
     expect(screen.queryByText(/^\d+ min$/)).toBeNull()
   })
@@ -1450,10 +1483,10 @@ describe('barre de recherche du Trajet', () => {
     expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
 
     for (const network of ['ter', 'ddd', 'aftu_tata'] as const) {
-      const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu \\/ tata' : network, 'i') })
+      const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu' : network, 'i') })
       if (button.getAttribute('aria-pressed') === 'true') fireEvent.click(button)
     }
-    const remaining = within(filters).getByRole('button', { name: /aftu \/ tata actif/i })
+    const remaining = within(filters).getByRole('button', { name: /aftu actif/i })
     expect(remaining).toHaveProperty('disabled', true)
     expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
   })
