@@ -52,7 +52,7 @@ function sourceNetwork(tags = {}) {
   return 'UNATTRIBUTED';
 }
 
-export function buildAftuTataOsmCrosswalk({ aftuRecords, tataRecords, osmData }) {
+export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [], tataRecords, osmData }) {
   const osmIndex = new Map();
   // Overpass peut renvoyer le même nœud via plusieurs branches de l'union
   // (relation + arrêt autonome). Dédupliquer par identifiant OSM avant le rapprochement.
@@ -81,24 +81,27 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, tataRecords, osmData })
   }
 
   const occurrences = new Map();
-  const addRecord = (network, code, direction, points) => {
+  const addRecord = (network, code, direction, points, source) => {
     for (let index = 0; index < points.length; index += 1) {
       const label = String(points[index]?.name ?? points[index]?.stopName ?? points[index]?.label ?? points[index] ?? '').trim();
       const key = normalizeStopName(label);
       const id = key || `generic:${label.toLowerCase()}`;
       const bucket = occurrences.get(id) ?? { key, label, generic: !key, occurrences: [] };
-      bucket.occurrences.push({ network, line: code, direction, order: index });
+      bucket.occurrences.push({ network, line: code, direction, source, order: index });
       occurrences.set(id, bucket);
     }
   };
 
   for (const { data } of aftuRecords) {
     const code = String(data.code ?? 'unknown');
-    for (const [direction, points] of getDirections(data)) addRecord('AFTU', code, direction, Array.isArray(points) ? points : []);
+    for (const [direction, points] of getDirections(data)) addRecord('AFTU', code, direction, Array.isArray(points) ? points : [], 'MOOVIT_DIRECTIONAL_STOP_LIST');
+  }
+  for (const data of aftuOfficialRecords) {
+    addRecord('AFTU', String(data.code ?? 'unknown'), 'corridor_published', Array.isArray(data.waypoints) ? data.waypoints : [], 'AFTU_OFFICIAL_CORRIDOR');
   }
   for (const data of tataRecords) {
     const code = String(data.code ?? 'unknown');
-    for (const [direction, points] of getDirections(data)) addRecord('TATA', code, direction, Array.isArray(points) ? points : []);
+    for (const [direction, points] of getDirections(data)) addRecord('TATA', code, direction, Array.isArray(points) ? points : [], 'TATA_WAYPOINT_CATALOG');
   }
 
   const matches = [...occurrences.values()].map((item) => {
@@ -141,6 +144,9 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, tataRecords, osmData })
     noExactOsmMatch: matches.filter((x) => x.status === 'NO_EXACT_OSM_MATCH').length,
     genericLabels: matches.filter((x) => x.status === 'GENERIC_LABEL_NO_GEOCODE').length,
     namedOsmStopNodesInBounds: stopNodes.length,
+    officialAftuCorridorLines: aftuOfficialRecords.length,
+    detailedAftuSourceFiles: aftuRecords.length,
+    tataSourceLines: tataRecords.length,
     totalOccurrences: matches.reduce((sum, x) => sum + x.occurrences.length, 0),
   };
 
@@ -165,9 +171,12 @@ async function main() {
   const files = (await fs.readdir(dataDir)).filter((file) => /^aftu-\d+-(?:directions|return)\.json$/i.test(file)).sort();
   const aftuRecords = await Promise.all(files.map(async (file) => ({ file, data: JSON.parse(await fs.readFile(path.join(dataDir, file), 'utf8')) })));
   const tataSource = JSON.parse(await fs.readFile(path.join(dataDir, 'tata-lines.json'), 'utf8'));
+  const mobilityLines = JSON.parse(await fs.readFile(path.join(dataDir, 'mobility-lines.json'), 'utf8'));
+  const aftuOfficialRecords = mobilityLines.filter((line) => line.network === 'aftu');
   const osmData = JSON.parse(await fs.readFile(path.join(root, 'artifacts/osm/dakar-osm-route-candidates.json'), 'utf8'));
   const report = buildAftuTataOsmCrosswalk({
     aftuRecords,
+    aftuOfficialRecords,
     tataRecords: Array.isArray(tataSource) ? tataSource : tataSource.lines ?? [],
     osmData,
   });
