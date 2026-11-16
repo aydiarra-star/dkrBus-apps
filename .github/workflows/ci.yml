@@ -74,6 +74,32 @@ jobs:
       - name: Audit DDD ArcGIS stop-to-route geometry (read-only)
         run: node scripts/audit_ddd_arcgis_geometry_crosswalk.mjs
 
+      - name: Check DDD ArcGIS candidate sequence builder
+        run: node --check scripts/build_ddd_arcgis_candidate_sequences.mjs
+
+      - name: Test DDD ArcGIS candidate sequence builder
+        run: node --test scripts/build_ddd_arcgis_candidate_sequences.node-test.mjs
+
+      - name: Build DDD ArcGIS ordered candidate sequences
+        run: node scripts/build_ddd_arcgis_candidate_sequences.mjs
+
+      - name: Check DDD ArcGIS official sequence cross-check
+        run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
+
+      - name: Test DDD ArcGIS official sequence cross-check
+        run: node --test scripts/audit_ddd_arcgis_official_sequence_alignment.node-test.mjs
+
+      - name: Compare candidate sequences with published DDD routes
+        run: node scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
+
+      - name: Upload DDD ArcGIS ordered candidate sequences
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-ordered-candidate-sequences
+          path: artifacts/ddd/arcgis-2024-candidate-sequences/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload ArcGIS stop-to-route crosswalk and audit
         uses: actions/upload-artifact@v4
         with:
