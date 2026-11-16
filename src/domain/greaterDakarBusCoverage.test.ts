@@ -14,7 +14,7 @@ describe('repères de couverture DDD/AFTU/TATA de l’agglomération élargie', 
 
   it('inclut les dessertes périphériques citées dans les itinéraires officiels', () => {
     const names = new Set(GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => point.name))
-    for (const name of ['Sangalkam', 'Bambilor', 'Niacourab', 'Tivaouane Peulh', 'Malika', 'Bargny', 'Toubab Dialaw', 'Yène']) {
+    for (const name of ['Sangalkam', 'Bambilor', 'Niacourab', 'Tivaouane Peulh', 'Malika', 'Bargny', 'Toubab Dialaw', 'Yène', 'Noflaye', 'Keur Ndiaye Lo', 'Carrefour Marché Boubess']) {
       expect(names.has(name)).toBe(true)
     }
   })
