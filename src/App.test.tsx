@@ -479,6 +479,7 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.getByLabelText('Code couleur des mobilités')).toBeTruthy()
     expect(screen.getByPlaceholderText('On va où ?')).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir la maison sur la carte/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir le boulot sur la carte/i })).toBeTruthy()
@@ -486,6 +487,8 @@ describe('structure en quatre piliers', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.queryByLabelText('Code couleur des mobilités')).toBeNull()
+    expect(screen.getByRole('group', { name: /réseaux à utiliser/i })).toBeTruthy()
     expect(screen.queryByPlaceholderText('On va où ?')).toBeNull()
     expect(screen.queryByRole('search')).toBeNull()
 
