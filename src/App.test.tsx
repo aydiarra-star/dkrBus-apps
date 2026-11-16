@@ -342,6 +342,8 @@ describe('isolation de la vue carte', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.queryByLabelText('Code couleur des mobilités')).toBeNull()
+    expect(screen.getByRole('group', { name: 'Réseaux à utiliser' })).toBeTruthy()
     expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
 
     for (const tab of [/alertes/i, /paramètres/i]) {
@@ -479,6 +481,7 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.getByLabelText('Code couleur des mobilités')).toBeTruthy()
     expect(screen.getByPlaceholderText('On va où ?')).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir la maison sur la carte/i })).toBeTruthy()
     expect(screen.getByRole('button', { name: /définir le boulot sur la carte/i })).toBeTruthy()
