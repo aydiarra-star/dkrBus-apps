@@ -160,13 +160,13 @@ describe('couverture des réseaux de bus dans le moteur multimodal', () => {
     expect(outcome.networksUsed).toEqual(['aftu_tata'])
   })
 
-  it('calcule un trajet sur une ligne TATA depuis les arrêts de son propre référentiel', () => {
+  it('calcule un trajet AFTU depuis les anciens arrêts TATA du référentiel', () => {
     const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', {
       allowedNetworks: ['aftu_tata'],
     })
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('TATA')
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU')
     expect(outcome.networksUsed).toEqual(['aftu_tata'])
   })
 })
