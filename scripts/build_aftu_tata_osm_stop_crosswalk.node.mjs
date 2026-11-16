@@ -48,13 +48,19 @@ function sourceNetwork(tags = {}) {
   const value = [tags.network, tags.operator].filter(Boolean).join(' ').toLowerCase();
   if (/aftu|tata/.test(value)) return 'AFTU_TATA';
   if (/sunu.?brt|dakar mobilit/.test(value)) return 'BRT';
-  if (/dakar dem dikk|dem.?dikk/.test(value)) return 'DDD';
+  if (/dakar.?dem.?dik+k?|dem.?dik+k?/.test(value)) return 'DDD';
   return 'UNATTRIBUTED';
 }
 
 export function buildAftuTataOsmCrosswalk({ aftuRecords, tataRecords, osmData }) {
   const osmIndex = new Map();
-  const stopNodes = (osmData.elements ?? []).filter(isStopNode);
+  // Overpass peut renvoyer le même nœud via plusieurs branches de l'union
+  // (relation + arrêt autonome). Dédupliquer par identifiant OSM avant le rapprochement.
+  const stopNodesById = new Map();
+  for (const node of (osmData.elements ?? []).filter(isStopNode)) {
+    stopNodesById.set(String(node.id), node);
+  }
+  const stopNodes = [...stopNodesById.values()];
   for (const node of stopNodes) {
     const key = normalizeStopName(node.tags.name);
     if (!key) continue;
