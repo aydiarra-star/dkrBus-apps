@@ -79,9 +79,21 @@ Les fiches détaillées AFTU accessibles donnent des séquences utiles, mais leu
 | Terminus 63 (OSM node 6636898185) | **14.72082, -17.25488** | Arrêt de bus OSM ; attribution opérateur/ligne non prouvée |
 | Ex Terminus ligne 63 (OSM node 1782535718) | **14.71489, -17.26393** | Ancien arrêt de bus ; ne pas l'assimiler au terminus actuel |
 | CEM Camp Marchand (OSM way 627371995) | **14.72010, -17.26281** | Bâtiment scolaire de référence, pas un quai |
-| Arrêt Khaar (OSM node 1902193270) | **14.72029, -17.26547** | Arrêt de bus OSM nommé ; cohérent avec le nom « Arrêt Khaar » de la séquence AFTU 63, mais l'attribution opérateur reste à confirmer |
+| Arrêt Khaar (OSM node 1902193270) | **14.72029, -17.26547** | Arrêt de bus OSM nommé ; proche du corridor Rufisque ; la fiche détaillée AFTU 63 (catalogue officiel ligne 62) cite « Arrêt Khaar », mais l'attribution exacte de ce nœud reste à confirmer |
+
 
 La gare routière OSM et la gare ferroviaire OSM sont séparées d'environ **1,6 km à vol d'oiseau**. Elles doivent donc rester deux pôles distincts dans le calculateur. Cette valeur n'est pas un itinéraire piéton.
+
+### Correspondance piétonne TER ↔ bus : non validée
+
+- La page Moovit « Gare De Rufisque » mise à jour le **16 novembre 2026** indique une station TER « Rufisque » à **252 m / 4 min** du lieu.
+- La page liée de l'arrêt « Mosquée Jakka » indique cependant la station TER à **882 m / 12 min** ; une autre fiche Moovit homonyme, mise à jour le 14 septembre, affiche **2 681 m / 34 min**.
+- Les fiches Moovit recensent plusieurs arrêts proches portant des noms similaires. Elles ne donnent pas un GPS de quai suffisamment univoque pour trancher.
+- L'arrêt OSM **Arrêt Khaar** (14.72029, -17.26547) est à environ **730 m à vol d'oiseau** de la gare ferroviaire, mais son opérateur et sa ligne ne sont pas prouvés.
+- La gare routière OSM (14.72167, -17.28356) est un autre site, à environ **1,57 km à vol d'oiseau** de la gare ferroviaire.
+
+**Décision :** aucune correspondance TER↔DDD/AFTU n'est activée à Rufisque. Il faut d'abord identifier le bon arrêt Moovit/OSM, relever le quai réel et tracer le cheminement piéton continu.
+
 
 Le terminus AFTU « Camp Marchand » est documenté dans la séquence, mais le bâtiment CEM Camp Marchand et les anciens arrêts OSM ne suffisent pas à identifier le quai actuel. Le point « Terminus 63 » ne doit pas être automatiquement rattaché à la fiche Camp Marchand.
 
@@ -96,19 +108,20 @@ Cela confirme un pôle de transport connu, mais **aucune coordonnée GPS fiable 
 ### Points GPS
 
 - **Gare de Bargny** (OSM way 1016285847) : **14.69798, -17.22923**.
-- **Garage clando** (OSM node 4846093863, amenity=bus_station) : **14.69650, -17.23086**.
+- **Garage clando** (OSM node 4846093863, amenity=bus_station) : **14.69650, -17.23086**, environ 240 m au sud-ouest de la gare.
+- **Terminus bus Bargny** (OSM node 2366463127) : **14.69047, -17.22725**, site distinct, environ 800 m au sud de la gare.
 
 Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cette proximité est un repère géographique, pas une mesure de cheminement piéton vérifié.
 
 ### Desserte
 
-- La fiche AFTU détaillée 74 publie explicitement **« Terminus Bargny (gare ferroviaire) »** et une séquence qui remonte par Rufisque jusqu'à Keur Massar.
-- La fiche AFTU détaillée 60 publie aussi le terminus Bargny via Sonadis et Sococim.
+- La fiche détaillée AFTU **page 74** (catalogue officiel **ligne 73**) publie explicitement **« Terminus Bargny (gare ferroviaire) »** et une séquence qui remonte par Rufisque jusqu'à Keur Massar.
+- La fiche détaillée AFTU **page 60** (catalogue officiel **ligne 59**) publie aussi un parcours Colobane–Bargny via Diamaguène, Mbao et Rufisque.
 - DDD publie le passage par Bargny dans la relation Rufisque–Yenne, mais le numéro et le quai exacts ne sont pas identifiés dans la page consultée.
 
 ### Correspondance candidate
 
-**TER Bargny ↔ AFTU au pôle gare ferroviaire** est le candidat le plus fort du secteur : la fiche AFTU nomme explicitement la gare ferroviaire comme terminus. Le Garage clando OSM est à proximité, mais on ne sait pas encore s'il représente le quai de cette ligne AFTU, un autre service collectif ou une zone distincte.
+**TER Bargny ↔ AFTU au pôle gare ferroviaire** est le candidat le plus fort du secteur : la fiche AFTU nomme explicitement la gare ferroviaire comme terminus. Le Garage clando OSM et le Terminus bus Bargny sont deux sites distincts de la gare ferroviaire. On ne sait pas encore si le quai AFTU de la ligne 73 se trouve dans l'enceinte ferroviaire, près du Garage clando ou sur une autre plateforme. Le tracé cartographique de la ligne 73 est désormais ancré sur le GPS de la gare ferroviaire ; son point « Arrêt Khaar » à Rufisque reste un repère de corridor, pas un quai AFTU confirmé.
 
 Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
 
@@ -201,6 +214,9 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - Terminus minibus n°61 : https://mapcarta.com/fr/N5286379844
 - Arrêt DDD 217/218 proche du Terminus 61 : https://mapcarta.com/N9562676804
 - Moovit, Terminus 61 Almadies (31 m à pied du quai DDD voisin) : https://moovitapp.com/index/fr/transport_en_commun-Terminus_61-Dakar-stop_37703727-5996
+- Moovit, Gare De Rufisque (fiche mise à jour le 16 novembre 2026) : https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703748-5996
+- Moovit, Mosquée Jakka (fiche mise à jour le 16 novembre 2026) : https://moovitapp.com/index/fr/transport_en_commun-Mosqu%C3%A9e_Jakka-Dakar-stop_37703752-5996
+- Moovit, ancienne fiche homonyme Gare De Rufisque (mise à jour le 14 septembre 2026) : https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703749-5996
 - Terminus Dakar dem dikk P11 : https://mapcarta.com/fr/N5286379845
 - Terminus 52 (TATA) : https://mapcarta.com/fr/N5286379847
 - Gare routière de Keur Massar : https://mapcarta.com/fr/W335756472
