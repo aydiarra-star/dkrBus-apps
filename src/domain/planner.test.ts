@@ -50,6 +50,20 @@ describe('calculateur multimodal de référence', () => {
     expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
   })
 
+  it('calcule les trois variantes sur le même réseau et expose leurs métriques', () => {
+    const fastest = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest')
+    const fewerTransfers = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fewerTransfers')
+    const lessWalking = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'lessWalking')
+    for (const outcome of [fastest, fewerTransfers, lessWalking]) {
+      expect(outcome.ok).toBe(true)
+      if (!outcome.ok) continue
+      expect(outcome.totalMinutes).toBeGreaterThan(0)
+      expect(outcome.totalWalkM).toBeGreaterThanOrEqual(0)
+      expect(outcome.transfers).toBeGreaterThanOrEqual(0)
+      expect(outcome.legs.some((leg) => leg.kind === 'ride')).toBe(true)
+    }
+  })
+
   it('refuse un départ trop éloigné du réseau de référence au lieu de deviner', () => {
     const far = { label: 'Mbour', lat: 14.4167, lon: -16.9667 }
     const outcome = planReferenceJourney(far, GUEDIAWAYE)
