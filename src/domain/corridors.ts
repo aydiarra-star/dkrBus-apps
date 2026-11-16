@@ -432,6 +432,20 @@ export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSF
   declared: true,
 }))
 
+/** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
+export function networkOfStopId(stopId: string): CorridorNetworkId | null {
+  const prefix = stopId.split('-')[0]
+  if (prefix === 'aftu' || prefix === 'tata') return 'aftu_tata'
+  return prefix === 'ter' || prefix === 'brt' || prefix === 'ddd' ? prefix : null
+}
+
+export function networkLabelOf(stopId: string): string {
+  const network = networkOfStopId(stopId)
+  // Identité publique : AFTU regroupe les dessertes AFTU/TATA dans l'interface.
+  if (network === 'aftu_tata') return 'AFTU'
+  return network ? CORRIDOR_NETWORKS[network].label : 'réseau de référence'
+}
+
 /** Index des correspondances par arrêt, pour le calculateur. */
 export const TRANSFER_INDEX: ReadonlyMap<string, readonly CorridorTransfer[]> = (() => {
   const index = new Map<string, CorridorTransfer[]>()
