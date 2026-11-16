@@ -11,10 +11,10 @@ export interface GreaterDakarBusCoveragePoint {
 }
 
 /**
- * Repères de localités cités dans les itinéraires publiés DDD/AFTU.
- * Ils servent uniquement à visualiser l'étendue territoriale sur la carte :
- * ce ne sont pas des arrêts voyageurs géolocalisés ni des positions de bus.
- * Les coordonnées sont des points de localité OSM, pas des quais d'arrêt.
+ * Repères de localités et points de passage cités dans les itinéraires publiés.
+ * Ils visualisent l'étendue territoriale sur la carte, sans prétendre former
+ * une liste exhaustive de quais voyageurs ni représenter des bus en direct.
+ * Certains points OSM sont des arrêts nommés ; d'autres sont des centres de localité.
  */
 export const GREATER_DAKAR_BUS_COVERAGE_POINTS: readonly GreaterDakarBusCoveragePoint[] = [
   {
