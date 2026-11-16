@@ -153,4 +153,13 @@ La référence GTFS exige que les fichiers du dataset soient directement à la r
 
 ## Références calendar_dates.txt (15 novembre 2026)
 
-Lorsque `calendar.txt` est présent, chaque `calendar_dates.service_id` doit référencer un `calendar.service_id`. Le validateur refuse maintenant les exceptions orphelines avec `UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE`. Le mode alternatif `calendar_dates.txt` seul reste accepté, conformément à la spécification. Les tests utilisent une archive synthétique avec une référence inconnue et conservent le test positif du calendrier par dates seul. La version du worker est passée à `dakar-gtfs-validator-v4` pour identifier les nouveaux contrôles de structure, de racine ZIP et de colonnes.
+Lorsque `calendar.txt` est présent, chaque `calendar_dates.service_id` doit référencer un `calendar.service_id`. Le validateur refuse maintenant les exceptions orphelines avec `UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE`. Le mode alternatif `calendar_dates.txt` seul reste accepté, conformément à la spécification. Les tests utilisent une archive synthétique avec une référence inconnue et conservent le test positif du calendrier par dates seul. La version du worker est passée à `dakar-gtfs-validator-v5` pour identifier les nouveaux contrôles de structure, de racine ZIP et de colonnes.
+
+
+## Contrôles URL et fuseau horaire en échec fermé (16 novembre 2026)
+
+Les champs obligatoires `agency_url` et `feed_publisher_url` doivent désormais être des URL HTTP(S) absolues avec une autorité valide. Les schémas non HTTP, les URL relatives, les autorités absentes, les identifiants intégrés, les ports invalides, les espaces et les antislashs sont refusés.
+
+Si la base IANA des fuseaux horaires n'est pas disponible sur le runner, le validateur émet `TIMEZONE_DATABASE_UNAVAILABLE` en erreur et ne peut plus déclarer le flux structurellement valide par défaut. La version du validateur passe à `dakar-gtfs-validator-v5`.
+
+Les tests couvrent les URL invalides et l'absence de base IANA avec des archives synthétiques uniquement. Aucun flux réel, stockage ou service Supabase n'est utilisé.
