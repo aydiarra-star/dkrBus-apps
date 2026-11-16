@@ -107,7 +107,7 @@ describe('réseau de référence TER/BRT', () => {
 
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(6)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(7)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 
@@ -134,6 +134,19 @@ describe('réseau de référence TER/BRT', () => {
       toStopId: 'ddd-guediawaye',
       walkM: 0,
     })
+  })
+
+  it('active le pôle commun DDD 227 ↔ AFTU 61 au terminus de Keur Massar', () => {
+    const transfer = CORRIDOR_TRANSFERS.find((entry) =>
+      entry.fromStopId === 'ddd-keur-massar-227' && entry.toStopId === 'aftu-keur-massar-61',
+    )
+    expect(transfer).toMatchObject({ walkM: 0 })
+    const ddd = getCorridorStop('ddd-keur-massar-227')!
+    const aftu = getCorridorStop('aftu-keur-massar-61')!
+    expect(ddd).toMatchObject({ lat: 14.78542, lon: -17.30922 })
+    expect(aftu).toMatchObject({ lat: 14.78542, lon: -17.30922 })
+    expect(linesServingStop('ddd-keur-massar-227').map((line) => line.shortName)).toContain('DDD 227')
+    expect(linesServingStop('aftu-keur-massar-61').map((line) => line.shortName)).toContain('AFTU 61')
   })
 
   it('affiche les anciennes dessertes TATA sous le seul nom public AFTU', () => {
