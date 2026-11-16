@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { CORRIDOR_LINES, getCorridorStop, networkLabelOf, type CorridorLine } from './corridors'
-import { describeLeg, directedStopSequences, planReferenceJourney, type PlannerResult } from './planner'
+import { describeLeg, directedStopSequences, headwayForLine, planReferenceJourney, type PlannerResult } from './planner'
 
 const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
 // Point à ~110 m de la station BRT « Préfecture de Guédiawaye » (position OSM).
 const GUEDIAWAYE = { label: 'Guédiawaye (point carte)', lat: 14.7725, lon: -17.3860 }
 const RUFISQUE = { label: 'Rufisque (point carte)', lat: 14.7145, lon: -17.2725 }
+
+describe('fréquences de ligne selon le jour', () => {
+  it('applique 20 minutes en semaine et 42 minutes le week-end pour AFTU 60', () => {
+    const line = CORRIDOR_LINES.find((item) => item.id === 'aftu-60')
+    if (!line) throw new Error('ligne AFTU 60 manquante')
+    expect(headwayForLine(line, new Date('2026-11-16T12:00:00Z')).minutes).toBe(20)
+    expect(headwayForLine(line, new Date('2026-11-15T12:00:00Z')).minutes).toBe(42)
+  })
+})
 
 describe('libellés publics des réseaux', () => {
   it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
