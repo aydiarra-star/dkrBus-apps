@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DAKAR_REGION_BOUNDS } from './corridors'
+import { ALL_CORRIDOR_STOPS, DAKAR_REGION_BOUNDS } from './corridors'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 
 describe('repères de couverture DDD/AFTU/TATA de l’agglomération élargie', () => {
@@ -20,7 +20,8 @@ describe('repères de couverture DDD/AFTU/TATA de l’agglomération élargie', 
   })
 
   it('garde chaque repère hors du graphe des arrêts du calculateur', () => {
-    expect(GREATER_DAKAR_BUS_COVERAGE_POINTS.every((point) => point.id.startsWith(''))).toBe(true)
+    const plannerStopIds = new Set(ALL_CORRIDOR_STOPS.map((stop) => stop.id))
+    expect(GREATER_DAKAR_BUS_COVERAGE_POINTS.every((point) => !plannerStopIds.has(point.id))).toBe(true)
     expect(new Set(GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => point.id)).size).toBe(GREATER_DAKAR_BUS_COVERAGE_POINTS.length)
     expect(GREATER_DAKAR_BUS_COVERAGE_POINTS.every((point) => point.osmRef && point.osmUrl && point.routes.length > 0)).toBe(true)
   })
