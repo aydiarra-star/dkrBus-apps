@@ -64,7 +64,7 @@ test('does not promote DDD or BRT coordinates to AFTU/TATA stops', () => {
   const match = report.matches[0];
   assert.equal(match.status, 'CROSS_NETWORK_OSM_REFERENCE_ONLY');
   assert.equal(match.candidateLocation, null);
-  assert.equal(match.candidateNodes[0].network, 'DDD');
+  assert.equal(match.candidateFeatures[0].network, 'DDD');
 });
 
 test('deduplicates repeated Overpass node records and recognizes DDD tag variants', () => {
@@ -77,7 +77,7 @@ test('deduplicates repeated Overpass node records and recognizes DDD tag variant
   const match = report.matches[0];
   assert.equal(match.status, 'CROSS_NETWORK_OSM_REFERENCE_ONLY');
   assert.equal(match.osmCandidateCount, 1);
-  assert.equal(match.candidateNodes[0].network, 'DDD');
+  assert.equal(match.candidateFeatures[0].network, 'DDD');
 });
 
 test('includes peripheral Dakar routes around Sangalkam and Toubab Dialaw', () => {
