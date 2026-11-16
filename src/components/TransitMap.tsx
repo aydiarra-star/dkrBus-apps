@@ -446,7 +446,7 @@ function TransitMapView({
   // même si sa séquence d'arrêts n'est pas publiée dans OSM.
   useEffect(() => {
     const controller = new AbortController()
-    const query = '[out:json][timeout:30];relation(3982642);out body geom;>;out body;'
+    const query = '[out:json][timeout:30];relation(3982642);out body;>;out geom;'
     const endpoints = [
       'https://overpass-api.de/api/interpreter',
       'https://overpass.private.coffee/api/interpreter',
