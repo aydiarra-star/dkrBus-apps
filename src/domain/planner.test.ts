@@ -89,16 +89,16 @@ describe('calculateur multimodal de référence', () => {
     }
   })
 
-  it('relie Parcelles à Almadies par DDD 227 puis AFTU 61 au terminus commun Keur Massar', () => {
+  it('relie Parcelles à Almadies par DDD 227 puis AFTU 60 au terminus commun Keur Massar', () => {
     const outcome = planReferenceJourney(endpoint('ddd-parcelles-227'), endpoint('aftu-almadies'), 'fastest', {
       allowedNetworks: ['ddd', 'aftu_tata'],
     })
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
     const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
-    expect(rides.map((leg) => leg.line?.shortName)).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 61']))
+    expect(rides.map((leg) => leg.line?.shortName)).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 60']))
     expect(outcome.transfers).toBe(1)
-    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 61']))
+    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 60']))
     expect(outcome.networksUsed).toEqual(expect.arrayContaining(['ddd', 'aftu_tata']))
   })
 
@@ -108,7 +108,7 @@ describe('calculateur multimodal de référence', () => {
     })
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
-    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['AFTU 61', 'DDD 227']))
+    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['AFTU 60', 'DDD 227']))
     expect(outcome.transfers).toBe(1)
   })
 
