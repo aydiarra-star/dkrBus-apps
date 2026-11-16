@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { buildAftuTataDddCrosswalk, normalizeStopName } from './build_aftu_tata_ddd_stop_crosswalk.node.mjs';
 
 test('normalizes accented and generic stop prefixes', () => {
-  assert.equal(normalizeStopName('Arrêt Terminus UCAD'), 'ucad');
+  assert.equal(normalizeStopName('Arrêt Terminus UCAD'), 'terminus ucad');
+  assert.notEqual(normalizeStopName('Gare de Keur Massar'), normalizeStopName('Terminus Keur Massar'));
   assert.equal(normalizeStopName('Marché Tilène'), 'marche tilene');
 });
 
@@ -43,4 +44,21 @@ test('marks repeated names at distant locations ambiguous', () => {
   });
   assert.equal(report.matches[0].status, 'AMBIGUOUS_MULTIPLE_LOCATIONS');
   assert.equal(report.matches[0].candidateLocation, null);
+});
+
+
+test('keeps gare and terminus as distinct hub names', () => {
+  const report = buildAftuTataDddCrosswalk({
+    aftuRecords: [{ data: { code: '61', waypoints: ['Gare de Keur Massar', 'Terminus Keur Massar'] } }],
+    tataRecords: [],
+    dddCandidates: { candidates: [{
+      line: 'Ligne 11',
+      stops: [{ sourceStopName: 'Arret Terminus Keur Massar', lat: 14.785391, lon: -17.309223, sourceObjectId: 722 }],
+    }] },
+  });
+  const gare = report.matches.find((x) => x.waypoint === 'Gare de Keur Massar');
+  const terminus = report.matches.find((x) => x.waypoint === 'Terminus Keur Massar');
+  assert.equal(gare.status, 'NO_EXACT_DDD_MATCH');
+  assert.equal(terminus.status, 'EXACT_NAME_SINGLE_LOCATION_CANDIDATE');
+  assert.equal(terminus.candidateLocation.lat, 14.785391);
 });
