@@ -71,7 +71,7 @@ Les distances d'accès et d'approche calculées à partir de coordonnées sont d
 ## 4. Données et correspondances : règles non négociables
 
 - TER et BRT : tracés, gares/stations, horaires et fréquences de référence validés protégés. Aucune retouche sans autorisation explicite.
-- DDD/AFTU : enrichir les lignes disponibles, les deux sens indépendamment, les arrêts dans l'ordre, les variantes et les sources. Le GTFS CETUD n'est pas reçu et ne constitue pas un blocage.
+- DDD/AFTU : enrichir les lignes disponibles, les deux sens indépendamment, les arrêts dans l'ordre, les variantes et les sources. Le GTFS exploitable pour ce projet n'est pas reçu et ne constitue pas un blocage. Le CETUD indique dans son Observatoire avoir numérisé le réseau au format GTFS (lignes, arrêts, horaires, tarifs et services) ; les données d'exploitation DDD/AFTU proviennent notamment de CAPTRANS et d'enquêtes. Cela justifie de poursuivre la demande d'accès à la version courante et aux conditions de réutilisation, sans bloquer les travaux de référence déjà engagés.
 - Identité publique des minibus : AFTU uniquement ; TATA est regroupé sous AFTU dans l'interface.
 - Un nom d'arrêt identique ne prouve ni un quai commun, ni une correspondance.
 - Une distance droite ne prouve pas un chemin piéton.
@@ -99,9 +99,12 @@ Sources internes de preuve : `docs/calage-geographique-poles-2026-11-16.md` et `
 - Séparer arrêt, station parente, quai, entrée voyageurs et pôle d'échange.
 
 ### M2 — Cheminement piéton réel
-- Utiliser un moteur de routage piéton sur un graphe OSM (chemins, trottoirs, traversées, passerelles et barrières).
+- Solution technique recommandée à évaluer : **Valhalla auto-hébergé**, alimenté par un extrait OpenStreetMap régional, en mode de coût `pedestrian`. Il sait calculer une géométrie de marche et des instructions de manœuvre ; les options documentées incluent aussi des modes d'aide à l'accessibilité (fauteuil roulant / guidage non-voyant).
+- Utiliser ce moteur pour les accès, sorties et correspondances, tandis que le moteur DakarBus conserve la décision de quelles correspondances sont autorisées.
 - Calculer distance et durée sur le chemin praticable, pas en ligne droite.
 - Rejeter les traversées interdites, les accès fermés et les liaisons à travers voies ferrées ou emprises clôturées.
+- Ne pas faire dépendre l'application de production du serveur de démonstration public Valhalla : sa documentation demande le respect d'une politique d'usage équitable et recommande un identifiant client ; un serveur propre ou un fournisseur contractuellement adapté est préférable.
+- Refaire une revue terrain/OSM des entrées, trottoirs, traversées et passerelles à Dakar avant d'activer un lien.
 - Tant que le chemin n'est pas vérifié, garder la correspondance candidate non activée ou afficher « accès à confirmer ».
 
 ### M3 — Moteur horaire multimodal
@@ -141,3 +144,13 @@ Une version ne peut être déclarée terminée que si :
 8. la publication GitHub Pages est confirmée et le rendu iPhone est contrôlé.
 
 Une PR fusionnée, un build vert ou une capture illustrative ne suffit pas à prouver la qualité des données ni l'exactitude d'un trajet.
+
+
+## 7. Références techniques à évaluer
+
+- CETUD — Observatoire / système de données (GTFS, SAE, données DDD/AFTU) : https://cetud.sn/observatoire/systeme-de-donnees/
+- Valhalla — aperçu du routage et géométries / instructions piétonnes : https://valhalla.github.io/valhalla/api/turn-by-turn/overview/
+- Valhalla — options du mode pedestrian et options d'accessibilité : https://valhalla.github.io/valhalla/api/route/api-reference/
+- Valhalla — serveur de démonstration et règles d'usage équitable : https://valhalla.github.io/valhalla/
+
+Ces références servent à choisir une architecture ; elles ne prouvent pas encore la qualité des trottoirs, traversées ou données de transport de Dakar. Une recette géographique locale reste obligatoire.
