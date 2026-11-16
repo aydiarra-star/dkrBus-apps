@@ -190,3 +190,7 @@ end;
 $privilege_test$;
 
 reset role;
+
+-- This synthetic intake row must not remain in the shared validation queue for later SQL tests.
+delete from public.dakar_admin_staged_datasets
+ where dataset_id = 'privilege-boundary-test';
