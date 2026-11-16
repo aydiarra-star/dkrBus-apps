@@ -8,7 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const GENERIC = new Set(['arret','de','du','des','la','le','les','bus','stop','station','gare','terminus','a','au','aux']);
+const GENERIC = new Set(['arret','de','du','des','la','le','les','bus','stop','a','au','aux']);
 const BOUNDS = { south: 14.50, west: -17.60, north: 14.95, east: -17.05 };
 
 export function normalizeStopName(value) {

@@ -93,7 +93,7 @@ describe('réseau de référence TER/BRT', () => {
   })
 
   it('relie TER et BRT par des correspondances marchables cohérentes avec les positions', () => {
-    for (const transfer of CORRIDOR_TRANSFERS) {
+    for (const transfer of CORRIDOR_TRANSFERS.filter((item) => item.walkM > 0)) {
       const from = getCorridorStop(transfer.fromStopId)
       const to = getCorridorStop(transfer.toStopId)
       expect(from).not.toBeNull()
@@ -105,9 +105,16 @@ describe('réseau de référence TER/BRT', () => {
     }
   })
 
+
+  it('réserve les distances nulles aux transferts explicitement situés dans un même pôle', () => {
+    const sameHubTransfers = CORRIDOR_TRANSFERS.filter((transfer) => transfer.walkM === 0)
+    expect(sameHubTransfers.length).toBeGreaterThan(0)
+    expect(sameHubTransfers.every((transfer) => /même|gare routière|pôle/i.test(transfer.label))).toBe(true)
+  })
+
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(6)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(10)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 
@@ -236,3 +243,27 @@ describe('source unique des fréquences', () => {
     expect(OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)).toEqual([10, 20, 20])
   })
 })
+
+
+  it('distingue le passage AFTU 73 à Keur Massar de ses terminus', () => {
+    const stop = getCorridorStop('aftu-keur-massar-73')
+    const line = CORRIDOR_LINES.find((item) => item.id === 'aftu-73')
+    expect(stop?.name).toBe('Passage Keur Massar (AFTU 73)')
+    expect(stop?.note).toContain('arrêt de passage')
+    expect(line?.longName).toContain('segment de ligne')
+    expect(line?.stopIds).toEqual(['aftu-bargny-73', 'aftu-keur-massar-73'])
+  })
+
+  it('active la correspondance DDD 227 ↔ AFTU 60 au terminus commun de Keur Massar', () => {
+    const transfer = CORRIDOR_TRANSFERS.find((item) =>
+      [item.fromStopId, item.toStopId].includes('ddd-keur-massar-227')
+      && [item.fromStopId, item.toStopId].includes('aftu-keur-massar-60'),
+    )
+    expect(transfer).toMatchObject({
+      fromStopId: 'ddd-keur-massar-227',
+      toStopId: 'aftu-keur-massar-60',
+      walkM: 0,
+    })
+    expect(CORRIDOR_LINES.find((line) => line.id === 'ddd-227')?.shortName).toBe('DDD 227')
+    expect(CORRIDOR_LINES.find((line) => line.id === 'aftu-60')?.shortName).toBe('AFTU 60')
+  })

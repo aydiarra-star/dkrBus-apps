@@ -342,6 +342,8 @@ describe('isolation de la vue carte', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
+    expect(screen.queryByLabelText('Code couleur des mobilités')).toBeNull()
+    expect(screen.getByRole('group', { name: 'Réseaux à utiliser' })).toBeTruthy()
     expect(container.querySelector('.app-shell')?.className).not.toContain('is-map-hidden')
 
     for (const tab of [/alertes/i, /paramètres/i]) {
@@ -1480,6 +1482,7 @@ describe('barre de recherche du Trajet', () => {
     const ter = within(filters).getByRole('button', { name: /ter actif/i })
     const brt = within(filters).getByRole('button', { name: /brt actif/i })
     expect(ter.getAttribute('aria-pressed')).toBe('true')
+    expect(ter.getAttribute('aria-label')).toBe('TER Actif')
     expect(brt.getAttribute('aria-pressed')).toBe('true')
 
     fireEvent.click(brt)
