@@ -83,6 +83,15 @@ jobs:
       - name: Build DDD ArcGIS ordered candidate sequences
         run: node scripts/build_ddd_arcgis_candidate_sequences.mjs
 
+      - name: Check DDD ArcGIS official sequence cross-check
+        run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
+
+      - name: Test DDD ArcGIS official sequence cross-check
+        run: node --test scripts/audit_ddd_arcgis_official_sequence_alignment.test.mjs
+
+      - name: Compare candidate sequences with published DDD routes
+        run: node scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
+
       - name: Upload DDD ArcGIS ordered candidate sequences
         uses: actions/upload-artifact@v4
         with:
