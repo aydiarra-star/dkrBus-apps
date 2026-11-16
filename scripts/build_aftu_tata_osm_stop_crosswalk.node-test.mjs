@@ -35,6 +35,19 @@ test('does not promote DDD or BRT coordinates to AFTU/TATA stops', () => {
   assert.equal(match.candidateNodes[0].network, 'DDD');
 });
 
+test('deduplicates repeated Overpass node records and recognizes DDD tag variants', () => {
+  const node = { type: 'node', id: 41, lat: 14.69, lon: -17.46, tags: { name: 'UCAD', network: 'DAKAR DEM DIK', highway: 'bus_stop' } };
+  const report = buildAftuTataOsmCrosswalk({
+    aftuRecords: [{ data: { code: '58', waypoints: ['UCAD'] } }],
+    tataRecords: [],
+    osmData: { elements: [node, { ...node }] },
+  });
+  const match = report.matches[0];
+  assert.equal(match.status, 'CROSS_NETWORK_OSM_REFERENCE_ONLY');
+  assert.equal(match.osmCandidateCount, 1);
+  assert.equal(match.candidateNodes[0].network, 'DDD');
+});
+
 test('marks distant exact-name locations as ambiguous', () => {
   const report = buildAftuTataOsmCrosswalk({
     aftuRecords: [{ data: { code: '30', waypoints: ['VDN'] } }],
