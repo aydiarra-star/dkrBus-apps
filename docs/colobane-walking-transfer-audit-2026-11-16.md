@@ -23,19 +23,32 @@ Les deux objets OSM nommés « Gare Routière de Colobane » ne sont pas exactem
 
 La distance à vol d'oiseau entre le point de la gare TER (14.70035, -17.44165) et le point représentatif du way de la gare routière (14.69793, -17.44303) est d'environ **307 m**. Ce chiffre n'est ni une distance piétonne, ni un temps de marche. Le chemin réel dépend des entrées, traversées, clôtures et accès voyageurs.
 
-## Lignes AFTU dont le terminus ou l'intitulé officiel cite Colobane
+## Lignes AFTU : catalogue et pages détaillées
 
-Le catalogue officiel AFTU répertorie notamment :
-
+Le catalogue officiel AFTU affiche les intitulés suivants :
 - Ligne 30 : Gadaye (Guédiawaye) – Gare de Colobane.
-- Ligne 32 : Colobane – Serigne Assane.
+- Ligne 33 : Colobane – Serigne Assane.
 - Ligne 59 : Colobane – Bargny.
 - Ligne 64 : Colobane – Jaxaay.
 - Ligne 74 : Terminus Malika (Cité Sonatel) – Terminus gare routière Colobane.
 
-**Précision importante :** la ligne 29 n'est pas présentée par le catalogue officiel comme une ligne terminus Colobane. Elle est donc exclue de la liste des terminus AFTU confirmés à Colobane. Les lignes 30, 32, 59, 64 et 74 sont les lignes du catalogue dont l'intitulé mentionne explicitement la gare ou le secteur de Colobane.
+Les pages détaillées consultées ne concordent pas toutes avec ce catalogue :
 
-Le plan Moovit de la ligne 30 place « Gare de Colobane » en tête d'une direction et affiche 74 arrêts dans la liste consultée. Cette donnée secondaire confirme l'appellation d'arrêt, mais ne localise pas précisément le quai dans l'emprise de la gare routière.
+| Ligne | Catalogue AFTU | Page détaillée AFTU consultée | Conclusion |
+|---|---|---|---|
+| 30 | Gadaye – Gare de Colobane | Gadaye – … – Terminus Gare de Colobane | Colobane confirmé par les deux sources |
+| 33 | Colobane – Serigne Assane | Terminus Colobane – … – Terminus Serigne Assane | Colobane confirmé par les deux sources |
+| 59 | Colobane – Bargny | Diamalaye – … – Cité Gendarmerie | Conflit de sources, ne pas géocoder la ligne à Colobane sur cette seule base |
+| 64 | Colobane – Jaxaay | Diamniadio – … – Terminus Notaire | Conflit de sources, ne pas géocoder la ligne à Colobane sur cette seule base |
+| 74 | Malika – Gare routière Colobane | Bargny (gare ferroviaire) – Colobane Rufisque – … – Keur Massar / Tivaouane Peul | Conflit de sources ; « Colobane Rufisque » ne doit pas être assimilé à la gare routière de Dakar |
+
+La page détaillée de la ligne 30 place explicitement le terminus à la gare de Colobane. La page détaillée de la ligne 33 donne également Colobane comme terminus et cite le rond-point de Colobane dans sa séquence.
+
+Le catalogue officiel ne donne pas de terminus Colobane à la ligne 29 ; elle n'est donc pas ajoutée à la liste.
+
+Le plan Moovit de la ligne 30 place « Gare de Colobane » en tête d'une direction et affiche une liste d'arrêts. Cette donnée secondaire confirme l'appellation d'arrêt, mais ne localise pas précisément le quai dans l'emprise de la gare routière.
+
+**Décision données AFTU :** seules les lignes 30 et 33 sont confirmées par concordance du catalogue et de la page détaillée. Les lignes 59, 64 et 74 restent en conflit documentaire et ne doivent pas être ajoutées au pôle Colobane avant clarification.
 
 ## DDD
 
@@ -64,8 +77,13 @@ Les lignes DDD 18 et 20 ont été identifiées dans l'audit antérieur comme des
 
 ### AFTU
 - Catalogue officiel des lignes : https://aftu-senegal.org/infos-pratiques/
-- Page AFTU de la ligne 30 : https://aftu-senegal.org/map/dakar-urbain-ligne-30/
-- Plan Moovit de la ligne 30 (direction Gare de Colobane) : https://moovitapp.com/index/fr/transport_en_commun-map-30-Dakar-5996-1618038-18051443-1
+- Page détaillée ligne 30 : https://aftu-senegal.org/map/dakar-urbain-ligne-30/
+- Page détaillée ligne 32 : https://aftu-senegal.org/map/dakar-urbain-ligne-32/
+- Page détaillée ligne 33 : https://aftu-senegal.org/map/dakar-urbain-ligne-33/
+- Page détaillée ligne 59 : https://aftu-senegal.org/map/dakar-urbain-ligne-59/
+- Page détaillée ligne 64 : https://aftu-senegal.org/map/dakar-urbain-ligne-64/
+- Page détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
+- Plan Moovit ligne 30 : https://moovitapp.com/index/fr/transport_en_commun-map-30-Dakar-5996-1618038-18051443-1
 
 ### TER
 - Page officielle gare TER Colobane : https://ter-senegal.sn/colobane/
