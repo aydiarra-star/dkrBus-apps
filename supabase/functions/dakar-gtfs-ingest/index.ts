@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
+import { isDakarBusSupabaseUrl } from "./project.ts";
 import { classifyManifestUploadFailure, classifyStagingObjectReferences, cleanupUploadedObjects, getExactlyOneFormValue, hasOnlyExpectedFormFields, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
@@ -85,7 +86,8 @@ Deno.serve(async (req: Request) => {
   }
   if (!origin || !ALLOWED_ORIGINS.has(origin)) return reply(403, { error: "ORIGIN_FORBIDDEN" }, cors);
   if (req.method !== "POST") return reply(405, { error: "METHOD_NOT_ALLOWED" }, cors);
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
+  if (!isDakarBusSupabaseUrl(SUPABASE_URL)) return reply(503, { error: "DAKAR_BUS_PROJECT_CONFIGURATION_INVALID" }, cors);
+  if (!SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
 
   const contentLength = inspectContentLength(req.headers.get("Content-Length"), MAX_REQUEST_BYTES);
   if (!contentLength.valid) {
