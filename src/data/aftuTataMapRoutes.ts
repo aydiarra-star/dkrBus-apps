@@ -56,7 +56,7 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
       { name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952 },
       { name: 'Thiaroy', lat: 14.7504, lon: -17.3776 },
       { name: 'Rond-point Ngor', lat: 14.74894, lon: -17.5144 },
-      { name: 'Almadies', lat: 14.74, lon: -17.53 },
+      { name: 'Almadies', lat: 14.73475, lon: -17.50863 },
     ],
   },
   {
