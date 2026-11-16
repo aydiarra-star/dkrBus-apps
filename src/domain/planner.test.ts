@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { getCorridorStop, networkLabelOf } from './corridors'
-import { describeLeg, planReferenceJourney, type PlannerResult } from './planner'
+import { CORRIDOR_LINES, getCorridorStop, networkLabelOf, type CorridorLine } from './corridors'
+import { describeLeg, directedStopSequences, planReferenceJourney, type PlannerResult } from './planner'
 
 const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
 // Point à ~110 m de la station BRT « Préfecture de Guédiawaye » (position OSM).
@@ -11,6 +11,25 @@ describe('libellés publics des réseaux', () => {
   it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
     expect(networkLabelOf('aftu-guediawaye')).toBe('AFTU')
     expect(networkLabelOf('tata-guediawaye')).toBe('AFTU')
+  })
+})
+
+describe('séquences directionnelles des lignes', () => {
+  it('conserve les deux sens historiques tant qu’aucune direction explicite n’est fournie', () => {
+    const ter = CORRIDOR_LINES.find((line) => line.id === 'ter-dakar-diamniadio')!
+    const sequences = directedStopSequences(ter)
+    expect(sequences).toHaveLength(2)
+    expect(sequences[0]).toEqual(ter.stopIds)
+    expect(sequences[1]).toEqual([...ter.stopIds].reverse())
+  })
+
+  it('n’inverse jamais une séquence quand les sens documentés sont fournis', () => {
+    const base = CORRIDOR_LINES.find((line) => line.id === 'ddd-1')!
+    const outbound = ['ddd-parcelles', 'ddd-grand-yoff', 'ddd-leclerc']
+    const inbound = ['ddd-leclerc', 'ddd-colobane', 'ddd-parcelles']
+    const explicit = { ...base, directions: [outbound, inbound] } as CorridorLine
+    expect(directedStopSequences(explicit)).toEqual([outbound, inbound])
+    expect(directedStopSequences(explicit)).not.toContain([...outbound].reverse())
   })
 })
 
