@@ -10,7 +10,7 @@ Activation dans le calculateur de trois correspondances au même pôle d’écha
 - BRT ↔ AFTU ;
 - DDD ↔ AFTU.
 
-Les transferts sont représentés avec `walkM: 0) : les trois réseaux sont annoncés comme desservant le même pôle situé à l’intérieur de la gare routière Petersen. Cette valeur signifie qu’aucune marche entre pôles distincts n’est ajoutée ; elle ne prétend pas mesurer la distance réelle entre quais ou portes.
+Les transferts sont représentés avec `walkM: 0` : les trois réseaux sont annoncés comme desservant le même pôle situé à l’intérieur de la gare routière Petersen. Cette valeur signifie qu’aucune marche entre pôles distincts n’est ajoutée ; elle ne prétend pas mesurer la distance réelle entre quais ou portes.
 
 ## Sources officielles
 
