@@ -14,6 +14,7 @@ import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_AR
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
+import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
 import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
 
 export interface Coordinates {
@@ -327,7 +328,7 @@ function TransitMapView({
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
-  const [aftuTataTracks, setAftuTataTracks] = useState<AftuTataMapTrack[]>([])
+  const [aftuTataTracks, setAftuTataTracks] = useState<(AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
@@ -400,8 +401,12 @@ function TransitMapView({
   useEffect(() => {
     const controller = new AbortController()
     const loadAftuTataTracks = async () => {
-      const tracks: AftuTataMapTrack[] = []
-      for (const route of AFTU_TATA_MAP_ROUTES) {
+      const tracks: (AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[] = []
+      const mapRoutes = [
+        ...DDD_ADDITIONAL_MAP_ROUTES.map((route) => ({ ...route, network: 'ddd' as const })),
+        ...AFTU_TATA_MAP_ROUTES.map((route) => ({ ...route, network: 'aftu_tata' as const })),
+      ]
+      for (const route of mapRoutes) {
         if (controller.signal.aborted) break
         const url = buildAftuTataOsrmUrl(route)
         if (!url) continue
@@ -418,7 +423,7 @@ function TransitMapView({
             if (payload.code === 'Ok') {
               const positions = osrmGeometryToLeafletPositions(payload.routes?.[0]?.geometry?.coordinates)
               if (positions.length >= 2) {
-                tracks.push({ id: route.id, line: route.line, positions })
+                tracks.push({ id: route.id, line: route.line, network: route.network, positions })
                 if (!controller.signal.aborted) setAftuTataTracks([...tracks])
               }
             }
@@ -559,7 +564,7 @@ function TransitMapView({
           positions={track.positions}
           interactive
           pathOptions={{
-            color: paintFor('aftu_tata')?.core ?? '#D97706',
+            color: paintFor(track.network)?.core ?? '#D97706',
             weight: 1.9,
             opacity: 0.72,
             dashArray: '4 6',
@@ -568,7 +573,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>AFTU/TATA {track.line}</strong>
+            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU/TATA'} {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
