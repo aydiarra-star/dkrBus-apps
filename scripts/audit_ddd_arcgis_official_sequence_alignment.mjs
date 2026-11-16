@@ -41,7 +41,7 @@ function similarity(left, right) {
 export function parsePublishedRouteModule(source, variableName) {
   const prefix = new RegExp('^export\\s+const\\s+' + variableName + '\\s*=', 'm');
   if (!prefix.test(source)) throw new Error('Séquence publiée introuvable : ' + variableName);
-  const executable = source.replace(prefix, 'globalThis.__routes =').replace(/\\]\\s+as\\s+const\\s*$/, ']');
+  const executable = source.replace(prefix, 'globalThis.__routes =').replace(/\]\s+as\s+const\s*$/, ']');
   const sandbox = {};
   vm.runInNewContext(executable, sandbox, { timeout: 1000 });
   if (!Array.isArray(sandbox.__routes)) throw new Error('Séquence publiée invalide : ' + variableName);
@@ -76,7 +76,7 @@ function weightedAlignment(officialStops, candidateStops) {
 export function compareCandidateSequences(candidates, publishedRoutes) {
   const publishedByLine = new Map(publishedRoutes.map((route) => [String(route.line).toUpperCase(), route]));
   return candidates.map((candidate) => {
-    const number = candidate.line.replace(/^Ligne\\s+/i, '').toUpperCase();
+    const number = candidate.line.replace(/^Ligne\s+/i, '').toUpperCase();
     const official = publishedByLine.get(number);
     if (!official || !Array.isArray(official.stops)) {
       return { line: candidate.line, officialStopCount: 0, arcgisStopCount: candidate.stops.length, status: 'NO_PUBLISHED_SEQUENCE', forwardMatches: 0, reverseMatches: 0 };
