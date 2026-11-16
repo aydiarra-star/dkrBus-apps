@@ -11,6 +11,8 @@ export const DDD_ADDITIONAL_MAP_ROUTES: readonly DddAdditionalMapRoute[] = [
     line: '208',
     waypoints: [
       { name: 'Bayakh', lat: 14.8296, lon: -17.13656 },
+      { name: 'Gorom 1', lat: 14.82145, lon: -17.15298 },
+      { name: 'Gorom 2', lat: 14.81114, lon: -17.17098 },
       { name: 'Bambilor', lat: 14.80391, lon: -17.18404 },
       { name: 'Noflaye', lat: 14.78641, lon: -17.2157 },
       { name: 'Sangalkam', lat: 14.77877, lon: -17.22654 },
