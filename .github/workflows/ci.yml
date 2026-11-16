@@ -100,6 +100,15 @@ jobs:
       - name: Build DDD ArcGIS ordered candidate sequences
         run: node scripts/build_ddd_arcgis_candidate_sequences.mjs
 
+      - name: Check AFTU/TATA to DDD stop-name crosswalk
+        run: node --check scripts/build_aftu_tata_ddd_stop_crosswalk.node.mjs
+
+      - name: Test AFTU/TATA to DDD stop-name crosswalk
+        run: node --test scripts/build_aftu_tata_ddd_stop_crosswalk.node-test.mjs
+
+      - name: Build AFTU/TATA to DDD stop-name crosswalk
+        run: node scripts/build_aftu_tata_ddd_stop_crosswalk.node.mjs
+
       - name: Check DDD ArcGIS official sequence cross-check
         run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
 
