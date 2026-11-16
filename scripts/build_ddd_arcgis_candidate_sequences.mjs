@@ -51,12 +51,17 @@ export function parseCsv(source) {
 }
 
 const finite = (value) => Number.isFinite(Number(value));
+// ArcGIS IDs may be serialized as `18.0` in CSV and `18` in GeoJSON.
+const routeIdKey = (value) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? String(Math.trunc(numeric)) : String(value ?? '').trim();
+};
 const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const slug = (value) => normalize(value).replace(/\s+/g, '-');
 
 export function buildCandidateSequences({ rows, routes, metadata }) {
   const routeFeatures = routes.features ?? [];
-  const routeById = new Map(routeFeatures.map((feature) => [String(feature.properties?.OBJECTID_12 ?? feature.id), feature]));
+  const routeById = new Map(routeFeatures.map((feature) => [routeIdKey(feature.properties?.OBJECTID_12 ?? feature.id), feature]));
   const grouped = new Map();
   for (const row of rows) {
     const key = row.stop_group_source || '';
@@ -67,7 +72,7 @@ export function buildCandidateSequences({ rows, routes, metadata }) {
   const eligible = [];
   const excluded = [];
   for (const [sourceGroup, groupRows] of grouped) {
-    const routeIds = [...new Set(groupRows.map((row) => row.route_objectid_12).filter(Boolean))];
+    const routeIds = [...new Set(groupRows.map((row) => routeIdKey(row.route_objectid_12)).filter(Boolean))];
     const routeNames = [...new Set(groupRows.map((row) => row.route_name_source).filter(Boolean))];
     const normalizedLines = [...new Set(groupRows.map((row) => row.normalized_line).filter(Boolean))];
     const allClose = groupRows.every((row) =>
