@@ -42,27 +42,34 @@ Ces points identifient les objets BRT, pas l'arrêt AFTU 42. Le nom commun « Po
 
 **Décision :** conserver Police des Parcelles comme correspondance candidate uniquement. Pas de liaison dans le graphe, pas de distance de marche inventée.
 
-## 2. AFTU 1 — les deux terminus à ne pas déplacer
+## 2. AFTU 1 — divergence documentaire sur le terminus nord
 
-La fiche officielle AFTU 1 publie le parcours entre **Gare Lat Dior** et **Espace HLM Grand Médine (face autoroute)**, via notamment Sandiniéry, avenue Blaise Diagne, Gueule Tapée, Niary Tally, Bourguiba, Jet d’Eau, Liberté VI et la VDN.
+La ligne AFTU 1 est le cas où les sources consultées ne concordent pas entièrement :
 
-Source officielle : https://aftu-senegal.org/map/dakar-urbain-ligne-1/
+- Le catalogue AFTU actuellement en ligne affiche l'intitulé **« LAT DIOR - HLM GRAND YOFF »**.
+- La fiche détaillée officielle AFTU 1, datée du 18 mai 2026, publie une séquence se terminant par **« Espace HLM Grand Médine (face autoroute) »**.
+- Le Guide officiel de mobilité des JOJ Dakar 2026 classe également la ligne 1 sous l'intitulé **« HLM Grand Yoff - Lat Dior »**.
+
+Sources :
+- Catalogue AFTU : https://aftu-senegal.org/infos-pratiques/
+- Fiche détaillée AFTU 1 : https://aftu-senegal.org/map/dakar-urbain-ligne-1/
+- Guide officiel MITTA/CETUD : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+
+La fiche détaillée est plus précise sur les rues empruntées, mais le guide officiel récent et le titre du catalogue donnent un terminus différent. Il n'est donc pas sûr de transformer l'un des deux libellés en coordonnée de terminus sans clarification de l'AFTU.
 
 ### Gare Lat Dior
 
-Une carte administrative de la région de Dakar fournit un repère « Gare routière Lat Dior » à environ **14.6793849, -17.4565293**.
+La fiche détaillée AFTU 1 nomme « Terminus Gare Lat Dior ». Une carte administrative de la région de Dakar fournit un repère « Gare routière Lat Dior » à environ **14.6793849, -17.4565293**.
 
 Source : https://www.au-senegal.com/IMG/article_PDF/article_a31.pdf
 
 Ce repère est une gare routière générique : il ne précise pas le quai de départ de l'AFTU 1, ni son éventuelle séparation des quais DDD. Le point doit rester candidat.
 
-### Espace HLM Grand Médine
+### Terminus nord : ne pas géocoder avant arbitrage
 
-La fiche AFTU 1 nomme le terminus « Espace HLM Grand Médine (face autoroute) ». La ligne DDD 23 dessert un arrêt « HLM Grand Médine », tandis que les lignes DDD 1 et 6 mentionnent « Marché Grand Médine ». Ces trois désignations ne doivent pas être fusionnées automatiquement.
+La fiche détaillée pointe vers Espace HLM Grand Médine, tandis que le catalogue AFTU et le guide MITTA/CETUD indiquent HLM Grand Yoff. Ces deux quartiers sont distincts. Il est interdit de déplacer automatiquement le terminus vers le point DDD « HLM Grand Médine », le marché Grand Médine ou une position générique de HLM Grand Yoff.
 
-La recherche n'a pas établi de coordonnée vérifiée du quai AFTU 1 au terminus Espace HLM Grand Médine. La position de l'arrêt DDD « HLM Grand Médine » déjà auditée dans le dépôt est à environ 1,5 km de la station BRT Grand Médine : il ne peut donc pas servir de substitut à l'arrêt AFTU 1 ni être connecté au BRT sur cette seule base.
-
-**Décision :** conserver les deux terminus officiels comme repères textuels ; ne pas créer de point AFTU précis ni de correspondance à Lat Dior ou Grand Médine avant identification du quai.
+**Décision :** conserver l'itinéraire textuel détaillé comme source documentaire, mais marquer le terminus nord comme **CONFLIT DE SOURCES — NON GÉOCODÉ**. Aucune correspondance AFTU 1 ↔ DDD/BRT ne doit être créée à Lat Dior, HLM Grand Yoff ou HLM Grand Médine avant confirmation de l'opérateur.
 
 ## 3. Règles de mise en données
 
