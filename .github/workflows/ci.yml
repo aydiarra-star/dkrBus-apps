@@ -116,6 +116,11 @@ jobs:
           path: artifacts/aftu-tata/
           if-no-files-found: error
           retention-days: 30
+      - name: Check AFTU/TATA OSM stop crosswalk
+        run: node --check scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs
+
+      - name: Test AFTU/TATA OSM stop crosswalk
+        run: node --test scripts/build_aftu_tata_osm_stop_crosswalk.node-test.mjs
 
       - name: Check DDD ArcGIS official sequence cross-check
         run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
