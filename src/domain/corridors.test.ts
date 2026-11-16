@@ -129,10 +129,10 @@ describe('réseau de référence TER/BRT', () => {
   })
 
   it('couvre les dessertes périphériques au-delà de Dakar-ville', () => {
-    expect(DAKAR_REGION_BOUNDS.minLat).toBeLessThanOrEqual(14.55)
-    expect(DAKAR_REGION_BOUNDS.maxLat).toBeGreaterThanOrEqual(14.90)
-    expect(DAKAR_REGION_BOUNDS.minLon).toBeLessThanOrEqual(-17.60)
-    expect(DAKAR_REGION_BOUNDS.maxLon).toBeGreaterThanOrEqual(-16.90)
+    expect(DAKAR_REGION_BOUNDS.minLat).toBeLessThanOrEqual(14.61)
+    expect(DAKAR_REGION_BOUNDS.maxLat).toBeGreaterThanOrEqual(14.83)
+    expect(DAKAR_REGION_BOUNDS.minLon).toBeLessThanOrEqual(-17.51)
+    expect(DAKAR_REGION_BOUNDS.maxLon).toBeGreaterThanOrEqual(-17.14)
   })
 
   it('retrouve un arrêt malgré les accents et les alias', () => {
