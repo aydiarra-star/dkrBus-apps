@@ -336,6 +336,7 @@ function TransitMapView({
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
   // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
   useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
     const controller = new AbortController()
     const urbanServiceUrl = 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer'
     const routeLayers = [
@@ -401,6 +402,7 @@ function TransitMapView({
   // Les lignes AFTU/TATA sont dessinées en suivant les waypoints ordonnés
   // publiés. OSRM fournit uniquement la géométrie routière entre ces repères.
   useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
     const controller = new AbortController()
     const loadAftuTataTracks = async () => {
       const tracks: (AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[] = []
@@ -445,6 +447,7 @@ function TransitMapView({
   // La relation OSM AFTU/TATA 40 possède une géométrie de route,
   // même si sa séquence d'arrêts n'est pas publiée dans OSM.
   useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
     const controller = new AbortController()
     const query = '[out:json][timeout:30];relation(3982642);out body;>;out geom;'
     const endpoints = [
