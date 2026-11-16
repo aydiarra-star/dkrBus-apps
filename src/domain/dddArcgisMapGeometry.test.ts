@@ -22,17 +22,6 @@ describe('géométries cartographiques DDD ArcGIS', () => {
   })
 
 
-  it('extrait les arrêts ponctuels DDD avec leur ligne et ignore les points hors zone', () => {
-    const stops = dddArcgisFeatureStops('8', [
-      { geometry: { type: 'Point', coordinates: [-17.49, 14.74] } },
-      { geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
-      { geometry: { type: 'LineString', coordinates: [[-17.3, 14.7], [-17.2, 14.8]] } },
-    ])
-    expect(stops).toHaveLength(1)
-    expect(stops[0].line).toBe('8')
-    expect(stops[0].position).toEqual([14.74, -17.49])
-  })
-
   it('ignore les géométries invalides, hors Sénégal ou trop courtes', () => {
     const tracks = dddArcgisFeatureTracks('228', [
       { geometry: { type: 'LineString', coordinates: [[-17.2, 14.6]] } },
@@ -43,7 +32,6 @@ describe('géométries cartographiques DDD ArcGIS', () => {
   })
 })
 
-import { dddArcgisFeatureStops } from './dddArcgisMapGeometry'
 
 describe('points d’arrêt DDD ArcGIS', () => {
   it('convertit les points WGS84 en coordonnées Leaflet', () => {
