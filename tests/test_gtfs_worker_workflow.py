@@ -23,6 +23,10 @@ class GTFSWorkerWorkflowTests(unittest.TestCase):
             content,
         )
         self.assertIn("environment: dakar-bus-private-validation", content)
+        self.assertIn("DAKAR_BUS_SUPABASE_ANON_KEY", content)
+        self.assertIn("DAKAR_BUS_GTFS_WORKER_EMAIL", content)
+        self.assertIn("DAKAR_BUS_GTFS_WORKER_PASSWORD", content)
+        self.assertNotIn("DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY", content)
         self.assertNotRegex(content, r"(?m)^  (push|schedule):")
 
 
