@@ -134,7 +134,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
     let status = 'NO_EXACT_OSM_MATCH';
     if (item.generic) status = 'GENERIC_LABEL_NO_GEOCODE';
     else if (clusters.length > 1) status = 'AMBIGUOUS_MULTIPLE_LOCATIONS';
-    else if (clusters.length === 1 && clusters[0].length > 1) status = 'SINGLE_AREA_MULTIPLE_OSM_NODES';
+    else if (clusters.length === 1 && clusters[0].length > 1) status = 'SINGLE_AREA_MULTIPLE_OSM_FEATURES';
     else if (clusters.length === 1 && networkFeatures.length === 1) status = 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE';
     else if (clusters.length === 1) status = 'CROSS_NETWORK_OSM_REFERENCE_ONLY';
 
@@ -157,7 +157,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
     uniqueWaypointNames: matches.length,
     exactAftuTataOsmFeatureCandidates: matches.filter((x) => x.status === 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE').length,
     crossNetworkReferencesOnly: matches.filter((x) => x.status === 'CROSS_NETWORK_OSM_REFERENCE_ONLY').length,
-    singleAreaMultipleNodes: matches.filter((x) => x.status === 'SINGLE_AREA_MULTIPLE_OSM_NODES').length,
+    singleAreaMultipleFeatures: matches.filter((x) => x.status === 'SINGLE_AREA_MULTIPLE_OSM_FEATURES').length,
     ambiguousMultipleLocations: matches.filter((x) => x.status === 'AMBIGUOUS_MULTIPLE_LOCATIONS').length,
     noExactOsmMatch: matches.filter((x) => x.status === 'NO_EXACT_OSM_MATCH').length,
     genericLabels: matches.filter((x) => x.status === 'GENERIC_LABEL_NO_GEOCODE').length,
@@ -177,7 +177,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
       geographicBounds: BOUNDS,
     },
     purpose: 'Read-only crosswalk research. OSM name matches are candidate references, not verified AFTU/TATA stops.',
-    policy: 'Exact normalized names only. AFTU/TATA coordinates are suggested only for a single OSM node or way explicitly tagged AFTU/TATA. DDD/BRT nodes remain cross-network references.',
+    policy: 'Exact normalized names only. AFTU/TATA coordinates are suggested only for a single OSM node or way explicitly tagged AFTU/TATA. DDD/BRT features remain cross-network references.',
     summary,
     matches,
   };
