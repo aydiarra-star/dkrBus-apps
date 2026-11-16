@@ -87,7 +87,7 @@ Le terminus AFTU « Camp Marchand » est documenté dans la séquence, mais le b
 
 ### Sonadis / Djouti Ba / HLM Rufisque
 
-Les fiches AFTU 60/62/63/74 et DDD 15/220 convergent sur les repères Dioutyba/Djouti Ba, Sonadis, HLM Rufisque, Poste Courant et RN1. Une source locale situe la pharmacie Astele « en face arrêt Sonadis » sur Keury Souf / Boulevard Maurice Gueye ; le guichet MSAE de Rufisque est aussi indiqué au Rond-point SONADIS.
+Les fiches catalogue AFTU 59/61/62/73 (fiches détaillées 60/62/63/74) et DDD 15/220 convergent sur les repères Dioutyba/Djouti Ba, Sonadis, HLM Rufisque, Poste Courant et RN1. Une source locale situe la pharmacie Astele « en face arrêt Sonadis » sur Keury Souf / Boulevard Maurice Gueye ; le guichet MSAE de Rufisque est aussi indiqué au Rond-point SONADIS.
 
 Cela confirme un pôle de transport connu, mais **aucune coordonnée GPS fiable du quai Sonadis** n'a été trouvée dans les sources ouvertes consultées. Le point du commerce, de la pharmacie ou de la mairie ne doit pas remplacer l'arrêt.
 
@@ -114,7 +114,7 @@ Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les travers�
 
 ## 4. Keur Massar — terminus commun DDD / AFTU 60 et autres pôles séparés
 
-### Terminus principal DDD / AFTU 61 — pôle commun confirmé
+### Terminus principal DDD / AFTU 60 — pôle commun confirmé
 
 Les données géographiques DDD (couche d'arrêts ArcGIS, séquences des lignes 11 et 227) placent « Terminus Keur Massar » à :
 - DDD 11 : **14.785391, -17.309223**.
@@ -125,9 +125,9 @@ OpenStreetMap identifie au même endroit :
 - « Terminus minibus n°61 », node 5286379844 : **14.78545, -17.30922**, amenity=bus_station et public_transport=station.
 - « Terminus Dakar dem dikk P11 », node 5286379845 : **14.78556, -17.30891**, gare routière voisine.
 
-Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa fiche détaillée (mise à jour le 7 juillet 2026) décrit : Terminus Keur Massar → Route nationale 1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies.
+Le catalogue AFTU courant confirme **ligne 60 : Almadies – Keur Massar**. La fiche détaillée du site AFTU porte le numéro de page 61 et Moovit indexe aussi cette route sous 61 ; le calculateur conserve le numéro officiel du catalogue, **AFTU 60**. Sa fiche détaillée (mise à jour le 7 juillet 2026) décrit : Terminus Keur Massar → Route nationale 1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies.
 
-**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 61 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
+**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 60 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
 
 ### Extrémité Almadies / Mamelles de la ligne AFTU 61
 
@@ -135,21 +135,21 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 - Le terminus AFTU « Terminus 61 » à Almadies est situé à **31 m / 1 min à pied** de l'arrêt OSM « Arrêt autobus 217 et 218 – Dakar Dem Dikk », node 9562676804, **14.73475, -17.50863**.
 - Moovit indique que le pôle Terminus 61 est desservi par AFTU et Dakar Dem Dikk. Le calculateur utilise ce point comme repère GPS de l'extrémité Almadies de l'AFTU 60 ; il ne prétend pas que le quai AFTU est exactement sur le point DDD.
 - **Correspondance candidate supplémentaire : AFTU 60 ↔ DDD 217/218**, marche Moovit 31 m. Elle n'est pas encore activée : les lignes DDD 217/218 ne sont pas encore intégrées au graphe du calculateur.
-- Le point « Rond-point Ngor » reste un repère cartographique de corridor ; il n'est pas présenté comme un quai AFTU 61 tant que son attribution précise n'est pas confirmée.
+- Le point « Rond-point Ngor » reste un repère cartographique de corridor ; il n'est pas présenté comme un quai AFTU 60 tant que son attribution précise n'est pas confirmée.
 
 ### Autres pôles Keur Massar — à ne pas fusionner
 
 - **Terminus 52 (TATA)**, node 5286379847 : **14.77419, -17.31767**, réseau TATA selon OSM. Il est distinct du terminus DDD/AFTU 60.
-- **Gare routière de Keur Massar**, OSM way 335756472 : **14.76984, -17.31840**. C'est un autre site, environ 1,8 km du terminus DDD/AFTU 61 à vol d'oiseau.
+- **Gare routière de Keur Massar**, OSM way 335756472 : **14.76984, -17.31840**. C'est un autre site, environ 1,8 km du terminus DDD/AFTU 60 à vol d'oiseau.
 - **Service spéciale DDD**, node 5602711037 : **14.77054, -17.31875**. Arrêt OSM proche de la gare routière précédente, mais distinct du terminus DDD des lignes 11/227 ; ne pas le rattacher automatiquement à ces lignes.
-- **Station MTOA**, OSM way 339556843 : **14.78288, -17.32369**. C'est une station-service, pas un quai. Le catalogue AFTU indique **ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD** ; son quai MTOA doit rester distinct du terminus principal DDD/AFTU 61.
+- **Station MTOA**, OSM way 339556843 : **14.78288, -17.32369**. C'est une station-service, pas un quai. Le catalogue AFTU indique **ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD** ; son quai MTOA doit rester distinct du terminus principal DDD/AFTU 60.
 
 ### Décision
 
-- **Correspondance intégrée au calculateur : DDD 227 ↔ AFTU 61**, terminus principal **14.7854, -17.30922**. DDD 11 partage le même terminus, mais son parcours n'est pas encore intégré.
+- **Correspondance intégrée au calculateur : DDD 227 ↔ AFTU 60**, terminus principal **14.7854, -17.30922**. DDD 11 partage le même terminus, mais son parcours n'est pas encore intégré.
 - **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
-- **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0`). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
-- Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 61 (54 arrêts par sens sur Moovit), avec cinq repères GPS de corridor pour DDD 227 et quatre arrêts de référence pour AFTU 61. Le tracé cartographique passe par Ngor, mais le point OSM du rond-point n'est pas présenté comme un quai AFTU 61 tant que son attribution exacte n'est pas confirmée. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
+- **Intégration active dans ce chantier : DDD 227 ↔ AFTU 60** au pôle commun, avec un transfert de pôle (`walkM: 0`). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
+- Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 60 (54 arrêts par sens sur Moovit, index Moovit 61), avec cinq repères GPS de corridor pour DDD 227 et quatre arrêts de référence pour AFTU 60. Le tracé cartographique passe par Ngor, mais le point OSM du rond-point n'est pas présenté comme un quai AFTU 60 tant que son attribution exacte n'est pas confirmée. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
 - Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 60, 42 min comme valeur prudente (Moovit indique environ 20 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
 - DDD 11 partage le même terminus GPS, mais n'est pas encore ajouté au calculateur : la séquence officielle DDD annonce Lat Dior tandis que la fiche Moovit consultée annonce Leclerc. Ce désaccord doit être résolu avant d'intégrer cette ligne.
 - Aucune donnée, station, séquence ou fréquence TER/BRT n'est modifiée.
@@ -165,7 +165,7 @@ La desserte des deux réseaux est donc confirmée à l'échelle de la localité 
 
 | Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
-| 1 | **DDD 227 ↔ AFTU 61, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | Actif dans le calculateur · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
+| 1 | **DDD 227 ↔ AFTU 60, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | Actif dans le calculateur · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
 | 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | La fiche AFTU 74 décrit explicitement le terminus « Bargny (gare ferroviaire) » ; les quais bus précis restent non identifiés | Relever le quai AFTU réel et tracer le cheminement piéton depuis l'accès TER |
 | 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes ; point GPS du quai Sonadis absent | Géocoder les arrêts exacts et les quais dans les deux sens |
 | 4 | DDD 213 ↔ AFTU Camp Marchand / gare de Rufisque | Les terminus et gares OSM sont distincts ; correspondance non prouvée | Identifier le quai DDD « Gare de Rufisque » et le terminus AFTU Camp Marchand |
@@ -179,16 +179,16 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - DDD, réseau urbain et lignes de banlieue : https://demdikk.sn/reseau-urbain-dakar/
 - AFTU, catalogue courant : https://aftu-senegal.org/infos-pratiques/
 - AFTU, fiche détaillée ligne 54 : https://aftu-senegal.org/map/dakar-urbain-ligne-54/
-- AFTU, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
-- AFTU, fiche détaillée ligne 61 : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
+- AFTU, fiche détaillée page 60 (catalogue officiel ligne 59, Colobane–Bargny) : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
+- AFTU, fiche détaillée page 61 (catalogue officiel ligne 60, Almadies–Keur Massar) : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
 - DDD, ligne 227 — séquence officielle : https://demdikk.sn/reseau-urbain-dakar/
 - Moovit, DDD ligne 227 — deux sens et horaires : https://moovitapp.com/index/fr/transport_en_commun-line-227-Dakar-5996-1618037-18051447-1
-- Moovit, AFTU ligne 61 — deux sens et 54 arrêts : https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1
-- Moovit, AFTU ligne 61 — grille de départs : https://moovitapp.com/index/fr/transport_en_commun-time-61-Dakar-5996-1618038-18051490-4256300-0
+- Moovit, AFTU index 61 (catalogue officiel ligne 60) — deux sens et 54 arrêts : https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1
+- Moovit, AFTU index 61 (catalogue officiel ligne 60) — grille de départs : https://moovitapp.com/index/fr/transport_en_commun-time-61-Dakar-5996-1618038-18051490-4256300-0
 - AFTU, fiche détaillée ligne 62 : https://aftu-senegal.org/map/dakar-urbain-ligne-62/
 - AFTU, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
-- AFTU, fiche détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
-- AFTU, fiche détaillée ligne 79 : https://aftu-senegal.org/map/dakar-urbain-ligne-79/
+- AFTU, fiche détaillée page 74 (catalogue officiel ligne 73, Bargny–Tivaouane Peul) : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
+- AFTU, fiche détaillée page 79 (catalogue officiel ligne 78, Sangalkam–Cambérène) : https://aftu-senegal.org/map/dakar-urbain-ligne-79/
 - Guide officiel de mobilité JOJ Dakar 2026 (photographie datée du réseau) : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
 
 ### Cartographie et repères
