@@ -19,6 +19,19 @@ test('suggests a coordinate only for one exact-name location cluster', () => {
   assert.equal(report.summary.genericLabels, 1);
 });
 
+test('includes official AFTU corridor waypoints without inventing a return direction', () => {
+  const report = buildAftuTataDddCrosswalk({
+    aftuRecords: [],
+    aftuOfficialRecords: [{ code: '37', waypoints: ['UCAD'] }],
+    tataRecords: [],
+    dddCandidates: { candidates: [{ line: 'Ligne 1', stops: [{ sourceStopName: 'Arrêt UCAD', lat: 14.69, lon: -17.46, sourceObjectId: 7 }] }] },
+  });
+  const match = report.matches[0];
+  assert.equal(match.occurrences[0].source, 'AFTU_OFFICIAL_CORRIDOR');
+  assert.equal(match.occurrences[0].direction, 'corridor_published');
+  assert.equal(report.summary.officialAftuCorridorLines, 1);
+});
+
 test('marks repeated names at distant locations ambiguous', () => {
   const report = buildAftuTataDddCrosswalk({
     aftuRecords: [{ data: { code: '30', waypoints: ['VDN'] } }],
