@@ -237,6 +237,7 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
   { id: 'aftu-carrefour-grand-mbao-60', name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952, order: 14, aliases: ['carrefour mbao ligne 60', 'carrefour mbao moovit 61'], note: 'AFTU 60 · arrêt bus OSM et fiche Moovit index 61' },
   { id: 'aftu-thiaroy-60', name: 'Thiaroy', lat: 14.7504, lon: -17.3776, order: 15, aliases: ['thiaroy ligne 60', 'thiaroy moovit 61'], note: 'AFTU 60 · arrêt bus OSM sur le corridor' },
   { id: 'aftu-almadies-60', name: 'Terminus Almadies (AFTU 60)', shortName: 'Almadies', lat: 14.73475, lon: -17.50863, order: 16, aliases: ['almadies aftu 60', 'terminus 61'], note: 'AFTU 60 · repère GPS du quai DDD 217/218 adjacent ; Moovit place Terminus 61 à 31 m' },
+  { id: 'aftu-bargny-73', name: 'Bargny gare ferroviaire', shortName: 'Bargny', lat: 14.69798, lon: -17.22923, order: 17, aliases: ['bargny aftu 73', 'terminus aftu 73', 'bargny gare ter'], note: 'AFTU 73 · terminus publié à la gare ferroviaire de Bargny ; point OSM sur la même emprise que la gare TER' },
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
@@ -424,6 +425,23 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
   },
   {
+    id: 'aftu-73',
+    network: 'aftu_tata',
+    shortName: 'AFTU 73',
+    longName: 'Bargny gare ferroviaire ↔ Keur Massar (segment de ligne)',
+    color: MOBILITY_PALETTE.aftu_tata.core,
+    stopIds: ['aftu-bargny-73', 'aftu-keur-massar-60'],
+    directions: [
+      ['aftu-bargny-73', 'aftu-keur-massar-60'],
+      ['aftu-keur-massar-60', 'aftu-bargny-73'],
+    ],
+    headwayMin: 11.6,
+    frequencyStatus: 'ESTIMATED',
+    officialFrequencies: [],
+    serviceWindow: 'Amplitude de référence du réseau AFTU',
+    speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
+  },
+  {
     id: 'tata-1',
     network: 'aftu_tata',
     shortName: 'AFTU',
@@ -486,6 +504,12 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'aftu-keur-massar-60',
     walkM: 0,
     label: 'Pôle terminus Keur Massar : DDD 227 ↔ AFTU 60 (même gare routière)',
+  },
+  {
+    fromStopId: 'ter-bargny',
+    toStopId: 'aftu-bargny-73',
+    walkM: 0,
+    label: 'Gare ferroviaire de Bargny : TER ↔ terminus AFTU 73 (même pôle)',
   },
 ]
 
