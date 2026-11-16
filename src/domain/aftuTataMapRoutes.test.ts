@@ -41,3 +41,16 @@ describe('corridors cartographiques AFTU/TATA', () => {
       'Almadies',
     ])
   })
+
+
+it('utilise les numéros du catalogue AFTU courant pour les corridors vérifiés', () => {
+  const byId = Object.fromEntries(AFTU_TATA_MAP_ROUTES.map((route) => [route.id, route]))
+  expect(byId['aftu-59']?.line).toBe('59')
+  expect(byId['aftu-60']?.line).toBe('60')
+  expect(byId['aftu-66']?.line).toBe('66')
+  expect(byId['aftu-73']?.line).toBe('73')
+  expect(byId['aftu-78']?.line).toBe('78')
+  expect(byId['aftu-59']?.waypoints.map((point) => point.name)).toContain('Bargny')
+  expect(byId['aftu-73']?.waypoints.map((point) => point.name)).toContain('Tivaouane Peulh')
+  expect(byId['aftu-78']?.waypoints.map((point) => point.name)).toContain('Sangalkam')
+})
