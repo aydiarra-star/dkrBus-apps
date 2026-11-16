@@ -169,6 +169,7 @@ jobs:
       - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
         id: osm_relations
         continue-on-error: true
+        timeout-minutes: 2
         run: node scripts/extract_ddd_osm_directional_relations.mjs
 
       - name: Upload OSM directional relation evidence
