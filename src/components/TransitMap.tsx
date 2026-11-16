@@ -13,6 +13,8 @@ import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
+import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
+import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
 
 export interface Coordinates {
   lat: number
@@ -325,6 +327,7 @@ function TransitMapView({
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
+  const [aftuTataTracks, setAftuTataTracks] = useState<AftuTataMapTrack[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
@@ -389,6 +392,46 @@ function TransitMapView({
       }
     }
     void Promise.all([loadTracks(), loadStops()])
+    return () => controller.abort()
+  }, [])
+
+  // Les lignes AFTU/TATA sont dessinées en suivant les waypoints ordonnés
+  // publiés. OSRM fournit uniquement la géométrie routière entre ces repères.
+  useEffect(() => {
+    const controller = new AbortController()
+    const loadAftuTataTracks = async () => {
+      const tracks: AftuTataMapTrack[] = []
+      for (const route of AFTU_TATA_MAP_ROUTES) {
+        if (controller.signal.aborted) break
+        const url = buildAftuTataOsrmUrl(route)
+        if (!url) continue
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: 'application/json' },
+          })
+          if (response.ok) {
+            const payload = await response.json() as {
+              code?: string
+              routes?: { geometry?: { coordinates?: unknown } }[]
+            }
+            if (payload.code === 'Ok') {
+              const positions = osrmGeometryToLeafletPositions(payload.routes?.[0]?.geometry?.coordinates)
+              if (positions.length >= 2) {
+                tracks.push({ id: route.id, line: route.line, positions })
+                if (!controller.signal.aborted) setAftuTataTracks([...tracks])
+              }
+            }
+          }
+        } catch {
+          // La carte et les arrêts existants restent utilisables si OSRM est indisponible.
+        }
+        if (!controller.signal.aborted) {
+          await new Promise<void>((resolve) => window.setTimeout(resolve, 1_000))
+        }
+      }
+    }
+    void loadAftuTataTracks()
     return () => controller.abort()
   }, [])
 
@@ -510,6 +553,25 @@ function TransitMapView({
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
+      {aftuTataTracks.map((track) => (
+        <Polyline
+          key={`aftu-tata-${track.id}`}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor('aftu_tata')?.core ?? '#D97706',
+            weight: 1.9,
+            opacity: 0.72,
+            dashArray: '4 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>AFTU/TATA {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
       {GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => {
         const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
         const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
