@@ -61,17 +61,17 @@ describe('calculateur multimodal de référence', () => {
     expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
   })
 
-  it('enchaîne réellement un bus de quartier et le TER, sans correspondance inventée', () => {
-    // Le graphe relie désormais les réseaux au même pôle : un bus peut précéder ou
-    // suivre le TER. Chaque correspondance affichée doit citer sa source.
+  it('n’enchaîne pas DDD/AFTU au TER sur la seule proximité de coordonnées approximatives', () => {
+    // Les correspondances DDD/AFTU/TATA non confirmées ne sont pas des liens du graphe.
+    // Le trajet multimodal reste possible via les deux liaisons TER ↔ BRT déclarées.
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
-    expect(result.legs.filter((leg) => leg.kind === 'ride').length).toBeGreaterThanOrEqual(1)
+    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
+    expect(result.networksUsed.every((network) => network === 'brt' || network === 'ter')).toBe(true)
     for (const leg of result.legs.filter((entry) => entry.kind === 'walk_transfer')) {
-      expect(leg.note).toMatch(/positions déclarées|marche de référence/)
+      expect(leg.note).toMatch(/marche de référence/)
     }
-    // Le trajet arrive bien à Rufisque en TER, quel que soit le réseau d'accès.
     expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
   })
 
