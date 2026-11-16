@@ -129,7 +129,7 @@ Le catalogue AFTU courant confirme **ligne 60 : Almadies – Keur Massar**. La f
 
 **Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 60 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
 
-### Extrémité Almadies / Mamelles de la ligne AFTU 61
+### Extrémité Almadies / Mamelles de la ligne AFTU 60 (index Moovit 61)
 
 - La fiche Moovit de la ligne 61 confirme 54 arrêts dans chaque sens et cite notamment Carrefour Mbao, Thiaroy, Stade de Ngor, Aéroport et Terminus 61.
 - Le terminus AFTU « Terminus 61 » à Almadies est situé à **31 m / 1 min à pied** de l'arrêt OSM « Arrêt autobus 217 et 218 – Dakar Dem Dikk », node 9562676804, **14.73475, -17.50863**.
@@ -165,7 +165,7 @@ La desserte des deux réseaux est donc confirmée à l'échelle de la localité 
 
 | Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
-| 1 | **DDD 227 ↔ AFTU 60, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | Actif dans le calculateur · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
+| 1 | **DDD 227 ↔ AFTU 60, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue officiel AFTU 60 et fiche détaillée 61 confirment Keur Massar | Actif dans le calculateur · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
 | 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | La fiche AFTU 74 décrit explicitement le terminus « Bargny (gare ferroviaire) » ; les quais bus précis restent non identifiés | Relever le quai AFTU réel et tracer le cheminement piéton depuis l'accès TER |
 | 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes ; point GPS du quai Sonadis absent | Géocoder les arrêts exacts et les quais dans les deux sens |
 | 4 | DDD 213 ↔ AFTU Camp Marchand / gare de Rufisque | Les terminus et gares OSM sont distincts ; correspondance non prouvée | Identifier le quai DDD « Gare de Rufisque » et le terminus AFTU Camp Marchand |
@@ -215,4 +215,4 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 
 ## Périmètre
 
-Le calculateur et la carte intègrent désormais les corridors DDD 227 et AFTU 61 ainsi que leur correspondance au terminus partagé de Keur Massar. Les autres points Rufisque/Bargny restent en audit tant que les quais exacts ou les chemins piétons ne sont pas prouvés. Les lignes, stations, tracés et horaires TER/BRT restent strictement inchangés.
+Le calculateur et la carte intègrent désormais les corridors DDD 227 et AFTU 60 ainsi que leur correspondance au terminus partagé de Keur Massar. Les autres points Rufisque/Bargny restent en audit tant que les quais exacts ou les chemins piétons ne sont pas prouvés. Les lignes, stations, tracés et horaires TER/BRT restent strictement inchangés.
