@@ -7,7 +7,7 @@ test('normalizes accents and generic stop prefixes', () => {
   assert.equal(normalizeStopName('Marché Tilène'), 'marche tilene');
 });
 
-test('keeps a single explicitly AFTU-tagged OSM node as a coordinate candidate', () => {
+test('keeps a single explicitly AFTU-tagged OSM feature as a coordinate candidate', () => {
   const report = buildAftuTataOsmCrosswalk({
     aftuRecords: [{ data: { code: '82', waypoints: ['Centre Social', 'Arrêt de bus'] } }],
     tataRecords: [],
@@ -16,7 +16,7 @@ test('keeps a single explicitly AFTU-tagged OSM node as a coordinate candidate',
     ] },
   });
   const match = report.matches.find((x) => x.waypoint === 'Centre Social');
-  assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE');
+  assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE');
   assert.equal(match.candidateLocation.osmElementId, 12);
   assert.equal(report.summary.genericLabels, 1);
 });
@@ -47,7 +47,7 @@ test('uses the centre of a named AFTU platform way as a coordinate candidate', (
     ] },
   });
   const match = report.matches[0];
-  assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE');
+  assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE');
   assert.equal(match.candidateLocation.osmElementType, 'way');
   assert.equal(match.candidateLocation.osmElementId, 81);
   assert.equal(match.candidateLocation.lat, 14.7273);
@@ -88,7 +88,7 @@ test('includes peripheral Dakar routes around Sangalkam and Toubab Dialaw', () =
       { type: 'node', id: 901, lat: 14.82, lon: -17.22, tags: { name: 'Terminus Sangalkam', network: 'AFTU', highway: 'bus_stop' } },
     ] },
   });
-  assert.equal(report.matches[0].status, 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE');
+  assert.equal(report.matches[0].status, 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE');
   assert.equal(report.source.geographicBounds.north, 15.02);
   assert.equal(report.source.geographicBounds.south, 14.45);
 });
