@@ -1,5 +1,5 @@
-import { memo, useEffect, useMemo } from 'react'
-import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import { memo, useEffect, useMemo, useState } from 'react'
+import { Circle, CircleMarker, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
@@ -10,6 +10,13 @@ import { trackPositionsForLine } from '../domain/terTrackGeometry'
 import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
+import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
+import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
+import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
+import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
+import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
+import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
 
 export interface Coordinates {
   lat: number
@@ -321,6 +328,157 @@ function TransitMapView({
   highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
+  const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
+  const [aftuTataTracks, setAftuTataTracks] = useState<(AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[]>([])
+  const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
+  const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
+
+  // Les couches ArcGIS sont des références historiques, séparées du calculateur.
+  // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
+    const controller = new AbortController()
+    const urbanServiceUrl = 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer'
+    const routeLayers = [
+      ...DDD_BANLIEUE_ARCGIS_LAYERS.map((layer) => ({ line: layer.line, url: layer.layerUrl })),
+      ...DDD_URBAN_ARCGIS_ROUTE_LAYERS.map((layer) => ({
+        line: layer.line,
+        url: `${urbanServiceUrl}/${layer.layerId}`,
+      })),
+    ]
+    const queryUrl = (url: string) => {
+      const query = new URLSearchParams({
+        where: '1=1',
+        outFields: '*',
+        returnGeometry: 'true',
+        outSR: '4326',
+        f: 'geojson',
+      })
+      return `${url}/query?${query.toString()}`
+    }
+    const loadTracks = async () => {
+      const tracks: DddArcgisMapTrack[] = []
+      let nextIndex = 0
+      const worker = async () => {
+        while (nextIndex < routeLayers.length && !controller.signal.aborted) {
+          const layer = routeLayers[nextIndex]
+          nextIndex += 1
+          try {
+            const response = await fetch(queryUrl(layer.url), { signal: controller.signal })
+            if (!response.ok) continue
+            const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureTracks>[1] }
+            tracks.push(...dddArcgisFeatureTracks(layer.line, collection.features ?? []))
+          } catch {
+            // Une couche indisponible ne bloque jamais les autres mobilités.
+          }
+        }
+      }
+      await Promise.all(Array.from({ length: 4 }, () => worker()))
+      if (!controller.signal.aborted) {
+        setDddArcgisTracks(tracks.sort((a, b) => a.line.localeCompare(b.line, 'fr', { numeric: true }) || a.part - b.part))
+      }
+    }
+    const loadStops = async () => {
+      const collections = await Promise.all(DDD_URBAN_ARCGIS_STOP_LAYERS.map(async (layer) => {
+        try {
+          const response = await fetch(queryUrl(layer.layerUrl), { signal: controller.signal })
+          if (!response.ok) return []
+          const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureStops>[1] }
+          return dddArcgisFeatureStops(layer.line, collection.features ?? [])
+        } catch {
+          return []
+        }
+      }))
+      if (!controller.signal.aborted) {
+        const unique = new Map<string, DddArcgisMapStop>()
+        for (const stop of collections.flat()) unique.set(stop.id, stop)
+        setDddArcgisStops([...unique.values()])
+      }
+    }
+    void Promise.all([loadTracks(), loadStops()])
+    return () => controller.abort()
+  }, [])
+
+  // Les lignes AFTU/TATA sont dessinées en suivant les waypoints ordonnés
+  // publiés. OSRM fournit uniquement la géométrie routière entre ces repères.
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
+    const controller = new AbortController()
+    const loadAftuTataTracks = async () => {
+      const tracks: (AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[] = []
+      const mapRoutes = [
+        ...DDD_ADDITIONAL_MAP_ROUTES.map((route) => ({ ...route, network: 'ddd' as const })),
+        ...AFTU_TATA_MAP_ROUTES.map((route) => ({ ...route, network: 'aftu_tata' as const })),
+      ]
+      for (const route of mapRoutes) {
+        if (controller.signal.aborted) break
+        const url = buildAftuTataOsrmUrl(route)
+        if (!url) continue
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: 'application/json' },
+          })
+          if (response.ok) {
+            const payload = await response.json() as {
+              code?: string
+              routes?: { geometry?: { coordinates?: unknown } }[]
+            }
+            if (payload.code === 'Ok') {
+              const positions = osrmGeometryToLeafletPositions(payload.routes?.[0]?.geometry?.coordinates)
+              if (positions.length >= 2) {
+                tracks.push({ id: route.id, line: route.line, network: route.network, positions })
+                if (!controller.signal.aborted) setAftuTataTracks([...tracks])
+              }
+            }
+          }
+        } catch {
+          // La carte et les arrêts existants restent utilisables si OSRM est indisponible.
+        }
+        if (!controller.signal.aborted) {
+          await new Promise<void>((resolve) => window.setTimeout(resolve, 1_000))
+        }
+      }
+    }
+    void loadAftuTataTracks()
+    return () => controller.abort()
+  }, [])
+
+  // La relation OSM AFTU/TATA 40 possède une géométrie de route,
+  // même si sa séquence d'arrêts n'est pas publiée dans OSM.
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test') return
+    const controller = new AbortController()
+    const query = '[out:json][timeout:30];relation(3982642);out body;>;out geom;'
+    const endpoints = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.private.coffee/api/interpreter',
+    ]
+    const loadTataRelation = async () => {
+      for (const endpoint of endpoints) {
+        if (controller.signal.aborted) return
+        try {
+          const url = `${endpoint}?${new URLSearchParams({ data: query }).toString()}`
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: 'application/json' },
+          })
+          if (!response.ok) continue
+          const payload = await response.json() as { elements?: Parameters<typeof osmRouteWayMembersToTracks>[2] }
+          const tracks = osmRouteWayMembersToTracks(3982642, '40', payload.elements ?? [])
+          if (tracks.length > 0 && !controller.signal.aborted) {
+            setTataOsmTracks(tracks)
+            return
+          }
+        } catch {
+          // Les couches AFTU/TATA déjà disponibles restent affichées si Overpass est indisponible.
+        }
+      }
+    }
+    void loadTataRelation()
+    return () => controller.abort()
+  }, [])
+
   const userIcon = useMemo(() => makeMarker('map-user-marker', 'Votre position', '#198754'), [])
   const originIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-origin', 'Départ sélectionné', '#146b43'), [])
   const destinationIcon = useMemo(() => makeMarker('map-route-marker map-route-marker-destination', 'Destination sélectionnée', '#d78a32'), [])
@@ -418,7 +576,7 @@ function TransitMapView({
          plus la carte. MapResizeController décide du recalcul. */
       trackResize={false}
       className={`leaflet-map${pickingPoint ? ' leaflet-map-picking' : ''}`}
-      aria-label="Carte interactive de Dakar"
+      aria-label="Carte interactive de l’agglomération de Dakar et de ses dessertes périphériques"
     >
       <TileLayer
         attribution={`<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>${searchRoutePositions.length > 1 ? ' · Itinéraire routier : OSRM' : ''}`}
@@ -436,6 +594,112 @@ function TransitMapView({
       />
       <MapResizeController />
       <MapStopDensityController />
+
+      {/* Couverture DDD élargie : géométries routières ArcGIS conservées
+          hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
+      {aftuTataTracks.map((track) => (
+        <Polyline
+          key={`aftu-tata-${track.id}`}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor(track.network)?.core ?? '#D97706',
+            weight: 1.9,
+            opacity: 0.72,
+            dashArray: '4 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU/TATA'} {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
+      {tataOsmTracks.map((track) => (
+        <Polyline
+          key={track.id}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor('aftu_tata')?.core ?? '#D97706',
+            weight: 1.9,
+            opacity: 0.72,
+            dashArray: '4 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>TATA {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
+      {GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => {
+        const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
+        const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
+        const dddColor = paintFor('ddd')?.core ?? '#F59E0B'
+        const aftuColor = paintFor('aftu_tata')?.core ?? '#D97706'
+        return (
+          <CircleMarker
+            key={`coverage-${point.id}`}
+            center={[point.lat, point.lon]}
+            radius={dddLines.length > 0 && aftuLines.length > 0 ? 4.5 : 3.5}
+            pathOptions={{
+              color: dddLines.length > 0 ? dddColor : aftuColor,
+              fillColor: aftuLines.length > 0 ? aftuColor : dddColor,
+              weight: 1.4,
+              opacity: 0.92,
+              fillOpacity: 0.78,
+            }}
+          >
+            <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+              <strong>{point.name}</strong>
+              <div>Zone desservie</div>
+              {dddLines.length > 0 && <div>DDD · {dddLines.join(', ')}</div>}
+              {aftuLines.length > 0 && <div>AFTU/TATA · {aftuLines.join(', ')}</div>}
+            </Tooltip>
+          </CircleMarker>
+        )
+      })}
+      {dddArcgisStops.map((stop) => (
+        <CircleMarker
+          key={stop.id}
+          center={stop.position}
+          radius={2.6}
+          pathOptions={{
+            color: paintFor('ddd')?.core ?? '#F59E0B',
+            fillColor: paintFor('ddd')?.core ?? '#F59E0B',
+            weight: 1,
+            opacity: 0.82,
+            fillOpacity: 0.72,
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>Arrêt de référence DDD · ligne {stop.line}</strong>
+            <div>Repère cartographique historique</div>
+          </Tooltip>
+        </CircleMarker>
+      ))}
+      {dddArcgisTracks.map((track) => (
+        <Polyline
+          key={track.id}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor('ddd')?.core ?? '#F59E0B',
+            weight: 1.8,
+            opacity: 0.62,
+            dashArray: '5 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>DDD {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
 
       {/* Réseau de référence :
           - TER #003366 bleu et BRT #00A859 vert émeraude : tracés continus complets (halo + casing + core)

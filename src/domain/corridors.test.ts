@@ -128,6 +128,13 @@ describe('réseau de référence TER/BRT', () => {
     expect(bargny!.lon).toBeLessThan(DAKAR_REGION_BOUNDS.maxLon)
   })
 
+  it('couvre les dessertes périphériques au-delà de Dakar-ville', () => {
+    expect(DAKAR_REGION_BOUNDS.minLat).toBeLessThanOrEqual(14.61)
+    expect(DAKAR_REGION_BOUNDS.maxLat).toBeGreaterThanOrEqual(14.83)
+    expect(DAKAR_REGION_BOUNDS.minLon).toBeLessThanOrEqual(-17.51)
+    expect(DAKAR_REGION_BOUNDS.maxLon).toBeGreaterThanOrEqual(-17.14)
+  })
+
   it('retrouve un arrêt malgré les accents et les alias', () => {
     expect(searchCorridorStops('guediawaye')[0]?.id).toBe('brt-prefecture-guediawaye')
     expect(searchCorridorStops('Guédiawaye')[0]?.id).toBe('brt-prefecture-guediawaye')
