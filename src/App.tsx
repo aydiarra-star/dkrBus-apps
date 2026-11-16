@@ -377,8 +377,8 @@ function referenceEndpoint(point: MapPoint): PlannerEndpoint {
   }
 }
 
-function planReferencePoints(origin: MapPoint, destination: MapPoint): PlannerOutcome {
-  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination))
+function planReferencePoints(origin: MapPoint, destination: MapPoint, preferences: Preferences): PlannerOutcome {
+  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination), 'fastest', plannerPreferences(preferences))
 }
 
 /**
@@ -1309,13 +1309,15 @@ function App() {
     addPoint('destination', destination)
     parameters.set('at', new Date().toISOString())
     parameters.set('max_walk_m', String(ROUTE_MAX_WALK_M))
+    const activeNetworks = MOBILITY_IDS.filter((network) => preferences.mobility.networks[network])
+    parameters.set('networks', activeNetworks.join(','))
 
     const result = await fetchApi(`/api/journeys?${parameters.toString()}`)
     // Un calcul plus ancien que le dernier ne doit ni afficher ni annoncer son résultat.
     if (!isLatestRequest('journey', id)) return
     if (!result.ok) {
       if (shouldUseReferenceFallback(result)) {
-        const referenceOutcome = planReferencePoints(origin, destination)
+        const referenceOutcome = planReferencePoints(origin, destination, preferences)
         const referenceNotice = result.code === 'NOT_PUBLISHED'
           ? 'Aucun jeu de transport publié : cette estimation utilise uniquement la référence locale TER/BRT.'
           : 'Le serveur d’horaires est indisponible sur cet hébergement : estimation locale TER/BRT, sans horaire déclaré ni temps réel.'
@@ -1336,14 +1338,33 @@ function App() {
       announce(parsed.reason)
       return
     }
-    setJourney({ status: 'ready', search: parsed.value, error: null, errorCode: null })
-    const found = parsed.value.results.length
+    let unclassifiedExcluded = 0
+    const filteredResults = parsed.value.results.filter((candidate) => {
+      const network = mobilityFromLabel(`${candidate.routeShortName ?? ''} ${candidate.routeLongName ?? ''} ${candidate.routeId}`)
+      if (network) return activeNetworks.includes(network)
+      if (activeNetworks.length === MOBILITY_IDS.length) return true
+      unclassifiedExcluded += 1
+      return false
+    })
+    const filteredSearch: JourneySearch = {
+      ...parsed.value,
+      results: filteredResults,
+      reason: filteredResults.length > 0 ? 'DIRECT_RIDE_FOUND' : 'NO_DIRECT_SERVICE',
+      limitations: [
+        parsed.value.limitations,
+        unclassifiedExcluded > 0
+          ? `${unclassifiedExcluded} course${unclassifiedExcluded > 1 ? 's' : ''} sans réseau identifiable ${unclassifiedExcluded > 1 ? 'ont été écartées' : 'a été écartée'} avec les filtres actifs.`
+          : null,
+      ].filter(Boolean).join(' ') || null,
+    }
+    setJourney({ status: 'ready', search: filteredSearch, error: null, errorCode: null })
+    const found = filteredSearch.results.length
     announce(
       found > 0
-        ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''}.`
-        : 'Aucune course directe déclarée ne relie ces deux points. Aucun trajet indirect n’est proposé.',
+        ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''} avec les réseaux autorisés.`
+        : 'Aucune course directe identifiée avec les réseaux autorisés. Le calcul multimodal de référence reste affiché séparément si disponible.',
     )
-  }, [beginRequest, isLatestRequest])
+  }, [beginRequest, isLatestRequest, preferences])
 
   /** Un geste qui complète un trajet va jusqu’au calcul, sans s’arrêter au
    *  milieu : c’est la règle « aucun bouton mort ». */
