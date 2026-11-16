@@ -57,8 +57,6 @@ Les pages officielles AFTU consultées présentent plusieurs différences import
 
 | Ligne | Catalogue AFTU | Fiche détaillée consultée | Décision |
 |---|---|---|---|
-| 53 | Keur Massar – Sébikotane | Fiche détaillée affichant une séquence Keur Massar (Marché) – Sébikotane | Écart à revérifier : l'intitulé catalogue ne doit pas être remplacé par une autre relation sans validation |
-| 54 | Keur Massar (Cité MTOA) – UCAD | Fiche détaillée annoncée MTOA – UCAD dans l'audit de la ligne | Concordance à confirmer sur la fiche courante |
 | 56 | Jaxaay 2 – Petersen | Fiche détaillée : Jaxaay 1 – Petersen | Écart de nom du terminus Jaxaay ; ne pas fusionner les deux points sans géolocalisation |
 | 63 | Camp Marchand Rufisque – Stade LSS | Fiche détaillée : Parcelles Dior – Camp Marchand Rufisque | Divergence catalogue / fiche ; conserver les deux libellés séparés |
 | 79 | Sangalkam – Cambérène | Fiche détaillée : Sangalkam – Cambérène via Niakhirate, Niagues, Darou Thioub, Niacourab et Keur Massar | Concordance de relation ; séquence publiée utile, mais pas des coordonnées de quais |
