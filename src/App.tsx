@@ -2707,6 +2707,9 @@ function RoutePanel({
           <p className="route-coverage" aria-label="Mobilités couvertes">
             {MOBILITY_IDS.map((id) => <MobilityBadge key={id} id={id} />)}
           </p>
+          <div className="route-coverage-bars" aria-hidden="true">
+            {MOBILITY_IDS.map((id) => <span key={id} className={`route-coverage-bar mobility-${id}`} />)}
+          </div>
         </div>
         {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
       </div>
