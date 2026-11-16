@@ -45,8 +45,8 @@ test('marks close top fuzzy scores as ambiguous', () => {
     aftuRecords: [{ data: { code: '2', waypoints: ['Avenue Jean Jaures 4'] } }],
     tataRecords: [],
     dddCandidates: { candidates: [
-      { line: 'Ligne 1', stops: [{ sourceStopName: 'Arrêt Avenue Jean Jaurès', lat: 14.67, lon: -17.44, sourceObjectId: 1 }] },
-      { line: 'Ligne 4', stops: [{ sourceStopName: 'Arrêt Avenue Jean Jaurès 5', lat: 14.68, lon: -17.44, sourceObjectId: 2 }] },
+      { line: 'Ligne 1', stops: [{ sourceStopName: 'Arrêt Avenue Jean Jaurès 5', lat: 14.67, lon: -17.44, sourceObjectId: 1 }] },
+      { line: 'Ligne 4', stops: [{ sourceStopName: 'Arrêt Avenue Jean Jaurès 3', lat: 14.68, lon: -17.44, sourceObjectId: 2 }] },
     ] },
   });
   assert.equal(report.matches[0].status, 'AMBIGUOUS_FUZZY_REVIEW_ONLY');
