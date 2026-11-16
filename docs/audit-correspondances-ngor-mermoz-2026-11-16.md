@@ -76,7 +76,7 @@ La fiche d'arrêt Moovit « Avenue Cheikh Anta Diop, 48 » indique un arrêt par
 - AFTU **44** et **49** ;
 - d'autres lignes proches ou desservant le même arrêt selon la fiche : 3, 14, 42, 43, 67, 218, 219 et 319.
 
-La fiche situe l'arrêt « Lycée Mermoz » à **152 m, soit environ 3 minutes de marche**, de l'arrêt « Avenue Cheikh Anta Diop, 48 ». Elle présente aussi les départs des lignes 7, 44 et 49 au même arrêt de référence. Cela constitue une preuve solide d'un **pôle de correspondance DDD↔AFTU à Mermoz** au niveau de cet arrêt commun.
+La fiche situe l'arrêt « Lycée Mermoz » à **54 m, soit environ 1 minute de marche**, de l'arrêt « Avenue Cheikh Anta Diop, 48 ». La page d'arrêt mise à jour le 5 septembre 2026 affiche les lignes 7, 44 et 49 à cet arrêt et précise qu'il dessert les réseaux AFTU et Dakar Dem Dikk. Elle place le repère « Lycée Mermoz » à 54 m, soit environ 1 minute de marche. Cela constitue une preuve solide d'un **pôle de correspondance DDD↔AFTU à Mermoz** au niveau de cet arrêt commun.
 
 Cependant, les fiches officielles d'itinéraire ne donnent pas les coordonnées GPS précises du quai « Avenue Cheikh Anta Diop, 48 ». Le point GPS du bâtiment du lycée ne doit pas être substitué au quai. Il faut relever le point exact de l'arrêt et, si les deux sens utilisent des quais opposés, conserver les deux positions.
 
