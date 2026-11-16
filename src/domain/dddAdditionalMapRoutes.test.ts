@@ -22,3 +22,17 @@ describe('corridors DDD complémentaires de la carte', () => {
     }
   })
 })
+
+it('inclut le corridor DDD 227 entre Keur Massar et Parcelles Assainies', () => {
+  const route = DDD_ADDITIONAL_MAP_ROUTES.find((item) => item.id === 'ddd-227')
+  expect(route?.line).toBe('227')
+  expect(route?.waypoints.map((point) => point.name)).toEqual([
+    'Terminus Keur Massar',
+    'Route de Malika',
+    'Terminus Guédiawaye',
+    'Case Ba',
+    'Terminus Parcelles Assainies',
+  ])
+  expect(route?.waypoints[0]).toMatchObject({ lat: 14.78542, lon: -17.30922 })
+  expect(route?.waypoints[4]).toMatchObject({ lat: 14.76043, lon: -17.439267 })
+})
