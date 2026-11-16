@@ -721,10 +721,11 @@ function TransitMapView({
           position={stop.position}
           icon={makeMobilityStopLabel('ddd', `ligne ${stop.line}`)}
           keyboard
-          title={`DDD — ligne ${stop.line}`}
+          title={stop.name ? `DDD — ${stop.name} · ligne ${stop.line}` : `DDD — ligne ${stop.line}`}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>Arrêt de référence DDD · ligne {stop.line}</strong>
+            <strong>{stop.name || `Arrêt de référence DDD · ligne ${stop.line}`}</strong>
+            <div>DDD · ligne {stop.line}</div>
             <div>Repère cartographique historique</div>
           </Tooltip>
         </Marker>
