@@ -190,13 +190,13 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
     expect(stopMarkers.every((marker) =>
       String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
       (network === 'aftu_tata'
-        ? />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html))
+        ? />(AFTU)<\/span>/.test(String(marker.icon.options.html))
         : String(marker.icon.options.html).includes(`>${label}</span>`)) &&
       String(marker.icon.options.html).includes('mobility-stop-label') &&
       !String(marker.icon.options.html).includes('mobility-stop-badge'),
     )).toBe(true)
     if (network === 'aftu_tata') {
-      expect(stopMarkers.every((marker) => />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html)))).toBe(true)
+      expect(stopMarkers.every((marker) => />(AFTU)<\/span>/.test(String(marker.icon.options.html)))).toBe(true)
     }
   })
 
