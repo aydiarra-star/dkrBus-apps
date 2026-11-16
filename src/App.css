@@ -3742,3 +3742,25 @@ button:disabled { cursor: not-allowed; }
     box-shadow: none;
   }
 }
+
+.app-shell.theme-dark .route-network-filter {
+  border-color: var(--line-strong);
+  background: var(--surface-card);
+  color: var(--text);
+}
+.app-shell.theme-dark .route-network-filter-heading strong { color: var(--green-400, #8bc9a7); }
+.app-shell.theme-dark .route-network-filter-state { color: var(--green-400, #8bc9a7); }
+.app-shell.theme-dark .route-network-filter.is-inactive {
+  border-color: var(--line-strong);
+  background: var(--surface-secondary, #202c26);
+}
+.app-shell.theme-dark .route-network-filter.is-inactive .mobility-badge {
+  background: #35443c !important;
+  color: #bdc9c2 !important;
+  filter: grayscale(1);
+}
+.app-shell.theme-dark .route-network-filter.is-inactive .route-coverage-bar { background: #617168 !important; }
+.app-shell.theme-dark .route-network-filter.is-inactive .route-network-filter-state { color: var(--muted); }
+.app-shell.theme-dark .route-fields-card,
+.app-shell.theme-dark .route-fields-card .swap-route { background: var(--surface-card); }
+.app-shell.theme-dark .journey-option-recommended { background: #173d2c; color: #a9dfbf; }
