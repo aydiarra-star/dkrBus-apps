@@ -438,6 +438,9 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     ],
     headwayMin: 11.6,
     frequencyStatus: 'ESTIMATED',
+    // Estimation basée sur l'intervalle moyen de référence AFTU du catalogue,
+    // et non sur une fréquence propre à la ligne 73 publiée par l'opérateur.
+    frequencySource: FREQUENCY_SOURCES.cetud,
     officialFrequencies: [],
     serviceWindow: 'Amplitude de référence du réseau AFTU',
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
