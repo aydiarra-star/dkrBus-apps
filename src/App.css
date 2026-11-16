@@ -3728,3 +3728,17 @@ button:disabled { cursor: not-allowed; }
     transform: translate(-50%, -50%);
   }
 }
+
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-panel .route-fields-card .route-origin-group {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .app-shell.tab-route .route-panel .route-fields-card .route-origin-group > .point-field {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}
