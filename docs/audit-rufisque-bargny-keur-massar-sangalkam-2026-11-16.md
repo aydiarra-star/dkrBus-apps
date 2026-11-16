@@ -124,7 +124,7 @@ Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cet
 
 **TER Bargny ↔ AFTU au pôle gare ferroviaire** est le candidat le plus fort du secteur : la fiche AFTU nomme explicitement la gare ferroviaire comme terminus. Le Garage clando OSM et le Terminus bus Bargny sont deux sites distincts de la gare ferroviaire. On ne sait pas encore si le quai AFTU de la ligne 73 se trouve dans l'enceinte ferroviaire, près du Garage clando ou sur une autre plateforme. Le tracé cartographique de la ligne 73 est désormais ancré sur le GPS de la gare ferroviaire ; son point « Arrêt Khaar » à Rufisque reste un repère de corridor, pas un quai AFTU confirmé.
 
-Avant activation : réconcilier le terminus de la fiche officielle avec la carte Moovit, relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
+Le calculateur active désormais TER Bargny ↔ AFTU 73 au même pôle ferroviaire, sur la base du terminus explicitement publié « Bargny (gare ferroviaire) » et de l'emprise OSM de la gare. La distance de marche interne au pôle reste non mesurée et l'interface l'indique comme telle ; elle ne prétend pas qu'il existe une marche de 0 m ou 0 min. Le quai exact et le cheminement voyageurs restent à relever sur place.
 
 ## 4. Keur Massar — terminus commun DDD / AFTU 60 et autres pôles séparés
 
@@ -141,7 +141,7 @@ OpenStreetMap identifie au même endroit :
 
 Le catalogue AFTU courant confirme **ligne 60 : Almadies – Keur Massar**. La fiche détaillée du site AFTU porte le numéro de page 61 et Moovit indexe aussi cette route sous 61 ; le calculateur conserve le numéro officiel du catalogue, **AFTU 60**. Sa fiche détaillée (mise à jour le 7 juillet 2026) décrit : Terminus Keur Massar → Route nationale 1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies.
 
-**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 60 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
+**Conclusion géographique :** le terminus DDD 227, le terminus AFTU 60 et le terminus AFTU 73 sont modélisés comme des points opérateur distincts, mais rattachés au même pôle P11 sur les coordonnées concordantes. Le calculateur active les échanges DDD 227 ↔ AFTU 60, AFTU 73 ↔ AFTU 60 et DDD 227 ↔ AFTU 73. Le segment AFTU 73 intégré au calculateur couvre Bargny gare ferroviaire ↔ Keur Massar ; la ligne complète continue vers Tivaouane Peul / Cité Cocehas et n'est pas présentée comme intégralement modélisée dans le moteur. DDD 11 partage le point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
 
 ### Extrémité Almadies / Mamelles de la ligne AFTU 60 (index Moovit 61)
 
