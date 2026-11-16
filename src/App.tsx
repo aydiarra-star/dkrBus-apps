@@ -2704,11 +2704,13 @@ function RoutePanel({
         <div>
           <span className="eyebrow">GUIDE DE TRAJET</span>
           <h2>Planifier un trajet</h2>
-          <p className="route-coverage" aria-label="Mobilités couvertes">
-            {MOBILITY_IDS.map((id) => <MobilityBadge key={id} id={id} />)}
-          </p>
-          <div className="route-coverage-bars" aria-hidden="true">
-            {MOBILITY_IDS.map((id) => <span key={id} className={`route-coverage-bar mobility-${id}`} />)}
+          <div className="route-coverage" aria-label="Mobilités couvertes">
+            {MOBILITY_IDS.map((id) => (
+              <span key={id} className="route-coverage-item">
+                <MobilityBadge id={id} />
+                <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
+              </span>
+            ))}
           </div>
         </div>
         {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
