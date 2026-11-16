@@ -418,7 +418,7 @@ function TransitMapView({
          plus la carte. MapResizeController décide du recalcul. */
       trackResize={false}
       className={`leaflet-map${pickingPoint ? ' leaflet-map-picking' : ''}`}
-      aria-label="Carte interactive de Dakar"
+      aria-label="Carte interactive de l’agglomération de Dakar et de ses dessertes périphériques"
     >
       <TileLayer
         attribution={`<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a>${searchRoutePositions.length > 1 ? ' · Itinéraire routier : OSRM' : ''}`}
