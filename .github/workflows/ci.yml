@@ -109,6 +109,16 @@ jobs:
       - name: Build AFTU/TATA to DDD stop-name crosswalk
         run: node scripts/build_aftu_tata_ddd_stop_crosswalk.node.mjs
 
+      - name: Upload AFTU/TATA to DDD stop-name crosswalk
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-tata-ddd-stop-name-crosswalk
+          path:
+            artifacts/aftu-tata/ddd-stop-name-crosswalk.json
+            artifacts/aftu-tata/ddd-stop-name-crosswalk-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Check DDD ArcGIS official sequence cross-check
         run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
 
