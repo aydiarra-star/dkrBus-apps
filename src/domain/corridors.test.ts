@@ -184,6 +184,7 @@ describe('réseau de référence TER/BRT', () => {
     expect(searchCorridorStops('diamniadio')[0]?.id).toBe('ter-diamniadio')
     expect(searchCorridorStops('Keur Mbaye Fall')[0]?.id).toBe('ter-mbao')
     expect(searchCorridorStops('Mbao')[0]?.name).toBe('Keur Mbaye Fall')
+    expect(searchCorridorStops('Keur Massar').some((stop) => stop.id === 'ter-mbao')).toBe(false)
     expect(searchCorridorStops('aéroport blaise diagne')[0]?.id).toBe('ter-aibd')
     expect(searchCorridorStops('AIBD')[0]?.id).toBe('ter-aibd')
   })
@@ -236,3 +237,17 @@ describe('source unique des fréquences', () => {
     expect(OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)).toEqual([10, 20, 20])
   })
 })
+
+  it('active la correspondance DDD 227 ↔ AFTU 60 au terminus commun de Keur Massar', () => {
+    const transfer = CORRIDOR_TRANSFERS.find((item) =>
+      [item.fromStopId, item.toStopId].includes('ddd-keur-massar-227')
+      && [item.fromStopId, item.toStopId].includes('aftu-keur-massar-60'),
+    )
+    expect(transfer).toMatchObject({
+      fromStopId: 'ddd-keur-massar-227',
+      toStopId: 'aftu-keur-massar-60',
+      walkM: 0,
+    })
+    expect(CORRIDOR_LINES.find((line) => line.id === 'ddd-227')?.shortName).toBe('DDD 227')
+    expect(CORRIDOR_LINES.find((line) => line.id === 'aftu-60')?.shortName).toBe('AFTU 60')
+  })
