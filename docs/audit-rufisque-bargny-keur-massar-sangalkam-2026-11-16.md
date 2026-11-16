@@ -1,185 +1,161 @@
-# Audit de couverture Rufisque, Bargny, Keur Massar et Sangalkam — 16 novembre 2026
+# Audit géographique Rufisque, Bargny, Keur Massar et Sangalkam — 16 novembre 2026
 
 ## Objet et règle de sécurité
 
-Vérifier les dessertes périurbaines DDD et AFTU à partir des pages officielles accessibles, distinguer les relations annoncées des séquences détaillées et repérer les contradictions entre catalogue et fiches d'itinéraire.
+Approfondir les dessertes DDD/AFTU, les pôles routiers et ferroviaires, les points GPS disponibles et les cheminements piétons envisageables.
 
-**Ce document est un audit documentaire uniquement.** Il n'ajoute aucun arrêt actif, aucune coordonnée, aucun tracé, aucun horaire ni aucune correspondance au calculateur. Les noms de quartiers ou de terminus ne sont pas convertis en points GPS sans quai identifié.
+**Audit documentaire uniquement :** aucun arrêt actif, tracé, horaire, transfert du calculateur ou donnée TER/BRT n'est modifié. Les coordonnées d'une gare, d'un bâtiment ou d'un arrêt OSM non attribué à une ligne ne sont jamais utilisées comme quai opérateur par défaut.
 
-## 1. Rufisque et ses abords
+## 1. Rufisque — plusieurs pôles distincts
 
-### DDD — dessertes publiées
+### DDD : dessertes publiées
 
-Le réseau urbain DDD présente notamment :
+Le réseau officiel DDD indique notamment :
+- **Ligne 15 — Rufisque ↔ Palais 1** : Terminus Rufisque, Djoutiba, Sortie Rufisque, Croisement Keur Massar, puis corridor Mbao/Thiaroye.
+- **Ligne 213 — Rufisque ↔ Dieuppeul** : départ annoncé « Gare de Rufisque », puis HLM SIPRES, ZAC Mbao, Grand Mbao, Keur Mbaye Fall, Petit Mbao et Thiaroye.
+- **Ligne 220 — Rufisque ↔ Guédiawaye** : Terminus Rufisque, Djoutiba, HLM Rufisque, SIPRES, SEDIMA, Jaxaay et Station Keur Massar.
+- **Ligne 208 — Bayakh ↔ Rufisque** : Gorom 01/02, Bambilor, Noflaye, Sangalkam, Keur Ndiaye Lo et Rufisque.
+- La page DDD publie aussi une relation Rufisque–Yenne via Bargny, mais sans numéro de ligne clairement attaché au bloc consulté.
 
-- **Ligne 15 : Rufisque ↔ Palais 1.** Séquence publiée : terminus Rufisque, Djoutiba, sortie Rufisque, croisement Keur Massar, Fass Mbao, Diamaguène, Poste Thiaroye, Bountou Pikine, Colobane, puis centre-ville.
-- **Ligne 213 : Rufisque ↔ Dieuppeul.** Séquence publiée depuis la gare de Rufisque via HLM SIPRES, ZAC Mbao, Grand Mbao, Keur Mbaye Fall, Petit Mbao, Diamaguène, Poste Thiaroye et jusqu'à Dieuppeul.
-- **Ligne 220 : Rufisque ↔ Guédiawaye.** Séquence publiée via Djoutiba, HLM Rufisque, SIPRES, SEDIMA, lycée Jaxaay, station Keur Massar, Malika et Guédiawaye.
-- **Ligne 208 : Bayakh ↔ Rufisque.** La page DDD publie les jalons Gorom 01, Gorom 02, Bambilor, Noflaye, Sangalkam, Keur Ndiaye Lo et Rufisque.
-- **Relation Rufisque ↔ Yenne :** la page DDD publie une séquence Rufisque, ville de Rufisque, Bargny, Diamniadio/Yenne, sans numéro clairement affiché dans ce bloc.
-- **Ligne 15A/15B :** la page « Info voyageurs » utilise cette désignation, tandis que la page « Réseau urbain » affiche « Ligne 15 ». Ne pas créer deux services distincts sur la seule base de cette différence de présentation.
+### AFTU : catalogue courant et fiches détaillées
 
-### AFTU — relations du catalogue
+Le catalogue courant AFTU affiche :
+- **53** : Terminus Keur Massar (Cité MTOA) – UCAD ;
+- **54** : Terminus Rufisque Sonadis – Petersen ;
+- **56** : Liberté 6 – Rufisque ;
+- **59** : Colobane – Bargny ;
+- **61** : Arrêt Chérif (Rufisque) – Penc Mi ;
+- **62** : Terminus Camp Marchand Rufisque – Stade LSS ;
+- **63** : Guédiawaye – Rufisque ;
+- **66** : Ouakam – Thiawlène Rufisque ;
+- **73** : Terminus Bargny (gare ferroviaire) – Tivaouane Peul ;
+- **76** : Rufisque – Liberté 5 ;
+- **78** : Sangalkam – Cambérène ;
+- **82** : Rufisque Arafat – Zone de Captage ;
+- **88** : Bargny – Croisement Niague (Cité SICAP).
 
-Le catalogue AFTU affiche notamment :
+Les fiches détaillées AFTU accessibles donnent des séquences utiles mais certaines pages ne correspondent pas clairement à l'intitulé du catalogue :
+- Fiche détaillée **60** : Colobane → autoroute → RN1 → Diamaguène → Sicap Mbao → Fass Mbao → Croisement Keur Massar → Dioutyba (Rufisque) → Sonadis → Sococim → Bargny.
+- Fiche détaillée **62** : Arrêt Chérif (Rufisque) → Arafat → Marché Mardi → Poste Courant → Sonadis → Dangou → Fass Rufisque → HLM Rufisque → Dioutyba → RN1 → Thiaroye → Penc Mi.
+- Fiche détaillée **63** : Parcelles Dior → Police des Parcelles → Case Bi → Cambérène → Bountou Pikine → Poste Thiaroye → Croisement Keur Massar → Keur Mbaye Fall → Rond-point Djouti Ba → Route des HLM Rufisque → Stade de Rufisque → Rufisque Nord 73 → Arrêt Khaar → Passage à niveau → Rond-point Arafat → Camp Marchand Rufisque.
+- Fiche détaillée **74** : Terminus Bargny (gare ferroviaire) → Colobane Rufisque → Poste Courant → RN1 → Boulevard Maurice Gueye → Rond-point Djouti Ba → Route des HLM Rufisque → échangeur Rufisque-Ouest → route de Jaxaay → Rond-point Station Shell Keur Massar → Terminus Keur Massar → Tivaouane Peul → Cité Socabeg → Cité Cocehas.
+- Fiche détaillée **79** : Terminus Sangalkam → Ndiakhirate → Croisement Niagues → Darou Thioub → Niacourab → Croisement Tivaouane Peulh → Station Keur Massar → Malika → Gadaye → Serigne Assane → Marché Boubess → Préfecture Guédiawaye → Cité Nations Unies / Cambérène.
+- Fiche détaillée **54** : Terminus Keur Massar (MTOA) → Station Keur Massar → MTOA → Route de Boune → Mbedou Fass → Fass Mbao → RN1 → Poste Thiaroye → Place Bakou → Pont de Colobane → Canal 4 → UCAD.
 
-- Ligne 53 : « Keur Massar – Sébikotane » ;
-- Ligne 54 : « Terminus Keur Massar (Cité MTOA) – UCAD » ;
-- Ligne 55 : « Terminus Rufisque Sonadis – Petersen » ;
-- Ligne 56 : « Jaxaay 2 – Petersen » ;
-- Ligne 57 : « Liberté 6 – Rufisque » ;
-- Ligne 59 : « Diamalaye – Cité Gendarmerie (Jaxaay) » ;
-- Ligne 60 : « Colobane – Bargny » ;
-- Ligne 61 : « Almadies – Keur Massar » ;
-- Ligne 62 : « Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) » ;
-- Ligne 63 : « Terminus Camp Marchand Rufisque – Stade LSS » ;
-- Ligne 64 : « Guédiawaye – Rufisque » ;
-- Ligne 66 : « Yoff – Gorom 1 » ;
-- Ligne 67 : « Ouakam – Thiawlène Rufisque » ;
-- Ligne 73 : « Lac Rose – Poste Thiaroye » ;
-- Ligne 74 : « Terminus Bargny (gare ferroviaire) – Tivaouane Peul » ;
-- Ligne 76 : « SIPRES – Cité Assurance » ;
-- Ligne 77 : « Rufisque – Liberté 5 » ;
-- Ligne 78 : « Diamaguène – Liberté 5 » ;
-- Ligne 79 : « Sangalkam – Cambérène » ;
-- Ligne 82 : « Lat Dior – Comico Yeumbeul » ;
-- Ligne 83 : « Rufisque Arafat – Zone de Captage » ;
-- Ligne 84 : « UCAD – Jaxaay » ;
-- Ligne 87 : « Bambilor – Mosquée Massalikou Djinaane » ;
-- Ligne 88 : « MTOA – Liberté 5 » ;
-- Ligne 89 : « Bargny – Croisement Niague (Cité SICAP) ».
+**Décision :** ne pas résoudre les écarts de numérotation ou d'intitulé par supposition. Les séquences sont conservées avec leur référence de page exacte jusqu'à confirmation AFTU. Le guide officiel JOJ 2026 constitue une photographie datée du réseau ; il ne doit pas écraser le catalogue et les fiches courantes lorsqu'ils divergent.
 
-Ces libellés prouvent que le catalogue annonce une couverture de Rufisque et de ses secteurs, mais ne suffisent pas à déterminer les quais ni la séquence détaillée de chaque ligne.
+## 2. Rufisque — points GPS vérifiables et limites
 
-### Contradictions catalogue / fiche détaillée AFTU à conserver
+| Point cartographique | Coordonnées GPS | Ce que cela prouve |
+|---|---:|---|
+| Gare routière de Rufisque (OSM way 178908478) | **14.72167, -17.28356** | Emprise de gare routière OSM ; pas un quai AFTU/DDD identifié |
+| Gare ferroviaire de Rufisque (OSM way 206847948) | **14.71572, -17.27034** | Bâtiment/station ferroviaire |
+| Terminus 63 (OSM node 6636898185) | **14.72082, -17.25488** | Arrêt de bus OSM ; attribution opérateur/ligne non prouvée |
+| Ex Terminus ligne 63 (OSM node 1782535718) | **14.71489, -17.26393** | Ancien arrêt de bus ; ne pas l'assimiler au terminus actuel |
+| CEM Camp Marchand (OSM way 627371995) | **14.72010, -17.26281** | Bâtiment scolaire de référence, pas un quai |
+| Arrêt Khaar | Point OSM à relever séparément | La fiche AFTU 63 cite le nom, mais le point exact reste à attribuer |
 
-Les pages officielles AFTU consultées présentent plusieurs différences importantes :
+La gare routière OSM et la gare ferroviaire OSM sont séparées d'environ **1,6 km à vol d'oiseau**. Elles doivent donc rester deux pôles distincts dans le calculateur. Cette valeur n'est pas un itinéraire piéton.
 
-| Ligne | Catalogue AFTU | Fiche détaillée consultée | Décision |
+Le terminus AFTU « Camp Marchand » est documenté dans la séquence, mais le bâtiment CEM Camp Marchand et les anciens arrêts OSM ne suffisent pas à identifier le quai actuel. Le point « Terminus 63 » ne doit pas être automatiquement rattaché à la fiche Camp Marchand.
+
+### Sonadis / Djouti Ba / HLM Rufisque
+
+Les fiches AFTU 60/62/63/74 et DDD 15/220 convergent sur les repères Dioutyba/Djouti Ba, Sonadis, HLM Rufisque, Poste Courant et RN1. Une source locale situe la pharmacie Astele « en face arrêt Sonadis » sur Keury Souf / Boulevard Maurice Gueye ; le guichet MSAE de Rufisque est aussi indiqué au Rond-point SONADIS.
+
+Cela confirme un pôle de transport connu, mais **aucune coordonnée GPS fiable du quai Sonadis** n'a été trouvée dans les sources ouvertes consultées. Le point du commerce, de la pharmacie ou de la mairie ne doit pas remplacer l'arrêt.
+
+## 3. Bargny — meilleur candidat de correspondance avec le TER
+
+### Points GPS
+
+- **Gare de Bargny** (OSM way 1016285847) : **14.69798, -17.22923**.
+- **Garage clando** (OSM node 4846093863, amenity=bus_station) : **14.69650, -17.23086**.
+
+Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cette proximité est un repère géographique, pas une mesure de cheminement piéton vérifié.
+
+### Desserte
+
+- La fiche AFTU détaillée 74 publie explicitement **« Terminus Bargny (gare ferroviaire) »** et une séquence qui remonte par Rufisque jusqu'à Keur Massar.
+- La fiche AFTU détaillée 60 publie aussi le terminus Bargny via Sonadis et Sococim.
+- DDD publie le passage par Bargny dans la relation Rufisque–Yenne, mais le numéro et le quai exacts ne sont pas identifiés dans la page consultée.
+
+### Correspondance candidate
+
+**TER Bargny ↔ AFTU au pôle gare ferroviaire** est le candidat le plus fort du secteur : la fiche AFTU nomme explicitement la gare ferroviaire comme terminus. Le Garage clando OSM est à proximité, mais on ne sait pas encore s'il représente le quai de cette ligne AFTU, un autre service collectif ou une zone distincte.
+
+Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
+
+## 4. Keur Massar — deux pôles à ne pas fusionner
+
+### Points GPS
+
+- **Gare routière de Keur Massar** (OSM way 335756472) : **14.76984, -17.31840**.
+- **Service spéciale DDD** (OSM node 5602711037, highway=bus_stop) : **14.77054, -17.31875**.
+- **Station MTOA** (OSM way 339556843, station-service) : **14.78288, -17.32369**.
+
+L'arrêt OSM « Service spéciale DDD » est très proche de la gare routière (environ 80 m à vol d'oiseau) et est donc un candidat de pôle DDD/gare routière. Il n'est cependant pas attribué à une ligne DDD précise dans la fiche OSM.
+
+La station MTOA est un repère de station-service, pas un arrêt de bus. Elle est distincte de la gare routière ; la distance en ligne droite entre ces deux repères est d'environ 1,5 km.
+
+### Desserte et correspondances candidates
+
+- DDD publie plusieurs lignes passant par Station Keur Massar / Croisement Keur Massar : 11, 15, 16B, 220, 227, 234, 311 et 327.
+- AFTU catalogue annonce la relation MTOA Keur Massar–UCAD (ligne 53) ; la fiche détaillée 54 décrit MTOA, Station Keur Massar et le corridor vers UCAD.
+- La fiche AFTU détaillée 74 passe par Station Shell Keur Massar puis Terminus Keur Massar.
+
+Deux pôles doivent donc être cartographiés séparément :
+1. Gare routière / arrêt DDD « Service spéciale DDD » ;
+2. Terminus/Station MTOA.
+
+Le premier est un candidat de correspondance DDD↔AFTU pour les lignes terminus Keur Massar, sous réserve de confirmer le quai AFTU. Le second concerne les lignes qui desservent réellement MTOA. Ne pas connecter automatiquement MTOA à la gare routière ou au point DDD.
+
+## 5. Sangalkam et corridor vers Rufisque
+
+- DDD ligne **208** publie Bayakh → Gorom 01/02 → Bambilor → Noflaye → Sangalkam → Keur Ndiaye Lo → Rufisque.
+- Le catalogue AFTU affiche **ligne 78 : Sangalkam–Cambérène** ; la fiche détaillée 79 publie Sangalkam → Ndiakhirate → Niagues → Darou Thioub → Niacourab → Tivaouane Peulh → Station Keur Massar → Gadaye → Guédiawaye/Cambérène.
+
+La desserte des deux réseaux est donc confirmée à l'échelle de la localité et du corridor. Aucun quai exact de Sangalkam n'a été établi ; aucun transfert automatique n'est ajouté.
+
+## 6. Correspondances à prioriser pour le calculateur
+
+| Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
-| 53 | Keur Massar – Sébikotane | Fiche détaillée affichant une séquence Keur Massar (Marché) – Sébikotane | Écart à revérifier : l'intitulé catalogue ne doit pas être remplacé par une autre relation sans validation |
-| 54 | Keur Massar (Cité MTOA) – UCAD | Fiche détaillée annoncée MTOA – UCAD dans l'audit de la ligne | Concordance à confirmer sur la fiche courante |
-| 56 | Jaxaay 2 – Petersen | Fiche détaillée : Jaxaay 1 – Petersen | Écart de nom du terminus Jaxaay ; ne pas fusionner les deux points sans géolocalisation |
-| 63 | Camp Marchand Rufisque – Stade LSS | Fiche détaillée : Parcelles Dior – Camp Marchand Rufisque | Divergence catalogue / fiche ; conserver les deux libellés séparés |
-| 79 | Sangalkam – Cambérène | Fiche détaillée : Sangalkam – Cambérène via Niakhirate, Niagues, Darou Thioub, Niacourab et Keur Massar | Concordance de relation ; séquence publiée utile, mais pas des coordonnées de quais |
+| 1 | TER Bargny ↔ AFTU terminus gare ferroviaire | Terminus ferroviaire explicitement publié ; garage clando OSM proche | Confirmer quai AFTU et tracer le chemin piéton réel |
+| 2 | DDD ↔ AFTU à Gare routière Keur Massar | Arrêt DDD OSM à ~80 m à vol d'oiseau de la gare routière ; lignes AFTU terminus Keur Massar publiées | Attribuer les quais par ligne et mesurer le chemin |
+| 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes | Géocoder l'arrêt Sonadis et les quais dans les deux sens |
+| 4 | DDD208 ↔ AFTU Sangalkam | Desserte locale publiée par les deux réseaux | Localiser les terminus et arrêts précis |
+| 5 | DDD213 ↔ AFTU Camp Marchand / gare de Rufisque | Pôles de Rufisque documentés mais géographiquement distincts | Identifier le terminus Camp Marchand et le quai Gare de Rufisque |
 
-La fiche détaillée de la ligne 60 confirme la relation Colobane–Bargny et publie les jalons Route nationale 1, Diamaguène, Sicap Mbao, Fass Mbao, Croisement Keur Massar, Dioutyba/Rufisque, Sonadis, Sococim et terminus Bargny. La relation est cohérente avec le catalogue, mais ces jalons ne localisent pas précisément les quais.
+Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais utilisées comme temps de marche. Pour le calcul final, il faut un chemin piéton praticable, avec traversées et accès, puis une distance mesurée sur ce chemin.
 
-## 2. Bargny
+## Sources
 
-### DDD
+### Opérateurs et autorités
+- DDD, réseau urbain et lignes de banlieue : https://demdikk.sn/reseau-urbain-dakar/
+- AFTU, catalogue courant : https://aftu-senegal.org/infos-pratiques/
+- AFTU, fiche détaillée ligne 54 : https://aftu-senegal.org/map/dakar-urbain-ligne-54/
+- AFTU, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
+- AFTU, fiche détaillée ligne 62 : https://aftu-senegal.org/map/dakar-urbain-ligne-62/
+- AFTU, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
+- AFTU, fiche détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
+- AFTU, fiche détaillée ligne 79 : https://aftu-senegal.org/map/dakar-urbain-ligne-79/
+- Guide officiel de mobilité JOJ Dakar 2026 (photographie datée du réseau) : https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
 
-La page DDD publie une relation Rufisque–Yenne qui passe par Bargny. Cette séquence confirme le passage par la localité, mais ne donne ni quai, ni arrêt nommé à l'intérieur de Bargny, ni numéro de ligne clairement attaché au bloc de la page consultée.
+### Cartographie et repères
+- Gare routière de Rufisque : https://mapcarta.com/fr/W178908478
+- Gare de Rufisque : https://mapcarta.com/fr/W206847948
+- Gare de Bargny : https://mapcarta.com/fr/W1016285847
+- Garage clando Bargny : https://mapcarta.com/fr/N4846093863
+- Gare routière de Keur Massar : https://mapcarta.com/fr/W335756472
+- Arrêt Service spéciale DDD : https://mapcarta.com/fr/N5602711037
+- Station MTOA : https://mapcarta.com/fr/W339556843
+- Terminus 63 : https://mapcarta.com/fr/N6636898185
+- Ex Terminus ligne 63 : https://mapcarta.com/fr/N1782535718
+- CEM Camp Marchand : https://mapcarta.com/fr/W627371995
+- Pharmacie Astele, adresse « en face arrêt Sonadis » : https://www.solaas.sn/fiimoowoor/establishment/2309
+- CETUD, étude territoriale et réseau de transport collectif : https://cetud.sn/wp-content/uploads/2026/03/10-CETUD-ESRBRT-TOME-2_VF.pdf
 
-### AFTU
+## Périmètre
 
-Le catalogue AFTU annonce notamment la ligne 60 Colobane–Bargny, la ligne 74 Bargny (gare ferroviaire)–Tivaouane Peul et la ligne 89 Bargny–Croisement Niague (Cité SICAP). La fiche détaillée de la ligne 60 confirme le corridor Colobane–Bargny via Sonadis et Sococim. Les séquences exactes des lignes 74 et 89 et leurs quais terminus restent à vérifier.
-
-**Décision Bargny :** la desserte AFTU de Bargny est documentée au catalogue par les lignes 60, 74 et 89. Ne pas créer de tracé détaillé ou de correspondance DDD↔AFTU à Bargny sans séquence complète, points de quais et cheminement piéton vérifiés.
-
-## 3. Keur Massar et corridor Mbao–Thiaroye
-
-### DDD — séquences publiées
-
-Les pages officielles DDD mentionnent Keur Massar dans plusieurs relations :
-
-- **Ligne 11 :** Keur Massar – Lat Dior, avec station Keur Massar, croisement Keur Massar, Fass Mbao, Diamaguène et Poste Thiaroye.
-- **Ligne 15 :** Rufisque – Palais 1, avec croisement Keur Massar, Fass Mbao et Diamaguène.
-- **Ligne 16B :** Malika – Palais 1, avec station et croisement Keur Massar, LGI Mbao et Diamaguène.
-- **Ligne 220 :** Rufisque – Guédiawaye, via SEDIMA, Jaxaay et station Keur Massar.
-- **Ligne 227 :** Keur Massar – Terminus Parcelles, via Tolou Abdoulaye Wade, croisement Tivaouane Peulh, APIX et Malika.
-- **Ligne 234 :** Jaxaay – Leclerc, via station Keur Massar, croisement Keur Massar, Fass Mbao et Diamaguène.
-- **Ligne 311 :** Lac Rose – Croisement Keur Massar, via croisement Tivaouane Peulh et station Keur Massar.
-- **Ligne 327 :** Keur Massar – Terminus Parcelles, via Tolou Abdoulaye Wade, croisement Tivaouane Peulh, APIX et Malika.
-
-Les noms « Station Keur Massar », « Croisement Keur Massar », « Terminus Keur Massar », « MTOA » et « Croisement Tivaouane Peulh » doivent rester distincts tant que leurs positions et leurs fonctions ne sont pas identifiées.
-
-### AFTU — relations du catalogue et fiches consultées
-
-Le catalogue annonce notamment :
-
-- Ligne 51 : Bountou Pikine – Keur Massar ;
-- Ligne 52 : Keur Massar – Sébikotane ;
-- Ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD ;
-- Ligne 53 : Keur Massar – Sébikotane ;
-- Ligne 54 : Keur Massar (Cité MTOA) – UCAD ;
-- Ligne 60 : Colobane – Bargny ;
-- Ligne 61 : Almadies – Keur Massar ;
-- Ligne 63 : Camp Marchand Rufisque – Stade LSS ;
-- Ligne 64 : Guédiawaye – Rufisque ;
-- Ligne 67 : Ouakam – Thiawlène Rufisque ;
-- Ligne 70 : Keur Massar – Claudel ;
-- Ligne 73 : Lac Rose – Poste Thiaroye ;
-- Ligne 74 : Bargny gare ferroviaire – Tivaouane Peul ;
-- Ligne 76 : SIPRES – Cité Assurance ;
-- Ligne 77 : Rufisque – Liberté 5 ;
-- Ligne 78 : Diamaguène – Liberté 5 ;
-- Ligne 79 : Sangalkam – Cambérène ;
-- Ligne 82 : Lat Dior – Comico Yeumbeul ;
-- Ligne 83 : Rufisque Arafat – Zone de Captage ;
-- Ligne 84 : UCAD – Jaxaay ;
-- Ligne 87 : Bambilor – Mosquée Massalikou Djinaane ;
-- Ligne 89 : Bargny – Croisement Niague.
-
-Les fiches consultées donnent des repères complémentaires : la ligne 56 passe par le rond-point Shell et le croisement Keur Massar ; la ligne 60 passe par le croisement Keur Massar sur le corridor Colobane–Bargny ; la ligne 76 passe par MTOA et Station Keur Massar ; la ligne 79 passe par le croisement Tivaouane Peulh et Station Keur Massar. Ces séquences ne prouvent pas que leurs quais sont communs avec ceux de DDD.
-
-**Décision Keur Massar :** la couverture DDD est confirmée par plusieurs séquences publiées. La couverture AFTU est annoncée par le catalogue, avec des fiches détaillées à rapprocher. Aucun arrêt AFTU ne doit être positionné automatiquement sur un arrêt DDD homonyme.
-
-## 4. Sangalkam, Bambilor et corridor vers Rufisque
-
-### DDD
-
-La ligne 208 publiée par DDD relie Bayakh à Rufisque via Gorom 01, Gorom 02, Bambilor, Noflaye, Sangalkam et Keur Ndiaye Lo. La page « Info voyageurs » confirme l'existence de la relation Bayakh–Rufisque.
-
-### AFTU
-
-Le catalogue AFTU annonce :
-
-- Ligne 66 : Yoff – Gorom 1 ;
-- Ligne 67 : Ouakam – Thiawlène Rufisque ;
-- Ligne 79 : Sangalkam – Cambérène ;
-- Ligne 87 : Bambilor – Mosquée Massalikou Djinaane ;
-- Ligne 89 : Bargny – Croisement Niague (Cité SICAP).
-
-La fiche détaillée de la ligne 79 confirme un itinéraire Sangalkam–Cambérène via Niakhirate, Croisement Niagues, Darou Thioub, Niacourab, Croisement Tivaouane Peulh et Station Keur Massar. C'est une confirmation de desserte à l'échelle de la séquence publiée, pas une géolocalisation précise de chacun des arrêts.
-
-**Décision Sangalkam :** la desserte DDD de la localité est explicitement publiée sur la ligne 208. Le catalogue et la fiche détaillée AFTU 79 concordent sur Sangalkam–Cambérène. La ligne 66 est Yoff–Gorom 1 au catalogue ; ne pas la confondre avec la ligne 67 Ouakam–Thiawlène.
-
-## 5. Correspondances et géolocalisation : aucune activation nouvelle
-
-Les noms de pôles ou de quartiers (Gare de Rufisque, Camp Marchand, Sonadis, Sococim, Bargny gare ferroviaire, Station Keur Massar, MTOA, Sangalkam, Bambilor, Keur Ndiaye Lo) ne sont pas des coordonnées de quais.
-
-Avant d'ajouter une correspondance, il faut obtenir pour chaque opérateur :
-1. le point GPS exact du quai dans chaque sens ;
-2. la confirmation que les deux services utilisent bien le même pôle et non deux arrêts de quartier différents ;
-3. le cheminement piéton praticable, les traversées et les accès ;
-4. une distance piétonne mesurée, et non une distance à vol d'oiseau ;
-5. la confirmation du nom officiel à afficher.
-
-Aucun lien de correspondance Rufisque, Bargny, Keur Massar ou Sangalkam n'est ajouté dans cet audit.
-
-## 6. Priorités de résolution
-
-1. Demander à AFTU de clarifier l'écart de terminus Jaxaay 1 / Jaxaay 2 sur la ligne 56 et la divergence de la ligne 63.
-2. Obtenir les séquences complètes et les points de terminus des lignes 74 Bargny–Tivaouane Peul et 89 Bargny–Croisement Niague.
-3. Vérifier le numéro de la relation DDD Rufisque–Bargny–Yenne et ses arrêts réels.
-4. Identifier les quais DDD et AFTU à Gare de Rufisque, Camp Marchand, Sonadis, Sococim et Bargny gare ferroviaire.
-5. Distinguer les différents arrêts Keur Massar (station, croisement, terminus, MTOA).
-6. Maintenir la concordance documentaire de la ligne AFTU 79 Sangalkam–Cambérène et confirmer les quais précis de ses arrêts.
-7. Relever les accès et cheminements piétons avant toute correspondance automatique.
-
-## Sources officielles consultées
-
-- Dakar Dem Dikk, réseau urbain et lignes de banlieue : https://demdikk.sn/reseau-urbain-dakar/
-- Dakar Dem Dikk, info voyageurs et liste des relations : https://demdikk.sn/info-voyageurs/
-- AFTU Sénégal, catalogue officiel des lignes : https://aftu-senegal.org/infos-pratiques/
-- AFTU Sénégal, fiche détaillée ligne 55 : https://aftu-senegal.org/map/dakar-urbain-ligne-55/
-- AFTU Sénégal, fiche détaillée ligne 56 : https://aftu-senegal.org/map/dakar-urbain-ligne-56/
-- AFTU Sénégal, fiche détaillée ligne 57 : https://aftu-senegal.org/map/dakar-urbain-ligne-57/
-- AFTU Sénégal, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
-- AFTU Sénégal, fiche détaillée ligne 76 : https://aftu-senegal.org/map/dakar-urbain-ligne-76/
-- AFTU Sénégal, fiche détaillée ligne 79 : https://aftu-senegal.org/map/dakar-urbain-ligne-79/
-
-## Périmètre de modification
-
-Un seul document d'audit est ajouté. Aucun changement de code, de données actives, d'arrêts, de lignes, de tracés, d'horaires, de correspondances, ni de référence TER/BRT.
+Un document d'audit géographique uniquement. Aucun changement de code, d'arrêt actif, de ligne, de tracé, d'horaire, de correspondance du graphe ou de donnée TER/BRT.
