@@ -89,8 +89,8 @@ test('includes peripheral Dakar routes around Sangalkam and Toubab Dialaw', () =
     ] },
   });
   assert.equal(report.matches[0].status, 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE');
-  assert.equal(report.source.geographicBounds.north, 15.02);
-  assert.equal(report.source.geographicBounds.south, 14.45);
+  assert.equal(report.source.geographicBounds.north, 14.95);
+  assert.equal(report.source.geographicBounds.south, 14.50);
 });
 
 test('marks distant exact-name locations as ambiguous', () => {
