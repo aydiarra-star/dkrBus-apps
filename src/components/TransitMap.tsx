@@ -306,7 +306,7 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
-function mobilityStopLabel(mobility: MobilityId | null, stopId?: string): string {
+function mobilityStopLabel(mobility: MobilityId | null, _stopId?: string): string {
   if (mobility === 'ter') return 'TER'
   if (mobility === 'brt') return 'BRT'
   if (mobility === 'ddd') return 'DDD'
