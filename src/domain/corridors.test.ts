@@ -93,7 +93,7 @@ describe('réseau de référence TER/BRT', () => {
   })
 
   it('relie TER et BRT par des correspondances marchables cohérentes avec les positions', () => {
-    for (const transfer of CORRIDOR_TRANSFERS) {
+    for (const transfer of CORRIDOR_TRANSFERS.filter((item) => item.walkM > 0)) {
       const from = getCorridorStop(transfer.fromStopId)
       const to = getCorridorStop(transfer.toStopId)
       expect(from).not.toBeNull()
@@ -105,9 +105,16 @@ describe('réseau de référence TER/BRT', () => {
     }
   })
 
+
+  it('réserve les distances nulles aux transferts explicitement situés dans un même pôle', () => {
+    const sameHubTransfers = CORRIDOR_TRANSFERS.filter((transfer) => transfer.walkM === 0)
+    expect(sameHubTransfers.length).toBeGreaterThan(0)
+    expect(sameHubTransfers.every((transfer) => /même|gare routière|pôle/i.test(transfer.label))).toBe(true)
+  })
+
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(7)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(10)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 
