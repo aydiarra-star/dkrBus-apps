@@ -130,16 +130,16 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
       if (!cluster) clusters.push([candidate]);
       else cluster.push(candidate);
     }
-    const networkNodes = raw.filter((node) => node.network === 'AFTU_TATA');
+    const networkFeatures = raw.filter((node) => node.network === 'AFTU_TATA');
     let status = 'NO_EXACT_OSM_MATCH';
     if (item.generic) status = 'GENERIC_LABEL_NO_GEOCODE';
     else if (clusters.length > 1) status = 'AMBIGUOUS_MULTIPLE_LOCATIONS';
     else if (clusters.length === 1 && clusters[0].length > 1) status = 'SINGLE_AREA_MULTIPLE_OSM_NODES';
-    else if (clusters.length === 1 && networkNodes.length === 1) status = 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE';
+    else if (clusters.length === 1 && networkFeatures.length === 1) status = 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE';
     else if (clusters.length === 1) status = 'CROSS_NETWORK_OSM_REFERENCE_ONLY';
 
     const candidateLocation = status === 'EXACT_AFTU_TATA_OSM_FEATURE_CANDIDATE'
-      ? { lat: networkNodes[0].lat, lon: networkNodes[0].lon, osmElementId: networkNodes[0].osmElementId, osmElementType: networkNodes[0].osmElementType }
+      ? { lat: networkFeatures[0].lat, lon: networkFeatures[0].lon, osmElementId: networkFeatures[0].osmElementId, osmElementType: networkFeatures[0].osmElementType }
       : null;
     return {
       waypoint: item.label,
@@ -148,7 +148,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
       candidateLocation,
       osmCandidateCount: raw.length,
       locationClusterCount: clusters.length,
-      candidateNodes: raw,
+      candidateFeatures: raw,
       occurrences: item.occurrences,
     };
   }).sort((a, b) => a.status.localeCompare(b.status) || a.waypoint.localeCompare(b.waypoint, 'fr'));
@@ -177,7 +177,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
       geographicBounds: BOUNDS,
     },
     purpose: 'Read-only crosswalk research. OSM name matches are candidate references, not verified AFTU/TATA stops.',
-    policy: 'Exact normalized names only. AFTU/TATA coordinates are suggested only for a single OSM node explicitly tagged AFTU/TATA. DDD/BRT nodes remain cross-network references.',
+    policy: 'Exact normalized names only. AFTU/TATA coordinates are suggested only for a single OSM node or way explicitly tagged AFTU/TATA. DDD/BRT nodes remain cross-network references.',
     summary,
     matches,
   };
