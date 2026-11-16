@@ -23,20 +23,31 @@ Le réseau urbain DDD présente notamment :
 
 Le catalogue AFTU affiche notamment :
 
-- Ligne 54 : « Terminus Rufisque Sonadis – Petersen » ;
+- Ligne 53 : « Keur Massar – Sébikotane » ;
+- Ligne 54 : « Terminus Keur Massar (Cité MTOA) – UCAD » ;
+- Ligne 55 : « Terminus Rufisque Sonadis – Petersen » ;
 - Ligne 56 : « Jaxaay 2 – Petersen » ;
 - Ligne 57 : « Liberté 6 – Rufisque » ;
-- Ligne 59 : « Colobane – Bargny » ;
+- Ligne 59 : « Diamalaye – Cité Gendarmerie (Jaxaay) » ;
 - Ligne 60 : « Colobane – Bargny » ;
-- Ligne 61 : « Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) » ;
-- Ligne 62 : « Terminus Camp Marchand Rufisque – Stade LSS » ;
-- Ligne 63 : « Guédiawaye – Rufisque » ;
-- Ligne 66 : « Ouakam – Thiawlène Rufisque » ;
-- Ligne 73 : « Terminus Bargny (gare ferroviaire) – Tivaouane Peul » ;
-- Ligne 76 : « Rufisque – Liberté 5 » ;
-- Ligne 82 : « Rufisque Arafat – Zone de Captage » ;
-- Ligne 83 : « UCAD – Jaxaay » ;
-- Ligne 88 : « Bargny – Croisement Niague (Cité SICAP) ».
+- Ligne 61 : « Almadies – Keur Massar » ;
+- Ligne 62 : « Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) » ;
+- Ligne 63 : « Terminus Camp Marchand Rufisque – Stade LSS » ;
+- Ligne 64 : « Guédiawaye – Rufisque » ;
+- Ligne 66 : « Yoff – Gorom 1 » ;
+- Ligne 67 : « Ouakam – Thiawlène Rufisque » ;
+- Ligne 73 : « Lac Rose – Poste Thiaroye » ;
+- Ligne 74 : « Terminus Bargny (gare ferroviaire) – Tivaouane Peul » ;
+- Ligne 76 : « SIPRES – Cité Assurance » ;
+- Ligne 77 : « Rufisque – Liberté 5 » ;
+- Ligne 78 : « Diamaguène – Liberté 5 » ;
+- Ligne 79 : « Sangalkam – Cambérène » ;
+- Ligne 82 : « Lat Dior – Comico Yeumbeul » ;
+- Ligne 83 : « Rufisque Arafat – Zone de Captage » ;
+- Ligne 84 : « UCAD – Jaxaay » ;
+- Ligne 87 : « Bambilor – Mosquée Massalikou Djinaane » ;
+- Ligne 88 : « MTOA – Liberté 5 » ;
+- Ligne 89 : « Bargny – Croisement Niague (Cité SICAP) ».
 
 Ces libellés prouvent que le catalogue annonce une couverture de Rufisque et de ses secteurs, mais ne suffisent pas à déterminer les quais ni la séquence détaillée de chaque ligne.
 
@@ -46,17 +57,13 @@ Les pages officielles AFTU consultées présentent plusieurs différences import
 
 | Ligne | Catalogue AFTU | Fiche détaillée consultée | Décision |
 |---|---|---|---|
-| 54 | Rufisque Sonadis – Petersen | Keur Massar (MTOA) – UCAD | Conflit majeur : ne pas géocoder la relation sans clarification |
-| 59 | Colobane – Bargny | Diamalaye – Cité Gendarmerie (Jaxaay) | Ne pas fusionner les deux relations |
-| 63 | Guédiawaye – Rufisque | Parcelles Dior – Camp Marchand Rufisque | Conserver la divergence et la fiche détaillée comme séquence propre à vérifier |
-| 66 | Ouakam – Thiawlène | Yoff – Gorom 1 via Keur Ndiaye Lo et Bambilor | Ne pas assimiler automatiquement la fiche à la relation du catalogue |
-| 73 | Bargny gare ferroviaire – Tivaouane Peul | Poste Thiaroye – Lac Rose via Keur Massar, Niakourab et Niagues | Conflit majeur : aucun tracé actif à déduire |
-| 76 | Rufisque – Liberté 5 | SIPRES – Cité Assurance via Keur Massar | Ne pas géocoder les deux terminus comme une seule relation |
-| 78 | Sangalkam – Cambérène | Diamaguène – Liberté 5 | Conflit majeur : ne pas déduire une liaison Sangalkam–Cambérène de cette fiche |
-| 82 | Rufisque Arafat – Zone de Captage | Comico – Lat Dior | Conflit majeur : conserver la relation catalogue séparée |
-| 83 | UCAD – Jaxaay | Rufisque Arafat – Zone de Captage | Conflit majeur déjà repéré dans l'audit UCAD ; ne pas créer de point UCAD sur cette seule fiche |
+| 53 | Keur Massar – Sébikotane | Fiche détaillée affichant une séquence Keur Massar (Marché) – Sébikotane | Écart à revérifier : l'intitulé catalogue ne doit pas être remplacé par une autre relation sans validation |
+| 54 | Keur Massar (Cité MTOA) – UCAD | Fiche détaillée annoncée MTOA – UCAD dans l'audit de la ligne | Concordance à confirmer sur la fiche courante |
+| 56 | Jaxaay 2 – Petersen | Fiche détaillée : Jaxaay 1 – Petersen | Écart de nom du terminus Jaxaay ; ne pas fusionner les deux points sans géolocalisation |
+| 63 | Camp Marchand Rufisque – Stade LSS | Fiche détaillée : Parcelles Dior – Camp Marchand Rufisque | Divergence catalogue / fiche ; conserver les deux libellés séparés |
+| 79 | Sangalkam – Cambérène | Fiche détaillée : Sangalkam – Cambérène via Niakhirate, Niagues, Darou Thioub, Niacourab et Keur Massar | Concordance de relation ; séquence publiée utile, mais pas des coordonnées de quais |
 
-La ligne 60 est un exemple où la fiche détaillée consultée décrit bien une relation Colobane–Bargny, avec des jalons intermédiaires : route nationale 1, Diamaguène, Sicap Mbao, Fass Mbao, croisement Keur Massar, Dioutyba/Rufisque, Sonadis, Sococim et terminus Bargny. Elle constitue une preuve de desserte de corridor, mais pas une localisation précise des quais.
+La fiche détaillée de la ligne 60 confirme la relation Colobane–Bargny et publie les jalons Route nationale 1, Diamaguène, Sicap Mbao, Fass Mbao, Croisement Keur Massar, Dioutyba/Rufisque, Sonadis, Sococim et terminus Bargny. La relation est cohérente avec le catalogue, mais ces jalons ne localisent pas précisément les quais.
 
 ## 2. Bargny
 
@@ -66,11 +73,9 @@ La page DDD publie une relation Rufisque–Yenne qui passe par Bargny. Cette sé
 
 ### AFTU
 
-Le catalogue annonce les lignes 59 et 60 Colobane–Bargny, la ligne 73 Bargny gare ferroviaire–Tivaouane Peul et la ligne 88 Bargny–Croisement Niague (Cité SICAP).
+Le catalogue AFTU annonce notamment la ligne 60 Colobane–Bargny, la ligne 74 Bargny (gare ferroviaire)–Tivaouane Peul et la ligne 89 Bargny–Croisement Niague (Cité SICAP). La fiche détaillée de la ligne 60 confirme le corridor Colobane–Bargny via Sonadis et Sococim. Les séquences exactes des lignes 74 et 89 et leurs quais terminus restent à vérifier.
 
-La fiche détaillée de la ligne 60 décrit une desserte de Bargny via Sonadis et Sococim. En revanche, les fiches consultées des lignes 59 et 73 ne correspondent pas aux intitulés de leur catalogue. La ligne 88 n'a pas pu être confirmée par une fiche détaillée exploitable dans cette vérification.
-
-**Décision Bargny :** retenir les relations du catalogue comme indices de couverture, mais ne pas créer de tracé détaillé pour les lignes 59, 73 ou 88 tant que l'opérateur n'a pas clarifié les divergences. Ne pas créer de correspondance DDD↔AFTU à Bargny sans points de quais et cheminement piéton vérifiés.
+**Décision Bargny :** la desserte AFTU de Bargny est documentée au catalogue par les lignes 60, 74 et 89. Ne pas créer de tracé détaillé ou de correspondance DDD↔AFTU à Bargny sans séquence complète, points de quais et cheminement piéton vérifiés.
 
 ## 3. Keur Massar et corridor Mbao–Thiaroye
 
@@ -96,17 +101,27 @@ Le catalogue annonce notamment :
 - Ligne 51 : Bountou Pikine – Keur Massar ;
 - Ligne 52 : Keur Massar – Sébikotane ;
 - Ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD ;
-- Ligne 54 : Terminus Rufisque Sonadis – Petersen ;
+- Ligne 53 : Keur Massar – Sébikotane ;
+- Ligne 54 : Keur Massar (Cité MTOA) – UCAD ;
 - Ligne 60 : Colobane – Bargny ;
-- Ligne 61 : Keur Massar – Almadies ;
-- Ligne 67 : Yeumbeul – Sébikotane ;
+- Ligne 61 : Almadies – Keur Massar ;
+- Ligne 63 : Camp Marchand Rufisque – Stade LSS ;
+- Ligne 64 : Guédiawaye – Rufisque ;
+- Ligne 67 : Ouakam – Thiawlène Rufisque ;
 - Ligne 70 : Keur Massar – Claudel ;
-- Ligne 73 : Bargny gare ferroviaire – Tivaouane Peul ;
-- Ligne 76 : Rufisque – Liberté 5 ;
-- Ligne 82 : Rufisque Arafat – Zone de Captage ;
-- Ligne 83 : UCAD – Jaxaay.
+- Ligne 73 : Lac Rose – Poste Thiaroye ;
+- Ligne 74 : Bargny gare ferroviaire – Tivaouane Peul ;
+- Ligne 76 : SIPRES – Cité Assurance ;
+- Ligne 77 : Rufisque – Liberté 5 ;
+- Ligne 78 : Diamaguène – Liberté 5 ;
+- Ligne 79 : Sangalkam – Cambérène ;
+- Ligne 82 : Lat Dior – Comico Yeumbeul ;
+- Ligne 83 : Rufisque Arafat – Zone de Captage ;
+- Ligne 84 : UCAD – Jaxaay ;
+- Ligne 87 : Bambilor – Mosquée Massalikou Djinaane ;
+- Ligne 89 : Bargny – Croisement Niague.
 
-Les fiches détaillées consultées confirment des séquences qui passent par Keur Massar ou ses abords, notamment les lignes 54 (MTOA–UCAD), 60 (Colobane–Bargny via le croisement Keur Massar) et 61 (Keur Massar–Almadies). Les contradictions catalogue / fiche listées plus haut interdisent de traiter toutes les relations comme validées.
+Les fiches consultées donnent des repères complémentaires : la ligne 56 passe par le rond-point Shell et le croisement Keur Massar ; la ligne 60 passe par le croisement Keur Massar sur le corridor Colobane–Bargny ; la ligne 76 passe par MTOA et Station Keur Massar ; la ligne 79 passe par le croisement Tivaouane Peulh et Station Keur Massar. Ces séquences ne prouvent pas que leurs quais sont communs avec ceux de DDD.
 
 **Décision Keur Massar :** la couverture DDD est confirmée par plusieurs séquences publiées. La couverture AFTU est annoncée par le catalogue, avec des fiches détaillées à rapprocher. Aucun arrêt AFTU ne doit être positionné automatiquement sur un arrêt DDD homonyme.
 
@@ -120,15 +135,15 @@ La ligne 208 publiée par DDD relie Bayakh à Rufisque via Gorom 01, Gorom 02, B
 
 Le catalogue AFTU annonce :
 
-- Ligne 65 : Yoff – Gorom 1 ;
-- Ligne 66 : Ouakam – Thiawlène Rufisque ;
-- Ligne 78 : Sangalkam – Cambérène ;
-- Ligne 86 : Bambilor – Mosquée Massalikou Djinaane ;
-- Ligne 88 : Bargny – Croisement Niague (Cité SICAP).
+- Ligne 66 : Yoff – Gorom 1 ;
+- Ligne 67 : Ouakam – Thiawlène Rufisque ;
+- Ligne 79 : Sangalkam – Cambérène ;
+- Ligne 87 : Bambilor – Mosquée Massalikou Djinaane ;
+- Ligne 89 : Bargny – Croisement Niague (Cité SICAP).
 
-La fiche détaillée de la ligne 66 consultée publie en réalité une séquence Yoff–Gorom 1 via Keur Ndiaye Lo et Bambilor, alors que le catalogue l'intitule Ouakam–Thiawlène. La fiche détaillée de la ligne 78 décrit Diamaguène–Liberté 5, alors que le catalogue annonce Sangalkam–Cambérène. Il s'agit de divergences à résoudre, pas de variantes de tracé à fusionner.
+La fiche détaillée de la ligne 79 confirme un itinéraire Sangalkam–Cambérène via Niakhirate, Croisement Niagues, Darou Thioub, Niacourab, Croisement Tivaouane Peulh et Station Keur Massar. C'est une confirmation de desserte à l'échelle de la séquence publiée, pas une géolocalisation précise de chacun des arrêts.
 
-**Décision Sangalkam :** la desserte DDD de la localité est explicitement publiée sur la ligne 208. Le catalogue AFTU annonce la ligne 78 Sangalkam–Cambérène, mais sa fiche détaillée consultée ne confirme pas cette relation. Ne pas activer la relation AFTU 78 dans le calculateur sur la seule base du catalogue tant que la divergence n'est pas levée.
+**Décision Sangalkam :** la desserte DDD de la localité est explicitement publiée sur la ligne 208. Le catalogue et la fiche détaillée AFTU 79 concordent sur Sangalkam–Cambérène. La ligne 66 est Yoff–Gorom 1 au catalogue ; ne pas la confondre avec la ligne 67 Ouakam–Thiawlène.
 
 ## 5. Correspondances et géolocalisation : aucune activation nouvelle
 
@@ -145,12 +160,12 @@ Aucun lien de correspondance Rufisque, Bargny, Keur Massar ou Sangalkam n'est aj
 
 ## 6. Priorités de résolution
 
-1. Demander à AFTU de clarifier les conflits des lignes 54, 59, 63, 66, 73, 76, 78, 82 et 83 entre catalogue et fiches détaillées.
-2. Obtenir la séquence officielle complète et les points de terminus de la ligne 88 Bargny–Croisement Niague.
+1. Demander à AFTU de clarifier l'écart de terminus Jaxaay 1 / Jaxaay 2 sur la ligne 56 et la divergence de la ligne 63.
+2. Obtenir les séquences complètes et les points de terminus des lignes 74 Bargny–Tivaouane Peul et 89 Bargny–Croisement Niague.
 3. Vérifier le numéro de la relation DDD Rufisque–Bargny–Yenne et ses arrêts réels.
 4. Identifier les quais DDD et AFTU à Gare de Rufisque, Camp Marchand, Sonadis, Sococim et Bargny gare ferroviaire.
 5. Distinguer les différents arrêts Keur Massar (station, croisement, terminus, MTOA).
-6. Confirmer le tracé actuel de la ligne AFTU 78 Sangalkam–Cambérène et de la ligne 66 catalogue Ouakam–Thiawlène.
+6. Maintenir la concordance documentaire de la ligne AFTU 79 Sangalkam–Cambérène et confirmer les quais précis de ses arrêts.
 7. Relever les accès et cheminements piétons avant toute correspondance automatique.
 
 ## Sources officielles consultées
@@ -158,18 +173,12 @@ Aucun lien de correspondance Rufisque, Bargny, Keur Massar ou Sangalkam n'est aj
 - Dakar Dem Dikk, réseau urbain et lignes de banlieue : https://demdikk.sn/reseau-urbain-dakar/
 - Dakar Dem Dikk, info voyageurs et liste des relations : https://demdikk.sn/info-voyageurs/
 - AFTU Sénégal, catalogue officiel des lignes : https://aftu-senegal.org/infos-pratiques/
-- AFTU Sénégal, fiche détaillée ligne 54 : https://aftu-senegal.org/map/dakar-urbain-ligne-54/
-- AFTU Sénégal, fiche détaillée ligne 59 : https://aftu-senegal.org/map/dakar-urbain-ligne-59/
+- AFTU Sénégal, fiche détaillée ligne 55 : https://aftu-senegal.org/map/dakar-urbain-ligne-55/
+- AFTU Sénégal, fiche détaillée ligne 56 : https://aftu-senegal.org/map/dakar-urbain-ligne-56/
+- AFTU Sénégal, fiche détaillée ligne 57 : https://aftu-senegal.org/map/dakar-urbain-ligne-57/
 - AFTU Sénégal, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
-- AFTU Sénégal, fiche détaillée ligne 61 : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
-- AFTU Sénégal, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
-- AFTU Sénégal, fiche détaillée ligne 66 : https://aftu-senegal.org/map/dakar-urbain-ligne-66/
-- AFTU Sénégal, fiche détaillée ligne 67 : https://aftu-senegal.org/map/dakar-urbain-ligne-67/
-- AFTU Sénégal, fiche détaillée ligne 73 : https://aftu-senegal.org/map/dakar-urbain-ligne-73/
 - AFTU Sénégal, fiche détaillée ligne 76 : https://aftu-senegal.org/map/dakar-urbain-ligne-76/
-- AFTU Sénégal, fiche détaillée ligne 78 : https://aftu-senegal.org/map/dakar-urbain-ligne-78/
-- AFTU Sénégal, fiche détaillée ligne 82 : https://aftu-senegal.org/map/dakar-urbain-ligne-82/
-- AFTU Sénégal, fiche détaillée ligne 83 : https://aftu-senegal.org/map/dakar-urbain-ligne-83/
+- AFTU Sénégal, fiche détaillée ligne 79 : https://aftu-senegal.org/map/dakar-urbain-ligne-79/
 
 ## Périmètre de modification
 
