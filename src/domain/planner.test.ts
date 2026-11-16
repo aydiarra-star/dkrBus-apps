@@ -226,3 +226,14 @@ describe('cohérence des coûts du calculateur', () => {
     if (!outcome.ok) expect(outcome.message.length).toBeLessThan(120)
   })
 })
+
+  it('relie Parcelles Assainies à Almadies par DDD 227 puis AFTU 60', () => {
+    const from = { label: 'Terminus Parcelles Assainies', lat: 14.76043, lon: -17.439267 }
+    const to = { label: 'Terminus Almadies', lat: 14.73475, lon: -17.50863 }
+    const outcome = planReferenceJourney(from, to, 'fastest', { allowedNetworks: ['ddd', 'aftu_tata'] })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
+    expect(rides.map((leg) => leg.line?.shortName)).toEqual(['DDD 227', 'AFTU 60'])
+    expect(outcome.transfers).toBe(1)
+  })
