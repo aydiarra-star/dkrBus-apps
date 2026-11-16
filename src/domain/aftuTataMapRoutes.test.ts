@@ -17,7 +17,7 @@ describe('corridors cartographiques AFTU/TATA', () => {
 
   it('couvre les pôles et secteurs périphériques des lignes AFTU publiées', () => {
     const allNames = new Set(AFTU_TATA_MAP_ROUTES.flatMap((route) => route.waypoints.map((point) => point.name)))
-    for (const name of ['Sangalkam', 'Bargny', 'Rufisque', 'Keur Massar', 'Malika', 'Tivaouane Peulh', 'Mermoz', 'Ngor', 'Ouakam', 'Cité Avion', 'Yoff', 'Bambilor', 'Boune', 'Marché de Niague']) {
+    for (const name of ['Sangalkam', 'Bargny', 'Rufisque', 'Keur Massar', 'Malika', 'Tivaouane Peulh', 'Mermoz', 'Ngor', 'Ouakam', 'Cité Avion', 'Carrefour Grand Mbao', 'Thiaroy', 'Rond-point Ngor', 'Bambilor', 'Boune', 'Marché de Niague']) {
       expect(allNames.has(name)).toBe(true)
     }
   })
@@ -27,3 +27,16 @@ describe('corridors cartographiques AFTU/TATA', () => {
     expect(AFTU_TATA_MAP_ROUTES.every((route) => route.id && route.line)).toBe(true)
   })
 })
+
+
+  it('positionne le terminus AFTU 61 sur le pôle partagé de Keur Massar', () => {
+    const route = AFTU_TATA_MAP_ROUTES.find((entry) => entry.id === 'aftu-61')
+    expect(route?.waypoints[0]).toMatchObject({ name: 'Keur Massar', lat: 14.78542, lon: -17.30922 })
+    expect(route?.waypoints.map((point) => point.name)).toEqual([
+      'Keur Massar',
+      'Carrefour Grand Mbao',
+      'Thiaroy',
+      'Rond-point Ngor',
+      'Almadies',
+    ])
+  })
