@@ -1802,11 +1802,6 @@ function App() {
               searchInputRef={searchInputRef}
               savedDestinations={savedDestinations}
               onChooseShortcut={chooseDestinationShortcut}
-              selectedNetwork={selectedExploreNetwork}
-              onSelectNetwork={handleSelectExploreNetwork}
-              boards={selectedNetworkBoards}
-              onFocusStation={stableCorridorStop}
-              now={countdownNow}
             />
           )}
 
@@ -2029,11 +2024,6 @@ function ExplorerPanel({
   searchInputRef,
   savedDestinations,
   onChooseShortcut,
-  selectedNetwork,
-  onSelectNetwork,
-  boards,
-  onFocusStation,
-  now,
 }: {
   gpsState: GpsState
   gpsMessage: string | null
@@ -2051,13 +2041,6 @@ function ExplorerPanel({
   searchInputRef: { current: HTMLInputElement | null }
   savedDestinations: Partial<Record<DestinationShortcutId, MapPoint>>
   onChooseShortcut: (id: DestinationShortcutId) => void
-  selectedNetwork: NetworkId | null
-  onSelectNetwork: (id: NetworkId) => void
-  /** Tableaux par station du réseau sélectionné (TER/BRT aujourd’hui). */
-  boards: readonly StationBoard[]
-  /** Recentre la carte sur une station du tableau, sans replier celui-ci. */
-  onFocusStation: (stop: CorridorStop) => void
-  now: number
 }) {
   const [proximityOpen, setProximityOpen] = useState(false)
   const [proximityDismissed, setProximityDismissed] = useState(false)
@@ -2248,14 +2231,26 @@ function ExplorerPanel({
         </div>
       </div>
 
-      <ReferenceNetworkSummary
-        now={now}
-        selectedNetwork={selectedNetwork}
-        onSelectNetwork={onSelectNetwork}
-        boards={boards}
-        onFocusStation={onFocusStation}
-        location={location}
-      />
+      <ExploreNetworkLegend />
+    </section>
+  )
+}
+
+function ExploreNetworkLegend() {
+  return (
+    <section className="explore-network-legend" aria-label="Légende des réseaux">
+      <strong className="explore-network-legend-title">Légende des réseaux</strong>
+      <div className="explore-network-legend-row">
+        {MOBILITY_IDS.map((id) => (
+          <div className={`explore-network-legend-item mobility-${id}`} key={id}>
+            <span className="route-coverage-item">
+              <MobilityBadge id={id} />
+              <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
+            </span>
+          </div>
+        ))}
+      </div>
+      <small>TER et BRT : tracés continus · DDD et AFTU : tracés pointillés et pastilles d’arrêts.</small>
     </section>
   )
 }
