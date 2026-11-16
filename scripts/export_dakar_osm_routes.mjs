@@ -16,6 +16,9 @@ const QUERY = `[out:json][timeout:180];
 (
   relation["type"="route"]["route"="bus"]${BBOX};
   relation["type"="route_master"]["route_master"="bus"]${BBOX};
+  node["highway"="bus_stop"]["name"]${BBOX};
+  node["public_transport"~"^(platform|stop_position)$"]["name"]${BBOX};
+  node["amenity"="bus_station"]["name"]${BBOX};
 );
 out body geom;
 >;
@@ -283,11 +286,11 @@ async function main() {
     geographicBounds: BBOX,
     attribution: "© OpenStreetMap contributors, ODbL",
     endpoint: usedEndpoint,
-    method: "Direct Overpass query for type=route + route=bus and type=route_master + route_master=bus; relation member order and roles preserved.",
+    method: "Read-only Overpass query for bus route relations, route masters and named bus-stop/platform nodes in the Dakar bounding box; relation member order and roles preserved.",
     warnings: [
       "OSM is a community-maintained geographic source, not proof of current operator service.",
       "No timetable or frequency is inferred from OSM.",
-      "Only mapped stop/platform relation members are extracted as ordered stop candidates.",
+      "Only mapped stop/platform relation members are extracted as ordered route candidates; standalone stop nodes are retained separately for exact-name crosswalk research.",
       "Missing directions are not fabricated; route masters and direction tags are retained for matching.",
       "The query is limited to the Dakar metropolitan bounding box.",
     ],
