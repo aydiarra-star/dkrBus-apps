@@ -56,7 +56,7 @@ const routeIdKey = (value) => {
   const raw = String(value ?? '').trim();
   if (!raw) return '';
   const numeric = Number(raw);
-  return Number.isFinite(numeric) ? String(Math.trunc(numeric)) : raw;
+  return Number.isInteger(numeric) ? String(numeric) : raw;
 };
 const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const slug = (value) => normalize(value).replace(/\s+/g, '-');
