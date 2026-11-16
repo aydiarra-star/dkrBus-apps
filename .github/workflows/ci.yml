@@ -78,7 +78,7 @@ jobs:
         run: node --check scripts/build_ddd_arcgis_candidate_sequences.mjs
 
       - name: Test DDD ArcGIS candidate sequence builder
-        run: node --test scripts/build_ddd_arcgis_candidate_sequences.test.mjs
+        run: node --test scripts/build_ddd_arcgis_candidate_sequences.node-test.mjs
 
       - name: Build DDD ArcGIS ordered candidate sequences
         run: node scripts/build_ddd_arcgis_candidate_sequences.mjs
@@ -87,7 +87,7 @@ jobs:
         run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
 
       - name: Test DDD ArcGIS official sequence cross-check
-        run: node --test scripts/audit_ddd_arcgis_official_sequence_alignment.test.mjs
+        run: node --test scripts/audit_ddd_arcgis_official_sequence_alignment.node-test.mjs
 
       - name: Compare candidate sequences with published DDD routes
         run: node scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
