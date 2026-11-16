@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Callable
+from urllib.parse import urlsplit
 from zoneinfo import available_timezones
 
 
@@ -75,6 +76,28 @@ VALIDATED_COLUMNS = {
 }
 
 TIME_RE = re.compile(r"^(\d{1,3}):(\d{2}):(\d{2})$")
+
+
+def _valid_http_url(value: str) -> bool:
+    """Return true only for an absolute HTTP(S) URL with a valid authority."""
+    if not value or value != value.strip() or "\\" in value:
+        return False
+    if any(character.isspace() or ord(character) < 0x20 or ord(character) == 0x7f for character in value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError:
+        return False
+    return (
+        parsed.scheme.lower() in {"http", "https"}
+        and bool(parsed.netloc)
+        and bool(hostname)
+        and parsed.username is None
+        and parsed.password is None
+        and (port is None or 1 <= port <= 65535)
+    )
 
 
 @dataclass(frozen=True)
@@ -466,10 +489,12 @@ class GTFSValidator:
             value = self._value(row, column)
             if not value:
                 self.report.add("ERROR", "EMPTY_REQUIRED_VALUE", f"La valeur « {column} » est vide.", "agency.txt", line)
+            elif column == "agency_url" and not _valid_http_url(value):
+                self.report.add("ERROR", "INVALID_URL", "agency_url doit être une URL HTTP(S) absolue valide.", "agency.txt", line)
             elif column == "agency_timezone" and self.timezone_names and value not in self.timezone_names:
                 self.report.add("ERROR", "INVALID_TIMEZONE", f"agency_timezone « {value} » n’est pas un fuseau IANA reconnu.", "agency.txt", line)
             elif column == "agency_timezone" and not self.timezone_names:
-                self.report.add("WARNING", "TIMEZONE_DATABASE_UNAVAILABLE", "La base IANA des fuseaux n’est pas disponible ; agency_timezone n’a pas pu être vérifié.", "agency.txt", line)
+                self.report.add("ERROR", "TIMEZONE_DATABASE_UNAVAILABLE", "La base IANA des fuseaux n’est pas disponible ; le flux ne peut pas être validé.", "agency.txt", line)
 
     def _stop_row(self, row: dict[str, str | None], line: int) -> None:
         stop_id = self._value(row, "stop_id")
@@ -712,8 +737,11 @@ class GTFSValidator:
 
     def _feed_info_row(self, row: dict[str, str | None], line: int) -> None:
         for column in ("feed_publisher_name", "feed_publisher_url", "feed_lang"):
-            if not self._value(row, column):
+            value = self._value(row, column)
+            if not value:
                 self.report.add("ERROR", "EMPTY_REQUIRED_VALUE", f"La valeur « {column} » est vide.", "feed_info.txt", line)
+            elif column == "feed_publisher_url" and not _valid_http_url(value):
+                self.report.add("ERROR", "INVALID_URL", "feed_publisher_url doit être une URL HTTP(S) absolue valide.", "feed_info.txt", line)
         start = self._date(self._value(row, "feed_start_date"), "feed_start_date", "feed_info.txt", line, required=False)
         end = self._date(self._value(row, "feed_end_date"), "feed_end_date", "feed_info.txt", line, required=False)
         if start and end and end < start:
