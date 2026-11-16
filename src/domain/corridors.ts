@@ -455,7 +455,9 @@ export function networkOfStopId(stopId: string): CorridorNetworkId | null {
 
 export function networkLabelOf(stopId: string): string {
   const network = networkOfStopId(stopId)
-  // Identité publique demandée : AFTU regroupe les dessertes AFTU/TATA dans l'interface.\n  if (network === 'aftu_tata') return 'AFTU'\n  return network ? CORRIDOR_NETWORKS[network].label : 'réseau de référence'
+  // Identité publique : AFTU regroupe les dessertes AFTU/TATA dans l'interface.
+  if (network === 'aftu_tata') return 'AFTU'
+  return network ? CORRIDOR_NETWORKS[network].label : 'réseau de référence'
 }
 
 function estimatedWalkMeters(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
