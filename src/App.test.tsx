@@ -279,7 +279,7 @@ describe('Dakar Bus experience safety', () => {
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
 
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
-    expect(await screen.findByText(/aucun trajet ter\/brt de référence trouvé/i)).toBeTruthy()
+    expect(await screen.findByText(/aucun trajet multimodal de référence trouvé/i)).toBeTruthy()
     expect(screen.getAllByText(/aucun jeu de transport publié/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/départ et la destination sont identiques/i).length).toBeGreaterThan(0)
     expect(screen.queryByText(/^≈ \d+ min$/)).toBeNull()
