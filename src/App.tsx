@@ -2714,16 +2714,19 @@ function RoutePanel({
       <form onSubmit={onSubmit}>
         <div className="route-fields-wrap">
           <div className="route-connector" aria-hidden="true"><i /><span /><i /></div>
-          <PointComboboxField
-            title="Départ"
-            point={routePoints.origin}
-            pointKey="origin"
-            isPicking={pickingPoint === 'origin'}
-            stopOptions={stopOptions}
-            onPick={onSelectStop}
-            onClear={() => onClearPoint('origin')}
-            onPickOnMap={onSelectPoint}
-          />
+          <div className="route-origin-group">
+            <PointComboboxField
+              title="Départ"
+              point={routePoints.origin}
+              pointKey="origin"
+              isPicking={pickingPoint === 'origin'}
+              stopOptions={stopOptions}
+              onPick={onSelectStop}
+              onClear={() => onClearPoint('origin')}
+              onPickOnMap={onSelectPoint}
+            />
+
+</div>
           <button type="button" className="swap-route" aria-label="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /></button>
           <PointComboboxField
             title="Destination"
