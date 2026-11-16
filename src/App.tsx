@@ -53,7 +53,7 @@ import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { JourneyOptions } from './components/JourneyOptions'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { optionSummaryLine, planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
-import { accessibilityStyle, getPreferences, plannerPreferences, usePreferences, type Preferences } from './domain/preferences'
+import { accessibilityStyle, getPreferences, plannerPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
 import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
 import { extractMobilityIntent } from './domain/intent'
@@ -2716,6 +2716,32 @@ function RoutePanel({
         {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
       </div>
 
+      <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
+        <span className="route-network-filters-label">Réseaux à utiliser</span>
+        <div className="route-network-filter-list">
+          {MOBILITY_IDS.map((id) => {
+            const active = preferences.mobility.networks[id]
+            const activeCount = MOBILITY_IDS.filter((networkId) => preferences.mobility.networks[networkId]).length
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`route-network-filter mobility-${id}${active ? ' is-active' : ''}`}
+                aria-pressed={active}
+                disabled={active && activeCount === 1}
+                onClick={() => updatePreferences('mobility', {
+                  networks: { ...preferences.mobility.networks, [id]: !active },
+                })}
+              >
+                <span className="route-network-filter-dot" aria-hidden="true" />
+                {id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}
+                <span className="route-network-filter-state">{active ? 'Actif' : 'Désactivé'}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <form onSubmit={onSubmit}>
         <div className="route-fields-wrap">
           <div className="route-connector" aria-hidden="true"><i /><span /><i /></div>
@@ -2734,7 +2760,7 @@ function RoutePanel({
               <LocateFixed size={15} /> Utiliser ma position comme départ
             </button>
           </div>
-          <button type="button" className="swap-route" aria-label="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /></button>
+          <button type="button" className="swap-route" aria-label="Inverser départ et destination" title="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /><span>Inverser</span></button>
           <PointComboboxField
             title="Destination"
             point={routePoints.destination}
@@ -2748,8 +2774,8 @@ function RoutePanel({
         </div>
 
 
-        <button className="primary-action route-submit" type="submit" disabled={!routePoints.origin || !routePoints.destination}>
-          <Search size={17} /><span>Rechercher mon itinéraire</span><ArrowRight size={16} />
+        <button className="primary-action route-submit" type="submit" aria-label="Rechercher mon itinéraire" disabled={!routePoints.origin || !routePoints.destination}>
+          <Search size={18} /><span>Rechercher un trajet</span><ArrowRight size={19} />
         </button>
       </form>
 
