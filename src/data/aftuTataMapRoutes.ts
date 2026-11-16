@@ -37,8 +37,8 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
-    id: 'aftu-60',
-    line: '60',
+    id: 'aftu-59',
+    line: '59',
     waypoints: [
       { name: 'Colobane', lat: 14.7003482, lon: -17.4416523 },
       { name: 'Diamaguène / Sicap Mbao', lat: 14.7561, lon: -17.3516 },
@@ -49,8 +49,8 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
-    id: 'aftu-61',
-    line: '61',
+    id: 'aftu-60',
+    line: '60',
     waypoints: [
       { name: 'Keur Massar', lat: 14.78542, lon: -17.30922 },
       { name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952 },
@@ -60,8 +60,8 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
-    id: 'aftu-67',
-    line: '67',
+    id: 'aftu-66',
+    line: '66',
     waypoints: [
       { name: 'Rufisque / Thiawlène', lat: 14.7159649, lon: -17.2699985 },
       { name: 'Mbao', lat: 14.74154, lon: -17.32615 },
@@ -72,8 +72,8 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
-    id: 'aftu-74',
-    line: '74',
+    id: 'aftu-73',
+    line: '73',
     waypoints: [
       { name: 'Bargny', lat: 14.6938, lon: -17.2297 },
       { name: 'Rufisque', lat: 14.7159649, lon: -17.2699985 },
@@ -82,8 +82,8 @@ export const AFTU_TATA_MAP_ROUTES: readonly AftuTataMapRoute[] = [
     ],
   },
   {
-    id: 'aftu-79',
-    line: '79',
+    id: 'aftu-78',
+    line: '78',
     waypoints: [
       { name: 'Sangalkam', lat: 14.77877, lon: -17.22654 },
       { name: 'Ndiakhirate Digue', lat: 14.76881, lon: -17.22725 },
