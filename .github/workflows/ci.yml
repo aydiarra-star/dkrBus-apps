@@ -116,6 +116,22 @@ jobs:
           path: artifacts/aftu-tata/
           if-no-files-found: error
           retention-days: 30
+      - name: Check AFTU/TATA DDD fuzzy candidate review
+        run: node --check scripts/build_aftu_tata_ddd_fuzzy_candidates.node.mjs
+
+      - name: Test AFTU/TATA DDD fuzzy candidate review
+        run: node --test scripts/build_aftu_tata_ddd_fuzzy_candidates.node-test.mjs
+
+      - name: Build AFTU/TATA DDD fuzzy candidate review
+        run: node scripts/build_aftu_tata_ddd_fuzzy_candidates.node.mjs
+
+      - name: Upload AFTU/TATA DDD fuzzy candidate review
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-tata-ddd-fuzzy-review
+          path: artifacts/aftu-tata/ddd-fuzzy-review-*
+          if-no-files-found: error
+          retention-days: 30
       - name: Check AFTU/TATA OSM stop crosswalk
         run: node --check scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs
 
