@@ -17,7 +17,7 @@ describe('corridors cartographiques AFTU/TATA', () => {
 
   it('couvre les pôles et secteurs périphériques des lignes AFTU publiées', () => {
     const allNames = new Set(AFTU_TATA_MAP_ROUTES.flatMap((route) => route.waypoints.map((point) => point.name)))
-    for (const name of ['Sangalkam', 'Bargny', 'Rufisque', 'Keur Massar', 'Malika', 'Tivaouane Peulh', 'Mermoz', 'Ngor', 'Ouakam', 'Cité Avion', 'Yoff', 'Bambilor']) {
+    for (const name of ['Sangalkam', 'Bargny', 'Rufisque', 'Keur Massar', 'Malika', 'Tivaouane Peulh', 'Mermoz', 'Ngor', 'Ouakam', 'Cité Avion', 'Yoff', 'Bambilor', 'Boune', 'Marché de Niague']) {
       expect(allNames.has(name)).toBe(true)
     }
   })
