@@ -1,14 +1,16 @@
-import { BusFront, Footprints, TrainFront } from 'lucide-react'
+import { ArrowLeftRight, BusFront, Footprints, TrainFront } from 'lucide-react'
 import { MobilityBadge, MobilityText } from './MobilityBadge'
 import { formatMeters, type PlannerLeg } from '../domain/planner'
 
 function LegIcon({ leg }: { leg: PlannerLeg }) {
+  if (leg.kind === 'walk_transfer' && leg.distanceM === 0) return <ArrowLeftRight size={15} />
   if (leg.kind === 'ride' && leg.line?.network === 'ter') return <TrainFront size={15} />
   if (leg.kind === 'ride') return <BusFront size={15} />
   return <Footprints size={15} />
 }
 
 function legTitle(leg: PlannerLeg): string {
+  if (leg.kind === 'walk_transfer' && leg.distanceM === 0) return `Correspondance dans le même pôle · ${leg.from} → ${leg.to}`
   if (leg.kind === 'walk_transfer') return `Correspondance à pied · ${leg.from} → ${leg.to}`
   if (leg.kind === 'walk_direct') return `À pied · ${leg.from} → ${leg.to}`
   if (leg.kind === 'ride') return `${leg.from} → ${leg.to}`
@@ -16,6 +18,7 @@ function legTitle(leg: PlannerLeg): string {
 }
 
 function legDetail(leg: PlannerLeg): string {
+  if (leg.kind === 'walk_transfer' && leg.distanceM === 0) return 'Transfert dans le même pôle · distance de marche interne non mesurée'
   if (leg.kind === 'ride') {
     const via = leg.intermediateStops?.length ? ` · via ${leg.intermediateStops.join(', ')}` : ''
     const distance = leg.distanceM ? ` · ${formatMeters(leg.distanceM)}` : ''
@@ -43,7 +46,9 @@ export function PlannerLegList({ legs }: { legs: readonly PlannerLeg[] }) {
               </strong>
               <small><MobilityText text={legDetail(leg)} /></small>
             </span>
-            <span className="planner-leg-time">~{leg.minutes} min</span>
+            <span className="planner-leg-time">
+              {leg.kind === 'walk_transfer' && leg.distanceM === 0 ? 'Même pôle' : `~${leg.minutes} min`}
+            </span>
           </li>
         )
       })}
