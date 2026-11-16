@@ -198,6 +198,7 @@ describe('réseau de référence TER/BRT', () => {
     expect(searchCorridorStops('diamniadio')[0]?.id).toBe('ter-diamniadio')
     expect(searchCorridorStops('Keur Mbaye Fall')[0]?.id).toBe('ter-mbao')
     expect(searchCorridorStops('Mbao')[0]?.name).toBe('Keur Mbaye Fall')
+    expect(searchCorridorStops('Keur Massar').some((stop) => stop.id === 'ter-mbao')).toBe(false)
     expect(searchCorridorStops('aéroport blaise diagne')[0]?.id).toBe('ter-aibd')
     expect(searchCorridorStops('AIBD')[0]?.id).toBe('ter-aibd')
   })
