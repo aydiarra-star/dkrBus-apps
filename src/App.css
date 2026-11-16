@@ -327,7 +327,7 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: -.035em;
   line-height: 1;
   white-space: nowrap;
-  text-shadow: none;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,.9);
   pointer-events: none;
 }
 .mobility-route-flow {
@@ -2897,25 +2897,20 @@ button:disabled { cursor: not-allowed; }
 /* Tous les réseaux gardent la taille de référence TER/BRT, quel que soit le zoom. */
 .leaflet-map--citywide .mobility-stop-label,
 .leaflet-map--district .mobility-stop-label { font-size: 8px; letter-spacing: -.035em; }
-/* Les noms des tracés reprennent exactement la couleur centrale de chaque réseau. */
-.leaflet-tooltip.mobility-route-name-label.mobility-ter { color: #003366; }
-.leaflet-tooltip.mobility-route-name-label.mobility-brt { color: #00A859; }
-.leaflet-tooltip.mobility-route-name-label.mobility-ddd { color: #F59E0B; }
-.leaflet-tooltip.mobility-route-name-label.mobility-aftu_tata { color: #C05621; }
 /* Un seul nom court par itinéraire, placé discrètement sur son tracé. */
 .leaflet-tooltip.mobility-route-name-label {
   margin: 0;
   padding: 0 1px;
   border: 0;
   border-radius: 2px;
-  background: transparent;
+  background: rgba(255, 255, 255, .58);
   box-shadow: none;
-  color: var(--stop-label-color);
+  color: #263b31;
   font-size: 7px;
   font-weight: 850;
   line-height: 1;
   letter-spacing: -.045em;
   white-space: nowrap;
-  text-shadow: none;
+  text-shadow: 0 0 2px rgba(255, 255, 255, .9);
   pointer-events: none;
 }
