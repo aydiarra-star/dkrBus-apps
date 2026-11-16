@@ -107,6 +107,14 @@ Si le téléversement du manifeste échoue après celui de l'archive, l'Edge Fun
 
 Les tests Deno couvrent les quatre décisions (aucune référence, référence complète, référence partielle et lecture SQL incertaine). Ils restent synthétiques et n'effectuent aucun accès ou écriture Supabase.
 
+## Règles conditionnelles supplémentaires GTFS (15 novembre 2026)
+
+Le validateur vérifie maintenant les règles conditionnelles de `stop_times.txt` : `arrival_time` doit être présent au premier et au dernier arrêt de chaque trajet ; lorsque `timepoint=1`, `arrival_time` et `departure_time` doivent tous deux être renseignés. Un `stop_id` de `stop_times.txt` doit désigner un arrêt ou une plateforme (`location_type=0` ou absent), et non une station parente, entrée, sortie ou generic node.
+
+Pour `transfers.txt`, les références facultatives `from_route_id`, `to_route_id`, `from_trip_id` et `to_trip_id` sont vérifiées. Lorsqu'un trip et sa route sont tous deux fournis, leur association doit correspondre à `trips.txt`. `min_transfer_time` est requis pour `transfer_type=2` et doit être un entier non négatif lorsqu'il est présent. Les transferts de type 4 et 5 doivent référencer les deux trajets.
+
+Les tests ajoutés utilisent uniquement des archives synthétiques en mémoire/temporaires. Ils ne chargent aucun flux réel, n'écrivent pas dans Supabase et ne modifient aucune donnée de transport. Une structure valide reste distincte de la provenance, de l'autorisation de réutilisation, de la revue humaine et de toute publication. La version du worker passe à `dakar-gtfs-validator-v3` pour distinguer ces règles des rapports produits par la version v2.
+
 ## Journal administratif chaîné (14 novembre 2026)
 
 Le journal `dakar_admin_audit_events` conserve maintenant un ordre `chain_sequence` sérialisé par verrouillage de la ligne d'état privée. Chaque événement reçoit automatiquement `previous_hash` et `event_hash` SHA-256 calculés sur son identifiant, sa séquence, son acteur, son action, sa cible, ses détails, son horodatage UTC représenté en microsecondes depuis l'époque Unix et le hash précédent. Les valeurs de chaîne et l'horodatage fournis par un appelant sont écrasés par le déclencheur serveur, qui affecte l'heure UTC courante. L'état de tête est inaccessible directement aux rôles applicatifs ; le journal reste append-only contre UPDATE, DELETE et TRUNCATE.
@@ -131,3 +139,18 @@ Les tests de privilèges utilisent uniquement un PostgreSQL isolé et des lignes
 La migration `20261114193000_dakar_gtfs_storage_isolation.sql` active explicitement RLS sur `storage.objects` et ajoute une politique restrictive `dakar_gtfs_staging_deny_non_bypass_roles`. Elle refuse l'accès au bucket `dakar-gtfs-staging` à tout rôle soumis à RLS, même si une autre politique permissive générale est ajoutée ultérieurement pour d'autres buckets. Le `service_role` conserve l'accès serveur attendu via son attribut BYPASSRLS et les droits limités définis par la migration précédente.
 
 La migration retire aussi explicitement les ACL héritées de `PUBLIC` sur les trois tables administratives, en plus des rôles `anon` et `authenticated`. Les tests isolés simulent volontairement une politique Storage permissive globale, puis vérifient que les rôles applicatifs ne peuvent ni lire ni écrire le bucket GTFS, tandis que le rôle serveur le voit. Aucun objet réel n'est créé ; les seules lignes Storage du test sont synthétiques et locales à PostgreSQL CI.
+
+
+## Refus des colonnes non contrôlées (15 novembre 2026)
+
+Pour chaque table prise en charge, le validateur maintient une liste explicite des colonnes dont les règles sont effectivement contrôlées. Toute colonne supplémentaire — y compris une colonne GTFS standard optionnelle dont les règles conditionnelles ne sont pas encore implémentées — produit `UNVALIDATED_COLUMN` et empêche `structure_valid=true`. Cela peut refuser temporairement un flux GTFS valide, mais évite d'ignorer silencieusement des champs qui changent la sémantique du service (par exemple les fenêtres de prise en charge à la demande). Une nouvelle colonne ne doit être ajoutée à la liste qu'avec ses contrôles et ses tests positifs/négatifs correspondants. Les fixtures restent synthétiques ; aucun flux réel ni aucune base active n'est utilisé.
+
+
+## Racine ZIP conforme au GTFS (15 novembre 2026)
+
+La référence GTFS exige que les fichiers du dataset soient directement à la racine de l'archive ZIP, et non dans un sous-dossier. Le validateur n'accepte donc plus les dossiers enveloppes de fournisseur. Il refuse également les tables texte imbriquées même si les tables principales sont présentes à la racine, afin qu'une seconde copie ou une table non contrôlée ne soit pas ignorée. Les tests positifs et négatifs utilisent uniquement des archives synthétiques. Référence : https://gtfs.org/documentation/schedule/reference/ (section « File Requirements »).
+
+
+## Références calendar_dates.txt (15 novembre 2026)
+
+Lorsque `calendar.txt` est présent, chaque `calendar_dates.service_id` doit référencer un `calendar.service_id`. Le validateur refuse maintenant les exceptions orphelines avec `UNKNOWN_CALENDAR_DATE_SERVICE_REFERENCE`. Le mode alternatif `calendar_dates.txt` seul reste accepté, conformément à la spécification. Les tests utilisent une archive synthétique avec une référence inconnue et conservent le test positif du calendrier par dates seul. La version du worker est passée à `dakar-gtfs-validator-v4` pour identifier les nouveaux contrôles de structure, de racine ZIP et de colonnes.
