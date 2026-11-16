@@ -107,7 +107,7 @@ describe('réseau de référence TER/BRT', () => {
 
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(5)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(6)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 
@@ -122,6 +122,18 @@ describe('réseau de référence TER/BRT', () => {
       ['ddd-petersen', 'aftu-petersen'],
     ])
     expect(petersenTransfers.every((transfer) => transfer.walkM === 0)).toBe(true)
+  })
+
+  it('active la correspondance BRT ↔ DDD au pôle terminal documenté de Guédiawaye', () => {
+    const guediawayeTransfers = CORRIDOR_TRANSFERS.filter((transfer) =>
+      [transfer.fromStopId, transfer.toStopId].every((id) => id.includes('guediawaye')),
+    )
+    expect(guediawayeTransfers).toHaveLength(1)
+    expect(guediawayeTransfers[0]).toMatchObject({
+      fromStopId: 'brt-prefecture-guediawaye',
+      toStopId: 'ddd-guediawaye',
+      walkM: 0,
+    })
   })
 
   it('affiche les anciennes dessertes TATA sous le seul nom public AFTU', () => {
