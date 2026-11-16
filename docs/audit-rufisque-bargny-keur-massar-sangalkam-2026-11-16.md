@@ -136,11 +136,11 @@ La desserte des deux réseaux est donc confirmée à l'échelle de la localité 
 
 | Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
-| 1 | TER Bargny ↔ AFTU terminus gare ferroviaire | Terminus ferroviaire explicitement publié ; garage clando OSM proche | Confirmer quai AFTU et tracer le chemin piéton réel |
-| 2 | DDD ↔ AFTU à Gare routière Keur Massar | Arrêt DDD OSM à ~80 m à vol d'oiseau de la gare routière ; lignes AFTU terminus Keur Massar publiées | Attribuer les quais par ligne et mesurer le chemin |
-| 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes | Géocoder l'arrêt Sonadis et les quais dans les deux sens |
-| 4 | DDD208 ↔ AFTU Sangalkam | Desserte locale publiée par les deux réseaux | Localiser les terminus et arrêts précis |
-| 5 | DDD213 ↔ AFTU Camp Marchand / gare de Rufisque | Pôles de Rufisque documentés mais géographiquement distincts | Identifier le terminus Camp Marchand et le quai Gare de Rufisque |
+| 1 | **DDD 11/227 ↔ AFTU 61, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue et fiche AFTU 61 confirment Keur Massar | Raccorder les séquences aller/retour documentées au hub et relever les quais internes |
+| 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | La fiche AFTU 74 décrit explicitement le terminus « Bargny (gare ferroviaire) » ; les quais bus précis restent non identifiés | Relever le quai AFTU réel et tracer le cheminement piéton depuis l'accès TER |
+| 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes ; point GPS du quai Sonadis absent | Géocoder les arrêts exacts et les quais dans les deux sens |
+| 4 | DDD 213 ↔ AFTU Camp Marchand / gare de Rufisque | Les terminus et gares OSM sont distincts ; correspondance non prouvée | Identifier le quai DDD « Gare de Rufisque » et le terminus AFTU Camp Marchand |
+| 5 | DDD 208 ↔ AFTU 78 à Sangalkam | Desserte locale publiée par les deux réseaux, mais terminus/quais non géocodés | Localiser les arrêts exacts et tracer le cheminement piéton |
 
 Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais utilisées comme temps de marche. Pour le calcul final, il faut un chemin piéton praticable, avec traversées et accès, puis une distance mesurée sur ce chemin.
 
@@ -151,6 +151,7 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - AFTU, catalogue courant : https://aftu-senegal.org/infos-pratiques/
 - AFTU, fiche détaillée ligne 54 : https://aftu-senegal.org/map/dakar-urbain-ligne-54/
 - AFTU, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
+- AFTU, fiche détaillée ligne 61 : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
 - AFTU, fiche détaillée ligne 62 : https://aftu-senegal.org/map/dakar-urbain-ligne-62/
 - AFTU, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
 - AFTU, fiche détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
