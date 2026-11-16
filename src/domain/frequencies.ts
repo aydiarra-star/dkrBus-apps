@@ -105,7 +105,7 @@ export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud' | 'moovi
   },
   moovit_aftu: {
     authority: 'AFTU',
-    sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1',
+    sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-61-Dakar-5996-1618038-18051490-4256300-0',
     verifiedAt: NO_VERIFIED_DATE,
     verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
   },
