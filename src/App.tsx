@@ -2725,8 +2725,10 @@ function RoutePanel({
               onClear={() => onClearPoint('origin')}
               onPickOnMap={onSelectPoint}
             />
-
-</div>
+            <button type="button" className="use-location-action" onClick={onUseLocation}>
+              <LocateFixed size={15} /> Utiliser ma position comme départ
+            </button>
+          </div>
           <button type="button" className="swap-route" aria-label="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /></button>
           <PointComboboxField
             title="Destination"
@@ -2740,9 +2742,6 @@ function RoutePanel({
           />
         </div>
 
-        <button type="button" className="use-location-action" onClick={onUseLocation}>
-          <LocateFixed size={15} /> Utiliser ma position comme départ
-        </button>
 
         <button className="primary-action route-submit" type="submit" disabled={!routePoints.origin || !routePoints.destination}>
           <Search size={17} /><span>Rechercher mon itinéraire</span><ArrowRight size={16} />
