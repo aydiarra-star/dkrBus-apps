@@ -1,4 +1,5 @@
 export interface DddArcgisGeoJsonFeature {
+  properties?: Record<string, unknown> | null
   geometry?: {
     type?: string
     coordinates?: unknown
