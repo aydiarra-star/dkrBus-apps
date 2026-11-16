@@ -1319,11 +1319,11 @@ function App() {
       if (shouldUseReferenceFallback(result)) {
         const referenceOutcome = planReferencePoints(origin, destination, preferences)
         const referenceNotice = result.code === 'NOT_PUBLISHED'
-          ? 'Aucun jeu de transport publié : cette estimation utilise uniquement la référence locale TER/BRT.'
-          : 'Le serveur d’horaires est indisponible sur cet hébergement : estimation locale TER/BRT, sans horaire déclaré ni temps réel.'
+          ? 'Aucun jeu de transport publié : le calcul utilise le réseau de référence local (TER, BRT, DDD et AFTU).'
+          : 'Le serveur d’horaires est indisponible : calcul local sur le réseau de référence (TER, BRT, DDD et AFTU), sans horaires publiés complets ni temps réel.'
         setJourney({ status: 'ready', search: null, error: null, errorCode: null, referenceOutcome, referenceNotice })
         announce(referenceOutcome.ok
-          ? `Estimation locale TER/BRT : environ ${referenceOutcome.totalMinutes} minutes. Pas de prochain passage ni de temps réel.`
+          ? `Estimation locale multimodale : environ ${referenceOutcome.totalMinutes} minutes. Les lignes sans horaire publié restent estimées ; aucun temps réel n’est disponible.`
           : `${referenceNotice} ${referenceOutcome.message}`)
         return
       }
@@ -2809,9 +2809,9 @@ function RoutePanel({
         <div className="route-truth-card">
           <div className="route-truth-icon"><ShieldCheck size={17} /></div>
           {dataAvailable ? (
-            <div><strong>Horaires théoriques disponibles</strong><span>Courses directes déclarées ; estimation TER/BRT si le serveur est indisponible.</span></div>
+            <div><strong>Horaires théoriques disponibles</strong><span>Courses directes publiées ; calcul multimodal de référence si le serveur d’horaires est indisponible.</span></div>
           ) : (
-            <div><strong>Estimation TER/BRT disponible</strong><span>Réseau de référence, durées estimées — pas de prochains passages.</span></div>
+            <div><strong>Estimation multimodale disponible</strong><span>TER, BRT, DDD et AFTU : durées calculées sur les données de référence disponibles ; pas de prochains passages ni de temps réel.</span></div>
           )}
         </div>
       )}
@@ -2958,7 +2958,7 @@ function ReferenceJourneyOutcome({ outcome, notice, originLabel, destinationLabe
       <div className="route-unavailable reference-route-unavailable" role="status" aria-live="polite">
         <div className="unavailable-icon"><AlertTriangle size={18} /></div>
         <div>
-          <strong>Aucun trajet TER/BRT de référence trouvé</strong>
+          <strong>Aucun trajet multimodal de référence trouvé</strong>
           <p>{notice}</p>
           <p className="route-unavailable-note">{outcome.message}</p>
         </div>
@@ -2967,9 +2967,9 @@ function ReferenceJourneyOutcome({ outcome, notice, originLabel, destinationLabe
   }
 
   return (
-    <section className="journey-results reference-journey-results" aria-label="Estimation de trajet TER/BRT">
+    <section className="journey-results reference-journey-results" aria-label="Estimation de trajet multimodal">
       <div className="journey-results-head">
-        <span className="eyebrow">ESTIMATION LOCALE · TER + BRT</span>
+        <span className="eyebrow">ESTIMATION LOCALE · MULTIMODALE</span>
         <span className="journey-count-chip">Réseau de référence</span>
       </div>
       <p className="reference-journey-notice">{notice}</p>
