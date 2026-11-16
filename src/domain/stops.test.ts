@@ -39,7 +39,7 @@ describe('index de recherche du Trajet', () => {
     expect(labels('senter')[0]).toBe('TER')
     expect(labels('sunubrt')[0]).toBe('BRT')
     expect(labels('dakar dem dikk')[0]).toBe('DDD')
-    expect(labels('tata')[0]).toBe('AFTU / TATA')
+    expect(labels('tata')[0]).toBe('AFTU')
   })
 
   it('trouve un arrêt de référence par son nom, accentué ou non', () => {
