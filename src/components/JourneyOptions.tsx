@@ -132,6 +132,7 @@ export function JourneyOptions({
                   <div className="journey-option-title">
                     <span className="journey-option-rank" aria-hidden="true">{index + 1}</span>
                     <h4>{card.title}</h4>
+                    {index === 0 && <span className="journey-option-recommended">Trajet recommandé</span>}
                     {option.result.boardedLines.length > 0
                       ? <MobilityLineBadges names={option.result.boardedLines} />
                       : <span className="journey-option-plain">À pied uniquement</span>}
