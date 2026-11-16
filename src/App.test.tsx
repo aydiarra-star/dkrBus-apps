@@ -570,6 +570,38 @@ describe('structure en quatre piliers', () => {
     expect(active[0]).toHaveProperty('disabled', true)
   })
 
+  it('applies the selected network filters to published direct journey results', async () => {
+    updatePreferences('mobility', {
+      networks: { ter: true, brt: false, ddd: false, aftu_tata: false },
+    })
+    const terRide = {
+      ...JOURNEYS_PAYLOAD.results[0],
+      trip_id: 'TER-REFERENCE-1',
+      route: { ...JOURNEYS_PAYLOAD.results[0].route, route_id: 'TER-1', short_name: 'TER', long_name: 'TER Dakar – Diamniadio' },
+    }
+    const dddRide = {
+      ...JOURNEYS_PAYLOAD.results[0],
+      trip_id: 'DDD-REFERENCE-1',
+      route: { ...JOURNEYS_PAYLOAD.results[0].route, route_id: 'DDD-1', short_name: 'DDD 1', long_name: 'Dakar Dem Dikk' },
+    }
+    const fetchMock = stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
+      { match: '/api/journeys', respond: () => jsonResponse({ ...JOURNEYS_PAYLOAD, results: [terRide, dddRide], result_count: 2 }) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
+    chooseStopInField('Destination', 'keur mbaye', /keur mbaye fall/i)
+    fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
+
+    const results = await screen.findByRole('region', { name: /courses directes proposées/i })
+    expect(results.textContent).toContain('TER')
+    expect(results.textContent).not.toContain('Dakar Dem Dikk')
+    const journeyCall = fetchMock.mock.calls.map((call) => String(call[0])).find((url) => url.startsWith('/api/journeys'))
+    expect(journeyCall).toBeDefined()
+    expect(new URLSearchParams(journeyCall!.split('?')[1]).get('networks')).toBe('ter')
+  })
+
   it('answers a question from the Explorer search and opens results in Trajet', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
