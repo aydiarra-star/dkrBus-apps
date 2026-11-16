@@ -4,6 +4,7 @@ import {
   ALL_CORRIDOR_STOPS,
   BRT_STOPS,
   CORRIDOR_LINES,
+  CORRIDOR_NETWORKS,
   DAKAR_REGION_BOUNDS,
   CORRIDOR_TRANSFERS,
   INTERMODAL_TRANSFERS,
@@ -108,6 +109,15 @@ describe('réseau de référence TER/BRT', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
     expect(INTERMODAL_TRANSFERS).toHaveLength(2)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
+  })
+
+  it('affiche les anciennes dessertes TATA sous le seul nom public AFTU', () => {
+    const legacyLine = CORRIDOR_LINES.find((line) => line.id === 'tata-1')!
+    expect(CORRIDOR_NETWORKS.aftu_tata.label).toBe('AFTU')
+    expect(legacyLine.shortName).toBe('AFTU')
+    expect(legacyLine.longName).not.toContain('TATA')
+    expect(legacyLine.serviceWindow).toContain('AFTU')
+    expect(ALL_CORRIDOR_STOPS.filter((stop) => stop.id.startsWith('tata-')).every((stop) => stop.note === 'AFTU')).toBe(true)
   })
 
   it('garantit des identifiants uniques et un ordre de desserte cohérent', () => {
