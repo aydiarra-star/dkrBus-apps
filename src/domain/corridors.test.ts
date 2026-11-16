@@ -136,17 +136,17 @@ describe('réseau de référence TER/BRT', () => {
     })
   })
 
-  it('active le pôle commun DDD 227 ↔ AFTU 61 au terminus de Keur Massar', () => {
+  it('active le pôle commun DDD 227 ↔ AFTU 60 au terminus de Keur Massar', () => {
     const transfer = CORRIDOR_TRANSFERS.find((entry) =>
-      entry.fromStopId === 'ddd-keur-massar-227' && entry.toStopId === 'aftu-keur-massar-61',
+      entry.fromStopId === 'ddd-keur-massar-227' && entry.toStopId === 'aftu-keur-massar-60',
     )
     expect(transfer).toMatchObject({ walkM: 0 })
     const ddd = getCorridorStop('ddd-keur-massar-227')!
-    const aftu = getCorridorStop('aftu-keur-massar-61')!
+    const aftu = getCorridorStop('aftu-keur-massar-60')!
     expect(ddd).toMatchObject({ lat: 14.78542, lon: -17.30922 })
     expect(aftu).toMatchObject({ lat: 14.78542, lon: -17.30922 })
     expect(linesServingStop('ddd-keur-massar-227').map((line) => line.shortName)).toContain('DDD 227')
-    expect(linesServingStop('aftu-keur-massar-61').map((line) => line.shortName)).toContain('AFTU 61')
+    expect(linesServingStop('aftu-keur-massar-60').map((line) => line.shortName)).toContain('AFTU 60')
     expect(getCorridorStop('aftu-almadies')).toMatchObject({ lat: 14.73475, lon: -17.50863 })
   })
 
