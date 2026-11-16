@@ -91,8 +91,9 @@ export interface CorridorNetwork {
   provenance: string
 }
 
-/** Enveloppe géographique couvrant la région : Almadies → Rufisque/Bargny,
- *  étendue jusqu'à AIBD (terminus TER) et Guédiawaye (terminus BRT). */
+/** Enveloppe de carte couvrant l'agglomération élargie et ses dessertes
+ * périphériques : Dakar, Keur Massar, Sangalkam, Bayakh, Rufisque, Bargny,
+ * Yène, Toubab Dialaw, Dougar, Diamniadio et les pôles du littoral. */
 export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: number; maxLon: number } = {
   minLat: 14.45,
   minLon: -17.62,
