@@ -52,8 +52,14 @@ export interface CorridorLine {
   shortName: string
   longName: string
   color: string
-  /** Identifiants d'arrêts desservis, dans l'ordre de parcours. */
+  /** Identifiants d'arrêts desservis, dans l'ordre de parcours (compatibilité historique). */
   stopIds: readonly string[]
+  /**
+   * Séquences directionnelles explicitement documentées. Quand elles existent,
+   * elles remplacent le double-sens implicite de `stopIds`. Chaque séquence
+   * décrit un seul sens ; ne jamais fabriquer le retour par inversion.
+   */
+  directions?: readonly (readonly string[])[]
   /**
    * Entrée technique du calculateur (attente théorique uniquement). Pour TER,
    * utilise le headway officiel maximal, faute de date/heure dans ce plan.
