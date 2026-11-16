@@ -30,3 +30,24 @@ describe('géométries cartographiques DDD ArcGIS', () => {
     expect(tracks).toHaveLength(0)
   })
 })
+
+import { dddArcgisFeatureStops } from './dddArcgisMapGeometry'
+
+describe('points d’arrêt DDD ArcGIS', () => {
+  it('convertit les points WGS84 en coordonnées Leaflet', () => {
+    expect(dddArcgisFeatureStops('7', [
+      { geometry: { type: 'Point', coordinates: [-17.45, 14.72] } },
+    ])).toEqual([{
+      id: 'ddd-arcgis-stop-7-14.72000--17.45000',
+      line: '7',
+      position: [14.72, -17.45],
+    }])
+  })
+
+  it('ignore les géométries non ponctuelles et les points hors zone', () => {
+    expect(dddArcgisFeatureStops('8', [
+      { geometry: { type: 'LineString', coordinates: [[-17.4, 14.7], [-17.3, 14.8]] } },
+      { geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
+    ])).toHaveLength(0)
+  })
+})
