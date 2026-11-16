@@ -10,8 +10,8 @@ import { trackPositionsForLine } from '../domain/terTrackGeometry'
 import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
 import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/viewportLock'
 import { focusTargetOf } from './useViewportLock'
-import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS } from '../data/dddBanlieueArcgisRegistry'
-import { dddArcgisFeatureTracks, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
+import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
+import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 
 export interface Coordinates {
@@ -325,43 +325,44 @@ function TransitMapView({
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
+  const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
-  // Les tracés DDD ArcGIS sont une couche cartographique distincte du
-  // calculateur : ils élargissent la couverture sans injecter des horaires,
-  // des sens non validés ou des arrêts historiques dans le graphe voyageur.
+  // Les couches ArcGIS sont des références historiques, séparées du calculateur.
+  // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
   useEffect(() => {
     const controller = new AbortController()
     const urbanServiceUrl = 'https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Ligne_inter_urbain/FeatureServer'
-    const layers = [
+    const routeLayers = [
       ...DDD_BANLIEUE_ARCGIS_LAYERS.map((layer) => ({ line: layer.line, url: layer.layerUrl })),
       ...DDD_URBAN_ARCGIS_ROUTE_LAYERS.map((layer) => ({
         line: layer.line,
         url: `${urbanServiceUrl}/${layer.layerId}`,
       })),
     ]
+    const queryUrl = (url: string) => {
+      const query = new URLSearchParams({
+        where: '1=1',
+        outFields: '*',
+        returnGeometry: 'true',
+        outSR: '4326',
+        f: 'geojson',
+      })
+      return `${url}/query?${query.toString()}`
+    }
     const loadTracks = async () => {
       const tracks: DddArcgisMapTrack[] = []
       let nextIndex = 0
       const worker = async () => {
-        while (nextIndex < layers.length && !controller.signal.aborted) {
-          const layer = layers[nextIndex]
+        while (nextIndex < routeLayers.length && !controller.signal.aborted) {
+          const layer = routeLayers[nextIndex]
           nextIndex += 1
           try {
-            const query = new URLSearchParams({
-              where: '1=1',
-              outFields: '*',
-              returnGeometry: 'true',
-              outSR: '4326',
-              f: 'geojson',
-            })
-            const response = await fetch(`${layer.url}/query?${query.toString()}`, {
-              signal: controller.signal,
-            })
+            const response = await fetch(queryUrl(layer.url), { signal: controller.signal })
             if (!response.ok) continue
             const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureTracks>[1] }
             tracks.push(...dddArcgisFeatureTracks(layer.line, collection.features ?? []))
           } catch {
-            // Une couche ArcGIS indisponible ne bloque jamais la carte ni le réseau TER/BRT.
+            // Une couche indisponible ne bloque jamais les autres mobilités.
           }
         }
       }
@@ -370,7 +371,24 @@ function TransitMapView({
         setDddArcgisTracks(tracks.sort((a, b) => a.line.localeCompare(b.line, 'fr', { numeric: true }) || a.part - b.part))
       }
     }
-    void loadTracks()
+    const loadStops = async () => {
+      const collections = await Promise.all(DDD_URBAN_ARCGIS_STOP_LAYERS.map(async (layer) => {
+        try {
+          const response = await fetch(queryUrl(layer.layerUrl), { signal: controller.signal })
+          if (!response.ok) return []
+          const collection = await response.json() as { features?: Parameters<typeof dddArcgisFeatureStops>[1] }
+          return dddArcgisFeatureStops(layer.line, collection.features ?? [])
+        } catch {
+          return []
+        }
+      }))
+      if (!controller.signal.aborted) {
+        const unique = new Map<string, DddArcgisMapStop>()
+        for (const stop of collections.flat()) unique.set(stop.id, stop)
+        setDddArcgisStops([...unique.values()])
+      }
+    }
+    void Promise.all([loadTracks(), loadStops()])
     return () => controller.abort()
   }, [])
 
@@ -519,6 +537,25 @@ function TransitMapView({
           </CircleMarker>
         )
       })}
+      {dddArcgisStops.map((stop) => (
+        <CircleMarker
+          key={stop.id}
+          center={stop.position}
+          radius={2.6}
+          pathOptions={{
+            color: paintFor('ddd')?.core ?? '#F59E0B',
+            fillColor: paintFor('ddd')?.core ?? '#F59E0B',
+            weight: 1,
+            opacity: 0.82,
+            fillOpacity: 0.72,
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>Arrêt de référence DDD · ligne {stop.line}</strong>
+            <div>Repère cartographique historique</div>
+          </Tooltip>
+        </CircleMarker>
+      ))}
       {dddArcgisTracks.map((track) => (
         <Polyline
           key={track.id}
