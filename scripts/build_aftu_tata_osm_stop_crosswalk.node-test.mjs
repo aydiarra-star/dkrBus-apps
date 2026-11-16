@@ -17,7 +17,7 @@ test('keeps a single explicitly AFTU-tagged OSM node as a coordinate candidate',
   });
   const match = report.matches.find((x) => x.waypoint === 'Centre Social');
   assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE');
-  assert.equal(match.candidateLocation.osmNodeId, 12);
+  assert.equal(match.candidateLocation.osmElementId, 12);
   assert.equal(report.summary.genericLabels, 1);
 });
 
@@ -32,6 +32,25 @@ test('includes official AFTU corridor waypoints as a separate source', () => {
   assert.equal(match.occurrences[0].source, 'AFTU_OFFICIAL_CORRIDOR');
   assert.equal(match.occurrences[0].direction, 'corridor_published');
   assert.equal(report.summary.officialAftuCorridorLines, 1);
+});
+
+test('uses the centre of a named AFTU platform way as a coordinate candidate', () => {
+  const report = buildAftuTataOsmCrosswalk({
+    aftuRecords: [],
+    aftuOfficialRecords: [{ code: '37', waypoints: ['Centre Social'] }],
+    tataRecords: [],
+    osmData: { elements: [
+      { type: 'way', id: 81, geometry: [
+        { lat: 14.7272, lon: -17.4567 },
+        { lat: 14.7274, lon: -17.4565 },
+      ], tags: { name: 'Centre Social', network: 'AFTU', public_transport: 'platform' } },
+    ] },
+  });
+  const match = report.matches[0];
+  assert.equal(match.status, 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE');
+  assert.equal(match.candidateLocation.osmElementType, 'way');
+  assert.equal(match.candidateLocation.osmElementId, 81);
+  assert.equal(match.candidateLocation.lat, 14.7273);
 });
 
 test('does not promote DDD or BRT coordinates to AFTU/TATA stops', () => {
