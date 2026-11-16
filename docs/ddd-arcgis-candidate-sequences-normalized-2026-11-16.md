@@ -69,6 +69,46 @@ Les métadonnées ArcGIS indiquent que la couche d'arrêts a été modifiée le 
 
 Aucun horaire, intervalle, compte à rebours, retour ou arrêt commercial n'est déduit de ces données. Aucun de ces 593 points n'est injecté dans le graphe multimodal, le catalogue passager ou la carte opérationnelle par ce correctif.
 
+## Recoupement des séquences publiées DDD
+
+Le workflow CI a comparé les 18 séquences candidates triées par chaînage aux séquences publiées par DDD. L'algorithme recherche des repères nommés communs dans le même ordre ; il ne certifie ni l'identité de chaque arrêt, ni le sens commercial, ni l'exploitation actuelle.
+
+Résultat :
+- **14 lignes compatibles avec l'ordre publié** ;
+- **0 ligne compatible uniquement en ordre inverse** ;
+- **4 lignes non résolues** ;
+- certification de direction : **aucune**.
+
+| Ligne | Arrêts officiels | Points ArcGIS | Repères communs ordonnés | Résultat |
+|---|---:|---:|---:|---|
+| 1 | 22 | 44 | 8 | ordre compatible |
+| 2 | 35 | 32 | 2 | non résolu |
+| 4 | 26 | 29 | 4 | ordre compatible |
+| 5 | 15 | 18 | 2 | non résolu |
+| 6 | 25 | 60 | 10 | ordre compatible |
+| 7 | 21 | 33 | 5 | ordre compatible |
+| 8 | 28 | 49 | 3 | ordre compatible |
+| 9 | 24 | 36 | 5 | ordre compatible |
+| 10 | 29 | 26 | 7 | ordre compatible |
+| 11 | 16 | 23 | 2 | non résolu |
+| 12 | 20 | 40 | 5 | ordre compatible |
+| 16A | 19 | 13 | 2 | non résolu |
+| 16B | 27 | 30 | 7 | ordre compatible |
+| 18 | 41 | 44 | 9 | ordre compatible |
+| 23 | 40 | 54 | 8 | ordre compatible |
+| 121 | 25 | 31 | 7 | ordre compatible |
+| 227 | 16 | 8 | 3 | ordre compatible |
+| 232 | 15 | 23 | 3 | ordre compatible |
+
+Les repères forts incluent notamment :
+- ligne 1 : Parcelles Assainies, Acapes, rond-point 26, VDN, UCAD, Tilène, Place de l'Indépendance et Leclerc ;
+- ligne 6 : Cambérène, Police des Parcelles, U.26, Foire, Liberté 6, Liberté 5, Allées Papa Guèye Fall et Faidherbe ;
+- ligne 10 : Liberté 5, Derklé, Bourguiba, Aimé Césaire, Corniche Ouest, Sorano et Pasteur ;
+- ligne 16B : Malika, Thiaroye, Peytavin, Jean Jaurès, Hôpital Principal, Le Dantec et Palais 1 ;
+- ligne 121 : Scat Urban, Liberté 6, Canal 4, Allées Papa Guèye Fall, Faidherbe, Place de l'Indépendance et Leclerc.
+
+**Interprétation :** les 14 résultats rendent plausible que l'ordre croissant du chaînage suit l'ordre de plusieurs repères publiés. Ils ne prouvent pas que tous les points ArcGIS sont des arrêts voyageurs actuels. Les 4 lignes non résolues restent exclues de toute intégration directionnelle. Aucune ligne n'est encore déclarée aller/retour dans le calculateur.
+
 ## Prochaine étape
 
 Rapprocher ces 18 séquences candidates avec les séquences publiées par DDD et les autres sources indépendantes, en contrôlant les terminus, les noms d'arrêts et les deux sens séparément. Seules les lignes corroborées pourront ensuite être intégrées au calculateur. Les horaires TER/BRT et leur affichage restent hors périmètre.
