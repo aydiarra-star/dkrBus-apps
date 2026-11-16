@@ -35,6 +35,23 @@ export function levenshteinRatio(left, right) {
   return 1 - previous[right.length] / maxLength;
 }
 
+function haversine(a, b) {
+  const rad = (n) => n * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 6371000 * 2 * Math.asin(Math.sqrt(h));
+}
+
+function locationClusters(stops, radiusMeters = 50) {
+  const clusters = [];
+  for (const stop of stops) {
+    let cluster = clusters.find((entry) => haversine(entry[0], stop) <= radiusMeters);
+    if (!cluster) clusters.push([stop]);
+    else cluster.push(stop);
+  }
+  return clusters;
+}
+
 function getDirections(data) {
   return [
     ['aller', data.directions?.outbound?.waypoints ?? data.outboundWaypoints ?? data.waypoints ?? []],
@@ -108,12 +125,19 @@ export function buildAftuTataDddFuzzyCandidates({
       if (score < minSimilarity) continue;
       const group = dddByName.get(candidateName);
       const stops = group.stops;
+      const clusters = locationClusters(stops);
+      const candidateLocationForReview = clusters.length === 1 ? {
+        lat: clusters[0].reduce((sum, stop) => sum + stop.lat, 0) / clusters[0].length,
+        lon: clusters[0].reduce((sum, stop) => sum + stop.lon, 0) / clusters[0].length,
+      } : null;
       suggestions.push({
         normalizedCandidateName: candidateName,
         candidateNames: [...group.sourceNames],
         similarityPercent: Math.round(score * 10000) / 100,
         dddLines: [...new Set(stops.map((stop) => stop.dddLine))],
         sourceObjectIds: [...new Set(stops.map((stop) => stop.sourceObjectId))],
+        locationClusterCount: clusters.length,
+        candidateLocationForReview,
         candidateStops: stops,
       });
     }
@@ -142,6 +166,8 @@ export function buildAftuTataDddFuzzyCandidates({
       fuzzyWaypointNamesForReview: matches.length,
       suggestionPairs: matches.reduce((sum, item) => sum + item.suggestions.length, 0),
       ambiguousTopMatches: matches.filter((item) => item.status === 'AMBIGUOUS_FUZZY_REVIEW_ONLY').length,
+      topSuggestionsWithSingleLocationCluster: matches.filter((item) => item.suggestions[0]?.locationClusterCount === 1).length,
+      topSuggestionsWithMultipleLocationClusters: matches.filter((item) => (item.suggestions[0]?.locationClusterCount ?? 0) > 1).length,
       officialAftuCorridorLines: aftuOfficialRecords.length,
       detailedAftuSourceFiles: aftuRecords.length,
       tataSourceLines: tataRecords.length,
