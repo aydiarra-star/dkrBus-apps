@@ -1363,8 +1363,10 @@ function App() {
       ...parsed.value,
       results: filteredResults,
       reason: filteredResults.length > 0 ? 'DIRECT_RIDE_FOUND' : 'NO_DIRECT_SERVICE',
-      message: filteredResults.length === 0 && parsed.value.results.length > 0
-        ? 'Aucune course directe ne correspond aux réseaux actuellement activés.'
+      message: filteredResults.length === 0
+        ? parsed.value.results.length > 0
+          ? 'Aucune course directe ne correspond aux réseaux actuellement activés.'
+          : 'Aucune course directe déclarée par le service horaires. Le calcul multimodal de référence est présenté séparément lorsqu’il est disponible.'
         : parsed.value.message,
       nextServiceDate: parsed.value.results.length > 0 && filteredResults.length === 0 ? null : parsed.value.nextServiceDate,
       limitations: [parsed.value.limitations, ...filterNotes].filter(Boolean).join(' ') || null,
