@@ -394,10 +394,11 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
 ]
 
-/** Correspondances marchables de référence entre les deux réseaux.
- *  Distances de marche estimées à partir des positions déclarées des deux
- *  arrêts (≈ 1,3 × la distance à vol d’oiseau) : ce sont des estimations,
- *  pas un cheminement piéton calculé. Les deux paires retenues sont les plus
+/** Correspondances inter-réseaux explicitement documentées.
+ *  Les distances nulles à Petersen signifient que les réseaux partagent le
+ *  même pôle d’échange dans la gare routière : aucune marche inter-pôle n’est
+ *  ajoutée au calcul. Les distances TER ↔ BRT historiques restent inchangées.
+ *  Les liaisons seulement supposées à partir de coordonnées ne sont pas activées.t les plus
  *  proches du réseau : Petersen ↔ Gare de Dakar (770 m à vol d’oiseau) et
  *  Place de la Nation ↔ Colobane (1 080 m à vol d’oiseau). */
 export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
@@ -412,6 +413,24 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'brt-place-nation',
     walkM: 1400,
     label: 'Gare TER Colobane ↔ station BRT Place de la Nation (marche de référence ~1,4 km)',
+  },
+  {
+    fromStopId: 'brt-petersen',
+    toStopId: 'ddd-petersen',
+    walkM: 0,
+    label: 'Pôle d’échange Petersen : BRT ↔ DDD (transfert dans la gare routière)',
+  },
+  {
+    fromStopId: 'brt-petersen',
+    toStopId: 'aftu-petersen',
+    walkM: 0,
+    label: 'Pôle d’échange Petersen : BRT ↔ AFTU (transfert dans la gare routière)',
+  },
+  {
+    fromStopId: 'ddd-petersen',
+    toStopId: 'aftu-petersen',
+    walkM: 0,
+    label: 'Gare routière Petersen : DDD ↔ AFTU',
   },
 ]
 
