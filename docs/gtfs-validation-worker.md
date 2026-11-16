@@ -45,7 +45,10 @@ Un ancien worker ne peut pas libérer le lease d'une nouvelle tentative. Si le R
 - Les migrations et tests SQL de ce chantier s'exécutent uniquement dans le PostgreSQL isolé de GitHub Actions.
 - Le bucket GTFS est privé et une politique restrictive interdit l'accès aux rôles applicatifs soumis à RLS.
 - `service_role` ne peut pas modifier directement les statuts, rapports, leases ou champs d'erreur ; les transitions passent par les RPC `SECURITY DEFINER`.
-- **Limite résiduelle :** l'intake Edge Function et le worker GitHub utilisent encore le même credential `service_role`. Le contrôle SQL distingue donc les rôles applicatifs du rôle serveur, mais ne distingue pas cryptographiquement l'Edge Function du worker. Une identité de worker séparée ou une attestation signée devra être provisionnée avant une activation opérationnelle. Aucun secret n'est créé ou modifié dans ce chantier.
+- Le worker n'utilise jamais le credential `service_role` de l'intake. Il ouvre une session Supabase Auth avec un compte technique dédié, confirmé, dont le seul droit spécial est le claim serveur `app_metadata.dakar_gtfs_worker=true`.
+- Les RPC de claim/finalisation/reprise refusent `service_role`, `anon` et les utilisateurs authentifiés sans ce claim. Le worker peut lire uniquement le bucket privé GTFS ; les politiques restrictives interdisent ses INSERT, UPDATE et DELETE Storage et lui bloquent les autres buckets même si une politique permissive générale existe.
+- Le worker est exécuté avec les secrets d'environnement `DAKAR_BUS_SUPABASE_URL`, `DAKAR_BUS_SUPABASE_ANON_KEY`, `DAKAR_BUS_GTFS_WORKER_EMAIL` et `DAKAR_BUS_GTFS_WORKER_PASSWORD`. Le compte doit être provisionné séparément par un administrateur Supabase ; le claim doit être placé dans `app_metadata`, jamais dans `user_metadata`.
+- Aucun compte, secret ou claim n'est créé ou modifié dans ce chantier. Tant que ce provisionnement et les approbateurs de l'environnement GitHub ne sont pas vérifiés, le worker reste inactif.
 - La configuration réelle des approbateurs de l'environnement GitHub n'est pas vérifiée par les tests du dépôt ; elle doit rester un prérequis d'activation, jamais être contournée.
 - Aucun dataset réel n'a été fourni. Les fixtures synthétiques servent uniquement aux tests et ne sont jamais envoyées à Supabase.
 

@@ -161,8 +161,10 @@ class GTFSWorkerTests(unittest.TestCase):
 
     def test_supabase_url_is_pinned_to_the_dakar_bus_project(self) -> None:
         self.assertEqual(validate_supabase_url(f"https://{SUPABASE_HOST}"), f"https://{SUPABASE_HOST}")
-        self.assertEqual(SupabaseRest(f"https://{SUPABASE_HOST}/", "test-key").base_url, f"https://{SUPABASE_HOST}")
+        self.assertEqual(SupabaseRest(f"https://{SUPABASE_HOST}/", "test-anon-key", "worker@example.invalid", "synthetic-password").base_url, f"https://{SUPABASE_HOST}")
         for url in [
+            f" https://{SUPABASE_HOST}",
+            f"https://{SUPABASE_HOST} ",
             "https://other-project.supabase.co",
             f"http://{SUPABASE_HOST}",
             f"https://{SUPABASE_HOST}/other",
@@ -171,6 +173,52 @@ class GTFSWorkerTests(unittest.TestCase):
         ]:
             with self.subTest(url=url), self.assertRaises(WorkerError):
                 validate_supabase_url(url)
+
+    def test_worker_credentials_reject_surrounding_whitespace(self) -> None:
+        with self.assertRaisesRegex(WorkerError, "WORKER_CREDENTIALS_MISSING"):
+            SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                " test-anon-key",
+                "worker@example.invalid",
+                "synthetic-password",
+            )
+        with self.assertRaisesRegex(WorkerError, "WORKER_CREDENTIALS_MISSING"):
+            SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                "test-anon-key",
+                " worker@example.invalid",
+                "synthetic-password",
+            )
+
+    def test_authenticate_uses_password_grant_and_keeps_the_worker_token_private(self) -> None
+        with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+            opener = Mock()
+            opener.open.return_value = io.BytesIO(b'{"access_token":"synthetic-access-token"}')
+            build_opener.return_value = opener
+
+            client = SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                "test-anon-key",
+                "worker@example.invalid",
+                "synthetic-password",
+            )
+            client.authenticate()
+
+            request = opener.open.call_args.args[0]
+            self.assertEqual(request.full_url, f"https://{SUPABASE_HOST}/auth/v1/token?grant_type=password")
+            self.assertEqual(request.get_header("Apikey"), "test-anon-key")
+            self.assertEqual(client.access_token, "synthetic-access-token")
+            self.assertNotIn("synthetic-password", repr(client.access_token))
+
+    def test_request_requires_a_dedicated_worker_access_token(self) -> None:
+        client = SupabaseRest(
+            f"https://{SUPABASE_HOST}",
+            "test-anon-key",
+            "worker@example.invalid",
+            "synthetic-password",
+        )
+        with self.assertRaisesRegex(WorkerError, "WORKER_AUTHENTICATION_REQUIRED"):
+            client.request("/rest/v1/rpc/claim", method="POST", payload={})
 
     def test_redirect_handler_refuses_to_follow_external_targets(self) -> None:
         request = urllib.request.Request(f"https://{SUPABASE_HOST}/rest/v1/rpc/claim")
@@ -192,14 +240,15 @@ class GTFSWorkerTests(unittest.TestCase):
             opener.open.return_value = io.BytesIO(b"[]")
             build_opener.return_value = opener
 
-            client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+            client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-anon-key", "worker@example.invalid", "synthetic-password")
+            client.access_token = "synthetic-access-token"
             client.request("/rest/v1/rpc/claim", method="POST", payload={})
 
             build_opener.assert_called_once_with(NoRedirectHandler)
             opener.open.assert_called_once()
 
     def test_storage_download_rejects_noncanonical_path_before_network_access(self) -> None:
-        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-anon-key", "worker@example.invalid", "synthetic-password")
         with self.assertRaisesRegex(WorkerError, "UNSAFE_ARCHIVE_OBJECT_REFERENCE"):
             client.download(STAGING_BUCKET, "../../secrets")
 
@@ -221,7 +270,7 @@ class GTFSWorkerTests(unittest.TestCase):
         client.complete.assert_not_called()
 
     def test_failure_rpc_uses_only_the_claimed_dataset_and_lease(self) -> None:
-        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-anon-key", "worker@example.invalid", "synthetic-password")
         job = valid_job()
         with patch.object(client, "request", return_value=True) as request:
             self.assertTrue(client.fail(job, "ARCHIVE_DOWNLOAD_FAILED"))
@@ -236,7 +285,7 @@ class GTFSWorkerTests(unittest.TestCase):
         )
 
     def test_failure_rpc_rejects_unbounded_error_text(self) -> None:
-        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-key")
+        client = SupabaseRest(f"https://{SUPABASE_HOST}", "test-anon-key", "worker@example.invalid", "synthetic-password")
         with self.assertRaisesRegex(WorkerError, "WORKER_ERROR_CODE_INVALID"):
             client.fail(valid_job(), "secret value")
 

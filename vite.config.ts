@@ -58,13 +58,6 @@ export default defineConfig({
               test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
             },
             {
-              name: 'route-audit',
-              priority: 17,
-              // Keep the lazy read-only DDD/AFTU/TATA audit and its data graph
-              // together; otherwise Rolldown can make its chunk import the app entry.
-              test: /[\\/]src[\\/]admin[\\/]|[\\/]src[\\/]domain[\\/](bidirectionalBusLines|publicBusLineCatalog)|[\\/]src[\\/]data[\\/](aftuOfficialPageAudit|cetudFrequencyObservations|dddBanlieueArcgisRegistry|aftuPublishedRouteCandidates|tataPublishedRouteCandidates|dddPublishedDepartureWindows|dddOfficialPublishedRoutes|aftuScheduleSettings)/,
-            },
-            {
               name: 'bus-line-catalog',
               priority: 16,
               // Shared by the application and the lazily loaded route-audit panel.
