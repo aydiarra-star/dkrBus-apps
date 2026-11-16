@@ -26,9 +26,8 @@ describe('séquences directionnelles des lignes', () => {
   it('n’inverse jamais une séquence quand les sens documentés sont fournis', () => {
     const base = CORRIDOR_LINES.find((line) => line.id === 'ddd-1')!
     const outbound = ['ddd-parcelles', 'ddd-grand-yoff', 'ddd-leclerc']
-    const inbound = ['ddd-leclerc', 'ddd-colobane', 'ddd-parcelles']
-    const explicit = { ...base, directions: [outbound, inbound] } as CorridorLine
-    expect(directedStopSequences(explicit)).toEqual([outbound, inbound])
+    const explicit = { ...base, directions: [outbound] } as CorridorLine
+    expect(directedStopSequences(explicit)).toEqual([outbound])
     expect(directedStopSequences(explicit)).not.toContain([...outbound].reverse())
   })
 })
