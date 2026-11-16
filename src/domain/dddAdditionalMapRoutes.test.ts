@@ -22,3 +22,16 @@ describe('corridors DDD complémentaires de la carte', () => {
     }
   })
 })
+
+
+  it('ajoute le corridor DDD 227 avec les pôles GPS Keur Massar et Parcelles', () => {
+    const route = DDD_ADDITIONAL_MAP_ROUTES.find((entry) => entry.id === 'ddd-227')
+    expect(route?.line).toBe('227')
+    expect(route?.waypoints).toEqual([
+      { name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922 },
+      { name: 'Route de Malika', lat: 14.793653, lon: -17.336456 },
+      { name: 'Terminus Guédiawaye', lat: 14.77277, lon: -17.38922 },
+      { name: 'Case Ba', lat: 14.756216, lon: -17.42975 },
+      { name: 'Terminus Parcelles Assainies', lat: 14.76043, lon: -17.439267 },
+    ])
+  })
