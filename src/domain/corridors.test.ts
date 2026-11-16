@@ -244,6 +244,16 @@ describe('source unique des fréquences', () => {
   })
 })
 
+
+  it('distingue le passage AFTU 73 à Keur Massar de ses terminus', () => {
+    const stop = getCorridorStop('aftu-keur-massar-73')
+    const line = CORRIDOR_LINES.find((item) => item.id === 'aftu-73')
+    expect(stop?.name).toBe('Passage Keur Massar (AFTU 73)')
+    expect(stop?.note).toContain('arrêt de passage')
+    expect(line?.longName).toContain('segment de ligne')
+    expect(line?.stopIds).toEqual(['aftu-bargny-73', 'aftu-keur-massar-73'])
+  })
+
   it('active la correspondance DDD 227 ↔ AFTU 60 au terminus commun de Keur Massar', () => {
     const transfer = CORRIDOR_TRANSFERS.find((item) =>
       [item.fromStopId, item.toStopId].includes('ddd-keur-massar-227')
