@@ -110,7 +110,7 @@ OpenStreetMap identifie au même endroit :
 
 Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa fiche détaillée (mise à jour le 7 juillet 2026) décrit : Terminus Keur Massar → Route nationale 1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies.
 
-**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est une correspondance DDD 11/227 ↔ AFTU 61 confirmée au niveau du pôle terminal. Les positions exactes des quais de départ dans l'enceinte et le cheminement entre plateformes restent à relever. Le calculateur ne doit activer le lien qu'une fois les séquences directionnelles des lignes 11, 227 et 61 raccordées à ces arrêts.
+**Conclusion géographique :** le terminus DDD et le terminus minibus n°61 sont co-localisés à quelques mètres. C'est un pôle commun DDD/AFTU confirmé au niveau du terminus. Le calculateur intègre désormais la correspondance DDD 227 ↔ AFTU 61 avec les deux sens documentés de ces lignes. DDD 11 partage le même point terminal, mais reste hors calculateur tant que son terminus final n'est pas réconcilié avec les sources de parcours. Les quais exacts à l'intérieur de l'enceinte restent à relever.
 
 ### Autres pôles Keur Massar — à ne pas fusionner
 
@@ -121,9 +121,9 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 
 ### Décision
 
-- **Correspondance commune confirmée au niveau du pôle : DDD 11/227 ↔ AFTU 61**, terminus principal **14.7854, -17.30922**.
+- **Correspondance intégrée au calculateur : DDD 227 ↔ AFTU 61**, terminus principal **14.7854, -17.30922**. DDD 11 partage le même terminus, mais son parcours n'est pas encore intégré.
 - **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
-- **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0)). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
+- **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0`). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
 - Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 61 (54 arrêts par sens sur Moovit), avec cinq repères GPS de corridor pour chaque ligne. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
 - Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 61, 42 min comme valeur prudente (Moovit indique 22 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
 - DDD 11 partage le même terminus GPS, mais n'est pas encore ajouté au calculateur : la séquence officielle DDD annonce Lat Dior tandis que la fiche Moovit consultée annonce Leclerc. Ce désaccord doit être résolu avant d'intégrer cette ligne.
