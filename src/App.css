@@ -1361,6 +1361,57 @@ button:disabled { cursor: not-allowed; }
 }
 
 /* Proximité fluide entre la recherche, les pastilles de destination et la liste des réseaux. */
+
+.explore-network-legend {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--surface-card);
+}
+.explore-network-legend-title {
+  color: var(--green-800);
+  font-size: 11px;
+  font-weight: 850;
+}
+.explore-network-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+.explore-network-legend-item {
+  display: flex;
+  min-width: 48px;
+  flex-direction: column;
+  align-items: stretch;
+}
+.explore-network-legend-item .route-coverage-item {
+  display: flex;
+  width: max-content;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.explore-network-legend-item .route-coverage-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+  min-height: 4px;
+  border-radius: 999px;
+}
+.explore-network-legend-item .route-coverage-bar.mobility-ter { background: #003366; }
+.explore-network-legend-item .route-coverage-bar.mobility-brt { background: #00A859; }
+.explore-network-legend-item .route-coverage-bar.mobility-ddd { background: #F59E0B; }
+.explore-network-legend-item .route-coverage-bar.mobility-aftu_tata { background: #C05621; }
+.explore-network-legend small {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
 .network-summary-section { display: grid; margin-top: 0; gap: 4px; }
 .network-summary-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .network-summary-heading strong { color: var(--text); font-family: Manrope, sans-serif; font-size: 13.5px; font-weight: 800; letter-spacing: -.01em; }
