@@ -154,6 +154,10 @@ export function JourneyOptions({
                   <div><dt>Correspondances</dt><dd>{transferLabel(option.metrics.transfers)}<small>{option.result.networksUsed.join(' → ')}</small></dd></div>
                   <div><dt>Tarif</dt><dd>{option.metrics.fareLabel}<small>{option.metrics.fareNote}</small></dd></div>
                 </dl>
+                <p className="journey-option-arrival">
+                  <strong>Arrivée estimée si départ maintenant :</strong>{' '}
+                  {arrivalWindow(option.metrics.displayMinutes, option.metrics.uncertaintyMinutes)}
+                </p>
 
                 <div className="journey-option-actions">
                   <button type="button" className="text-action" aria-expanded={open} onClick={() => setOpenKey(open ? null : option.key)}>
@@ -220,6 +224,14 @@ export function JourneyOptions({
   )
 }
 
+/** Heure d'arrivée calculée à partir de la durée estimée, en heure de Dakar. */
+function arrivalWindow(minutes: number, uncertaintyMinutes: number): string {
+  const formatter = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Dakar' })
+  const now = Date.now()
+  const earliest = formatter.format(new Date(now + Math.max(0, minutes - uncertaintyMinutes) * 60_000))
+  const latest = formatter.format(new Date(now + (minutes + uncertaintyMinutes) * 60_000))
+  return earliest === latest ? earliest : 'entre ' + earliest + ' et ' + latest
+}
 function RoundTripLeg({ label, plan, units }: { label: string; plan: JourneyPlan; units: DistanceUnits }) {
   return (
     <div className="journey-roundtrip-leg">
