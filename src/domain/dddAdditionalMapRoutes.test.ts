@@ -5,7 +5,7 @@ import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
 describe('corridors DDD complémentaires de la carte', () => {
   it('couvre Bayakh, Sangalkam, Guédiawaye et Rufisque', () => {
     const names = new Set(DDD_ADDITIONAL_MAP_ROUTES.flatMap((route) => route.waypoints.map((point) => point.name)))
-    for (const name of ['Bayakh', 'Sangalkam', 'Guédiawaye', 'Pikine', 'Mbao', 'Rufisque']) {
+    for (const name of ['Bayakh', 'Bambilor', 'Noflaye', 'Sangalkam', 'Keur Ndiaye Lo', 'Rufisque', 'Keur Massar', 'Malika', 'Carrefour Marché Boubess', 'Guédiawaye']) {
       expect(names.has(name)).toBe(true)
     }
   })
