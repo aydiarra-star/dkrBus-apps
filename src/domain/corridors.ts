@@ -60,6 +60,8 @@ export interface CorridorLine {
    * utilise le headway officiel maximal, faute de date/heure dans ce plan.
    */
   headwayMin: number
+  /** Intervalle alternatif pour les samedis/dimanches lorsqu'une source le distingue. */
+  weekendHeadwayMin?: number
   frequencyStatus: FrequencyStatus
   frequencySource: FrequencySource
   officialFrequencies: readonly OfficialFrequency[]
@@ -416,7 +418,8 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
       ['aftu-keur-massar-60', 'aftu-carrefour-grand-mbao-60', 'aftu-thiaroy-60', 'aftu-almadies-60'],
       ['aftu-almadies-60', 'aftu-thiaroy-60', 'aftu-carrefour-grand-mbao-60', 'aftu-keur-massar-60'],
     ],
-    headwayMin: 42,
+    headwayMin: 20,
+    weekendHeadwayMin: 42,
     frequencyStatus: 'SCHEDULED',
     frequencySource: FREQUENCY_SOURCES.moovit_aftu,
     officialFrequencies: [],
