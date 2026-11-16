@@ -285,7 +285,7 @@ describe('Dakar Bus experience safety', () => {
     expect(screen.queryByText(/^≈ \d+ min$/)).toBeNull()
   })
 
-  it('uses the local TER/BRT planner on GitHub Pages when no journey API server exists', async () => {
+  it('uses the local multimodal planner on GitHub Pages when no journey API server exists', async () => {
     stubApi([
       { match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) },
       { match: '/api/journeys', respond: () => ({ ok: false, status: 404, json: async () => { throw new Error('Pages 404 HTML') } }) },
@@ -296,10 +296,10 @@ describe('Dakar Bus experience safety', () => {
     chooseStopInField('Destination', 'mbaye', /keur mbaye fall/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
-    expect(await screen.findByRole('region', { name: 'Estimation de trajet TER/BRT' })).toBeTruthy()
+    expect(await screen.findByRole('region', { name: 'Estimation de trajet multimodal' })).toBeTruthy()
     expect(screen.getByText(/serveur d’horaires est indisponible/i)).toBeTruthy()
     expect(screen.getByText(/≈ \d+ min/)).toBeTruthy()
-    const estimate = screen.getByRole('region', { name: 'Estimation de trajet TER/BRT' })
+    const estimate = screen.getByRole('region', { name: 'Estimation de trajet multimodal' })
     expect(estimate.textContent).toContain('Petersen')
     expect(estimate.textContent).toContain('Keur Mbaye Fall')
     expect(estimate.textContent).toMatch(/ce n’est ni un horaire, ni du temps réel/i)
