@@ -548,6 +548,28 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByPlaceholderText('On va où ?')).toBeTruthy()
   })
 
+  it('exposes working network filters in Trajet and never allows an empty network selection', async () => {
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+
+    const group = screen.getByRole('group', { name: /filtres de transport/i })
+    const ddd = within(group).getByRole('button', { name: /ddd : actif/i })
+    expect(ddd.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(ddd)
+    expect(within(group).getByRole('button', { name: /ddd : désactivé/i }).getAttribute('aria-pressed')).toBe('false')
+
+    for (const name of [/brt : actif/i, /aFTU : actif/i, /ter : actif/i]) {
+      const button = within(group).getByRole('button', { name })
+      fireEvent.click(button)
+    }
+    const onlyNetwork = within(group).getByRole('button', { name: /ddd : désactivé/i })
+    expect(onlyNetwork).toHaveProperty('disabled', false)
+    const active = within(group).getAllByRole('button').filter((button) => button.getAttribute('aria-pressed') === 'true')
+    expect(active).toHaveLength(1)
+    expect(active[0]).toHaveProperty('disabled', true)
+  })
+
   it('answers a question from the Explorer search and opens results in Trajet', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
