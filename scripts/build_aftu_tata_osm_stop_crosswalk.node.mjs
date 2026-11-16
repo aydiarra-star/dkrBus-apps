@@ -31,17 +31,33 @@ function getDirections(data) {
   ];
 }
 
-function isStopNode(element) {
+function stopFeatureCoordinates(element) {
+  if (element?.type === 'node' && Number.isFinite(element.lat) && Number.isFinite(element.lon)) {
+    return { lat: element.lat, lon: element.lon };
+  }
+  if (element?.type === 'way' && Array.isArray(element.geometry)) {
+    const points = element.geometry.filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lon));
+    if (!points.length) return null;
+    return {
+      lat: points.reduce((sum, point) => sum + point.lat, 0) / points.length,
+      lon: points.reduce((sum, point) => sum + point.lon, 0) / points.length,
+    };
+  }
+  return null;
+}
+
+function isStopFeature(element) {
   const tags = element?.tags ?? {};
-  return element?.type === 'node' && (
-    tags.highway === 'bus_stop' ||
+  const hasStopTag = tags.highway === 'bus_stop' ||
     tags.public_transport === 'platform' ||
     tags.public_transport === 'stop_position' ||
-    tags.amenity === 'bus_station'
-  ) && typeof tags.name === 'string' && tags.name.trim() !== '' &&
-    Number.isFinite(element.lat) && Number.isFinite(element.lon) &&
-    element.lat >= BOUNDS.south && element.lat <= BOUNDS.north &&
-    element.lon >= BOUNDS.west && element.lon <= BOUNDS.east;
+    tags.amenity === 'bus_station';
+  if (!['node', 'way'].includes(element?.type) || !hasStopTag ||
+      typeof tags.name !== 'string' || tags.name.trim() === '') return false;
+  const point = stopFeatureCoordinates(element);
+  return Boolean(point &&
+    point.lat >= BOUNDS.south && point.lat <= BOUNDS.north &&
+    point.lon >= BOUNDS.west && point.lon <= BOUNDS.east);
 }
 
 function sourceNetwork(tags = {}) {
@@ -54,28 +70,30 @@ function sourceNetwork(tags = {}) {
 
 export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [], tataRecords, osmData }) {
   const osmIndex = new Map();
-  // Overpass peut renvoyer le même nœud via plusieurs branches de l'union
-  // (relation + arrêt autonome). Dédupliquer par identifiant OSM avant le rapprochement.
-  const stopNodesById = new Map();
-  for (const node of (osmData.elements ?? []).filter(isStopNode)) {
-    stopNodesById.set(String(node.id), node);
+  // Overpass peut renvoyer plusieurs fois un même nœud ou quai via l'union
+  // (relation + objet autonome). Dédupliquer par type et identifiant OSM.
+  const stopFeaturesById = new Map();
+  for (const feature of (osmData.elements ?? []).filter(isStopFeature)) {
+    stopFeaturesById.set(`${feature.type}:${feature.id}`, feature);
   }
-  const stopNodes = [...stopNodesById.values()];
-  for (const node of stopNodes) {
-    const key = normalizeStopName(node.tags.name);
+  const stopFeatures = [...stopFeaturesById.values()];
+  for (const feature of stopFeatures) {
+    const point = stopFeatureCoordinates(feature);
+    const key = normalizeStopName(feature.tags.name);
     if (!key) continue;
     const bucket = osmIndex.get(key) ?? [];
     bucket.push({
-      osmNodeId: node.id,
-      name: node.tags.name,
-      lat: node.lat,
-      lon: node.lon,
-      network: sourceNetwork(node.tags),
-      operator: node.tags.operator ?? null,
-      sourceNetwork: node.tags.network ?? null,
-      highway: node.tags.highway ?? null,
-      publicTransport: node.tags.public_transport ?? null,
-      routeRef: node.tags.route_ref ?? node.tags.ref ?? null,
+      osmElementId: feature.id,
+      osmElementType: feature.type,
+      name: feature.tags.name,
+      lat: point.lat,
+      lon: point.lon,
+      network: sourceNetwork(feature.tags),
+      operator: feature.tags.operator ?? null,
+      sourceNetwork: feature.tags.network ?? null,
+      highway: feature.tags.highway ?? null,
+      publicTransport: feature.tags.public_transport ?? null,
+      routeRef: feature.tags.route_ref ?? feature.tags.ref ?? null,
     });
     osmIndex.set(key, bucket);
   }
@@ -121,7 +139,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
     else if (clusters.length === 1) status = 'CROSS_NETWORK_OSM_REFERENCE_ONLY';
 
     const candidateLocation = status === 'EXACT_AFTU_TATA_OSM_NODE_CANDIDATE'
-      ? { lat: networkNodes[0].lat, lon: networkNodes[0].lon, osmNodeId: networkNodes[0].osmNodeId }
+      ? { lat: networkNodes[0].lat, lon: networkNodes[0].lon, osmElementId: networkNodes[0].osmElementId, osmElementType: networkNodes[0].osmElementType }
       : null;
     return {
       waypoint: item.label,
@@ -143,7 +161,7 @@ export function buildAftuTataOsmCrosswalk({ aftuRecords, aftuOfficialRecords = [
     ambiguousMultipleLocations: matches.filter((x) => x.status === 'AMBIGUOUS_MULTIPLE_LOCATIONS').length,
     noExactOsmMatch: matches.filter((x) => x.status === 'NO_EXACT_OSM_MATCH').length,
     genericLabels: matches.filter((x) => x.status === 'GENERIC_LABEL_NO_GEOCODE').length,
-    namedOsmStopNodesInBounds: stopNodes.length,
+    namedOsmStopFeaturesInBounds: stopFeatures.length,
     officialAftuCorridorLines: aftuOfficialRecords.length,
     detailedAftuSourceFiles: aftuRecords.length,
     tataSourceLines: tataRecords.length,
