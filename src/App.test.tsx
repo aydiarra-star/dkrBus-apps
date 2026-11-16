@@ -1490,6 +1490,8 @@ describe('barre de recherche du Trajet', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
     chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
+    expect(screen.getByText(/TRAJET RECOMMANDÉ · RÉSEAU DE RÉFÉRENCE/i)).toBeTruthy()
+    expect(screen.getAllByText(/Arrivée estimée si départ maintenant/i).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
     await act(async () => {
       for (let tick = 0; tick < 8; tick += 1) await Promise.resolve()
