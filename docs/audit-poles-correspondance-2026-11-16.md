@@ -22,14 +22,15 @@ Le calculateur ne doit pas confondre « même quartier » et « même pôle ». 
 - Test dédié ajouté.
 - Les dessertes TER/BRT existantes restent inchangées.
 
-**AFTU : à confirmer avant activation**
-Le CETUD décrit bien l'accueil des minibus AFTU dans le dispositif de rabattement. Toutefois, le point AFTU générique du référentiel ne suffit pas à prouver qu'une ligne actuellement modélisée dessert précisément le quai du pôle. Il faut faire correspondre une ligne AFTU active et son arrêt réel avant d'ajouter le lien BRT ↔ AFTU.
+**AFTU : liaison à préciser**
+Le CETUD décrit l'accueil des minibus AFTU au pôle. Le site officiel AFTU publie la ligne 24 « UCAD – Notaire Guédiawaye » ; cela confirme une desserte du secteur, mais pas que son terminus « Notaire » est situé dans le terminal BRT devant la mosquée. La liaison BRT ↔ AFTU reste donc en attente du point d'arrêt exact.
 
 ### 2. Grand Médine — créer un véritable pôle de rabattement DDD ↔ BRT, après calage des accès
 
 **Éléments confirmés**
 - Le CETUD identifie un pôle d'échange BRT à Grand Médine, à proximité de la route de l'aéroport et de l'échangeur.
 - La page DDD publie « Marché Grand Médine » sur la ligne 1 et « HLM Grand Médine » sur la ligne 23 ; la ligne 6 mentionne également le secteur du Marché Grand Médine.
+- Le site officiel AFTU publie la ligne 1 « Lat Dior – HLM Grand Yoff », mais ne donne pas dans sa liste synthétique un arrêt Grand Médine clairement identifié.
 - Les documents CETUD évoquent les lignes de rabattement et le pôle de Grand Médine.
 
 **Solution idéale**
@@ -47,6 +48,7 @@ Le CETUD décrit bien l'accueil des minibus AFTU dans le dispositif de rabatteme
 - Le même document précise que des investissements complémentaires étaient prévus pour une intégration physique avec le TER.
 - La gare TER de Colobane est confirmée par le site TER Sénégal.
 - Les lignes DDD 18 et 20 desservent Colobane ; la page d'information voyageurs liste également les lignes 502A/502B/503A/503B au départ de Colobane.
+- Le site officiel AFTU publie la ligne 29 « Gadaye (Guédiawaye) – Gare de Colobane » : c'est une preuve directe de desserte AFTU de la gare de Colobane.
 
 **Solution idéale**
 - Traiter les gares DDD et AFTU comme deux accès distincts du complexe routier, et non comme un seul point fictif.
@@ -60,7 +62,8 @@ Le CETUD décrit bien l'accueil des minibus AFTU dans le dispositif de rabatteme
 
 **Éléments confirmés**
 - Les itinéraires officiels DDD 1, 7, 8 et 20 citent UCAD.
-- La desserte de UCAD par DDD est donc confirmée, mais cela ne prouve pas que tous ces arrêts se trouvent au même portail ou au même quai.
+- Le site officiel AFTU publie la ligne 24 « UCAD – Notaire Guédiawaye ».
+- La desserte du secteur par les deux réseaux est donc confirmée, mais cela ne prouve pas que leurs arrêts se trouvent au même portail ou au même quai.
 
 **Solution idéale**
 - Créer un arrêt de référence distinct pour chaque accès UCAD réellement utilisé (par exemple entrée principale / avenue Cheikh Anta Diop), sans fusionner des points éloignés.
@@ -73,7 +76,8 @@ Le CETUD décrit bien l'accueil des minibus AFTU dans le dispositif de rabatteme
 
 **Éléments confirmés**
 - DDD publie Lat Dior comme terminus de la ligne 11 et comme arrêt sur les lignes 18 et 20.
-- Le référentiel AFTU contient un point Lat Dior, mais sa position est un point de référence simplifié et non un quai confirmé.
+- Le site officiel AFTU publie la ligne 1 « Lat Dior – HLM Grand Yoff ».
+- Les deux réseaux desservent donc Lat Dior, mais le référentiel AFTU contient encore un point simplifié et non un quai confirmé.
 
 **Solution idéale**
 - Vérifier le terminus réel de la ligne AFTU associée et son accès piéton par rapport à l'arrêt DDD Lat Dior.
