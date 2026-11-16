@@ -44,7 +44,7 @@ test('ignores generic stop labels', () => {
 
 test('does not provide a single review location when DDD candidates are geographically separated', () => {
   const report = buildAftuTataDddFuzzyCandidates({
-    aftuRecords: [{ data: { code: '2', waypoints: ['Stade Léopold Sédar Senghor'] } }],
+    aftuRecords: [{ data: { code: '2', waypoints: ['Stade Léopold Sédar Sengor'] } }],
     tataRecords: [],
     dddCandidates: { candidates: [{ line: 'Ligne 1', stops: [
       { sourceStopName: 'Arrêt Stade Léopold Sédar Senghor', lat: 14.7504, lon: -17.4496, sourceObjectId: 1 },
