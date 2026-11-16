@@ -21,6 +21,19 @@ test('keeps a single explicitly AFTU-tagged OSM node as a coordinate candidate',
   assert.equal(report.summary.genericLabels, 1);
 });
 
+test('includes official AFTU corridor waypoints as a separate source', () => {
+  const report = buildAftuTataOsmCrosswalk({
+    aftuRecords: [],
+    aftuOfficialRecords: [{ code: '37', waypoints: ['Terminus APIX', 'UCAD'] }],
+    tataRecords: [],
+    osmData: { elements: [] },
+  });
+  const match = report.matches.find((x) => x.waypoint === 'UCAD');
+  assert.equal(match.occurrences[0].source, 'AFTU_OFFICIAL_CORRIDOR');
+  assert.equal(match.occurrences[0].direction, 'corridor_published');
+  assert.equal(report.summary.officialAftuCorridorLines, 1);
+});
+
 test('does not promote DDD or BRT coordinates to AFTU/TATA stops', () => {
   const report = buildAftuTataOsmCrosswalk({
     aftuRecords: [{ data: { code: '30', waypoints: ['UCAD'] } }],
