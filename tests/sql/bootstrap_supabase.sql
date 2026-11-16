@@ -15,25 +15,25 @@ create function auth.role()
 returns text
 language sql
 stable
-as $
+as $$
   select current_setting('request.jwt.claim.role', true)
-$;
+$$;
 
 create function auth.jwt()
 returns jsonb
 language sql
 stable
-as $
+as $$
   select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
-$;
+$$;
 
 create function auth.uid()
 returns uuid
 language sql
 stable
-as $
+as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
-$;
+$$;
 
 create table storage.buckets (
   id text primary key,
