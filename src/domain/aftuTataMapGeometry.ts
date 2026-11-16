@@ -32,5 +32,5 @@ export function osrmGeometryToLeafletPositions(value: unknown): [number, number]
       && point[1] >= 14
       && point[1] <= 16,
     )
-    .map(([lon, lat]) => [lat, lon])
+    .map(([lon, lat]) => [lat, lon] as [number, number])
 }
