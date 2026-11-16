@@ -156,6 +156,9 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - AFTU, fiche détaillée ligne 54 : https://aftu-senegal.org/map/dakar-urbain-ligne-54/
 - AFTU, fiche détaillée ligne 60 : https://aftu-senegal.org/map/dakar-urbain-ligne-60/
 - AFTU, fiche détaillée ligne 61 : https://aftu-senegal.org/map/dakar-urbain-ligne-61/
+- DDD, ligne 227 — séquence officielle : https://demdikk.sn/reseau-urbain-dakar/
+- Moovit, DDD ligne 227 — deux sens et horaires : https://moovitapp.com/index/fr/transport_en_commun-line-227-Dakar-5996-1618037-18051447-1
+- Moovit, AFTU ligne 61 — deux sens et horaires : https://moovitapp.com/index/fr/transport_en_commun-line-61-Dakar-5996-1618038-18051490-1
 - AFTU, fiche détaillée ligne 62 : https://aftu-senegal.org/map/dakar-urbain-ligne-62/
 - AFTU, fiche détaillée ligne 63 : https://aftu-senegal.org/map/dakar-urbain-ligne-63/
 - AFTU, fiche détaillée ligne 74 : https://aftu-senegal.org/map/dakar-urbain-ligne-74/
@@ -184,4 +187,4 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 
 ## Périmètre
 
-Un document d'audit géographique uniquement. Aucun changement de code, d'arrêt actif, de ligne, de tracé, d'horaire, de correspondance du graphe ou de donnée TER/BRT.
+Le calculateur et la carte intègrent désormais les corridors DDD 227 et AFTU 61 ainsi que leur correspondance au terminus partagé de Keur Massar. Les autres points Rufisque/Bargny restent en audit tant que les quais exacts ou les chemins piétons ne sont pas prouvés. Les lignes, stations, tracés et horaires TER/BRT restent strictement inchangés.
