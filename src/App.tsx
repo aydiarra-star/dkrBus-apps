@@ -1660,23 +1660,25 @@ function App() {
           </div>
         )}
 
-        <div className="map-mobility-legend" aria-label="Code couleur des mobilités">
-          <span className="map-mobility-legend-title">Réseaux</span>
-          <div className="map-mobility-legend-row">
-            {MOBILITY_IDS.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className="map-legend-badge-button"
-                onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
-                aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
-              >
-                <MobilityBadge id={id} />
-              </button>
-            ))}
+        {activeTab === 'explore' && (
+          <div className="map-mobility-legend" aria-label="Code couleur des mobilités">
+            <span className="map-mobility-legend-title">Réseaux</span>
+            <div className="map-mobility-legend-row">
+              {MOBILITY_IDS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="map-legend-badge-button"
+                  onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
+                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
+                >
+                  <MobilityBadge id={id} />
+                </button>
+              ))}
+            </div>
+            <small>TER et BRT en tracés continus · DDD et AFTU/TATA en pointillés légers + pastilles d'arrêts.</small>
           </div>
-          <small>TER et BRT en tracés continus · DDD et AFTU/TATA en pointillés légers + pastilles d'arrêts.</small>
-        </div>
+        )}
 
         <div className="map-controls" aria-label="Contrôles de la carte">
           <button type="button" className="map-control" aria-label="Zoom avant" onClick={() => zoomMap(1)}><Plus size={17} /></button>
