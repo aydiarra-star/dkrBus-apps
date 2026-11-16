@@ -16,6 +16,7 @@ import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCovera
 import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
 import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
 import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
+import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
 
 export interface Coordinates {
   lat: number
@@ -329,6 +330,7 @@ function TransitMapView({
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
   const [aftuTataTracks, setAftuTataTracks] = useState<(AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[]>([])
+  const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
@@ -437,6 +439,40 @@ function TransitMapView({
       }
     }
     void loadAftuTataTracks()
+    return () => controller.abort()
+  }, [])
+
+  // La relation OSM AFTU/TATA 40 possède une géométrie de route,
+  // même si sa séquence d'arrêts n'est pas publiée dans OSM.
+  useEffect(() => {
+    const controller = new AbortController()
+    const query = '[out:json][timeout:30];relation(3982642);out body geom;>;out body;'
+    const endpoints = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.private.coffee/api/interpreter',
+    ]
+    const loadTataRelation = async () => {
+      for (const endpoint of endpoints) {
+        if (controller.signal.aborted) return
+        try {
+          const url = `${endpoint}?${new URLSearchParams({ data: query }).toString()}`
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: { Accept: 'application/json' },
+          })
+          if (!response.ok) continue
+          const payload = await response.json() as { elements?: Parameters<typeof osmRouteWayMembersToTracks>[2] }
+          const tracks = osmRouteWayMembersToTracks(3982642, '40', payload.elements ?? [])
+          if (tracks.length > 0 && !controller.signal.aborted) {
+            setTataOsmTracks(tracks)
+            return
+          }
+        } catch {
+          // Les couches AFTU/TATA déjà disponibles restent affichées si Overpass est indisponible.
+        }
+      }
+    }
+    void loadTataRelation()
     return () => controller.abort()
   }, [])
 
@@ -574,6 +610,25 @@ function TransitMapView({
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
             <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU/TATA'} {track.line}</strong>
+          </Tooltip>
+        </Polyline>
+      ))}
+      {tataOsmTracks.map((track) => (
+        <Polyline
+          key={track.id}
+          positions={track.positions}
+          interactive
+          pathOptions={{
+            color: paintFor('aftu_tata')?.core ?? '#D97706',
+            weight: 1.9,
+            opacity: 0.72,
+            dashArray: '4 6',
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        >
+          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+            <strong>TATA {track.line}</strong>
           </Tooltip>
         </Polyline>
       ))}
