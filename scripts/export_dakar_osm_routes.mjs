@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
-const BBOX = "(14.55,-17.56,14.91,-17.12)";
+const BBOX = "(14.45,-17.62,15.02,-16.85)";
 const ENDPOINTS = [
   "https://overpass.private.coffee/api/interpreter",
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
@@ -10,8 +10,8 @@ const ENDPOINTS = [
   "https://overpass.nchc.org.tw/api/interpreter",
 ];
 const OUTPUT = "artifacts/osm/dakar-osm-route-candidates.json";
-const DAKAR_BOUNDS = { south: 14.55, west: -17.56, north: 14.91, east: -17.12 };
-const DAKAR_HINTS = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|sunu.?brt|dem.?dikk|aftu|tata/i;
+const DAKAR_BOUNDS = { south: 14.45, west: -17.62, north: 15.02, east: -16.85 };
+const DAKAR_HINTS = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|sangalkam|bambilor|noflaye|bayakh|yen(n)?e|toubab.?dialaw|dougar|diamniadio|keur.?ndiaye.?lo|niagues?|tivaouane.?peulh|kounoune|malika|yeumbeul|keur.?massar|mbao|bargny|sunu.?brt|dem.?dikk|aftu|tata/i;
 const QUERY = `[out:json][timeout:180];
 (
   relation["type"="route"]["route"="bus"]${BBOX};
@@ -95,7 +95,7 @@ function assessDakarScope(tags = {}, members = []) {
     return (member.geometry ?? []).some((point) => isInsideDakar(point));
   });
   const endpointText = [tags.from, tags.to, tags.via].filter(Boolean).join(" ");
-  const hasExplicitLocalEndpoint = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|colobane|hann|mbao|diamniadio/i.test(endpointText);
+  const hasExplicitLocalEndpoint = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|colobane|hann|mbao|diamniadio|sangalkam|bambilor|noflaye|bayakh|yen(n)?e|toubab.?dialaw|dougar|keur.?ndiaye.?lo|niagues?|tivaouane.?peulh|kounoune|malika|yeumbeul|keur.?massar|bargny/i.test(endpointText);
   const hasExplicitExternalEndpoints = Boolean(tags.from && tags.to)
     && !hasExplicitLocalEndpoint
     && !/dakar|dem.?dikk|aftu|tata|brt/i.test([tags.operator, tags.network, tags.name, tags.ref].filter(Boolean).join(" "));
