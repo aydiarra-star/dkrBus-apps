@@ -238,3 +238,14 @@ describe('cohérence des coûts du calculateur', () => {
     expect(rides.map((leg) => leg.line?.shortName)).toEqual(['DDD 227', 'AFTU 60'])
     expect(outcome.transfers).toBe(1)
   })
+
+it('relie Dakar à Keur Massar en TER puis AFTU 73 via la gare ferroviaire de Bargny', () => {
+  const outcome = planReferenceJourney(endpoint('ter-dakar'), endpoint('aftu-keur-massar-60'), 'fastest', {
+    allowedNetworks: ['ter', 'aftu_tata'],
+  })
+  expect(outcome.ok).toBe(true)
+  if (!outcome.ok) return
+  const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
+  expect(rides.map((leg) => leg.line?.shortName)).toEqual(['TER', 'AFTU 73'])
+  expect(outcome.transfers).toBe(1)
+})
