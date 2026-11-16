@@ -19,6 +19,8 @@ const QUERY = `[out:json][timeout:180];
   node["highway"="bus_stop"]["name"]${BBOX};
   node["public_transport"~"^(platform|stop_position)$"]["name"]${BBOX};
   node["amenity"="bus_station"]["name"]${BBOX};
+  way["public_transport"="platform"]["name"]${BBOX};
+  way["highway"="bus_stop"]["name"]${BBOX};
 );
 out body geom;
 >;
