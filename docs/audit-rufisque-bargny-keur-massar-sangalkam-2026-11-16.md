@@ -22,36 +22,53 @@ Le réseau officiel DDD indique notamment :
 Le catalogue courant AFTU affiche :
 - **53** : Terminus Keur Massar (Cité MTOA) – UCAD ;
 - **54** : Terminus Rufisque Sonadis – Petersen ;
+- **55** : Jaxaay 2 – Petersen ;
 - **56** : Liberté 6 – Rufisque ;
+- **57** : Sahm – Comico ;
+- **58** : Diamalaye – Cité Gendarmerie (Jaxaay) ;
 - **59** : Colobane – Bargny ;
-- **61** : Almadies – Keur Massar ;
-- **62** : Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) ;
-- **63** : Terminus Camp Marchand Rufisque – Stade LSS ;
-- **64** : Guédiawaye – Rufisque ;
-- **66** : Yoff – Gorom 1 ;
-- **67** : Ouakam – Thiawlène Rufisque ;
-- **68** : Yeumbeul – Sébikotane ;
-- **69** : Diamalaye – Terminus Tivaouane Peul ;
-- **70** : Daroukhane – Jaxaay 2 ;
-- **71** : Keur Massar – Claudel ;
-- **72** : Guédiawaye – Kounoune ;
+- **60** : Almadies – Keur Massar ;
+- **61** : Arrêt Chérif (Rufisque) – Penc Mi (Gueule Tapée) ;
+- **62** : Terminus Camp Marchand Rufisque – Stade LSS ;
+- **63** : Guédiawaye – Rufisque ;
+- **64** : Colobane – Jaxaay ;
+- **65** : Yoff – Gorom 1 ;
+- **66** : Ouakam – Thiawlène Rufisque ;
+- **67** : Yeumbeul – Sébikotane ;
+- **68** : Diamalaye – Terminus Tivaouane Peul ;
+- **69** : Daroukhane – Jaxaay 2 ;
+- **70** : Keur Massar – Claudel ;
+- **71** : Guédiawaye – Kounoune ;
+- **72** : Lac Rose – Poste Thiaroye ;
 - **73** : Terminus Bargny (gare ferroviaire) – Tivaouane Peul ;
+- **74** : Terminus Malika (Cité Sonatel) – Terminus Gare Routière Colobane ;
+- **75** : SIPRES – Cité Assurance ;
 - **76** : Rufisque – Liberté 5 ;
+- **77** : Diamaguène – Liberté 5 ;
 - **78** : Sangalkam – Cambérène ;
+- **79** : Diamalaye – Darou Thioub ;
+- **80** : Beaux Maraîchers – Tivaouane Peul ;
+- **81** : Lat Dior – Comico Yeumbeul ;
 - **82** : Rufisque Arafat – Zone de Captage ;
+- **83** : UCAD – Jaxaay ;
+- **84** : Banoba – Liberté 5 ;
+- **85** : Tournallou Boune – Toubab Dialaw ;
+- **86** : Bambilor – Mosquée Massalikou Djinane ;
+- **87** : MTOA – Liberté 5 ;
 - **88** : Bargny – Croisement Niague (Cité SICAP) ;
 - **89** : APIX – Dougar.
 
-Les fiches détaillées AFTU accessibles donnent des séquences utiles mais certaines pages ne correspondent pas clairement à l'intitulé du catalogue :
-- Fiche détaillée **60** : Colobane → autoroute → RN1 → Diamaguène → Sicap Mbao → Fass Mbao → Croisement Keur Massar → Dioutyba (Rufisque) → Sonadis → Sococim → Bargny.
-- Fiche détaillée **62** : Arrêt Chérif (Rufisque) → Arafat → Marché Mardi → Poste Courant → Sonadis → Dangou → Fass Rufisque → HLM Rufisque → Dioutyba → RN1 → Thiaroye → Penc Mi.
-- Fiche détaillée **63** : Parcelles Dior → Police des Parcelles → Case Bi → Cambérène → Bountou Pikine → Poste Thiaroye → Croisement Keur Massar → Keur Mbaye Fall → Rond-point Djouti Ba → Route des HLM Rufisque → Stade de Rufisque → Rufisque Nord 73 → Arrêt Khaar → Passage à niveau → Rond-point Arafat → Camp Marchand Rufisque.
-- Fiche détaillée **74** : Terminus Bargny (gare ferroviaire) → Colobane Rufisque → Poste Courant → RN1 → Boulevard Maurice Gueye → Rond-point Djouti Ba → Route des HLM Rufisque → échangeur Rufisque-Ouest → route de Jaxaay → Rond-point Station Shell Keur Massar → Terminus Keur Massar → Tivaouane Peul → Cité Socabeg → Cité Cocehas.
-- Fiche détaillée **79** : Terminus Sangalkam → Ndiakhirate → Croisement Niagues → Darou Thioub → Niacourab → Croisement Tivaouane Peulh → Station Keur Massar → Malika → Gadaye → Serigne Assane → Marché Boubess → Préfecture Guédiawaye → Cité Nations Unies / Cambérène.
-- Fiche détaillée **53** : Terminus Keur Massar (Marché) → Terminus P11 → Croisement Tivaouane Peulh → SAFCO → Niacourab → Niagues → Ndiakhirate → Keur Ndiaye Lo → Hôpital Youssou Mbargane → Dangou → Sonadis → Poste Courant → Sococim → Bargny → Diamniadio → Sébikotane. Cette séquence ne correspond pas à l'intitulé catalogue 53 MTOA–UCAD.
-- Fiche détaillée **54** : Terminus Keur Massar (MTOA) → Station Keur Massar → MTOA → Route de Boune → Mbedou Fass → Fass Mbao → RN1 → Poste Thiaroye → Place Bakou → Pont de Colobane → Canal 4 → UCAD. Cette séquence correspond à l'intitulé catalogue 53 MTOA–UCAD plutôt qu'au catalogue 54 Rufisque Sonadis–Petersen.
+Les fiches détaillées AFTU accessibles donnent des séquences utiles, mais leurs numéros de page ne correspondent pas toujours au numéro du catalogue :
+- Fiche détaillée **60** : Colobane → autoroute → RN1 → Diamaguène → Sicap Mbao → Fass Mbao → Croisement Keur Massar → Dioutyba (Rufisque) → Sonadis → Sococim → Bargny. Cette séquence correspond au **catalogue 59**.
+- Fiche détaillée **61** : Terminus Keur Massar → RN1 → Fass Mbao → Sicap Mbao → Poste Thiaroye → Autoroute → Patte d'Oie → Dispensaire Nabil Choucair → Aéroport → Terminus Almadies. Cette séquence correspond au **catalogue 60**. Moovit et le nom du nœud OSM « Terminus minibus n°61 » conservent le numéro 61 ; l'application utilise le numéro officiel du catalogue, **AFTU 60**.
+- Fiche détaillée **62** : Arrêt Chérif (Rufisque) → Arafat → Marché Mardi → Poste Courant → Sonadis → Dangou → Fass Rufisque → HLM Rufisque → Dioutyba → RN1 → Thiaroye → Penc Mi. Correspond au **catalogue 61**.
+- Fiche détaillée **63** : Parcelles Dior → Police des Parcelles → Case Bi → Cambérène → Bountou Pikine → Poste Thiaroye → Croisement Keur Massar → Keur Mbaye Fall → Rond-point Djouti Ba → Route des HLM Rufisque → Stade de Rufisque → Rufisque Nord 73 → Arrêt Khaar → Passage à niveau → Rond-point Arafat → Camp Marchand Rufisque. Correspond au **catalogue 62**.
+- Fiche détaillée **74** : Terminus Bargny (gare ferroviaire) → Colobane Rufisque → Poste Courant → RN1 → Boulevard Maurice Gueye → Rond-point Djouti Ba → Route des HLM Rufisque → échangeur Rufisque-Ouest → route de Jaxaay → Rond-point Station Shell Keur Massar → Terminus Keur Massar → Tivaouane Peul → Cité Socabeg → Cité Cocehas. Correspond au **catalogue 73**.
+- Fiche détaillée **79** : Terminus Sangalkam → Ndiakhirate → Croisement Niagues → Darou Thioub → Niacourab → Croisement Tivaouane Peulh → Station Keur Massar → Malika → Gadaye → Serigne Assane → Marché Boubess → Préfecture Guédiawaye → Cité Nations Unies / Cambérène. Correspond au **catalogue 78**.
+- Fiche détaillée **53** (Terminus Keur Massar marché → Sébikotane) ne correspond pas à l'intitulé catalogue 53 MTOA–UCAD.
+- Fiche détaillée **54** (Terminus Keur Massar MTOA → UCAD) correspond au **catalogue 53**, pas au catalogue 54 Rufisque Sonadis–Petersen.
 
-**Décision :** ne pas résoudre les écarts de numérotation ou d'intitulé par supposition. Les séquences sont conservées avec leur référence de page exacte jusqu'à confirmation AFTU. Le guide officiel JOJ 2026 constitue une photographie datée du réseau ; il ne doit pas écraser le catalogue et les fiches courantes lorsqu'ils divergent.
+**Décision :** les données du calculateur et de la carte utilisent les numéros du catalogue AFTU courant. Les numéros des fiches détaillées et de Moovit sont conservés comme références secondaires, sans les substituer aux numéros officiels.
 
 ## 2. Rufisque — points GPS vérifiables et limites
 
@@ -95,7 +112,7 @@ Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cet
 
 Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
 
-## 4. Keur Massar — terminus commun DDD / AFTU 61 et autres pôles séparés
+## 4. Keur Massar — terminus commun DDD / AFTU 60 et autres pôles séparés
 
 ### Terminus principal DDD / AFTU 61 — pôle commun confirmé
 
@@ -116,13 +133,13 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 
 - La fiche Moovit de la ligne 61 confirme 54 arrêts dans chaque sens et cite notamment Carrefour Mbao, Thiaroy, Stade de Ngor, Aéroport et Terminus 61.
 - Le terminus AFTU « Terminus 61 » à Almadies est situé à **31 m / 1 min à pied** de l'arrêt OSM « Arrêt autobus 217 et 218 – Dakar Dem Dikk », node 9562676804, **14.73475, -17.50863**.
-- Moovit indique que le pôle Terminus 61 est desservi par AFTU et Dakar Dem Dikk. Le calculateur utilise ce point comme repère GPS de l'extrémité Almadies de l'AFTU 61 ; il ne prétend pas que le quai AFTU est exactement sur le point DDD.
-- **Correspondance candidate supplémentaire : AFTU 61 ↔ DDD 217/218**, marche Moovit 31 m. Elle n'est pas encore activée : les lignes DDD 217/218 ne sont pas encore intégrées au graphe du calculateur.
+- Moovit indique que le pôle Terminus 61 est desservi par AFTU et Dakar Dem Dikk. Le calculateur utilise ce point comme repère GPS de l'extrémité Almadies de l'AFTU 60 ; il ne prétend pas que le quai AFTU est exactement sur le point DDD.
+- **Correspondance candidate supplémentaire : AFTU 60 ↔ DDD 217/218**, marche Moovit 31 m. Elle n'est pas encore activée : les lignes DDD 217/218 ne sont pas encore intégrées au graphe du calculateur.
 - Le point « Rond-point Ngor » reste un repère cartographique de corridor ; il n'est pas présenté comme un quai AFTU 61 tant que son attribution précise n'est pas confirmée.
 
 ### Autres pôles Keur Massar — à ne pas fusionner
 
-- **Terminus 52 (TATA)**, node 5286379847 : **14.77419, -17.31767**, réseau TATA selon OSM. Il est distinct du terminus DDD/AFTU 61.
+- **Terminus 52 (TATA)**, node 5286379847 : **14.77419, -17.31767**, réseau TATA selon OSM. Il est distinct du terminus DDD/AFTU 60.
 - **Gare routière de Keur Massar**, OSM way 335756472 : **14.76984, -17.31840**. C'est un autre site, environ 1,8 km du terminus DDD/AFTU 61 à vol d'oiseau.
 - **Service spéciale DDD**, node 5602711037 : **14.77054, -17.31875**. Arrêt OSM proche de la gare routière précédente, mais distinct du terminus DDD des lignes 11/227 ; ne pas le rattacher automatiquement à ces lignes.
 - **Station MTOA**, OSM way 339556843 : **14.78288, -17.32369**. C'est une station-service, pas un quai. Le catalogue AFTU indique **ligne 53 : Terminus Keur Massar (Cité MTOA) – UCAD** ; son quai MTOA doit rester distinct du terminus principal DDD/AFTU 61.
@@ -133,7 +150,7 @@ Le catalogue AFTU courant confirme **ligne 61 : Almadies – Keur Massar**. Sa f
 - **Aucune fusion automatique** avec TATA 52, la gare routière située plus au sud-ouest, l'arrêt Service spéciale DDD ou le terminus MTOA.
 - **Intégration active dans ce chantier : DDD 227 ↔ AFTU 61** au pôle commun, avec un transfert de pôle (`walkM: 0`). Cette valeur signifie que les deux lignes partagent la même gare routière ; elle ne prétend pas que les quais sont séparés de zéro mètre.
 - Le calculateur reçoit les deux sens de DDD 227 (69 arrêts par sens sur Moovit) et d'AFTU 61 (54 arrêts par sens sur Moovit), avec cinq repères GPS de corridor pour DDD 227 et quatre arrêts de référence pour AFTU 61. Le tracé cartographique passe par Ngor, mais le point OSM du rond-point n'est pas présenté comme un quai AFTU 61 tant que son attribution exacte n'est pas confirmée. Les séquences sont limitées aux points majeurs vérifiés ; elles ne remplacent pas encore une base exhaustive de tous les quais.
-- Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 61, 42 min comme valeur prudente (Moovit indique environ 20 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
+- Fréquences utilisées pour ces deux lignes : DDD 227, 30 min ; AFTU 60, 42 min comme valeur prudente (Moovit indique environ 20 min en semaine et 42 min le week-end, et le calculateur n'applique pas encore un calendrier par jour). Ces valeurs restent des références secondaires Moovit, pas des horaires officiels DDD/AFTU.
 - DDD 11 partage le même terminus GPS, mais n'est pas encore ajouté au calculateur : la séquence officielle DDD annonce Lat Dior tandis que la fiche Moovit consultée annonce Leclerc. Ce désaccord doit être résolu avant d'intégrer cette ligne.
 - Aucune donnée, station, séquence ou fréquence TER/BRT n'est modifiée.
 
