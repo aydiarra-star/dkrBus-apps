@@ -797,7 +797,7 @@ function TransitMapView({
                 </div>
               </Tooltip>
               {directionIndex === 0 && (
-                <Tooltip permanent direction="center" opacity={0.88} className="mobility-route-name-label" style={{ color: paint?.core ?? line.color }}>
+                <Tooltip permanent direction="center" opacity={0.88} className={`mobility-route-name-label${paint ? ` mobility-${paint.id}` : ''} `}>
                   {line.shortName}
                 </Tooltip>
               )}
