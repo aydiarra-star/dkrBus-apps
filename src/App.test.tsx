@@ -735,6 +735,7 @@ describe('published snapshot in the app', () => {
     expect(query.get('destination')).toBe('D6')
     expect(query.get('at')).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     expect(query.get('max_walk_m')).toBe('900')
+    expect(query.get('networks')).toBe('ter,brt,ddd,aftu_tata')
   })
 
   it('actualise le compte à rebours programmé sans recharger et nettoie son timer', async () => {
