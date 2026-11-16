@@ -12,6 +12,7 @@ import { keyboardIsOpen, shouldResizeMap, summonsKeyboard } from '../domain/view
 import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_URBAN_ARCGIS_ROUTE_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureTracks, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
+import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 
 export interface Coordinates {
   lat: number
@@ -491,6 +492,33 @@ function TransitMapView({
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
+      {GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => {
+        const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
+        const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
+        const dddColor = paintFor('ddd')?.core ?? '#F59E0B'
+        const aftuColor = paintFor('aftu_tata')?.core ?? '#D97706'
+        return (
+          <CircleMarker
+            key={`coverage-${point.id}`}
+            center={[point.lat, point.lon]}
+            radius={dddLines.length > 0 && aftuLines.length > 0 ? 4.5 : 3.5}
+            pathOptions={{
+              color: dddLines.length > 0 ? dddColor : aftuColor,
+              fillColor: aftuLines.length > 0 ? aftuColor : dddColor,
+              weight: 1.4,
+              opacity: 0.92,
+              fillOpacity: 0.78,
+            }}
+          >
+            <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
+              <strong>{point.name}</strong>
+              <div>Zone desservie</div>
+              {dddLines.length > 0 && <div>DDD · {dddLines.join(', ')}</div>}
+              {aftuLines.length > 0 && <div>AFTU/TATA · {aftuLines.join(', ')}</div>}
+            </Tooltip>
+          </CircleMarker>
+        )
+      })}
       {dddArcgisTracks.map((track) => (
         <Polyline
           key={track.id}
