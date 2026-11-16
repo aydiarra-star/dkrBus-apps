@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { ArrowRight, Footprints, Info, Route as RouteIcon } from 'lucide-react'
 import { ALL_CORRIDOR_STOPS, networkLabelOf } from '../domain/corridors'
-import { formatMeters, planReferenceJourney, type PlannerEndpoint, type PlannerOutcome } from '../domain/planner'
+import { formatMeters, planReferenceJourney, PRIORITY_HINTS, PRIORITY_LABELS, type PlannerEndpoint, type PlannerOutcome, type PlannerPriority } from '../domain/planner'
 import { MobilityLineBadges } from './MobilityBadge'
 import { PlannerLegList } from './PlannerLegList'
 
@@ -38,9 +38,9 @@ function endpointFromSelection(value: string, mapPoint: PlannerPoint | null, kin
 }
 
 /**
- * Calculatrice de correspondances multimodale (TER + BRT) sur le réseau de
- * référence. Module ajouté à l'onglet Itinéraire : il ne remplace ni ne
- * modifie la recherche de courses directes publiée existante.
+ * Calculatrice de trajets multimodaux sur le réseau de référence.
+ * Les trois critères sont calculés sur le même graphe et les mêmes arrêts :
+ * le plus rapide, le moins de changements et le moins de marche.
  */
 export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: MultimodalPlannerProps) {
   const [pickedOrigin, setOriginValue] = useState<string>('ter-dakar')
@@ -49,12 +49,15 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
   // (sinon le <select> afficherait une option absente de la liste).
   const originValue = pickedOrigin === MAP_ORIGIN_VALUE && !mapOrigin ? DEFAULT_ORIGIN_STOP_ID : pickedOrigin
   const destinationValue = pickedDestination === MAP_DESTINATION_VALUE && !mapDestination ? DEFAULT_DESTINATION_STOP_ID : pickedDestination
-  const [result, setResult] = useState<{ key: string; outcome: PlannerOutcome } | null>(null)
+  const priorities: readonly PlannerPriority[] = ['fastest', 'fewerTransfers', 'lessWalking']
+  const [result, setResult] = useState<{ key: string; outcomes: Record<PlannerPriority, PlannerOutcome> } | null>(null)
+  const [selectedPriority, setSelectedPriority] = useState<PlannerPriority>('fastest')
 
   // Le résultat n’est affiché que tant que les points demandés sont inchangés :
   // un point modifié sur la carte ou dans la liste n’affiche jamais l’ancien trajet.
   const selectionKey = [originValue, destinationValue, pointKey(mapOrigin), pointKey(mapDestination)].join('|')
-  const outcome = result && result.key === selectionKey ? result.outcome : null
+  const outcomes = result && result.key === selectionKey ? result.outcomes : null
+  const outcome = outcomes?.[selectedPriority] ?? null
 
   const originOptions = useMemo(
     () => [
@@ -76,10 +79,15 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
     const origin = endpointFromSelection(originValue, mapOrigin, 'origin')
     const destination = endpointFromSelection(destinationValue, mapDestination, 'destination')
     if (!origin || !destination) {
-      setResult({ key: selectionKey, outcome: { ok: false, reason: 'SAME_POINT', message: 'Choisissez un départ et une destination valides.' } })
+      const failure: PlannerOutcome = { ok: false, reason: 'SAME_POINT', message: 'Choisissez un départ et une destination valides.' }
+      setResult({ key: selectionKey, outcomes: { fastest: failure, fewerTransfers: failure, lessWalking: failure, lowestFare: failure } })
       return
     }
-    setResult({ key: selectionKey, outcome: planReferenceJourney(origin, destination) })
+    const calculated = Object.fromEntries(
+      priorities.map((priority) => [priority, planReferenceJourney(origin, destination, priority)]),
+    ) as Record<PlannerPriority, PlannerOutcome>
+    setResult({ key: selectionKey, outcomes: calculated })
+    setSelectedPriority('fastest')
   }
 
   return (
@@ -116,18 +124,47 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
         <p className="planner-error" role="status">{outcome.message}</p>
       )}
 
-      {outcome && outcome.ok && (
+      {outcomes && (
         <div className="planner-result" role="status">
-          <div className="planner-summary">
-            <strong>≈ {outcome.totalMinutes} min</strong>
-            <span>{outcome.transfers} correspondance{outcome.transfers > 1 ? 's' : ''}</span>
-            <span className="strip-divider" />
-            <span><Footprints size={13} /> {formatMeters(outcome.totalWalkM)}</span>
-            {outcome.boardedLines.length > 0 && <span className="strip-divider" />}
-            {outcome.boardedLines.length > 0 && <MobilityLineBadges names={outcome.boardedLines} />}
+          <div className="planner-alternatives" aria-label="Comparer les itinéraires">
+            {priorities.map((priority) => {
+              const candidate = outcomes[priority]
+              const available = candidate.ok
+              return (
+                <button
+                  key={priority}
+                  type="button"
+                  className={`planner-alternative${selectedPriority === priority ? ' is-selected' : ''}`}
+                  aria-pressed={selectedPriority === priority}
+                  disabled={!available}
+                  onClick={() => setSelectedPriority(priority)}
+                  title={PRIORITY_HINTS[priority]}
+                >
+                  <strong>{PRIORITY_LABELS[priority]}</strong>
+                  {available ? (
+                    <span>≈ {candidate.totalMinutes} min · {candidate.transfers} changement{candidate.transfers > 1 ? 's' : ''} · {formatMeters(candidate.totalWalkM)} à pied</span>
+                  ) : (
+                    <span>Pas de parcours disponible</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
-          <PlannerLegList legs={outcome.legs} />
-          <p className="planner-footnote"><Info size={13} /> {outcome.limitation}</p>
+          {outcome && !outcome.ok && <p className="planner-error">{outcome.message}</p>}
+          {outcome && outcome.ok && (
+            <>
+              <div className="planner-summary">
+                <strong>≈ {outcome.totalMinutes} min</strong>
+                <span>{outcome.transfers} correspondance{outcome.transfers > 1 ? 's' : ''}</span>
+                <span className="strip-divider" />
+                <span><Footprints size={13} /> {formatMeters(outcome.totalWalkM)}</span>
+                {outcome.boardedLines.length > 0 && <span className="strip-divider" />}
+                {outcome.boardedLines.length > 0 && <MobilityLineBadges names={outcome.boardedLines} />}
+              </div>
+              <PlannerLegList legs={outcome.legs} />
+              <p className="planner-footnote"><Info size={13} /> {outcome.limitation}</p>
+            </>
+          )}
         </div>
       )}
     </section>
