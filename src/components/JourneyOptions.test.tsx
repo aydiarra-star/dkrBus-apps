@@ -46,6 +46,7 @@ describe('correspondance dans un même pôle', () => {
     )
     expect(screen.getByText(/distance de marche interne non mesurée/i)).toBeTruthy()
     expect(screen.getByText('Même pôle')).toBeTruthy()
-    expect(screen.queryByText(/0 min/)).toBeNull()
+    expect(document.querySelector('.planner-leg-time')?.textContent).toBe('Même pôle')
+    expect(document.querySelector('.planner-leg-copy')?.textContent).not.toMatch(/0 min/)
   })
 })
