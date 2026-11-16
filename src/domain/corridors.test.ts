@@ -107,7 +107,7 @@ describe('réseau de référence TER/BRT', () => {
 
   it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
     expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(6)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(7)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 

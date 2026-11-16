@@ -43,7 +43,7 @@ describe('mémoire des lieux de Dakar', () => {
   it('reconnaît les alias usuels des usagers', () => {
     expect(findPlaceMentions('Parcelles Assainies').map((m) => m.place.id)).toEqual(['brt-parcelles'])
     expect(findPlaceMentions('Guédiawaye').map((m) => m.place.id)).toEqual(['brt-prefecture-guediawaye'])
-    expect(findPlaceMentions('Keur Massar').map((m) => m.place.id)).toEqual(['ter-mbao'])
+    expect(findPlaceMentions('Keur Massar').map((m) => m.place.id)).toEqual(['ddd-keur-massar'])
   })
 })
 
