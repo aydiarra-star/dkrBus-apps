@@ -12,6 +12,18 @@ La fiche officielle AFTU 42 décrit le parcours :
 
 Source officielle : https://aftu-senegal.org/map/dakar-urbain-ligne-42/
 
+### Séquences distinctes dans les deux sens
+
+Moovit publie deux fiches directionnelles distinctes pour la ligne 42 :
+- **Vers Ouakam : 70 arrêts**, de « Arrêt de Bus » à « Rue OKM 282, 222 ».
+- **Vers Guédiawaye : 68 arrêts**, de « Stade Municipal » à « Arrêt de Bus ».
+
+Les listes ne sont pas de simples inversions l'une de l'autre : elles présentent des arrêts de fin et des segments différents. Il faut donc conserver deux séquences séparées et ne pas reconstruire le retour en inversant une liste unique. Les libellés génériques « Arrêt de Bus » ne sont pas des points géographiques identifiables.
+
+Sources :
+- https://moovitapp.com/index/fr/transport_en_commun-line-42-Dakar-5996-1618038-18051474-1
+- https://moovitapp.com/index/fr/transport_en_commun-line-42-Dakar-5996-1618038-18051474-0
+
 ### AFTU 42 à l'hôpital Dalal Jamm
 
 Moovit liste explicitement la ligne AFTU 42 à l'arrêt « Hôpital Dallal Jamm », dans les deux sens de desserte consultables. Les pages indiquent des arrêts voisins et des distances piétonnes depuis l'hôpital, mais ne fournissent pas une coordonnée de quai exploitable dans cette recherche.
