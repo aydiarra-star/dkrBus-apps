@@ -306,17 +306,17 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
-function mobilityStopLabel(mobility: MobilityId | null, stopId?: string): string {
+function mobilityStopLabel(mobility: MobilityId | null): string {
   if (mobility === 'ter') return 'TER'
   if (mobility === 'brt') return 'BRT'
   if (mobility === 'ddd') return 'DDD'
-  if (mobility === 'aftu_tata') return stopId?.toLowerCase().includes('tata') ? 'TATA' : 'AFTU'
+  if (mobility === 'aftu_tata') return 'AFTU'
   return 'BUS'
 }
 
-function makeMobilityStopLabel(mobility: MobilityId | null, label: string, stopId?: string, displayLabel?: string): DivIcon {
+function makeMobilityStopLabel(mobility: MobilityId | null, label: string, _stopId?: string, displayLabel?: string): DivIcon {
   const paint = mobility ? mobilityPaint(mobility) : null
-  const shortLabel = displayLabel ?? mobilityStopLabel(mobility, stopId)
+  const shortLabel = displayLabel ?? mobilityStopLabel(mobility)
   const network = mobility ?? 'bus'
   const color = paint?.core ?? '#64748B'
   const width = Math.max(22, shortLabel.length * 6)
