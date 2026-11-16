@@ -430,37 +430,34 @@ function planWith(
     if (fromOrder < 0) continue
     // Une séquence directionnelle ne progresse que vers l'arrêt suivant.
     const toOrder = fromOrder + 1
-    if (toOrder >= sequence.length) {
-      // À l'extrémité, l'usager peut descendre, mais pas repartir à rebours.
-      continue
-    }
-    {
+    if (toOrder < sequence.length) {
       const targetId = sequence[toOrder]
       const target = getCorridorStop(targetId)
-      if (!target) continue
-      const segment = rideMinutes(line, sequence, fromOrder, toOrder)
-      const dwell = dwellMinutes(line.network)
-      const minutes = segment.minutes + dwell
-      const fare = fareForJourney([{ line, fromStopId: currentStopId, toStopId: targetId }], { terClass: options.terClass })
-      relax(currentKey, {
-        to: onBoardKey(targetId, line.id, directionIndex!),
-        cost: minutes + (fare.totalCfa ?? fare.knownSubtotalCfa ?? 0) * fareWeight,
-        elapsed: minutes,
-        leg: {
-          kind: 'ride',
-          line,
-          from: currentStop.name,
-          to: target.name,
-          fromId: currentStopId,
-          toId: targetId,
-          distanceM: Math.round(segment.distanceM),
-          minutes: Math.max(1, Math.round(minutes)),
-          travelMinutes: Math.max(1, Math.round(segment.minutes)),
-          intermediateStops: segment.intermediate,
-          intermediateStopIds: segment.intermediateIds,
-          frequencyBasis: headwayForLine(line).basis,
-        },
-      })
+      if (target) {
+        const segment = rideMinutes(line, sequence, fromOrder, toOrder)
+        const dwell = dwellMinutes(line.network)
+        const minutes = segment.minutes + dwell
+        const fare = fareForJourney([{ line, fromStopId: currentStopId, toStopId: targetId }], { terClass: options.terClass })
+        relax(currentKey, {
+          to: onBoardKey(targetId, line.id, directionIndex!),
+          cost: minutes + (fare.totalCfa ?? fare.knownSubtotalCfa ?? 0) * fareWeight,
+          elapsed: minutes,
+          leg: {
+            kind: 'ride',
+            line,
+            from: currentStop.name,
+            to: target.name,
+            fromId: currentStopId,
+            toId: targetId,
+            distanceM: Math.round(segment.distanceM),
+            minutes: Math.max(1, Math.round(minutes)),
+            travelMinutes: Math.max(1, Math.round(segment.minutes)),
+            intermediateStops: segment.intermediate,
+            intermediateStopIds: segment.intermediateIds,
+            frequencyBasis: headwayForLine(line).basis,
+          },
+        })
+      }
     }
     // Descendre à l'arrêt courant : coût nul, mais un état « à pied » existe déjà
     // ou est créé ici pour permettre la poursuite à pied / en correspondance.
