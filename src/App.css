@@ -3303,7 +3303,7 @@ button:disabled { cursor: not-allowed; }
   }
   .app-shell.tab-route .route-panel .point-search-input {
     height: 29px;
-    font-size: 15px;
+    font-size: 16px;
     text-overflow: clip;
   }
   .app-shell.tab-route .route-panel .route-origin-group + .swap-route { display: none; }
