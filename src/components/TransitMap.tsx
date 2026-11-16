@@ -306,11 +306,11 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
-function mobilityStopLabel(mobility: MobilityId | null, stopId?: string): string {
+function mobilityStopLabel(mobility: MobilityId | null, _stopId?: string): string {
   if (mobility === 'ter') return 'TER'
   if (mobility === 'brt') return 'BRT'
   if (mobility === 'ddd') return 'DDD'
-  if (mobility === 'aftu_tata') return stopId?.toLowerCase().includes('tata') ? 'TATA' : 'AFTU'
+  if (mobility === 'aftu_tata') return 'AFTU'
   return 'BUS'
 }
 
@@ -324,7 +324,9 @@ function makeMobilityStopLabel(mobility: MobilityId | null, label: string, stopI
     className: 'mobility-stop-label-shell',
     html: `<span class="mobility-stop-label mobility-stop-label-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`${shortLabel} — ${label}`)}" style="--stop-label-color:${escapeHtml(color)}">${escapeHtml(shortLabel)}</span>`,
     iconSize: [width, 10],
-    iconAnchor: [width / 2, 5],
+    // TER/BRT conservent leur ancrage centré ; les nouveaux libellés bus
+    // s'ouvrent vers l'intérieur des terres au lieu de déborder côté océan.
+    iconAnchor: mobility === 'ter' || mobility === 'brt' ? [width / 2, 5] : [0, 5],
   })
 }
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {

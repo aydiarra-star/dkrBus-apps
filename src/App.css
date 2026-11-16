@@ -2888,15 +2888,15 @@ button:disabled { cursor: not-allowed; }
   stroke-linecap: round;
   pointer-events: none;
 }
-.mobility-stop-label { font-size: 7.5px; }
+.mobility-stop-label { font-size: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .mobility-route-flow { animation: none !important; }
 }
 
 
-/* Les sigles restent du texte nu, sans pastille ni fond, à tous les zooms. */
-.leaflet-map--citywide .mobility-stop-label { font-size: 6px; letter-spacing: -.045em; }
-.leaflet-map--district .mobility-stop-label { font-size: 7px; letter-spacing: -.04em; }
+/* Tous les réseaux gardent la taille de référence TER/BRT, quel que soit le zoom. */
+.leaflet-map--citywide .mobility-stop-label,
+.leaflet-map--district .mobility-stop-label { font-size: 8px; letter-spacing: -.035em; }
 /* Un seul nom court par itinéraire, placé discrètement sur son tracé. */
 .leaflet-tooltip.mobility-route-name-label {
   margin: 0;
