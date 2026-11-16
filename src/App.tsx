@@ -1339,23 +1339,35 @@ function App() {
       return
     }
     let unclassifiedExcluded = 0
+    let disabledNetworkExcluded = 0
     const filteredResults = parsed.value.results.filter((candidate) => {
       const network = mobilityFromLabel(`${candidate.routeShortName ?? ''} ${candidate.routeLongName ?? ''} ${candidate.routeId}`)
-      if (network) return activeNetworks.includes(network)
+      if (network) {
+        if (activeNetworks.includes(network)) return true
+        disabledNetworkExcluded += 1
+        return false
+      }
       if (activeNetworks.length === MOBILITY_IDS.length) return true
       unclassifiedExcluded += 1
       return false
     })
+    const filterNotes = [
+      disabledNetworkExcluded > 0
+        ? `${disabledNetworkExcluded} course${disabledNetworkExcluded > 1 ? 's' : ''} appartenant à un réseau désactivé ${disabledNetworkExcluded > 1 ? 'ont été écartées' : 'a été écartée'}.`
+        : null,
+      unclassifiedExcluded > 0
+        ? `${unclassifiedExcluded} course${unclassifiedExcluded > 1 ? 's' : ''} sans réseau identifiable ${unclassifiedExcluded > 1 ? 'ont été écartées' : 'a été écartée'} avec les filtres actifs.`
+        : null,
+    ].filter(Boolean)
     const filteredSearch: JourneySearch = {
       ...parsed.value,
       results: filteredResults,
       reason: filteredResults.length > 0 ? 'DIRECT_RIDE_FOUND' : 'NO_DIRECT_SERVICE',
-      limitations: [
-        parsed.value.limitations,
-        unclassifiedExcluded > 0
-          ? `${unclassifiedExcluded} course${unclassifiedExcluded > 1 ? 's' : ''} sans réseau identifiable ${unclassifiedExcluded > 1 ? 'ont été écartées' : 'a été écartée'} avec les filtres actifs.`
-          : null,
-      ].filter(Boolean).join(' ') || null,
+      message: filteredResults.length === 0 && parsed.value.results.length > 0
+        ? 'Aucune course directe ne correspond aux réseaux actuellement activés.'
+        : parsed.value.message,
+      nextServiceDate: parsed.value.results.length > 0 && filteredResults.length === 0 ? null : parsed.value.nextServiceDate,
+      limitations: [parsed.value.limitations, ...filterNotes].filter(Boolean).join(' ') || null,
     }
     setJourney({ status: 'ready', search: filteredSearch, error: null, errorCode: null })
     const found = filteredSearch.results.length
