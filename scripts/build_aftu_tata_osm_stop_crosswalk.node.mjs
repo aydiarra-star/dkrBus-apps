@@ -9,7 +9,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const GENERIC = new Set(['arret','de','du','des','la','le','les','bus','stop','station','gare','terminus','a','au','aux']);
-const BOUNDS = { south: 14.55, west: -17.56, north: 14.91, east: -17.12 };
+const BOUNDS = { south: 14.45, west: -17.62, north: 15.02, east: -16.85 };
 
 export function normalizeStopName(value) {
   return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
