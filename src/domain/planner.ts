@@ -203,9 +203,11 @@ export function directedStopSequences(line: CorridorLine): readonly (readonly st
 /** Intervalle réellement appliqué à une ligne, et sa nature.
  * Une ligne sans grille publiée reçoit la fréquence de repli du modèle :
  * l'écart est signalé, jamais masqué. */
-export function headwayForLine(line: CorridorLine): { minutes: number; basis: 'officialReference' | 'estimatedFrequency'; fallback: string | null } {
+export function headwayForLine(line: CorridorLine, at: Date = new Date()): { minutes: number; basis: 'officialReference' | 'estimatedFrequency'; fallback: string | null } {
   if (line.frequencyStatus === 'OFFICIAL_REFERENCE' || line.frequencyStatus === 'SCHEDULED') {
-    return { minutes: line.headwayMin, basis: 'officialReference', fallback: null }
+    const isWeekend = at.getUTCDay() === 0 || at.getUTCDay() === 6
+    const minutes = isWeekend && line.weekendHeadwayMin ? line.weekendHeadwayMin : line.headwayMin
+    return { minutes, basis: 'officialReference', fallback: null }
   }
   const fallback = fallbackHeadwayMinutes(line.network)
   if (fallback === line.headwayMin) {
