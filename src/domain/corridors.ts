@@ -95,10 +95,10 @@ export interface CorridorNetwork {
  * périphériques : Dakar, Keur Massar, Sangalkam, Bayakh, Rufisque, Bargny,
  * Yène, Toubab Dialaw, Dougar, Diamniadio et les pôles du littoral. */
 export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: number; maxLon: number } = {
-  minLat: 14.45,
-  minLon: -17.62,
-  maxLat: 15.02,
-  maxLon: -16.85,
+  minLat: 14.55,
+  minLon: -17.56,
+  maxLat: 14.88,
+  maxLon: -17.05,
 }
 
 export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
