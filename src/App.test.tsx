@@ -1483,10 +1483,10 @@ describe('barre de recherche du Trajet', () => {
     expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
 
     for (const network of ['ter', 'ddd', 'aftu_tata'] as const) {
-      const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu \\/ tata' : network, 'i') })
+      const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu' : network, 'i') })
       if (button.getAttribute('aria-pressed') === 'true') fireEvent.click(button)
     }
-    const remaining = within(filters).getByRole('button', { name: /aftu \/ tata actif/i })
+    const remaining = within(filters).getByRole('button', { name: /aftu actif/i })
     expect(remaining).toHaveProperty('disabled', true)
     expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
   })
