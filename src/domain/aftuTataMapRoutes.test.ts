@@ -29,8 +29,8 @@ describe('corridors cartographiques AFTU/TATA', () => {
 })
 
 
-  it('positionne le terminus AFTU 61 sur le pôle partagé de Keur Massar', () => {
-    const route = AFTU_TATA_MAP_ROUTES.find((entry) => entry.id === 'aftu-61')
+  it('positionne le terminus AFTU 60 sur le pôle partagé de Keur Massar', () => {
+    const route = AFTU_TATA_MAP_ROUTES.find((entry) => entry.id === 'aftu-60')
     expect(route?.waypoints[0]).toMatchObject({ name: 'Keur Massar', lat: 14.78542, lon: -17.30922 })
     expect(route?.waypoints[4]).toMatchObject({ name: 'Almadies', lat: 14.73475, lon: -17.50863 })
     expect(route?.waypoints.map((point) => point.name)).toEqual([
