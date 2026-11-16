@@ -3210,7 +3210,7 @@ button:disabled { cursor: not-allowed; }
     scrollbar-width: none;
   }
   .app-shell.tab-route .route-panel .route-coverage::-webkit-scrollbar { display: none; }
-  .app-shell.tab-route .route-panel .route-coverage > .mobility-badge {
+  .app-shell.tab-route .route-panel .route-coverage-item > .mobility-badge {
     position: relative;
     display: inline-flex;
     flex: 0 0 auto;
@@ -3232,7 +3232,7 @@ button:disabled { cursor: not-allowed; }
     white-space: nowrap;
     box-shadow: none;
   }
-  .app-shell.tab-route .route-panel .route-coverage > .mobility-badge::after {
+  .app-shell.tab-route .route-panel .route-coverage-item > .mobility-badge::after {
     position: absolute;
     right: 0;
     bottom: -3px;
@@ -3376,57 +3376,59 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 480px) {
   .app-shell.tab-route .route-panel { padding-right: 11px; padding-left: 11px; }
   .app-shell.tab-route .route-panel .route-coverage { gap: 6px; }
-  .app-shell.tab-route .route-panel .route-coverage > .mobility-badge { min-width: 42px; padding-right: 6px; padding-left: 6px; }
+  .app-shell.tab-route .route-panel .route-coverage-item > .mobility-badge { min-width: 42px; padding-right: 6px; padding-left: 6px; }
   .app-shell.tab-route .route-panel .point-option { padding-right: 7px; padding-left: 7px; }
 }
 
 
-/* Guide de trajet : seconde rangée de segments colorés, sans libellé. */
-.route-coverage-bars {
+/* Chaque badge et son trait partagent le même bloc : largeur et axe garantis. */
+.app-shell.tab-route .route-panel .route-coverage {
   display: flex;
-  align-items: center;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 8px;
   width: max-content;
   max-width: 100%;
-  margin: 5px 0 0;
-  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
 }
-.route-coverage-bar {
-  display: block;
+.app-shell.tab-route .route-panel .route-coverage::-webkit-scrollbar { display: none; }
+.app-shell.tab-route .route-panel .route-coverage-item {
+  display: flex;
   flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  width: max-content;
+  min-width: 0;
+  gap: 5px;
+}
+.app-shell.tab-route .route-panel .route-coverage-item > .mobility-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-self: stretch;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  max-width: none !important;
+  white-space: nowrap;
+}
+.app-shell.tab-route .route-panel .route-coverage-bar {
+  display: block;
+  flex: 0 0 4px;
+  width: 100%;
+  min-width: 0;
   height: 4px;
+  min-height: 4px;
+  max-height: 4px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: var(--mobility-badge);
+  opacity: 1;
+  box-shadow: none;
 }
-.route-coverage-bar.mobility-ter { width: 52px; }
-.route-coverage-bar.mobility-brt { width: 52px; }
-.route-coverage-bar.mobility-ddd { width: 52px; }
-.route-coverage-bar.mobility-aftu_tata { width: 92px; }
-
-@media (max-width: 820px) {
-  .app-shell.tab-route .route-panel .route-coverage-bars {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    width: max-content;
-    max-width: 100%;
-    margin: 5px 0 0;
-    padding: 0 0 2px;
-    overflow: visible;
-  }
-  .app-shell.tab-route .route-panel .route-coverage-bar {
-    display: block;
-    height: 4px;
-    min-height: 4px;
-    max-height: 4px;
-    border: 0;
-    border-radius: 999px;
-    opacity: 1;
-    box-shadow: none;
-  }
-  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-ter { width: 52px; background: #003366; }
-  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-brt { width: 52px; background: #00A859; }
-  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-ddd { width: 52px; background: #F59E0B; }
-  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-aftu_tata { width: 92px; background: #C05621; }
-}
+.app-shell.tab-route .route-panel .route-coverage-bar.mobility-ter { background: #003366; }
+.app-shell.tab-route .route-panel .route-coverage-bar.mobility-brt { background: #00A859; }
+.app-shell.tab-route .route-panel .route-coverage-bar.mobility-ddd { background: #F59E0B; }
+.app-shell.tab-route .route-panel .route-coverage-bar.mobility-aftu_tata { background: #C05621; }
