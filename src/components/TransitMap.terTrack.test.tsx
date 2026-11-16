@@ -128,8 +128,8 @@ describe('carte : tracé du TER sur les voies réelles', () => {
   })
 })
 
-describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () => {
-  it('affiche le sigle TER aux gares TER et aucune pastille bus sur la géométrie ferroviaire', () => {
+describe('carte : libellés texte des arrêts et exclusivité des corridors', () => {
+  it('affiche uniquement le texte TER aux gares TER et aucun autre réseau sur la géométrie ferroviaire', () => {
     drawMap()
     const markers = drawn.markers as Array<{
       position: [number, number]
@@ -155,7 +155,22 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
         return meters <= 35
       })
       if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="ter"')
-      expect(marker.icon.options.iconSize).toEqual([25, 16])
+      expect(String(marker.icon.options.html)).toContain('mobility-stop-label')
+      expect(String(marker.icon.options.html)).not.toContain('mobility-stop-badge')
+      expect(String(marker.icon.options.html)).not.toContain('background:')
+    }
+
+    for (const marker of markers) {
+      const nearBrtTrack = BRT_B1_TRACKS.some((track) => track.positions.slice(1).some((end, index) => {
+        const start = track.positions[index]
+        const lat = (start[0] + end[0]) / 2
+        const meters = Math.hypot(
+          (marker.position[0] - lat) * 111_000,
+          (marker.position[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
+        )
+        return meters <= 35
+      }))
+      if (nearBrtTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="brt"')
     }
   })
 
@@ -168,19 +183,24 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
     const networkStopIds = new Set(lines.flatMap((line) => line.stopIds))
     const networkStops = ALL_CORRIDOR_STOPS.filter((stop) => networkStopIds.has(stop.id))
     drawMap(lines, networkStops)
-    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement; iconSize: [number, number] } } }>
-    expect(markers.length).toBeGreaterThan(0)
-    expect(markers.every((marker) =>
+    const markers = drawn.markers as Array<{ position: [number, number]; icon: { options: { html: string | HTMLElement; iconSize: [number, number] } } }>
+    const expectedPositions = new Set(networkStops.map((stop) => `${stop.lat},${stop.lon}`))
+    const stopMarkers = markers.filter((marker) => expectedPositions.has(`${marker.position[0]},${marker.position[1]}`))
+    expect(stopMarkers.length).toBeGreaterThan(0)
+    expect(stopMarkers.every((marker) =>
       String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
-      String(marker.icon.options.html).includes(`>${label}</span>`) &&
-      marker.icon.options.iconSize[0] === 25,
+      (network === 'aftu_tata'
+        ? />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html))
+        : String(marker.icon.options.html).includes(`>${label}</span>`)) &&
+      String(marker.icon.options.html).includes('mobility-stop-label') &&
+      !String(marker.icon.options.html).includes('mobility-stop-badge'),
     )).toBe(true)
     if (network === 'aftu_tata') {
-      expect(markers.every((marker) => !String(marker.icon.options.html).includes('TATA'))).toBe(true)
+      expect(stopMarkers.every((marker) => />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html)))).toBe(true)
     }
   })
 
-  it('identifie les arrêts sans réseau déclaré comme BUS', () => {
+  it('identifie les arrêts sans réseau déclaré par le libellé BUS', () => {
     drawMap([], [{
       id: 'bus-stop-test',
       name: 'Arrêt bus test',
@@ -189,10 +209,11 @@ describe('carte : pastilles textuelles des arrêts et exclusivité du TER', () =
       order: 0,
       aliases: [],
     }])
-    const markers = drawn.markers as Array<{ icon: { options: { html: string | HTMLElement } } }>
-    expect(markers).toHaveLength(1)
-    expect(String(markers[0].icon.options.html)).toContain('data-mobility="bus"')
-    expect(String(markers[0].icon.options.html)).toContain('>BUS</span>')
+    const markers = drawn.markers as Array<{ position: [number, number]; icon: { options: { html: string | HTMLElement } } }>
+    const testMarkers = markers.filter((marker) => marker.position[0] === 14.7 && marker.position[1] === -17.4)
+    expect(testMarkers).toHaveLength(1)
+    expect(String(testMarkers[0].icon.options.html)).toContain('data-mobility="bus"')
+    expect(String(testMarkers[0].icon.options.html)).toContain('>BUS</span>')
   })
 })
 

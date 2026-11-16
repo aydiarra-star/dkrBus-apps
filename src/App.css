@@ -311,24 +311,25 @@ button:disabled { cursor: not-allowed; }
 .control-divider { display: block; height: 1px; margin: 2px 3px; background: #e8efec; }
 
 .dakar-marker-shell { border: 0; background: transparent; }
-.mobility-stop-badge-shell { border: 0; background: transparent; overflow: visible; }
-.mobility-stop-badge {
-  display: grid;
-  width: 30px;
-  height: 18px;
-  place-items: center;
-  border: 1.5px solid rgba(255, 255, 255, .96);
-  border-radius: 999px;
-  background: var(--stop-badge-color);
-  box-shadow: 0 1px 4px rgba(15, 35, 25, .28);
-  color: var(--stop-badge-ink);
+.mobility-stop-label-shell { border: 0; background: transparent; overflow: visible; }
+.mobility-stop-label {
+  display: block;
+  width: max-content;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--stop-label-color);
   font-size: 8px;
-  font-weight: 800;
-  letter-spacing: -.02em;
+  font-weight: 900;
+  letter-spacing: -.035em;
   line-height: 1;
   white-space: nowrap;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,.9);
+  pointer-events: none;
 }
-.mobility-stop-badge > span { display: block; transform: translateY(-.1px); }
 .mobility-route-flow {
   animation: mobility-route-flow 1.8s linear infinite;
   pointer-events: none;
@@ -2887,38 +2888,15 @@ button:disabled { cursor: not-allowed; }
   stroke-linecap: round;
   pointer-events: none;
 }
-.mobility-stop-badge {
-  width: 25px;
-  height: 16px;
-  font-size: 7.5px;
-  border-width: 1px;
-  box-shadow: 0 1px 3px rgba(15, 35, 25, .2);
-}
+.mobility-stop-label { font-size: 7.5px; }
 @media (prefers-reduced-motion: reduce) {
   .mobility-route-flow { animation: none !important; }
 }
 
 
-/* Noms de mobilité conservés à chaque arrêt, en petit format à tous les zooms.
-   Les marqueurs restent compacts sans redevenir des pastilles muettes. */
-.leaflet-map--citywide .mobility-stop-badge {
-  width: 16px;
-  height: 8px;
-  border-width: 1px;
-  border-radius: 3px;
-  font-size: 5.2px;
-  letter-spacing: -.045em;
-  box-shadow: 0 0 2px rgba(255, 255, 255, .72);
-}
-.leaflet-map--district .mobility-stop-badge {
-  width: 19px;
-  height: 10px;
-  border-width: 1px;
-  border-radius: 3px;
-  font-size: 6px;
-  letter-spacing: -.04em;
-  box-shadow: 0 0 2px rgba(255, 255, 255, .72);
-}
+/* Les sigles restent du texte nu, sans pastille ni fond, à tous les zooms. */
+.leaflet-map--citywide .mobility-stop-label { font-size: 6px; letter-spacing: -.045em; }
+.leaflet-map--district .mobility-stop-label { font-size: 7px; letter-spacing: -.04em; }
 /* Un seul nom court par itinéraire, placé discrètement sur son tracé. */
 .leaflet-tooltip.mobility-route-name-label {
   margin: 0;

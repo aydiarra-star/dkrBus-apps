@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react'
-import { Circle, CircleMarker, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import { Circle, MapContainer, Marker, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
@@ -96,6 +96,23 @@ function distanceToSegmentMeters(
   const lengthSquared = dx * dx + dy * dy
   const t = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, -(ax * dx + ay * dy) / lengthSquared))
   return Math.hypot(ax + t * dx, ay + t * dy)
+}
+
+function isNearTracks(point: { lat: number; lon: number }, tracks: readonly (readonly [number, number][])[]): boolean {
+  return tracks.some((positions) => positions.slice(1).some((end, index) =>
+    distanceToSegmentMeters(point, positions[index], end) <= 35,
+  ))
+}
+
+function canShowMobilityAt(
+  mobility: MobilityId | null,
+  point: { lat: number; lon: number },
+  terTracks: readonly (readonly [number, number][])[],
+  brtTracks: readonly (readonly [number, number][])[],
+): boolean {
+  if (isNearTracks(point, terTracks)) return mobility === 'ter'
+  if (isNearTracks(point, brtTracks)) return mobility === 'brt'
+  return true
 }
 
 function MapClickHandler({
@@ -289,20 +306,25 @@ function makeMarker(className: string, label: string, color: string): DivIcon {
   })
 }
 
-function makeMobilityStopBadge(mobility: MobilityId | null, label: string): DivIcon {
+function mobilityStopLabel(mobility: MobilityId | null, stopId?: string): string {
+  if (mobility === 'ter') return 'TER'
+  if (mobility === 'brt') return 'BRT'
+  if (mobility === 'ddd') return 'DDD'
+  if (mobility === 'aftu_tata') return stopId?.toLowerCase().includes('tata') ? 'TATA' : 'AFTU'
+  return 'BUS'
+}
+
+function makeMobilityStopLabel(mobility: MobilityId | null, label: string, stopId?: string, displayLabel?: string): DivIcon {
   const paint = mobility ? mobilityPaint(mobility) : null
-  const shortLabel = mobility === 'ter' ? 'TER'
-    : mobility === 'brt' ? 'BRT'
-      : mobility === 'ddd' ? 'DDD'
-        : mobility === 'aftu_tata' ? 'AFTU' : 'BUS'
-  const color = paint?.badge ?? '#64748B'
-  const ink = paint?.ink ?? '#FFFFFF'
+  const shortLabel = displayLabel ?? mobilityStopLabel(mobility, stopId)
   const network = mobility ?? 'bus'
+  const color = paint?.core ?? '#64748B'
+  const width = Math.max(22, shortLabel.length * 6)
   return L.divIcon({
-    className: 'mobility-stop-badge-shell',
-    html: `<span class="mobility-stop-badge mobility-stop-badge-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`Arrêt ${shortLabel} — ${label}`)}" style="--stop-badge-color:${escapeHtml(color)};--stop-badge-ink:${escapeHtml(ink)}"><span>${shortLabel}</span></span>`,
-    iconSize: [25, 16],
-    iconAnchor: [12.5, 8],
+    className: 'mobility-stop-label-shell',
+    html: `<span class="mobility-stop-label mobility-stop-label-${network}" data-mobility="${network}" role="img" aria-label="${escapeHtml(`${shortLabel} — ${label}`)}" style="--stop-label-color:${escapeHtml(color)}">${escapeHtml(shortLabel)}</span>`,
+    iconSize: [width, 10],
+    iconAnchor: [width / 2, 5],
   })
 }
 function paintFor(network: string | undefined, stopId?: string): MobilityPaint | null {
@@ -531,36 +553,49 @@ function TransitMapView({
     [corridorLines, corridorStops],
   )
 
-  // Sur le corridor ferroviaire, seules les pastilles TER sont autorisées,
-  // y compris au droit des gares : aucune pastille bus ne se superpose au TER.
+  // Sur chaque corridor structurant, seuls les libellés de son propre réseau
+  // sont autorisés : TER sur TER, BRT sur BRT, jamais DDD/AFTU/TATA dessus.
   const terTracks = useMemo(
-    () => corridorLineStops
-      .filter(({ line }) => line.network === 'ter')
-      .map(({ positions }) => positions)
+    () => corridorLineStops.filter(({ line }) => line.network === 'ter')
+      .map(({ positions }) => positions).filter((positions) => positions.length > 1),
+    [corridorLineStops],
+  )
+  const brtTracks = useMemo(
+    () => corridorLineStops.filter(({ line }) => line.network === 'brt')
+      .flatMap(({ positions, additionalPositions }) => [positions, ...(additionalPositions ?? [])])
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
   const highlightedLineIdSet = useMemo(() => new Set(highlightedLineIds), [highlightedLineIds])
   const highlightedStopIdSet = useMemo(() => new Set(highlightedStopIds), [highlightedStopIds])
   const corridorStopsToRender = useMemo(
-    () => uniqueCorridorStops.filter((stop) =>
-      stop.id.startsWith('ter-') || !terTracks.some((positions) =>
-        positions.slice(1).some((end, index) =>
-          distanceToSegmentMeters(stop, positions[index], end) <= 35,
-        ),
-      ),
-    ),
-    [uniqueCorridorStops, terTracks],
+    () => uniqueCorridorStops.filter((stop) => {
+      const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
+      const mobility = mobilityFromStopId(stop.id) ?? (line?.network as MobilityId | undefined) ?? null
+      return canShowMobilityAt(mobility, stop, terTracks, brtTracks)
+    }),
+    [uniqueCorridorStops, corridorLines, terTracks, brtTracks],
   )
   const publishedStopsToRender = useMemo(
-    () => stops.filter((stop) =>
-      mobilityFromStopId(stop.stopId) === 'ter' || !terTracks.some((positions) =>
-        positions.slice(1).some((end, index) =>
-          distanceToSegmentMeters({ lat: stop.lat, lon: stop.lon }, positions[index], end) <= 35,
-        ),
+    () => stops.filter((stop) => canShowMobilityAt(
+      mobilityFromStopId(stop.stopId), { lat: stop.lat, lon: stop.lon }, terTracks, brtTracks,
+    )),
+    [stops, terTracks, brtTracks],
+  )
+  const dddArcgisStopsToRender = useMemo(
+    () => dddArcgisStops.filter((stop) => canShowMobilityAt(
+      'ddd', { lat: stop.position[0], lon: stop.position[1] }, terTracks, brtTracks,
+    )),
+    [dddArcgisStops, terTracks, brtTracks],
+  )
+  const coveragePointsToRender = useMemo(
+    () => GREATER_DAKAR_BUS_COVERAGE_POINTS.filter((point) =>
+      canShowMobilityAt(
+        point.routes.some((route) => route.network === 'ddd') ? 'ddd' : 'aftu_tata',
+        point, terTracks, brtTracks,
       ),
     ),
-    [stops, terTracks],
+    [terTracks, brtTracks],
   )
 
   return (
@@ -635,23 +670,21 @@ function TransitMapView({
           </Tooltip>
         </Polyline>
       ))}
-      {GREATER_DAKAR_BUS_COVERAGE_POINTS.map((point) => {
+      {coveragePointsToRender.map((point) => {
         const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
         const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
-        const dddColor = paintFor('ddd')?.core ?? '#F59E0B'
-        const aftuColor = paintFor('aftu_tata')?.core ?? '#D97706'
         return (
-          <CircleMarker
+          <Marker
             key={`coverage-${point.id}`}
-            center={[point.lat, point.lon]}
-            radius={dddLines.length > 0 && aftuLines.length > 0 ? 4.5 : 3.5}
-            pathOptions={{
-              color: dddLines.length > 0 ? dddColor : aftuColor,
-              fillColor: aftuLines.length > 0 ? aftuColor : dddColor,
-              weight: 1.4,
-              opacity: 0.92,
-              fillOpacity: 0.78,
-            }}
+            position={[point.lat, point.lon]}
+            icon={makeMobilityStopLabel(
+              dddLines.length > 0 ? 'ddd' : 'aftu_tata',
+              point.name,
+              undefined,
+              dddLines.length > 0 && aftuLines.length > 0 ? 'DDD · AFTU' : undefined,
+            )}
+            keyboard
+            title={point.name}
           >
             <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
               <strong>{point.name}</strong>
@@ -659,27 +692,22 @@ function TransitMapView({
               {dddLines.length > 0 && <div>DDD · {dddLines.join(', ')}</div>}
               {aftuLines.length > 0 && <div>AFTU/TATA · {aftuLines.join(', ')}</div>}
             </Tooltip>
-          </CircleMarker>
+          </Marker>
         )
       })}
-      {dddArcgisStops.map((stop) => (
-        <CircleMarker
+      {dddArcgisStopsToRender.map((stop) => (
+        <Marker
           key={stop.id}
-          center={stop.position}
-          radius={2.6}
-          pathOptions={{
-            color: paintFor('ddd')?.core ?? '#F59E0B',
-            fillColor: paintFor('ddd')?.core ?? '#F59E0B',
-            weight: 1,
-            opacity: 0.82,
-            fillOpacity: 0.72,
-          }}
+          position={stop.position}
+          icon={makeMobilityStopLabel('ddd', `ligne ${stop.line}`)}
+          keyboard
+          title={`DDD — ligne ${stop.line}`}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
             <strong>Arrêt de référence DDD · ligne {stop.line}</strong>
             <div>Repère cartographique historique</div>
           </Tooltip>
-        </CircleMarker>
+        </Marker>
       ))}
       {dddArcgisTracks.map((track) => (
         <Polyline
@@ -821,7 +849,7 @@ function TransitMapView({
           <Marker
             key={`corridor-stop-${stop.id}`}
             position={[stop.lat, stop.lon]}
-            icon={makeMobilityStopBadge(paint?.id ?? null, stop.name)}
+            icon={makeMobilityStopLabel(paint?.id ?? null, stop.name, stop.id)}
             keyboard
             title={`${paint?.label ?? 'Mobilité'} — ${stop.name}`}
             eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
@@ -867,7 +895,7 @@ function TransitMapView({
         <Marker
           key={stop.stopId}
           position={[stop.lat, stop.lon]}
-          icon={makeMobilityStopBadge(mobilityFromStopId(stop.stopId), stop.stopName)}
+          icon={makeMobilityStopLabel(mobilityFromStopId(stop.stopId), stop.stopName, stop.stopId)}
           keyboard
           title={stop.stopName}
           eventHandlers={onSelectStop ? { click: () => onSelectStop(stop) } : undefined}
