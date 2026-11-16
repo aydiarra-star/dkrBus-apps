@@ -54,7 +54,7 @@ PUBLISH_TABLES: dict[str, str] = {
         "S1,Place de la Nation,14.7200,-17.4500,0\n"
         "S2,Gare Routière Leclerc,14.7050,-17.4600,0\n"
         "S3,Palais de Justice,14.7300,-17.4400,0\n"
-        "S4,Terminus Yoff,14.7500,-17.4800,1\n"
+        "S4,Terminus Yoff,14.7500,-17.4800,0\n"
     ),
     "routes.txt": (
         "route_id,agency_id,route_short_name,route_long_name,route_type\n"
