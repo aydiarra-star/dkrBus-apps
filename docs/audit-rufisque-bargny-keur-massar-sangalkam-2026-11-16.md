@@ -117,13 +117,14 @@ Mapcarta situe le Garage clando à environ **260 m** de la gare ferroviaire. Cet
 
 - La fiche détaillée AFTU **page 74** (catalogue officiel **ligne 73**) publie explicitement **« Terminus Bargny (gare ferroviaire) »** et une séquence qui remonte par Rufisque jusqu'à Keur Massar.
 - La fiche détaillée AFTU **page 60** (catalogue officiel **ligne 59**) publie aussi un parcours Colobane–Bargny via Diamaguène, Mbao et Rufisque.
+- **Conflit de source à résoudre avant le calculateur :** Moovit indexe la desserte sous **ligne 74**, annonce « Tivaouane Peul – Rufisque », 51 arrêts et environ 49 min ; le catalogue AFTU officiel la numérote **73** et la fiche détaillée page 74 annonce explicitement « Bargny (gare ferroviaire) – Tivaouane Peul ». Le tracé de carte suit la fiche officielle AFTU 73, mais aucun horaire Moovit de la ligne 74 n'est repris comme fréquence de la ligne 73.
 - DDD publie le passage par Bargny dans la relation Rufisque–Yenne, mais le numéro et le quai exacts ne sont pas identifiés dans la page consultée.
 
 ### Correspondance candidate
 
 **TER Bargny ↔ AFTU au pôle gare ferroviaire** est le candidat le plus fort du secteur : la fiche AFTU nomme explicitement la gare ferroviaire comme terminus. Le Garage clando OSM et le Terminus bus Bargny sont deux sites distincts de la gare ferroviaire. On ne sait pas encore si le quai AFTU de la ligne 73 se trouve dans l'enceinte ferroviaire, près du Garage clando ou sur une autre plateforme. Le tracé cartographique de la ligne 73 est désormais ancré sur le GPS de la gare ferroviaire ; son point « Arrêt Khaar » à Rufisque reste un repère de corridor, pas un quai AFTU confirmé.
 
-Avant activation : relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
+Avant activation : réconcilier le terminus de la fiche officielle avec la carte Moovit, relever le quai AFTU réel, l'accès TER ouvert, les traversées et le cheminement piéton entre les deux. Aucun transfert n'est ajouté pour le moment.
 
 ## 4. Keur Massar — terminus commun DDD / AFTU 60 et autres pôles séparés
 
@@ -179,7 +180,7 @@ La desserte des deux réseaux est donc confirmée à l'échelle de la localité 
 | Priorité | Correspondance candidate | Niveau de preuve | Action avant activation |
 |---|---|---|---|
 | 1 | **DDD 227 ↔ AFTU 60, terminus principal Keur Massar** | Deux points DDD ArcGIS et deux gares routières OSM co-localisés à ~5 m ; catalogue officiel AFTU 60 et fiche détaillée 61 confirment Keur Massar | Actif dans le calculateur · relever les quais internes ; DDD 11 reste hors calculateur tant que le terminus final n'est pas réconcilié |
-| 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | La fiche AFTU 74 décrit explicitement le terminus « Bargny (gare ferroviaire) » ; les quais bus précis restent non identifiés | Relever le quai AFTU réel et tracer le cheminement piéton depuis l'accès TER |
+| 2 | TER Bargny ↔ AFTU 73 terminus gare ferroviaire | Catalogue officiel ligne 73 et fiche détaillée page 74 nomment la gare ferroviaire ; Moovit indexe une ligne 74 Tivaouane Peul–Rufisque, désaccord à réconcilier | Confirmer le terminus/quai sur place et tracer le cheminement piéton depuis l'accès TER |
 | 3 | DDD/AFTU autour de Sonadis–Djouti Ba–HLM Rufisque | Plusieurs séquences convergentes ; point GPS du quai Sonadis absent | Géocoder les arrêts exacts et les quais dans les deux sens |
 | 4 | DDD 213 ↔ AFTU Camp Marchand / gare de Rufisque | Les terminus et gares OSM sont distincts ; correspondance non prouvée | Identifier le quai DDD « Gare de Rufisque » et le terminus AFTU Camp Marchand |
 | 5 | DDD 208 ↔ AFTU 78 à Sangalkam | Desserte locale publiée par les deux réseaux, mais terminus/quais non géocodés | Localiser les arrêts exacts et tracer le cheminement piéton |
