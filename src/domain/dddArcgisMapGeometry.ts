@@ -47,3 +47,33 @@ export function dddArcgisFeatureTracks(
   }
   return tracks
 }
+
+export interface DddArcgisMapStop {
+  id: string
+  line: string
+  position: [number, number]
+}
+
+/** Extrait les points d'arrêt ArcGIS urbains sans leur attribuer d'horaire. */
+export function dddArcgisFeatureStops(
+  line: string,
+  features: readonly DddArcgisGeoJsonFeature[],
+): DddArcgisMapStop[] {
+  return features.flatMap((feature, index) => {
+    const geometry = feature.geometry
+    if (geometry?.type !== 'Point' || !Array.isArray(geometry.coordinates)) return []
+    const [lon, lat] = geometry.coordinates
+    if (
+      !Number.isFinite(lon) || !Number.isFinite(lat) ||
+      (lon as number) < -18 || (lon as number) > -16 ||
+      (lat as number) < 14 || (lat as number) > 16
+    ) return []
+    const longitude = lon as number
+    const latitude = lat as number
+    return [{
+      id: `ddd-arcgis-stop-${line}-${latitude.toFixed(5)}-${longitude.toFixed(5)}`,
+      line,
+      position: [latitude, longitude] as [number, number],
+    }]
+  })
+}
