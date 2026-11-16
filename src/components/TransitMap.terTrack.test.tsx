@@ -159,6 +159,19 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
       expect(String(marker.icon.options.html)).not.toContain('mobility-stop-badge')
       expect(String(marker.icon.options.html)).not.toContain('background:')
     }
+
+    for (const marker of markers) {
+      const nearBrtTrack = BRT_B1_TRACKS.some((track) => track.positions.slice(1).some((end, index) => {
+        const start = track.positions[index]
+        const lat = (start[0] + end[0]) / 2
+        const meters = Math.hypot(
+          (marker.position[0] - lat) * 111_000,
+          (marker.position[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
+        )
+        return meters <= 35
+      }))
+      if (nearBrtTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="brt"')
+    }
   })
 
   it.each([
@@ -176,7 +189,9 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
     expect(stopMarkers.length).toBeGreaterThan(0)
     expect(stopMarkers.every((marker) =>
       String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
-      String(marker.icon.options.html).includes(`>${label}</span>`) &&
+      (network === 'aftu_tata'
+        ? />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html))
+        : String(marker.icon.options.html).includes(`>${label}</span>`)) &&
       String(marker.icon.options.html).includes('mobility-stop-label') &&
       !String(marker.icon.options.html).includes('mobility-stop-badge'),
     )).toBe(true)
@@ -185,7 +200,7 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
     }
   })
 
-  it('identifie les arrêts sans réseau déclaré comme BUS', () => {
+  it('identifie les arrêts sans réseau déclaré par le libellé BUS', () => {
     drawMap([], [{
       id: 'bus-stop-test',
       name: 'Arrêt bus test',
