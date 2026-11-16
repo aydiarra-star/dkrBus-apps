@@ -34,7 +34,7 @@ Le CETUD présente désormais CETUD Mobilités comme une application qui consult
 - TER, BRT, DDD et AFTU sont des boutons à état explicite.
 - Actif : couleur de réseau ; désactivé : gris.
 - Le trait de couleur sous chaque badge reprend exactement la largeur du badge.
-- Les filtres mettent à jour les préférences de mobilité réellement consommées par le calculateur et la carte.
+- Les filtres mettent à jour les préférences de mobilité réellement consommées par le calculateur et la carte ; ils sont aussi transmis à la recherche des courses directes publiées. Les courses dont le réseau ne peut pas être identifié ne sont pas affichées lorsqu'un sous-ensemble de réseaux est choisi, et cette exclusion est signalée.
 - Le dernier réseau actif ne peut pas être désactivé : un trajet ne doit jamais être présenté comme filtré alors que tous les réseaux sont exclus.
 
 ### P4 — Carte compacte
