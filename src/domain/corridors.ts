@@ -236,7 +236,6 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
   { id: 'aftu-keur-massar-61', name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922, order: 13, aliases: ['terminus minibus 61', 'keur massar ligne 61'], note: 'AFTU 61 · node OSM 5286379844, même pôle que le terminus DDD' },
   { id: 'aftu-carrefour-grand-mbao-61', name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952, order: 14, aliases: ['carrefour mbao ligne 61'], note: 'AFTU 61 · arrêt bus OSM et fiche Moovit' },
   { id: 'aftu-thiaroy-61', name: 'Thiaroy', lat: 14.7504, lon: -17.3776, order: 15, aliases: ['thiaroy ligne 61'], note: 'AFTU 61 · arrêt bus OSM sur le corridor' },
-  { id: 'aftu-ngor-61', name: 'Rond-point Ngor', lat: 14.74894, lon: -17.5144, order: 16, aliases: ['ngor ligne 61'], note: 'AFTU 61 · arrêt bus OSM du secteur Ngor ; fiche Moovit cite Stade de Ngor' },
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
@@ -411,10 +410,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     shortName: 'AFTU 61',
     longName: 'Keur Massar ↔ Almadies / Mamelles',
     color: MOBILITY_PALETTE.aftu_tata.core,
-    stopIds: ['aftu-keur-massar-61', 'aftu-carrefour-grand-mbao-61', 'aftu-thiaroy-61', 'aftu-ngor-61', 'aftu-almadies'],
+    stopIds: ['aftu-keur-massar-61', 'aftu-carrefour-grand-mbao-61', 'aftu-thiaroy-61', 'aftu-almadies'],
     directions: [
-      ['aftu-keur-massar-61', 'aftu-carrefour-grand-mbao-61', 'aftu-thiaroy-61', 'aftu-ngor-61', 'aftu-almadies'],
-      ['aftu-almadies', 'aftu-ngor-61', 'aftu-thiaroy-61', 'aftu-carrefour-grand-mbao-61', 'aftu-keur-massar-61'],
+      ['aftu-keur-massar-61', 'aftu-carrefour-grand-mbao-61', 'aftu-thiaroy-61', 'aftu-almadies'],
+      ['aftu-almadies', 'aftu-thiaroy-61', 'aftu-carrefour-grand-mbao-61', 'aftu-keur-massar-61'],
     ],
     headwayMin: 42,
     frequencyStatus: 'SCHEDULED',
