@@ -327,7 +327,7 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: -.035em;
   line-height: 1;
   white-space: nowrap;
-  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,.9);
+  text-shadow: none;
   pointer-events: none;
 }
 .mobility-route-flow {
@@ -2903,14 +2903,14 @@ button:disabled { cursor: not-allowed; }
   padding: 0 1px;
   border: 0;
   border-radius: 2px;
-  background: rgba(255, 255, 255, .58);
+  background: transparent;
   box-shadow: none;
-  color: #263b31;
+  color: var(--stop-label-color);
   font-size: 7px;
   font-weight: 850;
   line-height: 1;
   letter-spacing: -.045em;
   white-space: nowrap;
-  text-shadow: 0 0 2px rgba(255, 255, 255, .9);
+  text-shadow: none;
   pointer-events: none;
 }
