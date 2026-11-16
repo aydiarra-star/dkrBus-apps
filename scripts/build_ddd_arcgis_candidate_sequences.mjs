@@ -53,8 +53,10 @@ export function parseCsv(source) {
 const finite = (value) => Number.isFinite(Number(value));
 // ArcGIS IDs may be serialized as `18.0` in CSV and `18` in GeoJSON.
 const routeIdKey = (value) => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? String(Math.trunc(numeric)) : String(value ?? '').trim();
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
+  const numeric = Number(raw);
+  return Number.isFinite(numeric) ? String(Math.trunc(numeric)) : raw;
 };
 const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const slug = (value) => normalize(value).replace(/\s+/g, '-');
