@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
-const BBOX = "(14.45,-17.62,15.02,-16.85)";
+const BBOX = "(14.50,-17.60,14.95,-17.05)";
 const ENDPOINTS = [
   "https://overpass.private.coffee/api/interpreter",
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
@@ -10,7 +10,7 @@ const ENDPOINTS = [
   "https://overpass.nchc.org.tw/api/interpreter",
 ];
 const OUTPUT = "artifacts/osm/dakar-osm-route-candidates.json";
-const DAKAR_BOUNDS = { south: 14.45, west: -17.62, north: 15.02, east: -16.85 };
+const DAKAR_BOUNDS = { south: 14.50, west: -17.60, north: 14.95, east: -17.05 };
 const DAKAR_HINTS = /dakar|ouakam|libert[eé]|parcelles|petersen|leclerc|gu[eé]diawaye|pikine|rufisque|thiaroye|sangalkam|bambilor|noflaye|bayakh|yen(n)?e|toubab.?dialaw|dougar|diamniadio|keur.?ndiaye.?lo|niagues?|tivaouane.?peulh|kounoune|malika|yeumbeul|keur.?massar|mbao|bargny|sunu.?brt|dem.?dikk|aftu|tata/i;
 const QUERY = `[out:json][timeout:180];
 (
