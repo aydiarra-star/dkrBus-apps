@@ -53,7 +53,7 @@ import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { JourneyOptions } from './components/JourneyOptions'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { optionSummaryLine, planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
-import { accessibilityStyle, getPreferences, plannerPreferences, usePreferences, type Preferences } from './domain/preferences'
+import { accessibilityStyle, getPreferences, plannerPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
 import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
 import { extractMobilityIntent } from './domain/intent'
@@ -2698,19 +2698,43 @@ function RoutePanel({
   preferences: Preferences
   journeyPlan: JourneyPlanOutcome | null
 }) {
+  const enabledNetworkCount = MOBILITY_IDS.filter((id) => preferences.mobility.networks[id]).length
+
   return (
     <section className="panel route-panel" aria-label="Planifier un itinéraire">
       <div className="panel-heading-row">
         <div>
           <span className="eyebrow">GUIDE DE TRAJET</span>
           <h2>Planifier un trajet</h2>
-          <div className="route-coverage" aria-label="Mobilités couvertes">
-            {MOBILITY_IDS.map((id) => (
-              <span key={id} className="route-coverage-item">
-                <MobilityBadge id={id} />
-                <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
-              </span>
-            ))}
+          <div className="route-network-filter-block">
+            <div className="route-network-filter-heading">
+              <strong>Réseaux à utiliser</strong>
+              <span>Activez les transports à inclure dans le calcul</span>
+            </div>
+            <div className="route-network-filters" role="group" aria-label="Filtres de transport">
+              {MOBILITY_IDS.map((id) => {
+                const active = preferences.mobility.networks[id]
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`route-network-filter${active ? ' is-active' : ' is-inactive'}`}
+                    aria-pressed={active}
+                    aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} : ${active ? 'actif' : 'désactivé'}`}
+                    disabled={active && enabledNetworkCount === 1}
+                    onClick={() => updatePreferences('mobility', {
+                      networks: { ...preferences.mobility.networks, [id]: !active },
+                    })}
+                  >
+                    <span className="route-coverage-item">
+                      <MobilityBadge id={id} />
+                      <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
+                    </span>
+                    <span className="route-network-filter-state">{active ? 'Actif' : 'Désactivé'}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
         {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
@@ -2718,38 +2742,43 @@ function RoutePanel({
 
       <form onSubmit={onSubmit}>
         <div className="route-fields-wrap">
-          <div className="route-connector" aria-hidden="true"><i /><span /><i /></div>
-          <div className="route-origin-group">
-            <PointComboboxField
-              title="Départ"
-              point={routePoints.origin}
-              pointKey="origin"
-              isPicking={pickingPoint === 'origin'}
-              stopOptions={stopOptions}
-              onPick={onSelectStop}
-              onClear={() => onClearPoint('origin')}
-              onPickOnMap={onSelectPoint}
-            />
-            <button type="button" className="use-location-action" onClick={onUseLocation}>
-              <LocateFixed size={15} /> Utiliser ma position comme départ
+          <div className="route-fields-card">
+            <div className="route-origin-group">
+              <PointComboboxField
+                title="Départ"
+                point={routePoints.origin}
+                pointKey="origin"
+                isPicking={pickingPoint === 'origin'}
+                stopOptions={stopOptions}
+                onPick={onSelectStop}
+                onClear={() => onClearPoint('origin')}
+                onPickOnMap={onSelectPoint}
+              />
+              <button type="button" className="use-location-action" onClick={onUseLocation}>
+                <LocateFixed size={15} /> Utiliser ma position comme départ
+              </button>
+            </div>
+            <button type="button" className="swap-route" aria-label="Inverser départ et destination" onClick={onSwap}>
+              <ArrowDownUp size={16} />
             </button>
+            <div className="route-destination-group">
+              <PointComboboxField
+                title="Destination"
+                point={routePoints.destination}
+                pointKey="destination"
+                isPicking={pickingPoint === 'destination'}
+                stopOptions={stopOptions}
+                onPick={onSelectStop}
+                onClear={() => onClearPoint('destination')}
+                onPickOnMap={onSelectPoint}
+              />
+            </div>
           </div>
-          <button type="button" className="swap-route" aria-label="Inverser départ et destination" onClick={onSwap}><ArrowDownUp size={15} /></button>
-          <PointComboboxField
-            title="Destination"
-            point={routePoints.destination}
-            pointKey="destination"
-            isPicking={pickingPoint === 'destination'}
-            stopOptions={stopOptions}
-            onPick={onSelectStop}
-            onClear={() => onClearPoint('destination')}
-            onPickOnMap={onSelectPoint}
-          />
         </div>
 
 
-        <button className="primary-action route-submit" type="submit" disabled={!routePoints.origin || !routePoints.destination}>
-          <Search size={17} /><span>Rechercher mon itinéraire</span><ArrowRight size={16} />
+        <button className="primary-action route-submit" type="submit" aria-label="Rechercher mon itinéraire" disabled={!routePoints.origin || !routePoints.destination}>
+          <Search size={19} /><span>Rechercher un trajet</span><ArrowRight size={19} />
         </button>
       </form>
 
