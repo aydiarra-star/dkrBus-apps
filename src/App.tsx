@@ -2769,7 +2769,7 @@ function RoutePanel({
                 type="button"
                 className={`route-network-filter${active ? ' is-active' : ' is-inactive'}`}
                 aria-pressed={active}
-                aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} ${active ? 'actif' : 'désactivé'}`}
+                aria-label={`${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()} ${active ? 'Actif' : 'Désactivé'}`}
                 disabled={active && activeNetworkCount === 1}
                 onClick={() => onToggleNetwork(id)}
               >

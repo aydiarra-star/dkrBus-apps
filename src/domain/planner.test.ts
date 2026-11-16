@@ -7,6 +7,12 @@ const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
 const GUEDIAWAYE = { label: 'Guédiawaye (point carte)', lat: 14.7725, lon: -17.3860 }
 const RUFISQUE = { label: 'Rufisque (point carte)', lat: 14.7145, lon: -17.2725 }
 
+function endpoint(stopId: string) {
+  const stop = getCorridorStop(stopId)!
+  return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
+}
+
+
 describe('libellés publics des réseaux', () => {
   it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
     expect(networkLabelOf('aftu-guediawaye')).toBe('AFTU')
@@ -135,11 +141,6 @@ describe('calculateur multimodal de référence', () => {
 
 
 describe('couverture des réseaux de bus dans le moteur multimodal', () => {
-  function endpoint(stopId: string) {
-    const stop = getCorridorStop(stopId)!
-    return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
-  }
-
   it('calcule un trajet sur une ligne DDD entre deux pôles connus', () => {
     const outcome = planReferenceJourney(endpoint('ddd-parcelles'), endpoint('ddd-leclerc'), 'fastest', {
       allowedNetworks: ['ddd'],
@@ -226,3 +227,14 @@ describe('cohérence des coûts du calculateur', () => {
     if (!outcome.ok) expect(outcome.message.length).toBeLessThan(120)
   })
 })
+
+  it('relie Parcelles Assainies à Almadies par DDD 227 puis AFTU 60', () => {
+    const from = { label: 'Terminus Parcelles Assainies', lat: 14.76043, lon: -17.439267 }
+    const to = { label: 'Terminus Almadies', lat: 14.73475, lon: -17.50863 }
+    const outcome = planReferenceJourney(from, to, 'fastest', { allowedNetworks: ['ddd', 'aftu_tata'] })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
+    expect(rides.map((leg) => leg.line?.shortName)).toEqual(['DDD 227', 'AFTU 60'])
+    expect(outcome.transfers).toBe(1)
+  })

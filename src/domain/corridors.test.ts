@@ -236,3 +236,17 @@ describe('source unique des fréquences', () => {
     expect(OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)).toEqual([10, 20, 20])
   })
 })
+
+  it('active la correspondance DDD 227 ↔ AFTU 60 au terminus commun de Keur Massar', () => {
+    const transfer = CORRIDOR_TRANSFERS.find((item) =>
+      [item.fromStopId, item.toStopId].includes('ddd-keur-massar-227')
+      && [item.fromStopId, item.toStopId].includes('aftu-keur-massar-60'),
+    )
+    expect(transfer).toMatchObject({
+      fromStopId: 'ddd-keur-massar-227',
+      toStopId: 'aftu-keur-massar-60',
+      walkM: 0,
+    })
+    expect(CORRIDOR_LINES.find((line) => line.id === 'ddd-227')?.shortName).toBe('DDD 227')
+    expect(CORRIDOR_LINES.find((line) => line.id === 'aftu-60')?.shortName).toBe('AFTU 60')
+  })

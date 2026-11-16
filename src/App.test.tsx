@@ -1477,6 +1477,7 @@ describe('barre de recherche du Trajet', () => {
     const ter = within(filters).getByRole('button', { name: /ter actif/i })
     const brt = within(filters).getByRole('button', { name: /brt actif/i })
     expect(ter.getAttribute('aria-pressed')).toBe('true')
+    expect(ter.getAttribute('aria-label')).toBe('TER Actif')
     expect(brt.getAttribute('aria-pressed')).toBe('true')
 
     fireEvent.click(brt)
