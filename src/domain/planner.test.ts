@@ -249,3 +249,15 @@ it('relie Dakar à Keur Massar en TER puis AFTU 73 via la gare ferroviaire de Ba
   expect(rides.map((leg) => leg.line?.shortName)).toEqual(['TER', 'AFTU 73'])
   expect(outcome.transfers).toBe(1)
 })
+
+
+it('compose un trajet TER + AFTU 73 + AFTU 60 de Dakar aux Almadies', () => {
+  const outcome = planReferenceJourney(endpoint('ter-dakar'), endpoint('aftu-almadies-60'), 'fastest', {
+    allowedNetworks: ['ter', 'aftu_tata'],
+  })
+  expect(outcome.ok).toBe(true)
+  if (!outcome.ok) return
+  const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
+  expect(rides.map((leg) => leg.line?.shortName)).toEqual(['TER', 'AFTU 73', 'AFTU 60'])
+  expect(outcome.transfers).toBe(2)
+})
