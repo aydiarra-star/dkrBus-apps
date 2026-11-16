@@ -9,7 +9,7 @@ export interface DddArcgisMapTrack {
   id: string
   line: string
   part: number
-  positions: readonly [number, number][]
+  positions: [number, number][]
 }
 
 /** Convertit une géométrie ArcGIS/GeoJSON WGS84 en positions Leaflet [lat, lon]. */
