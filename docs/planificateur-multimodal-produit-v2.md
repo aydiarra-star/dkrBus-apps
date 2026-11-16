@@ -154,3 +154,31 @@ Une PR fusionnée, un build vert ou une capture illustrative ne suffit pas à pr
 - Valhalla — serveur de démonstration et règles d'usage équitable : https://valhalla.github.io/valhalla/
 
 Ces références servent à choisir une architecture ; elles ne prouvent pas encore la qualité des trottoirs, traversées ou données de transport de Dakar. Une recette géographique locale reste obligatoire.
+
+
+## 8. Écart de couverture à résoudre avant de promettre le meilleur trajet
+
+L'interface et le comparateur ne doivent pas faire croire que tout le réseau est déjà intégré au graphe du calculateur.
+
+Constat sur le code de référence actuel :
+- `src/domain/corridors.ts` contient 9 lignes de référence dans `CORRIDOR_LINES` : 1 TER, 1 BRT, 3 DDD et 4 AFTU/TATA.
+- `src/domain/candidateLines.ts` expose encore `CANDIDATE_LINES = []` ; aucune ligne candidate DDD/AFTU n'est automatiquement injectée dans le graphe.
+- `src/domain/publicBusLineCatalog.ts` contient un catalogue de lignes et terminus, mais un catalogue de terminus n'est pas une séquence d'arrêts utilisable pour calculer les correspondances.
+- `src/domain/bidirectionalBusLines.ts` distingue les deux sens, mais plusieurs lignes n'ont pas encore leurs arrêts géolocalisés ; une séquence aller ne valide pas le retour.
+- `src/data/aftuTataMapRoutes.ts` et `src/data/dddAdditionalMapRoutes.ts` contiennent des points de passage cartographiques ; leur commentaire de code précise qu'ils ne sont pas le graphe d'arrêts du calculateur.
+- Les séquences DDD publiées dans `src/data/dddOfficialPublishedRoutes.ts` sont explicitement marquées `ONE_PUBLISHED_ORDER_ONLY` ; le sens retour et le rapprochement GPS restent à valider.
+
+Le CETUD affiche 38 lignes DDD et 72 lignes AFTU sur ses fiches réseau :
+- DDD : https://cetud.sn/reseaux-de-transport/ddd/
+- AFTU : https://cetud.sn/reseaux-de-transport/aftu/
+
+### Ordre de traitement de la couverture
+
+1. **Ne pas gonfler artificiellement le graphe** en important les 38/72 terminus comme s'ils étaient des arrêts successifs.
+2. Pour chaque ligne, rapprocher le corridor officiel, les séquences détaillées disponibles, les arrêts OSM/ArcGIS et les deux sens ; conserver les variantes séparées.
+3. Associer chaque occurrence d'arrêt à un identifiant géographique seulement après rapprochement non ambigu ; les noms homonymes ne suffisent pas.
+4. N'intégrer au moteur que les lignes dont les deux sens disposent d'une séquence ordonnée et d'arrêts géolocalisés contrôlés. Les autres restent visibles dans le registre documentaire ou la carte de couverture, mais ne sont pas proposés comme trajet calculé.
+5. Utiliser les fréquences moyennes de référence pour les lignes sans horaires, en les traitant comme estimation de durée d'attente ; ne pas fabriquer d'heures de départ exactes.
+6. À chaque intégration, ajouter des tests aller/retour, d'absence de desserte, de filtre réseau et de correspondance.
+
+**Conséquence produit :** le calculateur est déjà multimodal sur son graphe de référence, mais sa couverture DDD/AFTU n'est pas encore exhaustive. La partie ne pourra être déclarée terminée qu'après élargissement contrôlé de ce graphe et recette des itinéraires représentatifs ci-dessus.
