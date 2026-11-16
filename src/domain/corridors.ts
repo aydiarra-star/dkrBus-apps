@@ -232,7 +232,7 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
   { id: 'aftu-pikine', name: 'Pikine', lat: 14.7498644, lon: -17.3916937, order: 9, aliases: ['pikine aftu'], note: 'AFTU' },
   { id: 'aftu-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 10, aliases: ['rufisque aftu'], note: 'AFTU' },
   { id: 'aftu-diamalaye', name: 'Diamalaye', lat: 14.76, lon: -17.40, order: 11, aliases: ['diamalaye'], note: 'AFTU' },
-  { id: 'aftu-almadies', name: 'Almadies', lat: 14.74, lon: -17.53, order: 12, aliases: ['almadies aftu'], note: 'AFTU' },
+  { id: 'aftu-almadies', name: 'Terminus 61 (Almadies)', shortName: 'Almadies', lat: 14.73475, lon: -17.50863, order: 12, aliases: ['almadies aftu', 'terminus 61'], note: 'AFTU 61 · repère GPS du quai DDD 217/218 adjacent ; Moovit place Terminus 61 à 31 m' },
   { id: 'aftu-keur-massar-61', name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922, order: 13, aliases: ['terminus minibus 61', 'keur massar ligne 61'], note: 'AFTU 61 · node OSM 5286379844, même pôle que le terminus DDD' },
   { id: 'aftu-carrefour-grand-mbao-61', name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952, order: 14, aliases: ['carrefour mbao ligne 61'], note: 'AFTU 61 · arrêt bus OSM et fiche Moovit' },
   { id: 'aftu-thiaroy-61', name: 'Thiaroy', lat: 14.7504, lon: -17.3776, order: 15, aliases: ['thiaroy ligne 61'], note: 'AFTU 61 · arrêt bus OSM sur le corridor' },
@@ -419,7 +419,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     frequencyStatus: 'SCHEDULED',
     frequencySource: FREQUENCY_SOURCES.moovit_aftu,
     officialFrequencies: [],
-    serviceWindow: '05:00–21:52 en semaine · 05:10–21:58 le week-end · référence Moovit : 22 min semaine / 42 min week-end',
+    serviceWindow: '04:40–22:00 en semaine · 05:00–21:40 le week-end · référence Moovit : 20 min semaine / 42 min week-end',
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
   },
   {
