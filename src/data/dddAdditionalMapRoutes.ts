@@ -31,4 +31,15 @@ export const DDD_ADDITIONAL_MAP_ROUTES: readonly DddAdditionalMapRoute[] = [
       { name: 'Guédiawaye', lat: 14.7719791, lon: -17.3868591 },
     ],
   },
+  {
+    id: 'ddd-227',
+    line: '227',
+    waypoints: [
+      { name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922 },
+      { name: 'Route de Malika', lat: 14.793653, lon: -17.336456 },
+      { name: 'Terminus Guédiawaye', lat: 14.77277, lon: -17.38922 },
+      { name: 'Case Ba', lat: 14.756216, lon: -17.42975 },
+      { name: 'Terminus Parcelles Assainies', lat: 14.76043, lon: -17.439267 },
+    ],
+  },
 ]
