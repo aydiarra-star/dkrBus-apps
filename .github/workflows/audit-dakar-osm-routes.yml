@@ -7,6 +7,8 @@ on:
     paths:
       - "scripts/export_dakar_osm_routes.mjs"
       - "scripts/analyze_dakar_osm_directional_pairs.mjs"
+      - "scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs"
+      - "scripts/build_aftu_tata_osm_stop_crosswalk.node-test.mjs"
       - ".github/workflows/audit-dakar-osm-routes.yml"
 
 permissions:
@@ -32,6 +34,23 @@ jobs:
       - name: Analyze directional route pairs without merging directions
         if: steps.osm_export.outcome == 'success'
         run: node scripts/analyze_dakar_osm_directional_pairs.mjs
+      - name: Check AFTU/TATA OSM stop crosswalk
+        if: steps.osm_export.outcome == 'success'
+        run: node --check scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs
+      - name: Test AFTU/TATA OSM stop crosswalk
+        if: steps.osm_export.outcome == 'success'
+        run: node --test scripts/build_aftu_tata_osm_stop_crosswalk.node-test.mjs
+      - name: Build AFTU/TATA OSM stop crosswalk
+        if: steps.osm_export.outcome == 'success'
+        run: node scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs
+      - name: Upload AFTU/TATA OSM stop crosswalk
+        if: steps.osm_export.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-tata-osm-stop-crosswalk
+          path: artifacts/aftu-tata/osm-stop-crosswalk*
+          if-no-files-found: error
+          retention-days: 30
       - name: Save the read-only audit or source outage diagnostic
         if: always()
         uses: actions/upload-artifact@v4
