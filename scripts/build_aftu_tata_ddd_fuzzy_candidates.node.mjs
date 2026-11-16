@@ -8,7 +8,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const GENERIC = new Set(['arret','de','du','des','la','le','les','bus','stop','station','gare','terminus','a','au','aux']);
-export const DEFAULT_MIN_SIMILARITY = 0.92;
+export const DEFAULT_MIN_SIMILARITY = 0.85;
 
 export function normalizeStopName(value) {
   return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -20,7 +20,6 @@ export function levenshteinRatio(left, right) {
   if (left === right) return 1;
   const maxLength = Math.max(left.length, right.length);
   if (!maxLength) return 1;
-  if (Math.abs(left.length - right.length) / maxLength > 1 - DEFAULT_MIN_SIMILARITY) return 0;
   let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
   for (let i = 1; i <= left.length; i += 1) {
     const current = [i];
@@ -103,6 +102,8 @@ export function buildAftuTataDddFuzzyCandidates({
     if (item.generic || item.key.length < 4 || dddByName.has(item.key)) continue;
     const suggestions = [];
     for (const candidateName of dddNames) {
+      const maxLength = Math.max(item.key.length, candidateName.length);
+      if (Math.abs(item.key.length - candidateName.length) / maxLength > 1 - minSimilarity) continue;
       const score = levenshteinRatio(item.key, candidateName);
       if (score < minSimilarity) continue;
       const group = dddByName.get(candidateName);
