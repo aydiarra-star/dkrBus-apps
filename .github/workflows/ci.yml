@@ -33,6 +33,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check AFTU/TATA source coverage audit
+        run: node --check scripts/audit_aftu_tata_directional_coverage.mjs
+
+      - name: Test AFTU/TATA source coverage audit
+        run: node --test scripts/audit_aftu_tata_directional_coverage.node-test.mjs
+
+      - name: Audit AFTU and TATA directional source coverage
+        run: node scripts/audit_aftu_tata_directional_coverage.mjs
+
+      - name: Upload AFTU/TATA source coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-tata-directional-source-coverage
+          path: artifacts/aftu-tata/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Check read-only DDD OSM ArcGIS reconciliation script
         run: node --check scripts/compare_ddd_osm_arcgis_stops.mjs
 
