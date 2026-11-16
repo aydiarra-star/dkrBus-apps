@@ -31,7 +31,7 @@ function getDirections(data) {
   ];
 }
 
-export function buildAftuTataDddCrosswalk({ aftuRecords, tataRecords, dddCandidates }) {
+export function buildAftuTataDddCrosswalk({ aftuRecords, aftuOfficialRecords = [], tataRecords, dddCandidates }) {
   const dddIndex = new Map();
   for (const line of dddCandidates.candidates ?? []) {
     for (const stop of line.stops ?? []) {
@@ -44,24 +44,27 @@ export function buildAftuTataDddCrosswalk({ aftuRecords, tataRecords, dddCandida
   }
 
   const occurrences = new Map();
-  const addRecord = (network, code, direction, points) => {
+  const addRecord = (network, code, direction, points, source) => {
     for (let index = 0; index < points.length; index += 1) {
       const label = labelOf(points[index]).trim();
       const key = normalizeStopName(label);
       const id = key || `generic:${label.toLowerCase()}`;
       const bucket = occurrences.get(id) ?? { key, label, generic: !key, occurrences: [] };
-      bucket.occurrences.push({ network, line: code, direction, order: index });
+      bucket.occurrences.push({ network, line: code, direction, source, order: index });
       occurrences.set(id, bucket);
     }
   };
 
   for (const { data } of aftuRecords) {
     const code = String(data.code ?? 'unknown');
-    for (const [direction, points] of getDirections(data)) addRecord('AFTU', code, direction, points);
+    for (const [direction, points] of getDirections(data)) addRecord('AFTU', code, direction, points, 'MOOVIT_DIRECTIONAL_STOP_LIST');
+  }
+  for (const data of aftuOfficialRecords) {
+    addRecord('AFTU', String(data.code ?? 'unknown'), 'corridor_published', Array.isArray(data.waypoints) ? data.waypoints : [], 'AFTU_OFFICIAL_CORRIDOR');
   }
   for (const data of tataRecords) {
     const code = String(data.code ?? 'unknown');
-    for (const [direction, points] of getDirections(data)) addRecord('TATA', code, direction, points);
+    for (const [direction, points] of getDirections(data)) addRecord('TATA', code, direction, points, 'TATA_WAYPOINT_CATALOG');
   }
 
   const matches = [...occurrences.values()].map((item) => {
@@ -91,6 +94,9 @@ export function buildAftuTataDddCrosswalk({ aftuRecords, tataRecords, dddCandida
     ambiguousMultipleLocations: matches.filter((x) => x.status === 'AMBIGUOUS_MULTIPLE_LOCATIONS').length,
     noExactDddMatch: matches.filter((x) => x.status === 'NO_EXACT_DDD_MATCH').length,
     genericLabels: matches.filter((x) => x.status === 'GENERIC_LABEL_NO_GEOCODE').length,
+    officialAftuCorridorLines: aftuOfficialRecords.length,
+    detailedAftuSourceFiles: aftuRecords.length,
+    tataSourceLines: tataRecords.length,
     totalOccurrences: matches.reduce((sum, x) => sum + x.occurrences.length, 0),
   };
   return {
@@ -108,8 +114,10 @@ async function main() {
   const files = (await fs.readdir(dataDir)).filter((file) => /^aftu-\d+-(?:directions|return)\.json$/i.test(file)).sort();
   const aftuRecords = await Promise.all(files.map(async (file) => ({ file, data: JSON.parse(await fs.readFile(path.join(dataDir, file), 'utf8')) })));
   const tataSource = JSON.parse(await fs.readFile(path.join(dataDir, 'tata-lines.json'), 'utf8'));
+  const mobilityLines = JSON.parse(await fs.readFile(path.join(dataDir, 'mobility-lines.json'), 'utf8'));
+  const aftuOfficialRecords = mobilityLines.filter((line) => line.network === 'aftu');
   const dddCandidates = JSON.parse(await fs.readFile(path.join(root, 'artifacts/ddd/arcgis-2024-candidate-sequences/ddd-arcgis-candidate-sequences.json'), 'utf8'));
-  const report = buildAftuTataDddCrosswalk({ aftuRecords, tataRecords: Array.isArray(tataSource) ? tataSource : tataSource.lines ?? [], dddCandidates });
+  const report = buildAftuTataDddCrosswalk({ aftuRecords, aftuOfficialRecords, tataRecords: Array.isArray(tataSource) ? tataSource : tataSource.lines ?? [], dddCandidates });
   const outDir = path.join(root, 'artifacts/aftu-tata');
   await fs.mkdir(outDir, { recursive: true });
   await fs.writeFile(path.join(outDir, 'ddd-stop-name-crosswalk.json'), JSON.stringify(report, null, 2) + '\n');
