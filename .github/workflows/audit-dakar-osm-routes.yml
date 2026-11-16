@@ -9,6 +9,9 @@ on:
       - "scripts/analyze_dakar_osm_directional_pairs.mjs"
       - "scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs"
       - "scripts/build_aftu_tata_osm_stop_crosswalk.node-test.mjs"
+      - "src/data/mobility-lines.json"
+      - "src/data/tata-lines.json"
+      - "src/data/aftu-*.json"
       - ".github/workflows/audit-dakar-osm-routes.yml"
 
 permissions:
