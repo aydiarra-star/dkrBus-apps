@@ -170,7 +170,7 @@ jobs:
         id: osm_relations
         continue-on-error: true
         timeout-minutes: 3
-        run: node scripts/extract_ddd_osm_directional_relations.mjs
+        run: timeout 120s node scripts/extract_ddd_osm_directional_relations.mjs
 
       - name: Upload OSM directional relation evidence
         if: always() && steps.osm_relations.outcome == 'success'
