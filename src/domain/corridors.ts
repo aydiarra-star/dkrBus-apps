@@ -238,7 +238,7 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
   { id: 'aftu-thiaroy-60', name: 'Thiaroy', lat: 14.7504, lon: -17.3776, order: 15, aliases: ['thiaroy ligne 60', 'thiaroy moovit 61'], note: 'AFTU 60 · arrêt bus OSM sur le corridor' },
   { id: 'aftu-almadies-60', name: 'Terminus Almadies (AFTU 60)', shortName: 'Almadies', lat: 14.73475, lon: -17.50863, order: 16, aliases: ['almadies aftu 60', 'terminus 61'], note: 'AFTU 60 · repère GPS du quai DDD 217/218 adjacent ; Moovit place Terminus 61 à 31 m' },
   { id: 'aftu-bargny-73', name: 'Bargny gare ferroviaire', shortName: 'Bargny', lat: 14.69798, lon: -17.22923, order: 17, aliases: ['bargny aftu 73', 'terminus aftu 73', 'bargny gare ter'], note: 'AFTU 73 · terminus publié à la gare ferroviaire de Bargny ; point OSM sur la même emprise que la gare TER' },
-  { id: 'aftu-keur-massar-73', name: 'Terminus Keur Massar (AFTU 73)', shortName: 'Keur Massar', lat: 14.78542, lon: -17.30922, order: 18, aliases: ['keur massar aftu 73'], note: 'AFTU 73 · terminus Keur Massar publié ; même pôle P11 que DDD 227 et AFTU 60' },
+  { id: 'aftu-keur-massar-73', name: 'Passage Keur Massar (AFTU 73)', shortName: 'Keur Massar', lat: 14.78542, lon: -17.30922, order: 18, aliases: ['keur massar aftu 73', 'terminus keur massar ligne 73'], note: 'AFTU 73 · arrêt de passage au pôle P11 ; le terminus de la ligne est à Bargny gare ferroviaire côté sud et Tivaouane Peul côté nord' },
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
@@ -519,13 +519,13 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     fromStopId: 'aftu-keur-massar-73',
     toStopId: 'aftu-keur-massar-60',
     walkM: 0,
-    label: 'Pôle P11 Keur Massar : AFTU 73 ↔ AFTU 60 (même terminus)',
+    label: 'Pôle P11 Keur Massar : AFTU 73 (passage) ↔ AFTU 60 (terminus)',
   },
   {
     fromStopId: 'ddd-keur-massar-227',
     toStopId: 'aftu-keur-massar-73',
     walkM: 0,
-    label: 'Pôle P11 Keur Massar : DDD 227 ↔ AFTU 73 (même terminus)',
+    label: 'Pôle P11 Keur Massar : DDD 227 ↔ AFTU 73 (arrêt de passage)',
   },
 ]
 
