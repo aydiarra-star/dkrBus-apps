@@ -1453,8 +1453,9 @@ describe('barre de recherche du Trajet', () => {
       const button = within(filters).getByRole('button', { name: new RegExp(network === 'aftu_tata' ? 'aftu \\/ tata' : network, 'i') })
       if (button.getAttribute('aria-pressed') === 'true') fireEvent.click(button)
     }
-    const remaining = within(filters).getByRole('button', { name: /brt désactivé/i })
-    expect(remaining).toHaveProperty('disabled', false)
+    const remaining = within(filters).getByRole('button', { name: /aftu \/ tata actif/i })
+    expect(remaining).toHaveProperty('disabled', true)
+    expect(within(filters).getByRole('button', { name: /brt désactivé/i }).getAttribute('aria-pressed')).toBe('false')
   })
 
   it('affiche le libellé d’action court et le bouton d’inversion dans le formulaire', () => {
