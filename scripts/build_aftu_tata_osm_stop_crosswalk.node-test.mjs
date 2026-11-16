@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { buildAftuTataOsmCrosswalk, normalizeStopName } from './build_aftu_tata_osm_stop_crosswalk.node.mjs';
 
 test('normalizes accents and generic stop prefixes', () => {
-  assert.equal(normalizeStopName('Arrêt Terminus UCAD'), 'ucad');
+  assert.equal(normalizeStopName('Arrêt Terminus UCAD'), 'terminus ucad');
   assert.equal(normalizeStopName('Marché Tilène'), 'marche tilene');
 });
 
@@ -116,4 +116,23 @@ test('ignores untagged objects and nodes outside Dakar bounds', () => {
     ] },
   });
   assert.equal(report.matches[0].status, 'NO_EXACT_OSM_MATCH');
+});
+
+
+test('does not merge Gare de Keur Massar with Terminus Keur Massar', () => {
+  assert.equal(normalizeStopName('Gare de Keur Massar'), 'gare keur massar');
+  assert.equal(normalizeStopName('Terminus Keur Massar'), 'terminus keur massar');
+  const report = buildAftuTataOsmCrosswalk({
+    aftuRecords: [{ data: { code: '60', waypoints: ['Gare de Keur Massar'] } }],
+    tataRecords: [],
+    osmData: { elements: [{
+      type: 'node',
+      id: 5286379844,
+      lat: 14.78545,
+      lon: -17.30922,
+      tags: { name: 'Terminus Keur Massar', network: 'AFTU', highway: 'bus_stop' },
+    }] },
+  });
+  assert.equal(report.matches[0].status, 'NO_EXACT_OSM_MATCH');
+  assert.equal(report.matches[0].candidateLocation, null);
 });
