@@ -20,6 +20,31 @@ Fichier de référence : `src/domain/corridors.ts`.
 
 **Conséquence :** le moteur actuel est un prototype multimodal de référence utile pour des corridors connus, mais il ne représente pas encore les 38 lignes DDD et 72 lignes AFTU annoncées par le CETUD. Il ne faut pas présenter sa couverture actuelle comme exhaustive.
 
+## Données de recherche déjà présentes, mais pas encore activées dans le graphe
+
+Le dépôt contient davantage de preuves que les seuls corridors actifs de `CORRIDOR_LINES`. Il faut distinguer ces couches :
+
+- `src/data/dddOfficialPublishedRoutes.ts` et ses modules transcrivent les séquences textuelles publiées par DDD. Elles conservent la source, la date de récupération et le fait que le sens retour et les coordonnées ne sont pas certifiés.
+- Les scripts d'audit ArcGIS/OSM produisent des séquences géométriques candidates, mais elles ne sont pas des arrêts commerciaux validés.
+- Les fichiers directionnels AFTU contiennent des séquences distinctes aller/retour pour une partie des lignes ; les chaînes d'arrêts ne sont pas encore géocodées.
+- Les lignes TATA ont des séquences sources dans un jeu séparé ; les sens retour ne sont pas disponibles pour la totalité des lignes.
+
+### Résultats d'audit automatique disponibles le 16 novembre 2026
+
+Le workflow Dakar Bus CI (run 4685) a produit les artefacts suivants :
+
+| Jeu | Résultat | Interprétation |
+|---|---|---|
+| DDD ArcGIS | 18 lignes candidates, 593 points d'arrêt candidats, 6 groupes exclus | Candidats géométriques, pas d'activation automatique |
+| Recoupement DDD / séquences officielles | 14/18 compatibles avec l'ordre publié, 4 non résolues | Compatibilité de noms et d'ordre seulement ; certification de sens : aucune |
+| AFTU | 28 lignes avec les deux sens, 18 avec les horaires des deux sens, 0 point géocodé, 629 libellés génériques | Séquences directionnelles existantes, géocodage et nettoyage requis |
+| TATA | 62 lignes, 0 séquence retour, 0 point géocodé | Sens retour et géocodage requis |
+| Rapprochement flou des noms AFTU/TATA | 1 373 noms uniques, 16 propositions, 13 propositions multi-clusters | Aide à la revue humaine, jamais fusion automatique |
+
+Les artefacts sont des résultats d'audit. Ils ne doivent pas être importés directement dans le calculateur : les 593 points ArcGIS ne sont pas certifiés comme arrêts voyageurs actuels ; les séquences AFTU/TATA ne possèdent pas encore de coordonnées fiables ; un nom générique « Arrêt de bus » ne peut pas devenir un quai GPS.
+
+**Conséquence produit :** le travail de collecte et de rapprochement est déjà avancé. Le goulot d'étranglement n'est plus seulement la découverte des lignes : c'est l'identification fiable des quais, le géocodage, la vérification du sens retour et la validation des cheminements piétons.
+
 ## Sources opérateurs et portée
 
 ### Dakar Dem Dikk
