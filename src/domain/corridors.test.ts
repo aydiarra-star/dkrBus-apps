@@ -6,6 +6,7 @@ import {
   CORRIDOR_LINES,
   DAKAR_REGION_BOUNDS,
   CORRIDOR_TRANSFERS,
+  INTERMODAL_TRANSFERS,
   TER_STOPS,
   getCorridorStop,
   haversineMeters,
@@ -101,6 +102,12 @@ describe('réseau de référence TER/BRT', () => {
       expect(transfer.walkM).toBeGreaterThanOrEqual(Math.floor(haversineMeters(from!, to!)))
       expect(transfer.walkM).toBeLessThan(2500)
     }
+  })
+
+  it('n’active aucune correspondance fondée uniquement sur des coordonnées de quartier approximatives', () => {
+    expect(INTERMODAL_TRANSFERS).toEqual(CORRIDOR_TRANSFERS.map((transfer) => ({ ...transfer, declared: true })))
+    expect(INTERMODAL_TRANSFERS).toHaveLength(2)
+    expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
   })
 
   it('garantit des identifiants uniques et un ordre de desserte cohérent', () => {
