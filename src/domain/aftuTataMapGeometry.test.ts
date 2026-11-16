@@ -6,8 +6,8 @@ describe('géométries cartographiques AFTU/TATA', () => {
   it('construit une requête OSRM avec les waypoints dans l’ordre publié', () => {
     const route = AFTU_TATA_MAP_ROUTES.find((item) => item.line === '79')!
     const url = buildAftuTataOsrmUrl(route)
-    expect(url).toContain('/14.77877,-17.22654;')
-    expect(url).toContain('14.771,-17.4237?')
+    expect(url).toContain('/-17.22654,14.77877;')
+    expect(url).toContain('-17.4237,14.771?')
     expect(url).toContain('geometries=geojson')
   })
 
