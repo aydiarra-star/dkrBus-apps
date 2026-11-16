@@ -59,7 +59,7 @@ export function dddArcgisFeatureStops(
   line: string,
   features: readonly DddArcgisGeoJsonFeature[],
 ): DddArcgisMapStop[] {
-  return features.flatMap((feature, index) => {
+  return features.flatMap((feature) => {
     const geometry = feature.geometry
     if (geometry?.type !== 'Point' || !Array.isArray(geometry.coordinates)) return []
     const [lon, lat] = geometry.coordinates
