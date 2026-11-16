@@ -3432,3 +3432,163 @@ button:disabled { cursor: not-allowed; }
 .app-shell.tab-route .route-panel .route-coverage-bar.mobility-brt { background: #00A859; }
 .app-shell.tab-route .route-panel .route-coverage-bar.mobility-ddd { background: #F59E0B; }
 .app-shell.tab-route .route-panel .route-coverage-bar.mobility-aftu_tata { background: #C05621; }
+
+
+/* DakarBus · priorités UX du planificateur multimodal */
+.route-network-filters {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 10px;
+}
+.route-network-filters-label {
+  color: var(--green-800);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.route-network-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.route-network-filter {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid #dbe6e0;
+  border-radius: 10px;
+  background: #edf1ee;
+  color: #6e7c74;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.route-network-filter .route-network-filter-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+.route-network-filter .route-network-filter-state {
+  padding-left: 4px;
+  color: inherit;
+  font-size: 8px;
+  font-weight: 650;
+  opacity: .8;
+}
+.route-network-filter.is-active {
+  border-color: var(--mobility-color);
+  background: var(--mobility-color);
+  color: var(--mobility-ink, #fff);
+}
+.route-network-filter.mobility-ter { --mobility-color: var(--mobility-ter); --mobility-ink: #fff; }
+.route-network-filter.mobility-brt { --mobility-color: var(--mobility-brt); --mobility-ink: #10291d; }
+.route-network-filter.mobility-ddd { --mobility-color: var(--mobility-ddd); --mobility-ink: #382507; }
+.route-network-filter.mobility-aftu_tata { --mobility-color: var(--mobility-aftu-tata); --mobility-ink: #fff; }
+.route-network-filter:disabled { opacity: .7; cursor: not-allowed; }
+
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-network-filters {
+    gap: 6px;
+    margin: 0 0 9px;
+  }
+  .app-shell.tab-route .route-network-filters-label {
+    font-size: 9px;
+  }
+  .app-shell.tab-route .route-network-filter-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .app-shell.tab-route .route-network-filter {
+    min-width: 0;
+    min-height: 34px;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 4px;
+    border-radius: 9px;
+    font-size: 9px;
+  }
+  .app-shell.tab-route .route-network-filter-state { display: none; }
+  .app-shell.tab-route .route-fields-wrap {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 3px 10px;
+    overflow: visible;
+    border: 1.5px solid var(--green-600);
+    border-radius: 15px;
+    background: var(--surface-card);
+  }
+  .app-shell.tab-route .route-origin-group {
+    gap: 3px;
+    padding: 4px 0 5px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .app-shell.tab-route .route-origin-group .point-field,
+  .app-shell.tab-route .route-fields-wrap > .point-field {
+    min-height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-origin-group .use-location-action {
+    min-height: 32px;
+    border-top: 1px solid var(--green-100);
+  }
+  .app-shell.tab-route .route-panel .route-origin-group + .swap-route {
+    position: static;
+    display: inline-flex;
+    width: 100%;
+    min-height: 27px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    transform: none;
+    border: 0;
+    border-top: 1px solid var(--green-100);
+    border-bottom: 1px solid var(--green-100);
+    border-radius: 0;
+    background: transparent;
+    color: var(--green-700);
+    font-size: 10px;
+    font-weight: 750;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-fields-wrap > .point-field {
+    min-height: 58px;
+  }
+  .app-shell.tab-route .route-submit {
+    min-height: 52px;
+    background: var(--green-800);
+    color: #fff;
+    box-shadow: 0 7px 18px rgba(10, 54, 34, .25);
+    font-size: 14px;
+    font-weight: 850;
+  }
+  .app-shell.tab-route .route-submit svg:last-child {
+    width: 21px;
+    height: 21px;
+    stroke-width: 2.6;
+  }
+}
+
+@media (min-width: 821px) {
+  .swap-route > span { display: none; }
+}
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-panel .route-origin-group + .swap-route {
+    display: inline-flex !important;
+  }
+}
