@@ -40,7 +40,8 @@ Les fiches détaillées AFTU accessibles donnent des séquences utiles mais cert
 - Fiche détaillée **63** : Parcelles Dior → Police des Parcelles → Case Bi → Cambérène → Bountou Pikine → Poste Thiaroye → Croisement Keur Massar → Keur Mbaye Fall → Rond-point Djouti Ba → Route des HLM Rufisque → Stade de Rufisque → Rufisque Nord 73 → Arrêt Khaar → Passage à niveau → Rond-point Arafat → Camp Marchand Rufisque.
 - Fiche détaillée **74** : Terminus Bargny (gare ferroviaire) → Colobane Rufisque → Poste Courant → RN1 → Boulevard Maurice Gueye → Rond-point Djouti Ba → Route des HLM Rufisque → échangeur Rufisque-Ouest → route de Jaxaay → Rond-point Station Shell Keur Massar → Terminus Keur Massar → Tivaouane Peul → Cité Socabeg → Cité Cocehas.
 - Fiche détaillée **79** : Terminus Sangalkam → Ndiakhirate → Croisement Niagues → Darou Thioub → Niacourab → Croisement Tivaouane Peulh → Station Keur Massar → Malika → Gadaye → Serigne Assane → Marché Boubess → Préfecture Guédiawaye → Cité Nations Unies / Cambérène.
-- Fiche détaillée **54** : Terminus Keur Massar (MTOA) → Station Keur Massar → MTOA → Route de Boune → Mbedou Fass → Fass Mbao → RN1 → Poste Thiaroye → Place Bakou → Pont de Colobane → Canal 4 → UCAD.
+- Fiche détaillée **53** : Terminus Keur Massar (Marché) → Terminus P11 → Croisement Tivaouane Peulh → SAFCO → Niacourab → Niagues → Ndiakhirate → Keur Ndiaye Lo → Hôpital Youssou Mbargane → Dangou → Sonadis → Poste Courant → Sococim → Bargny → Diamniadio → Sébikotane. Cette séquence ne correspond pas à l'intitulé catalogue 53 MTOA–UCAD.
+- Fiche détaillée **54** : Terminus Keur Massar (MTOA) → Station Keur Massar → MTOA → Route de Boune → Mbedou Fass → Fass Mbao → RN1 → Poste Thiaroye → Place Bakou → Pont de Colobane → Canal 4 → UCAD. Cette séquence correspond à l'intitulé catalogue 53 MTOA–UCAD plutôt qu'au catalogue 54 Rufisque Sonadis–Petersen.
 
 **Décision :** ne pas résoudre les écarts de numérotation ou d'intitulé par supposition. Les séquences sont conservées avec leur référence de page exacte jusqu'à confirmation AFTU. Le guide officiel JOJ 2026 constitue une photographie datée du réseau ; il ne doit pas écraser le catalogue et les fiches courantes lorsqu'ils divergent.
 
@@ -53,7 +54,7 @@ Les fiches détaillées AFTU accessibles donnent des séquences utiles mais cert
 | Terminus 63 (OSM node 6636898185) | **14.72082, -17.25488** | Arrêt de bus OSM ; attribution opérateur/ligne non prouvée |
 | Ex Terminus ligne 63 (OSM node 1782535718) | **14.71489, -17.26393** | Ancien arrêt de bus ; ne pas l'assimiler au terminus actuel |
 | CEM Camp Marchand (OSM way 627371995) | **14.72010, -17.26281** | Bâtiment scolaire de référence, pas un quai |
-| Arrêt Khaar | Point OSM à relever séparément | La fiche AFTU 63 cite le nom, mais le point exact reste à attribuer |
+| Arrêt Khaar (OSM node 1902193270) | **14.72029, -17.26547** | Arrêt de bus OSM nommé ; cohérent avec le nom « Arrêt Khaar » de la séquence AFTU 63, mais l'attribution opérateur reste à confirmer |
 
 La gare routière OSM et la gare ferroviaire OSM sont séparées d'environ **1,6 km à vol d'oiseau**. Elles doivent donc rester deux pôles distincts dans le calculateur. Cette valeur n'est pas un itinéraire piéton.
 
@@ -153,6 +154,7 @@ Les distances ci-dessus qui sont indiquées « à vol d'oiseau » ne sont jamais
 - Terminus 63 : https://mapcarta.com/fr/N6636898185
 - Ex Terminus ligne 63 : https://mapcarta.com/fr/N1782535718
 - CEM Camp Marchand : https://mapcarta.com/fr/W627371995
+- Arrêt Khaar : https://mapcarta.com/fr/N1902193270
 - Pharmacie Astele, adresse « en face arrêt Sonadis » : https://www.solaas.sn/fiimoowoor/establishment/2309
 - CETUD, étude territoriale et réseau de transport collectif : https://cetud.sn/wp-content/uploads/2026/03/10-CETUD-ESRBRT-TOME-2_VF.pdf
 
