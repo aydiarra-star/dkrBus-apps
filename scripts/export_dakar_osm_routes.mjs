@@ -288,11 +288,11 @@ async function main() {
     geographicBounds: BBOX,
     attribution: "© OpenStreetMap contributors, ODbL",
     endpoint: usedEndpoint,
-    method: "Read-only Overpass query for bus route relations, route masters and named bus-stop/platform nodes in the Dakar bounding box; relation member order and roles preserved.",
+    method: "Read-only Overpass query for bus route relations, route masters and named bus-stop/platform nodes and ways in the Dakar bounding box; relation member order and roles preserved.",
     warnings: [
       "OSM is a community-maintained geographic source, not proof of current operator service.",
       "No timetable or frequency is inferred from OSM.",
-      "Only mapped stop/platform relation members are extracted as ordered route candidates; standalone stop nodes are retained separately for exact-name crosswalk research.",
+      "Only mapped stop/platform relation members are extracted as ordered route candidates; standalone named stop/platform nodes and ways are retained separately for exact-name crosswalk research.",
       "Missing directions are not fabricated; route masters and direction tags are retained for matching.",
       "The query is limited to the Dakar metropolitan bounding box.",
     ],
