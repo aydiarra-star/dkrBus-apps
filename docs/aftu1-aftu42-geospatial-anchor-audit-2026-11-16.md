@@ -1,4 +1,4 @@
-# Audit des points candidats AFTU 42 et AFTU 1 — Guédiawaye, Parcelles, Lat Dior et Grand Médine
+# Audit des points candidats AFTU 42 et AFTU 1 — Guédiawaye, Parcelles et Lat Dior
 
 Date : 16 novembre 2026  
 Branche : `docs/aftu53-geospatial-anchor-audit-2026-11-16`  
