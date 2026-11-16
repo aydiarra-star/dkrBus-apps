@@ -94,10 +94,10 @@ export interface CorridorNetwork {
 /** Enveloppe géographique couvrant la région : Almadies → Rufisque/Bargny,
  *  étendue jusqu'à AIBD (terminus TER) et Guédiawaye (terminus BRT). */
 export const DAKAR_REGION_BOUNDS: { minLat: number; minLon: number; maxLat: number; maxLon: number } = {
-  minLat: 14.60,
-  minLon: -17.56,
-  maxLat: 14.84,
-  maxLon: -17.04,
+  minLat: 14.45,
+  minLon: -17.62,
+  maxLat: 15.02,
+  maxLon: -16.85,
 }
 
 export const CORRIDOR_NETWORKS: Record<CorridorNetworkId, CorridorNetwork> = {
