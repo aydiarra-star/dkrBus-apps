@@ -78,8 +78,7 @@ export interface CorridorTransfer {
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
-  /** `true` quand la correspondance est déclarée dans le référentiel ; `false`
-   *  quand elle est estimée à partir des positions déjà enregistrées. */
+  /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
 
