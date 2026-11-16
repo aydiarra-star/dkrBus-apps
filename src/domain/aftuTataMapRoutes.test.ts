@@ -53,4 +53,8 @@ it('utilise les numéros du catalogue AFTU courant pour les corridors vérifiés
   expect(byId['aftu-59']?.waypoints.map((point) => point.name)).toContain('Bargny')
   expect(byId['aftu-73']?.waypoints.map((point) => point.name)).toContain('Tivaouane Peulh')
   expect(byId['aftu-78']?.waypoints.map((point) => point.name)).toContain('Sangalkam')
+  expect(byId['aftu-59']?.waypoints.at(-1)).toMatchObject({ name: 'Bargny', lat: 14.69798, lon: -17.22923 })
+  expect(byId['aftu-73']?.waypoints[0]).toMatchObject({ name: 'Bargny', lat: 14.69798, lon: -17.22923 })
+  expect(byId['aftu-73']?.waypoints[1]).toMatchObject({ name: 'Arrêt Khaar (repère Rufisque)', lat: 14.72029, lon: -17.26547 })
+  expect(byId['aftu-73']?.waypoints.at(-1)).toMatchObject({ name: 'Tivaouane Peulh', lat: 14.81072, lon: -17.26086 })
 })
