@@ -105,7 +105,7 @@ export function JourneyOptions({
     <section className="journey-options" aria-label="Itinéraires de référence">
       <header className="journey-options-head">
         <div>
-          <span className="eyebrow">TRAJET RECOMMANDÉ · RÉSEAU DE RÉFÉRENCE</span>
+          <span className="eyebrow">RÉSEAU DE RÉFÉRENCE</span>
           <h3>{plan.originLabel} → {plan.destinationLabel}</h3>
           <p>
             {plan.options.length} itinéraire{plan.options.length > 1 ? 's' : ''} distinct{plan.options.length > 1 ? 's' : ''} calculé
@@ -132,7 +132,7 @@ export function JourneyOptions({
                   <div className="journey-option-title">
                     <span className="journey-option-rank" aria-hidden="true">{index + 1}</span>
                     <h4>{card.title}</h4>
-                    {index === 0 && <span className="journey-recommended-chip">Recommandé</span>}
+                    {index === 0 && <span className="journey-option-recommended">Trajet recommandé</span>}
                     {option.result.boardedLines.length > 0
                       ? <MobilityLineBadges names={option.result.boardedLines} />
                       : <span className="journey-option-plain">À pied uniquement</span>}
