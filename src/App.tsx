@@ -98,8 +98,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { estimatedFrequencyReference, estimatedLineFrequencyReference, estimatedLineWaitMinutes, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
-import { getServiceDisplayState, serviceWindowForDay, type ServiceDisplayState } from './domain/serviceStatus'
+import { estimatedFrequencyReference, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { boardLinesForNetwork, buildStationBoard, type StationBoard } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
 import {
