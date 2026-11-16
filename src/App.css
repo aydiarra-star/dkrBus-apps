@@ -3379,3 +3379,54 @@ button:disabled { cursor: not-allowed; }
   .app-shell.tab-route .route-panel .route-coverage > .mobility-badge { min-width: 42px; padding-right: 6px; padding-left: 6px; }
   .app-shell.tab-route .route-panel .point-option { padding-right: 7px; padding-left: 7px; }
 }
+
+
+/* Guide de trajet : seconde rangée de segments colorés, sans libellé. */
+.route-coverage-bars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  margin: 5px 0 0;
+  padding: 0;
+}
+.route-coverage-bar {
+  display: block;
+  flex: 0 0 auto;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--mobility-badge);
+}
+.route-coverage-bar.mobility-ter { width: 52px; }
+.route-coverage-bar.mobility-brt { width: 52px; }
+.route-coverage-bar.mobility-ddd { width: 52px; }
+.route-coverage-bar.mobility-aftu_tata { width: 92px; }
+
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-panel .route-coverage-bars {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    max-width: 100%;
+    margin: 5px 0 0;
+    padding: 0 0 2px;
+    overflow: visible;
+  }
+  .app-shell.tab-route .route-panel .route-coverage-bar {
+    display: block;
+    height: 4px;
+    min-height: 4px;
+    max-height: 4px;
+    border: 0;
+    border-radius: 999px;
+    opacity: 1;
+    box-shadow: none;
+  }
+  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-ter { width: 52px; background: #003366; }
+  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-brt { width: 52px; background: #00A859; }
+  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-ddd { width: 52px; background: #F59E0B; }
+  .app-shell.tab-route .route-panel .route-coverage-bar.mobility-aftu_tata { width: 92px; background: #C05621; }
+}
