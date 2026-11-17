@@ -2238,7 +2238,7 @@ function ExplorerPanel({
         </div>
       </div>
 
-      <ExploreNetworkLegend />
+      <ExploreNetworkLegend selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
       <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
     </section>
   )
@@ -2353,17 +2353,31 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
   )
 }
 
-function ExploreNetworkLegend() {
+function ExploreNetworkLegend({
+  selectedNetwork,
+  onSelectNetwork,
+}: {
+  selectedNetwork: NetworkId | null
+  onSelectNetwork: (id: NetworkId) => void
+}) {
   return (
     <section className="explore-network-legend" aria-label="Réseaux de référence">
       <strong className="explore-network-legend-title">Réseaux de références</strong>
       <div className="explore-network-legend-row">
         {MOBILITY_IDS.map((id) => (
           <div className={`explore-network-legend-item mobility-${id}`} key={id}>
-            <span className="route-coverage-item">
-              <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
-              <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
-            </span>
+            <button
+              type="button"
+              className="explore-network-legend-button"
+              aria-pressed={selectedNetwork === id}
+              aria-label={`Afficher les horaires et arrêts ${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()}`}
+              onClick={() => onSelectNetwork(id)}
+            >
+              <span className="route-coverage-item">
+                <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
+                <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
+              </span>
+            </button>
           </div>
         ))}
       </div>
