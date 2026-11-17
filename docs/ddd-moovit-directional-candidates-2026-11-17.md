@@ -108,3 +108,25 @@ Les tests de non-régression couvrent désormais des lignes d'exemple distinctes
 - Palais → Liberté 5 : première ligne samedi (07:00) et première ligne semaine (06:45), chacune sur 30 colonnes.
 
 Les assertions contrôlent les deux terminus et le nombre de colonnes. Cela sécurise le parseur sur les quatre combinaisons sens/jour, mais ne remplace toujours pas l'intégration des 182 lignes complètes (53 + 37 + 49 + 43) dans des matrices versionnées.
+
+
+## Nouvelle découverte — grilles horaires par arrêt pour la ligne 7
+
+Deux pages horaires Moovit distinctes ont été retrouvées pour la ligne 7. Elles présentent chacune une grille avec les heures de passage aux arrêts, dans l'ordre propre à la direction :
+
+- Gare Palais → Ouakam : https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256166-0
+  - dernière mise à jour affichée : **14 septembre 2026** ;
+  - semaine : 05:00–22:38 ;
+  - samedi : 05:00–22:44 ;
+  - dimanche : 06:00–21:57 ;
+  - 29 colonnes, correspondant aux 29 occurrences de la séquence candidate.
+- Rue Okm 60, 67 → Gare Palais : https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256167-0
+  - dernière mise à jour affichée : **31 août 2026** ;
+  - semaine : 04:00–22:00 ;
+  - samedi : 04:00–21:55 ;
+  - dimanche : 05:00–22:00 ;
+  - 27 colonnes, correspondant aux 27 occurrences de la séquence candidate.
+
+Les URL, dates de publication et plages horaires sont maintenant enregistrées dans les métadonnées des deux candidats de la ligne 7, avec des tests dédiés. Les plages sont les heures de service publiées ; aucun nombre de départs n'est inventé. Les grilles montrent des heures propres à chaque arrêt, ce qui évite de répartir artificiellement la durée totale du trajet.
+
+**Limite actuelle :** les pages sources ont des dates différentes (août et septembre 2026) et restent secondaires. Les matrices complètes de la ligne 7 ne sont pas encore transcrites dans le dépôt. Il faut les extraire par type de journée, vérifier les 29/27 colonnes et rapprocher les arrêts génériques avant tout usage passager.
