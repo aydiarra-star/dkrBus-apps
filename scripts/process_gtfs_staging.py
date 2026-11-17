@@ -278,7 +278,23 @@ class SupabaseRest:
             result = json.loads(raw)
         except json.JSONDecodeError as error:
             raise WorkerError("WORKER_AUTH_RESPONSE_INVALID") from error
-        token = result.get("access_token") if isinstance(result, dict) else None
+        if not isinstance(result, dict):
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        user = result.get("user")
+        if not isinstance(user, dict):
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        confirmed_email = user.get("email")
+        if (
+            not isinstance(confirmed_email, str)
+            or confirmed_email.casefold() != self.worker_email.casefold()
+        ):
+            raise WorkerError("WORKER_ACCOUNT_MISMATCH")
+        if not user.get("email_confirmed_at"):
+            raise WorkerError("WORKER_ACCOUNT_NOT_CONFIRMED")
+        app_metadata = user.get("app_metadata")
+        if not isinstance(app_metadata, dict) or app_metadata.get("dakar_gtfs_worker") is not True:
+            raise WorkerError("WORKER_IDENTITY_CLAIM_MISSING")
+        token = result.get("access_token")
         if not isinstance(token, str) or not token:
             raise WorkerError("WORKER_AUTHENTICATION_FAILED")
         self.access_token = token
