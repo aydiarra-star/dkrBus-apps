@@ -1,6 +1,5 @@
 const WALKABLE_HIGHWAYS = new Set([
   'footway', 'pedestrian', 'path', 'steps', 'living_street',
-  'residential', 'service', 'unclassified',
 ])
 const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
 const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall', 'block', 'jersey_barrier', 'gate', 'lift_gate', 'swing_gate'])
