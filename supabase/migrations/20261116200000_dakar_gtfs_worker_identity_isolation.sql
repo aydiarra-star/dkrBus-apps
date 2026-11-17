@@ -20,13 +20,17 @@ $$;
 revoke all on function public.dakar_gtfs_worker_authorized() from public;
 grant execute on function public.dakar_gtfs_worker_authorized() to public;
 
-create or replace function public.claim_dakar_gtfs_validation(p_lease_seconds integer default 900)
+drop function if exists public.claim_dakar_gtfs_validation(integer);
+
+create function public.claim_dakar_gtfs_validation(p_lease_seconds integer default 900)
 returns table (
   dataset_id text,
   archive_bucket text,
   archive_object_path text,
   archive_sha256 text,
   archive_bytes bigint,
+  manifest_object_path text,
+  manifest_sha256 text,
   lease_token uuid
 )
 language plpgsql
@@ -69,7 +73,8 @@ begin
   from candidate
   where staged.dataset_id = candidate.dataset_id
   returning staged.dataset_id, staged.archive_bucket, staged.archive_object_path,
-            staged.archive_sha256, staged.archive_bytes, staged.validation_lease_token;
+            staged.archive_sha256, staged.archive_bytes, staged.manifest_object_path,
+            staged.manifest_sha256, staged.validation_lease_token;
 end;
 $$;
 
