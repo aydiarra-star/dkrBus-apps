@@ -56,3 +56,13 @@ Aucun horaire régulier TER/BRT, aucune donnée de production et aucun écran pa
 Sur la page Liberté 5 → Gare Palais, le bandeau indique une fin de service en semaine à **20:30**, alors que la dernière ligne du tableau commence à **20:35** et affiche une arrivée à Gare Palais à **21:00**. Le samedi, le bandeau et la dernière ligne commencent tous deux à 20:35.
 
 Cet écart ne doit pas être corrigé en supprimant ou en décalant arbitrairement la course. Il est enregistré comme anomalie de cohérence entre le résumé d'exploitation et le tableau détaillé. Demander une confirmation DDD ou une nouvelle publication Moovit avant de retenir l'heure de dernier départ en semaine.
+
+## Limite d'utilisation et décision de collecte
+
+Le 17 novembre 2026, la tentative de récupération automatique a reçu de Moovit une réponse HTTP 202 avec un corps vide. Les pages restent consultables dans un navigateur, mais ce comportement ne constitue pas une autorisation de contourner les protections du site.
+
+Les conditions de Moovit interdisent notamment l'extraction, le téléchargement en masse, la mise en cache et la constitution d'une base de données à partir des données de son WebApp : https://moovit.com/legal/webappterms/
+
+L'API publique officielle de Moovit exige une clé API et une signature HMAC fournies par Moovit : https://api-docs.moovit.com/api-docs/5.1/MoovitPublicTransitAPIs.html
+
+**Décision :** les deux URL de ligne 13 et les observations descriptives de cette fiche sont conservées comme références de recherche. Aucun tableau horaire complet n'est aspiré, stocké ou intégré depuis Moovit. L'extracteur et son étape CI ont été retirés. Une utilisation de l'API ne sera envisagée qu'après obtention d'un accès/licence explicite. Les données passagers doivent continuer à provenir de sources autorisées (DDD/CETUD/ArcGIS/OSM avec leur propre statut de validation).
