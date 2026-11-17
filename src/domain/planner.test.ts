@@ -51,15 +51,17 @@ describe('calculateur multimodal de référence', () => {
   })
 
   it('mesure le TER sur la voie OSM de phase 1 uniquement dans les deux sens', () => {
+    const terDakar = getCorridorStop('ter-dakar')!
+    const terDiamniadio = getCorridorStop('ter-diamniadio')!
     const outbound = planReferenceJourney(
-      { label: 'Dakar', lat: PLATEAU_STOP.lat, lon: PLATEAU_STOP.lon, stopId: 'ter-dakar' },
-      { label: 'Diamniadio', lat: getCorridorStop('ter-diamniadio')!.lat, lon: getCorridorStop('ter-diamniadio')!.lon, stopId: 'ter-diamniadio' },
+      { label: 'Dakar', lat: terDakar.lat, lon: terDakar.lon, stopId: 'ter-dakar' },
+      { label: 'Diamniadio', lat: terDiamniadio.lat, lon: terDiamniadio.lon, stopId: 'ter-diamniadio' },
       'fastest',
       { allowedNetworks: ['ter'] },
     )
     const inbound = planReferenceJourney(
       { label: 'Diamniadio', lat: getCorridorStop('ter-diamniadio')!.lat, lon: getCorridorStop('ter-diamniadio')!.lon, stopId: 'ter-diamniadio' },
-      { label: 'Dakar', lat: PLATEAU_STOP.lat, lon: PLATEAU_STOP.lon, stopId: 'ter-dakar' },
+      { label: 'Dakar', lat: terDakar.lat, lon: terDakar.lon, stopId: 'ter-dakar' },
       'fastest',
       { allowedNetworks: ['ter'] },
     )
