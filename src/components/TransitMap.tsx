@@ -558,15 +558,13 @@ function TransitMapView({
         const brtTracks = brtTrackPositionsForLine(line.id) as readonly (readonly [number, number][])[] | undefined
         return {
           line,
-          // Le TER et le BRT suivent les géométries OSM de leurs voies.
-          // Les autres lignes conservent leurs tracés de référence actuels.
+          // Seules les voies TER/BRT disposant d'une géométrie cartographique
+          // dédiée peuvent produire un tracé continu. Ne jamais relier les
+          // coordonnées des arrêts DDD/AFTU/TATA par des segments droits.
           positions:
             terTrack ??
             (brtTracks?.[0] as [number, number][] | undefined) ??
-            line.stopIds
-              .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
-              .filter((stop): stop is CorridorStop => stop !== undefined)
-              .map((stop) => [stop.lat, stop.lon] as [number, number]),
+            [],
           additionalPositions: brtTracks?.slice(1) as [number, number][][] | undefined,
         }
       }),
@@ -825,7 +823,11 @@ function TransitMapView({
         })}
       {/* Mise en évidence du trajet calculé : mêmes géométries de référence, sans les remplacer. */}
       {corridorLineStops
-        .filter(({ line }) => highlightedLineIdSet.has(line.id))
+        .filter(({ line, positions }) =>
+          highlightedLineIdSet.has(line.id) &&
+          (line.network === 'ter' || line.network === 'brt') &&
+          positions.length > 1
+        )
         .flatMap(({ line, positions, additionalPositions }) => {
           const paint = paintFor(line.network)
           const tracks = [positions, ...(additionalPositions ?? [])]
