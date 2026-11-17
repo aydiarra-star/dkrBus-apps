@@ -2239,7 +2239,7 @@ function ExplorerPanel({
       </div>
 
       <ExploreNetworkLegend />
-      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
+      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
     </section>
   )
 }
@@ -2248,10 +2248,12 @@ function ExploreMobilityCountdowns({
   now,
   selectedNetwork,
   onSelectNetwork,
+  onFocusNearbyStop,
 }: {
   now: number
   selectedNetwork: NetworkId | null
   onSelectNetwork: (id: NetworkId) => void
+  onFocusNearbyStop: (stop: CorridorStop) => void
 }) {
   return (
     <section className="network-summary-section" aria-label="Prochains passages des mobilités">
