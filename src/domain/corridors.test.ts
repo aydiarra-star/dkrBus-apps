@@ -229,10 +229,10 @@ describe('source unique des fréquences', () => {
     // Le calculateur retient prudemment le maximum officiel déclaré.
     expect(ter.headwayMin).toBe(Math.max(...OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)))
     expect(brt.headwayMin).toBe(Math.max(...OFFICIAL_REFERENCE_FREQUENCIES.brt.map((f) => f.headwayMinutes)))
-    expect(ter.headwayMin).toBe(20)
+    expect(ter.headwayMin).toBe(30)
     expect(brt.headwayMin).toBe(6)
     // Les références officielles elles-mêmes ne bougent pas.
     expect(OFFICIAL_REFERENCE_FREQUENCIES.brt.map((f) => f.headwayMinutes)).toEqual([6])
-    expect(OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)).toEqual([10, 20, 20])
+    expect(OFFICIAL_REFERENCE_FREQUENCIES.ter.map((f) => f.headwayMinutes)).toEqual([8, 24, 20, 30])
   })
 })
