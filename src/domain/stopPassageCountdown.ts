@@ -116,7 +116,7 @@ export function isValidStopPassageTimetable(
 
   const parseClock = (value: string): number | null => {
     if (typeof value !== 'string') return null
-    const match = /^(\\d{2}):(\\d{2})$/.exec(value)
+    const match = /^(\d{2}):(\d{2})$/.exec(value)
     if (!match) return null
     const hours = Number(match[1])
     const minutes = Number(match[2])
