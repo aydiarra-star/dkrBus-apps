@@ -61,6 +61,9 @@ export async function loadPedestrianSource({
   try {
     return await Promise.any(requests)
   } catch (error) {
-    throw new Error('Aucun serveur Overpass disponible avec une réponse complète : ' + error.message)
+    const reasons = error instanceof AggregateError
+      ? error.errors.map(reason => reason instanceof Error ? reason.message : String(reason)).join(' | ')
+      : error instanceof Error ? error.message : String(error)
+    throw new Error('Aucun serveur Overpass disponible avec une réponse complète : ' + reasons)
   }
 }
