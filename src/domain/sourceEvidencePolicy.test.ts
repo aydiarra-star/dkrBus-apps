@@ -18,9 +18,11 @@ describe('assessSourceEvidence', () => {
     expect(result.accepted).toBe(true)
     expect(result.dateStatus).toBe('DATE_UNKNOWN')
   })
-  it('rejects records without traceable provenance, regardless of date', () => {
-    const result = assessSourceEvidence({ sourceUrl: '', sourceLabel: 'Source non identifiée', dataLastUpdated: '2026-11-17' })
-    expect(result.accepted).toBe(false)
-    expect(result.provenanceStatus).toBe('MISSING_PROVENANCE')
+  it('rejects records without a valid traceable HTTP(S) provenance', () => {
+    const missing = assessSourceEvidence({ sourceUrl: '', sourceLabel: 'Source non identifiée', dataLastUpdated: '2026-11-17' })
+    const malformed = assessSourceEvidence({ sourceUrl: 'pas-une-url', sourceLabel: 'Source sans lien vérifiable' })
+    expect(missing.accepted).toBe(false)
+    expect(missing.provenanceStatus).toBe('MISSING_PROVENANCE')
+    expect(malformed.accepted).toBe(false)
   })
 })
