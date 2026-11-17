@@ -15,7 +15,7 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-07',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-0',
     timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256166-0',
-    timetableUpdatedOn: '2026-09-14',
+    timetableUpdatedOn: '2026-11-16',
     timetableCoverage: 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY',
     timetableCoverageByDay: {
       weekday: { firstDeparture: '05:00', lastDeparture: '22:38' },
@@ -44,7 +44,7 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-1',
     timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256167-0',
-    timetableUpdatedOn: '2026-08-31',
+    timetableUpdatedOn: '2026-11-16',
     timetableCoverage: 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY',
     timetableCoverageByDay: {
       weekday: { firstDeparture: '04:00', lastDeparture: '22:00' },
