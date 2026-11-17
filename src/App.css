@@ -1412,6 +1412,134 @@ button:disabled { cursor: not-allowed; }
   line-height: 1.4;
 }
 
+/* Explorer : compte à rebours puis bandeau de références, dans cet ordre. */
+.explore-mobility-countdowns {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  margin-top: 4px;
+}
+.explore-mobility-countdowns-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.explore-mobility-countdowns-heading strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+.explore-mobility-countdowns-heading span,
+.explore-mobility-countdowns > small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.explore-mobility-countdowns-row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.explore-mobility-countdown {
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 7px 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-card);
+  text-align: center;
+}
+.explore-mobility-countdown-network {
+  display: flex;
+  min-width: 0;
+  justify-content: center;
+}
+.explore-mobility-countdown .mobility-badge {
+  max-width: none;
+  min-width: 0;
+  padding: 2px 5px;
+  overflow: visible;
+  font-size: 9px;
+  line-height: 1.2;
+  text-overflow: clip;
+}
+.explore-mobility-countdown-clock {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+.explore-mobility-countdown-remaining {
+  color: var(--passage-green, #16834d);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.explore-mobility-countdowns > small {
+  line-height: 1.35;
+}
+.explore-network-legend {
+  margin-top: 2px;
+}
+.explore-network-legend-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+}
+.explore-network-legend-item {
+  min-width: 0;
+}
+.explore-network-legend-item .route-coverage-item {
+  width: 100%;
+  min-width: 0;
+  align-items: stretch;
+}
+.explore-network-legend-item .mobility-badge {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 25px;
+  padding: 4px 3px;
+  overflow: visible;
+  font-size: 9.5px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-overflow: clip;
+}
+.explore-network-legend-item .mobility-aftu_tata {
+  max-width: none;
+  width: 100%;
+}
+.explore-network-legend-item .route-coverage-bar {
+  width: 100%;
+  height: 4px;
+  min-height: 4px;
+}
+@media (max-width: 360px) {
+  .explore-mobility-countdowns-row,
+  .explore-network-legend-row {
+    gap: 4px;
+  }
+  .explore-mobility-countdown {
+    padding-right: 1px;
+    padding-left: 1px;
+  }
+  .explore-mobility-countdown-remaining {
+    font-size: 8px;
+  }
+  .explore-network-legend-item .mobility-badge {
+    font-size: 8.5px;
+  }
+}
+
 .network-summary-section { display: grid; margin-top: 0; gap: 4px; }
 .network-summary-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .network-summary-heading strong { color: var(--text); font-family: Manrope, sans-serif; font-size: 13.5px; font-weight: 800; letter-spacing: -.01em; }
