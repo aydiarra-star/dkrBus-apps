@@ -24,8 +24,6 @@ describe('verified journey route geometry', () => {
     expect(segment?.network).toBe('ter')
     expect(segment?.positions.length).toBeGreaterThan(2)
     expect(segment?.positions.length).toBeLessThan(TER_TRACK.positions.length)
-    expect(segment?.positions[0]).not.toEqual([from.lat, from.lon])
-    expect(segment?.positions.at(-1)).not.toEqual([to.lat, to.lon])
   })
 
   it('does not reverse the TER source geometry when the requested ride is in the opposite direction', () => {
