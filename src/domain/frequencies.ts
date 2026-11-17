@@ -32,7 +32,9 @@ export interface FrequencyValidityPeriod {
 }
 
 export interface OfficialFrequency {
-  status: 'OFFICIAL_REFERENCE'
+  status: 'OFFICIAL_REFERENCE' | 'SCHEDULED'
+  /** Segment TER auquel s'applique cette grille ; absent pour les autres réseaux. */
+  routeSegment?: 'DAKAR_DIAMNIADIO' | 'DIAMNIADIO_AIBD'
   headwayMinutes: number
   serviceStart: string
   serviceEnd: string
@@ -120,33 +122,36 @@ export const OFFICIAL_REFERENCE_FREQUENCIES: Readonly<Record<'brt' | 'ter', read
   ],
   ter: [
     {
-      status: 'OFFICIAL_REFERENCE',
-      headwayMinutes: 10,
-      serviceStart: '05:30',
-      serviceEnd: '21:00',
-      days: WEEKDAYS_AND_SATURDAY,
-      excludesPublicHolidays: true,
-      source: FREQUENCY_SOURCES.ter,
-      operator: 'TER / SETER',
-      scope: 'Dakar ↔ Diamniadio',
-      label: 'Toutes les 10 minutes',
-      validityPeriod: NO_CALENDAR_VALIDITY,
-    },
-    {
-      status: 'OFFICIAL_REFERENCE',
-      headwayMinutes: 20,
-      serviceStart: '21:00',
+      status: 'SCHEDULED',
+      routeSegment: 'DAKAR_DIAMNIADIO',
+      headwayMinutes: 8,
+      serviceStart: '05:35',
       serviceEnd: '22:00',
       days: WEEKDAYS_AND_SATURDAY,
       excludesPublicHolidays: true,
       source: FREQUENCY_SOURCES.ter,
       operator: 'TER / SETER',
-      scope: 'Dakar ↔ Diamniadio',
-      label: 'Toutes les 20 minutes',
+      scope: 'Dakar ↔ Diamniadio · sens Dakar et sens Diamniadio',
+      label: 'Toutes les 8 minutes',
       validityPeriod: NO_CALENDAR_VALIDITY,
     },
     {
-      status: 'OFFICIAL_REFERENCE',
+      status: 'SCHEDULED',
+      routeSegment: 'DIAMNIADIO_AIBD',
+      headwayMinutes: 24,
+      serviceStart: '05:35',
+      serviceEnd: '22:00',
+      days: WEEKDAYS_AND_SATURDAY,
+      excludesPublicHolidays: true,
+      source: FREQUENCY_SOURCES.ter,
+      operator: 'TER / SETER',
+      scope: 'Diamniadio ↔ AIBD · un train sur trois',
+      label: 'Toutes les 24 minutes',
+      validityPeriod: NO_CALENDAR_VALIDITY,
+    },
+    {
+      status: 'SCHEDULED',
+      routeSegment: 'DAKAR_DIAMNIADIO',
       headwayMinutes: 20,
       serviceStart: '06:30',
       serviceEnd: '22:00',
@@ -156,6 +161,20 @@ export const OFFICIAL_REFERENCE_FREQUENCIES: Readonly<Record<'brt' | 'ter', read
       operator: 'TER / SETER',
       scope: 'Dakar ↔ Diamniadio',
       label: 'Toutes les 20 minutes',
+      validityPeriod: NO_CALENDAR_VALIDITY,
+    },
+    {
+      status: 'SCHEDULED',
+      routeSegment: 'DIAMNIADIO_AIBD',
+      headwayMinutes: 30,
+      serviceStart: '06:17',
+      serviceEnd: '22:00',
+      days: SUNDAY,
+      appliesToPublicHolidays: true,
+      source: FREQUENCY_SOURCES.ter,
+      operator: 'TER / SETER',
+      scope: 'Diamniadio ↔ AIBD',
+      label: 'Toutes les 30 minutes',
       validityPeriod: NO_CALENDAR_VALIDITY,
     },
   ],
