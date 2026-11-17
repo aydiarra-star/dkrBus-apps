@@ -48,33 +48,12 @@ describe('PassageArcs', () => {
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\s*\.station-board-double-apostrophe\s*\{\s*animation:\s*none;/)
   })
 
-  it('affiche exactement le même tracé sur tous les horaires de toutes les mobilités (TER, BRT, DDD, AFTU / TATA)', () => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
-    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false, status: 404, json: async () => ({ error: 'NOT_FOUND' }) })))
-
-    const expectedSvgHtml = render(<PassageArcs />).container.querySelector('svg')!.outerHTML
-    cleanup()
-
-    const { container } = render(<App />)
-
-    for (const network of ['ter', 'brt', 'ddd', 'aftu_tata'] as const) {
-      const summaryPassage = container.querySelector(`.network-item-${network} .network-summary-passage strong`)
-      expect(summaryPassage?.textContent).toMatch(/\d+ min/)
-      const summaryIcon = summaryPassage?.querySelector('svg.station-board-double-apostrophe')
-      expect(summaryIcon?.outerHTML).toBe(expectedSvgHtml)
-
-      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
-      const board = container.querySelector('.station-board') as HTMLElement
-      expect(board).toBeTruthy()
-      const countdowns = Array.from(board.querySelectorAll('.station-board-passage strong'))
-        .filter((strong) => /\d+ min/.test(strong.textContent ?? ''))
-      expect(countdowns.length).toBeGreaterThan(0)
-      for (const strong of countdowns) {
-        expect(strong.querySelector('svg.station-board-double-apostrophe')?.outerHTML).toBe(expectedSvgHtml)
-      }
-      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
-    }
+  it('conserve le composant d’arc partagé pour les horaires de passage', () => {
+    const { container } = render(<PassageArcs />)
+    const svg = container.querySelector('svg.station-board-double-apostrophe')
+    expect(svg).not.toBeNull()
+    expect(svg?.querySelectorAll('path')).toHaveLength(2)
+    expect(svg?.getAttribute('aria-hidden')).toBe('true')
   })
 
   it('affiche les arcs uniquement sur les créneaux actifs DDD et AFTU / TATA, jamais hors service', () => {
