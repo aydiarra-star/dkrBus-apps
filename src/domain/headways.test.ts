@@ -101,7 +101,7 @@ describe('prochains créneaux théoriques', () => {
   })
 
   it('applique la grille spéciale TER un jour férié en semaine', () => {
-    // Noël 2026 tombe un vendredi : la grille normale 05:30–21:00 est exclue.
+    // Noël 2026 tombe un vendredi : la grille spéciale du segment AIBD s'applique.
     const holiday = nextReferencePassage(TER.filter((f) => f.routeSegment === 'DIAMNIADIO_AIBD'), at('2026-12-25T06:00:00Z'))!
     expect(holiday.clockLabel).toBe('06:17')
     expect(holiday.headwayMinutes).toBe(30)
@@ -219,13 +219,12 @@ describe('projection terminus → station intermédiaire', () => {
   })
 
   it('projette un départ TER au-delà de 21:00 sans changer de cadence', () => {
-    // TER : 05:35–22:00 à 8 min. Le dernier départ
-    // de la grille de journée (20:50) atteint une gare à 12 min de parcours à
-    // 21:02 : la fenêtre de service s’apprécie au terminus, donc ce passage est
-    // porté par un départ en service et non par un service « non commencé ».
+    // TER : 05:35–22:00 à 8 min. Le départ de grille 20:55 atteint une gare
+    // à 12 min de parcours à 21:07 : la fenêtre de service s’apprécie au
+    // terminus, donc ce passage reste porté par un départ en service.
     const now = at('2026-10-05T21:00:00Z')
     const projected = nextReferencePassage(TER.filter((f) => f.routeSegment === 'DAKAR_DIAMNIADIO'), now, 12)!
-    expect(projected.clockLabel).toBe('21:02')
+    expect(projected.clockLabel).toBe('21:07')
     expect(projected.status).toBe('RUNNING')
     expect(projected.note).not.toMatch(/service non commencé/i)
   })
