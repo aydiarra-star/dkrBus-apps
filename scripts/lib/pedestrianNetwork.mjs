@@ -4,14 +4,12 @@ const WALKABLE_HIGHWAYS = new Set([
 ])
 const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
 const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall', 'block', 'jersey_barrier', 'gate', 'lift_gate', 'swing_gate'])
-const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall', 'block', 'jersey_barrier', 'gate', 'lift_gate', 'swing_gate'])
 
 export function isWalkableOsmWay(tags = {}) {
   const highway = String(tags.highway ?? '')
   if (!WALKABLE_HIGHWAYS.has(highway)) return false
   const foot = String(tags.foot ?? tags['foot:access'] ?? '').toLowerCase()
   const access = String(tags.access ?? '').toLowerCase()
-  if (tags['foot:conditional']) return false
   if (tags['foot:conditional']) return false
   if (['no', 'private'].includes(foot)) return false
   if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive', 'destination'].includes(foot)) return false
@@ -27,16 +25,6 @@ export function isWalkableOsmWay(tags = {}) {
 }
 
 export function isWalkableOsmNode(tags = {}) {
-  const foot = String(tags.foot ?? '').toLowerCase()
-  const access = String(tags.access ?? '').toLowerCase()
-  if (['no', 'private'].includes(foot)) return false
-  if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive'].includes(foot)) return false
-  const barrier = String(tags.barrier ?? '').toLowerCase()
-  if (BLOCKING_BARRIERS.has(barrier) && !['yes', 'designated', 'permissive'].includes(foot)) return false
-  return true
-}
-
-function isWalkableOsmNode(tags = {}) {
   const foot = String(tags.foot ?? '').toLowerCase()
   const access = String(tags.access ?? '').toLowerCase()
   if (['no', 'private'].includes(foot)) return false
@@ -62,7 +50,6 @@ function distanceMeters(a, b) {
  * connect a stop to its nearest road; those links require separate evidence.
  */
 export function buildPedestrianGraph(elements = []) {
-  const nodeTags = new Map(elements.filter((element) => element.type === 'node').map((element) => [String(element.id), element.tags ?? {}]))
   const nodeTags = new Map(elements.filter((element) => element.type === 'node').map((element) => [String(element.id), element.tags ?? {}]))
   const nodes = new Map()
   const edges = []
