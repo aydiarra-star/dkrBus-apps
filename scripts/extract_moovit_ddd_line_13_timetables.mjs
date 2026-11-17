@@ -120,17 +120,27 @@ async function main() {
   const output = []
   for (const source of SOURCES) {
     let html = null
+    let responseMetadata = null
     try {
       const response = await fetch(source.url, {
-        headers: { 'user-agent': 'DakarBusResearchBot/1.0 (read-only timetable evidence)' },
+        headers: { 'user-agent': 'Mozilla/5.0 (compatible; DakarBusResearchBot/1.0; read-only timetable evidence)' },
         signal: AbortSignal.timeout(25_000),
       })
+      responseMetadata = {
+        direction: source.direction,
+        status: response.status,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        finalUrl: response.url,
+      }
       if (!response.ok) throw new Error(`Moovit returned HTTP ${response.status} for ${source.direction}`)
       html = await response.text()
+      responseMetadata.bodyLength = html.length
       output.push(parseMoovitTimetableHtml(html, source))
     } catch (error) {
-      if (html) {
-        await mkdir('artifacts/ddd/moovit-line-13', { recursive: true })
+      await mkdir('artifacts/ddd/moovit-line-13', { recursive: true })
+      await writeFile('artifacts/ddd/moovit-line-13/response-diagnostics.json', JSON.stringify(responseMetadata, null, 2) + '\\n')
+      if (html !== null) {
         await writeFile(`artifacts/ddd/moovit-line-13/debug-${source.direction}.html`, html.slice(0, 500_000))
       }
       throw error
