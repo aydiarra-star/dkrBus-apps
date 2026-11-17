@@ -39,6 +39,7 @@ DATASET_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 LEASE_TOKEN_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
 ARCHIVE_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/feed\.zip$")
+MANIFEST_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/manifest\\.json$")
 
 EXPECTED_VALIDATOR_LIMITS = {
     "max_archive_bytes": 100 * 1024 * 1024,
