@@ -29,18 +29,22 @@ describe('sliceVerifiedRouteSegment', () => {
   it('returns only the requested sub-section, not the full corridor', () => {
     const segment = sliceVerifiedRouteSegment(
       route,
-      { lat: 14.6833, lon: -17.4353 },
-      { lat: 14.7000, lon: -17.4250 },
+      { lat: 14.67995, lon: -17.43795 },
+      { lat: 14.68665, lon: -17.43265 },
     )
     expect(segment).not.toBeNull()
     expect(segment!.length).toBe(2)
     expect(segment![0]).not.toEqual(route.positions[0])
-    expect(segment![1]).not.toEqual(route.positions[2])
+    expect(segment![1]).not.toEqual(route.positions[1])
   })
 
   it('fails closed for reversed, unverified, or distant stop pairs', () => {
     expect(sliceVerifiedRouteSegment(route, route.positions[2], route.positions[0])).toBeNull()
-    expect(sliceVerifiedRouteSegment({ ...route, verified: false }, route.positions[0], route.positions[2])).toBeNull()
+    expect(sliceVerifiedRouteSegment(
+      { ...route, verified: false } as unknown as VerifiedLineGeometry,
+      route.positions[0],
+      route.positions[2],
+    )).toBeNull()
     expect(sliceVerifiedRouteSegment(route, route.positions[0], { lat: 14.71, lon: -17.3 })).toBeNull()
   })
 })
