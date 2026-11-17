@@ -99,3 +99,12 @@ Les exemples des deux premières lignes sont utilisés dans les tests de non-ré
 ## Date de mise à jour des grilles horaires
 
 Les deux pages horaires de la ligne 13 indiquent une dernière mise à jour le **16 novembre 2026**. Cette date est distincte de la date de mise à jour des pages cartographiques des itinéraires (14 novembre 2026). La métadonnée `timetableUpdatedOn: '2026-11-16'` est enregistrée séparément pour chacun des deux sens. Elle date la publication Moovit, pas une validation officielle par DDD.
+
+
+## Renforcement des tests de passage — semaine et samedi
+
+Les tests de non-régression couvrent désormais des lignes d'exemple distinctes pour les deux sens et pour les deux types de journée :
+- Liberté 5 → Palais : première ligne samedi (06:30) et première ligne semaine (06:00), chacune sur 30 colonnes ;
+- Palais → Liberté 5 : première ligne samedi (07:00) et première ligne semaine (06:45), chacune sur 30 colonnes.
+
+Les assertions contrôlent les deux terminus et le nombre de colonnes. Cela sécurise le parseur sur les quatre combinaisons sens/jour, mais ne remplace toujours pas l'intégration des 182 lignes complètes (53 + 37 + 49 + 43) dans des matrices versionnées.
