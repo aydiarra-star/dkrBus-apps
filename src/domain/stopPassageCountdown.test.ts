@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextStopPassageCountdown, nextTimetableStopPassageCountdown } from './stopPassageCountdown'
+import { isValidStopPassageTimetable, nextStopPassageCountdown, nextTimetableStopPassageCountdown } from './stopPassageCountdown'
 
 const plan = {
   firstDeparture: '06:00',
@@ -151,5 +151,40 @@ describe('ligne 7 DDD — contrôle des premières grilles Moovit à chaque arr�
     expect(ouakamToGarePalais).toHaveLength(27)
     expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 0, at(3, 59))).toBe(1)
     expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 26, at(3, 59))).toBe(28)
+  })
+})
+
+
+describe('isValidStopPassageTimetable', () => {
+  it('accepts complete chronological grids with repeated stop times', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:00', '06:05'],
+      ['06:15', '06:17', '06:20'],
+    ])).toBe(true)
+  })
+
+  it('rejects a malformed time even in a column not selected for countdown', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', 'bad', '06:20'],
+    ])).toBe(false)
+  })
+
+  it('rejects a passage sequence that goes backwards within a trip', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:07', '06:05'],
+    ])).toBe(false)
+  })
+
+  it('rejects departures that go backwards at an individual stop', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:02'],
+      ['06:10', '06:01'],
+    ])).toBe(false)
+  })
+
+  it('rejects empty and ragged grids', () => {
+    expect(isValidStopPassageTimetable([])).toBe(false)
+    expect(isValidStopPassageTimetable([['06:00'], ['06:10', '06:12']])).toBe(false)
   })
 })
