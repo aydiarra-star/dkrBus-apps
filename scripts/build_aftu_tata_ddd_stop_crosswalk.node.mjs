@@ -7,11 +7,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const GENERIC = new Set(['arret','de','du','des','la','le','les','bus','stop','station','gare','terminus','a','au','aux']);
+const LEADING_TRANSPORT_PREFIXES = /^(?:(?:arret(?: de bus)?|bus stop|stop|station|terminus)\\s+)+/;
 export function normalizeStopName(value) {
-  return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/)
-    .filter((token) => token && !GENERIC.has(token)).join(' ');
+  const normalized = String(value ?? '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return normalized.replace(LEADING_TRANSPORT_PREFIXES, '').trim();
 }
 function labelOf(point) {
   if (typeof point === 'string') return point;
