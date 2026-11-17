@@ -13,9 +13,6 @@ import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
-import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
-import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
-import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
 import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
 
 export interface Coordinates {
@@ -353,7 +350,6 @@ function TransitMapView({
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
-  const [aftuTataTracks, setAftuTataTracks] = useState<(AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[]>([])
   const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
@@ -441,50 +437,9 @@ function TransitMapView({
     return () => controller.abort()
   }, [])
 
-  // Les lignes AFTU/TATA sont dessinées en suivant les waypoints ordonnés
-  // publiés. OSRM fournit uniquement la géométrie routière entre ces repères.
-  useEffect(() => {
-    if (import.meta.env.MODE === 'test') return
-    const controller = new AbortController()
-    const loadAftuTataTracks = async () => {
-      const tracks: (AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[] = []
-      const mapRoutes = [
-        ...DDD_ADDITIONAL_MAP_ROUTES.map((route) => ({ ...route, network: 'ddd' as const })),
-        ...AFTU_TATA_MAP_ROUTES.map((route) => ({ ...route, network: 'aftu_tata' as const })),
-      ]
-      for (const route of mapRoutes) {
-        if (controller.signal.aborted) break
-        const url = buildAftuTataOsrmUrl(route)
-        if (!url) continue
-        try {
-          const response = await fetch(url, {
-            signal: controller.signal,
-            headers: { Accept: 'application/json' },
-          })
-          if (response.ok) {
-            const payload = await response.json() as {
-              code?: string
-              routes?: { geometry?: { coordinates?: unknown } }[]
-            }
-            if (payload.code === 'Ok') {
-              const positions = osrmGeometryToLeafletPositions(payload.routes?.[0]?.geometry?.coordinates)
-              if (positions.length >= 2) {
-                tracks.push({ id: route.id, line: route.line, network: route.network, positions })
-                if (!controller.signal.aborted) setAftuTataTracks([...tracks])
-              }
-            }
-          }
-        } catch {
-          // La carte et les arrêts existants restent utilisables si OSRM est indisponible.
-        }
-        if (!controller.signal.aborted) {
-          await new Promise<void>((resolve) => window.setTimeout(resolve, 1_000))
-        }
-      }
-    }
-    void loadAftuTataTracks()
-    return () => controller.abort()
-  }, [])
+  // Aucun itinéraire bus n'est dessiné depuis de simples waypoints géographiques.
+  // Les traces bus visibles proviennent uniquement de géométries de ligne publiées
+  // (ArcGIS DDD ou relation OSM vérifiée), jamais d'un OSRM entre centres de lieux.
 
   // La relation OSM AFTU/TATA 40 possède une géométrie de route,
   // même si sa séquence d'arrêts n'est pas publiée dans OSM.
@@ -650,25 +605,6 @@ function TransitMapView({
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
-      {aftuTataTracks.map((track) => (
-        <Polyline
-          key={`aftu-tata-${track.id}`}
-          positions={track.positions}
-          interactive
-          pathOptions={{
-            color: paintFor(track.network)?.core ?? '#D97706',
-            weight: 1.9,
-            opacity: 0.72,
-            dashArray: '4 6',
-            lineCap: 'round',
-            lineJoin: 'round',
-          }}
-        >
-          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU'} {track.line}</strong>
-          </Tooltip>
-        </Polyline>
-      ))}
       {tataOsmTracks.map((track) => (
         <Polyline
           key={track.id}
