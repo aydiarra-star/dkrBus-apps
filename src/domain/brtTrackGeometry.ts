@@ -1,4 +1,5 @@
 import brtTrackGeoJson from '../../data/brt/brt-b1-osm.geojson?raw'
+import { auditBrtB1DirectionalGeometry } from './referenceRouteGeometry'
 
 export type BrtTrackPosition = readonly [number, number]
 
@@ -65,7 +66,19 @@ export function parseBrtTracks(source: string): readonly BrtDirectionalTrack[] {
 
 export const BRT_B1_TRACKS = parseBrtTracks(brtTrackGeoJson)
 
-/** Géométries OSM directionnelles disponibles pour une ligne cartographique. */
+// Une relation n'est affichée comme voie de référence que si les 23 stations
+// se projettent dans l'ordre et dans la tolérance métrique. L'autre sens reste
+// conservé dans les données et les audits, mais n'est pas présenté comme validé.
+const verifiedBrtDirections = new Set(
+  auditBrtB1DirectionalGeometry()
+    .filter((audit) => audit.passed)
+    .map((audit) => audit.direction),
+)
+
+/** Géométries OSM directionnelles validées pour une ligne cartographique. */
 export function brtTrackPositionsForLine(lineId: string): readonly (readonly BrtTrackPosition[])[] | undefined {
-  return lineId === 'brt-b1' ? BRT_B1_TRACKS.map((track) => track.positions) : undefined
+  if (lineId !== 'brt-b1') return undefined
+  return BRT_B1_TRACKS
+    .filter((track) => verifiedBrtDirections.has(`${track.directionFrom} → ${track.directionTo}`))
+    .map((track) => track.positions)
 }
