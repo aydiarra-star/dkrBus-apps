@@ -55,3 +55,48 @@ export function nextStopPassageCountdown(
   if (passage > lastPassage) return null
   return Math.max(0, Math.ceil(passage - current))
 }
+
+
+/**
+ * Compte à rebours à partir d'une grille horaire réelle :
+ * une ligne par départ et une colonne par arrêt, dans l'ordre du sens.
+ * Contrairement au calcul par fréquence, cette fonction respecte les
+ * intervalles irréguliers et les heures propres à chaque arrêt.
+ */
+export function nextTimetableStopPassageCountdown(
+  timetableByDeparture: readonly (readonly string[])[] | null | undefined,
+  stopIndex: number,
+  now: Date = new Date(),
+): number | null {
+  if (!Array.isArray(timetableByDeparture) || timetableByDeparture.length === 0 ||
+      !Number.isInteger(stopIndex) || stopIndex < 0 ||
+      !(now instanceof Date) || !Number.isFinite(now.getTime())) return null
+
+  const parseClock = (value: string): number | null => {
+    const match = /^(\\d{2}):(\\d{2})$/.exec(value)
+    if (!match) return null
+    const hours = Number(match[1])
+    const minutes = Number(match[2])
+    return hours <= 23 && minutes <= 59 ? hours * 60 + minutes : null
+  }
+
+  const current = now.getUTCHours() * 60 + now.getUTCMinutes() + now.getUTCSeconds() / 60
+  let nextPassage: number | null = null
+  let expectedStopCount: number | null = null
+  let previousPassage = -1
+
+  for (const row of timetableByDeparture) {
+    if (!Array.isArray(row) || row.length === 0 ||
+        (expectedStopCount !== null && row.length !== expectedStopCount) ||
+        stopIndex >= row.length) return null
+    expectedStopCount = row.length
+    const passage = parseClock(row[stopIndex])
+    if (passage === null || passage < previousPassage) return null
+    previousPassage = passage
+    if (passage >= current && (nextPassage === null || passage < nextPassage)) {
+      nextPassage = passage
+    }
+  }
+
+  return nextPassage === null ? null : Math.max(0, Math.ceil(nextPassage - current))
+}
