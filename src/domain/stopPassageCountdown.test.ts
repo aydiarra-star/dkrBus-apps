@@ -127,4 +127,29 @@ describe('ligne 13 DDD — contrôle des grilles Moovit à 30 arrêts', () => {
     )
     expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 30, at(6, 29))).toBeNull()
   })
+describe('ligne 7 DDD — contrôle des premières grilles Moovit à chaque arrêt', () => {
+  const garePalaisToOuakam = [
+    '05:00','05:00','05:01','05:03','05:04','05:05','05:07','05:09','05:10','05:11',
+    '05:11','05:13','05:15','05:16','05:17','05:18','05:18','05:19','05:21','05:22',
+    '05:23','05:25','05:26','05:26','05:27','05:28','05:29','05:29','05:30',
+  ]
+  const ouakamToGarePalais = [
+    '04:00','04:00','04:00','04:01','04:02','04:02','04:03','04:04','04:06','04:07',
+    '04:08','04:09','04:10','04:11','04:12','04:13','04:15','04:17','04:17','04:19',
+    '04:21','04:22','04:23','04:24','04:25','04:26','04:27',
+  ]
+
+  it('vérifie les 29 colonnes du sens Gare Palais → Ouakam', () => {
+    expect(garePalaisToOuakam).toHaveLength(29)
+    expect(nextTimetableStopPassageCountdown([garePalaisToOuakam], 0, at(4, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([garePalaisToOuakam], 28, at(4, 59))).toBe(31)
+  })
+
+  it('vérifie les 27 colonnes du sens Ouakam → Gare Palais', () => {
+    expect(ouakamToGarePalais).toHaveLength(27)
+    expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 0, at(3, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 26, at(3, 59))).toBe(28)
+  })
+})
+
 })
