@@ -12,6 +12,12 @@ describe('official DDD published route sequences', () => {
     expect(DDD_OFFICIAL_ROUTE_SOURCE).toMatchObject({
       url: 'https://demdikk.sn/reseau-urbain-dakar/',
       infoUrl: 'https://demdikk.sn/info-voyageurs/',
+      mobileAppInfoUrl: 'https://demdikk.sn/v2appmobile/',
+      mobileAppAnnouncedOn: '2025-09-03',
+      appStoreVersion: '2025.4.1',
+      appStoreVersionPublishedOn: '2025-10-02',
+      infoPageCheckedOn: '2026-11-17',
+      retrievedOn: '2026-11-17',
       status: 'NEEDS_HUMAN_REVIEW',
       directionCoverage: 'ONE_PUBLISHED_ORDER_ONLY',
       reverseSequenceVerified: false,
