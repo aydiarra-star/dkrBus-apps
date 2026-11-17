@@ -5,7 +5,9 @@ import { buildPedestrianGraph } from './lib/pedestrianNetwork.mjs'
 const bbox = '(14.50,-17.60,14.95,-17.05)'
 const query = `[out:json][timeout:60];
 way["highway"~"^(footway|pedestrian|path|steps|living_street|residential|service|unclassified|tertiary|secondary|primary|trunk|trunk_link)$"]${bbox};
-out body geom;`
+out body geom;
+>;
+out body;`
 const endpoints = [
   'https://overpass.private.coffee/api/interpreter',
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
