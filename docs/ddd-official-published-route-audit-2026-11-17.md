@@ -112,3 +112,13 @@ Les séquences officielles publiées comptent respectivement 21 et 24 repères. 
 6. Maintenir les éléments non résolus hors du catalogue passager.
 
 Aucun horaire TER/BRT, aucune donnée de production, aucun paramètre Supabase et aucun écran passager n'a été modifié par cet audit.
+
+
+### Lignes 232 et 233
+
+La page DDD publie aussi deux listes identiques de 15 repères pour les lignes 232 et 233 :
+- la ligne 232 est annoncée « Baux Maraichers ↔ Aéroport LSS » ;
+- la ligne 233 est annoncée « Baux Maraichers ↔ Palais 1 » ;
+- pourtant, les deux listes finissent à « Terminus Aéroport LSS » et reprennent les mêmes repères dans le même ordre.
+
+La ligne 233 présente donc un second conflit entre son en-tête et sa liste. Ne pas prolonger la ligne vers Palais 1, ni modifier son terminus, sans confirmation DDD.
