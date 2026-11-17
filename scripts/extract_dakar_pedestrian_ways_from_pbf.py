@@ -26,7 +26,7 @@ def is_walkable(tags: dict[str, str]) -> bool:
     if tags.get("foot:conditional"):
         return False
     # An explicit restriction wins over a contradictory permissive tag.
-    if foot_values & {"no", "private"}:
+    if foot_values & {"no", "private", "destination"}:
         return False
     foot_permitted = bool(foot_values & {"yes", "designated", "permissive"})
     if access in {"no", "private"} and not foot_permitted:
