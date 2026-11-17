@@ -114,6 +114,11 @@ begin
     raise exception 'Worker did not claim the oldest staged dataset';
   end if;
 
+  if first_job.manifest_object_path is distinct from 'worker-valid-test/' || repeat('a', 64) || '/manifest.json'
+     or first_job.manifest_sha256 is distinct from repeat('b', 64) then
+    raise exception 'Worker claim did not return the canonical manifest reference and digest';
+  end if;
+
   select * into second_job from public.claim_dakar_gtfs_validation(900);
   if not found or second_job.dataset_id is distinct from 'worker-invalid-test' or second_job.dataset_id = first_job.dataset_id then
     raise exception 'Sequential claims did not reserve distinct staged datasets';
