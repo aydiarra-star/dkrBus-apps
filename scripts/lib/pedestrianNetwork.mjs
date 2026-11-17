@@ -19,8 +19,8 @@ export function isWalkableOsmWay(tags = {}) {
     || ['yes', 'designated'].includes(String(tags['sidewalk:left'] ?? '').toLowerCase())
     || ['yes', 'designated'].includes(String(tags['sidewalk:right'] ?? '').toLowerCase())
   const majorRoad = ['tertiary', 'secondary', 'primary', 'trunk', 'trunk_link'].includes(highway)
-  if (majorRoad && !hasSidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
-  if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  if (majorRoad && !hasSidewalk && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
+  if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   return true
 }
 
@@ -31,7 +31,7 @@ export function isWalkableOsmNode(tags = {}) {
   if (footAccess.some(value => ['no', 'private'].includes(value))) return false
   if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   const barrier = String(tags.barrier ?? '').toLowerCase()
-  if (BLOCKING_BARRIERS.has(barrier) && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  if (BLOCKING_BARRIERS.has(barrier) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   return true
 }
 
