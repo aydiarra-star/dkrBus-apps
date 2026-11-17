@@ -189,6 +189,27 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Check pedestrian graph extractor
+        run: node --check scripts/export_dakar_pedestrian_network.mjs
+
+      - name: Test pedestrian graph construction and access filters
+        run: node --test scripts/lib/pedestrianNetwork.test.mjs
+
+      - name: Extract candidate Dakar pedestrian graph (read only)
+        id: pedestrian_graph
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/export_dakar_pedestrian_network.mjs
+
+      - name: Upload candidate pedestrian graph
+        if: always() && steps.pedestrian_graph.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dakar-pedestrian-graph-candidate
+          path: artifacts/pedestrian/dakar-pedestrian-graph-candidate.json
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Build frontend
         run: npm run build
 
