@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { buildPedestrianGraph } from './lib/pedestrianNetwork.mjs'
 
 const bbox = '(14.50,-17.60,14.95,-17.05)'
@@ -27,10 +27,17 @@ const requests = endpoints.map(async endpoint => {
   return { endpoint, data }
 })
 let source
-try {
-  source = await Promise.any(requests)
-} catch (error) {
-  throw new Error('Aucun serveur Overpass disponible : ' + error.message)
+const pbfWaysPath = process.env.DAKAR_OSM_WAYS_JSON
+if (pbfWaysPath) {
+  const data = JSON.parse(await readFile(pbfWaysPath, 'utf8'))
+  if (!Array.isArray(data.elements)) throw new Error('Le fichier PBF préparé ne contient pas de tableau elements.')
+  source = { endpoint: data.endpoint ?? 'Geofabrik OSM PBF', data }
+} else {
+  try {
+    source = await Promise.any(requests)
+  } catch (error) {
+    throw new Error('Aucun serveur Overpass disponible : ' + error.message)
+  }
 }
 const graph = buildPedestrianGraph(source.data.elements)
 const report = {
