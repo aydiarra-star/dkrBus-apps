@@ -53,8 +53,8 @@ import {
 import type { MobilityId } from './mobilityColors'
 import { fareForJourney, type FareClass, type JourneyFare } from './fares'
 import { TER_TRACK } from './terTrackGeometry'
-import { BRT_B1_TRACKS, brtTrackPositionsForLine } from './brtTrackGeometry'
-import { auditBrtB1DirectionalGeometry } from './referenceRouteGeometry'
+import { BRT_B1_TRACKS } from './brtTrackGeometry'
+import { auditBrtB1DirectionalGeometry, auditTerPhaseOneGeometry } from './referenceRouteGeometry'
 import { measureVerifiedRouteSegment, type RoadPoint, type VerifiedLineGeometry } from './roadNetworkRouting'
 
 const verifiedBrtDirections = new Set(
@@ -73,7 +73,7 @@ function verifiedRideDistance(line: CorridorLine, from: CorridorStop, to: Corrid
   const end: RoadPoint = { lat: to.lat, lon: to.lon }
   const candidates: VerifiedLineGeometry[] = []
 
-  if (line.id === 'ter-dakar-diamniadio') {
+  if (line.id === 'ter-dakar-diamniadio' && auditTerPhaseOneGeometry().passed) {
     candidates.push({
       network: 'ter',
       lineId: line.id,
@@ -88,15 +88,8 @@ function verifiedRideDistance(line: CorridorLine, from: CorridorStop, to: Corrid
   }
 
   if (line.id === 'brt-b1') {
-    for (const positions of brtTrackPositionsForLine(line.id) ?? []) {
-      const track = BRT_B1_TRACKS.find((candidate) =>
-        verifiedBrtDirections.has(`${candidate.directionFrom} → ${candidate.directionTo}`) &&
-        candidate.positions.length === positions.length &&
-        candidate.positions.every((point, index) =>
-          point[0] === positions[index][0] && point[1] === positions[index][1],
-        ),
-      )
-      if (!track) continue
+    for (const track of BRT_B1_TRACKS) {
+      if (!verifiedBrtDirections.has(`${track.directionFrom} → ${track.directionTo}`)) continue
       candidates.push({
         network: 'brt',
         lineId: line.id,
@@ -104,7 +97,7 @@ function verifiedRideDistance(line: CorridorLine, from: CorridorStop, to: Corrid
         source: 'OSM_ROUTE_RELATION',
         sourceId: String(track.osmRelationId),
         verified: true,
-        positions: positions.map(([lat, lon]) => ({ lat, lon })),
+        positions: track.positions.map(([lat, lon]) => ({ lat, lon })),
       })
     }
   }
