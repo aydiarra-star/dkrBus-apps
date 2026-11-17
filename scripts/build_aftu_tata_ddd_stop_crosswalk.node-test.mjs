@@ -44,3 +44,11 @@ test('marks repeated names at distant locations ambiguous', () => {
   assert.equal(report.matches[0].status, 'AMBIGUOUS_MULTIPLE_LOCATIONS');
   assert.equal(report.matches[0].candidateLocation, null);
 });
+
+
+test('preserves meaningful articles and prepositions inside stop names', () => {
+  assert.equal(normalizeStopName('Rue de la Paix'), 'rue de la paix');
+  assert.notEqual(normalizeStopName('Rue de la Paix'), normalizeStopName('Rue Paix'));
+  assert.equal(normalizeStopName('Arrêt de bus'), '');
+  assert.equal(normalizeStopName('Arrêt Terminus UCAD'), 'ucad');
+});
