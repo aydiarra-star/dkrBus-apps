@@ -2084,7 +2084,6 @@ function ExplorerPanel({
       <div className="explore-guide-heading">
         <div>
           <span className="eyebrow">GUIDE DE DÉPLACEMENT</span>
-          <h2>On va où&nbsp;?</h2>
         </div>
         <button type="button" className="text-action explore-locate" onClick={onLocate} disabled={gpsState === 'loading'}>
           <LocateFixed size={16} className={gpsState === 'loading' ? 'is-spinning' : ''} />
