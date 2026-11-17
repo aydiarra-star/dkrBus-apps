@@ -27,6 +27,17 @@ test('allows an explicit foot permission to override generic private access', ()
   assert.equal(isWalkableOsmWay({ highway: 'path', access: 'private', foot: 'permissive' }), true)
 })
 
+test('does not treat destination-only permission as a through-route permission', () => {
+  assert.equal(isWalkableOsmWay({ highway: 'path', access: 'private', foot: 'destination' }), false)
+  assert.equal(isWalkableOsmWay({ highway: 'path', access: 'no', 'foot:access': 'destination' }), false)
+  const graph = buildPedestrianGraph([
+    { type: 'node', id: 1 },
+    { type: 'node', id: 2 },
+    { type: 'way', id: 43, nodes: [1, 2], tags: { highway: 'path', access: 'private', foot: 'destination' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(graph.summary.directedEdgeCount, 0)
+})
+
 test('builds connected directional edges with the actual OSM way segments', () => {
   const graph = buildPedestrianGraph([{
     type: 'way',
