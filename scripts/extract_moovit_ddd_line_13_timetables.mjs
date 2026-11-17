@@ -151,8 +151,17 @@ async function main() {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main().catch((error) => {
-    process.stderr.write(`${error.stack ?? error}\n`)
+  main().catch(async (error) => {
+    await mkdir('artifacts/ddd/moovit-line-13', { recursive: true })
+    await writeFile(
+      'artifacts/ddd/moovit-line-13/extraction-status.json',
+      JSON.stringify({
+        status: 'failed',
+        checkedOn: new Date().toISOString().slice(0, 10),
+        error: error.message ?? String(error),
+      }, null, 2) + '\\n',
+    )
+    process.stderr.write(`${error.stack ?? error}\\n`)
     process.exitCode = 1
   })
 }
