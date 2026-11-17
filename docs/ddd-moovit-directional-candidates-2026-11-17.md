@@ -115,13 +115,13 @@ Les assertions contrôlent les deux terminus et le nombre de colonnes. Cela séc
 Deux pages horaires Moovit distinctes ont été retrouvées pour la ligne 7. Elles présentent chacune une grille avec les heures de passage aux arrêts, dans l'ordre propre à la direction :
 
 - Gare Palais → Ouakam : https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256166-0
-  - dernière mise à jour affichée : **14 septembre 2026** ;
+  - dernière mise à jour affichée : **16 novembre 2026** ;
   - semaine : 05:00–22:38 ;
   - samedi : 05:00–22:44 ;
   - dimanche : 06:00–21:57 ;
   - 29 colonnes, correspondant aux 29 occurrences de la séquence candidate.
 - Rue Okm 60, 67 → Gare Palais : https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256167-0
-  - dernière mise à jour affichée : **31 août 2026** ;
+  - dernière mise à jour affichée : **16 novembre 2026** ;
   - semaine : 04:00–22:00 ;
   - samedi : 04:00–21:55 ;
   - dimanche : 05:00–22:00 ;
