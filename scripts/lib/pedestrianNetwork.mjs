@@ -8,7 +8,7 @@ const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall
 export function isWalkableOsmWay(tags = {}) {
   const highway = String(tags.highway ?? '')
   if (!WALKABLE_HIGHWAYS.has(highway)) return false
-  const foot = String(tags.foot ?? tags['foot:access'] ?? '').toLowerCase()
+  const foot = String(tags.foot || tags['foot:access'] || '').toLowerCase()
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
   if (['no', 'private'].includes(foot)) return false
