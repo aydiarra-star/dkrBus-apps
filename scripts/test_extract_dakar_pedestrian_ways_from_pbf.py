@@ -28,6 +28,16 @@ class PedestrianPbfFilterTests(unittest.TestCase):
         self.assertTrue(is_walkable({"highway": "primary", "foot": "designated"}))
         self.assertFalse(is_walkable({"highway": "primary", "sidewalk": "separate"}))
 
+    def test_service_access_uses_the_combined_explicit_foot_permissions(self):
+        for service in ("driveway", "parking_aisle", "private"):
+            self.assertFalse(is_walkable({"highway": "service", "service": service}))
+            self.assertTrue(is_walkable({"highway": "service", "service": service, "foot": "yes"}))
+            self.assertTrue(is_walkable({"highway": "service", "service": service, "foot:access": "designated"}))
+            self.assertFalse(is_walkable({
+                "highway": "service", "service": service,
+                "foot": "yes", "foot:access": "no",
+            }))
+
     def test_dakar_extract_bounds_are_explicit(self):
         self.assertTrue(inside_bounds(14.70, -17.40))
         self.assertFalse(inside_bounds(14.20, -17.40))
