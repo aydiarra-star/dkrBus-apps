@@ -111,7 +111,7 @@ def main() -> int:
     report = extract_pedestrian_ways(sys.argv[1])
     output = Path(sys.argv[2])
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False) + "\\n", encoding="utf-8")
+    output.write_text(json.dumps(report, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(report["summary"], ensure_ascii=False))
     return 0
 
