@@ -8,6 +8,9 @@ const graph = buildPedestrianGraph(source.data.elements)
 const report = {
   generatedAt: new Date().toISOString(),
   endpoint: source.endpoint,
+  sourceUrl: source.data.sourceUrl ?? null,
+  sourceGeneratedAt: source.data.generatedAt ?? null,
+  sourceTimestamp: source.data.osm3s?.timestamp_osm_base ?? null,
   geographicBounds: DAKAR_PEDESTRIAN_BBOX,
   sourceElements: source.data.elements.length,
   ...graph,
