@@ -21,8 +21,10 @@ describe('séquences directionnelles des lignes', () => {
     const ter = CORRIDOR_LINES.find((line) => line.id === 'ter-dakar-diamniadio')!
     const sequences = directedStopSequences(ter)
     expect(sequences).toHaveLength(2)
-    expect(sequences[0]).toEqual(ter.stopIds)
-    expect(sequences[1]).toEqual([...ter.stopIds].reverse())
+    const phase1Stops = ter.stopIds.filter((stopId) => stopId !== 'ter-aibd')
+    expect(sequences[0]).toEqual(phase1Stops)
+    expect(sequences[1]).toEqual([...phase1Stops].reverse())
+    expect(sequences.flat()).not.toContain('ter-aibd')
   })
 
   it('n’inverse jamais une séquence quand les sens documentés sont fournis', () => {
