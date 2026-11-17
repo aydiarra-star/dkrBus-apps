@@ -28,9 +28,9 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(colobane.offsetFromDestinationMin).toBe(53.5)
 
     // Le créneau aller est projeté depuis Dakar : il suit la grille déclarée.
-    expect(colobane.outbound!.headwayMinutes).toBe(10)
+    expect(colobane.outbound!.headwayMinutes).toBe(8)
     expect(colobane.outbound!.clockLabel).toMatch(/^\d{2}:\d{2}$/)
-    expect(colobane.inbound!.headwayMinutes).toBe(10)
+    expect(colobane.inbound!.headwayMinutes).toBe(8)
   })
 
   it('projette le créneau aller avec le temps de parcours depuis le terminus', () => {
@@ -46,10 +46,22 @@ describe('tableau des créneaux par station et par sens', () => {
     const dalifort = board.rows.find((row) => row.stop.id === 'ter-dalifort')!
     expect(dalifort.offsetFromOriginMin).toBe(10.5)
     expect(dalifort.offsetFromOriginMin).toBeGreaterThan(dakar.offsetFromOriginMin)
-    expect(dalifort.outbound!.clockLabel).toBe('12:00')
+    expect(dalifort.outbound!.clockLabel).toBe('12:01')
     expect(dalifort.outbound!.minutes).toBe(1)
     // Le créneau aller est bien porté par la grille déclarée du terminus.
-    expect(dalifort.outbound!.headwayMinutes).toBe(10)
+    expect(dalifort.outbound!.headwayMinutes).toBe(8)
+  })
+
+  it('applique la cadence propre à chaque segment TER, dans les deux sens', () => {
+    const board = buildStationBoard(boardLinesForNetwork('ter')[0], NOW)!
+    const colobane = board.rows.find((row) => row.stop.id === 'ter-colobane')!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+    const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
+    expect(colobane.outbound!.headwayMinutes).toBe(8)
+    expect(colobane.inbound!.headwayMinutes).toBe(8)
+    expect(diamniadio.outbound!.headwayMinutes).toBe(24)
+    expect(diamniadio.inbound!.headwayMinutes).toBe(8)
+    expect(aibd.inbound!.headwayMinutes).toBe(24)
   })
 
   it('ne fait embarquer personne dans le sens impossible au terminus', () => {
