@@ -2,6 +2,14 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { loadPedestrianSource, OVERPASS_ENDPOINTS } from './pedestrianSource.mjs'
 
+const completeWay = {
+  type: 'way',
+  id: 42,
+  nodes: [100, 101],
+  geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }],
+  tags: { highway: 'footway' },
+}
+
 test('uses a local Geofabrik extract without starting any Overpass request', async () => {
   let networkCalls = 0
   const source = await loadPedestrianSource({
@@ -37,10 +45,39 @@ test('uses Overpass endpoints only when no local PBF extract is supplied', async
     fetchImpl: async endpoint => {
       requested.push(endpoint)
       if (endpoint !== OVERPASS_ENDPOINTS[1]) throw new Error('endpoint unavailable')
-      return { ok: true, json: async () => ({ elements: [{ type: 'node', id: 7 }] }) }
+      return { ok: true, json: async () => ({ elements: [completeWay] }) }
     },
   })
   assert.deepEqual(requested, OVERPASS_ENDPOINTS)
   assert.equal(source.endpoint, OVERPASS_ENDPOINTS[1])
-  assert.deepEqual(source.data.elements, [{ type: 'node', id: 7 }])
+  assert.deepEqual(source.data.elements, [completeWay])
+})
+
+test('rejects HTTP 200 Overpass timeout remarks and uses a complete alternate response', async () => {
+  const source = await loadPedestrianSource({
+    fetchImpl: async endpoint => {
+      if (endpoint === OVERPASS_ENDPOINTS[0]) {
+        return {
+          ok: true,
+          json: async () => ({
+            remark: 'runtime error: Query timed out in "query" at line 1',
+            elements: [completeWay],
+          }),
+        }
+      }
+      if (endpoint === OVERPASS_ENDPOINTS[1]) throw new Error('endpoint unavailable')
+      return { ok: true, json: async () => ({ elements: [completeWay] }) }
+    },
+  })
+  assert.equal(source.endpoint, OVERPASS_ENDPOINTS[2])
+  assert.deepEqual(source.data.elements, [completeWay])
+})
+
+test('rejects a successful but empty or geometry-free Overpass response', async () => {
+  await assert.rejects(
+    loadPedestrianSource({
+      fetchImpl: async () => ({ ok: true, json: async () => ({ elements: [{ type: 'node', id: 7 }] }) }),
+    }),
+    /aucun serveur Overpass disponible avec une réponse complète/,
+  )
 })
