@@ -40,12 +40,27 @@ export async function loadPedestrianSource({
     if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`)
     const data = await response.json()
     if (!Array.isArray(data.elements)) throw new Error(`${endpoint}: missing elements`)
+    // Overpass peut renvoyer HTTP 200 avec un jeu partiel après un timeout.
+    // Un tel résultat ne doit jamais être pris pour un réseau complet.
+    if (typeof data.remark === 'string' && data.remark.trim()) {
+      throw new Error(`${endpoint}: réponse Overpass incomplète (${data.remark.trim()})`)
+    }
+    const ways = data.elements.filter(element => element?.type === 'way')
+    const usableWays = ways.filter(way =>
+      Array.isArray(way.nodes) &&
+      way.nodes.length >= 2 &&
+      Array.isArray(way.geometry) &&
+      way.geometry.length === way.nodes.length,
+    )
+    if (usableWays.length === 0) {
+      throw new Error(`${endpoint}: aucun way avec géométrie complète`)
+    }
     return { endpoint, data }
   })
 
   try {
     return await Promise.any(requests)
   } catch (error) {
-    throw new Error('Aucun serveur Overpass disponible : ' + error.message)
+    throw new Error('Aucun serveur Overpass disponible avec une réponse complète : ' + error.message)
   }
 }
