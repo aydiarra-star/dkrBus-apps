@@ -1,4 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const SOURCES = [
   {
@@ -148,7 +150,7 @@ async function main() {
   process.stdout.write(`Extracted ${totalTrips} trips and ${totalValues} stop-time values across both directions.\n`)
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
     process.stderr.write(`${error.stack ?? error}\n`)
     process.exitCode = 1
