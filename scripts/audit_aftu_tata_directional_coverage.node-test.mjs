@@ -28,3 +28,20 @@ test('keeps TATA return paths separate and does not infer a return sequence', ()
   assert.equal(report.summary.tata.returnSequencesPresent, 1);
   assert.equal(report.summary.tata.oneDirectionOnly, 1);
 });
+
+test('does not count null, empty or partial coordinate pairs as geocoded', () => {
+  const report = auditAftuTataCoverage([{
+    file: 'aftu-30-directions.json',
+    data: {
+      code: '30',
+      waypoints: [
+        { lat: null, lon: null },
+        { lat: '', lon: '' },
+        { lat: 14.7, lon: null },
+        { lat: '14.7', lon: '-17.4' },
+        { latitude: 14.8, longitude: -17.5 },
+      ],
+    },
+  }], []);
+  assert.equal(report.summary.aftu.geocodedWaypoints, 2);
+});
