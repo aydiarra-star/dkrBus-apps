@@ -2237,8 +2237,8 @@ function ExplorerPanel({
         </div>
       </div>
 
-      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
       <ExploreNetworkLegend />
+      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
     </section>
   )
 }
