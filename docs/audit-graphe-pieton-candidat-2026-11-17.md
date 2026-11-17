@@ -6,6 +6,7 @@
 - Commit contrôlé : `742c39d41ab33f1e5e6ee2dae318ac0609fc9c66`
 - Artefact : `dakar-pedestrian-graph-candidate` (ID `14366297825`)
 - Généré le : 2026-11-17 à 20:27:07 UTC
+- SHA-256 de l'archive téléchargée : `6b2a4ac0042b916b1b4eeec003c29e95ccd2b160ae258074e512eba6554dc7a9`
 - Source : extraction des ways OpenStreetMap depuis le PBF Geofabrik Sénégal et Gambie.
 - Éléments source extraits : 60 514 ; ways piétonniers : 57 489 ; ways ignorés : 0.
 - L'extraction Overpass a échoué sur cette exécution, mais le chemin de secours Geofabrik a réussi ; le graphe a été construit et l'artefact téléversé.
