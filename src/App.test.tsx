@@ -432,7 +432,7 @@ describe('structure en quatre piliers', () => {
     expect(references.querySelectorAll('.network-reference-card')).toHaveLength(4)
     expect(screen.getByText(/lun\.–sam\. \(hors jours fériés\) · 05:30–21:00 · 10 min/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
-    expect(screen.getByText(/72 lignes · 2\\s?300 bus · 14 GIE/)).toBeTruthy()
+    expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
     expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
     expect(screen.getByRole('link', { name: 'TER / SETER' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'CETUD / SunuBRT' })).toBeTruthy()
