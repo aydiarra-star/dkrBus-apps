@@ -2318,7 +2318,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
-            <header className="station-direction-title">
+            <header className="station-direction-title station-board-head">
               <span className="station-direction-kicker">Direction Aller</span>
               <strong className="station-direction-route">{network === 'ter' ? 'Dakar' : 'Petersen'} ➔ {network === 'ter' ? 'AIBD' : 'Guédiawaye'}</strong>
             </header>
@@ -2333,7 +2333,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
             ))}
           </div>
           <div className="station-direction station-direction-inbound">
-            <header className="station-direction-title">
+            <header className="station-direction-title station-board-head">
               <span className="station-direction-kicker">Direction Retour</span>
               <strong className="station-direction-route">{network === 'ter' ? 'AIBD' : 'Guédiawaye'} ➔ {network === 'ter' ? 'Dakar' : 'Petersen'}</strong>
             </header>
