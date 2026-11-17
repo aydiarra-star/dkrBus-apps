@@ -1800,6 +1800,8 @@ function App() {
               savedDestinations={savedDestinations}
               onChooseShortcut={chooseDestinationShortcut}
               countdownNow={countdownNow}
+              selectedNetwork={selectedExploreNetwork}
+              onSelectNetwork={handleSelectExploreNetwork}
             />
           )}
 
@@ -2023,6 +2025,8 @@ function ExplorerPanel({
   savedDestinations,
   onChooseShortcut,
   countdownNow,
+  selectedNetwork,
+  onSelectNetwork,
 }: {
   gpsState: GpsState
   gpsMessage: string | null
@@ -2041,6 +2045,8 @@ function ExplorerPanel({
   savedDestinations: Partial<Record<DestinationShortcutId, MapPoint>>
   onChooseShortcut: (id: DestinationShortcutId) => void
   countdownNow: number
+  selectedNetwork: NetworkId | null
+  onSelectNetwork: (id: NetworkId) => void
 }) {
   const [proximityOpen, setProximityOpen] = useState(false)
   const [proximityDismissed, setProximityDismissed] = useState(false)
@@ -2231,40 +2237,60 @@ function ExplorerPanel({
         </div>
       </div>
 
-      <ExploreMobilityCountdowns now={countdownNow} />
+      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
       <ExploreNetworkLegend />
     </section>
   )
 }
 
-function ExploreMobilityCountdowns({ now }: { now: number }) {
+function ExploreMobilityCountdowns({
+  now,
+  selectedNetwork,
+  onSelectNetwork,
+}: {
+  now: number
+  selectedNetwork: NetworkId | null
+  onSelectNetwork: (id: NetworkId) => void
+}) {
   return (
-    <section className="explore-mobility-countdowns" aria-label="Prochains passages des mobilités">
-      <div className="explore-mobility-countdowns-heading">
+    <section className="network-summary-section" aria-label="Prochains passages des mobilités">
+      <div className="network-summary-heading">
         <strong>Prochains passages</strong>
         <span>Horaires de référence</span>
       </div>
-      <div className="explore-mobility-countdowns-row">
+      <ul className="network-summary-list" aria-label="Comptes à rebours des mobilités">
         {MOBILITY_IDS.map((id) => {
           const network = NETWORK_REFERENCE_DATA[id]
           const passage = id === 'ter' || id === 'brt'
             ? nextReferencePassage(network.officialFrequencies, now)
             : estimatedNextPassage(id, now)
           const clock = passage?.nextDepartureAt.slice(11, 16) ?? null
+          const isSelected = selectedNetwork === id
           return (
-            <article className={`explore-mobility-countdown mobility-${id}`} key={id}>
-              <div className="explore-mobility-countdown-network">
-                <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
-              </div>
-              <strong className="explore-mobility-countdown-clock">{clock ?? '—'}</strong>
-              <span className="explore-mobility-countdown-remaining">
-                {passage ? `Dans ${formatPassageCountdown(passage.minutes)}` : 'Aucun créneau'}
-              </span>
-            </article>
+            <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
+              <button
+                type="button"
+                className="network-summary-header"
+                aria-pressed={isSelected}
+                aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU' : network.shortName}`}
+                onClick={() => onSelectNetwork(id)}
+              >
+                <span className="network-summary-dot is-referenced is-counting" aria-hidden="true" />
+                <span className="network-summary-name">
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
+                  {id === 'aftu_tata' ? '' : network.label !== network.shortName ? ` · ${network.label}` : ''}
+                </span>
+                <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
+                  <strong>{passage ? formatPassageCountdown(passage.minutes) : '—'}</strong>
+                  <small>{passage && clock
+                    ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
+                    : 'Aucun créneau déclaré'}</small>
+                </span>
+              </button>
+            </li>
           )
         })}
-      </div>
-      <small>Créneaux théoriques calculés depuis les fréquences de référence, pas une position de véhicule en temps réel.</small>
+      </ul>
     </section>
   )
 }
