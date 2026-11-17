@@ -56,3 +56,20 @@ Les pages de détail associées donnent aussi une durée totale de parcours :
 - Ligne 13 vers Palais : environ 31 minutes ; vers Liberté 5 : environ 30 minutes.
 
 Ces durées sont enregistrées dans `publishedJourneyDurationMinutes` pour préparer le calcul des temps cumulés. Elles ne fournissent pas les temps de passage intermédiaires à chaque arrêt. Une interpolation uniforme entre arrêts ne doit pas être présentée comme un horaire réel : il faut d'abord exploiter les horaires par arrêt disponibles sur les pages Moovit ou une source opérateur, puis qualifier la méthode et la marge d'erreur en métadonnées internes.
+
+
+## Découverte importante — horaires à chaque arrêt pour la ligne 13
+
+Les pages Moovit ne se limitent pas aux durées globales : elles possèdent des pages horaires séparées qui exposent une grille **départ par départ et arrêt par arrêt** pour les deux sens de la ligne 13.
+
+- Liberté 5 → Palais : https://moovitapp.com/index/fr/transport_en_commun-time-13-Dakar-5996-1618037-18051475-4256271-0
+  - semaine : premiers départs affichés à 06:00, derniers à 20:30 ;
+  - samedi : 06:30 à 20:35.
+- Palais → Liberté 5 : https://moovitapp.com/index/fr/transport_en_commun-time-13-Dakar-5996-1618037-18051475-4256270-0
+  - semaine : premiers départs affichés à 06:45, derniers à 21:00 ;
+  - samedi : 07:00 à 21:00.
+- Les deux pages contiennent les colonnes de passage de chaque arrêt pour chaque départ programmé ; la ligne 13 est indiquée comme non opérationnelle le dimanche dans ces fiches.
+
+Les URL des deux grilles sont maintenant reliées aux candidats de la ligne 13 dans `src/data/dddMoovitDirectionalCandidates.ts`. C'est la première source repérée dans ce lot qui peut fournir directement des heures de passage par arrêt, au lieu de devoir interpoler une durée globale.
+
+**Étape suivante :** extraire les deux grilles complètes, contrôler que chaque colonne correspond exactement à la séquence directionnelle, convertir les heures en minutes cumulées par arrêt et tester le prochain passage pour plusieurs heures de la journée. Ne pas substituer ces valeurs à une référence DDD officielle sans garder la provenance Moovit et vérifier les éventuelles divergences.
