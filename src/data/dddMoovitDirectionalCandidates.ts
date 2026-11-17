@@ -14,6 +14,14 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     publishedJourneyDurationMinutes: 35,
     sourceUpdatedOn: '2026-11-07',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-0',
+    timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256166-0',
+    timetableUpdatedOn: '2026-09-14',
+    timetableCoverage: 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY',
+    timetableCoverageByDay: {
+      weekday: { firstDeparture: '05:00', lastDeparture: '22:38' },
+      saturday: { firstDeparture: '05:00', lastDeparture: '22:44' },
+      sunday: { firstDeparture: '06:00', lastDeparture: '21:57' },
+    },
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
     stops: [
       'Gare Palais', 'Clinique Du Cap', 'Hôpital Le Dantec', 'Avenue Pasteur, 16',
@@ -35,6 +43,14 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     publishedJourneyDurationMinutes: 34,
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-1',
+    timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256167-0',
+    timetableUpdatedOn: '2026-08-31',
+    timetableCoverage: 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY',
+    timetableCoverageByDay: {
+      weekday: { firstDeparture: '04:00', lastDeparture: '22:00' },
+      saturday: { firstDeparture: '04:00', lastDeparture: '21:55' },
+      sunday: { firstDeparture: '05:00', lastDeparture: '22:00' },
+    },
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
     stops: [
       'Rue Okm 60, 67', 'Rue Okm 237, 168', 'Arrêt De Bus', 'Arrêt De Bus',
