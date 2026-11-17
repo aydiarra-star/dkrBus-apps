@@ -40,3 +40,26 @@ La date du 24 septembre 2024 est la date de mise à jour indiquée par le servic
 - Extraction des couches DDD : scripts/extract_ddd_historical_arcgis.mjs et scripts/export_ddd_arcgis_layers.mjs.
 
 La règle de conservation des sources anciennes est testée dans src/domain/sourceEvidencePolicy.test.ts.
+
+
+## Source officielle DDD complémentaire — contrôle du 17 novembre 2026
+
+Une consultation du site officiel DDD a identifié une page voyageurs plus récente dans son contenu public que la couche géographique ArcGIS :
+
+- Page officielle : https://demdikk.sn/info-voyageurs/
+- Date de consultation Dakar Bus : **17 novembre 2026**.
+- Date de dernière mise à jour éditoriale : **non affichée par le site** ; ne pas confondre la date de consultation avec une date de publication.
+- Contenu : lignes urbaines, lignes de banlieue et TAF TAF, terminus et séquences d'arrêts publiées pour plusieurs lignes.
+- Usage retenu : référence officielle complémentaire pour les lignes, terminus et séquences explicitement présentes sur la page ; comparaison prioritaire avec les anciennes extractions et les autres sources.
+- Limite : la page ne fournit pas une date certifiée de mise à jour, ni une preuve de circulation en temps réel pour chaque arrêt. Elle ne remplace pas automatiquement les géométries et coordonnées ArcGIS.
+
+Le guide officiel de mobilité des JOJ Dakar 2026 constitue également une source officielle récente pour les lignes et certains terminus :
+https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobilite-dakar-joj-2026.pdf
+
+### Décision de rapprochement
+
+1. Conserver la couche ArcGIS des arrêts du 24 septembre 2024 comme base géographique sourcée.
+2. Ajouter la page Info voyageurs DDD comme référence officielle complémentaire consultée le 17 novembre 2026, sans lui attribuer une date de mise à jour non publiée.
+3. En cas de divergence, conserver les deux formulations avec leurs sources respectives et marquer le point à vérifier ; ne pas écraser silencieusement un terminus ou une variante.
+4. Une séquence publiée dans un seul sens ne prouve pas le sens retour. Ne pas fabriquer le retour par inversion.
+5. Aucun arrêt ne passe au catalogue passager uniquement parce qu'il apparaît dans une liste de noms : vérifier la ligne, le sens, la localisation et les éventuelles variantes.
