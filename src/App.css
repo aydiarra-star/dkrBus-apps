@@ -1426,6 +1426,27 @@ button:disabled { cursor: not-allowed; }
 .explore-network-legend-item {
   min-width: 0;
 }
+.explore-network-legend-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.explore-network-legend-button:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 3px;
+}
+.explore-network-legend-button[aria-pressed="true"] {
+  filter: brightness(1.12);
+}
+.explore-network-legend-button[aria-pressed="true"] .route-coverage-bar {
+  height: 6px;
+}
 .explore-network-legend-item .route-coverage-item {
   width: 100%;
   min-width: 0;
