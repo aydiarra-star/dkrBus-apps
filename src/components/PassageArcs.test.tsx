@@ -2,9 +2,8 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import App from '../App'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 import { PassageArcs } from './PassageArcs'
 
