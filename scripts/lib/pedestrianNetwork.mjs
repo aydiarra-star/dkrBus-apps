@@ -3,12 +3,14 @@ const WALKABLE_HIGHWAYS = new Set([
   'residential', 'service', 'unclassified', 'tertiary', 'secondary', 'primary', 'trunk', 'trunk_link',
 ])
 const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
+const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall', 'block', 'jersey_barrier', 'gate', 'lift_gate', 'swing_gate'])
 
 export function isWalkableOsmWay(tags = {}) {
   const highway = String(tags.highway ?? '')
   if (!WALKABLE_HIGHWAYS.has(highway)) return false
   const foot = String(tags.foot ?? tags['foot:access'] ?? '').toLowerCase()
   const access = String(tags.access ?? '').toLowerCase()
+  if (tags['foot:conditional']) return false
   if (['no', 'private'].includes(foot)) return false
   if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive', 'destination'].includes(foot)) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
@@ -19,6 +21,16 @@ export function isWalkableOsmWay(tags = {}) {
   const majorRoad = ['tertiary', 'secondary', 'primary', 'trunk', 'trunk_link'].includes(highway)
   if (majorRoad && !hasSidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
   if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  return true
+}
+
+export function isWalkableOsmNode(tags = {}) {
+  const foot = String(tags.foot ?? '').toLowerCase()
+  const access = String(tags.access ?? '').toLowerCase()
+  if (['no', 'private'].includes(foot)) return false
+  if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  const barrier = String(tags.barrier ?? '').toLowerCase()
+  if (BLOCKING_BARRIERS.has(barrier) && !['yes', 'designated', 'permissive'].includes(foot)) return false
   return true
 }
 
@@ -38,6 +50,7 @@ function distanceMeters(a, b) {
  * connect a stop to its nearest road; those links require separate evidence.
  */
 export function buildPedestrianGraph(elements = []) {
+  const nodeTags = new Map(elements.filter((element) => element.type === 'node').map((element) => [String(element.id), element.tags ?? {}]))
   const nodes = new Map()
   const edges = []
   let skippedWays = 0
@@ -63,6 +76,7 @@ export function buildPedestrianGraph(elements = []) {
     for (let index = 0; index < refs.length - 1; index += 1) {
       const from = String(refs[index])
       const to = String(refs[index + 1])
+      if (!isWalkableOsmNode(nodeTags.get(from)) || !isWalkableOsmNode(nodeTags.get(to))) continue
       const a = geometry[index]
       const b = geometry[index + 1]
       const meters = distanceMeters(a, b)
