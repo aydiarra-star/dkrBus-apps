@@ -267,3 +267,99 @@ jobs:
           path: artifacts/ddd/osm-217-218-219-228/
           if-no-files-found: error
           retention-days: 30
+
+  anat_road_evidence:
+    name: Optional official ANAT road and sidewalk source inspection
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    continue-on-error: true
+    steps:
+      - name: Prepare Geosenegal evidence folders
+        run: mkdir -p artifacts/geosenegal/downloads artifacts/geosenegal/unpacked
+
+      - name: Download Dakar 2019 street and sidewalk geometry
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          curl --fail --location --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 180 \
+            --user-agent "DakarBus-read-only-source-audit/1.0" \
+            https://www.geosenegal.gouv.sn/IMG/zip/terra_voirie_bdu_dakar_2019.zip \
+            --output artifacts/geosenegal/downloads/dakar-voirie-2019.zip
+          unzip -t artifacts/geosenegal/downloads/dakar-voirie-2019.zip
+
+      - name: Download Guediawaye 2019 street and sidewalk geometry
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          curl --fail --location --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 180 \
+            --user-agent "DakarBus-read-only-source-audit/1.0" \
+            https://www.geosenegal.gouv.sn/IMG/zip/terra_voirie_bdu_guediawaye_2019.zip \
+            --output artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
+          unzip -t artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
+
+      - name: Download Pikine-Guediawaye 2014 street geometry
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          curl --fail --location --retry 1 --retry-delay 3 --connect-timeout 15 --max-time 180 \
+            --user-agent "DakarBus-read-only-source-audit/1.0" \
+            https://www.geosenegal.gouv.sn/IMG/zip/voiriezip-adada1.zip \
+            --output artifacts/geosenegal/downloads/pikine-guediawaye-voirie-2014.zip
+          unzip -t artifacts/geosenegal/downloads/pikine-guediawaye-voirie-2014.zip
+
+      - name: Download Pikine-Guediawaye 2014 railway geometry
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          curl --fail --location --retry 1 --retry-delay 3 --connect-timeout 15 --max-time 180 \
+            --user-agent "DakarBus-read-only-source-audit/1.0" \
+            https://www.geosenegal.gouv.sn/IMG/zip/chemin_ferzi3624.zip \
+            --output artifacts/geosenegal/downloads/pikine-guediawaye-rail-2014.zip
+          unzip -t artifacts/geosenegal/downloads/pikine-guediawaye-rail-2014.zip
+
+      - name: Inspect downloaded SHP layer inventory
+        if: always()
+        run: |
+          for archive in artifacts/geosenegal/downloads/*.zip; do
+            [ -f "$archive" ] || continue
+            name="$(basename "$archive" .zip)"
+            mkdir -p "artifacts/geosenegal/unpacked/$name"
+            unzip -o -q "$archive" -d "artifacts/geosenegal/unpacked/$name" || true
+          done
+          if find artifacts/geosenegal/unpacked -name '*.shp' -print -quit | grep -q .; then
+            python -m pip install --disable-pip-version-check pyshp
+            python - <<'PY'
+          from pathlib import Path
+          import json
+          import shapefile
+
+          root = Path("artifacts/geosenegal/unpacked")
+          inventory = []
+          for shp in sorted(root.rglob("*.shp")):
+              try:
+                  reader = shapefile.Reader(str(shp))
+                  inventory.append({
+                      "file": str(shp),
+                      "featureCount": len(reader),
+                      "shapeType": reader.shapeType,
+                      "bbox": list(reader.bbox) if reader.bbox else None,
+                      "fields": [field[0] for field in reader.fields[1:]],
+                  })
+              except Exception as exc:
+                  inventory.append({"file": str(shp), "error": str(exc)})
+          out = Path("artifacts/geosenegal/shapefile-inventory.json")
+          out.write_text(json.dumps(inventory, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(json.dumps(inventory, ensure_ascii=False, indent=2))
+          PY
+          else
+            echo "Aucun SHP téléchargé ; consulter les résultats des téléchargements dans les logs."
+          fi
+
+      - name: Upload official ANAT source archives and inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geosenegal-anat-road-sidewalk-source-audit
+          path: artifacts/geosenegal/
+          if-no-files-found: ignore
+          retention-days: 30
