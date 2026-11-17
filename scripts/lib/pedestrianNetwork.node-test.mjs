@@ -65,6 +65,19 @@ test('does not invent edges when OSM geometry and node references disagree', () 
   assert.equal(graph.summary.skippedWays, 1)
 })
 
+test('respects foot:access restrictions on OSM nodes', () => {
+  const blocked = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { 'foot:access': 'no' } },
+    { type: 'way', id: 13, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(blocked.summary.directedEdgeCount, 0)
+  const conditional = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { 'foot:conditional': 'no @ (20:00-06:00)' } },
+    { type: 'way', id: 14, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(conditional.summary.directedEdgeCount, 0)
+})
+
 test('blocks private barriers and keeps explicitly passable pedestrian gates', () => {
   const graphWithGate = buildPedestrianGraph([
     { type: 'node', id: 2, tags: { barrier: 'gate' } },
