@@ -2299,8 +2299,8 @@ function ExploreMobilityCountdowns({
 
 function ExploreNetworkLegend() {
   return (
-    <section className="explore-network-legend" aria-label="Réseaux de référence">
-      <strong className="explore-network-legend-title">Réseaux de référence</strong>
+    <section className="explore-network-legend" aria-label="Réseaux de références">
+      <strong className="explore-network-legend-title">Réseaux de références</strong>
       <div className="explore-network-legend-row">
         {MOBILITY_IDS.map((id) => (
           <div className={`explore-network-legend-item mobility-${id}`} key={id}>
