@@ -61,7 +61,7 @@ export function buildPedestrianGraph(elements = []) {
       const a = geometry[index]
       const b = geometry[index + 1]
       const meters = distanceMeters(a, b)
-      if (!Number.isFinite(meters) || meters <= 0 || meters > 250) continue
+      if (!Number.isFinite(meters) || meters <= 0) continue
       const positions = [{ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon }]
       if (footOneWay !== '-1') edges.push({ from, to, meters, mode: 'walk', positions, wayId: way.id })
       if (!['yes', '1', 'true'].includes(footOneWay)) edges.push({ from: to, to: from, meters, mode: 'walk', positions: [...positions].reverse(), wayId: way.id })
