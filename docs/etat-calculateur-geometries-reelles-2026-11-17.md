@@ -73,3 +73,8 @@ Le contrôle GitHub Actions du 17 novembre confirme :
 - extraction PBF de secours : étape ignorée car Overpass a fourni les données pendant cette exécution. Le chemin PBF corrigé n'est donc pas encore exercé en CI.
 
 Le graphe publié reste explicitement candidat et non raccordé aux arrêts/quais. Cette exécution ne valide pas les cheminements de correspondance. Le PR #255 reste ouvert en brouillon ; aucun merge ni déploiement n'est effectué.
+
+
+## Test dédié du choix de source piétonne
+
+Le sélecteur de source est isolé dans `scripts/lib/pedestrianSource.mjs`. Ses tests Node couvrent trois cas : (1) un extrait PBF local est lu sans aucun appel réseau ; (2) un extrait local mal formé échoue explicitement sans basculer silencieusement sur Overpass ; (3) Overpass n'est sollicité qu'en l'absence de fichier local et le premier serveur valide est retenu. Ces tests sont exécutés par la CI avant l'extraction du graphe. L'exécution CI 44158621953 doit encore confirmer leur résultat.
