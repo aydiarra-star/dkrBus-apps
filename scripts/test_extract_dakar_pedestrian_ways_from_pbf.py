@@ -11,6 +11,7 @@ class PedestrianPbfFilterTests(unittest.TestCase):
 
     def test_rejects_private_and_motorway_access(self):
         self.assertFalse(is_walkable({"highway": "footway", "foot": "no"}))
+        self.assertFalse(is_walkable({"highway": "footway", "foot:conditional": "no @ (Mo-Fr 08:00-18:00)"}))
         self.assertFalse(is_walkable({"highway": "residential", "access": "private"}))
         self.assertFalse(is_walkable({"highway": "motorway"}))
         self.assertFalse(is_walkable({"highway": "trunk"}))
