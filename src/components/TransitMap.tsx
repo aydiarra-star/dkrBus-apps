@@ -13,10 +13,8 @@ import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
-import { AFTU_TATA_MAP_ROUTES } from '../data/aftuTataMapRoutes'
-import { DDD_ADDITIONAL_MAP_ROUTES } from '../data/dddAdditionalMapRoutes'
-import { buildAftuTataOsrmUrl, osrmGeometryToLeafletPositions, type AftuTataMapTrack } from '../domain/aftuTataMapGeometry'
 import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
+import type { HighlightedJourneyRouteSegment } from '../domain/journeyRouteGeometry'
 
 export interface Coordinates {
   lat: number
@@ -47,8 +45,8 @@ interface TransitMapProps {
   routePoints: Partial<Record<RoutePointKey, Coordinates>>
   /** Géométrie routière complète calculée depuis la recherche de lieux. */
   searchRoute?: readonly Coordinates[] | null
-  /** Lignes et arrêts du premier itinéraire multimodal calculé. */
-  highlightedLineIds?: readonly string[]
+  /** Portions exactes des jambes dont la géométrie directionnelle a été auditée. */
+  highlightedRouteSegments?: readonly HighlightedJourneyRouteSegment[]
   highlightedStopIds?: readonly string[]
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
@@ -348,12 +346,11 @@ function TransitMapView({
   initialBounds = null,
   corridorLines = [],
   corridorStops = [],
-  highlightedLineIds = [],
+  highlightedRouteSegments = [],
   highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
-  const [aftuTataTracks, setAftuTataTracks] = useState<(AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[]>([])
   const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
 
@@ -441,50 +438,9 @@ function TransitMapView({
     return () => controller.abort()
   }, [])
 
-  // Les lignes AFTU/TATA sont dessinées en suivant les waypoints ordonnés
-  // publiés. OSRM fournit uniquement la géométrie routière entre ces repères.
-  useEffect(() => {
-    if (import.meta.env.MODE === 'test') return
-    const controller = new AbortController()
-    const loadAftuTataTracks = async () => {
-      const tracks: (AftuTataMapTrack & { network: 'ddd' | 'aftu_tata' })[] = []
-      const mapRoutes = [
-        ...DDD_ADDITIONAL_MAP_ROUTES.map((route) => ({ ...route, network: 'ddd' as const })),
-        ...AFTU_TATA_MAP_ROUTES.map((route) => ({ ...route, network: 'aftu_tata' as const })),
-      ]
-      for (const route of mapRoutes) {
-        if (controller.signal.aborted) break
-        const url = buildAftuTataOsrmUrl(route)
-        if (!url) continue
-        try {
-          const response = await fetch(url, {
-            signal: controller.signal,
-            headers: { Accept: 'application/json' },
-          })
-          if (response.ok) {
-            const payload = await response.json() as {
-              code?: string
-              routes?: { geometry?: { coordinates?: unknown } }[]
-            }
-            if (payload.code === 'Ok') {
-              const positions = osrmGeometryToLeafletPositions(payload.routes?.[0]?.geometry?.coordinates)
-              if (positions.length >= 2) {
-                tracks.push({ id: route.id, line: route.line, network: route.network, positions })
-                if (!controller.signal.aborted) setAftuTataTracks([...tracks])
-              }
-            }
-          }
-        } catch {
-          // La carte et les arrêts existants restent utilisables si OSRM est indisponible.
-        }
-        if (!controller.signal.aborted) {
-          await new Promise<void>((resolve) => window.setTimeout(resolve, 1_000))
-        }
-      }
-    }
-    void loadAftuTataTracks()
-    return () => controller.abort()
-  }, [])
+  // Aucun itinéraire bus n'est dessiné depuis de simples waypoints géographiques.
+  // Les traces bus visibles proviennent uniquement de géométries de ligne publiées
+  // (ArcGIS DDD ou relation OSM vérifiée), jamais d'un OSRM entre centres de lieux.
 
   // La relation OSM AFTU/TATA 40 possède une géométrie de route,
   // même si sa séquence d'arrêts n'est pas publiée dans OSM.
@@ -558,15 +514,13 @@ function TransitMapView({
         const brtTracks = brtTrackPositionsForLine(line.id) as readonly (readonly [number, number][])[] | undefined
         return {
           line,
-          // Le TER et le BRT suivent les géométries OSM de leurs voies.
-          // Les autres lignes conservent leurs tracés de référence actuels.
+          // Seules les voies TER/BRT disposant d'une géométrie cartographique
+          // dédiée peuvent produire un tracé continu. Ne jamais relier les
+          // coordonnées des arrêts DDD/AFTU/TATA par des segments droits.
           positions:
             terTrack ??
             (brtTracks?.[0] as [number, number][] | undefined) ??
-            line.stopIds
-              .map((stopId) => corridorStops.find((stop) => stop.id === stopId))
-              .filter((stop): stop is CorridorStop => stop !== undefined)
-              .map((stop) => [stop.lat, stop.lon] as [number, number]),
+            [],
           additionalPositions: brtTracks?.slice(1) as [number, number][][] | undefined,
         }
       }),
@@ -586,7 +540,6 @@ function TransitMapView({
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
-  const highlightedLineIdSet = useMemo(() => new Set(highlightedLineIds), [highlightedLineIds])
   const highlightedStopIdSet = useMemo(() => new Set(highlightedStopIds), [highlightedStopIds])
   const corridorStopsToRender = useMemo(
     () => uniqueCorridorStops.filter((stop) => {
@@ -652,25 +605,6 @@ function TransitMapView({
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
-      {aftuTataTracks.map((track) => (
-        <Polyline
-          key={`aftu-tata-${track.id}`}
-          positions={track.positions}
-          interactive
-          pathOptions={{
-            color: paintFor(track.network)?.core ?? '#D97706',
-            weight: 1.9,
-            opacity: 0.72,
-            dashArray: '4 6',
-            lineCap: 'round',
-            lineJoin: 'round',
-          }}
-        >
-          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>{track.network === 'ddd' ? 'DDD' : 'AFTU'} {track.line}</strong>
-          </Tooltip>
-        </Polyline>
-      ))}
       {tataOsmTracks.map((track) => (
         <Polyline
           key={track.id}
@@ -823,28 +757,29 @@ function TransitMapView({
             </Polyline>
           ))
         })}
-      {/* Mise en évidence du trajet calculé : mêmes géométries de référence, sans les remplacer. */}
-      {corridorLineStops
-        .filter(({ line }) => highlightedLineIdSet.has(line.id))
-        .flatMap(({ line, positions, additionalPositions }) => {
-          const paint = paintFor(line.network)
-          const tracks = [positions, ...(additionalPositions ?? [])]
-          const isContinuousTrack = line.network === 'ter' || line.network === 'brt'
-          return tracks.flatMap((track, directionIndex) => [
-            <Polyline
-              key={`journey-halo-${line.id}-${directionIndex}`}
-              positions={track}
-              interactive={false}
-              pathOptions={{ color: '#ffffff', weight: isContinuousTrack ? 8 : 6, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
-            />,
-            <Polyline
-              key={`journey-line-${line.id}-${directionIndex}`}
-              positions={track}
-              interactive={false}
-              pathOptions={{ color: paint?.core ?? line.color, weight: isContinuousTrack ? 5.5 : 4, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
-            />,
-          ])
-        })}
+      {/* Le trajet calculé n'accentue que les portions exactes découpées
+          depuis une géométrie directionnelle validée. Aucune ligne entière
+          n'est mise en avant comme substitut à la jambe réellement parcourue. */}
+      {highlightedRouteSegments.flatMap((segment) => {
+        if (segment.positions.length < 2) return []
+        const paint = paintFor(segment.network)
+        if (!paint) return []
+        const positions = segment.positions as [number, number][]
+        return [
+          <Polyline
+            key={`journey-segment-halo-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+          />,
+          <Polyline
+            key={`journey-segment-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: paint.core, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+          />,
+        ]
+      })}
       {corridorStops
         .filter((stop) => highlightedStopIdSet.has(stop.id))
         .map((stop) => {

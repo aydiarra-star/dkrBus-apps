@@ -58,6 +58,7 @@ import { speak, speechSynthesisSupported } from './domain/speech'
 import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
 import { extractMobilityIntent } from './domain/intent'
 import { MultimodalPlanner } from './components/MultimodalPlanner'
+import { verifiedJourneyRouteSegments } from './domain/journeyRouteGeometry'
 import { StopCombobox } from './components/StopCombobox'
 import { StreetReportPanel } from './components/StreetReportPanel'
 import { answerAssistant, type AssistantContext } from './domain/assistant'
@@ -1526,8 +1527,8 @@ function App() {
   // La carte met en évidence le premier itinéraire calculé (le plus rapide).
   // Les géométries de base TER/BRT restent celles du référentiel existant.
   const highlightedJourney = journeyPlan?.ok ? journeyPlan.options[0]?.result ?? null : null
-  const highlightedJourneyLineIds = highlightedJourney
-    ? [...new Set(highlightedJourney.legs.flatMap((leg) => leg.kind === 'ride' && leg.line ? [leg.line.id] : []))]
+  const highlightedJourneyRouteSegments = highlightedJourney
+    ? verifiedJourneyRouteSegments(highlightedJourney.legs)
     : []
   const highlightedJourneyStopIds = highlightedJourney
     ? [...new Set(highlightedJourney.legs
@@ -1593,7 +1594,7 @@ function App() {
           initialBounds={DAKAR_REGION_BOUNDS}
           corridorLines={visibleCorridorLines}
           corridorStops={visibleCorridorStops}
-          highlightedLineIds={highlightedJourneyLineIds}
+          highlightedRouteSegments={highlightedJourneyRouteSegments}
           highlightedStopIds={highlightedJourneyStopIds}
           onSelectCorridorStop={stableCorridorStop}
         />

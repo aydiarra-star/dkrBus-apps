@@ -97,3 +97,19 @@ Cela ne constitue **pas** une reconstruction de la chaussée empruntée. Les cen
 - Aucun arrêt voyageur créé.
 - Aucun corridor ou transfert modifié.
 - Aucune donnée TER/BRT touchée.
+
+
+## Addendum — corroboration cartographique Moovit consultée le 17 novembre 2026
+
+Une source secondaire Moovit expose une fiche de la ligne AFTU 53 avec **96 arrêts dans chaque direction** et un plan PDF de ligne. Le PDF décrit une carte générale qui passe par les secteurs de Rufisque/Jaxaay, Keur Massar, Niaga et Sébikhotane. La liste publiée comprend plusieurs repères nommés (École/CEM/Marché de Niaga, École Keur Massar, routes de Diakhaye, Lycée Jaxaay, Stade Diouf, Cimetière de Bargny, Hôtel de Ville et Hôpital de Diamniadio), mais aussi de nombreux libellés génériques « Arrêt de bus ».
+
+**Écart de terminus à conserver :** la page officielle AFTU du 6 juillet 2026 donne « Terminus Keur Massar (Marché) » comme départ et « Terminus Sébikhotane » comme arrivée. La fiche Moovit présente la ligne sous le nom « Lac Rose – Sébikhotane » et utilise les libellés « Terminus 53 - 315 » / « Arrêt de bus » pour ses directions. Ce rapprochement n'est pas résolu ; le libellé et la séquence AFTU officielle restent prioritaires. Moovit est une source secondaire de repères, pas une preuve de quai ni de terminus opérateur.
+
+Le plan PDF ne fournit pas, dans son texte exploitable, une géométrie routière géoréférencée ni des coordonnées de chaque arrêt. Il ne peut donc pas être converti directement en polyligne de calculateur. Les 96 entrées ne doivent pas être géocodées automatiquement, notamment les libellés génériques. Elles constituent une nouvelle liste de contrôle pour retrouver les arrêts réels sur OSM et les ways routiers.
+
+Sources :
+- Fiche officielle AFTU 53, publiée le 6 juillet 2026 : https://aftu-senegal.org/map/dakar-urbain-ligne-53/
+- Fiche Moovit AFTU 53 et liste de 96 arrêts : https://moovitapp.com/index/fr/transport_en_commun-line-53-Dakar-5996-1618038-18051484-1
+- Plan PDF Moovit : https://appassets.mvtdev.com/map/48/l/5996/18051484.pdf
+
+Décision : conserver cette source secondaire pour le rapprochement de repères uniquement ; aucun arrêt, aucune géométrie, aucun retour ni horaire n'est activé dans le réseau passager à partir de cet addendum.

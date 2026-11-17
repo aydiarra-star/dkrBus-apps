@@ -12,14 +12,14 @@ vi.mock('./components/TransitMap', () => ({
     onChoosePoint,
     publishedStops,
     recenterTo,
-    highlightedLineIds = [],
+    highlightedRouteSegments = [],
     highlightedStopIds = [],
   }: {
     recenterTo: { lat: number; lng: number } | null
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
-    highlightedLineIds?: readonly string[]
+    highlightedRouteSegments?: readonly { id: string; network: 'ter' | 'brt'; positions: readonly (readonly [number, number])[] }[]
     highlightedStopIds?: readonly string[]
   }) => (
     <div aria-label="Carte de test">
@@ -33,7 +33,7 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
-      <span data-testid="highlighted-lines">{highlightedLineIds.join(',')}</span>
+      <span data-testid="highlighted-lines">{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
       <span data-testid="highlighted-stops">{highlightedStopIds.join(',')}</span>
     </div>
   ),
@@ -1436,11 +1436,12 @@ describe('carte du trajet multimodal', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
 
-    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
+    // Only the audited B1 direction is drawable: Préfecture de Guédiawaye → Petersen.
+    chooseStopInField('Départ', 'guediawaye', /préfecture de guédiawaye/i)
+    chooseStopInField('Destination', 'petersen', /petersen.*BRT/i)
 
     expect(screen.getByTestId('highlighted-lines').textContent).toContain('brt-b1')
-    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-petersen')
+    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-prefecture-guediawaye')
   })
 })
 
@@ -2219,7 +2220,7 @@ describe('réglages appliqués réellement à l’application', () => {
     fireEvent.click(section.getByRole('button', { name: /miles/i }))
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     const imperial = screen.getByRole('region', { name: /itinéraires de référence/i }).textContent ?? ''
-    expect(imperial).toMatch(/\d+ pi|\d+,\d mi/)
+    expect(imperial).toMatch(/\d+ pi|\d+,\d+ mi/)
     expect(imperial).not.toBe(metric)
   })
 })

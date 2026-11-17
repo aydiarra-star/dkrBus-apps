@@ -29,10 +29,10 @@ describe('copilote local à intentions explicites', () => {
 
   it('refuse de classer par prix dès qu’un réseau sans tarif déclaré est dans la chaîne', () => {
     const cheapest = answerAssistant('Quel trajet de Lat Dior à Rufisque est le moins cher ?', CONTEXT, NOW)
-    // Lat Dior ↔ Rufisque fait intervenir AFTU / TATA 53 : aucun tarif n'étant publié
-    // pour ce réseau, aucun total n'est avancé — et la raison nomme la ligne manquante.
-    expect(cheapest).toMatch(/Aucun tarif publié pour AFTU 53/)
-    expect(cheapest).toMatch(/pas comparable/)
+    // AFTU 53 est exclue tant que son parcours n'est pas certifié ; aucun
+    // total ni classement tarifaire ne doit être inventé pour ce trajet.
+    expect(cheapest).toMatch(/grilles tarifaires publiées|aucun tarif publié/i)
+    expect(cheapest).toMatch(/aucun classement par prix n’est possible|pas comparable/i)
     expect(cheapest).not.toMatch(/total de \d+\s*F CFA/i)
   })
 

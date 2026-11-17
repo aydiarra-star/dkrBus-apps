@@ -53,7 +53,15 @@ vi.mock('react-leaflet', () => {
 
 import { TransitMap } from './TransitMap'
 
-function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CORRIDOR_STOPS) {
+function drawMap(
+  lines: readonly CorridorLine[] = CORRIDOR_LINES,
+  stops = ALL_CORRIDOR_STOPS,
+  highlightedRouteSegments: readonly {
+    id: string
+    network: 'ter' | 'brt'
+    positions: readonly (readonly [number, number])[]
+  }[] = [],
+) {
   drawn.polylines.length = 0
   drawn.markers.length = 0
   render(
@@ -66,6 +74,7 @@ function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CO
       onChoosePoint={() => undefined}
       corridorLines={lines}
       corridorStops={stops}
+      highlightedRouteSegments={highlightedRouteSegments}
     />,
   )
   return drawn.polylines.filter((polyline) => (polyline as DrawnPolyline).pathOptions.className !== 'mobility-route-flow') as DrawnPolyline[]
@@ -98,6 +107,18 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 
+  it('met en évidence uniquement la portion sélectionnée et non toute la ligne', () => {
+    const segment = {
+      id: 'ter-dakar-colobane',
+      network: 'ter' as const,
+      positions: [[14.675, -17.433], [14.689, -17.439], [14.700, -17.441]] as const,
+    }
+    const polylines = drawMap(CORRIDOR_LINES, ALL_CORRIDOR_STOPS, [segment])
+    const overlay = polylines.filter((polyline) => JSON.stringify(polyline.positions) === JSON.stringify(segment.positions))
+    expect(overlay).toHaveLength(2)
+    expect(overlay.map((polyline) => polyline.pathOptions.weight)).toEqual([8, 5.5])
+  })
+
   it('ne relie plus les gares du TER par des segments droits', () => {
     const [terLine] = lineOf('ter')
     const straight = stopToStop(terLine)
@@ -111,20 +132,20 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(ter.every((polyline) => polyline.attribution === undefined)).toBe(true)
   })
 
-  it('rétablit les épaisseurs historiques du TER et des deux sens réels du BRT', () => {
+  it('rétablit les épaisseurs historiques du TER et ne dessine que le sens BRT validé', () => {
     const polylines = drawMap([lineOf('ter')[0], lineOf('brt')[0]])
     const ter = polylines.filter((polyline) => polyline.positions.length === 491)
     const brt = polylines.filter((polyline) => polyline.positions.length !== 491)
     expect(ter).toHaveLength(3)
-    expect(brt).toHaveLength(6)
+    expect(brt).toHaveLength(3)
     expect(brt.map((polyline) => polyline.positions)).toEqual([
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
     ])
     // TER et BRT retrouvent les épaisseurs historiques d'avant les réductions.
     expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+    expect(brt.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 })
 
@@ -218,15 +239,15 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
 })
 
 describe('carte : les autres mobilités ne changent pas', () => {
-  it('trace le BRT sur ses deux géométries OSM sans répéter les crédits sur chaque trait', () => {
+  it('trace uniquement la géométrie BRT validée sans répéter les crédits sur chaque trait', () => {
     const lines = lineOf('brt')
     expect(lines.length).toBeGreaterThan(0)
     const polylines = drawMap(lines)
-    expect(polylines).toHaveLength(6 * lines.length)
+    expect(polylines).toHaveLength(3 * lines.length)
     const expectedTracks = [
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
     ]
     for (const [index, polyline] of polylines.entries()) {
       expect(polyline.positions).toEqual(expectedTracks[index])
@@ -240,8 +261,14 @@ describe('carte : les autres mobilités ne changent pas', () => {
     expect(drawMap(lines)).toHaveLength(0)
   })
 
+  it.each(['ddd', 'aftu_tata'] as const)('ne dessine aucun trait droit même lorsque %s est sélectionné dans un itinéraire', (network) => {
+    const lines = lineOf(network)
+    // DDD/AFTU-TATA n'ont pas de segments directionnels certifiés à surligner.
+    expect(drawMap(lines, ALL_CORRIDOR_STOPS, [])).toHaveLength(0)
+  })
+
   it('ne conserve sur la carte complète que les traits TER et BRT', () => {
-    const expected = 3 * lineOf('ter').length + 6 * lineOf('brt').length
+    const expected = 3 * lineOf('ter').length + 3 * lineOf('brt').length
     expect(drawMap()).toHaveLength(expected)
   })
 })

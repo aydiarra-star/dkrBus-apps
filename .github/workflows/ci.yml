@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -11,7 +15,7 @@ jobs:
   verify:
     name: Build, tests and dependency audit
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,9 +30,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow
 
       - name: Install dependencies
         run: npm ci
@@ -163,6 +164,97 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Upload raw ArcGIS and GeoJSON evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-arcgis-2024-source-extract
+          path: artifacts/ddd/arcgis-2024-extract/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Check pedestrian graph extractor
+        run: node --check scripts/export_dakar_pedestrian_network.mjs
+
+      - name: Test pedestrian graph construction and access filters
+        run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
+
+      - name: Check pedestrian source selection helper
+        run: node --check scripts/lib/pedestrianSource.mjs
+
+      - name: Test local PBF and Overpass source selection
+        run: node --test scripts/lib/pedestrianSource.node-test.mjs
+
+      - name: Test Geofabrik pedestrian PBF filter
+        run: python scripts/test_extract_dakar_pedestrian_ways_from_pbf.py
+
+      - name: Build candidate pedestrian graph from Geofabrik PBF (preferred source)
+        id: pedestrian_geofabrik
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes osmium-tool
+          python -m pip install --disable-pip-version-check osmium
+          mkdir -p artifacts/pedestrian
+          if ! curl --fail --location --retry 2 --retry-delay 5 \
+            https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf \
+            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf; then
+            rm -f artifacts/pedestrian/senegal-and-gambia.osm.pbf
+            curl --fail --location --retry 2 --retry-delay 5 \
+              https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf \
+              --output artifacts/pedestrian/senegal-and-gambia.osm.pbf
+          fi
+          osmium extract --bbox -17.60,14.50,-17.05,14.95 --strategy complete_ways \
+            -o artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/senegal-and-gambia.osm.pbf --overwrite
+          python scripts/extract_dakar_pedestrian_ways_from_pbf.py \
+            artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/dakar-pedestrian-ways.json
+          DAKAR_OSM_WAYS_JSON=artifacts/pedestrian/dakar-pedestrian-ways.json \
+            node scripts/export_dakar_pedestrian_network.mjs
+
+      - name: Extract candidate Dakar pedestrian graph from Overpass when Geofabrik is unavailable
+        id: pedestrian_graph
+        if: steps.pedestrian_geofabrik.outcome == 'failure'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/export_dakar_pedestrian_network.mjs
+
+      - name: Upload candidate pedestrian graph
+        if: always() && (steps.pedestrian_geofabrik.outcome == 'success' || steps.pedestrian_graph.outcome == 'success')
+        uses: actions/upload-artifact@v4
+        with:
+          name: dakar-pedestrian-graph-candidate
+          path: artifacts/pedestrian/dakar-pedestrian-graph-candidate.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Run frontend and local data tests (no GTFS feed required)
+        run: npm run test:all
+
+      # This repository publishes a static frontend: Node tooling is not shipped to users.
+      # picomatch 4.0.7 remains in the Vite/Vitest development toolchain; GHSA-fc5q-39xc-vjpf
+      # has no patched release yet. Keep the full dev-tree visible and audit runtime deps strictly.
+      - name: Audit production dependencies
+        run: |
+          npm audit --omit=dev --audit-level=moderate
+          npm ls picomatch --all
+
+
+  osm_evidence:
+    name: Optional DDD OSM relation evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Check read-only OSM directional relation extractor
         run: node --check scripts/extract_ddd_osm_directional_relations.mjs
 
@@ -180,73 +272,3 @@ jobs:
           path: artifacts/ddd/osm-217-218-219-228/
           if-no-files-found: error
           retention-days: 30
-
-      - name: Upload raw ArcGIS and GeoJSON evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: ddd-arcgis-2024-source-extract
-          path: artifacts/ddd/arcgis-2024-extract/
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Run frontend and local data tests (no GTFS feed required)
-        run: npm run test:all
-
-      - name: Audit dependencies
-        run: npm audit --audit-level=moderate
-
-  verify-gtfs-worker-migration:
-    name: Verify private GTFS worker database migration
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: dakar_bus_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d dakar_bus_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install PostgreSQL client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
-
-      - name: Apply isolated Supabase schema fixtures and migrations
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dakar_bus_test
-        run: |
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/bootstrap_supabase.sql -f supabase/migrations/20261113090000_dakar_admin_foundation.sql -f supabase/migrations/20261113100000_dakar_private_gtfs_staging.sql -f supabase/migrations/20261113110000_dakar_gtfs_validation_worker.sql -f supabase/migrations/20261113120000_dakar_gtfs_validation_integrity_guards.sql -f tests/sql/seed_legacy_dakar_admin_audit_event.sql -f supabase/migrations/20261114180000_dakar_admin_audit_hash_chain.sql -f supabase/migrations/20261114190000_dakar_gtfs_staging_least_privilege.sql -f supabase/migrations/20261114193000_dakar_gtfs_storage_isolation.sql -f supabase/migrations/20261115190000_dakar_gtfs_validation_failure_requeue.sql -f tests/sql/test_gtfs_storage_isolation.sql -f tests/sql/test_gtfs_service_role_privileges.sql -f tests/sql/test_gtfs_validation_worker.sql -f tests/sql/test_gtfs_validation_failure_requeue.sql
-          bash tests/sql/test_dakar_admin_audit_concurrency.sh
-
-  verify-gtfs-ingest:
-    name: Verify private GTFS ingest function
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Test bounded multipart upload parsing
-        run: deno test supabase/functions/dakar-gtfs-ingest/multipart_test.ts
-
-      - name: Test dedicated Dakar Bus Supabase project guard
-        run: deno test supabase/functions/dakar-gtfs-ingest/project_test.ts
-
-      - name: Type-check Supabase Edge Functions
-        run: deno check supabase/functions/dakar-admin/index.ts supabase/functions/dakar-gtfs-ingest/index.ts

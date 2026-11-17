@@ -65,6 +65,8 @@ export interface CorridorLine {
   officialFrequencies: readonly OfficialFrequency[]
   /** Synthèse lisible des périodes de service officielles. */
   serviceWindow: string
+  /** Désactive temporairement une ligne dont le parcours/sa géométrie ne sont pas validés. */
+  plannerEnabled?: boolean
   /** Vitesse commerciale moyenne retenue pour les estimations (km/h). */
   speedKph: number
   /** Arrêts « semi-express » (desservis par les services B2/B3 documentés),
@@ -354,7 +356,12 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     id: 'aftu-2',
     network: 'aftu_tata',
     shortName: 'AFTU 53',
-    longName: 'Keur Massar ↔ Sébikotane via Rufisque (référence)',
+    longName: 'Keur Massar ↔ Sébikotane (parcours officiel à réintégrer)',
+    // La fiche AFTU du 06/07/2026 décrit un corridor via Tivaouane Peulh,
+    // Niacourab, Niagues, Ndiakhirate, Keur Ndiaye Lo, Dangou, Sonadis,
+    // Sococim, Bargny et Diamniadio. Le graphe actuel (Pikine/Rufisque/Lat Dior)
+    // ne correspond pas à cette fiche : ne pas proposer ce faux parcours.
+    plannerEnabled: false,
     color: MOBILITY_PALETTE.aftu_tata.core,
     stopIds: ['aftu-keur-massar', 'aftu-pikine', 'aftu-rufisque', 'aftu-lat-dior'],
     headwayMin: 15,
