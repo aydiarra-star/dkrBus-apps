@@ -119,12 +119,22 @@ export function parseMoovitTimetableHtml(html, source) {
 async function main() {
   const output = []
   for (const source of SOURCES) {
-    const response = await fetch(source.url, {
-      headers: { 'user-agent': 'DakarBusResearchBot/1.0 (read-only timetable evidence)' },
-      signal: AbortSignal.timeout(25_000),
-    })
-    if (!response.ok) throw new Error(`Moovit returned HTTP ${response.status} for ${source.direction}`)
-    output.push(parseMoovitTimetableHtml(await response.text(), source))
+    let html = null
+    try {
+      const response = await fetch(source.url, {
+        headers: { 'user-agent': 'DakarBusResearchBot/1.0 (read-only timetable evidence)' },
+        signal: AbortSignal.timeout(25_000),
+      })
+      if (!response.ok) throw new Error(`Moovit returned HTTP ${response.status} for ${source.direction}`)
+      html = await response.text()
+      output.push(parseMoovitTimetableHtml(html, source))
+    } catch (error) {
+      if (html) {
+        await mkdir('artifacts/ddd/moovit-line-13', { recursive: true })
+        await writeFile(`artifacts/ddd/moovit-line-13/debug-${source.direction}.html`, html.slice(0, 500_000))
+      }
+      throw error
+    }
   }
 
   const totalTrips = output.reduce((sum, route) =>
