@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only extraction of walkable OSM ways from a Geofabrik PBF."""
+"""Read-only extraction of dedicated pedestrian OSM ways from a Geofabrik PBF."""
 from __future__ import annotations
 
 import json
@@ -7,19 +7,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-WALKABLE = {
-    "footway", "pedestrian", "path", "steps", "living_street",
-    "residential", "service", "unclassified", "tertiary",
-    "secondary", "primary", "trunk", "trunk_link",
-}
-MAJOR_ROADS = {"tertiary", "secondary", "primary", "trunk", "trunk_link"}
-MOTOR_ONLY = {"motorway", "motorway_link"}
+# Keep this allowlist aligned with scripts/lib/pedestrianNetwork.mjs.
+# Road centerlines are never substituted for sidewalk geometry.
+WALKABLE = {"footway", "pedestrian", "path", "steps", "living_street"}
 BOUNDS = {"south": 14.50, "west": -17.60, "north": 14.95, "east": -17.05}
 
 
 def is_walkable(tags: dict[str, str]) -> bool:
-    highway = str(tags.get("highway", ""))
-    if highway not in WALKABLE or highway in MOTOR_ONLY:
+    highway = str(tags.get("highway", "")).lower()
+    if highway not in WALKABLE:
         return False
     foot_values = {
         str(tags.get(key, "")).lower()
@@ -29,20 +25,11 @@ def is_walkable(tags: dict[str, str]) -> bool:
     access = str(tags.get("access", "")).lower()
     if tags.get("foot:conditional"):
         return False
-    # Apply the restrictive pedestrian tag even when the other tag is permissive.
+    # An explicit restriction wins over a contradictory permissive tag.
     if foot_values & {"no", "private"}:
         return False
-    foot_permitted = bool(foot_values & {"yes", "designated", "permissive", "destination"})
+    foot_permitted = bool(foot_values & {"yes", "designated", "permissive"})
     if access in {"no", "private"} and not foot_permitted:
-        return False
-    sidewalk = str(tags.get("sidewalk", "")).lower()
-    has_sidewalk = sidewalk in {"yes", "both", "left", "right"} or any(
-        str(tags.get(key, "")).lower() in {"yes", "designated"}
-        for key in ("sidewalk:left", "sidewalk:right")
-    )
-    if highway in MAJOR_ROADS and not has_sidewalk and not foot_permitted:
-        return False
-    if highway == "service" and str(tags.get("service", "")) in {"driveway", "parking_aisle", "private"} and not foot_permitted:
         return False
     return True
 
@@ -124,7 +111,7 @@ def main() -> int:
     report = extract_pedestrian_ways(sys.argv[1])
     output = Path(sys.argv[2])
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, ensure_ascii=False) + "\n", encoding="utf-8")
+    output.write_text(json.dumps(report, ensure_ascii=False) + "\\n", encoding="utf-8")
     print(json.dumps(report["summary"], ensure_ascii=False))
     return 0
 
