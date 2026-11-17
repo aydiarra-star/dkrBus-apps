@@ -164,24 +164,6 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Check read-only OSM directional relation extractor
-        run: node --check scripts/extract_ddd_osm_directional_relations.mjs
-
-      - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
-        id: osm_relations
-        continue-on-error: true
-        timeout-minutes: 2
-        run: node scripts/extract_ddd_osm_directional_relations.mjs
-
-      - name: Upload OSM directional relation evidence
-        if: always() && steps.osm_relations.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ddd-osm-217-218-219-228
-          path: artifacts/ddd/osm-217-218-219-228/
-          if-no-files-found: error
-          retention-days: 30
-
       - name: Upload raw ArcGIS and GeoJSON evidence
         uses: actions/upload-artifact@v4
         with:
@@ -249,3 +231,34 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
 
+
+  osm_evidence:
+    name: Optional DDD OSM relation evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check read-only OSM directional relation extractor
+        run: node --check scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
+        id: osm_relations
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/extract_ddd_osm_directional_relations.mjs
+
+      - name: Upload OSM directional relation evidence
+        if: always() && steps.osm_relations.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-osm-217-218-219-228
+          path: artifacts/ddd/osm-217-218-219-228/
+          if-no-files-found: error
+          retention-days: 30
