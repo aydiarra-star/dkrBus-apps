@@ -53,7 +53,16 @@ def extract_pedestrian_ways(pbf_path: str) -> dict:
         def __init__(self):
             super().__init__()
             self.elements = []
+            self.node_elements = []
             self.skipped = 0
+
+        def node(self, node):
+            tags = {tag.k: tag.v for tag in node.tags}
+            if not any(key in tags for key in ('barrier', 'access', 'foot', 'highway', 'crossing')):
+                return
+            if not node.location.valid():
+                return
+            self.node_elements.append({'type': 'node', 'id': int(node.id), 'lat': float(node.location.lat), 'lon': float(node.location.lon), 'tags': tags})
 
         def way(self, way):
             tags = {tag.k: tag.v for tag in way.tags}
@@ -91,9 +100,10 @@ def extract_pedestrian_ways(pbf_path: str) -> dict:
         "attribution": "© OpenStreetMap contributors",
         "license": "ODbL-1.0",
         "geographicBounds": BOUNDS,
-        "elements": handler.elements,
+        "elements": handler.elements + handler.node_elements,
         "summary": {
             "walkableWayCount": len(handler.elements),
+            "taggedNodeCount": len(handler.node_elements),
             "skippedWays": handler.skipped,
         },
     }
