@@ -414,52 +414,28 @@ describe('isolation de la vue carte', () => {
 })
 
 describe('structure en quatre piliers', () => {
-  it('garde Explorer compact et déplace les détails techniques dans Paramètres', () => {
-    vi.useFakeTimers()
-    // Service actif : jeudi 8 octobre 2026, 12:00 UTC = 12:00 Dakar.
-    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+  it('garde Explorer compact et déplace les détails techniques dans Paramètres', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    render(<App />)
+    const { container } = render(<App />)
 
-    expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
-    // Les quatre cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
-    expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(4)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
-    for (const network of ['ter', 'brt']) {
-      const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2} · \d+ min$/)
-    }
-    // DDD et le réseau unifié AFTU / TATA affichent chacun un seul prochain passage.
-    for (const [network, minutes] of [['ddd', '2 min'], ['aftu_tata', '12 min']]) {
-      const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
-      expect(passage).toBeTruthy()
-      expect(badge).toBeTruthy()
-      expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
-      expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
-    }
-    expect(document.querySelectorAll('.network-item-aftu_tata')).toHaveLength(1)
-    expect(document.querySelector('.network-summary-estimates')).toBeNull()
+    const legend = screen.getByRole('region', { name: 'Légende des réseaux' })
+    expect(legend.querySelectorAll('.explore-network-legend-item')).toHaveLength(4)
+    expect(container.querySelector('.network-reference-cards-section')).toBeNull()
+    expect(container.querySelector('.network-summary-section')).toBeNull()
     expect(screen.queryByText(/décompte théorique · pas de temps réel/i)).toBeNull()
-    expect(screen.queryByText(/vérification en ligne non documentée/i)).toBeNull()
-    expect(screen.queryByText(/validité calendaire/i)).toBeNull()
-    expect(screen.queryByText(/38 lignes · 400 bus/)).toBeNull()
-    // Aucune affirmnation de temps réel : l’écran ne revendique jamais le direct.
     expect(document.querySelector('.is-live')).toBeNull()
     expect(screen.queryByText(/^LIVE$/i)).toBeNull()
 
     fireEvent.click(screen.getByRole('tab', { name: /paramètres/i }))
     fireEvent.click(screen.getByText(/^état des données$/i))
-    expect(screen.getByRole('region', { name: 'Fréquences et services de référence' })).toBeTruthy()
+    const references = screen.getByRole('region', { name: 'Fréquences et services de référence' })
+    expect(references.querySelectorAll('.network-reference-card')).toHaveLength(4)
     expect(screen.getByText(/lun\.–sam\. \(hors jours fériés\) · 05:30–21:00 · 10 min/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
-    expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
+    expect(screen.getByText(/72 lignes · 2\\s?300 bus · 14 GIE/)).toBeTruthy()
     expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
     expect(screen.getByRole('link', { name: 'TER / SETER' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'CETUD / SunuBRT' })).toBeTruthy()
-    vi.useRealTimers()
   })
 
   it('expose exactement quatre onglets, avec leurs rôles exclusifs', async () => {
