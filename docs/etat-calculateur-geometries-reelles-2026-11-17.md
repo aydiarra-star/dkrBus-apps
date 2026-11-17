@@ -14,6 +14,16 @@ Les primitives de géométrie et de graphe routier ont été ajoutées et testé
 
 Le planner existant reste en place pendant que les géométries et les chemins piétons sont préparés. Il ne faut donc pas annoncer que le calculateur est déjà strictement basé sur les voies réelles.
 
+## Contrôle métrique des géométries TER/BRT — audit du 17 novembre
+
+Un audit automatisé supplémentaire est ajouté dans `src/domain/referenceRouteGeometry.ts` avec ses tests.
+
+- **TER phase 1** : les 13 gares Dakar → Diamniadio se projettent sur la géométrie physique ferroviaire OSM, avec un écart maximal d'environ 11,4 m et un chainage strictement croissant. La coupe s'arrête à Diamniadio ; AIBD et la phase 2 ne sont pas incluses. Cette géométrie décrit l'alignement physique de la voie, pas un horaire ni une attestation officielle SETER.
+- **BRT B1, Préfecture → Petersen** (relation OSM 19961937) : les 23 stations sont ordonnées et se projettent à moins d'un mètre au maximum.
+- **BRT B1, Petersen → Préfecture** (relation OSM 19961993) : l'ordre est monotone, mais l'écart maximal atteint environ 93,4 m au terminus Préfecture, au-delà du seuil de contrôle de 80 m. Cette direction échoue donc à la validation et ne doit pas être activée avant vérification de l'accès/quai réel.
+
+Ce contrôle est une étape d'audit, pas encore un branchement du planner. Le calculateur de production n'utilise pas encore ces géométries pour ses distances. Les deux directions BRT ne sont pas considérées comme intégralement validées tant que l'écart terminal n'est pas résolu.
+
 ## Accès, sortie et correspondances à pied
 
 Les distances Haversine d'accès/sortie et les distances de correspondance positives ne sont plus utilisées pour fabriquer une marche. En l'absence du graphe piéton, le calculateur accepte seulement un départ et une arrivée sélectionnés comme arrêts exacts du référentiel, et seulement les transferts de distance nulle explicitement déclarés dans un même pôle.
