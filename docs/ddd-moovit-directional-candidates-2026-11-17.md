@@ -68,7 +68,7 @@ Les pages Moovit ne se limitent pas aux durées globales : elles possèdent des 
 - Palais → Liberté 5 : https://moovitapp.com/index/fr/transport_en_commun-time-13-Dakar-5996-1618037-18051475-4256270-0
   - semaine : premiers départs affichés à 06:45, derniers à 21:00 ;
   - samedi : 07:00 à 21:00.
-- Les deux pages contiennent les colonnes de passage de chaque arrêt pour chaque départ programmé ; la ligne 13 est indiquée comme non opérationnelle le dimanche dans ces fiches.
+- Les deux pages contiennent les colonnes de passage de chaque arrêt pour chaque départ programmé ; les pages consultées ne fournissent pas de grille dimanche ; aucune conclusion sur le service dominical ne doit en être déduite.
 
 Les URL des deux grilles sont maintenant reliées aux candidats de la ligne 13 dans `src/data/dddMoovitDirectionalCandidates.ts`. C'est la première source repérée dans ce lot qui peut fournir directement des heures de passage par arrêt, au lieu de devoir interpoler une durée globale.
 
@@ -84,4 +84,11 @@ Lecture directe des deux pages horaires :
 
 Les exemples des deux premières lignes sont utilisés dans les tests de non-régression du parseur nextTimetableStopPassageCountdown afin de vérifier les 30 colonnes, les terminus, les arrêts intermédiaires et l'indépendance des deux sens.
 
-**Limite importante :** cette vérification ne constitue pas encore l'extraction exhaustive de toutes les lignes horaires des deux tableaux. Aucune grille partielle ne doit être présentée comme l'horaire complet, ni activée dans l'application passager. La grille complète doit être capturée et contrôlée avant raccordement à l'affichage.
+**Extraction exhaustive des tableaux consultés — 17 novembre 2026 :**
+- Liberté 5 → Palais : samedi, 37 lignes de départ (06:30 à 20:35) ; semaine, 53 lignes (06:00 à 20:30).
+- Palais → Liberté 5 : samedi, 43 lignes de départ (07:00 à 21:00) ; semaine, 49 lignes (06:45 à 21:00).
+- Les quatre sections ont été relues jusqu'à leur dernière ligne visible ; chaque ligne de passage expose 30 colonnes, dans l'ordre des 30 occurrences de la séquence correspondante.
+- Les grilles ont des cadences variables et des heures propres à chaque arrêt. Le calcul doit donc sélectionner la prochaine heure de la colonne de l'arrêt concerné, sans interpolation uniforme.
+- Les pages ne fournissent pas de grille dimanche : ne pas déduire un service dominical ni fabriquer des horaires ce jour-là.
+
+**Limite avant activation :** l'extraction exhaustive a été vérifiée dans les pages sources, mais les quatre matrices complètes ne sont pas encore intégrées comme données structurées versionnées dans le dépôt. Les tests actuels ne couvrent que des lignes d'exemple. Aucune grille ne doit donc être présentée comme intégrée ni activée dans l'application passager avant sa transcription contrôlée, ses tests de cohérence et le rapprochement de chaque colonne avec les arrêts de la séquence.
