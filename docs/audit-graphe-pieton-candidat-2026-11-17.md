@@ -142,3 +142,12 @@ Le fichier porte explicitement le statut `CANDIDATE_GRAPH_NOT_YET_CONNECTED_TO_S
 - Les voies ne sont pas certifiées par les opérateurs de transport.
 
 **Décision :** conserver cet artefact comme base de travail et de contrôle uniquement. Ne pas l'utiliser pour annoncer un temps de marche ni pour calculer un itinéraire porte-à-porte tant que les accès et liaisons n'ont pas été validés. Ne pas modifier les horaires ou fréquences TER/BRT sur la base de ce graphe.
+
+
+## Durcissement du filtre piéton — géométrie des grandes voies
+
+Le 17 novembre, le filtre du graphe candidat a été durci : les ways OSM classés `tertiary`, `secondary`, `primary`, `trunk` et `trunk_link` sont désormais exclus du graphe piéton, même lorsqu'ils portent `sidewalk=yes/both` ou `foot=designated`.
+
+Motif : la géométrie extraite pour ces objets est l'axe de la chaussée. La seule présence d'une balise de trottoir indique qu'un trottoir existe, mais ne fournit pas sa géométrie propre ; utiliser l'axe routier comme chemin piéton ferait passer le calcul sur une ligne qui n'est pas le trottoir. Les trottoirs ne seront intégrés que lorsqu'une géométrie piétonne dédiée (par exemple un way `footway` ou `path`) est disponible et contrôlable.
+
+Des tests de non-régression vérifient maintenant que ces grandes voies restent exclues, y compris avec des balises `sidewalk` ou `foot` permissives. Ce choix réduit volontairement la couverture du graphe candidat au bénéfice de la fidélité géométrique. Il ne modifie aucun itinéraire ou horaire voyageurs : le graphe reste non raccordé aux arrêts et non activé.
