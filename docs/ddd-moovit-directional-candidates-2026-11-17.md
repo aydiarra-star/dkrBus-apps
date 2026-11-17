@@ -53,6 +53,6 @@ Faire le rapprochement ligne 7 et 13 entre les repères DDD officiels, les deux 
 
 Les pages de détail associées donnent aussi une durée totale de parcours :
 - Ligne 7 vers Ouakam : environ 35 minutes ; vers Palais : environ 34 minutes.
-- Ligne 13 vers Palais : environ 30 minutes ; vers Liberté 5 : environ 30 minutes.
+- Ligne 13 vers Palais : environ 31 minutes ; vers Liberté 5 : environ 30 minutes.
 
 Ces durées sont enregistrées dans `publishedJourneyDurationMinutes` pour préparer le calcul des temps cumulés. Elles ne fournissent pas les temps de passage intermédiaires à chaque arrêt. Une interpolation uniforme entre arrêts ne doit pas être présentée comme un horaire réel : il faut d'abord exploiter les horaires par arrêt disponibles sur les pages Moovit ou une source opérateur, puis qualifier la méthode et la marge d'erreur en métadonnées internes.
