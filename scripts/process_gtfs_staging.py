@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_gtfs.py"
 MAX_ARCHIVE_BYTES = 100 * 1024 * 1024
 MAX_MANIFEST_BYTES = 1 * 1024 * 1024
+MAX_JSON_RESPONSE_BYTES = 1 * 1024 * 1024
 LEASE_SECONDS = 900
 VALIDATOR_VERSION = "dakar-gtfs-validator-v5"
 SUPABASE_PROJECT_REF = "mdmuxzaewqzqutkqdylo"
@@ -368,9 +369,11 @@ class SupabaseRest:
         )
         try:
             with open_without_redirect(request, timeout=90) as response:
-                raw = response.read()
+                raw = response.read(MAX_JSON_RESPONSE_BYTES + 1)
         except (urllib.error.URLError, TimeoutError) as error:
             raise WorkerError("SUPABASE_REQUEST_FAILED") from error
+        if len(raw) > MAX_JSON_RESPONSE_BYTES:
+            raise WorkerError("SUPABASE_RESPONSE_TOO_LARGE")
         if not raw:
             return None
         try:
@@ -414,7 +417,8 @@ class SupabaseRest:
             with open_without_redirect(request, timeout=120) as response:
                 payload = response.read(max_bytes + 1)
         except (urllib.error.URLError, TimeoutError) as error:
-            raise WorkerError("ARCHIVE_DOWNLOAD_FAILED") from error
+            code = "MANIFEST_DOWNLOAD_FAILED" if max_bytes == MAX_MANIFEST_BYTES else "ARCHIVE_DOWNLOAD_FAILED"
+            raise WorkerError(code) from error
         if len(payload) > max_bytes:
             raise WorkerError("MANIFEST_TOO_LARGE" if max_bytes == MAX_MANIFEST_BYTES else "ARCHIVE_TOO_LARGE")
         return payload
