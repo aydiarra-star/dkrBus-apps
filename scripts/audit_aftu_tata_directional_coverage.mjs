@@ -8,9 +8,13 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const normalize = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const isFiniteCoordinateValue = (value) =>
+  value !== null && value !== undefined && value !== '' &&
+  Number.isFinite(typeof value === 'number' ? value : Number(value));
+
 const isCoordinate = (point) => point && typeof point === 'object' &&
-  Number.isFinite(Number(point.lat ?? point.latitude)) &&
-  Number.isFinite(Number(point.lon ?? point.lng ?? point.longitude));
+  isFiniteCoordinateValue(point.lat ?? point.latitude) &&
+  isFiniteCoordinateValue(point.lon ?? point.lng ?? point.longitude);
 
 function countCoordinates(points) {
   return points.filter(isCoordinate).length;
