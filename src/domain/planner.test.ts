@@ -90,6 +90,8 @@ describe('calculateur multimodal de référence', () => {
     expect(result.transfers).toBe(0)
     expect(result.totalMinutes).toBeGreaterThan(20)
     expect(result.totalMinutes).toBeLessThan(180)
+    expect(rides[0].distanceM).toBeGreaterThan(16_000)
+    expect(rides[0].distanceM).toBeLessThan(19_000)
     expect(result.limitation).toContain('réseau de référence')
   })
 
