@@ -1658,6 +1658,25 @@ function App() {
           </div>
         )}
 
+        {activeTab === 'explore' && (
+          <div className="map-mobility-legend map-mobility-legend-compact" aria-label="Code couleur des mobilités">
+            <span className="map-mobility-legend-title">Réseaux</span>
+            <div className="map-mobility-legend-row">
+              {MOBILITY_IDS.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="map-legend-badge-button"
+                  onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
+                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()}`}
+                >
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="map-controls" aria-label="Contrôles de la carte">
           <button type="button" className="map-control" aria-label="Zoom avant" onClick={() => zoomMap(1)}><Plus size={17} /></button>
           <button type="button" className="map-control" aria-label="Zoom arrière" onClick={() => zoomMap(-1)}><Minus size={17} /></button>

@@ -4116,3 +4116,43 @@ button:disabled { cursor: not-allowed; }
   .brand-row { height: 46px; }
   .mobile-nav { height: 54px; }
 }
+
+
+/* Légende des réseaux compacte, ancrée au pied de la carte. */
+.map-mobility-legend-compact {
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 76px);
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 9px;
+}
+.map-mobility-legend-compact .map-mobility-legend-title {
+  flex: 0 0 auto;
+  font-size: 7px;
+  letter-spacing: .04em;
+}
+.map-mobility-legend-compact .map-mobility-legend-row {
+  flex-wrap: nowrap;
+  gap: 3px;
+}
+.map-mobility-legend-compact .map-legend-badge-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 1;
+}
+@media (max-width: 820px) {
+  .map-mobility-legend-compact {
+    bottom: 8px;
+    left: 8px;
+    max-width: calc(100% - 64px);
+    gap: 4px;
+    padding: 3px 5px;
+  }
+  .map-mobility-legend-compact .map-mobility-legend-title { font-size: 6.5px; }
+  .map-mobility-legend-compact .map-mobility-legend-row { gap: 2px; }
+}
