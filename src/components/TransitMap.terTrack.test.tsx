@@ -129,7 +129,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     ])
     // TER et BRT retrouvent les épaisseurs historiques d'avant les réductions.
     expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
-    expect([brt[0], brt[2], brt[4]].map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+    expect(brt.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
   })
 })
 
