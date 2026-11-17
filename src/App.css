@@ -4250,3 +4250,14 @@ button:disabled { cursor: not-allowed; }
   text-overflow: clip;
   white-space: nowrap;
 }
+
+/* Les badges de ligne dans les en-têtes de résultats gardent le numéro complet. */
+.journey-route-badge.mobility-badge {
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
+  flex: 0 0 auto;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
