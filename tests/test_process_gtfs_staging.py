@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 from scripts.process_gtfs_staging import (
     EXPECTED_VALIDATOR_LIMITS,
     MAX_ARCHIVE_BYTES,
+    MAX_MANIFEST_BYTES,
     NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
@@ -20,6 +21,7 @@ from scripts.process_gtfs_staging import (
     validate_report,
     validate_supabase_url,
     verify_archive_bytes,
+    verify_manifest_bytes,
     worker_error_code,
 )
 
@@ -48,6 +50,8 @@ def valid_job() -> dict:
         "archive_bucket": STAGING_BUCKET,
         "archive_object_path": f"synthetic-feed/{VALID_SHA}/feed.zip",
         "archive_sha256": VALID_SHA,
+        "manifest_object_path": f"synthetic-feed/{VALID_SHA}/manifest.json",
+        "manifest_sha256": "b" * 64,
         "archive_bytes": 128,
         "lease_token": VALID_LEASE,
     }
@@ -81,6 +85,46 @@ class GTFSWorkerTests(unittest.TestCase):
         payload = b"not a zip archive"
         with self.assertRaisesRegex(WorkerError, "ARCHIVE_NOT_ZIP"):
             verify_archive_bytes(payload, len(payload), hashlib.sha256(payload).hexdigest())
+
+    def test_manifest_hash_and_archive_binding_are_verified(self) -> None:
+        payload = (
+            b'{"schema_version":"1.0","dataset_id":"synthetic-feed",'
+            b'"review_status":"PENDING_REVIEW","publication_status":"NOT_PUBLISHED",'
+            b'"publication_ready":false,"archive":{"stored_as":"feed.zip","bytes":128,"sha256":"'
+            + VALID_SHA.encode("ascii")
+            + b'"}}'
+        )
+        digest = hashlib.sha256(payload).hexdigest()
+        verify_manifest_bytes(payload, digest, "synthetic-feed", VALID_SHA, 128)
+
+    def test_manifest_hash_dataset_archive_and_governance_mismatches_are_rejected(self) -> None:
+        base = (
+            b'{"schema_version":"1.0","dataset_id":"synthetic-feed",'
+            b'"review_status":"PENDING_REVIEW","publication_status":"NOT_PUBLISHED",'
+            b'"publication_ready":false,"archive":{"stored_as":"feed.zip","bytes":128,"sha256":"'
+            + VALID_SHA.encode("ascii")
+            + b'"}}'
+        )
+        digest = hashlib.sha256(base).hexdigest()
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_SHA256_MISMATCH"):
+            verify_manifest_bytes(base, "0" * 64, "synthetic-feed", VALID_SHA, 128)
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_DATASET_MISMATCH"):
+            verify_manifest_bytes(base, digest, "other-feed", VALID_SHA, 128)
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_ARCHIVE_MISMATCH"):
+            verify_manifest_bytes(base, digest, "synthetic-feed", VALID_SHA, 127)
+        bad_governance = base.replace(b'"NOT_PUBLISHED"', b'"PUBLISHED"')
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_GOVERNANCE_STATE_INVALID"):
+            verify_manifest_bytes(
+                bad_governance,
+                hashlib.sha256(bad_governance).hexdigest(),
+                "synthetic-feed",
+                VALID_SHA,
+                128,
+            )
+
+    def test_manifest_size_limit_is_enforced(self) -> None:
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_SIZE_INVALID"):
+            verify_manifest_bytes(b"x" * (MAX_MANIFEST_BYTES + 1), "0" * 64, "synthetic-feed", VALID_SHA, 128)
 
     def test_report_accepts_complete_hash_and_size_bound_validator_output(self) -> None:
         report = validate_report(valid_report(), VALID_SHA, 128)
@@ -153,6 +197,16 @@ class GTFSWorkerTests(unittest.TestCase):
             ("dataset_id", "../bad", "CLAIM_DATASET_ID_INVALID"),
             ("lease_token", "not-a-uuid", "CLAIM_LEASE_TOKEN_INVALID"),
             ("archive_bytes", True, "CLAIM_ARCHIVE_SIZE_INVALID"),
+        ]:
+            job = valid_job()
+            job[key] = value
+            with self.subTest(key=key), self.assertRaisesRegex(WorkerError, code):
+                validate_claimed_job(job)
+
+    def test_claimed_job_rejects_noncanonical_manifest_path_and_digest(self) -> None:
+        for key, value, code in [
+            ("manifest_object_path", "../manifest.json", "CLAIM_MANIFEST_PATH_INVALID"),
+            ("manifest_sha256", "not-a-hash", "CLAIM_MANIFEST_SHA256_INVALID"),
         ]:
             job = valid_job()
             job[key] = value
