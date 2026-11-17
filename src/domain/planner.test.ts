@@ -33,6 +33,19 @@ describe('séquences directionnelles des lignes', () => {
 })
 
 describe('calculateur multimodal de référence', () => {
+  it('n’utilise pas AFTU 53 tant que sa séquence officielle et sa géométrie ne sont pas intégrées', () => {
+    const line53 = CORRIDOR_LINES.find((line) => line.shortName === 'AFTU 53')
+    expect(line53).toBeDefined()
+    expect(line53?.plannerEnabled).toBe(false)
+    const outcome = planReferenceJourney(
+      { label: 'Keur Massar', lat: 14.79, lon: -17.31 },
+      RUFISQUE,
+    )
+    if (outcome.ok) {
+      expect(outcome.legs.filter((leg) => leg.kind === 'ride').every((leg) => leg.line?.shortName !== 'AFTU 53')).toBe(true)
+    }
+  })
+
   it('relie le Plateau à Guédiawaye en BRT sans inventer de correspondance', () => {
     const outcome = planReferenceJourney(PLATEAU, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
