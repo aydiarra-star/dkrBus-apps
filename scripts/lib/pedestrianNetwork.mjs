@@ -25,7 +25,7 @@ export function isWalkableOsmWay(tags = {}) {
 }
 
 export function isWalkableOsmNode(tags = {}) {
-  const foot = String(tags.foot ?? '').toLowerCase()
+  const foot = String(tags.foot || tags['foot:access'] || '').toLowerCase()
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
   if (['no', 'private'].includes(foot)) return false
