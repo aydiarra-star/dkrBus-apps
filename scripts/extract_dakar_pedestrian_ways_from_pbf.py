@@ -21,20 +21,26 @@ def is_walkable(tags: dict[str, str]) -> bool:
     highway = str(tags.get("highway", ""))
     if highway not in WALKABLE or highway in MOTOR_ONLY:
         return False
-    foot = str(tags.get("foot") or tags.get("foot:access") or "").lower()
+    foot_values = {
+        str(tags.get(key, "")).lower()
+        for key in ("foot", "foot:access")
+        if tags.get(key)
+    }
     access = str(tags.get("access", "")).lower()
     if tags.get("foot:conditional"):
         return False
-    if foot in {"no", "private"}:
+    # Apply the restrictive pedestrian tag even when the other tag is permissive.
+    if foot_values & {"no", "private"}:
         return False
-    if access in {"no", "private"} and foot not in {"yes", "designated", "permissive", "destination"}:
+    foot_permitted = bool(foot_values & {"yes", "designated", "permissive", "destination"})
+    if access in {"no", "private"} and not foot_permitted:
         return False
     sidewalk = str(tags.get("sidewalk", "")).lower()
     has_sidewalk = sidewalk in {"yes", "both", "left", "right"} or any(
         str(tags.get(key, "")).lower() in {"yes", "designated"}
         for key in ("sidewalk:left", "sidewalk:right")
     )
-    if highway in MAJOR_ROADS and not has_sidewalk and foot not in {"yes", "designated", "permissive"}:
+    if highway in MAJOR_ROADS and not has_sidewalk and not foot_permitted:
         return False
     if highway == "service" and str(tags.get("service", "")) in {"driveway", "parking_aisle", "private"} and foot not in {"yes", "designated", "permissive"}:
         return False
