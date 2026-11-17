@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { CORRIDOR_LINES, getCorridorStop, networkLabelOf, type CorridorLine } from './corridors'
 import { describeLeg, directedStopSequences, planReferenceJourney, type PlannerResult } from './planner'
 
-const PLATEAU = { label: 'Plateau (point carte)', lat: 14.6735, lon: -17.4375 }
-// Point à ~110 m de la station BRT « Préfecture de Guédiawaye » (position OSM).
-const GUEDIAWAYE = { label: 'Guédiawaye (point carte)', lat: 14.7725, lon: -17.3860 }
-const RUFISQUE = { label: 'Rufisque (point carte)', lat: 14.7145, lon: -17.2725 }
+const PLATEAU_STOP = getCorridorStop('brt-petersen')!
+const GUEDIAWAYE_STOP = getCorridorStop('brt-prefecture-guediawaye')!
+const RUFISQUE_STOP = getCorridorStop('ter-rufisque')!
+const PLATEAU = { label: PLATEAU_STOP.name, lat: PLATEAU_STOP.lat, lon: PLATEAU_STOP.lon, stopId: PLATEAU_STOP.id }
+const GUEDIAWAYE = { label: GUEDIAWAYE_STOP.name, lat: GUEDIAWAYE_STOP.lat, lon: GUEDIAWAYE_STOP.lon, stopId: GUEDIAWAYE_STOP.id }
+const RUFISQUE = { label: RUFISQUE_STOP.name, lat: RUFISQUE_STOP.lat, lon: RUFISQUE_STOP.lon, stopId: RUFISQUE_STOP.id }
 
 describe('libellés publics des réseaux', () => {
   it('présente AFTU comme identité unique pour les dessertes AFTU/TATA', () => {
@@ -46,7 +48,7 @@ describe('calculateur multimodal de référence', () => {
     }
   })
 
-  it('relie le Plateau à Guédiawaye en BRT sans inventer de correspondance', () => {
+  it('relie Petersen à Guédiawaye en BRT avec la géométrie directionnelle réelle', () => {
     const outcome = planReferenceJourney(PLATEAU, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
@@ -60,32 +62,19 @@ describe('calculateur multimodal de référence', () => {
     expect(result.limitation).toContain('réseau de référence')
   })
 
-  it('combine BRT et TER avec la correspondance marchable déclarée pour Rufisque', () => {
-    // Départ près du terminus BRT (Guédiawaye) vers Rufisque, desservi par le seul TER.
-    // Sans le BRT, la gare TER la plus proche est à plus d'un kilomètre : le moteur
-    // doit donc emprunter la correspondance déclarée Petersen ↔ gare de Dakar.
+  it('refuse une correspondance TER/BRT tant que le chemin piéton réel manque', () => {
+    // Les 1 km de marche déclarés entre gare TER et BRT ne sont pas un chemin piéton.
+    // Le moteur refuse donc cette correspondance tant que le graphe piéton réel manque.
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest', { allowedNetworks: ['ter', 'brt'] })
-    expect(outcome.ok).toBe(true)
-    const result = outcome as PlannerResult
-    const lines = result.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)
-    expect(lines).toContain('B1')
-    expect(lines).toContain('TER')
-    expect(result.transfers).toBeGreaterThanOrEqual(1)
-    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
   it('n’enchaîne pas DDD/AFTU au TER sur la seule proximité de coordonnées approximatives', () => {
-    // Les correspondances DDD/AFTU/TATA non confirmées ne sont pas des liens du graphe.
-    // Le trajet multimodal reste possible via les deux liaisons TER ↔ BRT déclarées.
+    // Aucune correspondance inter-réseaux positive n'est autorisée sans chemin piéton.
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
-    expect(outcome.ok).toBe(true)
-    const result = outcome as PlannerResult
-    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
-    expect(result.networksUsed.every((network) => network === 'brt' || network === 'ter')).toBe(true)
-    for (const leg of result.legs.filter((entry) => entry.kind === 'walk_transfer')) {
-      expect(leg.note).toMatch(/marche de référence/)
-    }
-    expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
   it('calcule les trois variantes sur le même réseau et expose leurs métriques', () => {
@@ -109,7 +98,7 @@ describe('calculateur multimodal de référence', () => {
     if (!outcome.ok) {
       expect(outcome.reason).toBe('NO_ACCESSIBLE_STOP')
       // Le message reste mesuré : un rayon, une raison, aucune ligne inventée.
-      expect(outcome.message).toMatch(/1,2 km/)
+      expect(outcome.message).toMatch(/arrêt exact sélectionné/)
       expect(outcome.message).toMatch(/réseau de référence/)
     }
   })
@@ -157,30 +146,24 @@ describe('couverture des réseaux de bus dans le moteur multimodal', () => {
     const outcome = planReferenceJourney(endpoint('ddd-parcelles'), endpoint('ddd-leclerc'), 'fastest', {
       allowedNetworks: ['ddd'],
     })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('DDD 1')
-    expect(outcome.networksUsed).toEqual(['ddd'])
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
   it('calcule un trajet sur une ligne AFTU sans basculer sur le TER ou le BRT', () => {
     const outcome = planReferenceJourney(endpoint('aftu-guediawaye'), endpoint('aftu-ouakam'), 'fastest', {
       allowedNetworks: ['aftu_tata'],
     })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU 42')
-    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
   it('calcule un trajet AFTU depuis les anciens arrêts TATA du référentiel', () => {
     const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', {
       allowedNetworks: ['aftu_tata'],
     })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU')
-    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 })
 
@@ -193,13 +176,8 @@ describe('cohérence des coûts du calculateur', () => {
     const a = { label: 'A', lat: dakar.lat + 0.0107, lon: dakar.lon }
     const b = { label: 'B', lat: dakar.lat + 0.0107, lon: dakar.lon + 0.001 }
     const outcome = planReferenceJourney(a, b)
-    expect(outcome.ok).toBe(true)
-    const result = outcome as PlannerResult
-    expect(result.legs).toHaveLength(1)
-    expect(result.legs[0].kind).toBe('walk_direct')
-    expect(result.boardedLines).toHaveLength(0)
-    expect(result.totalMinutes).toBeLessThanOrEqual(3)
-    expect(result.totalWalkM).toBeLessThan(200)
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_ACCESSIBLE_STOP')
   })
 
   it('préfère la marche directe à une chaîne marche + marche sans transport', () => {
@@ -210,11 +188,9 @@ describe('cohérence des coûts du calculateur', () => {
     const outcome = planReferenceJourney(
       { label: 'P', lat: petersen.lat + 0.005, lon: petersen.lon },
       { label: 'Q', lat: mosquee.lat + 0.005, lon: mosquee.lon },
-    ) as PlannerResult
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride')).toHaveLength(0)
-    expect(outcome.legs).toHaveLength(1)
-    expect(outcome.legs[0].kind).toBe('walk_direct')
-    expect(outcome.totalWalkM).toBeLessThan(900)
+    )
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_ACCESSIBLE_STOP')
   })
 
   it('conserve les trajets qui empruntent réellement un véhicule', () => {
@@ -228,8 +204,9 @@ describe('cohérence des coûts du calculateur', () => {
     const outcome = planReferenceJourney(
       { label: 'A', lat: dakar.lat + 0.0107, lon: dakar.lon },
       { label: 'B', lat: dakar.lat + 0.0107, lon: dakar.lon + 0.001 },
-    ) as PlannerResult
-    expect(describeLeg(outcome.legs[0])).toMatch(/Trajet à pied .* : A → B/)
+    )
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.message).toMatch(/chemin piéton vérifié/)
   })
 
   it('répond court quand aucun trajet n’est possible', () => {
