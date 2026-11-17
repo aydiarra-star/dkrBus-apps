@@ -228,10 +228,9 @@ describe('copilote : honnêteté et non-invention', () => {
   it('aucun prix n’est inventé quand on demande le moins cher', () => {
     const { reply } = ask('Quel trajet de Lat Dior à Rufisque est le moins cher ?')
     expect(reply.text).toContain('prix')
-    // La ligne AFTU 53 reste hors calcul tant que ses quais et sa géométrie
-    // routière ne sont pas vérifiés : aucun itinéraire ni tarif fictif.
-    expect(reply.text).toMatch(/aucun|pas possible|ne peux pas/i)
-    expect(reply.text).not.toMatch(/AFTU 53.*total de \d+\s*F CFA/i)
+    // Lat Dior ↔ Rufisque emprunte la ligne AFTU / TATA 53 : sans tarif publié
+    // pour ce réseau, aucun total n'est annoncé.
+    expect(reply.text).toMatch(/Aucun tarif publié pour AFTU 53/)
     expect(reply.text).not.toMatch(/total de \d+\s*F CFA/i)
   })
 
