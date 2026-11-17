@@ -54,3 +54,8 @@ Le graphe produit reste un candidat OSM : il n'est pas encore branché au calcul
 ## Limites et protection des données validées
 
 Ce déploiement de code ne modifie aucune fréquence, aucun horaire de référence TER/BRT, aucune donnée de service, aucun compte ou donnée usager. Les sources OSM restent attribuées © OpenStreetMap contributors, licence ODbL. Les géométries OSM BRT/TER sont des références cartographiques communautaires, pas des attestations officielles de l'opérateur. Le périmètre TER du calculateur reste celui de la phase 1 Dakar–Diamniadio ; la phase 2 AIBD n'est pas activée.
+
+
+## Contrôle des dépendances — 17 novembre 2026
+
+L'audit npm remonte six alertes high transitives liées à `picomatch` (GHSA-fc5q-39xc-vjpf / CVE-2026-112366), car la version verrouillée 4.0.7 est dans la plage affectée. La fiche publique indique une plage affectée jusqu'à 4.0.7 mais ne publie pas encore de version corrigée. La PR amont #194 observée est ouverte et traite un comportement de parsing extglob ; son auteur précise qu'elle ne corrige pas l'ensemble de la vulnérabilité ReDoS. En conséquence, aucune version fictive, dépendance git non publiée ou rétrogradation majeure de Vite n'est injectée pour faire artificiellement passer l'audit. Reprendre ce point dès qu'une version corrigée vérifiable est publiée.
