@@ -103,10 +103,22 @@ describe('ligne 13 DDD — contrôle des grilles Moovit à 30 arrêts', () => {
     expect(nextTimetableStopPassageCountdown([palaisToLiberte5], 29, at(6, 59))).toBe(33)
   })
 
+  const palaisToLiberte5Weekday = [
+    '06:45','06:45','06:46','06:48','06:48','06:49','06:50','06:50','06:51','06:52',
+    '06:53','06:53','06:54','06:56','06:57','06:59','06:59','07:00','07:01','07:02',
+    '07:03','07:04','07:05','07:07','07:07','07:08','07:09','07:11','07:11','07:13',
+  ]
+
   it('contrôle aussi la première ligne semaine publiée dans le sens Liberté 5 → Palais', () => {
     expect(liberte5ToPalaisWeekday).toHaveLength(30)
     expect(nextTimetableStopPassageCountdown([liberte5ToPalaisWeekday], 0, at(5, 59))).toBe(1)
     expect(nextTimetableStopPassageCountdown([liberte5ToPalaisWeekday], 29, at(5, 59))).toBe(26)
+  })
+
+  it('contrôle la première ligne semaine publiée dans le sens Palais → Liberté 5', () => {
+    expect(palaisToLiberte5Weekday).toHaveLength(30)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5Weekday], 0, at(6, 44))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5Weekday], 29, at(6, 44))).toBe(29)
   })
 
   it('ne mélange pas les deux sens et refuse un arrêt hors grille', () => {
