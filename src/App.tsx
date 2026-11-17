@@ -1659,7 +1659,7 @@ function App() {
         )}
 
         {activeTab === 'explore' && (
-          <div className="map-mobility-legend map-mobility-legend-compact" aria-label="Réseaux de mobilité">
+          <div className="map-mobility-legend map-mobility-legend-compact" aria-label="Code couleur des mobilités">
             <span className="map-mobility-legend-title">Réseaux</span>
             <div className="map-mobility-legend-row">
               {MOBILITY_IDS.map((id) => (
