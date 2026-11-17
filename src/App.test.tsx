@@ -2219,7 +2219,7 @@ describe('réglages appliqués réellement à l’application', () => {
     fireEvent.click(section.getByRole('button', { name: /miles/i }))
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     const imperial = screen.getByRole('region', { name: /itinéraires de référence/i }).textContent ?? ''
-    expect(imperial).toMatch(/\d+ pi|\d+,\d mi/)
+    expect(imperial).toMatch(/\d+ pi|\d+,\d+ mi/)
     expect(imperial).not.toBe(metric)
   })
 })
