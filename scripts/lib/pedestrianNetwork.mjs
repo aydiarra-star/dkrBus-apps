@@ -23,7 +23,7 @@ export function isWalkableOsmNode(tags = {}) {
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
   if (footAccess.some(value => ['no', 'private', 'destination'].includes(value))) return false
-  if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
+  if (['no', 'private', 'destination'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   const barrier = String(tags.barrier ?? '').toLowerCase()
   if (BLOCKING_BARRIERS.has(barrier) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   return true
