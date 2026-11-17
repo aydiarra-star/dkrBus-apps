@@ -28,28 +28,40 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(colobane.offsetFromDestinationMin).toBe(53.5)
 
     // Le créneau aller est projeté depuis Dakar : il suit la grille déclarée.
-    expect(colobane.outbound!.headwayMinutes).toBe(10)
+    expect(colobane.outbound!.headwayMinutes).toBe(8)
     expect(colobane.outbound!.clockLabel).toMatch(/^\d{2}:\d{2}$/)
-    expect(colobane.inbound!.headwayMinutes).toBe(10)
+    expect(colobane.inbound!.headwayMinutes).toBe(8)
   })
 
   it('projette le créneau aller avec le temps de parcours depuis le terminus', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
-    // À 12:00 pile, la grille TER (10 min depuis 05:30) place le prochain
-    // départ de Dakar à 12:10.
+    // À 12:00 pile, la grille TER (8 min depuis 05:35) place le prochain
+    // départ de Dakar à 12:07.
     const dakar = board.rows[0]
-    expect(dakar.outbound!.clockLabel).toBe('12:10')
+    expect(dakar.outbound!.clockLabel).toBe('12:07')
     // Dalifort (4e gare) est atteinte entre 10 et 11 min après Dakar : à 12:00, le
-    // départ de grille 11:50 y passe encore, projeté vers 12:01. Chaque
+    // départ de grille 11:51 y passe encore, projeté vers 12:01:30. Chaque
     // station affiche bien le prochain passage *chez elle*.
     const dalifort = board.rows.find((row) => row.stop.id === 'ter-dalifort')!
     expect(dalifort.offsetFromOriginMin).toBe(10.5)
     expect(dalifort.offsetFromOriginMin).toBeGreaterThan(dakar.offsetFromOriginMin)
-    expect(dalifort.outbound!.clockLabel).toBe('12:00')
-    expect(dalifort.outbound!.minutes).toBe(1)
+    expect(dalifort.outbound!.clockLabel).toBe('12:01')
+    expect(dalifort.outbound!.minutes).toBe(2)
     // Le créneau aller est bien porté par la grille déclarée du terminus.
-    expect(dalifort.outbound!.headwayMinutes).toBe(10)
+    expect(dalifort.outbound!.headwayMinutes).toBe(8)
+  })
+
+  it('applique la cadence propre à chaque segment TER, dans les deux sens', () => {
+    const board = buildStationBoard(boardLinesForNetwork('ter')[0], NOW)!
+    const colobane = board.rows.find((row) => row.stop.id === 'ter-colobane')!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+    const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
+    expect(colobane.outbound!.headwayMinutes).toBe(8)
+    expect(colobane.inbound!.headwayMinutes).toBe(8)
+    expect(diamniadio.outbound!.headwayMinutes).toBe(24)
+    expect(diamniadio.inbound!.headwayMinutes).toBe(8)
+    expect(aibd.inbound!.headwayMinutes).toBe(24)
   })
 
   it('ne fait embarquer personne dans le sens impossible au terminus', () => {

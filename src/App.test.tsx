@@ -453,7 +453,7 @@ describe('structure en quatre piliers', () => {
     fireEvent.click(screen.getByRole('tab', { name: /paramètres/i }))
     fireEvent.click(screen.getByText(/^état des données$/i))
     expect(screen.getByRole('region', { name: 'Fréquences et services de référence' })).toBeTruthy()
-    expect(screen.getByText(/lun\.–sam\. \(hors jours fériés\) · 05:30–21:00 · 10 min/)).toBeTruthy()
+    expect(screen.getByText(/Premiers départs : 05:30–06:00 · derniers : 20:30–21:00/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
     expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
     expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
@@ -1266,7 +1266,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
   it('décline les créneaux TER station par station et sens par sens', async () => {
     vi.useFakeTimers()
-    // Jeudi 8 octobre 2026, 12:00 UTC : grille TER de 10 min en service.
+    // Jeudi 8 octobre 2026, 12:00 UTC : grille TER de 8 min en service.
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
@@ -1299,8 +1299,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneOut = outRows.find((row) => row.textContent!.includes('Colobane'))!
     const colobaneIn = inRows.find((row) => row.textContent!.includes('Colobane'))!
     expect(colobaneOut.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
-    expect(colobaneOut.textContent).toMatch(/créneau 12:03 · 10 min/)
-    expect(colobaneIn.textContent).toMatch(/créneau 12:03 · 10 min/)
+    expect(colobaneOut.textContent).toMatch(/créneau 12:02 · 8 min/)
+    expect(colobaneIn.textContent).toMatch(/créneau 12:00 · 8 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
     expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
@@ -1314,13 +1314,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneTimes = () => [colobaneOut, colobaneIn].map((row) => row.querySelector('.station-board-passage > strong')!.textContent)
     // Les créneaux par station descendent au même rythme que les réseaux.
     // (Avancement par pas : chaque tic réarme le suivant après le rendu.)
-    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
+    expect(colobaneTimes()).toEqual(['2 min', '1 min'])
     for (let step = 0; step < 20; step += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(2_000)
       })
     }
-    expect(colobaneTimes()).toEqual(['3 min', '3 min'])
+    expect(colobaneTimes()).toEqual(['2 min', '8 min'])
     vi.useRealTimers()
   })
 

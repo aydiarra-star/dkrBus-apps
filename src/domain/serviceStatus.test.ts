@@ -122,38 +122,38 @@ describe('getServiceDisplayState', () => {
 
 
 describe('serviceWindowForDay', () => {
-  it('retient le début TER du dimanche à 06:30 et non le début générique de semaine', () => {
+  it('retient le début TER du dimanche selon le premier segment actif à 06:17 et non le début générique de semaine', () => {
     const sunday = dakarTime(6, 5)
-    const window = serviceWindowForDay(sunday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
-    expect(window).toEqual({ start: '06:30', end: '22:00' })
+    const window = serviceWindowForDay(sunday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:35', end: '22:00' })
+    expect(window).toEqual({ start: '06:17', end: '22:00' })
     const state = getServiceDisplayState(sunday, window.start, window.end)
     expect(state.status).toBe('UPCOMING')
     expect(state.showCountdown).toBe(false)
   })
 
-  it('applique la grille TER des jours fériés à 06:30 même un jour de semaine', () => {
+  it('applique la grille TER des jours fériés dès le segment AIBD à 06:17 même un jour de semaine', () => {
     const holiday = Date.UTC(2026, 11, 25, 6, 0)
-    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
-    expect(window).toEqual({ start: '06:30', end: '22:00' })
+    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:35', end: '22:00' })
+    expect(window).toEqual({ start: '06:17', end: '22:00' })
     expect(getServiceDisplayState(holiday, window.start, window.end).status).toBe('UPCOMING')
   })
 
   it('applique aussi la grille fériée lorsque le jour férié tombe un samedi', () => {
     const holiday = Date.UTC(2026, 2, 21, 6, 0)
-    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
-    expect(window).toEqual({ start: '06:30', end: '22:00' })
+    const window = serviceWindowForDay(holiday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:35', end: '22:00' })
+    expect(window).toEqual({ start: '06:17', end: '22:00' })
   })
 
   it('ne présume pas les horaires ordinaires lorsqu’une année n’a pas de calendrier férié confirmé', () => {
     const nextYear = Date.UTC(2027, 0, 4, 5, 0)
-    const fallback = { start: '05:30', end: '22:00' }
+    const fallback = { start: '05:35', end: '22:00' }
     expect(serviceWindowForDay(nextYear, OFFICIAL_REFERENCE_FREQUENCIES.ter, fallback)).toEqual(fallback)
   })
 
-  it('retient le début TER de semaine à 05:30', () => {
+  it('retient le début TER de semaine à 05:35', () => {
     const monday = Date.UTC(2026, 9, 12, 5, 20)
-    const window = serviceWindowForDay(monday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:30', end: '22:00' })
-    expect(window).toEqual({ start: '05:30', end: '22:00' })
+    const window = serviceWindowForDay(monday, OFFICIAL_REFERENCE_FREQUENCIES.ter, { start: '05:35', end: '22:00' })
+    expect(window).toEqual({ start: '05:35', end: '22:00' })
   })
 
   it('conserve la fenêtre de référence des réseaux sans grille journalière', () => {
