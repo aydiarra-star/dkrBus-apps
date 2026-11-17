@@ -39,4 +39,14 @@ describe('recent Moovit DDD directional candidates', () => {
     )
     expect(line7Out?.stops).not.toEqual(line7Back?.stops)
   })
+
+  it('links both DDD 13 directions to stop-by-stop timetable sources', () => {
+    const line13 = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === '13')
+    expect(line13).toHaveLength(2)
+    expect(line13.every((item) =>
+      'timetableUrl' in item &&
+      item.timetableUrl.startsWith('https://moovitapp.com/') &&
+      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY',
+    )).toBe(true)
+  })
 })
