@@ -59,3 +59,17 @@ Ce déploiement de code ne modifie aucune fréquence, aucun horaire de référen
 ## Contrôle des dépendances — 17 novembre 2026
 
 L'audit npm remonte six alertes high transitives liées à `picomatch` (GHSA-fc5q-39xc-vjpf / CVE-2026-112366), car la version verrouillée 4.0.7 est dans la plage affectée. La fiche publique indique une plage affectée jusqu'à 4.0.7 mais ne publie pas encore de version corrigée. La PR amont #194 observée est ouverte et traite un comportement de parsing extglob ; son auteur précise qu'elle ne corrige pas l'ensemble de la vulnérabilité ReDoS. En conséquence, aucune version fictive, dépendance git non publiée ou rétrogradation majeure de Vite n'est injectée pour faire artificiellement passer l'audit. Reprendre ce point dès qu'une version corrigée vérifiable est publiée.
+
+
+## Résultat CI — exécution 44157118769
+
+Le contrôle GitHub Actions du 17 novembre confirme :
+
+- compilation/build frontend : réussi ;
+- tests frontend et données locales : réussis ;
+- tests de construction et de filtrage du graphe piéton : réussis ;
+- artefact `dakar-pedestrian-graph-candidate` publié (13 396 048 octets) ;
+- audit npm : échec, six alertes high transitives liées à `picomatch` ;
+- extraction PBF de secours : étape ignorée car Overpass a fourni les données pendant cette exécution. Le chemin PBF corrigé n'est donc pas encore exercé en CI.
+
+Le graphe publié reste explicitement candidat et non raccordé aux arrêts/quais. Cette exécution ne valide pas les cheminements de correspondance. Le PR #255 reste ouvert en brouillon ; aucun merge ni déploiement n'est effectué.
