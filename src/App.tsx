@@ -2293,7 +2293,7 @@ function ExploreMobilityCountdowns({
               {isSelected && (
                 <div className="network-summary-detail">
                   {(id === 'ter' || id === 'brt')
-                    ? <ReferenceStationBoard network={id} now={now} />
+                    ? <ReferenceStationBoard network={id} now={now} onSelectStop={onFocusNearbyStop} />
                     : <EstimatedLineScheduleBoard network={id} />}
                 </div>
               )}
@@ -2305,7 +2305,7 @@ function ExploreMobilityCountdowns({
   )
 }
 
-function ReferenceStationBoard({ network, now }: { network: 'ter' | 'brt'; now: number }) {
+function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' | 'brt'; now: number; onSelectStop: (stop: CorridorStop) => void }) {
   const boards = boardLinesForNetwork(network)
     .map((line) => buildStationBoard(line, now))
     .filter((board): board is StationBoard => board !== null)
@@ -2318,31 +2318,31 @@ function ReferenceStationBoard({ network, now }: { network: 'ter' | 'brt'; now: 
           <div className="station-direction station-direction-outbound">
             <header className="station-direction-title">
               <span className="station-direction-kicker">Direction Aller</span>
-              <strong className="station-direction-route">{board.originStop.shortName ?? board.originStop.name} ➔ {board.destinationStop.shortName ?? board.destinationStop.name}</strong>
+              <strong className="station-direction-route">{network === 'ter' ? 'Dakar' : 'Petersen'} ➔ {network === 'ter' ? 'AIBD' : 'Guédiawaye'}</strong>
             </header>
             {board.rows.map((row) => (
-              <div className="station-board-row" key={row.stop.id}>
+              <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
                 <span className={`network-summary-passage station-board-passage${row.outbound ? '' : ' is-undeclared'}`} role="status">
-                  <strong>{row.outbound ? <><PassageArcs />{formatPassageCountdown(row.outbound.minutes)}</> : 'Terminus'}</strong>
-                  <small>{row.outbound ? `créneau ${row.outbound.nextDepartureAt.slice(11, 16)} · ${row.outbound.headwayMinutes} min` : 'Terminus'}</small>
+                  <strong>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.outbound.minutes)}</>) : 'Terminus'}</strong>
+                  <small>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.outbound.nextDepartureAt.slice(11, 16)} · ${row.outbound.headwayMinutes} min`) : 'Terminus'}</small>
                 </span>
-              </div>
+              </button>
             ))}
           </div>
           <div className="station-direction station-direction-inbound">
             <header className="station-direction-title">
               <span className="station-direction-kicker">Direction Retour</span>
-              <strong className="station-direction-route">{board.destinationStop.shortName ?? board.destinationStop.name} ➔ {board.originStop.shortName ?? board.originStop.name}</strong>
+              <strong className="station-direction-route">{network === 'ter' ? 'AIBD' : 'Guédiawaye'} ➔ {network === 'ter' ? 'Dakar' : 'Petersen'}</strong>
             </header>
             {[...board.rows].reverse().map((row) => (
-              <div className="station-board-row" key={row.stop.id}>
+              <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
                 <span className={`network-summary-passage station-board-passage${row.inbound ? '' : ' is-undeclared'}`} role="status">
-                  <strong>{row.inbound ? <><PassageArcs />{formatPassageCountdown(row.inbound.minutes)}</> : 'Terminus'}</strong>
-                  <small>{row.inbound ? `créneau ${row.inbound.nextDepartureAt.slice(11, 16)} · ${row.inbound.headwayMinutes} min` : 'Terminus'}</small>
+                  <strong>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.inbound.minutes)}</>) : 'Terminus'}</strong>
+                  <small>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.inbound.nextDepartureAt.slice(11, 16)} · ${row.inbound.headwayMinutes} min`) : 'Terminus'}</small>
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
