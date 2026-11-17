@@ -93,6 +93,25 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
     const dddOne = Array.from(container.querySelectorAll('.station-board-direction-toggle')).filter((button) => button.querySelector('.station-board-stop strong')?.textContent === 'DDD 1')
     expect(dddOne).toHaveLength(2)
-    expect(within(dddOne[0].closest('li')!).getAllByText('10 min')).toHaveLength(1)
+    const dddDirection = dddOne[0].closest('li')!
+    expect(within(dddDirection).getAllByText('10 min').length).toBeGreaterThan(1)
+    expect(dddDirection.querySelectorAll('.station-board-stop-timetable-row').length).toBeGreaterThan(1)
+    expect(dddDirection.querySelectorAll('.passage-arcs, .passage-arcs svg, svg[aria-hidden="true"]').length).toBeGreaterThan(0)
   })
+  it('affiche aussi les arrêts du retour DDD en ordre inverse quand seule la séquence aller est publiée', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
+    const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('.station-board-direction-toggle'))
+      .filter((button) => button.querySelector('.station-board-stop strong')?.textContent === 'DDD 227')
+    expect(buttons).toHaveLength(2)
+    fireEvent.click(buttons[0])
+    const group = buttons[0].closest('li')!
+    await waitFor(() => expect(group.querySelectorAll('.station-board-stop-timetable-row').length).toBeGreaterThan(1))
+    const outbound = Array.from(group.querySelectorAll('.station-board-stop-timetable-name')).map((node) => node.textContent)
+    fireEvent.click(buttons[1])
+    await waitFor(() => expect(group.querySelectorAll('.station-board-stop-timetable-row').length).toBeGreaterThan(1))
+    const inbound = Array.from(group.querySelectorAll('.station-board-stop-timetable-name')).map((node) => node.textContent)
+    expect(inbound).toEqual([...outbound].reverse())
+    expect(group.querySelectorAll('.station-board-stop-timetable-passage')).toHaveLength(outbound.length)
+  })
+
 })
