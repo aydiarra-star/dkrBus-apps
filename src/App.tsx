@@ -1659,7 +1659,7 @@ function App() {
         )}
 
         {activeTab === 'explore' && (
-          <div className="map-mobility-legend" aria-label="Code couleur des mobilités">
+          <div className="map-mobility-legend map-mobility-legend-compact" aria-label="Réseaux de mobilité">
             <span className="map-mobility-legend-title">Réseaux</span>
             <div className="map-mobility-legend-row">
               {MOBILITY_IDS.map((id) => (
@@ -1674,7 +1674,6 @@ function App() {
                 </button>
               ))}
             </div>
-            <small>TER et BRT en tracés continus · DDD et AFTU/TATA en pointillés légers + pastilles d'arrêts.</small>
           </div>
         )}
 
