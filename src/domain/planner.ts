@@ -204,7 +204,12 @@ function parseKey(key: string): { stopId: string; lineId: string | null; directi
  * de séquences explicites n'emprunte que les sens réellement déclarés. */
 export function directedStopSequences(line: CorridorLine): readonly (readonly string[])[] {
   if (line.directions?.length) return line.directions
-  return [line.stopIds, [...line.stopIds].reverse()]
+  // Le calculateur TER reste limité à la phase 1 Dakar ↔ Diamniadio.
+  // L'extension AIBD (phase 2) est exclue du service de référence retenu.
+  const serviceStops = line.id === 'ter-dakar-diamniadio'
+    ? line.stopIds.filter((stopId) => stopId !== 'ter-aibd')
+    : line.stopIds
+  return [serviceStops, [...serviceStops].reverse()]
 }
 
 /** Intervalle réellement appliqué à une ligne, et sa nature.
@@ -247,10 +252,11 @@ function verifiedGeometryForSequence(
   if (!first || !last) return null
 
   if (line.id === 'ter-dakar-diamniadio') {
+    const phase1Positions = TER_TRACK.positions.slice(0, TER_TRACK.phase2StartIndex + 1)
     const positions = sequence[0] === 'ter-dakar'
-      ? TER_TRACK.positions
-      : sequence[0] === 'ter-aibd'
-        ? [...TER_TRACK.positions].reverse()
+      ? phase1Positions
+      : sequence[0] === 'ter-diamniadio'
+        ? [...phase1Positions].reverse()
         : null
     if (!positions) return null
     return {
