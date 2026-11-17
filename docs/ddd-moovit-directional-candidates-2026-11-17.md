@@ -146,3 +146,33 @@ Le calcul du prochain passage refuse désormais une grille entière si l'une de 
 Les heures identiques entre arrêts successifs restent acceptées, car elles apparaissent dans les grilles publiées. Le contrôle porte sur **toutes** les cellules, y compris les colonnes qui ne sont pas sélectionnées pour le compte à rebours. Une grille invalide renvoie donc une absence de passage plutôt qu'un compte à rebours potentiellement trompeur.
 
 Les tests couvrent les grilles vides ou irrégulières, les heures mal formées dans une autre colonne, les inversions dans un trajet et les départs non chronologiques. Ce contrôle est une protection technique ; il ne remplace pas la transcription des 182 lignes de la ligne 13 ni l'extraction complète des tableaux de la ligne 7.
+
+
+## Rapprochement avec la page officielle DDD — contrôle du 17 novembre 2026
+
+La page officielle DDD « Réseau urbain Dakar » a été relue directement :
+https://demdikk.sn/reseau-urbain-dakar/
+
+Elle publie les axes et les repères suivants :
+
+- **Ligne 7 — Ouakam ↔ Palais 2 : 21 repères publiés**, de « Terminus Ouakam » à « Terminus Palais 2 » (dont Cité Assemblée, Cité Comico, Sortie Ouakam, Hôpital IHO, Mermoz, ENEA, École Normale, UCAD, Rond-point Sham, Marché Tilène, Poste Médina, Difoncé, Sandaga, Place de l’Indépendance, Avenue Léopold Sédar Senghor, Hôpital Principal, Rond-point Assemblée nationale et Institut Pasteur).
+- **Ligne 13 — Liberté 5 ↔ Palais 2 : 24 repères publiés**, de « Terminus Liberté 5 (Dieuppeul) » à « Terminus Palais 2 » (dont Station Castors, Marché HLM, Ouagou Niayes, BOP, Masalikul Djinane, CSS, Lycée Kennedy, Centenaire, RTS, Grande Mosquée, Allées Papa Guèye Fall, Petersen, Avenue Faidherbe, Esso Port, Gare de Dakar, Place de l’Indépendance, Avenue Léopold Sédar Senghor, Hôpital Principal, Rond-point Assemblée nationale et Institut Pasteur).
+
+### Écart de granularité constaté
+
+| Ligne | Référence officielle DDD | Séquences Moovit candidates | Écart à examiner |
+|---|---:|---:|---|
+| 7 | 21 repères publiés | 29 vers Ouakam ; 27 vers Palais | Terminus et libellés différents ; nombre d'occurrences différent dans les deux sens |
+| 13 | 24 repères publiés | 30 vers Palais ; 30 vers Liberté 5 | Moovit détaille davantage le parcours et emploie des noms de rue/terminus différents |
+
+Ce contrôle confirme que les séquences Moovit ne peuvent pas être déclarées équivalentes aux repères officiels par simple comparaison du premier et du dernier arrêt. La page officielle donne un axe et une liste de repères, mais ne fournit pas ici deux grilles directionnelles détaillées comparables à celles de Moovit. Il faut donc construire un rapprochement explicite par arrêt, avec géométrie et ordre, avant toute décision.
+
+### Décision conservatoire
+
+1. La page DDD reste la référence principale pour l'identité de l'axe et les repères publiés.
+2. Les listes Moovit et leurs grilles horaires restent des preuves secondaires candidates, séparées par sens.
+3. Les 21 et 24 repères officiels ne sont pas artificiellement étendus aux 27/29 et 30 occurrences Moovit.
+4. Aucun retour n'est fabriqué par inversion ; aucun horaire Moovit n'est injecté dans une séquence DDD sans correspondance vérifiée.
+5. L'extraction des matrices complètes peut continuer en zone de travail, mais leur activation passager reste bloquée tant que les colonnes n'ont pas été rapprochées des arrêts de chaque sens.
+
+Source officielle consultée : https://demdikk.sn/reseau-urbain-dakar/ (lignes 7 et 13). Cette page ne présente pas, dans les éléments consultés, de date de mise à jour explicite ; la date ci-dessus est celle du contrôle, pas une date de publication revendiquée.
