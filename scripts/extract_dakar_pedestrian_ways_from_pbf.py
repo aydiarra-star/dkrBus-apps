@@ -21,7 +21,7 @@ def is_walkable(tags: dict[str, str]) -> bool:
     highway = str(tags.get("highway", ""))
     if highway not in WALKABLE or highway in MOTOR_ONLY:
         return False
-    foot = str(tags.get("foot", tags.get("foot:access", ""))).lower()
+    foot = str(tags.get("foot") or tags.get("foot:access") or "").lower()
     access = str(tags.get("access", "")).lower()
     if tags.get("foot:conditional"):
         return False
