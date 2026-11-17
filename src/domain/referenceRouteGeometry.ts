@@ -1,5 +1,5 @@
-import terGeometry from '../../data/ter/ter-dakar-aibd.geojson'
-import brtGeometry from '../../data/brt/brt-b1-osm.geojson'
+import terGeometryRaw from '../../data/ter/ter-dakar-aibd.geojson?raw'
+import brtGeometryRaw from '../../data/brt/brt-b1-osm.geojson?raw'
 import { BRT_STOPS, TER_STOPS, type CorridorStop } from './corridors'
 import { projectStopToLine, type RoadPoint } from './roadNetworkRouting'
 
@@ -7,6 +7,9 @@ interface GeoJsonLineFeature {
   properties: Record<string, unknown>
   geometry: { type: string; coordinates: number[][] }
 }
+
+const terGeometry = JSON.parse(terGeometryRaw) as { features: GeoJsonLineFeature[] }
+const brtGeometry = JSON.parse(brtGeometryRaw) as { features: GeoJsonLineFeature[] }
 
 function positionsOf(feature: GeoJsonLineFeature): RoadPoint[] {
   return feature.geometry.coordinates.map(([lon, lat]) => ({ lat, lon }))
@@ -59,7 +62,7 @@ export function auditTerPhaseOneGeometry() {
 
 /** Audit both separately mapped, directional OSM relations for BRT B1. */
 export function auditBrtB1DirectionalGeometry() {
-  const features = brtGeometry.features as unknown as GeoJsonLineFeature[]
+  const features = brtGeometry.features
   return features.map((feature) => {
     const from = String(feature.properties.direction_from)
     const to = String(feature.properties.direction_to)
