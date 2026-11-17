@@ -40,6 +40,31 @@ describe('recent Moovit DDD directional candidates', () => {
     expect(line7Out?.stops).not.toEqual(line7Back?.stops)
   })
 
+  it('links both DDD 7 directions to separately sourced stop-by-stop timetables', () => {
+    const line7 = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === '7')
+    expect(line7).toHaveLength(2)
+    expect(line7.every((item) =>
+      'timetableUrl' in item &&
+      item.timetableUrl.startsWith('https://moovitapp.com/') &&
+      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY' &&
+      'timetableUpdatedOn' in item &&
+      'timetableCoverageByDay' in item,
+    )).toBe(true)
+    expect(line7.map((item) => item.timetableUpdatedOn)).toEqual(['2026-09-14', '2026-08-31'])
+    expect(line7.map((item) => item.timetableCoverageByDay)).toEqual([
+      {
+        weekday: { firstDeparture: '05:00', lastDeparture: '22:38' },
+        saturday: { firstDeparture: '05:00', lastDeparture: '22:44' },
+        sunday: { firstDeparture: '06:00', lastDeparture: '21:57' },
+      },
+      {
+        weekday: { firstDeparture: '04:00', lastDeparture: '22:00' },
+        saturday: { firstDeparture: '04:00', lastDeparture: '21:55' },
+        sunday: { firstDeparture: '05:00', lastDeparture: '22:00' },
+      },
+    ])
+  })
+
   it('links both DDD 13 directions to stop-by-stop timetable sources', () => {
     const line13 = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === '13')
     expect(line13).toHaveLength(2)
