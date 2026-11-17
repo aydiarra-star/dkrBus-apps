@@ -73,3 +73,35 @@ describe('nextTimetableStopPassageCountdown', () => {
     expect(nextTimetableStopPassageCountdown(grid, 4, at(6, 0))).toBeNull()
   })
 })
+
+
+describe('ligne 13 DDD — contrôle des grilles Moovit à 30 arrêts', () => {
+  // Extraits fidèles des premières lignes visibles sur les pages horaires,
+  // conservés ici comme tests de parsing, pas comme grille exhaustive.
+  const liberte5ToPalais = [
+    '06:30','06:30','06:32','06:33','06:33','06:34','06:35','06:35','06:37','06:37',
+    '06:38','06:39','06:40','06:41','06:42','06:43','06:44','06:45','06:46','06:47',
+    '06:48','06:48','06:49','06:49','06:50','06:51','06:52','06:53','06:54','06:55',
+  ]
+  const palaisToLiberte5 = [
+    '07:00','07:00','07:02','07:04','07:04','07:06','07:06','07:07','07:08','07:09',
+    '07:10','07:11','07:12','07:14','07:16','07:18','07:19','07:20','07:21','07:22',
+    '07:23','07:24','07:25','07:26','07:27','07:28','07:29','07:30','07:31','07:32',
+  ]
+
+  it('lit les heures aux deux terminus et aux arrêts intermédiaires sur 30 colonnes', () => {
+    expect(liberte5ToPalais).toHaveLength(30)
+    expect(palaisToLiberte5).toHaveLength(30)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 0, at(6, 29))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 29, at(6, 29))).toBe(26)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5], 0, at(6, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5], 29, at(6, 59))).toBe(33)
+  })
+
+  it('ne mélange pas les deux sens et refuse un arrêt hors grille', () => {
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 29, at(6, 29))).not.toBe(
+      nextTimetableStopPassageCountdown([palaisToLiberte5], 29, at(6, 59)),
+    )
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 30, at(6, 29))).toBeNull()
+  })
+})
