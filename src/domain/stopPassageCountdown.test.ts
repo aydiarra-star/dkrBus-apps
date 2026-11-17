@@ -127,6 +127,8 @@ describe('ligne 13 DDD — contrôle des grilles Moovit à 30 arrêts', () => {
     )
     expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 30, at(6, 29))).toBeNull()
   })
+})
+
 describe('ligne 7 DDD — contrôle des premières grilles Moovit à chaque arrêt', () => {
   const garePalaisToOuakam = [
     '05:00','05:00','05:01','05:03','05:04','05:05','05:07','05:09','05:10','05:11',
@@ -150,6 +152,4 @@ describe('ligne 7 DDD — contrôle des premières grilles Moovit à chaque arr�
     expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 0, at(3, 59))).toBe(1)
     expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 26, at(3, 59))).toBe(28)
   })
-})
-
 })
