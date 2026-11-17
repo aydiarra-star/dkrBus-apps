@@ -4239,3 +4239,14 @@ button:disabled { cursor: not-allowed; }
   text-overflow: clip;
   white-space: nowrap;
 }
+
+/* Les étapes détaillées utilisent MobilityBadge directement, sans wrapper MobilityLineBadges. */
+.planner-leg-copy .mobility-badge {
+  width: auto;
+  min-width: max-content;
+  max-width: none;
+  flex: 0 0 auto;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
