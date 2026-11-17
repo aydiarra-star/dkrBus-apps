@@ -56,7 +56,11 @@ import { TransitMap } from './TransitMap'
 function drawMap(
   lines: readonly CorridorLine[] = CORRIDOR_LINES,
   stops = ALL_CORRIDOR_STOPS,
-  highlightedLineIds: readonly string[] = [],
+  highlightedRouteSegments: readonly {
+    id: string
+    network: 'ter' | 'brt'
+    positions: readonly (readonly [number, number])[]
+  }[] = [],
 ) {
   drawn.polylines.length = 0
   drawn.markers.length = 0
@@ -70,7 +74,7 @@ function drawMap(
       onChoosePoint={() => undefined}
       corridorLines={lines}
       corridorStops={stops}
-      highlightedLineIds={highlightedLineIds}
+      highlightedRouteSegments={highlightedRouteSegments}
     />,
   )
   return drawn.polylines.filter((polyline) => (polyline as DrawnPolyline).pathOptions.className !== 'mobility-route-flow') as DrawnPolyline[]
@@ -101,6 +105,18 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     }
     // Halo blanc, liseré, trait plein : les mêmes épaisseurs qu'avant.
     expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
+  })
+
+  it('met en évidence uniquement la portion sélectionnée et non toute la ligne', () => {
+    const segment = {
+      id: 'ter-dakar-colobane',
+      network: 'ter' as const,
+      positions: [[14.675, -17.433], [14.689, -17.439], [14.700, -17.441]] as const,
+    }
+    const polylines = drawMap(CORRIDOR_LINES, ALL_CORRIDOR_STOPS, [segment])
+    const overlay = polylines.filter((polyline) => polyline.positions === segment.positions)
+    expect(overlay).toHaveLength(2)
+    expect(overlay.map((polyline) => polyline.pathOptions.weight)).toEqual([8, 5.5])
   })
 
   it('ne relie plus les gares du TER par des segments droits', () => {
