@@ -203,9 +203,14 @@ jobs:
           sudo apt-get install --yes osmium-tool
           python -m pip install --disable-pip-version-check osmium
           mkdir -p artifacts/pedestrian
-          curl --fail --location --retry 3 --retry-delay 5 \
+          if ! curl --fail --location --retry 2 --retry-delay 5 \
             https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf \
-            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf
+            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf; then
+            rm -f artifacts/pedestrian/senegal-and-gambia.osm.pbf
+            curl --fail --location --retry 2 --retry-delay 5 \
+              https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf \
+              --output artifacts/pedestrian/senegal-and-gambia.osm.pbf
+          fi
           osmium extract --bbox -17.60,14.50,-17.05,14.95 --strategy complete_ways \
             -o artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/senegal-and-gambia.osm.pbf --overwrite
           python scripts/extract_dakar_pedestrian_ways_from_pbf.py \
