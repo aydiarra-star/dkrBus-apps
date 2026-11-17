@@ -17,6 +17,7 @@ describe('recent Moovit DDD directional candidates', () => {
   it('preserves source dates, endpoint labels and occurrence counts without activating candidates', () => {
     expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATE_RETRIEVED_ON).toBe('2026-11-17')
     expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.map((item) => item.occurrenceCount)).toEqual([29, 27, 30, 30])
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.map((item) => item.publishedJourneyDurationMinutes)).toEqual([35, 34, 30, 30])
     expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.every(
       (item) => item.status === 'SECONDARY_SOURCE_NEEDS_RECONCILIATION' && item.sourceUrl.startsWith('https://'),
     )).toBe(true)
