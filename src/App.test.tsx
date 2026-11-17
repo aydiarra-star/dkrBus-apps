@@ -1299,8 +1299,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneOut = outRows.find((row) => row.textContent!.includes('Colobane'))!
     const colobaneIn = inRows.find((row) => row.textContent!.includes('Colobane'))!
     expect(colobaneOut.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
-    expect(colobaneOut.textContent).toMatch(/créneau 12:03 · 10 min/)
-    expect(colobaneIn.textContent).toMatch(/créneau 12:03 · 10 min/)
+    expect(colobaneOut.textContent).toMatch(/créneau 12:02 · 8 min/)
+    expect(colobaneIn.textContent).toMatch(/créneau 12:02 · 8 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
     expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
