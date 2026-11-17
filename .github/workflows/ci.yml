@@ -297,6 +297,16 @@ jobs:
             --output artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
           unzip -t artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
 
+      - name: Download Yeumbeul Nord 2019 street and sidewalk geometry
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          curl --fail --location --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 180 \
+            --user-agent "DakarBus-read-only-source-audit/1.0" \
+            https://www.geosenegal.gouv.sn/IMG/zip/terra_voirie_bdu_yeumbeul_nord_2019.zip \
+            --output artifacts/geosenegal/downloads/yeumbeul-nord-voirie-2019.zip
+          unzip -t artifacts/geosenegal/downloads/yeumbeul-nord-voirie-2019.zip
+
       - name: Download Pikine-Guediawaye 2014 street geometry
         continue-on-error: true
         timeout-minutes: 3
@@ -317,7 +327,7 @@ jobs:
             --output artifacts/geosenegal/downloads/pikine-guediawaye-rail-2014.zip
           unzip -t artifacts/geosenegal/downloads/pikine-guediawaye-rail-2014.zip
 
-      - name: Inspect downloaded SHP layer inventory
+      - name: Recursively extract and inspect official SHP layers
         if: always()
         run: |
           for archive in artifacts/geosenegal/downloads/*.zip; do
@@ -328,29 +338,8 @@ jobs:
           done
           if find artifacts/geosenegal/unpacked -name '*.shp' -print -quit | grep -q .; then
             python -m pip install --disable-pip-version-check pyshp
-            python - <<'PY'
-          from pathlib import Path
-          import json
-          import shapefile
-
-          root = Path("artifacts/geosenegal/unpacked")
-          inventory = []
-          for shp in sorted(root.rglob("*.shp")):
-              try:
-                  reader = shapefile.Reader(str(shp))
-                  inventory.append({
-                      "file": str(shp),
-                      "featureCount": len(reader),
-                      "shapeType": reader.shapeType,
-                      "bbox": list(reader.bbox) if reader.bbox else None,
-                      "fields": [field[0] for field in reader.fields[1:]],
-                  })
-              except Exception as exc:
-                  inventory.append({"file": str(shp), "error": str(exc)})
-          out = Path("artifacts/geosenegal/shapefile-inventory.json")
-          out.write_text(json.dumps(inventory, ensure_ascii=False, indent=2), encoding="utf-8")
-          print(json.dumps(inventory, ensure_ascii=False, indent=2))
-          PY
+            python scripts/audit_geosenegal_shapefiles.py \
+              artifacts/geosenegal/unpacked artifacts/geosenegal/shapefile-inventory.json
           else
             echo "Aucun SHP téléchargé ; consulter les résultats des téléchargements dans les logs."
           fi
