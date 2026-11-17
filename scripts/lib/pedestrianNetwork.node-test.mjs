@@ -64,3 +64,25 @@ test('does not invent edges when OSM geometry and node references disagree', () 
   assert.equal(graph.summary.directedEdgeCount, 0)
   assert.equal(graph.summary.skippedWays, 1)
 })
+
+test('blocks private barriers and keeps explicitly passable pedestrian gates', () => {
+  const graphWithGate = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { barrier: 'gate' } },
+    { type: 'way', id: 11, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(graphWithGate.summary.directedEdgeCount, 0)
+  const graphWithOpenGate = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { barrier: 'gate', foot: 'yes' } },
+    { type: 'way', id: 12, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(graphWithOpenGate.summary.directedEdgeCount, 2)
+})
+
+test('does not route through a blocking barrier node shared by two ways', () => {
+  const graph = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { barrier: 'gate' } },
+    { type: 'way', id: 11, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+    { type: 'way', id: 12, nodes: [2, 3], tags: { highway: 'footway' }, geometry: [{ lat: 14.701, lon: -17.4 }, { lat: 14.702, lon: -17.4 }] },
+  ])
+  assert.equal(graph.summary.directedEdgeCount, 0)
+})
