@@ -1123,6 +1123,27 @@ describe('décomptes dynamiques de l’Explorer', () => {
     vi.useRealTimers()
   })
 
+  it('ouvre les tableaux horaires existants depuis chaque barre du bandeau de référence', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+
+    const cases = [
+      ['TER', 'ter'],
+      ['BRT', 'brt'],
+      ['DDD', 'ddd'],
+      ['AFTU', 'aftu_tata'],
+    ] as const
+    for (const [label, network] of cases) {
+      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+      expect(container.querySelector(`.network-item-${network}`)?.className).toContain('is-selected')
+      expect(container.querySelector(`.network-item-${network} .network-summary-detail .station-board`)).not.toBeNull()
+      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+    }
+    vi.useRealTimers()
+  })
+
   it('place « Mes destinations » au-dessus des réseaux de référence', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
