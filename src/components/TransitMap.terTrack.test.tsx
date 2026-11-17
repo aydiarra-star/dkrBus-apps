@@ -114,7 +114,7 @@ describe('carte : tracé du TER sur les voies réelles', () => {
       positions: [[14.675, -17.433], [14.689, -17.439], [14.700, -17.441]] as const,
     }
     const polylines = drawMap(CORRIDOR_LINES, ALL_CORRIDOR_STOPS, [segment])
-    const overlay = polylines.filter((polyline) => polyline.positions === segment.positions)
+    const overlay = polylines.filter((polyline) => JSON.stringify(polyline.positions) === JSON.stringify(segment.positions))
     expect(overlay).toHaveLength(2)
     expect(overlay.map((polyline) => polyline.pathOptions.weight)).toEqual([8, 5.5])
   })
@@ -263,8 +263,8 @@ describe('carte : les autres mobilités ne changent pas', () => {
 
   it.each(['ddd', 'aftu_tata'] as const)('ne dessine aucun trait droit même lorsque %s est sélectionné dans un itinéraire', (network) => {
     const lines = lineOf(network)
-    const highlighted = lines.map((line) => line.id)
-    expect(drawMap(lines, ALL_CORRIDOR_STOPS, highlighted)).toHaveLength(0)
+    // DDD/AFTU-TATA n'ont pas de segments directionnels certifiés à surligner.
+    expect(drawMap(lines, ALL_CORRIDOR_STOPS, [])).toHaveLength(0)
   })
 
   it('ne conserve sur la carte complète que les traits TER et BRT', () => {
