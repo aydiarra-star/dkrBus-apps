@@ -78,6 +78,6 @@ test('rejects a successful but empty or geometry-free Overpass response', async 
     loadPedestrianSource({
       fetchImpl: async () => ({ ok: true, json: async () => ({ elements: [{ type: 'node', id: 7 }] }) }),
     }),
-    /aucun serveur Overpass disponible avec une réponse complète/,
+    /aucun serveur Overpass disponible avec une réponse complète/i,
   )
 })
