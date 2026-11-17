@@ -5,13 +5,15 @@ const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
 const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall', 'block', 'jersey_barrier', 'gate', 'lift_gate', 'swing_gate'])
 
 export function isWalkableOsmWay(tags = {}) {
-  const highway = String(tags.highway ?? '')
+  const highway = String(tags.highway ?? '').toLowerCase()
   if (!WALKABLE_HIGHWAYS.has(highway)) return false
   const footAccess = [tags.foot, tags['foot:access']].filter(Boolean).map(value => String(value).toLowerCase())
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
   if (footAccess.some(value => ['no', 'private'].includes(value))) return false
-  if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive', 'destination'].includes(value))) return false
+  // "destination" is not treated as general pedestrian permission: it must
+  // not turn a private way into a through-route between unrelated places.
+  if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
   if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   return true
