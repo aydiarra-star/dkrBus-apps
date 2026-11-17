@@ -3,7 +3,7 @@
 ## Extraction de secours Geofabrik validée — 20:27 UTC
 
 - Exécution GitHub Actions : [44168986605](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44168986605)
-- Commit contrôlé : `742c39d41ab33f1e5e6ee2dae318ac0609fc9c66`
+- Commit contrôlé : `e447f844498d3869222336025746d1e26bad549b`
 - Artefact : `dakar-pedestrian-graph-candidate` (ID `14366297825`)
 - Généré le : 2026-11-17 à 20:27:07 UTC
 - SHA-256 de l'archive téléchargée : `6b2a4ac0042b916b1b4eeec003c29e95ccd2b160ae258074e512eba6554dc7a9`
