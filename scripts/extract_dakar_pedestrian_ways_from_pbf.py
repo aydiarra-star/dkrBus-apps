@@ -60,7 +60,7 @@ def extract_pedestrian_ways(pbf_path: str) -> dict:
 
         def node(self, node):
             tags = {tag.k: tag.v for tag in node.tags}
-            if not any(key in tags for key in ('barrier', 'access', 'foot', 'highway', 'crossing')):
+            if not any(key in tags for key in ('barrier', 'access', 'foot', 'foot:conditional', 'highway', 'crossing')):
                 return
             if not node.location.valid():
                 return
