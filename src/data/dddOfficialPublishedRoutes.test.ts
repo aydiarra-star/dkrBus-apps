@@ -78,6 +78,14 @@ describe('official DDD published route sequences', () => {
     expect(line217 && 'conflictNote' in line217 ? line217.conflictNote : null).toContain('Aéroport LSS')
     expect(line217?.stops.at(-1)).toBe('Terminus aéroport LSS')
 
+    const line232 = getDddOfficialPublishedRoute('232')
+    const line233 = getDddOfficialPublishedRoute('233')
+    expect(line232?.stops).toHaveLength(15)
+    expect(line233?.stops).toHaveLength(15)
+    expect(line233?.stops).toEqual(line232?.stops)
+    expect(line233 && 'conflictNote' in line233 ? line233.conflictNote : null).toContain('Palais 1')
+    expect(line233?.stops.at(-1)).toBe('Terminus Aéroport LSS')
+
     expect(getDddOfficialPublishedRoute('228')?.stops).toHaveLength(4)
   })
 
