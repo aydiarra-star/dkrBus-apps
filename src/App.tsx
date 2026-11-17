@@ -2312,12 +2312,13 @@ function ReferenceStationBoard({ network, now }: { network: 'ter' | 'brt'; now: 
 
   return (
     <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
+      <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ Diamniadio' : 'Petersen ↔ Guédiawaye'}</p>
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
-            <header className="station-direction-head">
+            <header className="station-direction-title">
               <span className="station-direction-kicker">Direction Aller</span>
-              <strong className="station-direction-route">{board.originStop.name} ➔ {board.destinationStop.name}</strong>
+              <strong className="station-direction-route">{board.originStop.shortName ?? board.originStop.name} ➔ {board.destinationStop.shortName ?? board.destinationStop.name}</strong>
             </header>
             {board.rows.map((row) => (
               <div className="station-board-row" key={row.stop.id}>
@@ -2330,9 +2331,9 @@ function ReferenceStationBoard({ network, now }: { network: 'ter' | 'brt'; now: 
             ))}
           </div>
           <div className="station-direction station-direction-inbound">
-            <header className="station-direction-head">
+            <header className="station-direction-title">
               <span className="station-direction-kicker">Direction Retour</span>
-              <strong className="station-direction-route">{board.destinationStop.name} ➔ {board.originStop.name}</strong>
+              <strong className="station-direction-route">{board.destinationStop.shortName ?? board.destinationStop.name} ➔ {board.originStop.shortName ?? board.originStop.name}</strong>
             </header>
             {[...board.rows].reverse().map((row) => (
               <div className="station-board-row" key={row.stop.id}>
