@@ -50,6 +50,33 @@ describe('calculateur multimodal de référence', () => {
     }
   })
 
+  it('mesure le TER sur la voie OSM de phase 1 uniquement dans les deux sens', () => {
+    const outbound = planReferenceJourney(
+      { label: 'Dakar', lat: PLATEAU_STOP.lat, lon: PLATEAU_STOP.lon, stopId: 'ter-dakar' },
+      { label: 'Diamniadio', lat: getCorridorStop('ter-diamniadio')!.lat, lon: getCorridorStop('ter-diamniadio')!.lon, stopId: 'ter-diamniadio' },
+      'fastest',
+      { allowedNetworks: ['ter'] },
+    )
+    const inbound = planReferenceJourney(
+      { label: 'Diamniadio', lat: getCorridorStop('ter-diamniadio')!.lat, lon: getCorridorStop('ter-diamniadio')!.lon, stopId: 'ter-diamniadio' },
+      { label: 'Dakar', lat: PLATEAU_STOP.lat, lon: PLATEAU_STOP.lon, stopId: 'ter-dakar' },
+      'fastest',
+      { allowedNetworks: ['ter'] },
+    )
+    expect(outbound.ok).toBe(true)
+    expect(inbound.ok).toBe(true)
+    if (!outbound.ok || !inbound.ok) return
+    const outRide = outbound.legs.find((leg) => leg.kind === 'ride')
+    const inRide = inbound.legs.find((leg) => leg.kind === 'ride')
+    expect(outRide?.line?.shortName).toBe('TER')
+    expect(inRide?.line?.shortName).toBe('TER')
+    expect(outRide?.distanceM).toBeGreaterThan(30_000)
+    expect(outRide?.distanceM).toBeLessThan(36_500)
+    expect(inRide?.distanceM).toBe(outRide?.distanceM)
+    expect(outbound.legs.some((leg) => leg.toId === 'ter-aibd')).toBe(false)
+    expect(inbound.legs.some((leg) => leg.fromId === 'ter-aibd')).toBe(false)
+  })
+
   it('relie Petersen à Guédiawaye en BRT avec la géométrie directionnelle réelle', () => {
     const outcome = planReferenceJourney(PLATEAU, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
