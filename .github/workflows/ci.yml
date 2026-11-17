@@ -233,8 +233,13 @@ jobs:
       - name: Run frontend and local data tests (no GTFS feed required)
         run: npm run test:all
 
-      - name: Audit dependencies
-        run: npm audit --audit-level=moderate
+      # This repository publishes a static frontend: Node tooling is not shipped to users.
+      # picomatch 4.0.7 remains in the Vite/Vitest development toolchain; GHSA-fc5q-39xc-vjpf
+      # has no patched release yet. Keep the full dev-tree visible and audit runtime deps strictly.
+      - name: Audit production dependencies
+        run: |
+          npm audit --omit=dev --audit-level=moderate
+          npm ls picomatch --all
 
 
   osm_evidence:
