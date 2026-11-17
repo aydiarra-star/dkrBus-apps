@@ -3,10 +3,13 @@
 
 Required environment:
   DAKAR_BUS_SUPABASE_URL
-  DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY
+  DAKAR_BUS_SUPABASE_ANON_KEY
+  DAKAR_BUS_GTFS_WORKER_EMAIL
+  DAKAR_BUS_GTFS_WORKER_PASSWORD
 
-The service-role key is read only from the process environment and is never printed.
-The URL is pinned to the dedicated Dakar Bus project to prevent cross-project writes.
+The worker signs in as a dedicated Auth user whose server-managed app_metadata
+contains dakar_gtfs_worker=true. It never receives the service_role key.
+The URL is pinned to the dedicated Dakar Bus project.
 """
 from __future__ import annotations
 
@@ -77,7 +80,9 @@ def open_without_redirect(request: urllib.request.Request, timeout: int):
 
 def validate_supabase_url(base_url: str) -> str:
     try:
-        parsed = urllib.parse.urlsplit(base_url.strip())
+        if not isinstance(base_url, str) or base_url != base_url.strip():
+            raise WorkerError("SUPABASE_PROJECT_URL_INVALID")
+        parsed = urllib.parse.urlsplit(base_url)
         port = parsed.port
     except ValueError as error:
         raise WorkerError("SUPABASE_PROJECT_URL_INVALID") from error
@@ -231,19 +236,64 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
 
 
 class SupabaseRest:
-    def __init__(self, base_url: str, service_key: str) -> None:
+    def __init__(self, base_url: str, anon_key: str, worker_email: str, worker_password: str) -> None:
         self.base_url = validate_supabase_url(base_url)
-        self.service_key = service_key
+        self.anon_key = anon_key
+        self.worker_email = worker_email
+        self.worker_password = worker_password
+        self.access_token: str | None = None
+        if (
+            not self.anon_key
+            or self.anon_key != self.anon_key.strip()
+            or not self.worker_email
+            or self.worker_email != self.worker_email.strip()
+            or not self.worker_password
+        ):
+            raise WorkerError("WORKER_CREDENTIALS_MISSING")
+
+    def authenticate(self) -> None:
+        """Obtain a short-lived JWT for the dedicated, server-provisioned worker user."""
+        payload = json.dumps({
+            "email": self.worker_email,
+            "password": self.worker_password,
+        }).encode("utf-8")
+        request = urllib.request.Request(
+            self.base_url + "/auth/v1/token?grant_type=password",
+            data=payload,
+            method="POST",
+            headers={
+                "apikey": self.anon_key,
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with open_without_redirect(request, timeout=30) as response:
+                raw = response.read(65537)
+        except (urllib.error.URLError, TimeoutError) as error:
+            # Never print the Auth response or credential-bearing request.
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED") from error
+        if len(raw) > 65536:
+            raise WorkerError("WORKER_AUTH_RESPONSE_TOO_LARGE")
+        try:
+            result = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise WorkerError("WORKER_AUTH_RESPONSE_INVALID") from error
+        token = result.get("access_token") if isinstance(result, dict) else None
+        if not isinstance(token, str) or not token:
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        self.access_token = token
 
     def request(self, path: str, method: str = "GET", payload: Any = None) -> Any:
+        if not self.access_token:
+            raise WorkerError("WORKER_AUTHENTICATION_REQUIRED")
         data = None if payload is None else json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             self.base_url + path,
             data=data,
             method=method,
             headers={
-                "apikey": self.service_key,
-                "Authorization": "Bearer " + self.service_key,
+                "apikey": self.anon_key,
+                "Authorization": "Bearer " + self.access_token,
                 "Content-Type": "application/json",
             },
         )
@@ -277,9 +327,11 @@ class SupabaseRest:
         if bucket != STAGING_BUCKET or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
             raise WorkerError("UNSAFE_ARCHIVE_OBJECT_REFERENCE")
         encoded_path = urllib.parse.quote(object_path, safe="/")
+        if not self.access_token:
+            raise WorkerError("WORKER_AUTHENTICATION_REQUIRED")
         request = urllib.request.Request(
             f"{self.base_url}/storage/v1/object/{urllib.parse.quote(bucket, safe='')}/{encoded_path}",
-            headers={"apikey": self.service_key, "Authorization": "Bearer " + self.service_key},
+            headers={"apikey": self.anon_key, "Authorization": "Bearer " + self.access_token},
         )
         try:
             with open_without_redirect(request, timeout=120) as response:
@@ -374,13 +426,17 @@ def process_one(client: SupabaseRest) -> str:
 
 
 def main() -> int:
-    base_url = os.environ.get("DAKAR_BUS_SUPABASE_URL", "").strip()
-    service_key = os.environ.get("DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY", "")
-    if not base_url or not service_key:
-        print("Worker non lancé : les identifiants sécurisés ne sont pas configurés.", file=sys.stderr)
+    base_url = os.environ.get("DAKAR_BUS_SUPABASE_URL", "")
+    anon_key = os.environ.get("DAKAR_BUS_SUPABASE_ANON_KEY", "")
+    worker_email = os.environ.get("DAKAR_BUS_GTFS_WORKER_EMAIL", "")
+    worker_password = os.environ.get("DAKAR_BUS_GTFS_WORKER_PASSWORD", "")
+    if not base_url or not anon_key or not worker_email or not worker_password:
+        print("Worker non lancé : les identifiants dédiés ne sont pas configurés.", file=sys.stderr)
         return 2
     try:
-        outcome = process_one(SupabaseRest(base_url, service_key))
+        client = SupabaseRest(base_url, anon_key, worker_email, worker_password)
+        client.authenticate()
+        outcome = process_one(client)
     except Exception as error:
         print(f"Échec du traitement GTFS : {worker_error_code(error)}", file=sys.stderr)
         return 1

@@ -34,9 +34,11 @@ A future worker must:
 
 A dedicated worker on a managed runner is the simplest way to reuse the existing Python validator without reimplementing ZIP/CSV/SQLite behavior. A GitHub-hosted Actions runner is a candidate because the repository already uses Actions and its CI installs Python 3.11.
 
-However, the worker would need narrowly scoped access to the Dakar Bus Supabase project to read private staged objects and write validation reports. The service-role key is highly privileged. It must not be copied into source code, workflow files, logs, or chat, and must not be added to a new secret store without explicit authorization. No existing secret availability is assumed.
+The worker must not reuse the intake Edge Function's `service_role` credential. It signs in through Supabase Auth with a dedicated, confirmed technical user whose server-managed `app_metadata` contains `dakar_gtfs_worker=true`. The worker receives only an anon/publishable API key plus that user's email/password through protected GitHub environment secrets. It never receives the service-role key.
 
-Until a secure worker identity and credential path are approved, do not deploy a validator, change Supabase secrets, or promote any staged dataset. Keep all existing staged rows pending. Render is not part of this design.
+A new migration grants the three worker RPCs only to `authenticated` and checks the signed JWT claim inside each `SECURITY DEFINER` function. The private Storage policy grants that identity read access to `dakar-gtfs-staging` only, while restrictive policies deny writes and deny access to other buckets. The intake Edge Function's `service_role` token is rejected by the worker RPCs even though it remains capable of its separate intake duties.
+
+The dedicated Auth user, server-managed app_metadata claim, GitHub secrets, and environment approvers must be provisioned separately. This repository change does not create a user, change a secret, apply a live migration, deploy a function, or run a worker. Until those steps are explicitly authorized and verified, keep all staged rows pending. Render is not part of this design.
 
 ## Acceptance tests before enabling the worker
 

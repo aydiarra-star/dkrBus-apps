@@ -1,7 +1,10 @@
 -- Isolated PostgreSQL test for the private GTFS Storage bucket and metadata ACLs.
 -- The generic permissive policy below is a synthetic stand-in for broad policies
--- that might be added for unrelated Storage buckets; the restrictive policy
--- must still deny this one bucket to anon/authenticated.
+-- that might be added for unrelated Storage buckets; restrictive policies must
+-- deny non-workers, permit worker reads only, and keep all worker writes blocked.
+insert into auth.users (id, email, email_confirmed_at)
+values ('00000000-0000-4000-8000-000000000119', 'gtfs-worker-storage-ci@example.invalid', now())
+on conflict (id) do nothing;
 
 do $metadata_acl_test$
 declare
@@ -41,6 +44,19 @@ begin
   if coalesce((select public from storage.buckets where id = 'dakar-gtfs-staging'), true) then
     raise exception 'GTFS staging bucket is not private';
   end if;
+
+  if not exists (select 1 from pg_policies where schemaname='storage' and tablename='objects'
+      and policyname='dakar_gtfs_staging_worker_read' and permissive='PERMISSIVE' and cmd='SELECT')
+     or not exists (select 1 from pg_policies where schemaname='storage' and tablename='objects'
+      and policyname='dakar_gtfs_worker_scope' and permissive='RESTRICTIVE' and cmd='ALL')
+     or not exists (select 1 from pg_policies where schemaname='storage' and tablename='objects'
+      and policyname='dakar_gtfs_staging_worker_no_insert' and permissive='RESTRICTIVE' and cmd='INSERT')
+     or not exists (select 1 from pg_policies where schemaname='storage' and tablename='objects'
+      and policyname='dakar_gtfs_staging_worker_no_update' and permissive='RESTRICTIVE' and cmd='UPDATE')
+     or not exists (select 1 from pg_policies where schemaname='storage' and tablename='objects'
+      and policyname='dakar_gtfs_staging_worker_no_delete' and permissive='RESTRICTIVE' and cmd='DELETE') then
+    raise exception 'Dedicated worker Storage read-only policies are incomplete';
+  end if;
 end;
 $metadata_acl_test$;
 
@@ -67,6 +83,9 @@ on conflict (id) do nothing;
 insert into storage.objects (bucket_id, name)
 values ('dakar-bus-other-test', 'synthetic-only/other-policy-test.zip');
 
+set request.jwt.claim.role = 'anon';
+set request.jwt.claim.sub = '';
+set request.jwt.claims = '{}';
 set role anon;
 do $anon_storage_test$
 declare
@@ -136,6 +155,9 @@ end;
 $anon_storage_test$;
 reset role;
 
+set request.jwt.claim.role = 'authenticated';
+set request.jwt.claim.sub = '';
+set request.jwt.claims = '{}';
 set role authenticated;
 do $authenticated_storage_test$
 declare
@@ -205,6 +227,74 @@ end;
 $authenticated_storage_test$;
 reset role;
 
+set request.jwt.claim.role = 'authenticated';
+set request.jwt.claim.sub = '00000000-0000-4000-8000-000000000119';
+set request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000119","role":"authenticated","app_metadata":{"dakar_gtfs_worker":true}}';
+set role authenticated;
+do $worker_storage_test$
+declare
+  visible_count bigint;
+  affected bigint;
+  rejected boolean := false;
+begin
+  select count(*) into visible_count
+    from storage.objects
+   where bucket_id = 'dakar-gtfs-staging';
+  if visible_count <> 1 then
+    raise exception 'The dedicated worker cannot read the private GTFS staging bucket';
+  end if;
+
+  select count(*) into visible_count
+    from storage.objects
+   where bucket_id = 'dakar-bus-other-test';
+  if visible_count <> 0 then
+    raise exception 'The dedicated worker can read an unrelated Storage bucket';
+  end if;
+
+  begin
+    insert into storage.objects (bucket_id, name)
+    values ('dakar-gtfs-staging', 'synthetic-only/worker-write.zip');
+  exception when insufficient_privilege then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'The dedicated worker can insert into the private GTFS staging bucket';
+  end if;
+
+  update storage.objects
+     set name = 'synthetic-only/worker-overwrite.zip'
+   where bucket_id = 'dakar-gtfs-staging'
+     and name = 'synthetic-only/private-policy-test.zip';
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'The dedicated worker can update the private GTFS staging bucket';
+  end if;
+
+  delete from storage.objects
+   where bucket_id = 'dakar-gtfs-staging'
+     and name = 'synthetic-only/private-policy-test.zip';
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'The dedicated worker can delete from the private GTFS staging bucket';
+  end if;
+
+  rejected := false;
+  begin
+    insert into storage.objects (bucket_id, name)
+    values ('dakar-bus-other-test', 'synthetic-only/worker-other.zip');
+  exception when insufficient_privilege then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'The dedicated worker can write to an unrelated Storage bucket';
+  end if;
+end;
+$worker_storage_test$;
+reset role;
+
+set request.jwt.claim.role = 'service_role';
+set request.jwt.claim.sub = '';
+set request.jwt.claims = '{}';
 set role service_role;
 do $service_role_storage_test$
 declare

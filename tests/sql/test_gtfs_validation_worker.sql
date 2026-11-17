@@ -24,7 +24,13 @@ insert into public.dakar_admin_staged_datasets (
   'PENDING_SERVER_CHECK', 'PENDING_REVIEW', 'NOT_PUBLISHED', now() - interval '1 minute'
 );
 
-set request.jwt.claim.role = 'service_role';
+insert into auth.users (id, email, email_confirmed_at)
+values ('00000000-0000-4000-8000-000000000117', 'gtfs-worker-ci@example.invalid', now())
+on conflict (id) do nothing;
+
+set request.jwt.claim.role = 'authenticated';
+set request.jwt.claim.sub = '00000000-0000-4000-8000-000000000117';
+set request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000117","role":"authenticated","app_metadata":{"dakar_gtfs_worker":true}}';
 
 do $$
 declare
@@ -44,12 +50,20 @@ declare
   role_name text;
 begin
   if has_function_privilege('anon', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
-     or has_function_privilege('authenticated', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
-     or not has_function_privilege('service_role', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE') then
-    raise exception 'Worker claim permissions are not restricted to service_role';
+     or not has_function_privilege('authenticated', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
+     or has_function_privilege('service_role', 'public.claim_dakar_gtfs_validation(integer)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.complete_dakar_gtfs_validation(text, uuid, text, jsonb, text)', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.complete_dakar_gtfs_validation(text, uuid, text, jsonb, text)', 'EXECUTE')
+     or has_function_privilege('service_role', 'public.complete_dakar_gtfs_validation(text, uuid, text, jsonb, text)', 'EXECUTE')
+     or has_function_privilege('anon', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE')
+     or has_function_privilege('service_role', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE') then
+    raise exception 'Worker RPC permissions are not restricted to the dedicated Auth identity';
   end if;
 
   perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '{}', true);
   rejected := false;
   begin
     perform * from public.claim_dakar_gtfs_validation(900);
@@ -57,9 +71,23 @@ begin
     rejected := true;
   end;
   if not rejected then
-    raise exception 'An authenticated role claimed a GTFS validation job';
+    raise exception 'An authenticated user without the server worker claim claimed a GTFS job';
   end if;
+
   perform set_config('request.jwt.claim.role', 'service_role', true);
+  rejected := false;
+  begin
+    perform * from public.claim_dakar_gtfs_validation(900);
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'The intake service_role credential claimed a GTFS validation job';
+  end if;
+
+  perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000117', true);
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000117","role":"authenticated","app_metadata":{"dakar_gtfs_worker":true}}', true);
 
   rejected := false;
   begin
@@ -210,6 +238,14 @@ begin
       where action = 'GTFS_SERVER_VALIDATION_COMPLETED'
         and target_id in ('worker-valid-test', 'worker-invalid-test')) <> 2 then
     raise exception 'Server validation audit events were not recorded atomically';
+  end if;
+  if exists (
+    select 1 from public.dakar_admin_audit_events
+     where action = 'GTFS_SERVER_VALIDATION_COMPLETED'
+       and target_id in ('worker-valid-test', 'worker-invalid-test')
+       and actor_id is distinct from '00000000-0000-4000-8000-000000000117'::uuid
+  ) then
+    raise exception 'Worker validation audit events did not record the dedicated Auth actor';
   end if;
 
   if not (
