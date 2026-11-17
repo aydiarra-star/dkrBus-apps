@@ -1436,11 +1436,12 @@ describe('carte du trajet multimodal', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
 
-    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'guediawaye', /préfecture de guédiawaye/i)
+    // Only the audited B1 direction is drawable: Préfecture de Guédiawaye → Petersen.
+    chooseStopInField('Départ', 'guediawaye', /préfecture de guédiawaye/i)
+    chooseStopInField('Destination', 'petersen', /petersen.*BRT/i)
 
     expect(screen.getByTestId('highlighted-lines').textContent).toContain('brt-b1')
-    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-petersen')
+    expect(screen.getByTestId('highlighted-stops').textContent).toContain('brt-prefecture-guediawaye')
   })
 })
 
