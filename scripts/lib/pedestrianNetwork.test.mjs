@@ -13,6 +13,8 @@ test('rejects prohibited/private foot access and motorway links', () => {
   assert.equal(isWalkableOsmWay({ highway: 'residential', access: 'private' }), false)
   assert.equal(isWalkableOsmWay({ highway: 'motorway' }), false)
   assert.equal(isWalkableOsmWay({ highway: 'trunk' }), false)
+  assert.equal(isWalkableOsmWay({ highway: 'trunk', sidewalk: 'both' }), true)
+  assert.equal(isWalkableOsmWay({ highway: 'trunk', sidewalk: 'no' }), false)
 })
 
 test('allows an explicit foot permission to override generic private access', () => {
