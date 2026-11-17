@@ -133,3 +133,16 @@ Les URL, dates de publication et plages horaires sont maintenant enregistrées d
 
 
 Des tests de non-régression utilisent aussi la première ligne publiée de chaque sens de la ligne 7 : 29 heures de passage pour Gare Palais → Ouakam et 27 pour Ouakam → Gare Palais. Ils vérifient le compte à rebours aux deux extrémités. Ce sont des échantillons de contrôle du parseur, pas les matrices complètes de service.
+
+
+## Contrôle global des grilles avant calcul — 17 novembre 2026
+
+Le calcul du prochain passage refuse désormais une grille entière si l'une de ces conditions est rencontrée :
+- une ligne ne contient pas exactement le même nombre d'arrêts que les autres ;
+- une heure est absente ou ne respecte pas le format valide `HH:mm` ;
+- l'heure recule entre deux arrêts d'un même trajet ;
+- l'heure recule d'un départ au suivant pour un même arrêt.
+
+Les heures identiques entre arrêts successifs restent acceptées, car elles apparaissent dans les grilles publiées. Le contrôle porte sur **toutes** les cellules, y compris les colonnes qui ne sont pas sélectionnées pour le compte à rebours. Une grille invalide renvoie donc une absence de passage plutôt qu'un compte à rebours potentiellement trompeur.
+
+Les tests couvrent les grilles vides ou irrégulières, les heures mal formées dans une autre colonne, les inversions dans un trajet et les départs non chronologiques. Ce contrôle est une protection technique ; il ne remplace pas la transcription des 182 lignes de la ligne 13 ni l'extraction complète des tableaux de la ligne 7.
