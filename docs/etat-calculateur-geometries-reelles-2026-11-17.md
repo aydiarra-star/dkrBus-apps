@@ -24,27 +24,32 @@ Un audit automatisé supplémentaire est ajouté dans `src/domain/referenceRoute
 
 Ce contrôle est une étape d'audit, pas encore un branchement du planner. Le calculateur de production n'utilise pas encore ces géométries pour ses distances. Les deux directions BRT ne sont pas considérées comme intégralement validées tant que l'écart terminal n'est pas résolu.
 
-## Accès, sortie et correspondances à pied
+## État actuel des distances et des raccordements dans le planner
 
-Les distances Haversine d'accès/sortie et les distances de correspondance positives ne sont plus utilisées pour fabriquer une marche. En l'absence du graphe piéton, le calculateur accepte seulement un départ et une arrivée sélectionnés comme arrêts exacts du référentiel, et seulement les transferts de distance nulle explicitement déclarés dans un même pôle.
+Le planner de production n'est pas encore raccordé au graphe réel. Le code actuel conserve encore les calculs historiques suivants :
 
-Les trajets entre points libres, les marches d'accès/sortie et les correspondances piétonnes positives sont refusés plutôt que dessinés en ligne droite. Les anciennes distances de correspondance déclarées (par exemple TER ↔ BRT à Dakar/Colobane) restent des informations historiques du référentiel mais ne sont pas considérées comme un chemin piéton vérifié.
+- les accès et sorties libres sont estimés par distance Haversine entre les coordonnées du point et les arrêts du référentiel ;
+- les portions de trajet véhicule sont estimées par somme de distances Haversine entre arrêts successifs, puis converties avec la vitesse commerciale du modèle ;
+- les correspondances positives utilisent les distances `walkM` déclarées dans le référentiel, sans chemin piéton calculé sur les ways ;
+- la géométrie de carte des courses BRT/TER est distincte de ces calculs métriques : la présence d'une polyline sur la carte ne prouve pas que le planner a mesuré le trajet sur cette polyline.
+
+Ces calculs historiques restent actifs afin de ne pas casser le calculateur existant. Ils ne satisfont pas encore l'exigence finale de routage sur les voies réelles. Il ne faut donc pas présenter les durées/distances du planner comme des distances routières exactes ni les correspondances comme des chemins piétons vérifiés.
 
 ## Préparation du graphe piéton
 
-Un extracteur read-only a été ajouté : `scripts/export_dakar_pedestrian_network.mjs`, avec son filtre/test `scripts/lib/pedestrianNetwork.mjs`. Il récupère les ways OSM piétonnes/voiries accessibles, conserve les nœuds OSM et leur géométrie segment par segment, filtre les accès piétons interdits et respecte les restrictions `oneway:foot`. La CI lance les tests et tente de produire un artefact candidat.
+Deux voies d'extraction read-only sont maintenant prévues : `scripts/export_dakar_pedestrian_network.mjs` interroge Overpass ; si les instances Overpass sont indisponibles, la CI télécharge le PBF Geofabrik Sénégal/Gambie, extrait la boîte de Dakar avec Osmium, puis `scripts/extract_dakar_pedestrian_ways_from_pbf.py` conserve les ways piétonnes avec leurs identifiants de nœuds et géométries. Les filtres/test JS et Python excluent les accès interdits et n'acceptent les axes majeurs que si un trottoir ou un accès piéton explicite est cartographié.
 
-Cet artefact n'est pas encore branché au calculateur : les arrêts ne sont pas raccordés automatiquement à la voie la plus proche. Cette liaison doit passer par des entrées/quais réels et vérifiés.
+Le graphe produit reste un candidat OSM : il n'est pas encore branché au calculateur et les arrêts/quais ne sont pas raccordés automatiquement. Cette liaison doit passer par des entrées/quais réels et vérifiés.
 
 ## Suite nécessaire
 
 1. Extraire et contrôler un graphe piéton OSM continu : ways `highway` autorisant la marche, passages, ponts, tunnels, accès piétons, sens et interdictions.
-3. Connecter les points d'entrée/sortie des arrêts aux nœuds de ce graphe sans créer de raccourci à travers les bâtiments, autoroutes, voies ferrées ou l'eau.
-4. Raccorder les arrêts BRT/TER aux quais réels et tester les distances projetées sur les géométries.
-5. Construire les formes directionnelles DDD à partir des géométries ArcGIS historiques, des relations OSM et de séquences d'arrêts opérateur ; l'ancienneté et les conflits de sources doivent rester explicites.
-6. Construire les formes AFTU/TATA en géocodant les séquences de rues/repères publiées puis en les faisant correspondre aux voies OSM dans le bon ordre. Une simple route routière entre deux centres de quartier n'est pas une ligne AFTU/TATA.
-7. Valider les deux sens, les arrêts/quais, la continuité géométrique, les distances et les tests d'absence de saut.
-8. Réactiver chaque ligne séparément après revue de sa provenance et de ses deux sens.
+2. Connecter les points d'entrée/sortie des arrêts aux nœuds de ce graphe sans créer de raccourci à travers les bâtiments, autoroutes, voies ferrées ou l'eau.
+3. Raccorder les arrêts BRT/TER aux quais réels et tester les distances projetées sur les géométries.
+4. Construire les formes directionnelles DDD à partir des géométries ArcGIS historiques, des relations OSM et de séquences d'arrêts opérateur ; l'ancienneté et les conflits de sources doivent rester explicites.
+5. Construire les formes AFTU/TATA en géocodant les séquences de rues/repères publiées puis en les faisant correspondre aux voies OSM dans le bon ordre. Une simple route routière entre deux centres de quartier n'est pas une ligne AFTU/TATA.
+6. Valider les deux sens, les arrêts/quais, la continuité géométrique, les distances et les tests d'absence de saut.
+7. Réactiver chaque ligne séparément après revue de sa provenance et de ses deux sens.
 
 ## Limites et protection des données validées
 
