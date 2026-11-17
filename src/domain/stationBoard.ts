@@ -3,13 +3,10 @@
  *
  * CE MODULE N'EST PAS UN FLUX TEMPS RÉEL ET N'EN SIMULE PAS UN.
  *
- * Pour chaque ligne qui publie une fréquence officielle (TER et BRT), il
- * projette la grille déclarée au départ de chaque terminus. Le TER utilise
- * les durées cumulées observées par gare ; le BRT conserve son calcul de
- * référence (distance à vol d'oiseau / vitesse commerciale + arrêts).
- * Les deux sens sont distincts :
- * - sens aller : grille projetée depuis le terminus d'origine de la ligne ;
- * - sens retour : grille projetée depuis le terminus opposé.
+ * Pour le TER, chaque tronçon possède sa propre cadence et son propre
+ * terminus de référence ; le segment AIBD n'est desservi que par la grille
+ * Diamniadio ↔ AIBD. Le BRT conserve son calcul de référence (distance à vol
+ * d'oiseau / vitesse commerciale + arrêts). Les deux sens sont distincts.
  *
  * La phase exacte de la grille au départ de chaque terminus n'est pas
  * déclarée publiquement : les créneaux du sens retour projettent la même
