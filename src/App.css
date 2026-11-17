@@ -4156,3 +4156,58 @@ button:disabled { cursor: not-allowed; }
   .map-mobility-legend-compact .map-mobility-legend-title { font-size: 6.5px; }
   .map-mobility-legend-compact .map-mobility-legend-row { gap: 2px; }
 }
+
+
+/* Trajet mobile : les quatre réseaux se partagent toute la ligne. */
+@media (max-width: 820px) {
+  .app-shell.tab-route .route-panel .route-network-filters {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+  }
+  .app-shell.tab-route .route-panel .route-network-filter {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    flex: initial;
+    padding: 5px 4px 6px;
+    box-sizing: border-box;
+  }
+  .app-shell.tab-route .route-panel .route-network-filter .route-coverage-item {
+    width: 100%;
+    min-width: 0;
+  }
+  .app-shell.tab-route .route-panel .route-network-filter .mobility-badge {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    justify-content: center;
+    padding-right: 2px;
+    padding-left: 2px;
+    white-space: nowrap;
+  }
+  .app-shell.tab-route .route-panel .route-network-filter .route-coverage-bar {
+    width: 100%;
+  }
+}
+
+/* Le bouton de recherche garde un vert franc, même avant la saisie complète. */
+.app-shell.tab-route .route-panel .route-submit,
+.app-shell.tab-route .route-panel .route-submit:disabled {
+  background: #087548;
+  background-image: none;
+  border-color: #075b38;
+  color: #fff;
+  opacity: 1;
+  box-shadow: 0 5px 14px rgba(8, 92, 57, .24);
+}
+.app-shell.tab-route .route-panel .route-submit:hover:not(:disabled),
+.app-shell.tab-route .route-panel .route-submit:active:not(:disabled) {
+  background: #087548;
+  color: #fff;
+}
