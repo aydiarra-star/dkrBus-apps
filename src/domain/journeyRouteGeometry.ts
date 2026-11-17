@@ -6,6 +6,8 @@ import type { RoadPoint, VerifiedLineGeometry } from './roadNetworkRouting'
 import { BRT_B1_TRACKS } from './brtTrackGeometry'
 import { TER_TRACK } from './terTrackGeometry'
 
+type VerifiedRideLineGeometry = Omit<VerifiedLineGeometry, 'network'> & { network: 'ter' | 'brt' }
+
 export interface HighlightedJourneyRouteSegment {
   id: string
   network: 'ter' | 'brt'
@@ -14,7 +16,7 @@ export interface HighlightedJourneyRouteSegment {
 }
 
 const terAudit = auditTerPhaseOneGeometry()
-const terPhaseOneRoute: VerifiedLineGeometry | null = terAudit.passed
+const terPhaseOneRoute: VerifiedRideLineGeometry | null = terAudit.passed
   ? {
       network: 'ter',
       lineId: 'ter-dakar-diamniadio',
@@ -28,7 +30,7 @@ const terPhaseOneRoute: VerifiedLineGeometry | null = terAudit.passed
     }
   : null
 
-const brtDirectionalRoutes: VerifiedLineGeometry[] = BRT_B1_TRACKS.flatMap((track) => {
+const brtDirectionalRoutes: VerifiedRideLineGeometry[] = BRT_B1_TRACKS.flatMap((track) => {
   const directionId = `${track.directionFrom} → ${track.directionTo}`
   const audit = auditBrtB1DirectionalGeometry().find((candidate) => candidate.direction === directionId)
   if (!audit?.passed) return []
@@ -61,7 +63,7 @@ export function verifiedJourneyRouteSegments(
     const toStop = stopById.get(leg.toId)
     if (!fromStop || !toStop) return
 
-    let candidates: readonly VerifiedLineGeometry[] = []
+    let candidates: readonly VerifiedRideLineGeometry[] = []
     if (leg.line.network === 'ter' && leg.line.id === 'ter-dakar-diamniadio' && terPhaseOneRoute) {
       candidates = [terPhaseOneRoute]
     } else if (leg.line.network === 'brt' && leg.line.id === 'brt-b1') {
