@@ -47,6 +47,7 @@ describe('recent Moovit DDD directional candidates', () => {
       'timetableUrl' in item &&
       item.timetableUrl.startsWith('https://moovitapp.com/') &&
       item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY' &&
+      'timetableUpdatedOn' in item && item.timetableUpdatedOn === '2026-11-16' &&
       'timetableCoverageByDay' in item,
     )).toBe(true)
     expect(line13.map((item) => item.timetableCoverageByDay)).toEqual([
