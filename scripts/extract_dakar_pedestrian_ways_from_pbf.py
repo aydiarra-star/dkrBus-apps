@@ -29,7 +29,7 @@ def is_walkable(tags: dict[str, str]) -> bool:
     if foot_values & {"no", "private", "destination"}:
         return False
     foot_permitted = bool(foot_values & {"yes", "designated", "permissive"})
-    if access in {"no", "private"} and not foot_permitted:
+    if access in {"no", "private", "destination"} and not foot_permitted:
         return False
     return True
 
