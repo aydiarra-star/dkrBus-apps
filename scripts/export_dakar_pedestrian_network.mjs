@@ -19,5 +19,5 @@ const report = {
   ],
 }
 await mkdir('artifacts/pedestrian', { recursive: true })
-await writeFile('artifacts/pedestrian/dakar-pedestrian-graph-candidate.json', JSON.stringify(report) + '\\n')
+await writeFile('artifacts/pedestrian/dakar-pedestrian-graph-candidate.json', JSON.stringify(report) + '\n')
 console.log(JSON.stringify({ endpoint: source.endpoint, sourceElements: report.sourceElements, summary: graph.summary, status: graph.status }, null, 2))
