@@ -73,3 +73,15 @@ Les pages Moovit ne se limitent pas aux durées globales : elles possèdent des 
 Les URL des deux grilles sont maintenant reliées aux candidats de la ligne 13 dans `src/data/dddMoovitDirectionalCandidates.ts`. C'est la première source repérée dans ce lot qui peut fournir directement des heures de passage par arrêt, au lieu de devoir interpoler une durée globale.
 
 **Étape suivante :** extraire les deux grilles complètes, contrôler que chaque colonne correspond exactement à la séquence directionnelle, convertir les heures en minutes cumulées par arrêt et tester le prochain passage pour plusieurs heures de la journée. Ne pas substituer ces valeurs à une référence DDD officielle sans garder la provenance Moovit et vérifier les éventuelles divergences.
+
+
+## Vérification technique des grilles — 17 novembre 2026
+
+Lecture directe des deux pages horaires :
+- chaque tableau présente **30 colonnes**, dans le même ordre que la séquence directionnelle candidate correspondante ;
+- les premières lignes du tableau samedi ont été contrôlées : Liberté 5 → Palais commence à 06:30 et atteint le dernier arrêt à 06:55 ; Palais → Liberté 5 commence à 07:00 et atteint Liberté 5 à 07:32 ;
+- les pages séparent les sections samedi et semaine ; elles ne donnent pas un intervalle uniforme, et certaines lignes présentent des départs espacés de 10, 12, 15, 17, 20 ou 25 minutes.
+
+Les exemples des deux premières lignes sont utilisés dans les tests de non-régression du parseur nextTimetableStopPassageCountdown afin de vérifier les 30 colonnes, les terminus, les arrêts intermédiaires et l'indépendance des deux sens.
+
+**Limite importante :** cette vérification ne constitue pas encore l'extraction exhaustive de toutes les lignes horaires des deux tableaux. Aucune grille partielle ne doit être présentée comme l'horaire complet, ni activée dans l'application passager. La grille complète doit être capturée et contrôlée avant raccordement à l'affichage.
