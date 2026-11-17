@@ -1,5 +1,51 @@
 # Audit du graphe piéton candidat de Dakar — 17 novembre 2026
 
+## Extraction de secours Geofabrik validée — 20:27 UTC
+
+- Exécution GitHub Actions : [44168986605](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44168986605)
+- Commit contrôlé : `742c39d41ab33f1e5e6ee2dae318ac0609fc9c66`
+- Artefact : `dakar-pedestrian-graph-candidate` (ID `14366297825`)
+- Généré le : 2026-11-17 à 20:27:07 UTC
+- Source : extraction des ways OpenStreetMap depuis le PBF Geofabrik Sénégal et Gambie.
+- Éléments source extraits : 60 514 ; ways piétonniers : 57 489 ; ways ignorés : 0.
+- L'extraction Overpass a échoué sur cette exécution, mais le chemin de secours Geofabrik a réussi ; le graphe a été construit et l'artefact téléversé.
+- Emprise de requête : sud 14.50, ouest -17.60, nord 14.95, est -17.05.
+
+### Contrôles indépendants de l'archive Geofabrik
+
+| Contrôle | Résultat |
+|---|---:|
+| Nœuds | 228 060 |
+| Identifiants de nœuds uniques | 228 060 / 228 060 |
+| Arêtes orientées | 525 764 |
+| Paires dirigées distinctes | 525 756 |
+| Doublons de paires dirigées | 8 |
+| Références de nœuds invalides | 0 |
+| Distances non positives ou invalides | 0 |
+| Arêtes sans au moins deux positions | 0 |
+| Arêtes sans identifiant de way | 0 |
+| Paires disposant de l'arête inverse | 100 % |
+| Composantes connexes (lecture non orientée) | 1 899 |
+| Plus grande composante | 137 181 nœuds |
+| Nœuds sans arête sortante | 0 |
+
+Emprise réelle des nœuds : latitude 14.4974611 à 14.94915 ; longitude -17.5301562 à -17.0115335. Le statut reste `CANDIDATE_GRAPH_NOT_YET_CONNECTED_TO_STOPS`.
+
+### Résultat CI
+
+- Tests des filtres piétons et de sélection des sources : réussis.
+- Filtre PBF Geofabrik : réussi.
+- Extraction de secours Geofabrik : réussie.
+- Téléversement de l'artefact : réussi.
+- Compilation frontend : réussie.
+- Tests frontend et données locales : réussis.
+- 243 tests Python : réussis.
+- Échec global uniquement à `npm audit` : six alertes high liées à `picomatch` (GHSA-fc5q-39xc-vjpf). La correction automatique proposée implique une rétrogradation majeure de Vitest ; aucune mise à jour forcée n'a été appliquée.
+
+**Décision inchangée :** le succès du chemin de secours confirme la production d'un graphe OSM structurellement cohérent. Il ne confirme ni la praticabilité de chaque voie, ni les entrées des stations, ni les correspondances. Aucun temps de marche et aucune liaison voyageurs ne doivent être calculés à partir de cet artefact avant raccordement et validation des accès. Les horaires TER/BRT restent intacts.
+
+---
+
 ## Nouvelle extraction après correction du filtre PBF — 20:25 UTC
 
 - Exécution GitHub Actions : [44168969950](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44168969950)
