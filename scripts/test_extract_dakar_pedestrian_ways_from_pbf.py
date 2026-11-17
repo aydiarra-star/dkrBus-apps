@@ -20,6 +20,8 @@ class PedestrianPbfFilterTests(unittest.TestCase):
         self.assertFalse(is_walkable({"highway": "footway", "foot": "no", "foot:access": "yes"}))
         self.assertTrue(is_walkable({"highway": "footway", "access": "private", "foot:access": "yes"}))
         self.assertFalse(is_walkable({"highway": "footway", "access": "private"}))
+        self.assertFalse(is_walkable({"highway": "path", "foot": "destination"}))
+        self.assertFalse(is_walkable({"highway": "path", "foot:access": "destination"}))
 
     def test_dakar_extract_bounds_are_explicit(self):
         self.assertTrue(inside_bounds(14.70, -17.40))
