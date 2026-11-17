@@ -72,6 +72,20 @@ describe('nextTimetableStopPassageCountdown', () => {
     expect(nextTimetableStopPassageCountdown([['06:10'], ['06:00']], 0, at(6, 0))).toBeNull()
     expect(nextTimetableStopPassageCountdown(grid, 4, at(6, 0))).toBeNull()
   })
+
+  it('rejects a bad value in any column, even when another stop is selected', () => {
+    expect(nextTimetableStopPassageCountdown([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', 'bad', '06:20'],
+    ], 0, at(6, 0))).toBeNull()
+  })
+
+  it('rejects a row whose stop times go backwards outside the selected column', () => {
+    expect(nextTimetableStopPassageCountdown([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', '06:17', '06:10'],
+    ], 0, at(6, 0))).toBeNull()
+  })
 })
 
 
