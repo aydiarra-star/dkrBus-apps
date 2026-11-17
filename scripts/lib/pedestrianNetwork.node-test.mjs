@@ -27,6 +27,22 @@ test('allows an explicit foot permission to override generic private access', ()
   assert.equal(isWalkableOsmWay({ highway: 'path', access: 'private', foot: 'permissive' }), true)
 })
 
+test('does not route through generic destination-only access without explicit foot permission', () => {
+  assert.equal(isWalkableOsmWay({ highway: 'path', access: 'destination' }), false)
+  assert.equal(isWalkableOsmWay({ highway: 'path', access: 'destination', foot: 'designated' }), true)
+  const restrictedWay = buildPedestrianGraph([{
+    type: 'way', id: 45, nodes: [1, 2], tags: { highway: 'path', access: 'destination' },
+    geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }],
+  }])
+  assert.equal(restrictedWay.summary.directedEdgeCount, 0)
+  const restrictedNode = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { access: 'destination' } },
+    { type: 'way', id: 46, nodes: [1, 2], tags: { highway: 'path' },
+      geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(restrictedNode.summary.directedEdgeCount, 0)
+})
+
 test('does not treat destination-only permission as a through-route permission', () => {
   assert.equal(isWalkableOsmWay({ highway: 'path', access: 'private', foot: 'destination' }), false)
   assert.equal(isWalkableOsmWay({ highway: 'path', access: 'no', 'foot:access': 'destination' }), false)
