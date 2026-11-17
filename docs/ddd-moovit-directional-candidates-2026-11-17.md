@@ -130,3 +130,6 @@ Deux pages horaires Moovit distinctes ont été retrouvées pour la ligne 7. Ell
 Les URL, dates de publication et plages horaires sont maintenant enregistrées dans les métadonnées des deux candidats de la ligne 7, avec des tests dédiés. Les plages sont les heures de service publiées ; aucun nombre de départs n'est inventé. Les grilles montrent des heures propres à chaque arrêt, ce qui évite de répartir artificiellement la durée totale du trajet.
 
 **Limite actuelle :** les pages sources ont des dates différentes (août et septembre 2026) et restent secondaires. Les matrices complètes de la ligne 7 ne sont pas encore transcrites dans le dépôt. Il faut les extraire par type de journée, vérifier les 29/27 colonnes et rapprocher les arrêts génériques avant tout usage passager.
+
+
+Des tests de non-régression utilisent aussi la première ligne publiée de chaque sens de la ligne 7 : 29 heures de passage pour Gare Palais → Ouakam et 27 pour Ouakam → Gare Palais. Ils vérifient le compte à rebours aux deux extrémités. Ce sont des échantillons de contrôle du parseur, pas les matrices complètes de service.
