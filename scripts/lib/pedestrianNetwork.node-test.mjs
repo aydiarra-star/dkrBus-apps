@@ -5,13 +5,17 @@ import { buildPedestrianGraph, isWalkableOsmWay } from './pedestrianNetwork.mjs'
 test('keeps designated footways and pedestrian streets', () => {
   assert.equal(isWalkableOsmWay({ highway: 'footway' }), true)
   assert.equal(isWalkableOsmWay({ highway: 'pedestrian' }), true)
-  assert.equal(isWalkableOsmWay({ highway: 'residential' }), true)
+  assert.equal(isWalkableOsmWay({ highway: 'living_street' }), true)
 })
 
 test('rejects prohibited/private foot access and motorway links', () => {
   assert.equal(isWalkableOsmWay({ highway: 'footway', foot: 'no' }), false)
   assert.equal(isWalkableOsmWay({ highway: 'residential', access: 'private' }), false)
   assert.equal(isWalkableOsmWay({ highway: 'motorway' }), false)
+  for (const highway of ['residential', 'unclassified', 'service']) {
+    assert.equal(isWalkableOsmWay({ highway }), false)
+    assert.equal(isWalkableOsmWay({ highway, foot: 'designated' }), false)
+  }
   for (const highway of ['tertiary', 'secondary', 'primary', 'trunk', 'trunk_link']) {
     assert.equal(isWalkableOsmWay({ highway }), false)
     assert.equal(isWalkableOsmWay({ highway, sidewalk: 'both' }), false)
