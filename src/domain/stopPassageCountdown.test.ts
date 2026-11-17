@@ -57,7 +57,7 @@ describe('nextTimetableStopPassageCountdown', () => {
 
   it('uses the actual next time for the selected stop, including irregular gaps', () => {
     expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 18))).toBe(26)
-    expect(nextTimetableStopPassageCountdown(grid, 2, at(6, 20))).toBe(27)
+    expect(nextTimetableStopPassageCountdown(grid, 2, at(6, 21))).toBe(26)
   })
 
   it('returns zero for a passage due now and null after the final passage', () => {
