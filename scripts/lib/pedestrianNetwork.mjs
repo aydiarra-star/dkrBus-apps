@@ -1,6 +1,6 @@
 const WALKABLE_HIGHWAYS = new Set([
   'footway', 'pedestrian', 'path', 'steps', 'living_street',
-  'residential', 'service', 'unclassified',
+  'residential', 'service', 'unclassified', 'tertiary', 'secondary', 'primary', 'trunk', 'trunk_link',
 ])
 const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
 
