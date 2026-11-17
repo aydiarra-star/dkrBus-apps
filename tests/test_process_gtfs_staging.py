@@ -193,7 +193,10 @@ class GTFSWorkerTests(unittest.TestCase):
     def test_authenticate_uses_password_grant_and_keeps_the_worker_token_private(self) -> None:
         with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
             opener = Mock()
-            opener.open.return_value = io.BytesIO(b'{"access_token":"synthetic-access-token"}')
+            opener.open.return_value = io.BytesIO(
+                b'{"access_token":"synthetic-access-token","user":{"email":"worker@example.invalid",'
+                b'"email_confirmed_at":"2026-11-17T00:00:00Z","app_metadata":{"dakar_gtfs_worker":true}}}'
+            )
             build_opener.return_value = opener
 
             client = SupabaseRest(
@@ -209,6 +212,40 @@ class GTFSWorkerTests(unittest.TestCase):
             self.assertEqual(request.get_header("Apikey"), "test-anon-key")
             self.assertEqual(client.access_token, "synthetic-access-token")
             self.assertNotIn("synthetic-password", repr(client.access_token))
+
+    def test_authenticate_rejects_unconfirmed_or_unprivileged_worker_accounts(self) -> None:
+        responses = [
+            (
+                b'{"access_token":"synthetic-token","user":{"email":"worker@example.invalid",'
+                b'"email_confirmed_at":null,"app_metadata":{"dakar_gtfs_worker":true}}}',
+                "WORKER_ACCOUNT_NOT_CONFIRMED",
+            ),
+            (
+                b'{"access_token":"synthetic-token","user":{"email":"worker@example.invalid",'
+                b'"email_confirmed_at":"2026-11-17T00:00:00Z","app_metadata":{"dakar_gtfs_worker":false}}}',
+                "WORKER_IDENTITY_CLAIM_MISSING",
+            ),
+            (
+                b'{"access_token":"synthetic-token","user":{"email":"other@example.invalid",'
+                b'"email_confirmed_at":"2026-11-17T00:00:00Z","app_metadata":{"dakar_gtfs_worker":true}}}',
+                "WORKER_ACCOUNT_MISMATCH",
+            ),
+        ]
+        for response_body, expected_error in responses:
+            with self.subTest(expected_error=expected_error):
+                with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+                    opener = Mock()
+                    opener.open.return_value = io.BytesIO(response_body)
+                    build_opener.return_value = opener
+                    client = SupabaseRest(
+                        f"https://{SUPABASE_HOST}",
+                        "test-anon-key",
+                        "worker@example.invalid",
+                        "synthetic-password",
+                    )
+                    with self.assertRaisesRegex(WorkerError, expected_error):
+                        client.authenticate()
+                    self.assertIsNone(client.access_token)
 
     def test_request_requires_a_dedicated_worker_access_token(self) -> None:
         client = SupabaseRest(
