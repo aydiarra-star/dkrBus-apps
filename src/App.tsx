@@ -2275,7 +2275,7 @@ function ExploreMobilityCountdowns({
                 aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
-                <span className="network-summary-dot is-referenced is-counting" aria-hidden="true" />
+                <span className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`} aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && network.label !== network.shortName && (
