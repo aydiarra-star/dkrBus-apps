@@ -10,9 +10,8 @@ export function isWalkableOsmWay(tags = {}) {
   const footAccess = [tags.foot, tags['foot:access']].filter(Boolean).map(value => String(value).toLowerCase())
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
-  if (footAccess.some(value => ['no', 'private'].includes(value))) return false
-  // "destination" is not treated as general pedestrian permission: it must
-  // not turn a private way into a through-route between unrelated places.
+  if (footAccess.some(value => ['no', 'private', 'destination'].includes(value))) return false
+  // Destination-only access is not a general pedestrian permission.
   if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
   if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
@@ -23,7 +22,7 @@ export function isWalkableOsmNode(tags = {}) {
   const footAccess = [tags.foot, tags['foot:access']].filter(Boolean).map(value => String(value).toLowerCase())
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
-  if (footAccess.some(value => ['no', 'private'].includes(value))) return false
+  if (footAccess.some(value => ['no', 'private', 'destination'].includes(value))) return false
   if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   const barrier = String(tags.barrier ?? '').toLowerCase()
   if (BLOCKING_BARRIERS.has(barrier) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
