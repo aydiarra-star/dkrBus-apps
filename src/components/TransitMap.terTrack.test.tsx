@@ -116,16 +116,16 @@ describe('carte : tracé du TER sur les voies réelles', () => {
     expect(ter.every((polyline) => polyline.attribution === undefined)).toBe(true)
   })
 
-  it('rétablit les épaisseurs historiques du TER et des deux sens réels du BRT', () => {
+  it('rétablit les épaisseurs historiques du TER et ne dessine que le sens BRT validé', () => {
     const polylines = drawMap([lineOf('ter')[0], lineOf('brt')[0]])
     const ter = polylines.filter((polyline) => polyline.positions.length === 491)
     const brt = polylines.filter((polyline) => polyline.positions.length !== 491)
     expect(ter).toHaveLength(3)
-    expect(brt).toHaveLength(6)
+    expect(brt).toHaveLength(3)
     expect(brt.map((polyline) => polyline.positions)).toEqual([
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
     ])
     // TER et BRT retrouvent les épaisseurs historiques d'avant les réductions.
     expect(ter.map((polyline) => polyline.pathOptions.weight)).toEqual([6, 4.5, 3])
@@ -223,15 +223,15 @@ describe('carte : libellés texte des arrêts et exclusivité des corridors', ()
 })
 
 describe('carte : les autres mobilités ne changent pas', () => {
-  it('trace le BRT sur ses deux géométries OSM sans répéter les crédits sur chaque trait', () => {
+  it('trace uniquement la géométrie BRT validée sans répéter les crédits sur chaque trait', () => {
     const lines = lineOf('brt')
     expect(lines.length).toBeGreaterThan(0)
     const polylines = drawMap(lines)
-    expect(polylines).toHaveLength(6 * lines.length)
+    expect(polylines).toHaveLength(3 * lines.length)
     const expectedTracks = [
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
-      BRT_B1_TRACKS[0].positions, BRT_B1_TRACKS[1].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
+      BRT_B1_TRACKS[0].positions,
     ]
     for (const [index, polyline] of polylines.entries()) {
       expect(polyline.positions).toEqual(expectedTracks[index])
@@ -252,7 +252,7 @@ describe('carte : les autres mobilités ne changent pas', () => {
   })
 
   it('ne conserve sur la carte complète que les traits TER et BRT', () => {
-    const expected = 3 * lineOf('ter').length + 6 * lineOf('brt').length
+    const expected = 3 * lineOf('ter').length + 3 * lineOf('brt').length
     expect(drawMap()).toHaveLength(expected)
   })
 })
