@@ -50,7 +50,7 @@ describe('recent Moovit DDD directional candidates', () => {
       'timetableUpdatedOn' in item &&
       'timetableCoverageByDay' in item,
     )).toBe(true)
-    expect(line7.map((item) => item.timetableUpdatedOn)).toEqual(['2026-09-14', '2026-08-31'])
+    expect(line7.map((item) => item.timetableUpdatedOn)).toEqual(['2026-11-16', '2026-11-16'])
     expect(line7.map((item) => item.timetableCoverageByDay)).toEqual([
       {
         weekday: { firstDeparture: '05:00', lastDeparture: '22:38' },
