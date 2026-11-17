@@ -4,15 +4,15 @@ Date : 17 novembre 2026
 
 ## État réel du branchement au 17 novembre
 
-Les primitives de géométrie et de graphe routier ont été ajoutées et testées dans `src/domain/roadNetworkRouting.ts`, mais elles ne sont pas encore raccordées au moteur de production `src/domain/planner.ts`. Une première tentative de verrouillage du planner a provoqué 39 régressions frontend ; elle a été retirée pour préserver le fonctionnement existant. La PR reste en brouillon et n'est pas fusionnée.
+Les primitives de géométrie et de graphe routier sont testées dans `src/domain/roadNetworkRouting.ts`. Une intégration partielle et strictement filtrée a maintenant été ajoutée à `src/domain/planner.ts` : elle mesure certaines portions TER phase 1 et BRT B1 uniquement lorsqu'une géométrie directionnelle passe l'audit. Les autres lignes et les accès piétons ne sont pas encore raccordés au graphe réel. La PR reste en brouillon et n'est pas fusionnée.
 
-- TER : la géométrie ferroviaire OSM phase 1 est disponible dans `data/ter/ter-dakar-aibd.geojson`, mais elle n'est pas encore utilisée pour mesurer les jambes du planner.
-- BRT B1 : les deux géométries directionnelles OSM sont disponibles dans `data/brt/brt-b1-osm.geojson`, mais elles ne sont pas encore utilisées pour mesurer les jambes du planner.
-- DDD : les géométries ArcGIS historiques sont candidates ; aucune direction n'est certifiée.
+- TER : la géométrie ferroviaire OSM de la phase 1 Dakar–Diamniadio est utilisée pour mesurer une portion véhicule uniquement si `auditTerPhaseOneGeometry()` passe. Le sens inverse et toute portion hors de la phase 1 ne sont pas certifiés par cette intégration.
+- BRT B1 : seule la direction Préfecture de Guédiawaye → Petersen, dont l'audit passe, peut fournir une distance mesurée sur la géométrie. La direction inverse échoue encore au seuil de contrôle et n'est pas activée.
+- DDD : les géométries ArcGIS historiques restent candidates ; aucune direction n'est certifiée dans le planner.
 - AFTU/TATA : les séquences textuelles ne sont pas encore géolocalisées en ways routiers directionnels.
-- Marche : l'extracteur du graphe piéton OSM est préparé, mais ses données ne sont pas encore reliées aux accès/quais ni au planner.
+- Marche : les extracteurs Overpass/PBF et les tests de graphe existent, mais aucun accès/quai n'est raccordé de manière certifiée au planner.
 
-Le planner existant reste en place pendant que les géométries et les chemins piétons sont préparés. Il ne faut donc pas annoncer que le calculateur est déjà strictement basé sur les voies réelles.
+Le planner existant reste en place avec cette intégration partielle. Pour toute portion sans géométrie directionnelle validée, le calcul historique Haversine demeure le repli ; il ne faut donc pas annoncer que le calculateur est déjà strictement basé sur les voies réelles.
 
 ## Contrôle métrique des géométries TER/BRT — audit du 17 novembre
 
@@ -22,18 +22,18 @@ Un audit automatisé supplémentaire est ajouté dans `src/domain/referenceRoute
 - **BRT B1, Préfecture → Petersen** (relation OSM 19961937) : les 23 stations sont ordonnées et se projettent à moins d'un mètre au maximum.
 - **BRT B1, Petersen → Préfecture** (relation OSM 19961993) : l'ordre est monotone, mais l'écart maximal atteint environ 93,4 m au terminus Préfecture, au-delà du seuil de contrôle de 80 m. Cette direction échoue donc à la validation et ne doit pas être activée avant vérification de l'accès/quai réel.
 
-Ce contrôle est une étape d'audit, pas encore un branchement du planner. Le calculateur de production n'utilise pas encore ces géométries pour ses distances. Les deux directions BRT ne sont pas considérées comme intégralement validées tant que l'écart terminal n'est pas résolu.
+Ce contrôle est à la fois un audit et le garde-fou de l'intégration partielle du planner. La phase 1 TER et la seule direction BRT B1 Préfecture → Petersen validée peuvent alimenter la mesure des distances véhicule. La direction inverse BRT reste exclue tant que l'écart terminal n'est pas résolu.
 
 ## État actuel des distances et des raccordements dans le planner
 
-Le planner de production n'est pas encore raccordé au graphe réel. Le code actuel conserve encore les calculs historiques suivants :
+Le planner de production n'est que partiellement raccordé aux géométries auditées. Pour les portions sans géométrie directionnelle validée, il conserve les calculs historiques suivants :
 
 - les accès et sorties libres sont estimés par distance Haversine entre les coordonnées du point et les arrêts du référentiel ;
-- les portions de trajet véhicule sont estimées par somme de distances Haversine entre arrêts successifs, puis converties avec la vitesse commerciale du modèle ;
+- les portions véhicule TER phase 1 et BRT B1 Préfecture → Petersen utilisent la distance mesurée sur la géométrie auditée lorsque la projection et le sens sont acceptés ; les autres portions véhicule retombent sur la somme de distances Haversine entre arrêts successifs, puis la vitesse commerciale du modèle ;
 - les correspondances positives utilisent les distances `walkM` déclarées dans le référentiel, sans chemin piéton calculé sur les ways ;
 - la géométrie de carte des courses BRT/TER est distincte de ces calculs métriques : la présence d'une polyline sur la carte ne prouve pas que le planner a mesuré le trajet sur cette polyline.
 
-Ces calculs historiques restent actifs afin de ne pas casser le calculateur existant. Ils ne satisfont pas encore l'exigence finale de routage sur les voies réelles. Il ne faut donc pas présenter les durées/distances du planner comme des distances routières exactes ni les correspondances comme des chemins piétons vérifiés.
+Ces replis historiques restent actifs afin de ne pas casser le calculateur existant. L'intégration ne couvre pas encore les deux sens de toutes les lignes et ne satisfait pas l'exigence finale de routage sur les voies réelles. Il ne faut donc pas présenter les durées/distances du planner comme des distances routières exactes ni les correspondances comme des chemins piétons vérifiés.
 
 ## Préparation du graphe piéton
 
