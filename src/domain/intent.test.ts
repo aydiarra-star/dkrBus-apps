@@ -32,7 +32,7 @@ describe('copilote local à intentions explicites', () => {
     // AFTU 53 est exclue tant que son parcours n'est pas certifié ; aucun
     // total ni classement tarifaire ne doit être inventé pour ce trajet.
     expect(cheapest).toMatch(/grilles tarifaires publiées|aucun tarif publié/i)
-    expect(cheapest).toMatch(/pas comparable/)
+    expect(cheapest).toMatch(/aucun classement par prix n’est possible|pas comparable/i)
     expect(cheapest).not.toMatch(/total de \d+\s*F CFA/i)
   })
 
