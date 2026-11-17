@@ -75,14 +75,23 @@ def inspect_shapefile(path: Path, root: Path) -> dict[str, object]:
     z_values: list[float] = []
     valid_geometries = 0
 
+    total_parts = 0
     for shape in reader.shapes():
         points = shape.points
-        if len(points) < 2:
+        boundaries = list(shape.parts) + [len(points)]
+        shape_parts = 0
+        for part_start, part_end in zip(boundaries, boundaries[1:]):
+            part_points = points[part_start:part_end]
+            if len(part_points) < 2:
+                continue
+            shape_parts += 1
+            total_parts += 1
+            for start, end in zip(part_points, part_points[1:]):
+                total_length += math.hypot(end[0] - start[0], end[1] - start[1])
+        if shape_parts == 0:
             empty += 1
-            continue
-        valid_geometries += 1
-        for start, end in zip(points, points[1:]):
-            total_length += math.hypot(end[0] - start[0], end[1] - start[1])
+        else:
+            valid_geometries += 1
         for value in getattr(shape, "z", []) or []:
             if isinstance(value, (int, float)) and math.isfinite(value):
                 z_values.append(float(value))
@@ -96,7 +105,8 @@ def inspect_shapefile(path: Path, root: Path) -> dict[str, object]:
         "emptyOrSinglePointCount": empty,
         "shapeType": reader.shapeType,
         "bboxSourceCoordinates": list(reader.bbox) if reader.bbox else None,
-        "totalLengthSourceUnits": round(total_length, 2),
+        "totalPartLengthSourceUnits": round(total_length, 2),
+        "partCount": total_parts,
         "zRange": [round(min(z_values), 3), round(max(z_values), 3)] if z_values else None,
         "fields": [field[0] for field in reader.fields[1:]],
         "projectionFile": str(prj_path.relative_to(root)) if prj else None,

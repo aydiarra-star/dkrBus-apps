@@ -280,6 +280,11 @@ jobs:
       - name: Prepare Geosenegal evidence folders
         run: mkdir -p artifacts/geosenegal/downloads artifacts/geosenegal/unpacked
 
+      - name: Test recursive archive inspector and multipart lengths
+        run: |
+          python -m pip install --disable-pip-version-check pyshp
+          python scripts/test_audit_geosenegal_shapefiles.py
+
       - name: Download Dakar 2019 street and sidewalk geometry
         continue-on-error: true
         timeout-minutes: 3
@@ -299,16 +304,6 @@ jobs:
             https://www.geosenegal.gouv.sn/IMG/zip/terra_voirie_bdu_guediawaye_2019.zip \
             --output artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
           unzip -t artifacts/geosenegal/downloads/guediawaye-voirie-2019.zip
-
-      - name: Download Yeumbeul Nord 2019 street and sidewalk geometry
-        continue-on-error: true
-        timeout-minutes: 3
-        run: |
-          curl --fail --location --retry 2 --retry-delay 3 --connect-timeout 15 --max-time 180 \
-            --user-agent "DakarBus-read-only-source-audit/1.0" \
-            https://www.geosenegal.gouv.sn/IMG/zip/terra_voirie_bdu_yeumbeul_nord_2019.zip \
-            --output artifacts/geosenegal/downloads/yeumbeul-nord-voirie-2019.zip
-          unzip -t artifacts/geosenegal/downloads/yeumbeul-nord-voirie-2019.zip
 
       - name: Download Pikine-Guediawaye 2014 street geometry
         continue-on-error: true
@@ -340,7 +335,6 @@ jobs:
             unzip -o -q "$archive" -d "artifacts/geosenegal/unpacked/$name" || true
           done
           if find artifacts/geosenegal/unpacked -name '*.shp' -print -quit | grep -q .; then
-            python -m pip install --disable-pip-version-check pyshp
             python scripts/audit_geosenegal_shapefiles.py \
               artifacts/geosenegal/unpacked artifacts/geosenegal/shapefile-inventory.json
           else
