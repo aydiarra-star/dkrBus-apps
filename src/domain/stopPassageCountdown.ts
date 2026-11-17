@@ -68,7 +68,8 @@ export function nextTimetableStopPassageCountdown(
   stopIndex: number,
   now: Date = new Date(),
 ): number | null {
-  if (!isValidStopPassageTimetable(timetableByDeparture) ||
+  const rows = timetableByDeparture
+  if (!rows || !isValidStopPassageTimetable(rows) ||
       !Number.isInteger(stopIndex) || stopIndex < 0 ||
       !(now instanceof Date) || !Number.isFinite(now.getTime())) return null
 
@@ -85,7 +86,7 @@ export function nextTimetableStopPassageCountdown(
   let expectedStopCount: number | null = null
   let previousPassage = -1
 
-  for (const row of timetableByDeparture) {
+  for (const row of rows) {
     if (!Array.isArray(row) || row.length === 0 ||
         (expectedStopCount !== null && row.length !== expectedStopCount) ||
         stopIndex >= row.length) return null
