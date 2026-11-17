@@ -1,6 +1,6 @@
 const WALKABLE_HIGHWAYS = new Set([
   'footway', 'pedestrian', 'path', 'steps', 'living_street',
-  'residential', 'service', 'unclassified', 'tertiary', 'secondary', 'primary', 'trunk', 'trunk_link',
+  'residential', 'service', 'unclassified',
 ])
 const ALWAYS_MOTOR_ONLY = new Set(['motorway', 'motorway_link'])
 
@@ -12,8 +12,12 @@ export function isWalkableOsmWay(tags = {}) {
   if (['no', 'private'].includes(foot)) return false
   if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive', 'destination'].includes(foot)) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
-  const hasSidewalk = ['yes', 'both', 'left', 'right', 'separate', 'designated'].includes(String(tags.sidewalk ?? '').toLowerCase())
-  if (['trunk', 'trunk_link'].includes(highway) && !hasSidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  const sidewalk = String(tags.sidewalk ?? '').toLowerCase()
+  const hasSidewalk = ['yes', 'both', 'left', 'right'].includes(sidewalk)
+    || ['yes', 'designated'].includes(String(tags['sidewalk:left'] ?? '').toLowerCase())
+    || ['yes', 'designated'].includes(String(tags['sidewalk:right'] ?? '').toLowerCase())
+  const majorRoad = ['tertiary', 'secondary', 'primary', 'trunk', 'trunk_link'].includes(highway)
+  if (majorRoad && !hasSidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
   if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !['yes', 'designated', 'permissive'].includes(foot)) return false
   return true
 }
