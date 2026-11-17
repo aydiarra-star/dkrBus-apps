@@ -47,6 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
+import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { PlannerLegList } from './components/PlannerLegList'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { JourneyOptions } from './components/JourneyOptions'
@@ -2283,12 +2284,19 @@ function ExploreMobilityCountdowns({
                   )}
                 </span>
                 <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
-                  <strong>{passage ? formatPassageCountdown(passage.minutes) : '—'}</strong>
+                  <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
                   <small>{passage && clock
                     ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
                     : 'Aucun créneau déclaré'}</small>
                 </span>
               </button>
+              {isSelected && (
+                <div className="network-summary-detail">
+                  {(id === 'ter' || id === 'brt')
+                    ? <ReferenceStationBoard network={id} now={now} />
+                    : <EstimatedLineScheduleBoard network={id} />}
+                </div>
+              )}
             </li>
           )
         })}
@@ -2297,9 +2305,54 @@ function ExploreMobilityCountdowns({
   )
 }
 
+function ReferenceStationBoard({ network, now }: { network: 'ter' | 'brt'; now: number }) {
+  const boards = boardLinesForNetwork(network)
+    .map((line) => buildStationBoard(line, now))
+    .filter((board): board is StationBoard => board !== null)
+
+  return (
+    <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
+      {boards.map((board) => (
+        <div className="station-board-line" key={board.line.id}>
+          <div className="station-direction station-direction-outbound">
+            <header className="station-direction-head">
+              <span className="station-direction-kicker">Direction Aller</span>
+              <strong className="station-direction-route">{board.originStop.name} ➔ {board.destinationStop.name}</strong>
+            </header>
+            {board.rows.map((row) => (
+              <div className="station-board-row" key={row.stop.id}>
+                <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
+                <span className={`network-summary-passage station-board-passage${row.outbound ? '' : ' is-undeclared'}`} role="status">
+                  <strong>{row.outbound ? <><PassageArcs />{formatPassageCountdown(row.outbound.minutes)}</> : 'Terminus'}</strong>
+                  <small>{row.outbound ? `créneau ${row.outbound.nextDepartureAt.slice(11, 16)} · ${row.outbound.headwayMinutes} min` : 'Terminus'}</small>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="station-direction station-direction-inbound">
+            <header className="station-direction-head">
+              <span className="station-direction-kicker">Direction Retour</span>
+              <strong className="station-direction-route">{board.destinationStop.name} ➔ {board.originStop.name}</strong>
+            </header>
+            {[...board.rows].reverse().map((row) => (
+              <div className="station-board-row" key={row.stop.id}>
+                <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
+                <span className={`network-summary-passage station-board-passage${row.inbound ? '' : ' is-undeclared'}`} role="status">
+                  <strong>{row.inbound ? <><PassageArcs />{formatPassageCountdown(row.inbound.minutes)}</> : 'Terminus'}</strong>
+                  <small>{row.inbound ? `créneau ${row.inbound.nextDepartureAt.slice(11, 16)} · ${row.inbound.headwayMinutes} min` : 'Terminus'}</small>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ExploreNetworkLegend() {
   return (
-    <section className="explore-network-legend" aria-label="Réseaux de références">
+    <section className="explore-network-legend" aria-label="Réseaux de référence">
       <strong className="explore-network-legend-title">Réseaux de références</strong>
       <div className="explore-network-legend-row">
         {MOBILITY_IDS.map((id) => (
