@@ -73,3 +73,20 @@ https://apps.apple.com/fr/app/dem-dikk/id6476461159
 Cette date est plus récente que la dernière modification de la couche ArcGIS d'arrêts (24 septembre 2024). Elle est donc adoptée dans l'inventaire des sources comme **preuve d'une version applicative DDD plus récente**, et comme piste prioritaire pour retrouver les données cartographiques de l'application.
 
 Limite technique à conserver : la fiche App Store décrit les fonctionnalités et la version de l'application, mais ne publie pas le jeu de données des arrêts, son horodatage de mise à jour, ni un export réutilisable. Elle ne suffit donc pas à remplacer les 777 entités ArcGIS déjà extraites. Tant que les données cartographiques de cette application ne sont pas accessibles et vérifiables, les arrêts ArcGIS 2024 restent conservés ; les lignes/terminus publiés sur la page officielle Info voyageurs et le guide officiel JOJ 2026 servent de contrôles complémentaires.
+
+
+## Précision de datation — application DDD et page Info voyageurs (17 novembre 2026)
+
+La page officielle DDD consacrée à la nouvelle application mobile indique explicitement que celle-ci est disponible depuis le **3 septembre 2025** :
+https://demdikk.sn/v2appmobile/
+
+La fiche App Store indique séparément la version **2025.4.1 du 2 octobre 2025** :
+https://apps.apple.com/fr/app/dem-dikk/id6476461159
+
+Ces dates ne sont pas contradictoires : le 3 septembre 2025 est la date de disponibilité annoncée sur le site DDD ; le 2 octobre 2025 est la date de publication de la version App Store 2025.4.1. La nouvelle application annonce une carte interactive des lignes et arrêts urbains et la géolocalisation des arrêts proches.
+
+**Décision de source :** ces deux références sont adoptées comme preuves datées d'une version applicative DDD postérieure à la couche ArcGIS de septembre 2024. Elles deviennent une piste prioritaire pour retrouver un export ou un service cartographique plus récent. Elles ne prouvent toutefois pas la date de mise à jour des données internes de la carte et ne livrent pas les coordonnées/identifiants des arrêts. En conséquence, la couche ArcGIS 2024 reste conservée comme base géographique sourcée jusqu'à récupération et comparaison d'un jeu de données plus récent et exploitable.
+
+La page officielle « Info voyageurs » actuellement accessible expose des lignes et terminus complémentaires :
+https://demdikk.sn/info-voyageurs/
+La date de consultation est le **17 novembre 2026** ; aucune date de dernière mise à jour éditoriale n'est affichée. Ne pas attribuer à cette page une date de publication non démontrée.
