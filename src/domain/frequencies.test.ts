@@ -30,20 +30,23 @@ describe('références officielles de fréquence', () => {
     expect(brt.label).toBe('Toutes les 6 minutes')
   })
 
-  it('représente les trois périodes TER distinctement', () => {
-    const [daytime, evening, sundayAndHoliday] = OFFICIAL_REFERENCE_FREQUENCIES.ter
-    expect([daytime.headwayMinutes, evening.headwayMinutes, sundayAndHoliday.headwayMinutes]).toEqual([10, 20, 20])
-    expect([daytime.serviceStart, daytime.serviceEnd]).toEqual(['05:30', '21:00'])
-    expect([evening.serviceStart, evening.serviceEnd]).toEqual(['21:00', '22:00'])
-    expect([sundayAndHoliday.serviceStart, sundayAndHoliday.serviceEnd]).toEqual(['06:30', '22:00'])
-    expect(daytime.days).toEqual(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'])
-    expect(evening.days).toEqual(daytime.days)
-    expect(daytime.excludesPublicHolidays).toBe(true)
-    expect(evening.excludesPublicHolidays).toBe(true)
-    expect(sundayAndHoliday.days).toEqual(['SUN'])
-    expect(sundayAndHoliday.appliesToPublicHolidays).toBe(true)
-    expect(daytime.status).toBe('OFFICIAL_REFERENCE')
-    expect(daytime.source).toMatchObject({
+  it('distingue les fréquences TER par segment et par jour', () => {
+    const [weekdayTrunk, weekdayAirport, sundayTrunk, sundayAirport] = OFFICIAL_REFERENCE_FREQUENCIES.ter
+    expect([weekdayTrunk.headwayMinutes, weekdayAirport.headwayMinutes, sundayTrunk.headwayMinutes, sundayAirport.headwayMinutes]).toEqual([8, 24, 20, 30])
+    expect([weekdayTrunk.serviceStart, weekdayTrunk.serviceEnd]).toEqual(['05:35', '22:00'])
+    expect([weekdayAirport.serviceStart, weekdayAirport.serviceEnd]).toEqual(['05:35', '22:00'])
+    expect([sundayTrunk.serviceStart, sundayTrunk.serviceEnd]).toEqual(['06:30', '22:00'])
+    expect([sundayAirport.serviceStart, sundayAirport.serviceEnd]).toEqual(['06:17', '22:00'])
+    expect(weekdayTrunk.routeSegment).toBe('DAKAR_DIAMNIADIO')
+    expect(weekdayAirport.routeSegment).toBe('DIAMNIADIO_AIBD')
+    expect(sundayTrunk.routeSegment).toBe('DAKAR_DIAMNIADIO')
+    expect(sundayAirport.routeSegment).toBe('DIAMNIADIO_AIBD')
+    expect(weekdayTrunk.days).toEqual(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'])
+    expect(sundayAirport.days).toEqual(['SUN'])
+    expect(sundayAirport.appliesToPublicHolidays).toBe(true)
+    expect(weekdayTrunk.excludesPublicHolidays).toBe(true)
+    expect(weekdayTrunk.status).toBe('SCHEDULED')
+    expect(weekdayTrunk.source).toMatchObject({
       authority: 'TER_DAKAR',
       sourceUrl: 'https://www.senersa.sn',
       verifiedAt: null,
@@ -119,7 +122,7 @@ describe('références officielles de fréquence', () => {
         validUntil: '2026-12-02T00:00:00Z',
       },
     }
-    expect(permanent.headwayMinutes).toBe(10)
+    expect(permanent.headwayMinutes).toBe(8)
     expect(exceptional.headwayMinutes).toBe(5)
     expect(exceptional.serviceVariant?.type).toBe('EXCEPTIONAL')
     // Aucun renfort (dont 3 min sur le BRT) n'est affirmé sans source vérifiée.
