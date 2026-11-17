@@ -10,6 +10,7 @@ from scripts.process_gtfs_staging import (
     EXPECTED_VALIDATOR_LIMITS,
     MAX_ARCHIVE_BYTES,
     MAX_MANIFEST_BYTES,
+    MAX_JSON_RESPONSE_BYTES,
     NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
@@ -301,6 +302,53 @@ class GTFSWorkerTests(unittest.TestCase):
                         client.authenticate()
                     self.assertIsNone(client.access_token)
 
+    def test_request_rejects_oversized_json_responses(self) -> None:
+        with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+            opener = Mock()
+            opener.open.return_value = io.BytesIO(b"x" * (MAX_JSON_RESPONSE_BYTES + 1))
+            build_opener.return_value = opener
+            client = SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                "test-anon-key",
+                "worker@example.invalid",
+                "synthetic-password",
+            )
+            client.access_token = "synthetic-access-token"
+            with self.assertRaisesRegex(WorkerError, "SUPABASE_RESPONSE_TOO_LARGE"):
+                client.request("/rest/v1/rpc/claim", method="POST", payload={})
+
+    def test_manifest_download_uses_its_canonical_path_and_size_limit(self) -> None:
+        manifest_path = f"synthetic-feed/{VALID_SHA}/manifest.json"
+        with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+            opener = Mock()
+            opener.open.return_value = io.BytesIO(b'{"synthetic":true}')
+            build_opener.return_value = opener
+            client = SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                "test-anon-key",
+                "worker@example.invalid",
+                "synthetic-password",
+            )
+            client.access_token = "synthetic-access-token"
+            payload = client.download(STAGING_BUCKET, manifest_path, max_bytes=MAX_MANIFEST_BYTES)
+            self.assertEqual(payload, b'{"synthetic":true}')
+            request = opener.open.call_args.args[0]
+            self.assertIn("/dakar-gtfs-staging/" + manifest_path, request.full_url)
+
+        with patch("scripts.process_gtfs_staging.urllib.request.build_opener") as build_opener:
+            opener = Mock()
+            opener.open.return_value = io.BytesIO(b"x" * (MAX_MANIFEST_BYTES + 1))
+            build_opener.return_value = opener
+            client = SupabaseRest(
+                f"https://{SUPABASE_HOST}",
+                "test-anon-key",
+                "worker@example.invalid",
+                "synthetic-password",
+            )
+            client.access_token = "synthetic-access-token"
+            with self.assertRaisesRegex(WorkerError, "MANIFEST_TOO_LARGE"):
+                client.download(STAGING_BUCKET, manifest_path, max_bytes=MAX_MANIFEST_BYTES)
+
     def test_request_requires_a_dedicated_worker_access_token(self) -> None:
         client = SupabaseRest(
             f"https://{SUPABASE_HOST}",
@@ -352,12 +400,12 @@ class GTFSWorkerTests(unittest.TestCase):
         job = valid_job()
         client = Mock()
         client.claim.return_value = job
-        client.download.side_effect = WorkerError("ARCHIVE_DOWNLOAD_FAILED")
+        client.download.side_effect = WorkerError("MANIFEST_DOWNLOAD_FAILED")
 
-        with self.assertRaisesRegex(WorkerError, "ARCHIVE_DOWNLOAD_FAILED"):
+        with self.assertRaisesRegex(WorkerError, "MANIFEST_DOWNLOAD_FAILED"):
             process_one(client)
 
-        client.fail.assert_called_once_with(job, "ARCHIVE_DOWNLOAD_FAILED")
+        client.fail.assert_called_once_with(job, "MANIFEST_DOWNLOAD_FAILED")
         client.complete.assert_not_called()
 
     def test_failure_rpc_uses_only_the_claimed_dataset_and_lease(self) -> None:
