@@ -1667,9 +1667,9 @@ function App() {
                   type="button"
                   className="map-legend-badge-button"
                   onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
-                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
+                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()}`}
                 >
-                  <MobilityBadge id={id} />
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
                 </button>
               ))}
             </div>
@@ -2305,7 +2305,7 @@ function ExploreNetworkLegend() {
         {MOBILITY_IDS.map((id) => (
           <div className={`explore-network-legend-item mobility-${id}`} key={id}>
             <span className="route-coverage-item">
-              <MobilityBadge id={id} />
+              <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
               <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
             </span>
           </div>
