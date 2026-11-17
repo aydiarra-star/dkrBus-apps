@@ -7,9 +7,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const LEADING_TRANSPORT_PREFIXES = /^(?:(?:arret(?: de bus)?|bus stop|stop|station|terminus)\\s+)+/;
+const LEADING_TRANSPORT_PREFIXES = /^(?:(?:arret(?: de bus)?|bus stop|stop|station|terminus)\s+)+/;
 export function normalizeStopName(value) {
-  const normalized = String(value ?? '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+  const normalized = String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   return normalized.replace(LEADING_TRANSPORT_PREFIXES, '').trim();
 }
