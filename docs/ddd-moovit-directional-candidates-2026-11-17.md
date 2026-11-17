@@ -91,4 +91,6 @@ Les exemples des deux premières lignes sont utilisés dans les tests de non-ré
 - Les grilles ont des cadences variables et des heures propres à chaque arrêt. Le calcul doit donc sélectionner la prochaine heure de la colonne de l'arrêt concerné, sans interpolation uniforme.
 - Les pages ne fournissent pas de grille dimanche : ne pas déduire un service dominical ni fabriquer des horaires ce jour-là.
 
+**Couverture structurée enregistrée dans le code :** les métadonnées des deux sens de la ligne 13 conservent maintenant séparément le nombre de départs et les bornes de service par jour : Liberté 5 → Palais (semaine 53, 06:00–20:30 ; samedi 37, 06:30–20:35) ; Palais → Liberté 5 (semaine 49, 06:45–21:00 ; samedi 43, 07:00–21:00). Des tests vérifient ces quatre couvertures et leur rattachement au bon sens. Ces métadonnées ne sont pas les matrices de passage elles-mêmes.
+
 **Limite avant activation :** l'extraction exhaustive a été vérifiée dans les pages sources, mais les quatre matrices complètes ne sont pas encore intégrées comme données structurées versionnées dans le dépôt. Les tests actuels ne couvrent que des lignes d'exemple. Aucune grille ne doit donc être présentée comme intégrée ni activée dans l'application passager avant sa transcription contrôlée, ses tests de cohérence et le rapprochement de chaque colonne avec les arrêts de la séquence.
