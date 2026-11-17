@@ -42,7 +42,7 @@ def is_walkable(tags: dict[str, str]) -> bool:
     )
     if highway in MAJOR_ROADS and not has_sidewalk and not foot_permitted:
         return False
-    if highway == "service" and str(tags.get("service", "")) in {"driveway", "parking_aisle", "private"} and foot not in {"yes", "designated", "permissive"}:
+    if highway == "service" and str(tags.get("service", "")) in {"driveway", "parking_aisle", "private"} and not foot_permitted:
         return False
     return True
 
