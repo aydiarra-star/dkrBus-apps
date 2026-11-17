@@ -8,11 +8,11 @@ const BLOCKING_BARRIERS = new Set(['fence', 'wall', 'retaining_wall', 'city_wall
 export function isWalkableOsmWay(tags = {}) {
   const highway = String(tags.highway ?? '')
   if (!WALKABLE_HIGHWAYS.has(highway)) return false
-  const foot = String(tags.foot || tags['foot:access'] || '').toLowerCase()
+  const footAccess = [tags.foot, tags['foot:access']].filter(Boolean).map(value => String(value).toLowerCase())
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
-  if (['no', 'private'].includes(foot)) return false
-  if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive', 'destination'].includes(foot)) return false
+  if (footAccess.some(value => ['no', 'private'].includes(value))) return false
+  if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive', 'destination'].includes(value))) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
   const sidewalk = String(tags.sidewalk ?? '').toLowerCase()
   const hasSidewalk = ['yes', 'both', 'left', 'right'].includes(sidewalk)
@@ -25,11 +25,11 @@ export function isWalkableOsmWay(tags = {}) {
 }
 
 export function isWalkableOsmNode(tags = {}) {
-  const foot = String(tags.foot || tags['foot:access'] || '').toLowerCase()
+  const footAccess = [tags.foot, tags['foot:access']].filter(Boolean).map(value => String(value).toLowerCase())
   const access = String(tags.access ?? '').toLowerCase()
   if (tags['foot:conditional']) return false
-  if (['no', 'private'].includes(foot)) return false
-  if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  if (footAccess.some(value => ['no', 'private'].includes(value))) return false
+  if (['no', 'private'].includes(access) && !footAccess.some(value => ['yes', 'designated', 'permissive'].includes(value))) return false
   const barrier = String(tags.barrier ?? '').toLowerCase()
   if (BLOCKING_BARRIERS.has(barrier) && !['yes', 'designated', 'permissive'].includes(foot)) return false
   return true
