@@ -12,7 +12,8 @@ export function isWalkableOsmWay(tags = {}) {
   if (['no', 'private'].includes(foot)) return false
   if (['no', 'private'].includes(access) && !['yes', 'designated', 'permissive', 'destination'].includes(foot)) return false
   if (ALWAYS_MOTOR_ONLY.has(highway)) return false
-  if (['trunk', 'trunk_link'].includes(highway) && !tags.sidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
+  const hasSidewalk = ['yes', 'both', 'left', 'right', 'separate', 'designated'].includes(String(tags.sidewalk ?? '').toLowerCase())
+  if (['trunk', 'trunk_link'].includes(highway) && !hasSidewalk && !['yes', 'designated', 'permissive'].includes(foot)) return false
   if (highway === 'service' && ['driveway', 'parking_aisle', 'private'].includes(String(tags.service ?? '')) && !['yes', 'designated', 'permissive'].includes(foot)) return false
   return true
 }
