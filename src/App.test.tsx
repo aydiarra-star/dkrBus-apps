@@ -1266,7 +1266,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
 
   it('décline les créneaux TER station par station et sens par sens', async () => {
     vi.useFakeTimers()
-    // Jeudi 8 octobre 2026, 12:00 UTC : grille TER de 10 min en service.
+    // Jeudi 8 octobre 2026, 12:00 UTC : grille TER de 8 min en service.
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
@@ -1314,7 +1314,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneTimes = () => [colobaneOut, colobaneIn].map((row) => row.querySelector('.station-board-passage > strong')!.textContent)
     // Les créneaux par station descendent au même rythme que les réseaux.
     // (Avancement par pas : chaque tic réarme le suivant après le rendu.)
-    expect(colobaneTimes()).toEqual(['3 min', '4 min'])
+    expect(colobaneTimes()).toEqual(['2 min', '1 min'])
     for (let step = 0; step < 20; step += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(2_000)
