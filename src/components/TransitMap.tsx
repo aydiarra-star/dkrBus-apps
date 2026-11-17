@@ -14,6 +14,7 @@ import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIE
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
+import type { HighlightedJourneyRouteSegment } from '../domain/journeyRouteGeometry'
 
 export interface Coordinates {
   lat: number
@@ -44,8 +45,8 @@ interface TransitMapProps {
   routePoints: Partial<Record<RoutePointKey, Coordinates>>
   /** Géométrie routière complète calculée depuis la recherche de lieux. */
   searchRoute?: readonly Coordinates[] | null
-  /** Lignes et arrêts du premier itinéraire multimodal calculé. */
-  highlightedLineIds?: readonly string[]
+  /** Portions exactes des jambes dont la géométrie directionnelle a été auditée. */
+  highlightedRouteSegments?: readonly HighlightedJourneyRouteSegment[]
   highlightedStopIds?: readonly string[]
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
@@ -345,7 +346,7 @@ function TransitMapView({
   initialBounds = null,
   corridorLines = [],
   corridorStops = [],
-  highlightedLineIds = [],
+  highlightedRouteSegments = [],
   highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
@@ -539,7 +540,6 @@ function TransitMapView({
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
-  const highlightedLineIdSet = useMemo(() => new Set(highlightedLineIds), [highlightedLineIds])
   const highlightedStopIdSet = useMemo(() => new Set(highlightedStopIds), [highlightedStopIds])
   const corridorStopsToRender = useMemo(
     () => uniqueCorridorStops.filter((stop) => {
@@ -757,32 +757,29 @@ function TransitMapView({
             </Polyline>
           ))
         })}
-      {/* Mise en évidence du trajet calculé : mêmes géométries de référence, sans les remplacer. */}
-      {corridorLineStops
-        .filter(({ line, positions }) =>
-          highlightedLineIdSet.has(line.id) &&
-          (line.network === 'ter' || line.network === 'brt') &&
-          positions.length > 1
-        )
-        .flatMap(({ line, positions, additionalPositions }) => {
-          const paint = paintFor(line.network)
-          const tracks = [positions, ...(additionalPositions ?? [])]
-          const isContinuousTrack = line.network === 'ter' || line.network === 'brt'
-          return tracks.flatMap((track, directionIndex) => [
-            <Polyline
-              key={`journey-halo-${line.id}-${directionIndex}`}
-              positions={track}
-              interactive={false}
-              pathOptions={{ color: '#ffffff', weight: isContinuousTrack ? 8 : 6, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
-            />,
-            <Polyline
-              key={`journey-line-${line.id}-${directionIndex}`}
-              positions={track}
-              interactive={false}
-              pathOptions={{ color: paint?.core ?? line.color, weight: isContinuousTrack ? 5.5 : 4, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
-            />,
-          ])
-        })}
+      {/* Le trajet calculé n'accentue que les portions exactes découpées
+          depuis une géométrie directionnelle validée. Aucune ligne entière
+          n'est mise en avant comme substitut à la jambe réellement parcourue. */}
+      {highlightedRouteSegments.flatMap((segment) => {
+        if (segment.positions.length < 2) return []
+        const paint = paintFor(segment.network)
+        if (!paint) return []
+        const positions = segment.positions as [number, number][]
+        return [
+          <Polyline
+            key={`journey-segment-halo-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.98, lineCap: 'round', lineJoin: 'round' }}
+          />,
+          <Polyline
+            key={`journey-segment-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: paint.core, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+          />,
+        ]
+      })}
       {corridorStops
         .filter((stop) => highlightedStopIdSet.has(stop.id))
         .map((stop) => {
