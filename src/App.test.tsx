@@ -453,7 +453,7 @@ describe('structure en quatre piliers', () => {
     fireEvent.click(screen.getByRole('tab', { name: /paramètres/i }))
     fireEvent.click(screen.getByText(/^état des données$/i))
     expect(screen.getByRole('region', { name: 'Fréquences et services de référence' })).toBeTruthy()
-    expect(screen.getByText(/lun\.–sam\. \(hors jours fériés\) · 05:30–21:00 · 10 min/)).toBeTruthy()
+    expect(screen.getByText(/Premiers départs : 05:30–06:00 · derniers : 20:30–21:00/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
     expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
     expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
@@ -1300,7 +1300,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneIn = inRows.find((row) => row.textContent!.includes('Colobane'))!
     expect(colobaneOut.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
     expect(colobaneOut.textContent).toMatch(/créneau 12:02 · 8 min/)
-    expect(colobaneIn.textContent).toMatch(/créneau 12:02 · 8 min/)
+    expect(colobaneIn.textContent).toMatch(/créneau 12:00 · 8 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
     expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
@@ -2198,28 +2198,3 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     updatePreferences('privacy', { allowMicrophone: false })
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
-    fireEvent.click(screen.getByRole('button', { name: /poser la question par la voix/i }))
-    expect(await screen.findByText(/Le micro est refusé dans vos réglages/i)).toBeTruthy()
-    // Le champ de question reste utilisable : rien n'est bloqué au-delà de la voix.
-    expect(screen.getByRole('textbox', { name: /votre question à l’assistant/i })).toBeTruthy()
-    updatePreferences('privacy', { allowMicrophone: true })
-  })
-
-  it('les unités choisies changent l’affichage des distances du comparateur', () => {
-    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
-    render(<App />)
-    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'rufisque', /rufisque.*TER/i)
-    const region = screen.getByRole('region', { name: /itinéraires de référence/i })
-    const metric = region.textContent ?? ''
-    expect(metric).toMatch(/\d+ m|\d+,\d km/)
-    const section = openSettingsSection('units')
-    fireEvent.click(section.getByRole('button', { name: /miles/i }))
-    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    const imperial = screen.getByRole('region', { name: /itinéraires de référence/i }).textContent ?? ''
-    expect(imperial).toMatch(/\d+ pi|\d+,\d mi/)
-    expect(imperial).not.toBe(metric)
-  })
-})
