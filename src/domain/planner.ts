@@ -45,7 +45,6 @@ import {
   CORRIDOR_LINES,
   TRANSFER_INDEX,
   getCorridorStop,
-  haversineMeters,
   networkOfStopId,
   type CorridorLine,
   type CorridorStop,
@@ -372,7 +371,6 @@ function planWith(
   const fareWeight = FARE_WEIGHT[priority]
   const walkSpeed = options.walkSpeedMpm
   const allowed = options.allowedNetworks
-  const maxAccessM = Math.max(1, options.maxAccessM)
   if (Math.abs(origin.lat - destination.lat) < 1e-9 && Math.abs(origin.lon - destination.lon) < 1e-9) {
     return { ok: false, reason: 'SAME_POINT', message: 'Le départ et la destination sont identiques : aucun trajet à calculer.' }
   }
@@ -395,8 +393,8 @@ function planWith(
       ok: false,
       reason: 'NO_ACCESSIBLE_STOP',
       message: allowed
-        ? `Aucun arrêt des réseaux autorisés à moins de ${formatMeters(maxAccessM)} de ${side}. Élargissez le rayon de marche ou réactivez un réseau dans Paramètres → Préférences de mobilité.`
-        : `Aucun arrêt du réseau de référence à moins de ${formatMeters(maxAccessM)} de ${side}.${networkHint}`,
+        ? `Aucun arrêt exact sélectionné pour ${side} sur les réseaux autorisés. Sélectionnez une station ou un arrêt identifié ; aucun accès piéton en ligne droite n’est supposé.`
+        : `Aucun arrêt exact sélectionné pour ${side} sur le réseau de référence. Sélectionnez une station ou un arrêt identifié ; aucun accès piéton en ligne droite n’est supposé.${networkHint}`,
     }
   }
 
