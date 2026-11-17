@@ -13,21 +13,6 @@ const endpoints = [
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
   'https://overpass-api.de/api/interpreter',
 ]
-const requests = endpoints.map(async endpoint => {
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      'User-Agent': 'DakarBus-read-only-pedestrian-graph/1.0 (+https://github.com/aydiarra-star/dkrBus-apps)',
-    },
-    body: new URLSearchParams({ data: query }),
-    signal: AbortSignal.timeout(70000),
-  })
-  if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`)
-  const data = await response.json()
-  if (!Array.isArray(data.elements)) throw new Error(`${endpoint}: missing elements`)
-  return { endpoint, data }
-})
 let source
 const pbfWaysPath = process.env.DAKAR_OSM_WAYS_JSON
 if (pbfWaysPath) {
@@ -35,6 +20,23 @@ if (pbfWaysPath) {
   if (!Array.isArray(data.elements)) throw new Error('Le fichier PBF préparé ne contient pas de tableau elements.')
   source = { endpoint: data.endpoint ?? 'Geofabrik OSM PBF', data }
 } else {
+  // Ne démarrer les appels réseau Overpass que si aucun extrait PBF local n'est fourni.
+  // Sinon leurs rejets non consommés peuvent faire échouer Node malgré le PBF valide.
+  const requests = endpoints.map(async endpoint => {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'User-Agent': 'DakarBus-read-only-pedestrian-graph/1.0 (+https://github.com/aydiarra-star/dkrBus-apps)',
+      },
+      body: new URLSearchParams({ data: query }),
+      signal: AbortSignal.timeout(70000),
+    })
+    if (!response.ok) throw new Error(`${endpoint}: HTTP ${response.status}`)
+    const data = await response.json()
+    if (!Array.isArray(data.elements)) throw new Error(`${endpoint}: missing elements`)
+    return { endpoint, data }
+  })
   try {
     source = await Promise.any(requests)
   } catch (error) {
