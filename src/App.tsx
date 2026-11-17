@@ -47,6 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
+import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { PlannerLegList } from './components/PlannerLegList'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { JourneyOptions } from './components/JourneyOptions'
@@ -1667,9 +1668,9 @@ function App() {
                   type="button"
                   className="map-legend-badge-button"
                   onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
-                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
+                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()}`}
                 >
-                  <MobilityBadge id={id} />
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
                 </button>
               ))}
             </div>
@@ -1799,6 +1800,9 @@ function App() {
               searchInputRef={searchInputRef}
               savedDestinations={savedDestinations}
               onChooseShortcut={chooseDestinationShortcut}
+              countdownNow={countdownNow}
+              selectedNetwork={selectedExploreNetwork}
+              onSelectNetwork={handleSelectExploreNetwork}
             />
           )}
 
@@ -2021,6 +2025,9 @@ function ExplorerPanel({
   searchInputRef,
   savedDestinations,
   onChooseShortcut,
+  countdownNow,
+  selectedNetwork,
+  onSelectNetwork,
 }: {
   gpsState: GpsState
   gpsMessage: string | null
@@ -2038,6 +2045,9 @@ function ExplorerPanel({
   searchInputRef: { current: HTMLInputElement | null }
   savedDestinations: Partial<Record<DestinationShortcutId, MapPoint>>
   onChooseShortcut: (id: DestinationShortcutId) => void
+  countdownNow: number
+  selectedNetwork: NetworkId | null
+  onSelectNetwork: (id: NetworkId) => void
 }) {
   const [proximityOpen, setProximityOpen] = useState(false)
   const [proximityDismissed, setProximityDismissed] = useState(false)
@@ -2229,19 +2239,129 @@ function ExplorerPanel({
       </div>
 
       <ExploreNetworkLegend />
+      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
     </section>
+  )
+}
+
+function ExploreMobilityCountdowns({
+  now,
+  selectedNetwork,
+  onSelectNetwork,
+  onFocusNearbyStop,
+}: {
+  now: number
+  selectedNetwork: NetworkId | null
+  onSelectNetwork: (id: NetworkId) => void
+  onFocusNearbyStop: (stop: CorridorStop) => void
+}) {
+  return (
+    <section className="network-summary-section" aria-label="Prochains passages des mobilités">
+      <div className="network-summary-heading">
+        <strong>Prochains passages</strong>
+        <span>Horaires de référence</span>
+      </div>
+      <ul className="network-summary-list" aria-label="Comptes à rebours des mobilités">
+        {MOBILITY_IDS.map((id) => {
+          const network = NETWORK_REFERENCE_DATA[id]
+          const passage = id === 'ter' || id === 'brt'
+            ? nextReferencePassage(network.officialFrequencies, now)
+            : estimatedNextPassage(id, now)
+          const clock = passage?.nextDepartureAt.slice(11, 16) ?? null
+          const isSelected = selectedNetwork === id
+          return (
+            <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
+              <button
+                type="button"
+                className="network-summary-header"
+                aria-pressed={isSelected}
+                aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU' : network.shortName}`}
+                onClick={() => onSelectNetwork(id)}
+              >
+                <span className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`} aria-hidden="true" />
+                <span className="network-summary-name">
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
+                  {id !== 'aftu_tata' && network.label !== network.shortName && (
+                    <span className="network-summary-fullname">{network.label}</span>
+                  )}
+                </span>
+                <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
+                  <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
+                  <small>{passage && clock
+                    ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
+                    : 'Aucun créneau déclaré'}</small>
+                </span>
+              </button>
+              {isSelected && (
+                <div className="network-summary-detail">
+                  {(id === 'ter' || id === 'brt')
+                    ? <ReferenceStationBoard network={id} now={now} onSelectStop={onFocusNearbyStop} />
+                    : <EstimatedLineScheduleBoard network={id} />}
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
+
+function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' | 'brt'; now: number; onSelectStop: (stop: CorridorStop) => void }) {
+  const boards = boardLinesForNetwork(network)
+    .map((line) => buildStationBoard(line, now))
+    .filter((board): board is StationBoard => board !== null)
+
+  return (
+    <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
+      <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ Diamniadio' : 'Petersen ↔ Guédiawaye'}</p>
+      {boards.map((board) => (
+        <div className="station-board-line" key={board.line.id}>
+          <div className="station-direction station-direction-outbound">
+            <header className="station-direction-title station-board-head">
+              <span className="station-direction-kicker">Direction Aller</span>
+              <strong className="station-direction-route">{network === 'ter' ? 'Dakar' : 'Petersen'} ➔ {network === 'ter' ? 'AIBD' : 'Guédiawaye'}</strong>
+            </header>
+            {board.rows.map((row) => (
+              <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
+                <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
+                <span className={`network-summary-passage station-board-passage${row.outbound ? '' : ' is-undeclared'}`} role="status">
+                  <strong>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.outbound.minutes)}</>) : 'Terminus'}</strong>
+                  <small>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.outbound.nextDepartureAt.slice(11, 16)} · ${row.outbound.headwayMinutes} min`) : 'Terminus'}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="station-direction station-direction-inbound">
+            <header className="station-direction-title station-board-head">
+              <span className="station-direction-kicker">Direction Retour</span>
+              <strong className="station-direction-route">{network === 'ter' ? 'AIBD' : 'Guédiawaye'} ➔ {network === 'ter' ? 'Dakar' : 'Petersen'}</strong>
+            </header>
+            {[...board.rows].reverse().map((row) => (
+              <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
+                <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
+                <span className={`network-summary-passage station-board-passage${row.inbound ? '' : ' is-undeclared'}`} role="status">
+                  <strong>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.inbound.minutes)}</>) : 'Terminus'}</strong>
+                  <small>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.inbound.nextDepartureAt.slice(11, 16)} · ${row.inbound.headwayMinutes} min`) : 'Terminus'}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
 function ExploreNetworkLegend() {
   return (
-    <section className="explore-network-legend" aria-label="Légende des réseaux">
-      <strong className="explore-network-legend-title">Légende des réseaux</strong>
+    <section className="explore-network-legend" aria-label="Réseaux de référence">
+      <strong className="explore-network-legend-title">Réseaux de références</strong>
       <div className="explore-network-legend-row">
         {MOBILITY_IDS.map((id) => (
           <div className={`explore-network-legend-item mobility-${id}`} key={id}>
             <span className="route-coverage-item">
-              <MobilityBadge id={id} />
+              <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
               <span className={`route-coverage-bar mobility-${id}`} aria-hidden="true" />
             </span>
           </div>

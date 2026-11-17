@@ -1412,6 +1412,68 @@ button:disabled { cursor: not-allowed; }
   line-height: 1.4;
 }
 
+/* Bandeau horizontal des réseaux de référence : quatre colonnes régulières,
+   libellés complets et tracés couleur alignés sous chaque mobilité. */
+.explore-network-legend {
+  margin-top: 2px;
+}
+.explore-network-legend-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+}
+.explore-network-legend-item {
+  min-width: 0;
+}
+.explore-network-legend-item .route-coverage-item {
+  width: 100%;
+  min-width: 0;
+  align-items: stretch;
+}
+.explore-network-legend-item .mobility-badge {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 25px;
+  padding: 4px 3px;
+  overflow: visible;
+  font-size: 9.5px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-overflow: clip;
+}
+.explore-network-legend-item .mobility-aftu_tata {
+  max-width: none;
+  width: 100%;
+}
+.explore-network-legend-item .route-coverage-bar {
+  width: 100%;
+  height: 4px;
+  min-height: 4px;
+}
+.network-summary-name {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+.network-summary-fullname {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 360px) {
+  .explore-network-legend-row { gap: 4px; }
+  .explore-network-legend-item .mobility-badge { font-size: 8.5px; }
+}
 .network-summary-section { display: grid; margin-top: 0; gap: 4px; }
 .network-summary-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .network-summary-heading strong { color: var(--text); font-family: Manrope, sans-serif; font-size: 13.5px; font-weight: 800; letter-spacing: -.01em; }
