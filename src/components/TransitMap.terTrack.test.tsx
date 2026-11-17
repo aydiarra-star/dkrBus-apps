@@ -53,7 +53,11 @@ vi.mock('react-leaflet', () => {
 
 import { TransitMap } from './TransitMap'
 
-function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CORRIDOR_STOPS) {
+function drawMap(
+  lines: readonly CorridorLine[] = CORRIDOR_LINES,
+  stops = ALL_CORRIDOR_STOPS,
+  highlightedLineIds: readonly string[] = [],
+) {
   drawn.polylines.length = 0
   drawn.markers.length = 0
   render(
@@ -66,6 +70,7 @@ function drawMap(lines: readonly CorridorLine[] = CORRIDOR_LINES, stops = ALL_CO
       onChoosePoint={() => undefined}
       corridorLines={lines}
       corridorStops={stops}
+      highlightedLineIds={highlightedLineIds}
     />,
   )
   return drawn.polylines.filter((polyline) => (polyline as DrawnPolyline).pathOptions.className !== 'mobility-route-flow') as DrawnPolyline[]
@@ -238,6 +243,12 @@ describe('carte : les autres mobilités ne changent pas', () => {
     const lines = lineOf(network)
     expect(lines.length).toBeGreaterThan(0)
     expect(drawMap(lines)).toHaveLength(0)
+  })
+
+  it.each(['ddd', 'aftu_tata'] as const)('ne dessine aucun trait droit même lorsque %s est sélectionné dans un itinéraire', (network) => {
+    const lines = lineOf(network)
+    const highlighted = lines.map((line) => line.id)
+    expect(drawMap(lines, ALL_CORRIDOR_STOPS, highlighted)).toHaveLength(0)
   })
 
   it('ne conserve sur la carte complète que les traits TER et BRT', () => {
