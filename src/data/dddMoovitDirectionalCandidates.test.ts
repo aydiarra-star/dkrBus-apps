@@ -46,7 +46,18 @@ describe('recent Moovit DDD directional candidates', () => {
     expect(line13.every((item) =>
       'timetableUrl' in item &&
       item.timetableUrl.startsWith('https://moovitapp.com/') &&
-      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY',
+      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY' &&
+      'timetableCoverageByDay' in item,
     )).toBe(true)
+    expect(line13.map((item) => item.timetableCoverageByDay)).toEqual([
+      {
+        weekday: { departureCount: 53, firstDeparture: '06:00', lastDeparture: '20:30' },
+        saturday: { departureCount: 37, firstDeparture: '06:30', lastDeparture: '20:35' },
+      },
+      {
+        weekday: { departureCount: 49, firstDeparture: '06:45', lastDeparture: '21:00' },
+        saturday: { departureCount: 43, firstDeparture: '07:00', lastDeparture: '21:00' },
+      },
+    ])
   })
 })
