@@ -1,7 +1,8 @@
 /**
- * Sources secondaires récentes qui exposent des séquences DDD séparées
- * par direction. Les listes de Moovit ne sont pas importées ici : elles
- * doivent être rapprochées des repères officiels et des géométries avant usage.
+ * Séquences directionnelles candidates de Moovit pour DDD 7 et 13.
+ * Source secondaire, consultée le 17 novembre 2026. Les noms génériques
+ * sont conservés comme occurrences anonymes ; aucune géolocalisation ou
+ * activation passager n'est déduite de ces listes.
  */
 export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
   {
@@ -13,6 +14,16 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-07',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-0',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
+    stops: [
+      'Gare Palais', 'Clinique Du Cap', 'Hôpital Le Dantec', 'Avenue Pasteur, 16',
+      'Rue De La République, 38', 'Avenue Du President Fr. Roosevelt, 8', 'Correction',
+      'Cimetiére', 'Rue FN 53, 20', 'Rue FN 47, 12', 'Arrêt De Bus',
+      'Route De La Corniche Ouest, 33', 'Rue David Diop, 26', 'Rue FN 20, 5',
+      'Rue FN 20, 20', 'Hopital Fann', 'Lycée Thierno', 'Rue FN 11, 22',
+      'Av. Anta Diop / Rue Niass', "Chef D' Etat Major", 'Rue Mz 165, 162',
+      'Hopital Militaire', 'Lycée Mermoz', 'Rue Okm 195', 'École Des Officiers',
+      'Arrêt De Bus', 'Arrêt De Bus', 'Rue Okm 237, 168', 'Rue Okm 60, 67',
+    ],
   },
   {
     line: '7',
@@ -23,6 +34,16 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-7-Dakar-5996-1618037-18051422-1',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
+    stops: [
+      'Rue Okm 60, 67', 'Rue Okm 237, 168', 'Arrêt De Bus', 'Arrêt De Bus',
+      'École De Officiers', 'Rue Okm 195, 9156', 'Avenue Cheikh Anta Diop, 48',
+      'Quartier Geille', 'Mosquée', 'International School', 'Av. Anta Diop / Rue 08',
+      'Rue FN 11, 22', 'Hopital Fann', 'Rue FN 20, 20', 'Rue FN 20, 5',
+      'Rue David Diop, 27', 'Route De La Corniche Ouest, 33', 'Arrêt De Bus',
+      'Rue FN 48, 6', 'Cimetiére', "Maison D'Arret",
+      'Avenue Du President Fr. Roosevelt, 8', 'Avenue Jean Jaures, 46',
+      'Avenue Pasteur, 16', 'Avenue Pasteur, 32', 'Avenue Pasteur, 43', 'Gare Palais',
+    ],
   },
   {
     line: '13',
@@ -33,6 +54,18 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-13-Dakar-5996-1618037-18051475-1',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
+    stops: [
+      'Terminus Liberté 5', 'Rue Dd 121, 2828', 'Arrêt De Bus', 'Ave. Mbacké / Rue 29',
+      'Rue Hlm 68, 309', 'Av. Mbacké / Rue 86', 'Mosquée', 'Rue Bis 33, 2747',
+      'Rue 29, 194', 'Av. Mbacké / Rue 90', 'Rue Hlm 225, 23',
+      'Av. Mbacké / Rue 231', 'Boulevard Du General De Gaulle, 15',
+      'Cem Mame Thierno', 'Rue Gib 32, 37', 'Arrêt De Bus', 'Triangle Sud',
+      'Allees Papa Gueye Fall, 36005', 'Avenue Faidherbe, 39', 'Avenue Faidherbe, 7',
+      'Boulevard El Hadj Djily Mbaye, 55', 'Allees Delmas, 1', 'Rue Malenfant, 17',
+      'Avenue Du Pr. L. Sedar Senghor 17', 'Avenue Du Pr. L. Sedar Senghor, 33',
+      'Avenue Nelson Mandela, 12', 'Avenue Pasteur, 16', 'Avenue Pasteur, 32',
+      'Avenue Pasteur, 43', 'Gare Palais',
+    ],
   },
   {
     line: '13',
@@ -43,6 +76,18 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-13-Dakar-5996-1618037-18051475-0',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
+    stops: [
+      'Gare Palais', 'Clinique Du Cap', 'Hôpital Le Dantec', 'Avenue Pasteur, 16',
+      'Avenue Nelson Mandela, 12', 'Rue Victor Hugo, 5', 'Rue Felix Faure, 7',
+      "Place De L' Independance", 'Allees Delmas, 1', 'Gare De Dakar',
+      'Avenue Faidherbe, 7', 'Rue Du Liban, 34', 'Allees Papa Gueye Fall, 36005',
+      'Boulevard Du General De Gaulle, 174', 'Rue Gib 32, 63',
+      "Av. Mbaké (Monument De L'Indépendance)", 'Boulevard Du General De Gaulle, 15',
+      'Boulevard Du General De Gaulle, 3', 'Rue Hlm 225, 23', 'Rue 9, 268',
+      'Ecolé', 'Av. Mbacké / Rue 194', 'Mosquée', 'Av. Mbacké / Rue 86',
+      'Rue Hlm 68, 309', 'Ave. Mbacké / Rue 29', 'Arrêt De Bus', 'Rue Dd 45, 387',
+      'Rue Dd 97, 28', 'Terminus Liberté 5',
+    ],
   },
 ] as const
 
