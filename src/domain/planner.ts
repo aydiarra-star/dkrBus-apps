@@ -15,9 +15,9 @@
  *   la fréquence de repli du modèle et le signale (`fallbacks`) avec une marge
  *   d'incertitude plus large — il ne présente jamais ce repli comme une
  *   information opérateur ;
- * - les transferts de marche positive sont suspendus jusqu'à l'intégration d'un
- *   graphe piéton OSM continu ; seuls les changements au même pôle (distance nulle)
- *   restent autorisés ;
+ * - aucune correspondance n'est inventée : `INTERMODAL_TRANSFERS` ne contient que
+ *   les liens explicitement déclarés dans `CORRIDOR_TRANSFERS`. Les rapprochements
+ *   géographiques de positions approximatives ne sont pas activés dans le graphe ;
  * - si aucune chaîne n'existe dans le graphe de référence, la réponse le dit.
  *
  * Espace de recherche : un état = (arrêt, situation) où la situation est « à
@@ -45,20 +45,13 @@ import {
   CORRIDOR_LINES,
   TRANSFER_INDEX,
   getCorridorStop,
+  haversineMeters,
   networkOfStopId,
   type CorridorLine,
   type CorridorStop,
 } from './corridors'
 import type { MobilityId } from './mobilityColors'
 import { fareForJourney, type FareClass, type JourneyFare } from './fares'
-import { TER_TRACK } from './terTrackGeometry'
-import { BRT_B1_TRACKS } from './brtTrackGeometry'
-import {
-  measureVerifiedRouteSegment,
-  roadDistanceMeters,
-  type RoadPoint,
-  type VerifiedLineGeometry,
-} from './roadNetworkRouting'
 
 export { DWELL_MIN, MAX_ACCESS_M } from './assumptions'
 
@@ -204,12 +197,7 @@ function parseKey(key: string): { stopId: string; lineId: string | null; directi
  * de séquences explicites n'emprunte que les sens réellement déclarés. */
 export function directedStopSequences(line: CorridorLine): readonly (readonly string[])[] {
   if (line.directions?.length) return line.directions
-  // Le calculateur TER reste limité à la phase 1 Dakar ↔ Diamniadio.
-  // L'extension AIBD (phase 2) est exclue du service de référence retenu.
-  const serviceStops = line.id === 'ter-dakar-diamniadio'
-    ? line.stopIds.filter((stopId) => stopId !== 'ter-aibd')
-    : line.stopIds
-  return [serviceStops, [...serviceStops].reverse()]
+  return [line.stopIds, [...line.stopIds].reverse()]
 }
 
 /** Intervalle réellement appliqué à une ligne, et sa nature.
@@ -230,90 +218,18 @@ export function headwayForLine(line: CorridorLine): { minutes: number; basis: 'o
   }
 }
 
-function pointFromStop(stopId: string): RoadPoint | null {
-  const stop = getCorridorStop(stopId)
-  return stop ? { lat: stop.lat, lon: stop.lon } : null
-}
-
-/**
- * Retourne exclusivement la géométrie réelle connue pour la ligne et son sens.
- * TER : axe ferroviaire OSM extrait, parcouru dans l'ordre ou en sens inverse.
- * BRT B1 : l'une des deux relations OSM directionnelles, choisie par ses
- * terminus réels. Aucune géométrie n'est fabriquée pour DDD/AFTU/TATA ou les
- * lignes sans forme directionnelle vérifiée.
- */
-function verifiedGeometryForSequence(
-  line: CorridorLine,
-  sequence: readonly string[],
-): VerifiedLineGeometry | null {
-  if (sequence.length < 2) return null
-  const first = pointFromStop(sequence[0])
-  const last = pointFromStop(sequence[sequence.length - 1])
-  if (!first || !last) return null
-
-  if (line.id === 'ter-dakar-diamniadio') {
-    const phase1Positions = TER_TRACK.positions.slice(0, TER_TRACK.phase2StartIndex + 1)
-    const positions = sequence[0] === 'ter-dakar'
-      ? phase1Positions
-      : sequence[0] === 'ter-diamniadio'
-        ? [...phase1Positions].reverse()
-        : null
-    if (!positions) return null
-    return {
-      network: 'ter',
-      lineId: line.id,
-      directionId: `${sequence[0]}_${sequence[sequence.length - 1]}`,
-      source: 'OSM_ROUTE_RELATION',
-      sourceId: String(TER_TRACK.osmRelationId),
-      verified: true,
-      positions: positions.map(([lat, lon]) => ({ lat, lon })),
-    }
+function rideMinutes(line: CorridorLine, sequence: readonly string[], fromOrder: number, toOrder: number): { minutes: number; distanceM: number; intermediate: string[]; intermediateIds: string[] } {
+  const start = Math.min(fromOrder, toOrder)
+  const end = Math.max(fromOrder, toOrder)
+  let distanceM = 0
+  for (let index = start; index < end; index += 1) {
+    const a = getCorridorStop(sequence[index])
+    const b = getCorridorStop(sequence[index + 1])
+    if (a && b) distanceM += haversineMeters(a, b)
   }
-
-  if (line.id === 'brt-b1') {
-    const ranked = BRT_B1_TRACKS.map((track) => {
-      const positions = track.positions.map(([lat, lon]) => ({ lat, lon }))
-      const a = positions[0]
-      const b = positions[positions.length - 1]
-      return {
-        track,
-        positions,
-        score: roadDistanceMeters(first, a) + roadDistanceMeters(last, b),
-      }
-    }).sort((a, b) => a.score - b.score)
-    const selected = ranked[0]
-    if (!selected || selected.score > 500) return null
-    return {
-      network: 'brt',
-      lineId: line.id,
-      directionId: `${sequence[0]}_${sequence[sequence.length - 1]}`,
-      source: 'OSM_ROUTE_RELATION',
-      sourceId: String(selected.track.osmRelationId),
-      verified: true,
-      positions: selected.positions,
-    }
-  }
-
-  return null
-}
-
-function rideMinutes(
-  line: CorridorLine,
-  sequence: readonly string[],
-  fromOrder: number,
-  toOrder: number,
-): { minutes: number; distanceM: number; intermediate: string[]; intermediateIds: string[] } | null {
-  if (toOrder <= fromOrder) return null
-  const route = verifiedGeometryForSequence(line, sequence)
-  const from = pointFromStop(sequence[fromOrder])
-  const to = pointFromStop(sequence[toOrder])
-  if (!route || !from || !to) return null
-  const measured = measureVerifiedRouteSegment(route, from, to, 120)
-  if (!measured) return null
-  const distanceM = measured.distanceM
   const travel = (distanceM / 1000 / line.speedKph) * 60
-  const dwell = (toOrder - fromOrder - 1) * dwellMinutes(line.network)
-  const intermediateIds = sequence.slice(fromOrder + 1, toOrder)
+  const dwell = (end - start - 1) * dwellMinutes(line.network)
+  const intermediateIds = sequence.slice(start + 1, end)
   const intermediate = intermediateIds.map((id) => getCorridorStop(id)?.name ?? id)
   return { minutes: travel + dwell, distanceM, intermediate, intermediateIds }
 }
@@ -329,20 +245,13 @@ function walkLeg(kind: PlannerLegKind, from: string, to: string, meters: number,
 }
 
 function linesAt(stopId: string, allowed: readonly MobilityId[] | null): CorridorLine[] {
-  return CORRIDOR_LINES.filter((line) =>
-    line.plannerEnabled !== false &&
-    (!allowed || allowed.includes(line.network)) &&
-    directedStopSequences(line).some((sequence) =>
-      sequence.includes(stopId) && verifiedGeometryForSequence(line, sequence) !== null
-    )
-  )
+  return CORRIDOR_LINES.filter((line) => directedStopSequences(line).some((sequence) => sequence.includes(stopId)) && (!allowed || allowed.includes(line.network)))
 }
 
 /**
  * Calcule le meilleur enchaînement multimodal entre deux points.
- * Les trajets sont actuellement calculables depuis/vers des arrêts de référence
- * sélectionnés explicitement. Les coordonnées libres nécessitent le graphe piéton,
- * qui n'est pas encore branché et ne sont donc pas utilisées comme raccourci.
+ * Les points peuvent être des coordonnées libres (clic carte, GPS) ou des
+ * arrêts de référence choisis dans la liste.
  */
 export function planReferenceJourney(
   origin: PlannerEndpoint,
@@ -378,16 +287,18 @@ function planWith(
   const fareWeight = FARE_WEIGHT[priority]
   const walkSpeed = options.walkSpeedMpm
   const allowed = options.allowedNetworks
+  const maxAccessM = Math.max(1, options.maxAccessM)
   if (Math.abs(origin.lat - destination.lat) < 1e-9 && Math.abs(origin.lon - destination.lon) < 1e-9) {
     return { ok: false, reason: 'SAME_POINT', message: 'Le départ et la destination sont identiques : aucun trajet à calculer.' }
   }
 
-  // Sans graphe piéton validé, seul un arrêt explicitement sélectionné est
-  // accessible. La proximité géographique n'autorise jamais une marche en ligne droite.
   const accessible = (point: PlannerEndpoint) =>
-    ALL_CORRIDOR_STOPS
-      .filter((stop) => point.stopId === stop.id)
-      .map((stop) => ({ stop, meters: 0 }))
+    ALL_CORRIDOR_STOPS.map((stop) => ({
+      stop,
+      meters: point.stopId === stop.id ? 0 : haversineMeters(point, stop),
+    }))
+      .filter((entry) => entry.meters <= maxAccessM)
+      .sort((a, b) => a.meters - b.meters)
 
   // Arrêts accessibles à pied depuis le départ / vers la destination.
   const access = accessible(origin)
@@ -400,8 +311,8 @@ function planWith(
       ok: false,
       reason: 'NO_ACCESSIBLE_STOP',
       message: allowed
-        ? `Aucun arrêt exact sélectionné pour ${side} sur les réseaux autorisés. Sélectionnez une station ou un arrêt identifié ; aucun accès piéton en ligne droite n’est supposé.`
-        : `Aucun arrêt exact sélectionné pour ${side} sur le réseau de référence. Sélectionnez une station ou un arrêt identifié ; aucun accès piéton en ligne droite n’est supposé.${networkHint}`,
+        ? `Aucun arrêt des réseaux autorisés à moins de ${formatMeters(maxAccessM)} de ${side}. Élargissez le rayon de marche ou réactivez un réseau dans Paramètres → Préférences de mobilité.`
+        : `Aucun arrêt du réseau de référence à moins de ${formatMeters(maxAccessM)} de ${side}.${networkHint}`,
     }
   }
 
@@ -483,9 +394,8 @@ function planWith(
         })
       }
 
-      // 2) Correspondances au même pôle uniquement ; les marches positives attendent le graphe piéton.
+      // 2) Correspondances marchables (déclarées ou estimées au même pôle).
       for (const transfer of TRANSFER_INDEX.get(currentStopId) ?? []) {
-        if (transfer.walkM > 0) continue
         const otherId = transfer.fromStopId === currentStopId ? transfer.toStopId : transfer.fromStopId
         const otherStop = getCorridorStop(otherId)
         if (!otherStop) continue
@@ -525,7 +435,6 @@ function planWith(
       const target = getCorridorStop(targetId)
       if (target) {
         const segment = rideMinutes(line, sequence, fromOrder, toOrder)
-        if (!segment) continue
         const dwell = dwellMinutes(line.network)
         const minutes = segment.minutes + dwell
         const fare = fareForJourney([{ line, fromStopId: currentStopId, toStopId: targetId }], { terClass: options.terClass })
@@ -605,13 +514,28 @@ function planWith(
   const totalWalkM = walkOnlyLegs.reduce((total, leg) => total + (leg.distanceM ?? 0), 0)
   const transfers = legs.filter((leg) => leg.kind === 'walk_transfer').length
 
-  // Aucun véhicule emprunté : sans graphe piéton, ne pas fabriquer une
-  // marche directe par distance géographique. Le calcul est refusé explicitement.
+  // Aucun véhicule emprunté : la chaîne « marche vers un arrêt puis marche vers
+  // la destination » n'est qu'un détour. La marche directe entre les deux points
+  // est toujours au moins aussi courte (inégalité triangulaire) : c'est elle qui
+  // est rendue, plutôt qu'un itinéraire plus long sans aucun transport dedans.
   if (boardedLines.length === 0) {
+    const meters = haversineMeters(origin, destination)
+    const directLeg = { ...walkLeg('walk_direct', origin.label, destination.label, meters, walkSpeed), fromId: origin.stopId, toId: destination.stopId }
     return {
-      ok: false,
-      reason: 'NO_PATH',
-      message: 'Aucun itinéraire piéton vérifié ou parcours de transport avec géométrie réelle n’est disponible entre ces deux points. Aucun tracé direct approximatif ne sera proposé.',
+      ok: true,
+      legs: [directLeg],
+      totalMinutes: directLeg.minutes,
+      totalWalkM: directLeg.distanceM ?? 0,
+      totalDistanceM: directLeg.distanceM ?? 0,
+      transfers: 0,
+      boardedLines: [],
+      rides: [],
+      fare: fareForJourney([]),
+      networksUsed: [],
+      frequencyBasis: 'officialReference',
+      uncertaintyMinutes: 0,
+      fallbacks: [],
+      limitation: 'Trajet à pied : aucun trajet du réseau de référence ne raccourcit ce déplacement.',
     }
   }
 
