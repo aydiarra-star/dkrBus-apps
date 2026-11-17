@@ -13,7 +13,7 @@ Source ArcGIS : service Dem Dikk, couche d'arrêts `Dem_dikk_mise_a_jour` et cou
 - 6 groupes exclus pour ambiguïté de groupe source ou géométrie d'arrêt à revoir.
 - Contrôle de proximité : 777 lignes de contrôle, 718 points à 25 m ou moins d'une géométrie nommée, 52 au-delà de 100 m, 6 sans correspondance de ligne nommée et 2 sans géométrie d'arrêt.
 
-Les 18 candidats sont triés par chainage le long de la polyligne ArcGIS. Cela donne un ordre géométrique, pas une direction commerciale certifiée.
+Les 18 candidats sont triés par chainage le long de la polyligne ArcGIS. Cela donne un ordre géométrique, pas une direction commerciale certifiée. Une requête OSM ciblée du 17/11/2026 sur les relations DDD 217, 218, 219 et 228 a retourné 0 relation ; cela indique seulement qu'aucune relation correspondante n'a été trouvée dans cette extraction, pas que la ligne commerciale n'existe pas.
 
 | Ligne candidate | Arrêts | Géométrie (km) | Écart max arrêt/ligne (m) | Contrôle séquence |
 |---|---:|---:|---:|---|
