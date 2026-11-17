@@ -12,14 +12,14 @@ vi.mock('./components/TransitMap', () => ({
     onChoosePoint,
     publishedStops,
     recenterTo,
-    highlightedLineIds = [],
+    highlightedRouteSegments = [],
     highlightedStopIds = [],
   }: {
     recenterTo: { lat: number; lng: number } | null
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
-    highlightedLineIds?: readonly string[]
+    highlightedRouteSegments?: readonly { id: string; network: 'ter' | 'brt'; positions: readonly (readonly [number, number])[] }[]
     highlightedStopIds?: readonly string[]
   }) => (
     <div aria-label="Carte de test">
@@ -33,7 +33,7 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
-      <span data-testid="highlighted-lines">{highlightedLineIds.join(',')}</span>
+      <span data-testid="highlighted-lines">{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
       <span data-testid="highlighted-stops">{highlightedStopIds.join(',')}</span>
     </div>
   ),
