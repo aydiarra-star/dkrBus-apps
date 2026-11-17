@@ -76,6 +76,7 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     from: 'Gare Palais',
     to: 'Terminus Liberté 5',
     occurrenceCount: 30,
+    publishedJourneyDurationMinutes: 30,
     sourceUpdatedOn: '2026-11-14',
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-13-Dakar-5996-1618037-18051475-0',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
