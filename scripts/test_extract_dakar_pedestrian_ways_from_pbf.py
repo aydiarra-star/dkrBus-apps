@@ -13,6 +13,8 @@ class PedestrianPbfFilterTests(unittest.TestCase):
         self.assertFalse(is_walkable({"highway": "footway", "foot": "no"}))
         self.assertFalse(is_walkable({"highway": "footway", "foot:conditional": "no @ (Mo-Fr 08:00-18:00)"}))
         self.assertFalse(is_walkable({"highway": "footway", "foot:access": "no"}))
+        self.assertFalse(is_walkable({"highway": "footway", "foot": "yes", "foot:access": "no"}))
+        self.assertFalse(is_walkable({"highway": "footway", "foot": "no", "foot:access": "yes"}))
         self.assertTrue(is_walkable({"highway": "footway", "access": "private", "foot:access": "yes"}))
         self.assertFalse(is_walkable({"highway": "residential", "access": "private"}))
         self.assertFalse(is_walkable({"highway": "motorway"}))
