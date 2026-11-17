@@ -15,9 +15,9 @@
  *   la fréquence de repli du modèle et le signale (`fallbacks`) avec une marge
  *   d'incertitude plus large — il ne présente jamais ce repli comme une
  *   information opérateur ;
- * - aucune correspondance n'est inventée : `INTERMODAL_TRANSFERS` ne contient que
- *   les liens explicitement déclarés dans `CORRIDOR_TRANSFERS`. Les rapprochements
- *   géographiques de positions approximatives ne sont pas activés dans le graphe ;
+ * - les transferts de marche positive sont suspendus jusqu'à l'intégration d'un
+ *   graphe piéton OSM continu ; seuls les changements au même pôle (distance nulle)
+ *   restent autorisés ;
  * - si aucune chaîne n'existe dans le graphe de référence, la réponse le dit.
  *
  * Espace de recherche : un état = (arrêt, situation) où la situation est « à
@@ -334,8 +334,9 @@ function linesAt(stopId: string, allowed: readonly MobilityId[] | null): Corrido
 
 /**
  * Calcule le meilleur enchaînement multimodal entre deux points.
- * Les points peuvent être des coordonnées libres (clic carte, GPS) ou des
- * arrêts de référence choisis dans la liste.
+ * Les trajets sont actuellement calculables depuis/vers des arrêts de référence
+ * sélectionnés explicitement. Les coordonnées libres nécessitent le graphe piéton,
+ * qui n'est pas encore branché et ne sont donc pas utilisées comme raccourci.
  */
 export function planReferenceJourney(
   origin: PlannerEndpoint,
@@ -476,7 +477,7 @@ function planWith(
         })
       }
 
-      // 2) Correspondances marchables (déclarées ou estimées au même pôle).
+      // 2) Correspondances au même pôle uniquement ; les marches positives attendent le graphe piéton.
       for (const transfer of TRANSFER_INDEX.get(currentStopId) ?? []) {
         if (transfer.walkM > 0) continue
         const otherId = transfer.fromStopId === currentStopId ? transfer.toStopId : transfer.fromStopId
