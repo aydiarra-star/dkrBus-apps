@@ -78,6 +78,17 @@ test('respects foot:access restrictions on OSM nodes', () => {
   assert.equal(conditional.summary.directedEdgeCount, 0)
 })
 
+test('a restrictive foot:access tag cannot be overridden by foot=yes', () => {
+  assert.equal(isWalkableOsmWay({ highway: 'footway', foot: 'yes', 'foot:access': 'no' }), false)
+  assert.equal(isWalkableOsmWay({ highway: 'footway', foot: 'no', 'foot:access': 'yes' }), false)
+  assert.equal(isWalkableOsmWay({ highway: 'footway', foot: 'yes', 'foot:access': 'private' }), false)
+  const blockedNode = buildPedestrianGraph([
+    { type: 'node', id: 2, tags: { foot: 'yes', 'foot:access': 'no' } },
+    { type: 'way', id: 15, nodes: [1, 2], tags: { highway: 'footway' }, geometry: [{ lat: 14.7, lon: -17.4 }, { lat: 14.701, lon: -17.4 }] },
+  ])
+  assert.equal(blockedNode.summary.directedEdgeCount, 0)
+})
+
 test('blocks private barriers and keeps explicitly passable pedestrian gates', () => {
   const graphWithGate = buildPedestrianGraph([
     { type: 'node', id: 2, tags: { barrier: 'gate' } },
