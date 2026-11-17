@@ -1320,7 +1320,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
         await vi.advanceTimersByTimeAsync(2_000)
       })
     }
-    expect(colobaneTimes()).toEqual(['3 min', '3 min'])
+    expect(colobaneTimes()).toEqual(['2 min', '8 min'])
     vi.useRealTimers()
   })
 
