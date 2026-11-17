@@ -96,7 +96,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     const dddDirection = dddOne[0].closest('li')!
     expect(within(dddDirection).getAllByText('10 min').length).toBeGreaterThan(1)
     expect(dddDirection.querySelectorAll('.station-board-stop-timetable-row').length).toBeGreaterThan(1)
-    expect(dddDirection.querySelectorAll('.passage-arcs, .passage-arcs svg, svg[aria-hidden="true"]').length).toBeGreaterThan(0)
+    expect(dddDirection.querySelectorAll('.station-board-double-apostrophe').length).toBeGreaterThan(0)
   })
   it('affiche aussi les arrêts du retour DDD en ordre inverse quand seule la séquence aller est publiée', async () => {
     const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
