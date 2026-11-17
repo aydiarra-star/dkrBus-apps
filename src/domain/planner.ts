@@ -52,6 +52,70 @@ import {
 } from './corridors'
 import type { MobilityId } from './mobilityColors'
 import { fareForJourney, type FareClass, type JourneyFare } from './fares'
+import { TER_TRACK } from './terTrackGeometry'
+import { BRT_B1_TRACKS, brtTrackPositionsForLine } from './brtTrackGeometry'
+import { auditBrtB1DirectionalGeometry } from './referenceRouteGeometry'
+import { measureVerifiedRouteSegment, type RoadPoint, type VerifiedLineGeometry } from './roadNetworkRouting'
+
+const verifiedBrtDirections = new Set(
+  auditBrtB1DirectionalGeometry()
+    .filter((audit) => audit.passed)
+    .map((audit) => audit.direction),
+)
+
+/**
+ * Distance réelle le long d'une géométrie directionnelle auditée.
+ * Aucune inversion automatique : si les deux arrêts ne suivent pas le sens
+ * certifié ou dépassent la tolérance, cette fonction refuse la géométrie.
+ */
+function verifiedRideDistance(line: CorridorLine, from: CorridorStop, to: CorridorStop): number | null {
+  const start: RoadPoint = { lat: from.lat, lon: from.lon }
+  const end: RoadPoint = { lat: to.lat, lon: to.lon }
+  const candidates: VerifiedLineGeometry[] = []
+
+  if (line.id === 'ter-dakar-diamniadio') {
+    candidates.push({
+      network: 'ter',
+      lineId: line.id,
+      directionId: 'dakar-to-diamniadio-phase-1',
+      source: 'OSM_ROUTE_RELATION',
+      sourceId: String(TER_TRACK.osmRelationId),
+      verified: true,
+      positions: TER_TRACK.positions
+        .slice(0, TER_TRACK.phase2StartIndex + 1)
+        .map(([lat, lon]) => ({ lat, lon })),
+    })
+  }
+
+  if (line.id === 'brt-b1') {
+    for (const positions of brtTrackPositionsForLine(line.id) ?? []) {
+      const track = BRT_B1_TRACKS.find((candidate) =>
+        verifiedBrtDirections.has(`${candidate.directionFrom} → ${candidate.directionTo}`) &&
+        candidate.positions.length === positions.length &&
+        candidate.positions.every((point, index) =>
+          point[0] === positions[index][0] && point[1] === positions[index][1],
+        ),
+      )
+      if (!track) continue
+      candidates.push({
+        network: 'brt',
+        lineId: line.id,
+        directionId: `${track.directionFrom} → ${track.directionTo}`,
+        source: 'OSM_ROUTE_RELATION',
+        sourceId: String(track.osmRelationId),
+        verified: true,
+        positions: positions.map(([lat, lon]) => ({ lat, lon })),
+      })
+    }
+  }
+
+  for (const route of candidates) {
+    const measured = measureVerifiedRouteSegment(route, start, end, 80)
+    if (measured) return measured.distanceM
+  }
+  return null
+}
+
 
 export { DWELL_MIN, MAX_ACCESS_M } from './assumptions'
 
@@ -225,7 +289,12 @@ function rideMinutes(line: CorridorLine, sequence: readonly string[], fromOrder:
   for (let index = start; index < end; index += 1) {
     const a = getCorridorStop(sequence[index])
     const b = getCorridorStop(sequence[index + 1])
-    if (a && b) distanceM += haversineMeters(a, b)
+    if (a && b) {
+      // TER phase 1 et BRT B1 : mesure le long du tracé directionnel audité.
+      // Les autres lignes restent sur leur distance de référence tant que
+      // leur géométrie réelle n'a pas été validée et raccordée.
+      distanceM += verifiedRideDistance(line, a, b) ?? haversineMeters(a, b)
+    }
   }
   const travel = (distanceM / 1000 / line.speedKph) * 60
   const dwell = (end - start - 1) * dwellMinutes(line.network)
