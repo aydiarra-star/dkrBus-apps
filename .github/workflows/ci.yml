@@ -193,7 +193,7 @@ jobs:
         run: node --check scripts/export_dakar_pedestrian_network.mjs
 
       - name: Test pedestrian graph construction and access filters
-        run: node --test scripts/lib/pedestrianNetwork.test.mjs
+        run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
 
       - name: Extract candidate Dakar pedestrian graph (read only)
         id: pedestrian_graph
