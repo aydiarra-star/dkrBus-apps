@@ -32,6 +32,8 @@
 
 Emprise réelle des nœuds : latitude 14.4974611 à 14.94915 ; longitude -17.5301562 à -17.0115335.
 
+> **Version de l'audit :** cet artefact a été généré avant le correctif de priorité restrictive des balises contradictoires `foot` / `foot:access` ajouté ensuite dans le code. Il sert à documenter la structure de l'extraction précédente ; la prochaine CI doit régénérer le graphe avec ce correctif avant toute nouvelle validation.
+
 ## Limites impératives avant utilisation voyageurs
 
 Le fichier porte explicitement le statut `CANDIDATE_GRAPH_NOT_YET_CONNECTED_TO_STOPS`. Les contrôles ci-dessus attestent la cohérence structurelle du fichier, pas la praticabilité réelle de chaque voie.
