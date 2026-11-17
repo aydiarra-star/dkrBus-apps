@@ -65,4 +65,20 @@ describe('official DDD published route sequences', () => {
     expect(getDddOfficialPublishedRoute('502')?.stops.at(-1)).toBe('Gare Colobane')
     expect(getDddOfficialPublishedRoute('503')?.stops.at(-1)).toBe('Gare de Colobane')
   })
+
+  it('guards known DDD route sequence discrepancies without inventing a return', () => {
+    expect(getDddOfficialPublishedRoute('7')?.stops).toHaveLength(21)
+    expect(getDddOfficialPublishedRoute('13')?.stops).toHaveLength(24)
+
+    const line217 = getDddOfficialPublishedRoute('217')
+    const line218 = getDddOfficialPublishedRoute('218')
+    expect(line217?.stops).toHaveLength(15)
+    expect(line218?.stops).toHaveLength(15)
+    expect(line217?.stops).toEqual(line218?.stops)
+    expect(line217 && 'conflictNote' in line217 ? line217.conflictNote : null).toContain('Aéroport LSS')
+    expect(line217?.stops.at(-1)).toBe('Terminus aéroport LSS')
+
+    expect(getDddOfficialPublishedRoute('228')?.stops).toHaveLength(4)
+  })
+
 })
