@@ -245,7 +245,11 @@ function walkLeg(kind: PlannerLegKind, from: string, to: string, meters: number,
 }
 
 function linesAt(stopId: string, allowed: readonly MobilityId[] | null): CorridorLine[] {
-  return CORRIDOR_LINES.filter((line) => directedStopSequences(line).some((sequence) => sequence.includes(stopId)) && (!allowed || allowed.includes(line.network)))
+  return CORRIDOR_LINES.filter((line) =>
+    line.plannerEnabled !== false &&
+    directedStopSequences(line).some((sequence) => sequence.includes(stopId)) &&
+    (!allowed || allowed.includes(line.network))
+  )
 }
 
 /**
