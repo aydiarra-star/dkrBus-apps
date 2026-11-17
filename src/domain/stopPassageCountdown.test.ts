@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextStopPassageCountdown } from './stopPassageCountdown'
+import { nextStopPassageCountdown, nextTimetableStopPassageCountdown } from './stopPassageCountdown'
 
 const plan = {
   firstDeparture: '06:00',
@@ -44,5 +44,32 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, 19, 7] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, Number.NaN, 19] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown(plan, 1, new Date(Number.NaN))).toBeNull()
+  })
+})
+
+
+describe('nextTimetableStopPassageCountdown', () => {
+  const grid = [
+    ['06:00', '06:02', '06:05'],
+    ['06:15', '06:17', '06:20'],
+    ['06:42', '06:44', '06:47'],
+  ]
+
+  it('uses the actual next time for the selected stop, including irregular gaps', () => {
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 18))).toBe(26)
+    expect(nextTimetableStopPassageCountdown(grid, 2, at(6, 20))).toBe(27)
+  })
+
+  it('returns zero for a passage due now and null after the final passage', () => {
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 17))).toBe(0)
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 45))).toBeNull()
+  })
+
+  it('rejects incomplete, malformed, or non-chronological grids', () => {
+    expect(nextTimetableStopPassageCountdown([], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:00'], ['06:10', '06:12']], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:00', 'bad']], 1, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:10'], ['06:00']], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown(grid, 4, at(6, 0))).toBeNull()
   })
 })
