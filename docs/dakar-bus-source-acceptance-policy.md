@@ -63,3 +63,13 @@ https://www.vie-publique.sn/docs/270ed4e5-ab8f-47b6-9e77-cfd6ed491f02/guide-mobi
 3. En cas de divergence, conserver les deux formulations avec leurs sources respectives et marquer le point à vérifier ; ne pas écraser silencieusement un terminus ou une variante.
 4. Une séquence publiée dans un seul sens ne prouve pas le sens retour. Ne pas fabriquer le retour par inversion.
 5. Aucun arrêt ne passe au catalogue passager uniquement parce qu'il apparaît dans une liste de noms : vérifier la ligne, le sens, la localisation et les éventuelles variantes.
+
+
+## Source DDD plus récente — application officielle (2025)
+
+La fiche officielle de l'application Dem Dikk sur l'App Store documente une version **2025.4.1 publiée le 2 octobre 2025**. La version annoncée comprend une carte interactive des lignes et arrêts du réseau urbain et la géolocalisation des arrêts :
+https://apps.apple.com/fr/app/dem-dikk/id6476461159
+
+Cette date est plus récente que la dernière modification de la couche ArcGIS d'arrêts (24 septembre 2024). Elle est donc adoptée dans l'inventaire des sources comme **preuve d'une version applicative DDD plus récente**, et comme piste prioritaire pour retrouver les données cartographiques de l'application.
+
+Limite technique à conserver : la fiche App Store décrit les fonctionnalités et la version de l'application, mais ne publie pas le jeu de données des arrêts, son horodatage de mise à jour, ni un export réutilisable. Elle ne suffit donc pas à remplacer les 777 entités ArcGIS déjà extraites. Tant que les données cartographiques de cette application ne sont pas accessibles et vérifiables, les arrêts ArcGIS 2024 restent conservés ; les lignes/terminus publiés sur la page officielle Info voyageurs et le guide officiel JOJ 2026 servent de contrôles complémentaires.
