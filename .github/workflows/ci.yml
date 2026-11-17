@@ -79,6 +79,27 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Check Moovit DDD line 13 timetable extractor
+        run: node --check scripts/extract_moovit_ddd_line_13_timetables.mjs
+
+      - name: Test Moovit DDD line 13 timetable extractor
+        run: node --test scripts/extract_moovit_ddd_line_13_timetables.node-test.mjs
+
+      - name: Extract Moovit DDD line 13 timetable matrices (read-only)
+        id: moovit_line13
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/extract_moovit_ddd_line_13_timetables.mjs
+
+      - name: Upload Moovit DDD line 13 timetable matrices
+        if: always() && steps.moovit_line13.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: moovit-ddd-line-13-timetable-matrices
+          path: artifacts/ddd/moovit-line-13/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Check read-only DDD ArcGIS feature extractor
         run: node --check scripts/extract_ddd_arcgis_feature_layers.mjs
 
