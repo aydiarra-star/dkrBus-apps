@@ -1799,6 +1799,7 @@ function App() {
               searchInputRef={searchInputRef}
               savedDestinations={savedDestinations}
               onChooseShortcut={chooseDestinationShortcut}
+              countdownNow={countdownNow}
             />
           )}
 
@@ -2021,6 +2022,7 @@ function ExplorerPanel({
   searchInputRef,
   savedDestinations,
   onChooseShortcut,
+  countdownNow,
 }: {
   gpsState: GpsState
   gpsMessage: string | null
@@ -2038,6 +2040,7 @@ function ExplorerPanel({
   searchInputRef: { current: HTMLInputElement | null }
   savedDestinations: Partial<Record<DestinationShortcutId, MapPoint>>
   onChooseShortcut: (id: DestinationShortcutId) => void
+  countdownNow: number
 }) {
   const [proximityOpen, setProximityOpen] = useState(false)
   const [proximityDismissed, setProximityDismissed] = useState(false)
@@ -2228,15 +2231,48 @@ function ExplorerPanel({
         </div>
       </div>
 
+      <ExploreMobilityCountdowns now={countdownNow} />
       <ExploreNetworkLegend />
+    </section>
+  )
+}
+
+function ExploreMobilityCountdowns({ now }: { now: number }) {
+  return (
+    <section className="explore-mobility-countdowns" aria-label="Prochains passages des mobilités">
+      <div className="explore-mobility-countdowns-heading">
+        <strong>Prochains passages</strong>
+        <span>Horaires de référence</span>
+      </div>
+      <div className="explore-mobility-countdowns-row">
+        {MOBILITY_IDS.map((id) => {
+          const network = NETWORK_REFERENCE_DATA[id]
+          const passage = id === 'ter' || id === 'brt'
+            ? nextReferencePassage(network.officialFrequencies, now)
+            : estimatedNextPassage(id, now)
+          const clock = passage?.nextDepartureAt.slice(11, 16) ?? null
+          return (
+            <article className={`explore-mobility-countdown mobility-${id}`} key={id}>
+              <div className="explore-mobility-countdown-network">
+                <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
+              </div>
+              <strong className="explore-mobility-countdown-clock">{clock ?? '—'}</strong>
+              <span className="explore-mobility-countdown-remaining">
+                {passage ? `Dans ${formatPassageCountdown(passage.minutes)}` : 'Aucun créneau'}
+              </span>
+            </article>
+          )
+        })}
+      </div>
+      <small>Créneaux théoriques calculés depuis les fréquences de référence, pas une position de véhicule en temps réel.</small>
     </section>
   )
 }
 
 function ExploreNetworkLegend() {
   return (
-    <section className="explore-network-legend" aria-label="Légende des réseaux">
-      <strong className="explore-network-legend-title">Légende des réseaux</strong>
+    <section className="explore-network-legend" aria-label="Réseaux de référence">
+      <strong className="explore-network-legend-title">Réseaux de référence</strong>
       <div className="explore-network-legend-row">
         {MOBILITY_IDS.map((id) => (
           <div className={`explore-network-legend-item mobility-${id}`} key={id}>
