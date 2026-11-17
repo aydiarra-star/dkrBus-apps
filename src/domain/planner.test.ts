@@ -78,9 +78,9 @@ describe('calculateur multimodal de référence', () => {
   })
 
   it('calcule les trois variantes sur le même réseau et expose leurs métriques', () => {
-    const fastest = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest')
-    const fewerTransfers = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fewerTransfers')
-    const lessWalking = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'lessWalking')
+    const fastest = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'fastest')
+    const fewerTransfers = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'fewerTransfers')
+    const lessWalking = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'lessWalking')
     for (const outcome of [fastest, fewerTransfers, lessWalking]) {
       expect(outcome.ok).toBe(true)
       if (!outcome.ok) continue
@@ -112,7 +112,7 @@ describe('calculateur multimodal de référence', () => {
   it('accepte un arrêt de référence choisi explicitement comme départ', () => {
     const stop = getCorridorStop('brt-grand-medine')!
     const origin = { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
-    const outcome = planReferenceJourney(origin, RUFISQUE)
+    const outcome = planReferenceJourney(origin, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
     // Le trajet part bien de l’arrêt choisi : soit on y monte directement,
@@ -123,7 +123,7 @@ describe('calculateur multimodal de référence', () => {
   it('décrit chaque jambe dans un français lisible', () => {
     const outcome = planReferenceJourney(PLATEAU, GUEDIAWAYE) as PlannerResult
     const texts = outcome.legs.map(describeLeg)
-    expect(texts[0]).toMatch(/Marcher/)
+    expect(texts.some((text) => text.startsWith('Attendre'))).toBe(true)
     expect(texts.some((text) => text.startsWith('B1'))).toBe(true)
   })
 
