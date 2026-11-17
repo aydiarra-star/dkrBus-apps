@@ -2278,7 +2278,9 @@ function ExploreMobilityCountdowns({
                 <span className="network-summary-dot is-referenced is-counting" aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
-                  {id === 'aftu_tata' ? '' : network.label !== network.shortName ? ` · ${network.label}` : ''}
+                  {id !== 'aftu_tata' && network.label !== network.shortName && (
+                    <span className="network-summary-fullname">{network.label}</span>
+                  )}
                 </span>
                 <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
                   <strong>{passage ? formatPassageCountdown(passage.minutes) : '—'}</strong>
