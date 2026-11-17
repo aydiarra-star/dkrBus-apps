@@ -4211,3 +4211,31 @@ button:disabled { cursor: not-allowed; }
   background: #087548;
   color: #fff;
 }
+
+
+/* Badges de lignes dans les résultats : le format compact des légendes
+   ne doit jamais tronquer les numéros de ligne (ex. AFTU 53). */
+.mobility-line-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  gap: 4px;
+}
+.mobility-line-badges .mobility-line-badge {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.mobility-line-badges .mobility-badge {
+  width: auto;
+  min-width: max-content;
+  max-width: none;
+  flex: 0 0 auto;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
