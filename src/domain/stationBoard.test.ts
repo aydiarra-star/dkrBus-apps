@@ -36,18 +36,18 @@ describe('tableau des créneaux par station et par sens', () => {
   it('projette le créneau aller avec le temps de parcours depuis le terminus', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
-    // À 12:00 pile, la grille TER (10 min depuis 05:30) place le prochain
-    // départ de Dakar à 12:10.
+    // À 12:00 pile, la grille TER (8 min depuis 05:35) place le prochain
+    // départ de Dakar à 12:07.
     const dakar = board.rows[0]
-    expect(dakar.outbound!.clockLabel).toBe('12:10')
+    expect(dakar.outbound!.clockLabel).toBe('12:07')
     // Dalifort (4e gare) est atteinte entre 10 et 11 min après Dakar : à 12:00, le
-    // départ de grille 11:50 y passe encore, projeté vers 12:01. Chaque
+    // départ de grille 11:51 y passe encore, projeté vers 12:01:30. Chaque
     // station affiche bien le prochain passage *chez elle*.
     const dalifort = board.rows.find((row) => row.stop.id === 'ter-dalifort')!
     expect(dalifort.offsetFromOriginMin).toBe(10.5)
     expect(dalifort.offsetFromOriginMin).toBeGreaterThan(dakar.offsetFromOriginMin)
     expect(dalifort.outbound!.clockLabel).toBe('12:01')
-    expect(dalifort.outbound!.minutes).toBe(1)
+    expect(dalifort.outbound!.minutes).toBe(2)
     // Le créneau aller est bien porté par la grille déclarée du terminus.
     expect(dalifort.outbound!.headwayMinutes).toBe(8)
   })
