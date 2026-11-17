@@ -15,10 +15,18 @@ export interface SourceEvidenceAssessment {
   freshnessWarning: boolean
   reason: string
 }
+function isTraceableHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value)
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
 export function assessSourceEvidence(evidence: SourceEvidence): SourceEvidenceAssessment {
   const sourceUrl = typeof evidence?.sourceUrl === 'string' ? evidence.sourceUrl.trim() : ''
   const sourceLabel = typeof evidence?.sourceLabel === 'string' ? evidence.sourceLabel.trim() : ''
-  const hasProvenance = Boolean(sourceUrl && sourceLabel)
+  const hasProvenance = Boolean(sourceLabel && isTraceableHttpUrl(sourceUrl))
   const rawDate = typeof evidence?.dataLastUpdated === 'string' ? evidence.dataLastUpdated.trim() : ''
   const timestamp = rawDate ? Date.parse(rawDate) : Number.NaN
   const dateStatus = !rawDate ? 'DATE_UNKNOWN' : Number.isFinite(timestamp) ? 'DATED' : 'INVALID_DATE'
@@ -31,7 +39,7 @@ export function assessSourceEvidence(evidence: SourceEvidence): SourceEvidenceAs
     // A freshness warning is for review only; it never rejects a sourced record.
     freshnessWarning: dateStatus === 'DATED' && Date.now() - timestamp > 365 * 24 * 60 * 60 * 1000,
     reason: !hasProvenance
-      ? 'Source URL and source label are both required.'
+      ? 'A valid HTTP(S) source URL and source label are both required.'
       : dateStatus === 'DATED'
         ? 'Source retained because its provenance is documented; date is metadata, not an exclusion rule.'
         : 'Source retained because its provenance is documented; source date is unavailable or invalid.',
