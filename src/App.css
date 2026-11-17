@@ -4069,3 +4069,50 @@ button:disabled { cursor: not-allowed; }
   background: var(--surface-card);
   color: var(--text);
 }
+
+
+/* Navigation compacte des quatre onglets : uniquement les hauteurs et
+   espacements des barres et bandeaux, sans toucher aux contenus ni aux données. */
+.sidebar-top { padding-top: 14px; }
+.brand-row { height: 46px; }
+.desktop-tabs { margin-top: 11px; padding: 3px; }
+.nav-tab { height: 32px; min-height: 32px; gap: 5px; }
+
+.panel-heading-row,
+.panel-intro { margin-bottom: 12px; }
+.panel-intro h2,
+.panel-heading-row h2 { margin-top: 3px; margin-bottom: 5px; font-size: 19px; }
+.intro-compass,
+.explore-icon,
+.alert-heading-icon,
+.governance-heading-icon { width: 31px; height: 31px; }
+
+.alerts-panel .panel-heading-row { margin-bottom: 12px; }
+.alerts-gps-banner { margin-bottom: 8px; padding: 7px 9px; gap: 6px; }
+
+@media (max-width: 820px) {
+  .sidebar-top { padding-top: max(8px, env(safe-area-inset-top)); }
+  .brand-row { height: 48px; }
+  .mobile-nav {
+    height: 56px;
+    padding: 4px;
+    border-radius: 16px;
+  }
+  .mobile-nav-item { gap: 2px; border-radius: 11px; }
+  .mobile-nav-icon { width: 23px; height: 19px; }
+  .panel-heading-row,
+  .panel-intro { margin-bottom: 10px; }
+  .panel-intro h2,
+  .panel-heading-row h2 { margin-top: 2px; margin-bottom: 4px; font-size: 17px; }
+  .intro-compass,
+  .explore-icon,
+  .alert-heading-icon,
+  .governance-heading-icon { width: 29px; height: 29px; }
+  .alerts-panel .panel-heading-row { margin-bottom: 9px; }
+  .alerts-gps-banner { margin-bottom: 7px; padding: 6px 8px; }
+}
+
+@media (max-width: 480px) {
+  .brand-row { height: 46px; }
+  .mobile-nav { height: 54px; }
+}
