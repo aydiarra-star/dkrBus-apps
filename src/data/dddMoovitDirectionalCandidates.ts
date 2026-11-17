@@ -57,6 +57,10 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-13-Dakar-5996-1618037-18051475-4256271-0',
     timetableCoverage: 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY',
+    timetableCoverageByDay: {
+      weekday: { departureCount: 53, firstDeparture: '06:00', lastDeparture: '20:30' },
+      saturday: { departureCount: 37, firstDeparture: '06:30', lastDeparture: '20:35' },
+    },
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-13-Dakar-5996-1618037-18051475-1',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
     stops: [
@@ -82,6 +86,10 @@ export const DDD_MOOVIT_DIRECTIONAL_CANDIDATES = [
     sourceUpdatedOn: '2026-11-14',
     timetableUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-13-Dakar-5996-1618037-18051475-4256270-0',
     timetableCoverage: 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY',
+    timetableCoverageByDay: {
+      weekday: { departureCount: 49, firstDeparture: '06:45', lastDeparture: '21:00' },
+      saturday: { departureCount: 43, firstDeparture: '07:00', lastDeparture: '21:00' },
+    },
     sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-map-13-Dakar-5996-1618037-18051475-0',
     status: 'SECONDARY_SOURCE_NEEDS_RECONCILIATION',
     stops: [
