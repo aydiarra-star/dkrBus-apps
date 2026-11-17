@@ -23,6 +23,8 @@ def is_walkable(tags: dict[str, str]) -> bool:
         return False
     foot = str(tags.get("foot", tags.get("foot:access", ""))).lower()
     access = str(tags.get("access", "")).lower()
+    if tags.get("foot:conditional"):
+        return False
     if foot in {"no", "private"}:
         return False
     if access in {"no", "private"} and foot not in {"yes", "designated", "permissive", "destination"}:
