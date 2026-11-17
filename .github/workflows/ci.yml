@@ -196,6 +196,12 @@ jobs:
       - name: Test pedestrian graph construction and access filters
         run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
 
+      - name: Check pedestrian source selection helper
+        run: node --check scripts/lib/pedestrianSource.mjs
+
+      - name: Test local PBF and Overpass source selection
+        run: node --test scripts/lib/pedestrianSource.node-test.mjs
+
       - name: Extract candidate Dakar pedestrian graph (read only)
         id: pedestrian_graph
         continue-on-error: true
