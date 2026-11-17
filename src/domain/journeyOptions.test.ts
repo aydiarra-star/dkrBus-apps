@@ -65,7 +65,7 @@ describe('jeu d’options comparables', () => {
     const plan = planJourneyOptions(point('brt-petersen'), point('ter-rufisque'))
     if (!plan.ok) throw new Error(plan.message)
     if (plan.options.length < 3) {
-      expect(plan.notes.join('\n')).toMatch(/distinctement calculables|même parcours|aucune variante comparable/)
+      expect(plan.notes.join('\n')).toMatch(/distinctement calculables|même parcours/)
     } else {
       expect(plan.options).toHaveLength(3)
     }
