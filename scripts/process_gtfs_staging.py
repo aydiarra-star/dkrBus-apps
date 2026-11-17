@@ -29,6 +29,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_gtfs.py"
 MAX_ARCHIVE_BYTES = 100 * 1024 * 1024
+MAX_MANIFEST_BYTES = 1 * 1024 * 1024
 LEASE_SECONDS = 900
 VALIDATOR_VERSION = "dakar-gtfs-validator-v5"
 SUPABASE_PROJECT_REF = "mdmuxzaewqzqutkqdylo"
@@ -118,6 +119,46 @@ def verify_archive_bytes(payload: bytes, expected_bytes: int, expected_sha256: s
         raise WorkerError("ARCHIVE_NOT_ZIP")
 
 
+def verify_manifest_bytes(
+    payload: bytes,
+    expected_sha256: str,
+    expected_dataset_id: str,
+    expected_archive_sha256: str,
+    expected_archive_bytes: int,
+) -> None:
+    if not isinstance(payload, bytes) or not payload or len(payload) > MAX_MANIFEST_BYTES:
+        raise WorkerError("MANIFEST_SIZE_INVALID")
+    if not isinstance(expected_sha256, str) or not SHA256_RE.fullmatch(expected_sha256):
+        raise WorkerError("MANIFEST_SHA256_INVALID")
+    if hashlib.sha256(payload).hexdigest() != expected_sha256:
+        raise WorkerError("MANIFEST_SHA256_MISMATCH")
+    try:
+        manifest = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise WorkerError("MANIFEST_CONTENT_INVALID") from error
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != "1.0":
+        raise WorkerError("MANIFEST_SCHEMA_INVALID")
+    if manifest.get("dataset_id") != expected_dataset_id:
+        raise WorkerError("MANIFEST_DATASET_MISMATCH")
+    if (
+        manifest.get("review_status") != "PENDING_REVIEW"
+        or manifest.get("publication_status") != "NOT_PUBLISHED"
+        or manifest.get("publication_ready") is not False
+    ):
+        raise WorkerError("MANIFEST_GOVERNANCE_STATE_INVALID")
+    archive = manifest.get("archive")
+    if not isinstance(archive, dict) or archive.get("stored_as") != "feed.zip":
+        raise WorkerError("MANIFEST_ARCHIVE_METADATA_INVALID")
+    manifest_bytes = archive.get("bytes")
+    if (
+        not isinstance(manifest_bytes, int)
+        or isinstance(manifest_bytes, bool)
+        or manifest_bytes != expected_archive_bytes
+        or archive.get("sha256") != expected_archive_sha256
+    ):
+        raise WorkerError("MANIFEST_ARCHIVE_MISMATCH")
+
+
 def validate_claimed_job(job: Any) -> int:
     if not isinstance(job, dict):
         raise WorkerError("CLAIM_METADATA_INCOMPLETE")
@@ -125,6 +166,8 @@ def validate_claimed_job(job: Any) -> int:
     bucket = job.get("archive_bucket")
     object_path = job.get("archive_object_path")
     archive_sha256 = job.get("archive_sha256")
+    manifest_object_path = job.get("manifest_object_path")
+    manifest_sha256 = job.get("manifest_sha256")
     lease_token = job.get("lease_token")
     raw_bytes = job.get("archive_bytes")
 
@@ -137,6 +180,15 @@ def validate_claimed_job(job: Any) -> int:
     expected_path = f"{dataset_id}/{archive_sha256}/feed.zip"
     if object_path != expected_path or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
         raise WorkerError("CLAIM_OBJECT_PATH_INVALID")
+    expected_manifest_path = f"{dataset_id}/{archive_sha256}/manifest.json"
+    if (
+        manifest_object_path != expected_manifest_path
+        or not isinstance(manifest_object_path, str)
+        or not MANIFEST_PATH_RE.fullmatch(manifest_object_path)
+    ):
+        raise WorkerError("CLAIM_MANIFEST_PATH_INVALID")
+    if not isinstance(manifest_sha256, str) or not SHA256_RE.fullmatch(manifest_sha256):
+        raise WorkerError("CLAIM_MANIFEST_SHA256_INVALID")
     if not isinstance(lease_token, str) or not LEASE_TOKEN_RE.fullmatch(lease_token):
         raise WorkerError("CLAIM_LEASE_TOKEN_INVALID")
 
@@ -339,8 +391,16 @@ class SupabaseRest:
             raise WorkerError("CLAIM_RESPONSE_INVALID")
         return rows[0]
 
-    def download(self, bucket: str, object_path: str) -> bytes:
-        if bucket != STAGING_BUCKET or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
+    def download(self, bucket: str, object_path: str, max_bytes: int = MAX_ARCHIVE_BYTES) -> bytes:
+        allowed_paths = (
+            (MAX_ARCHIVE_BYTES, ARCHIVE_PATH_RE),
+            (MAX_MANIFEST_BYTES, MANIFEST_PATH_RE),
+        )
+        if (
+            bucket != STAGING_BUCKET
+            or not isinstance(object_path, str)
+            or not any(limit == max_bytes and pattern.fullmatch(object_path) for limit, pattern in allowed_paths)
+        ):
             raise WorkerError("UNSAFE_ARCHIVE_OBJECT_REFERENCE")
         encoded_path = urllib.parse.quote(object_path, safe="/")
         if not self.access_token:
@@ -351,11 +411,11 @@ class SupabaseRest:
         )
         try:
             with open_without_redirect(request, timeout=120) as response:
-                payload = response.read(MAX_ARCHIVE_BYTES + 1)
+                payload = response.read(max_bytes + 1)
         except (urllib.error.URLError, TimeoutError) as error:
             raise WorkerError("ARCHIVE_DOWNLOAD_FAILED") from error
-        if len(payload) > MAX_ARCHIVE_BYTES:
-            raise WorkerError("ARCHIVE_TOO_LARGE")
+        if len(payload) > max_bytes:
+            raise WorkerError("MANIFEST_TOO_LARGE" if max_bytes == MAX_MANIFEST_BYTES else "ARCHIVE_TOO_LARGE")
         return payload
 
     def complete(self, job: dict[str, Any], report: dict[str, Any]) -> bool:
@@ -393,6 +453,18 @@ def process_one(client: SupabaseRest) -> str:
         return "QUEUE_EMPTY"
     try:
         archive_bytes = validate_claimed_job(job)
+        manifest_payload = client.download(
+            str(job["archive_bucket"]),
+            str(job["manifest_object_path"]),
+            max_bytes=MAX_MANIFEST_BYTES,
+        )
+        verify_manifest_bytes(
+            manifest_payload,
+            str(job["manifest_sha256"]),
+            str(job["dataset_id"]),
+            str(job["archive_sha256"]),
+            archive_bytes,
+        )
         payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
         verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
 
