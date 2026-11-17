@@ -121,7 +121,7 @@ check('exécution du bundle construit', true, entryMatch[1])
 await new Promise((resolve) => setTimeout(resolve, 1500))
 
 const text = window.document.body.textContent || ''
-for (const marker of ['Explorer', 'Trajet', 'Alertes', 'Paramètres', 'On va où']) {
+for (const marker of ['Explorer', 'Trajet', 'Alertes', 'Paramètres', 'GUIDE DE DÉPLACEMENT']) {
   check(`montage de l’application — ${marker}`, text.includes(marker))
 }
 check(
