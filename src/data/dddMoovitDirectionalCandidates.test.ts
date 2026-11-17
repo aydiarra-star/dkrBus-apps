@@ -23,4 +23,19 @@ describe('recent Moovit DDD directional candidates', () => {
     expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES[0].sourceUpdatedOn).toBe('2026-11-07')
     expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES[1].sourceUpdatedOn).toBe('2026-11-14')
   })
+
+  it('preserves each sourced stop occurrence in its published direction order', () => {
+    for (const candidate of DDD_MOOVIT_DIRECTIONAL_CANDIDATES) {
+      expect(candidate.stops).toHaveLength(candidate.occurrenceCount)
+      expect(candidate.stops[0]).toBe(candidate.from)
+      expect(candidate.stops.at(-1)).toBe(candidate.to)
+    }
+    const line7Out = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.find(
+      (item) => item.line === '7' && item.direction === 'to_ouakam',
+    )
+    const line7Back = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.find(
+      (item) => item.line === '7' && item.direction === 'to_palais',
+    )
+    expect(line7Out?.stops).not.toEqual(line7Back?.stops)
+  })
 })
