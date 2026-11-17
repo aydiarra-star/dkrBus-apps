@@ -49,3 +49,10 @@ Les horaires restent des données secondaires Moovit. Avant l'activation :
 5. conserver la source, la date de mise à jour et le statut secondaire dans les métadonnées.
 
 Aucun horaire régulier TER/BRT, aucune donnée de production et aucun écran passager n'a été modifié.
+
+
+## Écart interne à résoudre avant publication
+
+Sur la page Liberté 5 → Gare Palais, le bandeau indique une fin de service en semaine à **20:30**, alors que la dernière ligne du tableau commence à **20:35** et affiche une arrivée à Gare Palais à **21:00**. Le samedi, le bandeau et la dernière ligne commencent tous deux à 20:35.
+
+Cet écart ne doit pas être corrigé en supprimant ou en décalant arbitrairement la course. Il est enregistré comme anomalie de cohérence entre le résumé d'exploitation et le tableau détaillé. Demander une confirmation DDD ou une nouvelle publication Moovit avant de retenir l'heure de dernier départ en semaine.
