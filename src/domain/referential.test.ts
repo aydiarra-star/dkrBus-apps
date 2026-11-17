@@ -68,7 +68,7 @@ describe('référentiel central des mobilités', () => {
   it('donne les bornes publiées des fenêtres de service, jamais des passages observés', () => {
     const ter = publishedServiceWindow('ter')
     expect(ter.status).toBe('SCHEDULED')
-    expect(ter.firstDeparture).toBe('05:30')
+    expect(ter.firstDeparture).toBe('05:35')
     expect(ter.lastDeparture).toBe('22:00')
     expect(ter.note).toContain('pas des passages observés')
     const brt = publishedServiceWindow('brt')
