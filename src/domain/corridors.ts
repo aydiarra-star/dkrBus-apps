@@ -74,12 +74,19 @@ export interface CorridorLine {
   expressStopIds?: readonly string[]
 }
 
+export type TransferConnectionEvidence =
+  | { kind: 'shared_hub' }
+  | { kind: 'reference_estimate'; sourceId: string }
+  | { kind: 'verified_pedestrian_path'; sourceId: string; pathId: string }
+
 export interface CorridorTransfer {
   fromStopId: string
   toStopId: string
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
+  /** Niveau de preuve de la connexion utilisée par le planificateur. */
+  evidence?: TransferConnectionEvidence
   /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
@@ -418,36 +425,42 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'brt-petersen',
     walkM: 1000,
     label: 'Gare TER Dakar ↔ station BRT Petersen – Papa Gueye Fall (marche de référence ~1 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'ter-colobane',
     toStopId: 'brt-place-nation',
     walkM: 1400,
     label: 'Gare TER Colobane ↔ station BRT Place de la Nation (marche de référence ~1,4 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'brt-petersen',
     toStopId: 'ddd-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ DDD (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ AFTU (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'ddd-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Gare routière Petersen : DDD ↔ AFTU',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-prefecture-guediawaye',
     toStopId: 'ddd-guediawaye',
     walkM: 0,
     label: 'Pôle d’échange de Guédiawaye : BRT ↔ DDD (terminus de rabattement)',
+    evidence: { kind: 'shared_hub' },
   },
 ]
 
@@ -463,10 +476,18 @@ export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT
  * activées ; les rapprochements géographiques restent des pistes d'audit et
  * ne créent aucun changement de véhicule dans le calculateur.
  */
-export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS.map((transfer) => ({
-  ...transfer,
-  declared: true,
-}))
+function hasPlannerTransferEvidence(transfer: CorridorTransfer): boolean {
+  if (transfer.evidence?.kind === 'shared_hub') return transfer.walkM === 0
+  if (transfer.evidence?.kind === 'reference_estimate') {
+    return transfer.walkM > 0 && Boolean(transfer.evidence.sourceId.trim())
+  }
+  return transfer.evidence?.kind === 'verified_pedestrian_path'
+    && Boolean(transfer.evidence.sourceId.trim() && transfer.evidence.pathId.trim())
+}
+
+export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS
+  .filter(hasPlannerTransferEvidence)
+  .map((transfer) => ({ ...transfer, declared: true }))
 
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
 export function networkOfStopId(stopId: string): CorridorNetworkId | null {
