@@ -33,6 +33,34 @@ describe('séquences directionnelles des lignes', () => {
 })
 
 describe('calculateur multimodal de référence', () => {
+  it('calcule Dakar → Pikine sur le TER lorsque les deux gares sont choisies comme points de référence', () => {
+    const dakar = getCorridorStop('ter-dakar')!
+    const pikine = getCorridorStop('ter-pikine')!
+    const outcome = planReferenceJourney(
+      { label: dakar.name, lat: dakar.lat, lon: dakar.lon, stopId: dakar.id },
+      { label: pikine.name, lat: pikine.lat, lon: pikine.lon, stopId: pikine.id },
+    )
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.networksUsed).toEqual(['ter'])
+    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toEqual(['TER'])
+    expect(outcome.legs[0]?.from).toBe('Dakar')
+    expect(outcome.legs.at(-1)?.to).toBe('Pikine')
+  })
+
+  it('retrouve aussi Dakar → Pikine depuis les coordonnées exactes des gares sans identifiants d’arrêt', () => {
+    const dakar = getCorridorStop('ter-dakar')!
+    const pikine = getCorridorStop('ter-pikine')!
+    const outcome = planReferenceJourney(
+      { label: 'Dakar', lat: dakar.lat, lon: dakar.lon },
+      { label: 'Pikine', lat: pikine.lat, lon: pikine.lon },
+    )
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.networksUsed).toEqual(['ter'])
+    expect(outcome.legs.some((leg) => leg.kind === 'ride' && leg.line?.network === 'ter')).toBe(true)
+  })
+
   it('relie le Plateau à Guédiawaye en BRT sans inventer de correspondance', () => {
     const outcome = planReferenceJourney(PLATEAU, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
