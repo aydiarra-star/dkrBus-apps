@@ -46,76 +46,83 @@ def relation_intersects_dakar(members: list[dict], node_ids: set[int], way_ids: 
 
 
 def audit_route_way_topology(route_ways: list[dict]) -> dict:
-    """Audit endpoint connectivity without joining or drawing any geometry."""
-    parent = list(range(len(route_ways)))
+    """Audit shared-node connectivity without joining or drawing any geometry."""
+    node_neighbors: dict[int, set[int]] = {}
+    node_way_membership: dict[int, set[int]] = {}
+    valid_way_count = 0
 
-    def find(value: int) -> int:
-        while parent[value] != value:
-            parent[value] = parent[parent[value]]
-            value = parent[value]
-        return value
-
-    def union(left: int, right: int) -> None:
-        root_left, root_right = find(left), find(right)
-        if root_left != root_right:
-            parent[root_right] = root_left
-
-    endpoint_owners: dict[int, list[int]] = {}
     for index, way in enumerate(route_ways):
-        refs = way.get("nodeRefs") or []
+        refs = [int(ref) for ref in (way.get("nodeRefs") or [])]
         if len(refs) < 2:
             continue
-        endpoint_owners.setdefault(int(refs[0]), []).append(index)
-        endpoint_owners.setdefault(int(refs[-1]), []).append(index)
+        valid_way_count += 1
+        for ref in refs:
+            node_way_membership.setdefault(ref, set()).add(index)
+            node_neighbors.setdefault(ref, set())
+        for left, right in zip(refs, refs[1:]):
+            node_neighbors[left].add(right)
+            node_neighbors[right].add(left)
 
-    for owners in endpoint_owners.values():
-        for other in owners[1:]:
-            union(owners[0], other)
+    unseen = set(node_neighbors)
+    component_way_counts: list[int] = []
+    while unseen:
+        stack = [unseen.pop()]
+        component_nodes: set[int] = set()
+        while stack:
+            node_id = stack.pop()
+            component_nodes.add(node_id)
+            for neighbor in node_neighbors[node_id]:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    stack.append(neighbor)
+        component_ways = set()
+        for node_id in component_nodes:
+            component_ways.update(node_way_membership.get(node_id, set()))
+        component_way_counts.append(len(component_ways))
 
-    component_sizes: dict[int, int] = {}
-    for index, way in enumerate(route_ways):
-        if len(way.get("nodeRefs") or []) >= 2:
-            root = find(index)
-            component_sizes[root] = component_sizes.get(root, 0) + 1
-
-    degrees = [len(set(owners)) for owners in endpoint_owners.values()]
-    adjacent_joins = 0
-    reversed_joins = 0
+    adjacent_member_join_count = 0
+    adjacent_member_endpoint_join_count = 0
+    reversed_endpoint_join_count = 0
     for left, right in zip(route_ways, route_ways[1:]):
-        a = left.get("nodeRefs") or []
-        b = right.get("nodeRefs") or []
+        a = [int(ref) for ref in (left.get("nodeRefs") or [])]
+        b = [int(ref) for ref in (right.get("nodeRefs") or [])]
         if len(a) < 2 or len(b) < 2:
             continue
-        if a[-1] == b[0]:
-            adjacent_joins += 1
-        elif a[-1] == b[-1] or a[0] == b[0]:
-            adjacent_joins += 1
-            reversed_joins += 1
+        if set(a).intersection(b):
+            adjacent_member_join_count += 1
+        if a[-1] == b[0] or a[-1] == b[-1] or a[0] == b[0] or a[0] == b[-1]:
+            adjacent_member_endpoint_join_count += 1
+        if a[-1] == b[-1] or a[0] == b[0]:
+            reversed_endpoint_join_count += 1
 
-    component_count = len(component_sizes)
-    largest_component = max(component_sizes.values(), default=0)
-    branch_count = sum(degree > 2 for degree in degrees)
-    odd_endpoint_count = sum(degree % 2 == 1 for degree in degrees)
+    degrees = [len(neighbors) for neighbors in node_neighbors.values()]
+    component_count = len(component_way_counts)
+    largest_component = max(component_way_counts, default=0)
+    branch_node_count = sum(degree > 2 for degree in degrees)
+    odd_degree_node_count = sum(degree % 2 == 1 for degree in degrees)
     simple_path_candidate = (
         component_count == 1
-        and branch_count == 0
-        and odd_endpoint_count in {0, 2}
-        and len(route_ways) > 0
+        and branch_node_count == 0
+        and odd_degree_node_count in {0, 2}
+        and valid_way_count == len(route_ways)
+        and valid_way_count > 0
     )
     return {
         "routeWayCount": len(route_ways),
+        "validRouteWayCount": valid_way_count,
+        "uniqueNodeCount": len(node_neighbors),
         "connectedComponentCount": component_count,
         "largestComponentWayCount": largest_component,
-        "isolatedWayCount": sum(1 for size in component_sizes.values() if size == 1),
+        "isolatedWayCount": sum(1 for size in component_way_counts if size == 1),
+        "branchNodeCount": branch_node_count,
         "degreeOneEndpointCount": sum(1 for degree in degrees if degree == 1),
-        "branchEndpointCount": branch_count,
-        "oddEndpointCount": odd_endpoint_count,
-        "adjacentMemberJoinCount": adjacent_joins,
-        "adjacentMemberReversedJoinCount": reversed_joins,
+        "oddDegreeNodeCount": odd_degree_node_count,
+        "adjacentMemberSharedNodeCount": adjacent_member_join_count,
+        "adjacentMemberEndpointJoinCount": adjacent_member_endpoint_join_count,
+        "adjacentMemberReversedEndpointJoinCount": reversed_endpoint_join_count,
         "simplePathCandidate": simple_path_candidate,
         "warning": "Topology candidate only; this audit does not stitch ways or certify a commercial direction.",
     }
-
 
 def _inside(lat: float, lon: float) -> bool:
     return BOUNDS["south"] <= lat <= BOUNDS["north"] and BOUNDS["west"] <= lon <= BOUNDS["east"]
