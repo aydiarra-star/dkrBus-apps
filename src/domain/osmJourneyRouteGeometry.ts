@@ -165,7 +165,7 @@ export async function loadOsmJourneyRouteSegments(
       if (!searchResponse.ok) continue
       const searchPayload = await searchResponse.json() as { routes?: OSMRouteCandidate[] }
       const candidates = (searchPayload.routes ?? []).filter((route) =>
-        isMatchingAftuTataRoute(route, ride.reference),
+        isMatchingAftuTataRoute(route, ride.reference ?? undefined),
       )
 
       for (const candidate of candidates) {
