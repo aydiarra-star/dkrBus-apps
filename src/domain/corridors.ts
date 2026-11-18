@@ -298,6 +298,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'ddd-1',
+    plannerEnabled: false,
     network: 'ddd',
     shortName: 'DDD 1',
     longName: 'Parcelles Assainies ↔ Place Leclerc (référence)',
@@ -312,6 +313,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'ddd-2',
+    plannerEnabled: false,
     network: 'ddd',
     shortName: 'DDD 4',
     longName: 'Guédiawaye ↔ Almadies (référence)',
@@ -326,6 +328,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'ddd-3',
+    plannerEnabled: false,
     network: 'ddd',
     shortName: 'DDD 15',
     longName: 'Keur Massar ↔ Leclerc via Pikine (référence)',
@@ -340,6 +343,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-1',
+    plannerEnabled: false,
     network: 'aftu_tata',
     shortName: 'AFTU 42',
     longName: 'Gadaye ↔ Ouakam (référence AFTU)',
@@ -354,6 +358,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-2',
+    plannerEnabled: false,
     network: 'aftu_tata',
     shortName: 'AFTU 53',
     longName: 'Keur Massar ↔ Sébikotane (parcours officiel à réintégrer)',
@@ -373,6 +378,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-3',
+    plannerEnabled: false,
     network: 'aftu_tata',
     shortName: 'AFTU 1',
     longName: 'Lat Dior ↔ HLM Grand Médine (référence)',
@@ -387,6 +393,7 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'tata-1',
+    plannerEnabled: false,
     network: 'aftu_tata',
     shortName: 'AFTU',
     longName: 'Colobane ↔ Guédiawaye (référence AFTU)',
