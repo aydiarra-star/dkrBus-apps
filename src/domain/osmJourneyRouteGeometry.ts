@@ -127,7 +127,7 @@ export function osmRouteSegmentToLeafletPositions(
       || point[0] > DAKAR_BOUNDS.east + 0.2
       || point[1] < DAKAR_BOUNDS.south - 0.2
       || point[1] > DAKAR_BOUNDS.north + 0.2
-    ) continue
+    ) return []
     positions.push([point[1] as number, point[0] as number])
   }
   return positions.length >= 2 ? positions : []
