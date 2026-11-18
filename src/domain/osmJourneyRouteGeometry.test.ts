@@ -28,6 +28,9 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
     expect(isMatchingAftuTataRoute({
       id: 4, type: 'route_master', route: 'bus', ref: '40', network: 'AFTU',
     }, '40')).toBe(false)
+    expect(isMatchingAftuTataRoute({
+      id: 5, type: 'route', route: 'bus', ref: '79', operator: 'AFTU Sénégal',
+    })).toBe(true)
   })
 
   it('retient les arrêts nommés uniquement dans le sens demandé', () => {
