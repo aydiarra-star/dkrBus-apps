@@ -111,7 +111,7 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 
-  it('n'affiche aucun segment si la relation trouvée ne dessert pas les arrêts dans le sens choisi', async () => {
+  it('n\'affiche aucun segment si la relation trouvée ne dessert pas les arrêts dans le sens choisi', async () => {
     const line = CORRIDOR_LINES.find((candidate) => candidate.shortName === 'AFTU 1')
     if (!line) throw new Error('ligne AFTU 1 de référence manquante')
     const leg: PlannerLeg = {
