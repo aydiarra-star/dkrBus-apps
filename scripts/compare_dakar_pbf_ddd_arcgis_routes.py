@@ -44,12 +44,11 @@ OFFICIAL_TERMINI = {
     "9": ("liberte6", "palais2"),
     "10": ("liberte5", "palais2"),
     "13": ("liberte5", "palais2"),
-    "18": ("dieuppeul", "centreville"),
-    "20": ("dieuppeul", "centreville"),
     "23": ("parcellesassainies", "palais1"),
     "121": ("scaturbam", "leclerc"),
 }
-OFFICIAL_TERMINI_SOURCE = "https://demdikk.sn/reseau-urbain-dakar/"
+OFFICIAL_TERMINI_SOURCE = "https://demdikk.sn/info-voyageurs/"
+OFFICIAL_STOP_SEQUENCE_SOURCE = "https://demdikk.sn/reseau-urbain-dakar/"
 OFFICIAL_TERMINI_CHECKED_AT = "2026-11-18"
 
 
@@ -482,7 +481,8 @@ def build_report(osm: dict, arcgis: dict) -> dict:
             "arcgisGeneratedAt": arcgis.get("generatedAt"),
             "arcgisAttribution": arcgis.get("attribution"),
             "arcgisExtractionErrors": arcgis.get("errors") or [],
-            "officialDddRoutePage": OFFICIAL_TERMINI_SOURCE,
+            "officialDddEndpointPage": OFFICIAL_TERMINI_SOURCE,
+            "officialDddStopSequencePage": OFFICIAL_STOP_SEQUENCE_SOURCE,
             "officialTerminiCheckedAt": OFFICIAL_TERMINI_CHECKED_AT,
         },
         "method": "OSM route relation stop positions are projected against the matching DDD ArcGIS route paths and stop layers. All distances are metre-scale diagnostics. Explicit relation endpoints are paired only when reversed exactly. No geometry is stitched and no line is activated.",
