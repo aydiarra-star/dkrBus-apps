@@ -241,8 +241,11 @@ def nearest_arcgis_stop_audit(relation: dict, stop_layer: dict | None) -> dict:
             continue
         point = project_dakar(float(stop["lon"]), float(stop["lat"]))
         distances = sorted(
-            (math.hypot(point[0] - item["point"][0], point[1] - item["point"][1]), item)
-            for item in arcgis_stops
+            [
+                (math.hypot(point[0] - item["point"][0], point[1] - item["point"][1]), item)
+                for item in arcgis_stops
+            ],
+            key=lambda pair: pair[0],
         )
         distance, nearest = distances[0]
         second_distance = distances[1][0] if len(distances) > 1 else None
