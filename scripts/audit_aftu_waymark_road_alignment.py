@@ -267,6 +267,9 @@ def audit_route(route: dict, grid: dict) -> dict:
         and coverage["30"] >= 0.95
         and p95 is not None and p95 <= 35
         and maximum is not None and maximum <= 100
+    )
+    directional_candidate = bool(
+        road_aligned
         and markers_ok
         and (conflict_rate is None or conflict_rate <= 0.10)
     )
@@ -298,6 +301,8 @@ def audit_route(route: dict, grid: dict) -> dict:
         "onewayConflicts": oneway_conflicts,
         "onewayConflictRate": conflict_rate,
         "roadAlignedCandidate": road_aligned,
+        "directionalRoadCandidate": directional_candidate,
+        "terminalMarkersMatchGeometry": markers_ok,
         "activationStatus": "NOT_ACTIVATED_AUDIT_ONLY",
     }
 
@@ -335,6 +340,7 @@ def build_report(aftu: dict, road_segments: list[dict], pbf_path: str) -> dict:
                 for row in route_results
             ),
             "routesRoadAlignedCandidates": sum(row.get("roadAlignedCandidate", False) for row in route_results),
+            "routesDirectionalRoadCandidates": sum(row.get("directionalRoadCandidate", False) for row in route_results),
             "routesWithOneWayConflicts": sum(row.get("onewayConflicts", 0) > 0 for row in route_results),
             "osmDrivableRoadSegments": len(road_segments),
         },
