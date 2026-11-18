@@ -188,8 +188,8 @@ def parse_french_date(text: str) -> str | None:
 
 def extract_itinerary_text(text: str) -> str:
     clean = clean_space(text)
-    collection_index = normalize_text(clean).find(" collection ")
-    before_collection = clean[:collection_index] if collection_index >= 0 else clean
+    collection_match = re.search(r"\\bCollection\\b", clean, re.IGNORECASE)
+    before_collection = clean[:collection_match.start()] if collection_match else clean
     date_matches = list(DATE_RE.finditer(before_collection))
     if date_matches:
         route = before_collection[date_matches[-1].end():]
