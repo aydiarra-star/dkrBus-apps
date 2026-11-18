@@ -407,11 +407,10 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
 ]
 
-/** Correspondances inter-réseaux explicitement documentées.
- *  Les distances nulles à Petersen signifient que les réseaux partagent le
- *  même pôle d’échange dans la gare routière : aucune marche inter-pôle n’est
- *  ajoutée au calcul. Les distances TER ↔ BRT historiques restent inchangées.
- *  Les liaisons seulement supposées à partir de coordonnées ne sont pas activées. */
+/** Catalogue des correspondances candidates et de leurs preuves.
+ *  Les arêtes de pôle commun peuvent être activées sans marche inter-pôle.
+ *  Les distances TER ↔ BRT sont conservées comme repères historiques, mais
+ *  restent hors du graphe actif tant qu'un chemin piéton continu n'est pas vérifié. */
 export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
   {
     fromStopId: 'ter-dakar',
@@ -458,14 +457,12 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
 export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT_STOPS, ...DDD_STOPS, ...AFTU_STOPS, ...TATA_STOPS]
 
 /**
- * Correspondances utilisables par le calculateur.
+ * Graphe des correspondances réellement activées.
  *
- * Les positions DDD/AFTU/TATA de ce référentiel sont parfois des points de
- * quartier approximatifs ou repris d'un autre réseau. Une distance inférieure
- * à 120 m ne suffit donc pas à prouver un pôle d'échange réel. Seules les
- * correspondances explicitement documentées dans CORRIDOR_TRANSFERS sont
- * activées ; les rapprochements géographiques restent des pistes d'audit et
- * ne créent aucun changement de véhicule dans le calculateur.
+ * Une distance à vol d'oiseau ou une distance de marche de référence ne suffit
+ * pas : une liaison positive exige une preuve de chemin piéton vérifié (source
+ * et identifiant de chemin). Un pôle partagé documenté peut être activé sans
+ * inventer une marche inter-pôle. Les autres correspondances restent candidates.
  */
 function hasVerifiedTransferConnection(transfer: CorridorTransfer): boolean {
   if (transfer.evidence?.kind === 'shared_hub') return transfer.walkM === 0
