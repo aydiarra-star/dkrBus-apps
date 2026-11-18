@@ -372,6 +372,10 @@ function TransitMapView({
       setHighlightedAftuTataRouteSegments((current) => current.length ? [] : current)
       return () => controller.abort()
     }
+    // Effacer immédiatement le tracé précédent : une nouvelle recherche OSM
+    // peut prendre plusieurs secondes et l'ancien segment ne doit pas rester
+    // affiché comme s'il appartenait au nouvel itinéraire sélectionné.
+    setHighlightedAftuTataRouteSegments([])
     void loadOsmJourneyRouteSegments(highlightedJourneyLegs, controller.signal)
       .then((segments) => {
         if (!controller.signal.aborted) setHighlightedAftuTataRouteSegments(segments)
