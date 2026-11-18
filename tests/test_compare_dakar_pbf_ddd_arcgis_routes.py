@@ -76,11 +76,11 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
     def test_unverified_return_direction_never_becomes_a_bidirectional_candidate(self):
         rows = [
             {
-                "line": "9", "relationId": 1, "from": "palais", "to": "liberte",
+                "line": "9", "relationId": 1, "name": "9 Palais - Liberté", "from": "palais", "to": "liberte",
                 "geometryCandidate": True, "stopLayerCandidate": True, "directionCandidate": True,
             },
             {
-                "line": "9", "relationId": 2, "from": "liberte", "to": "palais",
+                "line": "9", "relationId": 2, "name": "9 Liberté - Palais", "from": "liberte", "to": "palais",
                 "geometryCandidate": False, "stopLayerCandidate": False, "directionCandidate": False,
             },
         ]
