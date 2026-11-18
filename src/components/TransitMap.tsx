@@ -15,6 +15,8 @@ import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, t
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
 import type { HighlightedJourneyRouteSegment } from '../domain/journeyRouteGeometry'
+import { verifiedDddJourneyRouteSegments } from '../domain/dddJourneyRouteGeometry'
+import type { PlannerLeg } from '../domain/planner'
 
 export interface Coordinates {
   lat: number
@@ -47,6 +49,7 @@ interface TransitMapProps {
   searchRoute?: readonly Coordinates[] | null
   /** Portions exactes des jambes dont la géométrie directionnelle a été auditée. */
   highlightedRouteSegments?: readonly HighlightedJourneyRouteSegment[]
+  highlightedJourneyLegs?: readonly PlannerLeg[]
   highlightedStopIds?: readonly string[]
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
@@ -347,12 +350,17 @@ function TransitMapView({
   corridorLines = [],
   corridorStops = [],
   highlightedRouteSegments = [],
+  highlightedJourneyLegs = [],
   highlightedStopIds = [],
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
   const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
+  const highlightedDddRouteSegments = useMemo(
+    () => verifiedDddJourneyRouteSegments(highlightedJourneyLegs, dddArcgisTracks),
+    [highlightedJourneyLegs, dddArcgisTracks],
+  )
 
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
   // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
@@ -778,6 +786,30 @@ function TransitMapView({
             interactive={false}
             pathOptions={{ color: paint.core, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
           />,
+        ]
+      })}
+      {highlightedDddRouteSegments.flatMap((segment) => {
+        const paint = paintFor('ddd')
+        if (!paint || segment.positions.length < 2) return []
+        const positions = segment.positions as [number, number][]
+        return [
+          <Polyline
+            key={`journey-ddd-halo-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
+          />,
+          <Polyline
+            key={`journey-ddd-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: paint.core, weight: 5, opacity: 0.96, dashArray: '7 5', lineCap: 'round', lineJoin: 'round' }}
+          >
+            <Tooltip sticky opacity={0.95} className="stop-tooltip mobility-tooltip">
+              <strong>DDD {segment.line}</strong>
+              <div>{segment.sourceLabel}</div>
+            </Tooltip>
+          </Polyline>,
         ]
       })}
       {corridorStops

@@ -1595,6 +1595,7 @@ function App() {
           corridorLines={visibleCorridorLines}
           corridorStops={visibleCorridorStops}
           highlightedRouteSegments={highlightedJourneyRouteSegments}
+          highlightedJourneyLegs={highlightedJourney?.legs ?? []}
           highlightedStopIds={highlightedJourneyStopIds}
           onSelectCorridorStop={stableCorridorStop}
         />
