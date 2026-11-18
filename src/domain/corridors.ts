@@ -149,7 +149,7 @@ export const TER_STOPS: readonly CorridorStop[] = [
   { id: 'ter-pikine', name: 'Pikine', lat: 14.7498644, lon: -17.3916937, order: 5, aliases: [], note: 'Zone 2' },
   { id: 'ter-thiaroye', name: 'Thiaroye', lat: 14.758771, lon: -17.3802989, order: 6, aliases: ['thiaroye gare'], note: 'Zone 2' },
   { id: 'ter-yeumbeul', name: 'Yeumbeul', lat: 14.764913, lon: -17.3565049, order: 7, aliases: [], note: 'Zone 2' },
-  { id: 'ter-mbao', name: 'Keur Mbaye Fall', lat: 14.744079, lon: -17.3138934, order: 8, aliases: ['mbao', 'keur massar'], note: 'Zone 3' },
+  { id: 'ter-mbao', name: 'Keur Mbaye Fall', lat: 14.744079, lon: -17.3138934, order: 8, aliases: ['mbao'], note: 'Zone 3' },
   { id: 'ter-pnr', name: 'PNR', lat: 14.7231692, lon: -17.2839425, order: 9, aliases: ['pole nouvelle rufisque'], note: 'Zone 3' },
   { id: 'ter-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 10, aliases: [], note: 'Zone 3' },
   { id: 'ter-bargny', name: 'Bargny', lat: 14.6981798, lon: -17.2292043, order: 11, aliases: [], note: 'Zone 3' },
@@ -212,6 +212,11 @@ export const DDD_STOPS: readonly CorridorStop[] = [
   { id: 'ddd-keur-massar', name: 'Keur Massar', lat: 14.79, lon: -17.31, order: 11, aliases: ['keur massar'], note: 'DDD' },
   { id: 'ddd-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 12, aliases: ['rufisque'], note: 'DDD' },
   { id: 'ddd-guediawaye', name: 'Guédiawaye', shortName: 'Guédiawaye', lat: 14.7719791, lon: -17.3868591, order: 13, aliases: ['guediawaye'], note: 'DDD' },
+  { id: 'ddd-keur-massar-227', name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922, order: 14, aliases: ['terminus keur massar ddd 227', 'gare ddd keur massar'], note: 'DDD 227 · point ArcGIS lignes 11/227, co-localisé avec le terminus AFTU 60' },
+  { id: 'ddd-malika-227', name: 'Route de Malika', lat: 14.793653, lon: -17.336456, order: 15, aliases: ['route de malika ddd 227'], note: 'DDD 227 · point d’arrêt ArcGIS' },
+  { id: 'ddd-guediawaye-227', name: 'Terminus DDD Guédiawaye', lat: 14.77277, lon: -17.38922, order: 16, aliases: ['terminus ddd guediawaye 227'], note: 'DDD 227 · gare routière OSM du terminus' },
+  { id: 'ddd-case-ba-227', name: 'Case Ba', lat: 14.756216, lon: -17.42975, order: 17, aliases: ['case ba ddd 227', 'case bi ddd 227'], note: 'DDD 227 · point d’arrêt ArcGIS' },
+  { id: 'ddd-parcelles-227', name: 'Terminus Parcelles Assainies', lat: 14.76043, lon: -17.439267, order: 18, aliases: ['terminus parcelles ddd 227'], note: 'DDD 227 · point terminal ArcGIS' },
 ]
 
 /** Réseau AFTU / TATA — arrêts principaux de référence (fiches aftu-senegal.org).
@@ -229,7 +234,10 @@ export const AFTU_STOPS: readonly CorridorStop[] = [
   { id: 'aftu-pikine', name: 'Pikine', lat: 14.7498644, lon: -17.3916937, order: 9, aliases: ['pikine aftu'], note: 'AFTU' },
   { id: 'aftu-rufisque', name: 'Rufisque', lat: 14.7159649, lon: -17.2699985, order: 10, aliases: ['rufisque aftu'], note: 'AFTU' },
   { id: 'aftu-diamalaye', name: 'Diamalaye', lat: 14.76, lon: -17.40, order: 11, aliases: ['diamalaye'], note: 'AFTU' },
-  { id: 'aftu-almadies', name: 'Almadies', lat: 14.74, lon: -17.53, order: 12, aliases: ['almadies aftu'], note: 'AFTU' },
+  { id: 'aftu-almadies', name: 'Terminus Almadies (AFTU 60)', shortName: 'Almadies', lat: 14.73475, lon: -17.50863, order: 12, aliases: ['almadies aftu', 'terminus minibus 61'], note: 'AFTU 60 · repère GPS du quai DDD 217/218 adjacent ; Moovit (index 61) place le Terminus à 31 m' },
+  { id: 'aftu-keur-massar-60', name: 'Terminus Keur Massar', lat: 14.78542, lon: -17.30922, order: 13, aliases: ['terminus minibus 61', 'keur massar ligne 60', 'keur massar moovit 61'], note: 'AFTU 60 · node OSM 5286379844, même pôle que le terminus DDD' },
+  { id: 'aftu-carrefour-grand-mbao-60', name: 'Carrefour Grand Mbao', lat: 14.73753, lon: -17.30952, order: 14, aliases: ['carrefour mbao ligne 60', 'carrefour mbao moovit 61'], note: 'AFTU 60 · arrêt bus OSM et fiche Moovit' },
+  { id: 'aftu-thiaroy-60', name: 'Thiaroy', lat: 14.7504, lon: -17.3776, order: 15, aliases: ['thiaroy ligne 60', 'thiaroy moovit 61'], note: 'AFTU 60 · arrêt bus OSM sur le corridor' },
 ]
 
 export const TATA_STOPS: readonly CorridorStop[] = [
@@ -339,6 +347,24 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.ddd,
   },
   {
+    id: 'ddd-227',
+    network: 'ddd',
+    shortName: 'DDD 227',
+    longName: 'Keur Massar ↔ Parcelles Assainies',
+    color: MOBILITY_PALETTE.ddd.core,
+    stopIds: ['ddd-keur-massar-227', 'ddd-malika-227', 'ddd-guediawaye-227', 'ddd-case-ba-227', 'ddd-parcelles-227'],
+    directions: [
+      ['ddd-keur-massar-227', 'ddd-malika-227', 'ddd-guediawaye-227', 'ddd-case-ba-227', 'ddd-parcelles-227'],
+      ['ddd-parcelles-227', 'ddd-case-ba-227', 'ddd-guediawaye-227', 'ddd-malika-227', 'ddd-keur-massar-227'],
+    ],
+    headwayMin: 30,
+    frequencyStatus: 'SCHEDULED',
+    frequencySource: FREQUENCY_SOURCES.moovit_ddd,
+    officialFrequencies: [],
+    serviceWindow: '06:30–20:30 lun.–sam. · 07:00–21:00 dim. · référence Moovit : 30 min',
+    speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.ddd,
+  },
+  {
     id: 'aftu-1',
     network: 'aftu_tata',
     shortName: 'AFTU 42',
@@ -383,6 +409,24 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
     frequencySource: FREQUENCY_SOURCES.cetud,
     officialFrequencies: [],
     serviceWindow: '06:00–21:00 · AFTU',
+    speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
+  },
+  {
+    id: 'aftu-60',
+    network: 'aftu_tata',
+    shortName: 'AFTU 60',
+    longName: 'Keur Massar ↔ Almadies / Mamelles',
+    color: MOBILITY_PALETTE.aftu_tata.core,
+    stopIds: ['aftu-keur-massar-60', 'aftu-carrefour-grand-mbao-60', 'aftu-thiaroy-60', 'aftu-almadies'],
+    directions: [
+      ['aftu-keur-massar-60', 'aftu-carrefour-grand-mbao-60', 'aftu-thiaroy-60', 'aftu-almadies'],
+      ['aftu-almadies', 'aftu-thiaroy-60', 'aftu-carrefour-grand-mbao-60', 'aftu-keur-massar-60'],
+    ],
+    headwayMin: 42,
+    frequencyStatus: 'SCHEDULED',
+    frequencySource: FREQUENCY_SOURCES.moovit_aftu,
+    officialFrequencies: [],
+    serviceWindow: '04:40–22:00 en semaine · 05:00–21:40 le week-end · référence Moovit : 20 min semaine / 42 min week-end',
     speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.aftu,
   },
   {
@@ -442,6 +486,12 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'ddd-guediawaye',
     walkM: 0,
     label: 'Pôle d’échange de Guédiawaye : BRT ↔ DDD (terminus de rabattement)',
+  },
+  {
+    fromStopId: 'ddd-keur-massar-227',
+    toStopId: 'aftu-keur-massar-60',
+    walkM: 0,
+    label: 'Pôle terminus Keur Massar : DDD 227 ↔ AFTU 60 (même gare routière)',
   },
 ]
 

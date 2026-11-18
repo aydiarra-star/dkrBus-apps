@@ -89,6 +89,29 @@ describe('calculateur multimodal de référence', () => {
     }
   })
 
+  it('relie Parcelles à Almadies par DDD 227 puis AFTU 60 au terminus commun Keur Massar', () => {
+    const outcome = planReferenceJourney(endpoint('ddd-parcelles-227'), endpoint('aftu-almadies'), 'fastest', {
+      allowedNetworks: ['ddd', 'aftu_tata'],
+    })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    const rides = outcome.legs.filter((leg) => leg.kind === 'ride')
+    expect(rides.map((leg) => leg.line?.shortName)).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 60']))
+    expect(outcome.transfers).toBe(1)
+    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['DDD 227', 'AFTU 60']))
+    expect(outcome.networksUsed).toEqual(expect.arrayContaining(['ddd', 'aftu_tata']))
+  })
+
+  it('calcule le trajet inverse Almadies → Parcelles avec les deux sens publiés', () => {
+    const outcome = planReferenceJourney(endpoint('aftu-almadies'), endpoint('ddd-parcelles-227'), 'fastest', {
+      allowedNetworks: ['ddd', 'aftu_tata'],
+    })
+    expect(outcome.ok).toBe(true)
+    if (!outcome.ok) return
+    expect(outcome.boardedLines).toEqual(expect.arrayContaining(['AFTU 60', 'DDD 227']))
+    expect(outcome.transfers).toBe(1)
+  })
+
   it('refuse un départ trop éloigné du réseau de référence au lieu de deviner', () => {
     const far = { label: 'Mbour', lat: 14.4167, lon: -16.9667 }
     const outcome = planReferenceJourney(far, GUEDIAWAYE)

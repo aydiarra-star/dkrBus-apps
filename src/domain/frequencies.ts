@@ -80,7 +80,7 @@ const NO_VERIFIED_DATE = null
 const NO_CALENDAR_VALIDITY: FrequencyValidityPeriod = { validFrom: null, validUntil: null }
 
 /** URLs racines déjà référencées par le générateur GTFS et l'interface du dépôt. */
-export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud', FrequencySource>> = {
+export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud' | 'moovit_ddd' | 'moovit_aftu', FrequencySource>> = {
   brt: {
     authority: 'CETUD',
     sourceUrl: 'https://www.sunubrt.sn',
@@ -96,6 +96,18 @@ export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud', Frequen
   cetud: {
     authority: 'CETUD',
     sourceUrl: 'https://cetud.sn',
+    verifiedAt: NO_VERIFIED_DATE,
+    verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
+  },
+  moovit_ddd: {
+    authority: 'DDD',
+    sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-227-Dakar-5996-1618037-18051447-1',
+    verifiedAt: NO_VERIFIED_DATE,
+    verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
+  },
+  moovit_aftu: {
+    authority: 'AFTU',
+    sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-time-61-Dakar-5996-1618038-18051490-4256300-0',
     verifiedAt: NO_VERIFIED_DATE,
     verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
   },
