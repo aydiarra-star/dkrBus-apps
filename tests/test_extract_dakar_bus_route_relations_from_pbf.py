@@ -63,7 +63,17 @@ class BusRouteRelationFilterTests(unittest.TestCase):
             {"nodeRefs": [2, 4], "geometry": []},
         ])
         self.assertEqual(audit["connectedComponentCount"], 1)
-        self.assertEqual(audit["branchEndpointCount"], 1)
+        self.assertEqual(audit["branchNodeCount"], 1)
+        self.assertFalse(audit["simplePathCandidate"])
+
+    def test_topology_audit_detects_a_connection_at_an_interior_node(self):
+        audit = audit_route_way_topology([
+            {"nodeRefs": [1, 2, 3], "geometry": []},
+            {"nodeRefs": [2, 4], "geometry": []},
+        ])
+        self.assertEqual(audit["connectedComponentCount"], 1)
+        self.assertEqual(audit["branchNodeCount"], 1)
+        self.assertEqual(audit["adjacentMemberSharedNodeCount"], 1)
         self.assertFalse(audit["simplePathCandidate"])
 
 
