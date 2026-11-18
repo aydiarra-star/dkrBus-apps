@@ -99,9 +99,14 @@ def point_segment_distance(point: tuple[float, float], start: tuple[float, float
 def project_stop_to_path(stop: dict, path: list[list[float]]) -> dict | None:
     if not isinstance(path, list) or len(path) < 2:
         return None
-    if not math.isfinite(float(stop.get("lat", math.nan))) or not math.isfinite(float(stop.get("lon", math.nan))):
+    try:
+        latitude = float(stop["lat"])
+        longitude = float(stop["lon"])
+    except (KeyError, TypeError, ValueError):
         return None
-    point = project_dakar(float(stop["lon"]), float(stop["lat"]))
+    if not math.isfinite(latitude) or not math.isfinite(longitude):
+        return None
+    point = project_dakar(longitude, latitude)
     projected_path = [project_dakar(float(coord[0]), float(coord[1])) for coord in path]
     chainage = 0.0
     best = None
@@ -228,12 +233,17 @@ def nearest_arcgis_stop_audit(relation: dict, stop_layer: dict | None) -> dict:
     arcgis_stops = []
     for feature in (stop_layer or {}).get("features") or []:
         geometry = feature.get("geometry") or {}
-        if not math.isfinite(float(geometry.get("x", math.nan))) or not math.isfinite(float(geometry.get("y", math.nan))):
+        try:
+            longitude = float(geometry["x"])
+            latitude = float(geometry["y"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not math.isfinite(longitude) or not math.isfinite(latitude):
             continue
         arcgis_stops.append({
             "objectId": (feature.get("attributes") or {}).get("OBJECTID"),
             "name": (feature.get("attributes") or {}).get("Nom_Arret"),
-            "point": project_dakar(float(geometry["x"]), float(geometry["y"])),
+            "point": project_dakar(longitude, latitude),
         })
     matches = []
     for stop in relation.get("stopsInRelationOrder") or []:
@@ -369,6 +379,7 @@ def build_report(osm: dict, arcgis: dict) -> dict:
             "osmSource": osm.get("source"),
             "arcgisGeneratedAt": arcgis.get("generatedAt"),
             "arcgisAttribution": arcgis.get("attribution"),
+            "arcgisExtractionErrors": arcgis.get("errors") or [],
         },
         "method": "OSM route relation stop positions are projected against the matching DDD ArcGIS route paths and stop layers. All distances are metre-scale diagnostics. Explicit relation endpoints are paired only when reversed exactly. No geometry is stitched and no line is activated.",
         "thresholds": {
