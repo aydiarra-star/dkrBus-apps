@@ -36,6 +36,10 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         relation = {"tags": {"name": "10 Palais - Liberté"}}
         self.assertEqual(parse_relation_endpoints(relation), ("palais", "liberte"))
 
+    def test_normalizes_numbered_terminal_names_without_losing_the_number(self):
+        relation = {"tags": {"from": "Terminus Palais 1", "to": "Terminus Liberté 5"}}
+        self.assertEqual(parse_relation_endpoints(relation), ("palais1", "liberte5"))
+
     def test_monotonicity_detects_both_directions_and_mixed_order(self):
         self.assertEqual(monotonicity([0, 100, 200])["orientation"], "INCREASING")
         self.assertEqual(monotonicity([200, 100, 0])["orientation"], "DECREASING")
@@ -100,6 +104,25 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         ]
         pair = classify_direction_pairs(rows)[0]
         self.assertEqual(pair["explicitReversePairs"], 1)
+        self.assertFalse(pair["bidirectionalGeometryAndStopsCandidate"])
+
+
+    def test_geometry_pair_is_reported_separately_from_incomplete_stop_layer_crosscheck(self):
+        rows = [
+            {
+                "line": "9", "relationId": 3, "name": "9 Palais - Liberté",
+                "from": "palais1", "to": "liberte6",
+                "geometryCandidate": True, "stopLayerCandidate": False, "directionCandidate": False,
+            },
+            {
+                "line": "9", "relationId": 4, "name": "9 Liberté - Palais",
+                "from": "liberte6", "to": "palais1",
+                "geometryCandidate": True, "stopLayerCandidate": True, "directionCandidate": True,
+            },
+        ]
+        pair = classify_direction_pairs(rows)[0]
+        self.assertTrue(pair["bidirectionalGeometryCandidate"])
+        self.assertFalse(pair["bidirectionalStopLayerCandidate"])
         self.assertFalse(pair["bidirectionalGeometryAndStopsCandidate"])
 
     def test_missing_arcgis_stop_coordinates_are_ignored_without_crashing(self):
