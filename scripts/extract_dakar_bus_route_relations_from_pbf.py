@@ -106,7 +106,8 @@ def audit_route_way_topology(route_ways: list[dict]) -> dict:
         "routeWayCount": len(route_ways),
         "connectedComponentCount": component_count,
         "largestComponentWayCount": largest_component,
-        "isolatedWayCount": sum(1 for degree in degrees if degree == 1),
+        "isolatedWayCount": sum(1 for size in component_sizes.values() if size == 1),
+        "degreeOneEndpointCount": sum(1 for degree in degrees if degree == 1),
         "branchEndpointCount": branch_count,
         "oddEndpointCount": odd_endpoint_count,
         "adjacentMemberJoinCount": adjacent_joins,
@@ -154,6 +155,11 @@ def extract_route_relations(pbf_path: str) -> dict:
             ]
             self.raw_relations.append({
                 "id": int(relation.id),
+                "version": int(relation.version),
+                "timestamp": str(relation.timestamp),
+                "changeset": int(relation.changeset),
+                "uid": int(relation.uid),
+                "user": str(relation.user),
                 "tags": tags,
                 "members": members,
             })
