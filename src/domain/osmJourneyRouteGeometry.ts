@@ -76,7 +76,7 @@ export function buildOsmRouteSearchUrl(reference: string): string {
 }
 
 function normalizeRouteReference(value: string): string {
-  const match = /^(?:(?:AFTU|TATA)\\s*)?([0-9]{1,3}[A-Z]?)$/i.exec(value.trim())
+  const match = /^(?:(?:AFTU|TATA)\s*)?([0-9]{1,3}[A-Z]?)$/i.exec(value.trim())
   return match?.[1]?.toUpperCase() ?? value.trim().toUpperCase()
 }
 
