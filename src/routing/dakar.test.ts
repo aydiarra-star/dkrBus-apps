@@ -3,6 +3,7 @@ import { ALL_CORRIDOR_STOPS, BRT_STOPS, CORRIDOR_TRANSFERS, TER_STOPS } from '..
 import { OFFICIAL_REFERENCE_FREQUENCIES } from '../domain/frequencies'
 import { dakarNetwork as net, planDakarJourney } from './dakar'
 import { brtService, phaseOneService } from './dakarService'
+import { projectStopToLine } from '../domain/roadNetworkRouting'
 import { mapItinerary } from './presentation'
 import { dayOf, nextRuns } from './serviceTime'
 const at = (s: string) => Date.parse(s + 'Z') / 1000
@@ -46,7 +47,7 @@ it.each([
 
 it('does not promote a GPS fix, a mismatched position or a colliding published stop ID to a reference boarding point', () => {
   const a = endpoint('ter-dakar'), b = endpoint('ter-pikine')
-  for (const p of [{ ...a, stopId: undefined }, { ...a, lat: a.lat + 0.00001 }, { ...a, kind: 'stop' as const }]) {
+  for (const p of [{ ...a, stopId: undefined }, { ...a, lat: a.lat + 0.00001 }, { ...a, kind: 'stop' as const }, { ...a, kind: 'map' as const }]) {
     expect(planDakarJourney(p, b, { departAt: morning })).toMatchObject({ code: 'UNVERIFIED_ACCESS' })
   }
   expect(planDakarJourney(a, b, { departAt: NaN })).toMatchObject({ code: 'INVALID_QUERY' })
@@ -81,4 +82,33 @@ it('gives actual next modeled slots at the boarding stop, never extending beyond
   expect(r.ok && r.options[0].legs[0]).toMatchObject({ passages: ['08:06', '08:12', '08:18'].map(s => at(`2026-11-18T${s}`)) })
   const last = plan('brt-prefecture-guediawaye', 'brt-petersen', at('2026-11-18T20:53'))
   expect(last.ok && last.options[0].legs[0]).toMatchObject({ passages: [at('2026-11-18T20:54')] })
+})
+
+
+it('checks all ordered pairs of the 36 actual calls: direction, source chainage, map vertices and time accounting', () => {
+  let allowed = 0, refused = 0
+  const sequences = [TER_STOPS.filter(s => s.id !== 'ter-aibd'), [...BRT_STOPS].reverse()]
+  for (const [index, stops] of sequences.entries()) {
+    const pattern = net.patterns.find(p => p.network === (index ? 'brt' : 'ter'))!
+    const chainages = stops.map(s => projectStopToLine(s, pattern.shape.positions)!.chainageM)
+    for (const [i, from] of stops.entries()) for (const to of [...sequences[0], ...sequences[1]]) {
+      const j = stops.findIndex(s => s.id === to.id)
+      const r = plan(from.id, to.id)
+      if (j <= i) {
+        expect(r).toMatchObject({ ok: false, code: j === i ? 'SAME_PLACE' : 'NO_PATH' })
+        refused++; continue
+      }
+      if (!r.ok) throw Error(`${from.id} → ${to.id}: ${r.message}`)
+      allowed++
+      const t = r.options[0], leg = t.legs[0]
+      expect(r.options.length).toBe(1); expect(t.legs.length).toBe(1)
+      if (leg.kind !== 'ride') throw Error('Unexpected walk')
+      expect(leg.stops.map(s => s.id)).toEqual(stops.slice(i, j + 1).map(s => s.id))
+      expect(Math.abs(t.meters - (chainages[j] - chainages[i]))).toBeLessThan(0.1)
+      expect(t.walkSeconds).toBe(0); expect(t.totalSeconds).toBe(t.waitSeconds + t.rideSeconds)
+      expect(leg.start).toBe(t.start + leg.waitSeconds); expect(leg.end).toBe(leg.start + t.rideSeconds)
+      expect(mapItinerary(t).segments[0].positions).toEqual(leg.positions.map(p => [p.lat, p.lon]))
+    }
+  }
+  expect([allowed, refused]).toEqual([331, 965]) // 36²; includes 36 identical endpoints and 598 cross-network pairs
 })

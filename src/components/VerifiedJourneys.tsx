@@ -38,6 +38,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, preferences }: 
     <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : 'Pas d’itinéraire vérifié'}</h3></div></header>
     {!result.ok ? <p role="status">{result.message}</p> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>
+      {!selectedId && <p role="status">La variante précédente n’est plus disponible avec ces réglages. Choisissez un trajet pour l’afficher sur la carte.</p>}
       {result.options.map(trip => {
         const selected = selectedId === trip.id
         const rides = trip.legs.flatMap(l => l.kind === 'ride' ? [l] : [])
@@ -47,11 +48,11 @@ export function VerifiedJourneys({ result, selectedId, onSelect, preferences }: 
         })
         return <article key={trip.id} className={`verified-trip${selected ? ' is-selected' : ''}`}>
           <span className="eyebrow">{result.options.length === 1 ? 'SEUL PARCOURS CALCULABLE' : trip.best.map(c => criterionLabels[c]).join(' · ')}</span>
-          <h4>{dakarClock(trip.start)} → {dakarClock(trip.end)} <span>≈ {formatDuration(trip.totalSeconds / 60, preferences.units.duration)}</span></h4>
+          <h4>{dakarClock(trip.start)} → {dakarClock(trip.end)} <span>≈ {formatDuration(Math.ceil(trip.totalSeconds / 60), preferences.units.duration)}</span></h4>
           <p>{rides.map((r, i) => <MobilityBadge key={i} id={r.network}>{r.lineName}</MobilityBadge>)} {' '}{transferLabel(trip.changes)} · {formatDistance(trip.meters, preferences.units.distance)}</p>
           <p>Marche : {minutes(trip.walkSeconds)} ({formatDistance(trip.walkMeters, preferences.units.distance)}) · Attente : {minutes(trip.waitSeconds)} · À bord : {minutes(trip.rideSeconds)}.</p>
           {preferences.mobility.showFares && <p>Tarif de référence : {fareLegs.length === rides.length ? fareStatusLabel(fareForJourney(fareLegs, { terClass: preferences.mobility.terClass })) : 'non disponible'}.</p>}
-          {result.options.length > 1 && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onSelect(trip.id)}><Layers3 size={14} /> {selected ? 'Affiché sur la carte' : 'Afficher ce trajet sur la carte'}</button>}
+          {(result.options.length > 1 || !selectedId) && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onSelect(trip.id)}><Layers3 size={14} /> {selected ? 'Affiché sur la carte' : 'Afficher ce trajet sur la carte'}</button>}
           <ol>{trip.legs.map((leg, i) => <Step key={i} leg={leg} preferences={preferences} />)}</ol>
         </article>
       })}

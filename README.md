@@ -8,6 +8,8 @@ Dans **Trajet**, choisissez deux arrêts et une heure de départ à Dakar. Le ca
 
 [Rapport, exemples chiffrés, architecture, contrôles et limites](docs/moteur-voyageurs-dakar-2026-11-18.md) · `npm run demo:routing` · `npm run test:routing`.
 
+[Revue de livraison de la PR #270 : correspondances à relever et blocage de sécurité](docs/finalisation-pr270-moteur-voyageurs.md). Pour obtenir les sources et les preuves manquantes par sens, sans activer de chemin : `npm run audit:passenger-transfers`.
+
 ## État actuel
 
 Cette première fondation fournit :

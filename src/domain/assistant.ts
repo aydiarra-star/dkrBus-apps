@@ -65,13 +65,14 @@ export interface AssistantContext {
   trafficSummaryValidUntil?: string | null
 }
 
+export interface AssistantJourney { origin: PlannerEndpoint; destination: PlannerEndpoint; tripId?: string }
 export interface AssistantMessage {
   id: number
   role: 'user' | 'assistant'
   text: string
   /** Only set for a valid, positive countdown calculated from a scheduled departure. */
   countdownMinutes?: number
-  journey?: { origin: PlannerEndpoint; destination: PlannerEndpoint }
+  journey?: AssistantJourney
 }
 
 function normalize(value: string): string {

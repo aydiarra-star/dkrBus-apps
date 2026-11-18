@@ -53,11 +53,11 @@ export interface DakarEndpoint { stopId?: string; lat: number; lng: number; kind
 /** Explicit selection only. Published GTFS IDs are a separate namespace. A GPS
  * fix (even with identical coordinates) cannot silently become a platform. */
 export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options: Omit<Query, 'origin' | 'destination'>): Outcome {
-  if ([from, to].some(p => p.stopId === 'ter-aibd' && p.kind !== 'stop')) return { ok: false, code: 'OUT_OF_SCOPE', message: 'AIBD relève de la phase 2. Le calcul TER s’arrête à Diamniadio.' }
+  if ([from, to].some(p => p.stopId === 'ter-aibd' && p.kind === undefined)) return { ok: false, code: 'OUT_OF_SCOPE', message: 'AIBD relève de la phase 2. Le calcul TER s’arrête à Diamniadio.' }
   if (!from.stopId && !to.stopId && from.lat === to.lat && from.lng === to.lng) return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
   const resolve = (p: DakarEndpoint) => {
     const place = p.stopId && dakarNetwork.places.get(p.stopId)
-    return place && p.kind !== 'stop' && place.lat === p.lat && place.lon === p.lng ? place.id : ''
+    return place && p.kind === undefined && place.lat === p.lat && place.lon === p.lng ? place.id : ''
   }
   const origin = resolve(from), destination = resolve(to)
   const result = search(dakarNetwork, { ...options, origin, destination })

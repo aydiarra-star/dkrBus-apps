@@ -11,6 +11,8 @@
 import type { PlannerEndpoint } from './planner'
 
 export interface JourneyMemory {
+  /** Dated passenger option; absent for historical simulations. */
+  tripId?: string
   origin: PlannerEndpoint
   destination: PlannerEndpoint
   /** Résumé lisible du dernier calcul (étapes), pour expliquer le choix. */

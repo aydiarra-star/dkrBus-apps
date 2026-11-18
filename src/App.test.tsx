@@ -2,7 +2,11 @@
 import { act, fireEvent, render, screen, cleanup, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
-import { resetPreferences, updatePreferences } from './domain/preferences'
+import * as dakarRouting from './routing/dakar'
+import { search as searchNetwork } from './routing/search'
+import { mapItinerary, type MapSegment } from './routing/presentation'
+import { fixtureNetwork, fixtureQuery } from './test/passengerTransferFixture'
+import { getPreferences, resetPreferences, updatePreferences } from './domain/preferences'
 import { trafficAlert, trafficPayload, TRAFFIC_TEST_NOW } from './test/trafficFixtures'
 import { communityPayload, communityReport, COMMUNITY_TEST_ID, COMMUNITY_TEST_KEY } from './test/communityFixtures'
 
@@ -19,7 +23,7 @@ vi.mock('./components/TransitMap', () => ({
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
-    highlightedRouteSegments?: readonly { id: string; network: 'ter' | 'brt'; positions: readonly (readonly [number, number])[] }[]
+    highlightedRouteSegments?: readonly MapSegment[]
     highlightedCalls?: readonly { place: { id: string } }[]
   }) => (
     <div aria-label="Carte de test">
@@ -33,7 +37,7 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
-      <span data-testid="highlighted-lines">{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
+      <span data-testid="highlighted-lines" data-segments={JSON.stringify(highlightedRouteSegments)}>{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
       <span data-testid="highlighted-stops">{highlightedCalls.map(c => c.place.id).join(',')}</span>
     </div>
   ),
@@ -1769,6 +1773,45 @@ describe('boutons : une action va jusqu’au bout', () => {
 
 
 describe('copilote et comparateur sur les parcours existants', () => {
+  it('opens the exact less-walking chat variant, then maps only the manually selected alternative', async () => {
+    // Deliberately replace ONLY the OD adapter in this test. The two options
+    // are calculated by the real engine on synthetic, never passenger, data.
+    const outcome = searchNetwork(fixtureNetwork, fixtureQuery)
+    if (!outcome.ok || outcome.options.length !== 2) throw Error('Expected two test variants')
+    const [fast, direct] = outcome.options
+    vi.spyOn(dakarRouting, 'planDakarJourney').mockImplementation((_a, _b, options) =>
+      searchNetwork(fixtureNetwork, { ...fixtureQuery, ...options }))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    const departure = screen.getByLabelText(/date et heure de départ à Dakar/i)
+    fireEvent.change(departure, { target: { value: '2026-11-18T08:00' } })
+    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
+    const question = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
+    fireEvent.change(question, { target: { value: 'Trajet de Dakar à Pikine, moins de marche' } })
+    fireEvent.submit(question.closest('form')!)
+    const open = await screen.findByRole('button', { name: /ouvrir dans trajet/i })
+    expect(screen.getByRole('log').textContent).toContain('Direct')
+    fireEvent.click(open)
+    const geometry = () => JSON.parse(screen.getByTestId('highlighted-lines').dataset.segments!)
+    expect(geometry()).toEqual(mapItinerary(direct).segments)
+    expect(document.querySelector('.verified-trip.is-selected h4')?.textContent).toContain('19 min')
+    expect(screen.getByRole('log').textContent).toContain('19 min')
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher ce trajet sur la carte' }))
+    expect(geometry()).toEqual(mapItinerary(fast).segments)
+    // A stale message must not silently select a different, still feasible trip.
+    act(() => { updatePreferences('mobility', { networks: { ...getPreferences().mobility.networks, ddd: false } }) })
+    fireEvent.click(open)
+    expect(geometry()).toEqual([])
+    expect(screen.getByText(/variante précédente n’est plus disponible/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher ce trajet sur la carte' }))
+    expect(geometry()).toEqual(mapItinerary(fast).segments)
+    // No compatible service at all after closing.
+    fireEvent.change(departure, { target: { value: '2026-11-18T21:00' } })
+    fireEvent.click(open)
+    expect(geometry()).toEqual([])
+  })
+
   it('préremplit Trajet, refuse une correspondance non vérifiée et isole le comparateur historique', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)

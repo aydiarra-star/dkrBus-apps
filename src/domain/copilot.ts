@@ -19,6 +19,7 @@ import {
   getAssistantCountdownMinutes,
   journeyReply,
   type AssistantContext,
+  type AssistantJourney,
 } from './assistant'
 import { compareReferenceJourneys } from './comparison'
 import {
@@ -85,7 +86,7 @@ export interface CopilotReply {
   text: string
   language: ResponseLanguage
   /** Trajet injectable dans l'onglet Trajet, si la réponse en produit un. */
-  journey?: { origin: PlannerEndpoint; destination: PlannerEndpoint }
+  journey?: AssistantJourney
   /** Compte à rebours seulement si un départ programmé exact est fourni. */
   countdownMinutes?: number
 }
@@ -103,11 +104,18 @@ function normalize(value: string): string {
 /** One service for the form and every chat route intent, including follow-ups.
  * Clear the old alighting advice on failure, but retain the explicitly chosen
  * endpoints so that a return enquiry can be evaluated independently. */
-function passengerReply(lookup: NonNullable<AssistantContext['passengerRoute']>, memory: ConversationMemory, origin: PlannerEndpoint, destination: PlannerEndpoint, question: string, language: ResponseLanguage): CopilotReply {
-  const answer = lookup(origin, destination, question, language)
+function passengerReply(lookup: NonNullable<AssistantContext['passengerRoute']>, memory: ConversationMemory, origin: PlannerEndpoint, destination: PlannerEndpoint, question: string, language: ResponseLanguage, tripId?: string): CopilotReply {
+  const answer = lookup(origin, destination, question, language, tripId)
   memory.lastOrigin = origin; memory.lastDestination = destination; memory.lastJourney = answer.memory
   memory.pendingPlace = null; memory.lastAnswer = answer.text
-  return { text: answer.text, language, journey: { origin, destination } }
+  return { text: answer.text, language, journey: { origin, destination, tripId: answer.memory?.tripId ?? tripId } }
+}
+
+/** Route-bearing follow-ups keep the same option token as a first request. */
+function rememberReply(memory: ConversationMemory, reply: string | CopilotReply): CopilotReply {
+  const message = typeof reply === 'string' ? { text: reply, language: 'fr' as const } : reply
+  memory.lastAnswer = message.text
+  return message
 }
 
 function describeRideLegs(legs: readonly PlannerLeg[]): string[] {
@@ -196,7 +204,7 @@ function nearestStopReply(context: AssistantContext, language: ResponseLanguage)
   return `L’arrêt de référence le plus proche est ${nearest.stop.name} (${lines}), à environ ${nearest.distanceM < 1000 ? `${Math.round(nearest.distanceM)} m` : `${(nearest.distanceM / 1000).toFixed(1).replace('.', ',')} km`} à vol d’oiseau de votre position (accès à pied non vérifié).${precision} Ce calcul porte sur les arrêts TER/BRT du référentiel ; DDD/AFTU ne sont pas intégrés.`
 }
 
-function stopsBetweenReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | null {
+function stopsBetweenReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | CopilotReply | null {
   const text = normalize(question)
   if (!/\barrets\b.*\bentre\b|\bentre\b.*\bet\b.*\bquels\b|\bquels arrets\b/.test(text) && !/arrets (?:se trouvant|situes) entre/.test(text)) {
     return null
@@ -208,7 +216,7 @@ function stopsBetweenReply(question: string, memory: ConversationMemory, lookup?
     if (!originId || !destinationId) {
       return 'Je n’ai pas encore de départ et de destination en mémoire : demandez d’abord un trajet, puis reposez la question.'
     }
-    if (lookup && memory.lastOrigin && memory.lastDestination) return passengerReply(lookup, memory, memory.lastOrigin, memory.lastDestination, question, 'fr').text
+    if (lookup && memory.lastOrigin && memory.lastDestination) return passengerReply(lookup, memory, memory.lastOrigin, memory.lastDestination, question, 'fr', memory.lastJourney?.tripId)
     for (const line of REFERENTIAL_LINES) {
       const sequence = stopsBetween(line, originId, destinationId)
       if (sequence) {
@@ -231,7 +239,7 @@ function stopsBetweenReply(question: string, memory: ConversationMemory, lookup?
   }
   const from = fromMatches[0]
   const to = toMatches[0]
-  if (lookup) return passengerReply(lookup, memory, { ...from, stopId: from.id, label: from.name }, { ...to, stopId: to.id, label: to.name }, question, 'fr').text
+  if (lookup) return passengerReply(lookup, memory, { ...from, stopId: from.id, label: from.name }, { ...to, stopId: to.id, label: to.name }, question, 'fr')
   for (const line of REFERENTIAL_LINES) {
     const sequence = stopsBetween(line, from.id, to.id)
     if (sequence) {
@@ -292,7 +300,7 @@ function transfersReply(question: string): string | null {
 
 /** Classement par critère d'un trajet déjà en mémoire — options réellement
  *  calculées uniquement, jamais de classement sur des données absentes. */
-function criterionReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | null {
+function criterionReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | CopilotReply | null {
   const text = normalize(question)
   const criterion: 'fastest' | 'lessWalking' | 'fewerTransfers' | null =
     /moins de marche|marcher le moins/.test(text) ? 'lessWalking'
@@ -304,7 +312,7 @@ function criterionReply(question: string, memory: ConversationMemory, lookup?: A
   if (!origin || !destination) {
     return 'Pour comparer selon ce critère, indiquez d’abord un départ et une destination (« trajet de … à … ») : je ne classe que des itinéraires réellement calculés.'
   }
-  if (lookup) return passengerReply(lookup, memory, origin, destination, question, 'fr').text
+  if (lookup) return passengerReply(lookup, memory, origin, destination, question, 'fr')
   const comparison = compareReferenceJourneys(origin, destination)
   if (!comparison.ok) return comparison.message
   const chosen = comparison.options.find((option) => option.priority === comparison.bestBy[criterion])!
@@ -333,7 +341,7 @@ function lastDepartureReply(question: string): string | null {
   return `Derniers départs connus d’après les fenêtres de service publiées :\n${parts.join('\n')}\nUne fréquence ne donne pas l’heure exacte d’un passage : aucun départ individuel n’est déduit.`
 }
 
-function alternativeReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | null {
+function alternativeReply(question: string, memory: ConversationMemory, lookup?: AssistantContext['passengerRoute']): string | CopilotReply | null {
   const text = normalize(question)
   if (!/alternative|itineraire de secours|si (?:la ligne|le ter|le brt) (?:est interrompue|interrompu|en panne|supprime|ne marche pas)|remplacer la ligne/.test(text)) {
     return null
@@ -344,7 +352,7 @@ function alternativeReply(question: string, memory: ConversationMemory, lookup?:
   if (!origin || !destination) {
     return `${disclaimer} Donnez-moi un départ et une destination (« trajet de … à … ») pour que je compare les options.`
   }
-  if (lookup) return passengerReply(lookup, memory, origin, destination, question, 'fr').text
+  if (lookup) return passengerReply(lookup, memory, origin, destination, question, 'fr')
   const comparison = compareReferenceJourneys(origin, destination)
   if (!comparison.ok) return `${disclaimer}\n${comparison.message}`
   const options = comparison.options
@@ -760,10 +768,7 @@ export function copilotAnswer(
     return { text: replyText, language }
   }
     const between = stopsBetweenReply(question, memory, context.passengerRoute)
-    if (between) {
-      memory.lastAnswer = between
-      return { text: between, language: 'fr' }
-    }
+    if (between) return rememberReply(memory, between)
     const lineNumber = lineNumberReply(question, memory)
     if (lineNumber) {
       memory.lastAnswer = lineNumber
@@ -780,10 +785,7 @@ export function copilotAnswer(
     const explicitRoute = extractMobilityIntent(question)
     if (!explicitRoute || (!explicitRoute.origin && !explicitRoute.destination)) {
       const criterion = criterionReply(question, memory, context.passengerRoute)
-      if (criterion) {
-        memory.lastAnswer = criterion
-        return { text: criterion, language: 'fr' }
-      }
+      if (criterion) return rememberReply(memory, criterion)
     }
   const lastDeparture = lastDepartureReply(question)
   if (lastDeparture) {
@@ -791,10 +793,7 @@ export function copilotAnswer(
     return { text: lastDeparture, language: 'fr' }
   }
   const alternative = alternativeReply(question, memory, context.passengerRoute)
-  if (alternative) {
-    memory.lastAnswer = alternative
-    return { text: alternative, language: 'fr' }
-  }
+  if (alternative) return rememberReply(memory, alternative)
 
   // 4b) Hors périmètre assumé : aucune source météo connectée, rien d'inventé.
   if (/meteo|quel temps fera|pleut|pleuvra|pluie|weather|temperature/.test(text)) {

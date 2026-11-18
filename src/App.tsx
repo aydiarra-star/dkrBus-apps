@@ -60,7 +60,6 @@ import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
 import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
 import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
-import { extractMobilityIntent } from './domain/intent'
 import { StopCombobox } from './components/StopCombobox'
 import { StreetReportPanel } from './components/StreetReportPanel'
 import { answerAssistant, type AssistantContext } from './domain/assistant'
@@ -526,6 +525,7 @@ function App() {
   const setRoutePoints = useCallback((next: Parameters<typeof storeRoutePoints>[0]) => {
     roadRouteRequestId.current += 1
     requestIds.current.journey += 1
+    setSelectedTripId(undefined)
     storeRoutePoints(next)
   }, [])
   /** Dernière valeur des points de trajet, lue par les rappels asynchrones (GPS). */
@@ -912,11 +912,12 @@ function App() {
   }
 
   /** Injecte uniquement les lieux reconnus et explicitement nommés dans Trajet. */
-  function openAssistantJourney(origin: PlannerEndpoint, destination: PlannerEndpoint) {
+  function openAssistantJourney(origin: PlannerEndpoint, destination: PlannerEndpoint, tripId?: string) {
     setRoutePoints({
       origin: { label: origin.label, lat: origin.lat, lng: origin.lon, stopId: origin.stopId },
       destination: { label: destination.label, lat: destination.lat, lng: destination.lon, stopId: destination.stopId },
     })
+    setSelectedTripId(tripId)
     setJourney(IDLE_JOURNEY)
     setRouteAttempted(false)
     setPickingPoint(null)
@@ -940,7 +941,6 @@ function App() {
     // must not silently become an OSRM car route or send the OD to a geocoder.
     const driving = /^(?:en voiture|voiture|itinéraire automobile|trajet routier)\s*:\s*(.+)$/iu.exec(question)
     const roadQuery = driving && parseRoadRouteQuery(driving[1])
-    const intent = extractMobilityIntent(question)
     if (roadQuery) {
       const requestId = ++roadRouteRequestId.current
       setSearchRoute(null)
@@ -973,7 +973,11 @@ function App() {
     // Une nouvelle recherche non routière invalide toute réponse routière plus ancienne.
     roadRouteRequestId.current += 1
     const context: AssistantContext = {
-      passengerRoute: lookup,
+      passengerRoute: (origin, destination, question, lang) => {
+        const result = lookup(origin, destination, question, lang)
+        openAssistantJourney(origin, destination, result.memory?.tripId)
+        return result
+      },
       publishedAvailable: dataAvailable,
       adminOnline: governance.status === 'ready',
       userLocation: trafficLocation
@@ -983,7 +987,6 @@ function App() {
       trafficSummaryWo: aiSummaryWo || null,
       trafficSummaryValidUntil,
     }
-    if (intent?.origin && intent.destination) openAssistantJourney(intent.origin, intent.destination)
     const answer = answerAssistant(question, context)
     setAssistantAnswer({ question, answer, traffic: Boolean(context.trafficSummaryFr && answer.includes(context.trafficSummaryFr)) })
     void runStopSearch(question)
@@ -1518,7 +1521,7 @@ function App() {
   // The selected itinerary is the single source for the list, speech and map.
   const journeyPlan = useMemo(() => routePoints.origin && routePoints.destination && !searchRoute
     ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions) : null, [routePoints, routingOptions, searchRoute])
-  const selectedTrip = journeyPlan?.ok ? journeyPlan.options.find(t => t.id === selectedTripId) ?? journeyPlan.options[0] : undefined
+  const selectedTrip = journeyPlan?.ok ? (selectedTripId ? journeyPlan.options.find(t => t.id === selectedTripId) : journeyPlan.options[0]) : undefined
   const journeyFocus = activeTab === 'route' && Boolean(routePoints.origin && routePoints.destination)
   const overlay = useMemo(() => mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip])
   const announcedPlanRef = useRef<string>()
@@ -1832,7 +1835,7 @@ function App() {
                 preferences={preferences}
                 journeyPlan={journeyPlan}
                 departureInput={departureInput}
-                onDepartureChange={value => { beginRequest('journey'); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
+                onDepartureChange={value => { beginRequest('journey'); setSelectedTripId(undefined); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
                 selectedId={selectedTrip?.id} onSelectTrip={setSelectedTripId}
                 stepFreeOnly={stepFreeOnly} onStepFreeChange={setStepFreeOnly}
               />
