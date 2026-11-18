@@ -31,8 +31,10 @@ def normalize_text(value: object) -> str:
 
 def normalize_endpoint(value: object) -> str:
     text = normalize_text(value)
-    text = re.sub(r"^(?:terminus|gare|arret|station)\s+", "", text)
-    return re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"^(?:terminus|gare|arret|station)\\s+", "", text)
+    # Collapse spaces between place names and route-terminal numbers:
+    # "Liberté 5" and "Liberté5" are the same named terminal.
+    return re.sub(r"\\s+", "", text)
 
 
 def parse_line_ref(value: object) -> str | None:
@@ -336,6 +338,7 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
         "geometryMatch": geometry_match,
         "stopLayerMatch": stop_match,
         "geometryCandidate": geometry_ok,
+        "geometryDirectionCandidate": geometry_ok,
         "stopLayerCandidate": stops_ok,
         "directionCandidate": geometry_ok and stops_ok,
         "activationStatus": "NOT_ACTIVATED_AUDIT_ONLY",
@@ -368,6 +371,8 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
                         "returnName": right["name"],
                         "returnGeometryCandidate": right["geometryCandidate"],
                         "returnStopLayerCandidate": right["stopLayerCandidate"],
+                        "bidirectionalGeometryCandidate": left["geometryCandidate"] and right["geometryCandidate"],
+                        "bidirectionalStopLayerCandidate": left["stopLayerCandidate"] and right["stopLayerCandidate"],
                         "bidirectionalCandidate": left["directionCandidate"] and right["directionCandidate"],
                     })
                     used.update({index, other_index})
@@ -376,6 +381,8 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
             "line": line,
             "relationCount": len(rows),
             "explicitReversePairs": len(pairs),
+            "bidirectionalGeometryCandidate": any(pair["bidirectionalGeometryCandidate"] for pair in pairs),
+            "bidirectionalStopLayerCandidate": any(pair["bidirectionalStopLayerCandidate"] for pair in pairs),
             "bidirectionalGeometryAndStopsCandidate": any(pair["bidirectionalCandidate"] for pair in pairs),
             "pairs": pairs,
             "unpairedRelations": [row["relationId"] for index, row in enumerate(rows) if index not in used],
@@ -458,6 +465,8 @@ def build_report(osm: dict, arcgis: dict) -> dict:
             "directionCandidates": sum(row["directionCandidate"] for row in rows),
             "linesCompared": len(pairs),
             "linesWithExplicitReversePair": sum(row["explicitReversePairs"] > 0 for row in pairs),
+            "linesWithBidirectionalGeometryCandidate": sum(row["bidirectionalGeometryCandidate"] for row in pairs),
+            "linesWithBidirectionalStopLayerCandidate": sum(row["bidirectionalStopLayerCandidate"] for row in pairs),
             "linesWithBidirectionalGeometryAndStopsCandidate": sum(row["bidirectionalGeometryAndStopsCandidate"] for row in pairs),
         },
         "linePairs": pairs,
