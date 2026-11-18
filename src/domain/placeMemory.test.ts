@@ -83,20 +83,18 @@ describe('mémoire du maître : deux lieux non calculables', () => {
     expect(reply).toContain(ouakam.name)
     expect(reply).toContain(yoffBus.name)
     expect(reply).toMatch(/je ne peux pas calculer cet itinéraire/)
-    // Si les deux sont bus purs : aucun arrêt géolocalisé ; si l'un est DDD/AFTU : il a un itinéraire repère
-    if (ouakam.kind === 'bus' && yoffBus.kind === 'bus') {
-      expect(reply).toMatch(/aucun arrêt géolocalisé/)
-      expect(reply).not.toMatch(/Environ \d+ min de marche/)
-    } else {
-      expect(reply).toMatch(/Itinéraire repère|Fiches bus/)
-    }
+    // Les lieux DDD/AFTU/TATA sont cartographiés comme candidats, mais leurs
+    // corridors non vérifiés ne doivent plus produire d'itinéraire calculé.
+    expect(reply).not.toMatch(/Itinéraire repère/)
+    expect(reply).not.toMatch(/Environ \\d+ min/)
+    expect(reply).toContain('Sans arrêts géolocalisés ni horaires par ligne')
   })
 
   it('sert l’itinéraire du lieu calculable quand un seul l’est (ou les deux en pointillés)', () => {
     const diamniadio = getPlace('ter-diamniadio')!
     const reply2 = unroutablePairReply(ouakam, diamniadio)
     expect(reply2).toContain('Diamniadio')
-    // Avec DDD/AFTU en pointillés, Ouakam a désormais un itinéraire repère depuis Petersen (DDD) ou Lat Dior (AFTU)
+    // Ouakam reste un corridor bus candidat ; l'itinéraire doit provenir du TER calculable à Diamniadio.
     expect(reply2).toMatch(/Itinéraire repère/)
     expect(reply2).toContain(ouakam.name)
   })

@@ -96,7 +96,7 @@ export function MultimodalPlanner({ mapOrigin = null, mapDestination = null }: M
         <span className="planner-head-icon"><RouteIcon size={16} /></span>
         <div>
           <strong>Calculateur de trajets multimodaux</strong>
-          <span>Réseau de référence : combinaisons TER, BRT, DDD et AFTU avec marche et attente estimées.</span>
+          <span>Réseau de référence : TER et BRT ; DDD, AFTU et TATA dès validation des tracés et arrêts directionnels.</span>
         </div>
       </div>
 
