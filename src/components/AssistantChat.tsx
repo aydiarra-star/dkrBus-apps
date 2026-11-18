@@ -74,7 +74,7 @@ function AssistantBubble({ message }: { message: ChatMessage }) {
  * l’envoi manuel et la voix passent par le même chemin,
  * avec un état de chargement visible et le défilement vers la dernière réponse.
  */
-export function AssistantChat({ context, onOpenJourney }: { context: AssistantContext; onOpenJourney?: (origin: PlannerEndpoint, destination: PlannerEndpoint) => void }) {
+export function AssistantChat({ context, onOpenJourney }: { context: AssistantContext; onOpenJourney?: (origin: PlannerEndpoint, destination: PlannerEndpoint, tripId?: string) => void }) {
   const [open, setOpen] = useState(false)
   const [exchanges, setExchanges] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
@@ -221,7 +221,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
       }
       const trafficQuestion = failed ? undefined : repeatedTraffic ?? (contextRef.current.trafficSummaryFr && text.includes(contextRef.current.trafficSummaryFr) ? trimmed : undefined)
       lastTrafficQuestionRef.current = trafficQuestion ?? null
-      const journey = reply ? reply.journey : extractJourneyRequest(trimmed) ?? undefined
+      const journey: AssistantMessage['journey'] = reply ? reply.journey : extractJourneyRequest(trimmed) ?? undefined
       const countdownMinutes = reply?.countdownMinutes
         ?? getAssistantCountdownMinutes(trimmed, contextRef.current, Date.now())
         ?? undefined
@@ -370,7 +370,7 @@ export function AssistantChat({ context, onOpenJourney }: { context: AssistantCo
                       // Le trajet s'ouvre dans l'onglet Trajet ; le panneau reste
                       // ouvert : c'est l'usager qui décide de le fermer.
                       event.stopPropagation()
-                      onOpenJourney(message.journey!.origin, message.journey!.destination)
+                      onOpenJourney(message.journey!.origin, message.journey!.destination, message.journey!.tripId)
                     }}
                   >
                     Ouvrir dans Trajet

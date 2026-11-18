@@ -36,7 +36,11 @@ import type { PlannerPriority } from './planner'
 
 import { trafficInstant } from './trafficFreshness'
 
+import type { PassengerLookup } from '../routing/answers'
+
 export interface AssistantContext {
+  /** Dated traveler service, shared with the route panel (separate from historical simulation). */
+  passengerRoute?: PassengerLookup
   /** Un snapshot GTFS est publié et servi par l'API de lecture. */
   publishedAvailable: boolean
   /** L'API d'administration locale répond. */
@@ -61,13 +65,14 @@ export interface AssistantContext {
   trafficSummaryValidUntil?: string | null
 }
 
+export interface AssistantJourney { origin: PlannerEndpoint; destination: PlannerEndpoint; tripId?: string }
 export interface AssistantMessage {
   id: number
   role: 'user' | 'assistant'
   text: string
   /** Only set for a valid, positive countdown calculated from a scheduled departure. */
   countdownMinutes?: number
-  journey?: { origin: PlannerEndpoint; destination: PlannerEndpoint }
+  journey?: AssistantJourney
 }
 
 function normalize(value: string): string {
@@ -145,7 +150,7 @@ function whereToBoardReply(question: string, text: string, context: AssistantCon
           : `${reference.operator} : fréquence par ligne non publiée dans cette mémoire.`
       })()
     const access = lines.length > 0
-      ? `${lines.length} ligne${lines.length > 1 ? 's' : ''} de référence, ${stopCount} arrêts déclarés — on monte à n’importe lequel.${termini.length > 0 ? ` Pôles principaux : ${termini.slice(0, 4).join(', ')}.` : ''}`
+      ? `${lines.length} ligne${lines.length > 1 ? 's' : ''} de référence, ${stopCount} arrêts déclarés — accès et quai à vérifier.${termini.length > 0 ? ` Pôles principaux : ${termini.slice(0, 4).join(', ')}.` : ''}`
       : 'Aucun tracé de référence pour ce réseau : impossible d’indiquer un point d’embarquement précis.'
     // Arrêts du réseau seulement : le point le plus proche de l'usager peut
     // appartenir à un autre réseau, ce n'est pas une réponse à la question posée.
@@ -157,7 +162,7 @@ function whereToBoardReply(question: string, text: string, context: AssistantCon
           .map((stop) => ({ stop, distanceM: haversineMeters({ lat: context.userLocation!.lat, lon: context.userLocation!.lon }, stop) }))
           .sort((a, b) => a.distanceM - b.distanceM)
           .slice(0, 2)
-          .map((entry) => `${entry.stop.name} (à ${formatMeters(entry.distanceM)})`)
+          .map((entry) => `${entry.stop.name} (à ${formatMeters(entry.distanceM)} à vol d’oiseau, accès non vérifié)`)
       : []
     const nearest = nearby.length > 0 ? `Le plus près de votre position : ${nearby.join(', ')}.` : ''
     return `• ${reference.label} — ${access}${nearest ? ` ${nearest}` : ''}\n${frequency}`
@@ -313,6 +318,7 @@ ${HONEST_LIMIT}`
         ? `${unknown} ${recall}`
         : `Ni votre départ ni votre destination ne sont reconnus dans la mémoire des lieux (13 gares TER, 23 stations BRT et les lieux des fiches DDD/AFTU). ${recall}`
     }
+    if (context.passengerRoute && intent.origin && intent.destination) return context.passengerRoute(intent.origin, intent.destination, question, 'fr').text
     if (intent.priority === 'cheapest') {
       return intent.origin && intent.destination
         ? cheapestReply(intent.origin, intent.destination)
@@ -335,7 +341,7 @@ ${HONEST_LIMIT}`
     // ce qui est documenté est donné, rien n'est complété à la place de
     // l'opérateur.
     if (intent.originPlace && intent.destinationPlace) {
-      const pair = unroutablePairReply(intent.originPlace, intent.destinationPlace)
+      const pair = unroutablePairReply(intent.originPlace, intent.destinationPlace, Boolean(context.passengerRoute))
       return unknown ? `${unknown}\n${pair}` : pair
     }
     // Un seul lieu : la fiche du lieu d'abord — avec un itinéraire réellement
@@ -343,7 +349,7 @@ ${HONEST_LIMIT}`
     // phrase toute faite qui ignorerait ce que l'usager vient d'écrire.
     const known = intent.destinationPlace ?? intent.originPlace!
     const missing = intent.destinationPlace ? 'origin' : 'destination'
-    const brief = placeBriefWithQuestion(known, missing, { arrivalRequested: intent.arrivalRequested })
+    const brief = placeBriefWithQuestion(known, missing, { arrivalRequested: intent.arrivalRequested, documentaryOnly: Boolean(context.passengerRoute) })
     return unknown ? `${unknown}\n${brief}` : brief
   }
 
@@ -494,6 +500,7 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
       // Deux lieux calculables : l'itinéraire est proposé directement, même
       // sans verbe de déplacement (« Keur Mbaye Fall Dakar »), avec les mêmes
       // critères que pour une phrase complète.
+      if (context.passengerRoute) return context.passengerRoute(origin, destination, question, 'fr').text
       const preferences = routePreferencesFrom(question)
       if (preferences.priority === 'cheapest') return cheapestReply(origin, destination)
       if (preferences.arrivalRequested && preferences.arrivalMinutes === null) return INVALID_ARRIVAL_REPLY
@@ -506,10 +513,10 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
       })
     }
     if (resolved?.origin && resolved?.destination) {
-      return unroutablePairReply(resolved.origin, resolved.destination)
+      return unroutablePairReply(resolved.origin, resolved.destination, Boolean(context.passengerRoute))
     }
     const missing = resolved?.destination ? 'origin' : resolved?.origin ? 'destination' : null
-    return placeQuestionReply(mentions[0].place, missing)
+    return placeQuestionReply(mentions[0].place, missing, Boolean(context.passengerRoute))
   }
 
   // 11) Recherche d'arrêt simple.

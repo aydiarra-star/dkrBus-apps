@@ -13,10 +13,8 @@ import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
-import { loadOsmJourneyRouteSegments, type HighlightedOsmJourneyRouteSegment } from '../domain/osmJourneyRouteGeometry'
-import type { HighlightedJourneyRouteSegment } from '../domain/journeyRouteGeometry'
-import { verifiedDddJourneyRouteSegments } from '../domain/dddJourneyRouteGeometry'
-import type { PlannerLeg } from '../domain/planner'
+import type { JourneyMarker, MapSegment } from '../routing/presentation'
+import type { Place } from '../routing/model'
 
 export interface Coordinates {
   lat: number
@@ -48,9 +46,11 @@ interface TransitMapProps {
   /** Géométrie routière complète calculée depuis la recherche de lieux. */
   searchRoute?: readonly Coordinates[] | null
   /** Portions exactes des jambes dont la géométrie directionnelle a été auditée. */
-  highlightedRouteSegments?: readonly HighlightedJourneyRouteSegment[]
-  highlightedJourneyLegs?: readonly PlannerLeg[]
-  highlightedStopIds?: readonly string[]
+  highlightedRouteSegments?: readonly MapSegment[]
+  highlightedChanges?: readonly Place[]
+  highlightedCalls?: readonly JourneyMarker[]
+  /** In Trajet with an OD, the selected route is not a network-coverage layer. */
+  journeyFocus?: boolean
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
   zoomAction: { delta: number; nonce: number } | null
@@ -350,42 +350,13 @@ function TransitMapView({
   corridorLines = [],
   corridorStops = [],
   highlightedRouteSegments = [],
-  highlightedJourneyLegs = [],
-  highlightedStopIds = [],
+  highlightedChanges = [],
+  highlightedCalls = [],
+  journeyFocus = false,
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
-  const [highlightedAftuTataRouteSegments, setHighlightedAftuTataRouteSegments] = useState<HighlightedOsmJourneyRouteSegment[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
-  const highlightedDddRouteSegments = useMemo(
-    () => verifiedDddJourneyRouteSegments(highlightedJourneyLegs, dddArcgisTracks, dddArcgisStops),
-    [highlightedJourneyLegs, dddArcgisTracks, dddArcgisStops],
-  )
-
-  // Les trajets AFTU/TATA sont recherchés à la demande, uniquement pour les
-  // jambes réellement retenues par le calculateur. La relation OSM doit être
-  // attribuée au réseau et retrouver les deux arrêts dans le sens demandé.
-  useEffect(() => {
-    const controller = new AbortController()
-    const hasBusRide = highlightedJourneyLegs.some((leg) => leg.kind === 'ride' && leg.line?.network === 'aftu_tata')
-    if (!hasBusRide) {
-      setHighlightedAftuTataRouteSegments((current) => current.length ? [] : current)
-      return () => controller.abort()
-    }
-    // Effacer immédiatement le tracé précédent : une nouvelle recherche OSM
-    // peut prendre plusieurs secondes et l'ancien segment ne doit pas rester
-    // affiché comme s'il appartenait au nouvel itinéraire sélectionné.
-    setHighlightedAftuTataRouteSegments([])
-    void loadOsmJourneyRouteSegments(highlightedJourneyLegs, controller.signal)
-      .then((segments) => {
-        if (!controller.signal.aborted) setHighlightedAftuTataRouteSegments(segments)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setHighlightedAftuTataRouteSegments([])
-      })
-    return () => controller.abort()
-  }, [highlightedJourneyLegs])
-
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
   // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
   useEffect(() => {
@@ -478,6 +449,7 @@ function TransitMapView({
     () => (searchRoute ?? []).map((point) => [point.lat, point.lng] as [number, number]),
     [searchRoute],
   )
+  const journeyBounds = useMemo(() => highlightedRouteSegments.flatMap(s => s.positions.map(([lat, lng]): [number, number] => [lat, lng])), [highlightedRouteSegments])
   const uniqueCorridorStops = useMemo(() => {
     const unique = corridorStops.filter((stop, index, all) => {
       const prefix = stop.id.split('-')[0]
@@ -533,7 +505,6 @@ function TransitMapView({
       .filter((positions) => positions.length > 1),
     [corridorLineStops],
   )
-  const highlightedStopIdSet = useMemo(() => new Set(highlightedStopIds), [highlightedStopIds])
   const corridorStopsToRender = useMemo(
     () => uniqueCorridorStops.filter((stop) => {
       const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
@@ -587,17 +558,18 @@ function TransitMapView({
       <MapClickHandler pickingPoint={pickingPoint} onChoosePoint={onChoosePoint} />
       <MapController recenterTo={recenterTo} zoomAction={zoomAction} />
       <MapInitialFit bounds={initialBounds} />
-      <MapSearchRouteFit positions={searchRoutePositions} />
+      <MapSearchRouteFit positions={journeyBounds.length ? journeyBounds : searchRoutePositions} />
       <MapRoutePointsFit
         origin={routePoints.origin ?? null}
         destination={routePoints.destination ?? null}
-        hasSearchRoute={searchRoutePositions.length > 1}
+        hasSearchRoute={searchRoutePositions.length > 1 || journeyBounds.length > 1}
       />
       <MapResizeController />
       <MapStopDensityController />
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
+      {!journeyFocus && <>
       {coveragePointsToRender.map((point) => {
         const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
         const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
@@ -653,7 +625,7 @@ function TransitMapView({
           }}
         >
           <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>DDD {track.line}</strong>
+            <strong>DDD {track.line}</strong><div>Tracé ArcGIS historique · service actuel non certifié</div>
           </Tooltip>
         </Polyline>
       ))}
@@ -731,13 +703,14 @@ function TransitMapView({
             </Polyline>
           ))
         })}
+      </>}
       {/* Le trajet calculé n'accentue que les portions exactes découpées
           depuis une géométrie directionnelle validée. Aucune ligne entière
           n'est mise en avant comme substitut à la jambe réellement parcourue. */}
       {highlightedRouteSegments.flatMap((segment) => {
         if (segment.positions.length < 2) return []
-        const paint = paintFor(segment.network)
-        if (!paint) return []
+        const color = segment.network === 'walk' ? '#475569' : paintFor(segment.network)?.core
+        if (!color) return []
         const positions = segment.positions as [number, number][]
         return [
           <Polyline
@@ -750,76 +723,23 @@ function TransitMapView({
             key={`journey-segment-${segment.id}`}
             positions={positions}
             interactive={false}
-            pathOptions={{ color: paint.core, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+            pathOptions={{ color, dashArray: segment.network === 'walk' ? '4 6' : segment.busFamily === 'tata' ? '12 3' : undefined, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
           />,
         ]
       })}
-      {highlightedDddRouteSegments.flatMap((segment) => {
-        const paint = paintFor('ddd')
-        if (!paint || segment.positions.length < 2) return []
-        const positions = segment.positions as [number, number][]
-        return [
-          <Polyline
-            key={`journey-ddd-halo-${segment.id}`}
-            positions={positions}
-            interactive={false}
-            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
-          />,
-          <Polyline
-            key={`journey-ddd-${segment.id}`}
-            positions={positions}
-            interactive={false}
-            pathOptions={{ color: paint.core, weight: 5, opacity: 0.96, dashArray: '7 5', lineCap: 'round', lineJoin: 'round' }}
-          >
-            <Tooltip sticky opacity={0.95} className="stop-tooltip mobility-tooltip">
-              <strong>DDD {segment.line}</strong>
-              <div>{segment.sourceLabel}</div>
-            </Tooltip>
-          </Polyline>,
-        ]
-      })}
-      {highlightedAftuTataRouteSegments.flatMap((segment) => {
-        const paint = paintFor('aftu_tata')
-        if (!paint || segment.positions.length < 2) return []
-        const positions = segment.positions as [number, number][]
-        return [
-          <Polyline
-            key={`journey-aftu-tata-halo-${segment.id}`}
-            positions={positions}
-            interactive={false}
-            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
-          />,
-          <Polyline
-            key={`journey-aftu-tata-${segment.id}`}
-            positions={positions}
-            interactive={false}
-            pathOptions={{ color: paint.core, weight: 5, opacity: 0.98, dashArray: '7 5', lineCap: 'round', lineJoin: 'round' }}
-          >
-            <Tooltip sticky opacity={0.95} className="stop-tooltip mobility-tooltip">
-              <strong>AFTU / TATA {segment.line}</strong>
-              <div>{segment.sourceLabel}</div>
-            </Tooltip>
-          </Polyline>,
-        ]
-      })}
-      {corridorStops
-        .filter((stop) => highlightedStopIdSet.has(stop.id))
-        .map((stop) => {
-          const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
-          const paint = paintFor(line?.network, stop.id)
-          return (
-            <Circle
-              key={`journey-stop-${stop.id}`}
-              center={[stop.lat, stop.lon]}
-              radius={72}
-              interactive={false}
-              pathOptions={{ color: paint?.core ?? '#198754', weight: 2, fillColor: paint?.core ?? '#198754', fillOpacity: 0.2 }}
-            />
-          )
-        })}
+      {highlightedChanges.map((p, i) => <Circle key={`transfer-${p.id}-${i}`} center={[p.lat, p.lon]} radius={18}
+        pathOptions={{ color: '#623889', weight: 3, fillColor: '#ffffff', fillOpacity: 0.9 }}>
+        <Tooltip>Correspondance · {p.name}</Tooltip>
+      </Circle>)}
+      {highlightedCalls.map(({ place, network, line, role }, i) => (
+        <Marker key={`journey-call-${place.id}-${i}`} position={[place.lat, place.lon]} keyboard
+          icon={makeMobilityStopLabel(network, place.name, place.id)} title={`${role} · ${place.name} · ${line}`}>
+          <Tooltip>{role} · {place.name} · {line}</Tooltip>
+        </Marker>
+      ))}
 
       {/* Pastilles compactes : sigle du réseau directement sur chaque arrêt. */}
-      {corridorStopsToRender.map((stop) => {
+      {!journeyFocus && corridorStopsToRender.map((stop) => {
         const line = corridorLines.find((candidate) => candidate.stopIds.includes(stop.id))
         const mobility = mobilityFromStopId(stop.id) ?? (line?.network as MobilityId | undefined) ?? null
         const paint = paintFor(mobility ?? undefined, stop.id)
@@ -859,7 +779,7 @@ function TransitMapView({
         )
       })}
 
-      {coverage && showCoverage && (
+      {!journeyFocus && coverage && showCoverage && (
         <Rectangle
           bounds={[
             [coverage.minLat, coverage.minLon],
@@ -869,7 +789,7 @@ function TransitMapView({
         />
       )}
 
-      {publishedStopsToRender.map((stop) => (
+      {!journeyFocus && publishedStopsToRender.map((stop) => (
         <Marker
           key={stop.stopId}
           position={[stop.lat, stop.lon]}

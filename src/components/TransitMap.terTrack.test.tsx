@@ -52,15 +52,16 @@ vi.mock('react-leaflet', () => {
 })
 
 import { TransitMap } from './TransitMap'
+import { mapItinerary, type JourneyMarker, type MapSegment } from '../routing/presentation'
+import { dakarNetwork } from '../routing/dakar'
+import { search } from '../routing/search'
 
 function drawMap(
   lines: readonly CorridorLine[] = CORRIDOR_LINES,
   stops = ALL_CORRIDOR_STOPS,
-  highlightedRouteSegments: readonly {
-    id: string
-    network: 'ter' | 'brt'
-    positions: readonly (readonly [number, number])[]
-  }[] = [],
+  highlightedRouteSegments: readonly MapSegment[] = [],
+  journeyFocus = false,
+  highlightedCalls: readonly JourneyMarker[] = [],
 ) {
   drawn.polylines.length = 0
   drawn.markers.length = 0
@@ -74,6 +75,8 @@ function drawMap(
       onChoosePoint={() => undefined}
       corridorLines={lines}
       corridorStops={stops}
+      journeyFocus={journeyFocus}
+      highlightedCalls={highlightedCalls}
       highlightedRouteSegments={highlightedRouteSegments}
     />,
   )
@@ -270,5 +273,22 @@ describe('carte : les autres mobilités ne changent pas', () => {
   it('ne conserve sur la carte complète que les traits TER et BRT', () => {
     const expected = 3 * lineOf('ter').length + 3 * lineOf('brt').length
     expect(drawMap()).toHaveLength(expected)
+  })
+})
+
+
+describe('carte de trajet, distincte de la carte de référence', () => {
+  it('draws the exact selected Dakar ride and its calls, not whole lines, both directions or unrelated stops', () => {
+    const result = search(dakarNetwork, { origin: 'ter-colobane', destination: 'ter-pikine', departAt: Date.parse('2026-11-18T08:01Z') / 1000 })
+    if (!result.ok) throw Error(result.message)
+    const { segments, calls } = mapItinerary(result.options[0])
+    const layers = drawMap(CORRIDOR_LINES, ALL_CORRIDOR_STOPS, segments, true, calls)
+    expect(layers.map(l => l.positions)).toEqual([segments[0].positions, segments[0].positions])
+    expect(drawn.markers.map(m => (m as { title: string }).title)).toEqual(calls.map(c => `${c.role} · ${c.place.name} · ${c.line}`))
+    expect(calls[0].role).toBe('Montée'); expect(calls.at(-1)?.role).toBe('Descente')
+  })
+  it('does not paint a reference line in place of a rejected route', () => {
+    expect(drawMap(CORRIDOR_LINES, ALL_CORRIDOR_STOPS, [], true)).toHaveLength(0)
+    expect(drawn.markers).toHaveLength(0)
   })
 })

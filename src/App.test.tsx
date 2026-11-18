@@ -2,7 +2,11 @@
 import { act, fireEvent, render, screen, cleanup, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
-import { resetPreferences, updatePreferences } from './domain/preferences'
+import * as dakarRouting from './routing/dakar'
+import { search as searchNetwork } from './routing/search'
+import { mapItinerary, type MapSegment } from './routing/presentation'
+import { fixtureNetwork, fixtureQuery } from './test/passengerTransferFixture'
+import { getPreferences, resetPreferences, updatePreferences } from './domain/preferences'
 import { trafficAlert, trafficPayload, TRAFFIC_TEST_NOW } from './test/trafficFixtures'
 import { communityPayload, communityReport, COMMUNITY_TEST_ID, COMMUNITY_TEST_KEY } from './test/communityFixtures'
 
@@ -13,14 +17,14 @@ vi.mock('./components/TransitMap', () => ({
     publishedStops,
     recenterTo,
     highlightedRouteSegments = [],
-    highlightedStopIds = [],
+    highlightedCalls = [],
   }: {
     recenterTo: { lat: number; lng: number } | null
     pickingPoint: 'origin' | 'destination' | null
     onChoosePoint: (point: { lat: number; lng: number }) => void
     publishedStops: readonly { stopId: string; stopName: string }[]
-    highlightedRouteSegments?: readonly { id: string; network: 'ter' | 'brt'; positions: readonly (readonly [number, number])[] }[]
-    highlightedStopIds?: readonly string[]
+    highlightedRouteSegments?: readonly MapSegment[]
+    highlightedCalls?: readonly { place: { id: string } }[]
   }) => (
     <div aria-label="Carte de test">
       <button
@@ -33,8 +37,8 @@ vi.mock('./components/TransitMap', () => ({
       </button>
       <span data-testid="map-recenter">{recenterTo ? `${recenterTo.lat},${recenterTo.lng}` : ''}</span>
       <span data-testid="mapped-stops">{publishedStops.map((stop) => stop.stopName).join(' | ')}</span>
-      <span data-testid="highlighted-lines">{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
-      <span data-testid="highlighted-stops">{highlightedStopIds.join(',')}</span>
+      <span data-testid="highlighted-lines" data-segments={JSON.stringify(highlightedRouteSegments)}>{highlightedRouteSegments.map((segment) => segment.id.split(':')[0]).join(',')}</span>
+      <span data-testid="highlighted-stops">{highlightedCalls.map(c => c.place.id).join(',')}</span>
     </div>
   ),
 }))
@@ -279,7 +283,7 @@ describe('Dakar Bus experience safety', () => {
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
 
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
-    expect(await screen.findByText(/aucun trajet multimodal de référence trouvé/i)).toBeTruthy()
+    expect(await screen.findByText(/pas d’itinéraire vérifié/i)).toBeTruthy()
     expect(screen.getAllByText(/aucun jeu de transport publié/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/départ et la destination sont identiques/i).length).toBeGreaterThan(0)
     expect(screen.queryByText(/^≈ \d+ min$/)).toBeNull()
@@ -292,17 +296,21 @@ describe('Dakar Bus experience safety', () => {
     ])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'mbaye', /keur mbaye fall/i)
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T08:01' } })
+    chooseStopInField('Départ', 'guediawaye', /préfecture de guédiawaye/i)
+    chooseStopInField('Destination', 'petersen', /petersen.*BRT/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
-    expect(await screen.findByRole('region', { name: 'Estimation de trajet multimodal' })).toBeTruthy()
-    expect(screen.getByText(/serveur d’horaires est indisponible/i)).toBeTruthy()
-    expect(screen.getByText(/≈ \d+ min/)).toBeTruthy()
-    const estimate = screen.getByRole('region', { name: 'Estimation de trajet multimodal' })
-    expect(estimate.textContent).toContain('Petersen')
-    expect(estimate.textContent).toContain('Keur Mbaye Fall')
-    expect(estimate.textContent).toMatch(/ce n’est ni un horaire, ni du temps réel/i)
+    expect((await screen.findAllByText(/serveur d’horaires est indisponible/i)).length).toBeGreaterThan(0)
+    const verified = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(verified.textContent).toContain('08:06')
+    expect(verified.textContent).toContain('08:58')
+    expect(verified.textContent).toContain('Préfecture de Guédiawaye')
+    expect(verified.textContent).toMatch(/Descendre à Petersen/)
+    expect(verified.textContent).toMatch(/pas des passages garantis/)
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T21:01' } })
+    expect(verified.textContent).toMatch(/aucun passage compatible/i)
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
   })
 
   it('says the read API is unreachable instead of falling back to fabricated data', async () => {
@@ -670,7 +678,7 @@ describe('published snapshot in the app', () => {
     expect(screen.getByText(/≈ 42 min/)).toBeTruthy()
     expect(screen.getByText('Démo — Plateau Nord')).toBeTruthy()
     expect(screen.getByText('Démo — Plateau Sud')).toBeTruthy()
-    expect(screen.getByText(/31 m à pied/i)).toBeTruthy()
+    expect(screen.getByText(/31 m indicatifs · accès piéton non vérifié/i)).toBeTruthy()
     expect(screen.getByText(/ni position ni estimation temps réel/i)).toBeTruthy()
     expect(screen.getByText(/aucune position de véhicule et aucun temps réel/i)).toBeTruthy()
 
@@ -782,7 +790,7 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
     expect((await screen.findAllByText(/aucune course directe déclarée/i)).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/calcul multimodal de référence est présenté séparément/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/calcul sur tracés vérifiés est présenté séparément/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/12\/10\/2026/)).toBeTruthy()
     expect(screen.queryByText(/^\d+ min$/)).toBeNull()
   })
@@ -805,7 +813,7 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
-    expect(await screen.findByText(/itinéraire impossible pour le moment/i)).toBeTruthy()
+    expect(await screen.findByText(/horaires du snapshot indisponibles/i)).toBeTruthy()
     expect(screen.getAllByText(/graphe d’itinéraires n’est pas construit/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/npm run graph:build/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/aucun trajet n’est deviné en attendant/i).length).toBeGreaterThan(0)
@@ -829,7 +837,7 @@ describe('published snapshot in the app', () => {
     fireEvent.click(screen.getByRole('button', { name: /choisir le point actif sur la carte/i }))
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
-    expect(await screen.findByText(/itinéraire impossible pour le moment/i)).toBeTruthy()
+    expect(await screen.findByText(/horaires du snapshot indisponibles/i)).toBeTruthy()
     expect(screen.getAllByText(/aucun lieu n’est deviné/i).length).toBeGreaterThan(0)
   })
 
@@ -1436,6 +1444,7 @@ describe('carte du trajet multimodal', () => {
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     expect(screen.getByLabelText('Carte de test')).toBeTruthy()
 
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T08:01' } })
     // Only the audited B1 direction is drawable: Préfecture de Guédiawaye → Petersen.
     chooseStopInField('Départ', 'guediawaye', /préfecture de guédiawaye/i)
     chooseStopInField('Destination', 'petersen', /petersen.*BRT/i)
@@ -1764,27 +1773,64 @@ describe('boutons : une action va jusqu’au bout', () => {
 
 
 describe('copilote et comparateur sur les parcours existants', () => {
-  it('préremplit Trajet depuis une question explicite et montre les alternatives sans tarif inventé', async () => {
+  it('opens the exact less-walking chat variant, then maps only the manually selected alternative', async () => {
+    // Deliberately replace ONLY the OD adapter in this test. The two options
+    // are calculated by the real engine on synthetic, never passenger, data.
+    const outcome = searchNetwork(fixtureNetwork, fixtureQuery)
+    if (!outcome.ok || outcome.options.length !== 2) throw Error('Expected two test variants')
+    const [fast, direct] = outcome.options
+    vi.spyOn(dakarRouting, 'planDakarJourney').mockImplementation((_a, _b, options) =>
+      searchNetwork(fixtureNetwork, { ...fixtureQuery, ...options }))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    const departure = screen.getByLabelText(/date et heure de départ à Dakar/i)
+    fireEvent.change(departure, { target: { value: '2026-11-18T08:00' } })
+    fireEvent.click(screen.getByRole('button', { name: /assistant IA/i }))
+    const question = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
+    fireEvent.change(question, { target: { value: 'Trajet de Dakar à Pikine, moins de marche' } })
+    fireEvent.submit(question.closest('form')!)
+    const open = await screen.findByRole('button', { name: /ouvrir dans trajet/i })
+    expect(screen.getByRole('log').textContent).toContain('Direct')
+    fireEvent.click(open)
+    const geometry = () => JSON.parse(screen.getByTestId('highlighted-lines').dataset.segments!)
+    expect(geometry()).toEqual(mapItinerary(direct).segments)
+    expect(document.querySelector('.verified-trip.is-selected h4')?.textContent).toContain('19 min')
+    expect(screen.getByRole('log').textContent).toContain('19 min')
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher ce trajet sur la carte' }))
+    expect(geometry()).toEqual(mapItinerary(fast).segments)
+    // A stale message must not silently select a different, still feasible trip.
+    act(() => { updatePreferences('mobility', { networks: { ...getPreferences().mobility.networks, ddd: false } }) })
+    fireEvent.click(open)
+    expect(geometry()).toEqual([])
+    expect(screen.getByText(/variante précédente n’est plus disponible/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Afficher ce trajet sur la carte' }))
+    expect(geometry()).toEqual(mapItinerary(fast).segments)
+    // No compatible service at all after closing.
+    fireEvent.change(departure, { target: { value: '2026-11-18T21:00' } })
+    fireEvent.click(open)
+    expect(geometry()).toEqual([])
+  })
+
+  it('préremplit Trajet, refuse une correspondance non vérifiée et isole le comparateur historique', async () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     const search = screen.getByLabelText(/rechercher un arrêt, une station ou une destination/i)
     fireEvent.change(search, { target: { value: 'Compare les trajets de Préfecture de Guédiawaye à Rufisque, moins de marche' } })
     fireEvent.submit(search.closest('form')!)
-    expect(await screen.findByText(/Copilote · Préfecture de Guédiawaye/)).toBeTruthy()
+    expect(await screen.findByText(/Trajet · Préfecture de Guédiawaye/)).toBeTruthy()
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
-    // Les options comparées s’affichent sans clic supplémentaire : le comparateur
-    // est branché sur le calcul en cours du panneau Trajet.
-    const comparison = await screen.findByRole('region', { name: /itinéraires de référence/i })
-    expect(within(comparison).getAllByText(/le plus rapide|moins de marche|moins de correspondances/i).length).toBeGreaterThan(1)
-    // La durée est toujours accompagnée de sa marge, et le tarif de sa source :
-    // jamais un prix inventé.
-    expect(within(comparison).getAllByText(/marge/i).length).toBeGreaterThan(0)
-    expect(within(comparison).getAllByText(/publié|grille|non publié|somme des tickets/i).length).toBeGreaterThan(0)
-    // Chaque option se déplie réellement en étapes, et la vérification auprès des
-    // exploitants y est rappelée.
-    fireEvent.click(within(comparison).getAllByRole('button', { name: /voir les étapes/i })[0])
-    expect(within(comparison).getAllByText(/min · via |· direct|À pied|Correspondance à pied/).length).toBeGreaterThan(0)
-    expect(within(comparison).getByText(/Vérifiez le service auprès des opérateurs/i)).toBeTruthy()
+    const result = await screen.findByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(result.textContent).toContain('Pas d’itinéraire vérifié')
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+    expect(screen.queryByRole('region', { name: /itinéraires de référence/i })).toBeNull()
+    // The prior comparison still works, but only as an explicitly opened simulation.
+    fireEvent.click(screen.getByText(/Simulateur historique · estimations non vérifiées/i))
+    const historical = await screen.findByRole('region', { name: /itinéraires de référence/i })
+    expect(within(historical).getAllByText(/marge/i).length).toBeGreaterThan(0)
+    fireEvent.click(within(historical).getAllByRole('button', { name: /voir les étapes/i })[0])
+    expect(within(historical).getByText(/Vérifiez le service auprès des opérateurs/i)).toBeTruthy()
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
   })
 
   it('ouvre Trajet depuis le chat sans changer les autres réponses', async () => {
@@ -1795,11 +1841,11 @@ describe('copilote et comparateur sur les parcours existants', () => {
     fireEvent.change(input, { target: { value: 'trajet de Petersen à Rufisque' } })
     fireEvent.submit(input.closest('form')!)
     // La réponse asynchrone doit être visible avant l'action « Ouvrir dans Trajet ».
-    await screen.findByText(/Itinéraire de référence Petersen/i)
+    await screen.findByText(/Trajet · Petersen/i)
     fireEvent.click(screen.getByRole('button', { name: /ouvrir dans Trajet/i }))
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
     // Le comparateur suit les points choisis : rien à activer pour le voir.
-    expect(screen.getByRole('region', { name: /itinéraires de référence/i })).toBeTruthy()
+    expect(screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })).toBeTruthy()
   })
 })
 
@@ -1853,7 +1899,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     const log = within(panel).getByRole('log')
     expect(within(log).getAllByText('Trajet de Petersen à Rufisque')).toHaveLength(1)
     expect(within(log).getByText(/L’assistant consulte les données/i)).toBeTruthy()
-    expect(await within(log).findByText(/Itinéraire de référence Petersen/i)).toBeTruthy()
+    expect(await within(log).findByText(/Trajet · Petersen/i)).toBeTruthy()
     expect(within(log).queryByText(/L’assistant consulte les données/i)).toBeNull()
   })
 
@@ -1877,7 +1923,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     const input = screen.getByRole('textbox', { name: /votre question à l’assistant/i })
     fireEvent.change(input, { target: { value: 'trajet de Petersen à Rufisque' } })
     fireEvent.submit(input.closest('form')!)
-    await screen.findByText(/Itinéraire de référence Petersen/i)
+    await screen.findByText(/Trajet · Petersen/i)
     fireEvent.click(screen.getByRole('button', { name: /ouvrir dans Trajet/i }))
     // L'onglet Trajet est actif ET la fenêtre reste ouverte (état conservé).
     expect(screen.getByRole('button', { name: /rechercher mon itinéraire/i })).toBeTruthy()
@@ -1885,7 +1931,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     // De retour dans Explorer, la conversation est toujours là.
     fireEvent.click(screen.getByRole('tab', { name: /^explorer$/i }))
     expect(screen.getByRole('region', { name: /assistant mobilité/i })).toBeTruthy()
-    expect(screen.getAllByText(/Itinéraire de référence Petersen/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Trajet · Petersen/i).length).toBeGreaterThan(0)
   })
 
   it('la saisie manuelle envoie une seule fois et fait défiler vers la réponse', async () => {
@@ -1948,7 +1994,7 @@ fireEvent.change(input, { target: { value: 'Trajet de Petersen à Rufisque' } })
     fireEvent.change(input, { target: { value: 'Comment faire pour aller à Dakar ? Je suis à Keur Mbaye Fall' } })
     fireEvent.submit(input.closest('form')!)
     const log = within(screen.getByRole('region', { name: /assistant mobilité/i })).getByRole('log')
-    expect(await within(log).findByText(/Itinéraire de référence Keur Mbaye Fall/)).toBeTruthy()
+    expect(await within(log).findByText(/Trajet · Keur Mbaye Fall/)).toBeTruthy()
     expect(within(log).queryByText(/Quel est votre point de départ/)).toBeNull()
   })
 
@@ -2211,15 +2257,16 @@ describe('réglages appliqués réellement à l’application', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'rufisque', /rufisque.*TER/i)
-    const region = screen.getByRole('region', { name: /itinéraires de référence/i })
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T08:01' } })
+    chooseStopInField('Départ', 'guediawaye', /préfecture de guédiawaye/i)
+    chooseStopInField('Destination', 'petersen', /petersen.*BRT/i)
+    const region = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
     const metric = region.textContent ?? ''
     expect(metric).toMatch(/\d+ m|\d+,\d km/)
     const section = openSettingsSection('units')
     fireEvent.click(section.getByRole('button', { name: /miles/i }))
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    const imperial = screen.getByRole('region', { name: /itinéraires de référence/i }).textContent ?? ''
+    const imperial = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i }).textContent ?? ''
     expect(imperial).toMatch(/\d+ pi|\d+,\d+ mi/)
     expect(imperial).not.toBe(metric)
   })

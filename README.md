@@ -2,6 +2,14 @@
 
 Web app mobile-first qui guide les déplacements à Dakar. Dans Explorer, la carte occupe le tiers supérieur de l’écran ; une recherche « On va où ? » et les raccourcis Maison, Boulot et Adresse simplifient l’accès aux destinations. L’application applique une règle stricte : aucun arrêt, horaire, tracé, statut de service ou passage n'est publié sans donnée traçable.
 
+## Planifier un trajet sur tracés vérifiés
+
+Dans **Trajet**, choisissez deux arrêts et une heure de départ à Dakar. Le calcul local admet le TER **Dakar → Diamniadio** (phase 1) et B1 **Préfecture de Guédiawaye → Petersen**. Les heures sont estimées ; un voyage entre arrêts suppose que l’on se trouve déjà au point de montée. Aucune marche de rue, correspondance TER–BRT, desserte B2 ou ligne DDD/AFTU/TATA n’est activée sans les preuves nécessaires. Un refus ne dessine pas un trajet partiel.
+
+[Rapport, exemples chiffrés, architecture, contrôles et limites](docs/moteur-voyageurs-dakar-2026-11-18.md) · `npm run demo:routing` · `npm run test:routing`.
+
+[Revue de livraison de la PR #270 : correspondances à relever et blocage de sécurité](docs/finalisation-pr270-moteur-voyageurs.md). Pour obtenir les sources et les preuves manquantes par sens, sans activer de chemin : `npm run audit:passenger-transfers`.
+
 ## État actuel
 
 Cette première fondation fournit :
@@ -19,14 +27,12 @@ Cette première fondation fournit :
 - une étape de publication qui gèle une version approuvée dans un snapshot daté et immuable (`network.sqlite` + manifeste haché), avec un journal append-only chaîné par empreintes et un retour arrière qui n'efface rien ;
 - une API locale qui sert en lecture seule la gouvernance du staging (`/api/pipeline`, `/api/catalog`, `/api/datasets/<id>`, `/api/publications`) et le snapshot publié (`/api/network`, `/api/stops/search`, `/api/stops/near`, `/api/stops/<id>`, `/api/routes`, `/api/routes/<id>`, `/api/journeys`) ;
 - un graphe d'itinéraires dérivé du snapshot actif (`data/published/network.graph.json`) : marche par liens déclarés, courses directes déclarées, refus explicite dès qu'il ne correspond plus exactement au snapshot publié ;
-- une interface branchée sur ces routes : recherche d'arrêts, arrêts autour de vous, lignes publiées et fiches honnêtes ; la recherche d'itinéraire accepte les courses directes déclarées et, sans API/snapshot, affiche séparément l'estimation locale TER/BRT ;
+- une interface branchée sur ces API : recherche d’arrêts, arrêts autour de vous, lignes et horaires directs déclarés du snapshot, séparés des itinéraires locaux sur tracés vérifiés ;
 - des comptes locaux nominatifs (secret haché en scrypt, registre `data/actors/` ignoré par Git) : jeton Bearer court pour la CLI, session à cookie `HttpOnly`/`SameSite=Strict` plus jeton CSRF pour la console ;
 - une section technique dans Paramètres (repliée par défaut) qui affiche l'état réel du catalogue, ou signale honnêtement qu'il n'est pas joignable, et permet d'approuver, refuser, annuler et publier depuis la console avec un compte authentifié — les mêmes règles qu'en ligne de commande, appliquées par le serveur ;
 - des règles testées pour le statut des horaires, le label LIVE, les décomptes en minutes et la publication d'objets actifs.
 
-**Aucun flux GTFS, GTFS-RT, horaire, arrêt, ligne, tracé, alerte ou donnée opérateur n'est actuellement fourni par ce dépôt.** La carte de fond représente uniquement la géographie OpenStreetMap. Un clic sur la carte choisit un point géographique, mais ne le géocode pas en nom de lieu.
-
-La recherche d’itinéraire utilise en priorité l’API lorsqu’un snapshot est publié : elle ne propose alors que les courses directes et horaires théoriques déclarés dans `stop_times`. Si le serveur `/api` est absent (cas d’un hébergement GitHub Pages statique) ou qu’aucun snapshot n’est publié, l’application peut calculer localement une estimation TER/BRT à partir du réseau de référence ; elle l’étiquette explicitement comme estimation, jamais comme horaire ou prochain passage. Aucun itinéraire DDD/AFTU/TATA, aucune position de véhicule et aucun temps réel ne sont inventés.
+Le dépôt contient des **références statiques** ; elles ne constituent ni un snapshot opérateur publié ni un flux temps réel. Un clic sur la carte choisit un point géographique, pas un quai ou un trottoir. En mode Trajet, la carte affiche les étapes de la variante sélectionnée. Les horaires directs de `/api/journeys` restent consultables si un snapshot existe ; leur présence ne valide pas le chemin d’accès. Le calcul sur tracés vérifiés fonctionne aussi en hébergement statique, sans ce service.
 
 Aucune décision n'est anonyme : approuver, refuser, annuler ou publier exige un compte local dont le secret n'est stocké que haché (scrypt + sel, fichier `0600`). Les comptes génériques (`admin`, `ci`, `anonymous`, …) sont refusés, la personne qui approuve une version ne peut pas la publier elle-même, une révocation invalide les jetons et sessions déjà émis, et chaque décision enregistre l'acteur, la méthode d'authentification et l'horodatage.
 
@@ -35,10 +41,10 @@ Aucune décision n'est anonyme : approuver, refuser, annuler ou publier exige un
 Une couche **réseau de référence** distincte du pipeline de publication a été ajoutée :
 
 - **Cadrage de la carte** : la carte englobe désormais toute la région utile (Almadies → Rufisque/Bargny, jusqu’aux terminus Diamniadio et Guédiawaye) via `fitBounds` au chargement.
-- **Tracés TER et BRT** : les 13 gares du TER (liste Sen TER, positions OpenStreetMap/SETER, sans date de vérification externe documentée) et les 23 stations du BRT sont tracées en superposition du fond OpenStreetMap, avec arrêts cliquables. Les stations BRT sont associées aux identifiants de nœuds OpenStreetMap de la relation B1 (`network=SunuBRT`, relations 19961937/19961993) ; la date de vérification externe de ces positions n’est pas documentée. La séquence de référence des 23 stations est verrouillée par les tests (`src/domain/corridors.test.ts`) et reprise telle quelle dans le GTFS de référence. Le tracé reliant ces arrêts reste une géométrie de référence (pas le tracé métrique des voies), explicitement étiquetée — pas un flux opérateur validé. Les interrupteurs de couche TER/BRT pilotent cet affichage.
+- **Tracés TER et BRT** : les 13 gares du TER (liste Sen TER, positions OpenStreetMap/SETER, sans date de vérification externe documentée) et les 23 stations du BRT sont tracées en superposition du fond OpenStreetMap, avec arrêts cliquables. Les stations BRT sont associées aux identifiants de nœuds OpenStreetMap de la relation B1 (`network=SunuBRT`, relations 19961937/19961993) ; la date de vérification externe de ces positions n’est pas documentée. La séquence de référence des 23 stations est verrouillée par les tests (`src/domain/corridors.test.ts`) et reprise telle quelle dans le GTFS de référence. Les tracés de référence s’appuient sur les géométries OSM des voies (voir le rapport ci-dessus), pas sur un flux opérateur temps réel. Les interrupteurs de couche TER/BRT pilotent cet affichage.
 - **Assistant IA** : bouton flottant en bas à gauche de la carte (onglet Explorer) et réponses à la recherche « On va où ? ». Moteur local à règles (aucun service externe) branché sur le réseau de référence, le calculateur et l’état réel des API : listes d’arrêts, desserte d’un lieu, fréquences officielles de référence, itinéraires, tarif de référence, état des perturbations (aucune alerte inventée).
-- **Calculateur de correspondances** : dans l’onglet Trajet, un module calcule le meilleur enchaînement TER + BRT entre deux points (arrêts de référence ou points de la carte), avec temps de marche, d’attente (demi-fréquence officielle de référence) et de parcours estimés. DDD/AFTU/TATA ne sont pas inventés : le calculateur le dit.
-- **Copilote et comparateur (estimation locale)** : demandez « Compare les trajets de Guédiawaye à Rufisque, moins de marche » ou « Trajet de Petersen à Rufisque avant 9 h ». Le copilote reconnaît les arrêts explicitement nommés, le critère durée/marche/correspondances et l’heure d’arrivée à Dakar (UTC+0), puis propose l’ouverture dans Trajet ; il ne devine ni position ni horaires. Dans Trajet, « Comparer les options TER/BRT » affiche uniquement les variantes distinctes calculées (durée, marche, correspondances et étapes), séparément des courses directes publiées. L’heure de départ est une estimation arithmétique **sans vérification du service à cette heure** ; le prix reste non comparable faute de tarifs complets vérifiés. Aucun résultat DDD/AFTU ni temps réel n’est fabriqué.
+- **Calculateur voyageurs** : `src/routing/` contrôle chaque sens, la continuité piétonne et les créneaux compatibles. Exemple : « Trajet de Dakar à Pikine » ; « Préfecture de Guédiawaye à Rufisque » est refusé faute de chemin entre quais. La demande d’heure d’arrivée n’est pas convertie en départ fictif : le calcul se fait à la date et à l’heure de départ choisies.
+- **Comparateur antérieur** : l’accordéon « Simulateur historique » conserve les estimations de l’ancien modèle. Elles ne sont ni un itinéraire à suivre, ni un repli cartographique en cas de refus.
 - **Résumé Explorer** : liste compacte TER/BRT/DDD/AFTU/TATA dont le décompte **descend en temps réel**. Pour chaque réseau qui publie une fréquence officielle (TER, BRT), le prochain créneau de la grille déclarée est calculé depuis l’horloge de Dakar (premier départ, intervalle, fin de service, jours de service) : le compte à rebours diminue jusqu’au créneau, puis passe au suivant. Ce n’est **pas du temps réel** — aucune position de véhicule, aucun retard constaté. DDD, AFTU et TATA n’affichent aucun chiffre : « Non déclaré », jamais une valeur inventée. Les statuts détaillés restent dans Paramètres.
 - **Horaires par station et par sens** (`src/domain/stationBoard.ts`) : le réseau sélectionné dans Explorer décline ses créneaux **station par station et sens par sens** — les 13 gares du TER (Dakar → Diamniadio) et les 23 stations du BRT (Petersen → Guédiawaye) affichent, pour chaque arrêt, le prochain créneau théorique dans chaque sens (aller et retour), dans le format de décompte du résumé. Le créneau d’une station est la grille déclarée au départ du terminus (fenêtre et intervalle officiels) augmentée du temps de parcours de référence (distance à vol d’oiseau entre stations / vitesse commerciale déclarée + arrêts intermédiaires) ; la phase exacte de la grille au départ de chaque terminus n’étant pas publiée, le sens retour projette la même grille depuis le terminus opposé, sans inventer de décalage. Aux terminus, aucun départ n’est affiché dans le sens impossible (« Terminus »). La structure est prête à afficher les arrêts des bus AFTU et TATA dès que des lignes leur seront publiées ; en attendant, ces réseaux l’expliquent au lieu d’inventer des horaires.
 - **État des données dans Paramètres** : sources, périodes, limites de validité, statut de l’API, catalogue filtrable TER/BRT et lignes publiées regroupés dans une section repliable.
@@ -51,10 +57,12 @@ Nouveaux fichiers :
 
 ```text
 src/domain/corridors.ts        données de référence TER/BRT + provenance déclarée
-src/domain/planner.ts          calculateur multimodal (Dijkstra, réseau de référence)
+src/domain/planner.ts          simulateur historique (réseau de référence)
+src/routing/                   moteur voyageurs : directions, marche et services contrôlés
 src/domain/assistant.ts        cerveau local de l’assistant (règles, zéro invention)
 src/components/AssistantChat   widget de chat flottant (bas gauche de la carte)
-src/components/MultimodalPlanner  calculatrice de correspondances (onglet Trajet)
+src/components/VerifiedJourneys   résultats du calcul voyageurs (onglet Trajet)
+src/components/MultimodalPlanner  calculatrice historique séparée
 tools/build_reference_gtfs.py  générateur du GTFS de référence (démonstration pipeline)
 ```
 

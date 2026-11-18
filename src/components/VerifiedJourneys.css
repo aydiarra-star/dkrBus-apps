@@ -1,0 +1,14 @@
+.verified-journeys { margin-block: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-card); font-size: 12px; line-height: 1.5; }
+.verified-journeys header, .verified-wait { display: flex; align-items: center; gap: 8px; }
+.verified-journeys h3, .verified-trip h4 { margin: 0; font-size: 16px; }
+.verified-trip { border-inline-start: 3px solid var(--line); padding-inline-start: 10px; margin-block: 14px; }
+.verified-trip.is-selected { border-color: #009259; }
+.verified-trip h4 span, .verified-trip small, .verified-hint { color: var(--muted); }
+.verified-trip h4 span { font-size: 12px; margin-inline-start: 4px; }
+.verified-trip ol { padding-inline-start: 21px; }
+.verified-trip li { margin-block: 10px; }
+.verified-trip p { margin-block: 4px; }
+.verified-trip details { margin-block: 6px; overflow-wrap: anywhere; }
+.verified-wait { margin-bottom: 4px; }
+.verified-departure { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-block: 8px; font-size: 12px; }
+.verified-departure input { font: inherit; color: inherit; background: var(--surface-card); border: 1px solid var(--line); border-radius: 6px; padding: 6px; max-width: 100%; }
