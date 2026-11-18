@@ -311,8 +311,15 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
     stops = relation.get("stopsInRelationOrder") or []
     geometry_match = best_route_geometry_match(relation, route_layer)
     stop_match = nearest_arcgis_stop_audit(relation, stop_layer)
+    route_layer_mapping_verified = bool(
+        route_layer and parse_arcgis_layer_line_ref(route_layer.get("layerName")) == line
+    )
+    stop_layer_mapping_verified = bool(
+        stop_layer and parse_arcgis_layer_line_ref(stop_layer.get("layerName")) == line
+    )
     geometry_ok = bool(
-        geometry_match
+        route_layer_mapping_verified
+        and geometry_match
         and geometry_match["coverageWithin50m"] >= 0.9
         and geometry_match["monotonicityScore"] >= 0.9
         and geometry_match["medianDistanceMeters"] <= 25
@@ -320,7 +327,8 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
         and len(stops) >= 8
     )
     stops_ok = bool(
-        stop_match["osmStopComparedCount"] >= 8
+        stop_layer_mapping_verified
+        and stop_match["osmStopComparedCount"] >= 8
         and stop_match["nearestWithin50m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.8
         and stop_match["uniqueNearestWithin25m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.5
     )
@@ -335,6 +343,8 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
         "routeLayerName": (route_layer or {}).get("layerName"),
         "stopLayerId": (stop_layer or {}).get("layerId"),
         "stopLayerName": (stop_layer or {}).get("layerName"),
+        "routeLayerMappingVerified": route_layer_mapping_verified,
+        "stopLayerMappingVerified": stop_layer_mapping_verified,
         "geometryMatch": geometry_match,
         "stopLayerMatch": stop_match,
         "geometryCandidate": geometry_ok,
