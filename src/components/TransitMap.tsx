@@ -363,8 +363,8 @@ function TransitMapView({
   )
 
   // Les trajets AFTU/TATA sont recherchés à la demande, uniquement pour les
-  // jambes réellement retenues par le calculateur. La relation OSM doit porter
-  // le numéro exact et retrouver les deux arrêts dans le sens demandé.
+  // jambes réellement retenues par le calculateur. La relation OSM doit être
+  // attribuée au réseau et retrouver les deux arrêts dans le sens demandé.
   useEffect(() => {
     const controller = new AbortController()
     const hasBusRide = highlightedJourneyLegs.some((leg) => leg.kind === 'ride' && leg.line?.network === 'aftu_tata')
