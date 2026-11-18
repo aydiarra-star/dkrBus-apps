@@ -202,13 +202,15 @@ def extract_itinerary_text(text: str) -> str:
 
 
 def split_route_segments(itinerary: str) -> list[str]:
-    parts = re.split(r"\s+(?:-\s+|–\s+|—\s+|→\s+|->\s+)", itinerary or "")
+    # Split separators with optional spacing on either side, but keep hyphens
+    # inside names such as YOFF-VILLAGE and ROND-POINT.
+    parts = re.split(r"\s+-\s*|\s*–\s*|\s*—\s*|\s*→\s*|\s*->\s*", itinerary or "")
     return [clean_space(part).strip(" .;") for part in parts if clean_space(part).strip(" .;")]
 
 
 def extract_return_hints(itinerary: str) -> list[str]:
     hints = re.findall(
-        r"\bRETOUR(?:\s+PAR)?\s+([^);–—]+)",
+        r"\bRETOUR(?:\s+PAR)?\s+([^)–—;-]+)",
         itinerary or "",
         flags=re.IGNORECASE,
     )
