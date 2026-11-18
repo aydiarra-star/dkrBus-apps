@@ -54,6 +54,8 @@ describe('calculateur multimodal de référence', () => {
     const outcome = planReferenceJourney(
       { label: 'Dakar', lat: dakar.lat, lon: dakar.lon },
       { label: 'Pikine', lat: pikine.lat, lon: pikine.lon },
+      'fastest',
+      { maxAccessM: 50 },
     )
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
