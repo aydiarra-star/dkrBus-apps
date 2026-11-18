@@ -22,6 +22,17 @@ describe('géométries cartographiques DDD ArcGIS', () => {
   })
 
 
+  it('rejette une partie entière si un point invalide la coupe, sans relier les voisins', () => {
+    const tracks = dddArcgisFeatureTracks('228', [{
+      geometry: { type: 'LineString', coordinates: [
+        [-17.2, 14.6],
+        [-3.7, 40.4],
+        [-17.1, 14.7],
+      ] },
+    }])
+    expect(tracks).toHaveLength(0)
+  })
+
   it('ignore les géométries invalides, hors Sénégal ou trop courtes', () => {
     const tracks = dddArcgisFeatureTracks('228', [
       { geometry: { type: 'LineString', coordinates: [[-17.2, 14.6]] } },

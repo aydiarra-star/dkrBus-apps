@@ -30,18 +30,19 @@ export function dddArcgisFeatureTracks(
         : []
     for (const coordinates of coordinateParts) {
       if (!Array.isArray(coordinates)) continue
-      const positions = coordinates
-        .filter((point): point is [number, number] =>
-          Array.isArray(point)
-          && Number.isFinite(point[0])
-          && Number.isFinite(point[1])
-          && point[0] >= -18
-          && point[0] <= -16
-          && point[1] >= 14
-          && point[1] <= 16,
-        )
-        .map(([lon, lat]) => [lat, lon] as [number, number])
-      if (positions.length < 2) continue
+      // Ne jamais supprimer un point invalide au milieu d'une ligne :
+      // le filtrer relierait artificiellement ses deux voisins par une corde.
+      const validCoordinates = coordinates.every((point): point is [number, number] =>
+        Array.isArray(point)
+        && Number.isFinite(point[0])
+        && Number.isFinite(point[1])
+        && point[0] >= -18
+        && point[0] <= -16
+        && point[1] >= 14
+        && point[1] <= 16,
+      )
+      if (!validCoordinates || coordinates.length < 2) continue
+      const positions = coordinates.map(([lon, lat]) => [lat, lon] as [number, number])
       tracks.push({ id: `ddd-arcgis-${line}-${part}`, line, part, positions })
       part += 1
     }
