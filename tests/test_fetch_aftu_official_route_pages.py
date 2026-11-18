@@ -67,6 +67,16 @@ class AftuOfficialRoutePageTests(unittest.TestCase):
         )
         self.assertEqual(extract_return_hints(itinerary), ["RUE 17"])
 
+    def test_splits_hyphenated_terminus_names_without_losing_route_separator(self):
+        self.assertEqual(
+            split_route_segments("TERMINUS YOFF-VILLAGE- AUTOROUTE SEYDINA LIMAMOULAYE - PETERSEN"),
+            ["TERMINUS YOFF-VILLAGE", "AUTOROUTE SEYDINA LIMAMOULAYE", "PETERSEN"],
+        )
+
+    def test_extracts_multiple_return_road_hints_from_one_itinerary(self):
+        itinerary = "RUE 39 - RETOUR RUE 17 - RUE 22 - RUE 25 - RETOUR RUE 37 - AVENUE BLAISE DIAGNE"
+        self.assertEqual(extract_return_hints(itinerary), ["RUE 17", "RUE 37"])
+
     def test_balanced_json_parser_handles_nested_objects_and_braces_in_strings(self):
         raw = (
             '{"type":"FeatureCollection","features":['
