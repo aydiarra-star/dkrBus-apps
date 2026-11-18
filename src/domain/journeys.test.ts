@@ -188,10 +188,10 @@ describe('libellés d’itinéraire', () => {
     expect(walkSummary(journey.value.results[0].departure)).toBeNull()
 
     const walkLeg: Journey = journey.value.results[0]
-    expect(walkSummary({ ...walkLeg.departure, walkM: 420, walkKnown: true, walkPath: ['D1', 'D2'] })).toBe('420 m à pied')
-    expect(walkSummary({ ...walkLeg.departure, walkM: 1500, walkKnown: true, walkPath: ['D1', 'D2'] })).toBe('1,5 km à pied')
+    expect(walkSummary({ ...walkLeg.departure, walkM: 420, walkKnown: true, walkPath: ['D1', 'D2'] })).toBe('420 m indicatifs · accès piéton non vérifié')
+    expect(walkSummary({ ...walkLeg.departure, walkM: 1500, walkKnown: true, walkPath: ['D1', 'D2'] })).toBe('1,5 km indicatifs · accès piéton non vérifié')
     expect(walkSummary({ ...walkLeg.departure, walkM: 0, walkKnown: false, walkPath: ['D1', 'D2'] })).toBe(
-      'cheminement déclaré, distance inconnue',
+      'accès piéton non vérifié, distance inconnue',
     )
   })
 

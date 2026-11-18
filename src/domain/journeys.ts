@@ -230,10 +230,10 @@ export function journeyRouteLabel(journey: Journey): string {
 
 /** The walk that leads to a leg, or null when the leg is boarded where you stand. */
 export function walkSummary(leg: JourneyLeg): string | null {
-  if (leg.walkPath.length <= 1) return null
-  if (leg.walkM === null || !leg.walkKnown) return 'cheminement déclaré, distance inconnue'
-  if (leg.walkM < 1000) return `${Math.round(leg.walkM)} m à pied`
-  return `${(leg.walkM / 1000).toFixed(1).replace('.', ',')} km à pied`
+  if (leg.walkPath.length <= 1 && leg.walkM === 0) return null
+  if (leg.walkM === null || !leg.walkKnown) return 'accès piéton non vérifié, distance inconnue'
+  if (leg.walkM < 1000) return `${Math.round(leg.walkM)} m indicatifs · accès piéton non vérifié`
+  return `${(leg.walkM / 1000).toFixed(1).replace('.', ',')} km indicatifs · accès piéton non vérifié`
 }
 
 export function formatJourneyDate(date: string): string {

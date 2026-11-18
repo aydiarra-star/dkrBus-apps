@@ -9,6 +9,8 @@
     "smoke:bundle": "node scripts/smoke_bundle.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
+    "test:routing": "vitest run src/routing",
+    "demo:routing": "node scripts/demo_verified_routing.mjs",
     "test:watch": "vitest",
     "test:data": "python3 -m unittest discover -s tests -v",
     "test:all": "npm test && npm run test:data",

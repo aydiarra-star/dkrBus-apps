@@ -45,20 +45,22 @@ import { assessStreetReport, rankStreetReports, relevantStreetReports, community
 import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
 import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
-import { MobilityBadge, MobilityLineBadges, MobilityText } from './components/MobilityBadge'
+import { MobilityBadge, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
 import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
-import { PlannerLegList } from './components/PlannerLegList'
+import { VerifiedJourneys } from './components/VerifiedJourneys'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
-import { JourneyOptions } from './components/JourneyOptions'
+import { HistoricalPlanner } from './components/HistoricalPlanner'
 import { SettingsPreferences } from './components/SettingsPreferences'
-import { optionSummaryLine, planJourneyOptions, type JourneyPlanOutcome } from './domain/journeyOptions'
-import { accessibilityStyle, getPreferences, plannerPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
+import { passengerLookup } from './routing/answers'
+import { planDakarJourney } from './routing/dakar'
+import { mapItinerary, tripSummary } from './routing/presentation'
+import type { Outcome } from './routing/model'
+import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
+import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
 import { offlinePackState, saveOfflinePack } from './domain/offlinePack'
 import { extractMobilityIntent } from './domain/intent'
-import { MultimodalPlanner } from './components/MultimodalPlanner'
-import { verifiedJourneyRouteSegments } from './domain/journeyRouteGeometry'
 import { StopCombobox } from './components/StopCombobox'
 import { StreetReportPanel } from './components/StreetReportPanel'
 import { answerAssistant, type AssistantContext } from './domain/assistant'
@@ -71,7 +73,6 @@ import {
   DDD_STOPS,
   TATA_STOPS,
   TER_STOPS,
-  getCorridorStop,
   haversineMeters,
   linesServingStop,
   searchCorridorStops,
@@ -95,7 +96,7 @@ import {
   type Journey,
   type JourneySearch,
 } from './domain/journeys'
-import { formatMeters, planReferenceJourney, type PlannerEndpoint, type PlannerOutcome } from './domain/planner'
+import type { PlannerEndpoint } from './domain/planner'
 import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/network'
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
@@ -205,8 +206,7 @@ interface JourneyState {
   search: JourneySearch | null
   error: string | null
   errorCode: string | null
-  referenceOutcome?: PlannerOutcome
-  referenceNotice?: string
+  snapshotNotice?: string
 }
 
 const IDLE_JOURNEY: JourneyState = { status: 'idle', search: null, error: null, errorCode: null }
@@ -362,30 +362,9 @@ function journeyErrorMessage(code: string | null): string {
   }
 }
 
-function shouldUseReferenceFallback(result: ApiResult): boolean {
+function snapshotUnavailable(result: ApiResult): boolean {
   if (result.ok) return false
   return result.status === 0 || (result.status === 404 && result.code === null) || result.code === 'NOT_PUBLISHED'
-}
-
-function referenceEndpoint(point: MapPoint): PlannerEndpoint {
-  return {
-    label: point.label,
-    lat: point.lat,
-    lon: point.lng,
-    ...(point.stopId && getCorridorStop(point.stopId) ? { stopId: point.stopId } : {}),
-  }
-}
-
-function planReferencePoints(origin: MapPoint, destination: MapPoint, preferences: Preferences): PlannerOutcome {
-  return planReferenceJourney(referenceEndpoint(origin), referenceEndpoint(destination), 'fastest', plannerPreferences(preferences))
-}
-
-/**
- * Comparaison des itinéraires du référentiel, alimentée par les mêmes points que
- * le formulaire et par les préférences de mobilité de l'appareil.
- */
-function referenceJourneyPlan(origin: MapPoint, destination: MapPoint, preferences: Preferences): JourneyPlanOutcome {
-  return planJourneyOptions(referenceEndpoint(origin), referenceEndpoint(destination), plannerPreferences(preferences))
 }
 
 function explicitJourneyNetwork(journey: Journey): 'brt' | 'ter' | null {
@@ -474,8 +453,13 @@ function App() {
   const [recenterTo, setRecenterTo] = useState<Coordinates | null>(null)
   const [zoomAction, setZoomAction] = useState<{ delta: number; nonce: number } | null>(null)
   const [nextZoomNonce, setNextZoomNonce] = useState(0)
-  const [routePoints, setRoutePoints] = useState<Partial<Record<RoutePointKey, MapPoint>>>({})
-  const [searchRoute, setSearchRoute] = useState<Coordinates[] | null>(null)
+  const [routePoints, storeRoutePoints] = useState<Partial<Record<RoutePointKey, MapPoint>>>({})
+  const [roadResult, setSearchRoute] = useState<{ origin: MapPoint; destination: MapPoint; geometry: Coordinates[] } | null>(null)
+  const searchRoute = roadResult && roadResult.origin === routePoints.origin && roadResult.destination === routePoints.destination ? roadResult.geometry : null
+  const [departureInput, setDepartureInput] = useState(() => new Date().toISOString().slice(0, 16))
+  const departAt = Date.parse(`${departureInput}Z`) / 1000 // field is explicitly Dakar time, never browser local
+  const [selectedTripId, setSelectedTripId] = useState<string>()
+  const [stepFreeOnly, setStepFreeOnly] = useState(false)
   const roadRouteRequestId = useRef(0)
   /** Comparaison calculée pour l'écran Trajet, conservée entre les onglets. */
   const [pickingPoint, setPickingPoint] = useState<RoutePointKey | null>(null)
@@ -537,6 +521,13 @@ function App() {
     journey: 0,
     governance: 0,
   })
+  // Any new selection supersedes in-flight driving and snapshot requests,
+  // including a change made from the chat while a request is pending.
+  const setRoutePoints = useCallback((next: Parameters<typeof storeRoutePoints>[0]) => {
+    roadRouteRequestId.current += 1
+    requestIds.current.journey += 1
+    storeRoutePoints(next)
+  }, [])
   /** Dernière valeur des points de trajet, lue par les rappels asynchrones (GPS). */
   const routePointsRef = useRef(routePoints)
   const network = published.network
@@ -945,10 +936,11 @@ function App() {
       return
     }
 
-    // Une saisie « Dakar à Pikine » demande un véritable tracé routier :
-    // géocodage des deux lieux, calcul OSRM sur le réseau routier OSM, puis
-    // affichage de la géométrie complète sur la carte existante.
-    const roadQuery = parseRoadRouteQuery(question)
+    // The separate driving tool is opt-in; a failed public-transport request
+    // must not silently become an OSRM car route or send the OD to a geocoder.
+    const driving = /^(?:en voiture|voiture|itinéraire automobile|trajet routier)\s*:\s*(.+)$/iu.exec(question)
+    const roadQuery = driving && parseRoadRouteQuery(driving[1])
+    const intent = extractMobilityIntent(question)
     if (roadQuery) {
       const requestId = ++roadRouteRequestId.current
       setSearchRoute(null)
@@ -960,13 +952,13 @@ function App() {
         const origin: MapPoint = { ...result.origin }
         const destination: MapPoint = { ...result.destination }
         setRoutePoints({ origin, destination })
-        setSearchRoute(result.coordinates.map(({ lat, lng }) => ({ lat, lng })))
+        setSearchRoute({ origin, destination, geometry: result.coordinates.map(({ lat, lng }) => ({ lat, lng })) })
         setRouteAttempted(false)
         setJourney(IDLE_JOURNEY)
         setActiveTab('route')
         const distance = (result.distanceMeters / 1000).toFixed(1).replace('.', ',')
         const minutes = Math.max(1, Math.round(result.durationSeconds / 60))
-        const message = `Itinéraire routier affiché : ${result.origin.label} → ${result.destination.label}, environ ${distance} km et ${minutes} min hors conditions de circulation en direct.`
+        const message = `Itinéraire automobile distinct des transports publics : ${result.origin.label} → ${result.destination.label}, environ ${distance} km et ${minutes} min hors conditions de circulation en direct.`
         setAssistantAnswer({ question, answer: message })
         announce(message)
       }).catch((error: unknown) => {
@@ -981,6 +973,7 @@ function App() {
     // Une nouvelle recherche non routière invalide toute réponse routière plus ancienne.
     roadRouteRequestId.current += 1
     const context: AssistantContext = {
+      passengerRoute: lookup,
       publishedAvailable: dataAvailable,
       adminOnline: governance.status === 'ready',
       userLocation: trafficLocation
@@ -990,7 +983,6 @@ function App() {
       trafficSummaryWo: aiSummaryWo || null,
       trafficSummaryValidUntil,
     }
-    const intent = extractMobilityIntent(question)
     if (intent?.origin && intent.destination) openAssistantJourney(intent.origin, intent.destination)
     const answer = answerAssistant(question, context)
     setAssistantAnswer({ question, answer, traffic: Boolean(context.trafficSummaryFr && answer.includes(context.trafficSummaryFr)) })
@@ -1290,6 +1282,9 @@ function App() {
    *  par toutes les actions qui définissent un trajet d’un seul geste. */
   const runJourneySearch = useCallback(async (origin: MapPoint, destination: MapPoint, searchPreferences: Preferences = preferences) => {
     const id = beginRequest('journey')
+    roadRouteRequestId.current += 1
+    setSearchRoute(null)
+    if (!Number.isFinite(departAt)) return
     setRouteAttempted(true)
     setJourney({ status: 'loading', search: null, error: null, errorCode: null })
 
@@ -1306,7 +1301,7 @@ function App() {
     }
     addPoint('origin', origin)
     addPoint('destination', destination)
-    parameters.set('at', new Date().toISOString())
+    parameters.set('at', new Date(departAt * 1000).toISOString())
     parameters.set('max_walk_m', String(ROUTE_MAX_WALK_M))
     const activeNetworks = MOBILITY_IDS.filter((network) => searchPreferences.mobility.networks[network])
     parameters.set('networks', activeNetworks.join(','))
@@ -1315,15 +1310,12 @@ function App() {
     // Un calcul plus ancien que le dernier ne doit ni afficher ni annoncer son résultat.
     if (!isLatestRequest('journey', id)) return
     if (!result.ok) {
-      if (shouldUseReferenceFallback(result)) {
-        const referenceOutcome = planReferencePoints(origin, destination, searchPreferences)
-        const referenceNotice = result.code === 'NOT_PUBLISHED'
-          ? 'Aucun jeu de transport publié : le calcul utilise le réseau de référence local (TER, BRT, DDD et AFTU).'
-          : 'Le serveur d’horaires est indisponible : calcul local sur le réseau de référence (TER, BRT, DDD et AFTU), sans horaires publiés complets ni temps réel.'
-        setJourney({ status: 'ready', search: null, error: null, errorCode: null, referenceOutcome, referenceNotice })
-        announce(referenceOutcome.ok
-          ? `Estimation locale multimodale : environ ${referenceOutcome.totalMinutes} minutes. Les lignes sans horaire publié restent estimées ; aucun temps réel n’est disponible.`
-          : `${referenceNotice} ${referenceOutcome.message}`)
+      if (snapshotUnavailable(result)) {
+        const snapshotNotice = result.code === 'NOT_PUBLISHED'
+          ? 'Aucun jeu de transport publié. Le calcul sur tracés vérifiés fonctionne localement.'
+          : 'Le serveur d’horaires est indisponible. Le calcul sur tracés vérifiés fonctionne localement.'
+        setJourney({ status: 'ready', search: null, error: null, errorCode: null, snapshotNotice })
+        announce(snapshotNotice)
         return
       }
       const message = journeyErrorMessage(result.code)
@@ -1365,7 +1357,7 @@ function App() {
       message: filteredResults.length === 0
         ? parsed.value.results.length > 0
           ? 'Aucune course directe ne correspond aux réseaux actuellement activés.'
-          : 'Aucune course directe déclarée par le service horaires. Le calcul multimodal de référence est présenté séparément lorsqu’il est disponible.'
+          : 'Aucune course directe déclarée par le service horaires. Le calcul sur tracés vérifiés est présenté séparément lorsqu’il est disponible.'
         : parsed.value.message,
       nextServiceDate: parsed.value.results.length > 0 && filteredResults.length === 0 ? null : parsed.value.nextServiceDate,
       limitations: [parsed.value.limitations, ...filterNotes].filter(Boolean).join(' ') || null,
@@ -1375,9 +1367,9 @@ function App() {
     announce(
       found > 0
         ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''} avec les réseaux autorisés.`
-        : 'Aucune course directe identifiée avec les réseaux autorisés. Le calcul multimodal de référence reste affiché séparément si disponible.',
+        : 'Aucune course directe identifiée avec les réseaux autorisés. Le calcul sur tracés vérifiés reste affiché séparément si disponible.',
     )
-  }, [beginRequest, isLatestRequest, preferences])
+  }, [beginRequest, isLatestRequest, preferences, departAt])
 
   /** Un geste qui complète un trajet va jusqu’au calcul, sans s’arrêter au
    *  milieu : c’est la règle « aucun bouton mort ». */
@@ -1517,40 +1509,25 @@ function App() {
   const mapVisible = activeTab === 'explore' || activeTab === 'route'
   const showStopCard = activeTab === 'explore' || activeTab === 'route'
 
-  // Comparaison des itinéraires sur les mêmes points que le formulaire : dès que
-  // départ et destination sont connus, les critères sont calculés sans clic
-  // supplémentaire. Les préférences de mobilité filtrent réellement le graphe.
-  const journeyPlan = useMemo(
-    () => routePoints.origin && routePoints.destination
-      ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
-      : null,
-    [routePoints.origin, routePoints.destination, preferences],
-  )
-
-  // La carte met en évidence le premier itinéraire calculé (le plus rapide).
-  // Les géométries de base TER/BRT restent celles du référentiel existant.
-  const highlightedJourney = journeyPlan?.ok ? journeyPlan.options[0]?.result ?? null : null
-  const highlightedJourneyRouteSegments = highlightedJourney
-    ? verifiedJourneyRouteSegments(highlightedJourney.legs)
-    : []
-  const highlightedJourneyStopIds = highlightedJourney
-    ? [...new Set(highlightedJourney.legs
-        .flatMap((leg) => leg.kind === 'ride' ? [leg.fromId, ...(leg.intermediateStopIds ?? []), leg.toId] : [])
-        .filter((stopId): stopId is string => Boolean(stopId)))]
-    : []
-
-  // « Annoncer le premier résultat » : la première option est énoncée une seule
-  // fois par calcul — pas à chaque tic d'horloge ni à chaque changement d'onglet.
-  const announcedPlanRef = useRef<string | null>(null)
+  const routingOptions = useMemo(() => ({
+    departAt, modes: MOBILITY_IDS.filter(id => preferences.mobility.networks[id]),
+    walkSpeedMpm: walkSpeedOf(preferences.mobility.walkSpeed), maxWalkPerLegM: accessRadiusOf(preferences.mobility.accessRadius),
+    transferBufferSeconds: preferences.mobility.transferBufferMin * 60, stepFreeOnly,
+  }), [departAt, preferences.mobility, stepFreeOnly])
+  const lookup = useMemo(() => passengerLookup(routingOptions), [routingOptions])
+  // The selected itinerary is the single source for the list, speech and map.
+  const journeyPlan = useMemo(() => routePoints.origin && routePoints.destination && !searchRoute
+    ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions) : null, [routePoints, routingOptions, searchRoute])
+  const selectedTrip = journeyPlan?.ok ? journeyPlan.options.find(t => t.id === selectedTripId) ?? journeyPlan.options[0] : undefined
+  const journeyFocus = activeTab === 'route' && Boolean(routePoints.origin && routePoints.destination)
+  const overlay = useMemo(() => mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip])
+  const announcedPlanRef = useRef<string>()
   useEffect(() => {
-    if (!journeyPlan || !journeyPlan.ok || journeyPlan.options.length === 0) return
-    if (!preferences.accessibility.announceResults || !speechSynthesisSupported()) return
-    const signature = `${journeyPlan.originLabel}→${journeyPlan.destinationLabel}:${journeyPlan.options.length}`
-    if (announcedPlanRef.current === signature) return
-    announcedPlanRef.current = signature
-    const first = journeyPlan.options[0]!
-    speak({ text: `${first.label} : ${optionSummaryLine(first)}`, lang: preferences.language.interface })
-  }, [journeyPlan, preferences.accessibility.announceResults, preferences.language.interface])
+    if (!selectedTrip || !preferences.accessibility.announceResults || !speechSynthesisSupported()) return
+    const message = tripSummary(selectedTrip)
+    if (announcedPlanRef.current !== message) speak({ text: message, lang: preferences.language.interface })
+    announcedPlanRef.current = message
+  }, [selectedTrip, preferences.accessibility.announceResults, preferences.language.interface])
 
   // Le paquet hors ligne est préparé une fois par session quand l'usager l'a
   // accepté : aucun réseau n'est exigé, aucun échec n'est affiché en face.
@@ -1597,9 +1574,10 @@ function App() {
           initialBounds={DAKAR_REGION_BOUNDS}
           corridorLines={visibleCorridorLines}
           corridorStops={visibleCorridorStops}
-          highlightedRouteSegments={highlightedJourneyRouteSegments}
-          highlightedJourneyLegs={highlightedJourney?.legs ?? []}
-          highlightedStopIds={highlightedJourneyStopIds}
+          highlightedRouteSegments={overlay.segments}
+          highlightedChanges={overlay.changes}
+          highlightedCalls={overlay.calls}
+          journeyFocus={journeyFocus}
           onSelectCorridorStop={stableCorridorStop}
         />
 
@@ -1732,6 +1710,7 @@ function App() {
                 <span>DB</span>
               </button>
               <AssistantChat context={{
+                passengerRoute: lookup,
                 publishedAvailable: dataAvailable,
                 adminOnline: governance.status === 'ready',
                 nextDepartureAt: assistantScheduleFromJourney(journey.search, countdownNow),
@@ -1816,7 +1795,7 @@ function App() {
                 <UniversalSearchCard
                   query={search}
                   answer={assistantAnswer?.traffic ? { ...assistantAnswer, answer: answerAssistant(assistantAnswer.question, {
-                    publishedAvailable: dataAvailable, adminOnline: governance.status === 'ready',
+                    passengerRoute: lookup, publishedAvailable: dataAvailable, adminOnline: governance.status === 'ready',
                     trafficSummaryFr: aiSummaryFr, trafficSummaryWo: aiSummaryWo, trafficSummaryValidUntil,
                   }, alertsNow) } : assistantAnswer}
                   search={stopSearch}
@@ -1836,7 +1815,7 @@ function App() {
                 onSelectStop={selectRoutePoint}
                 onUseLocation={() => requestLocation('origin')}
                 onSwap={swapRoutePoints}
-                onClear={() => { roadRouteRequestId.current += 1; setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
+                onClear={() => { setRoutePoints({}); setSearchRoute(null); setRouteAttempted(false); setPickingPoint(null); setJourney(IDLE_JOURNEY) }}
                 onClearPoint={clearRoutePoint}
                 onSubmit={submitRoute}
                 onToggleNetwork={(id) => {
@@ -1852,11 +1831,12 @@ function App() {
                 countdownNow={countdownNow}
                 preferences={preferences}
                 journeyPlan={journeyPlan}
+                departureInput={departureInput}
+                onDepartureChange={value => { beginRequest('journey'); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
+                selectedId={selectedTrip?.id} onSelectTrip={setSelectedTripId}
+                stepFreeOnly={stepFreeOnly} onStepFreeChange={setStepFreeOnly}
               />
-              <details className="advanced-planner">
-                <summary>Autres options de trajet</summary>
-                <MultimodalPlanner mapOrigin={routePoints.origin} mapDestination={routePoints.destination} />
-              </details>
+              <HistoricalPlanner origin={routePoints.origin} destination={routePoints.destination} preferences={preferences} />
             </>
           )}
 
@@ -2503,7 +2483,7 @@ function RoutePanel({
   journey,
   countdownNow,
   preferences,
-  journeyPlan,
+  journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange,
 }: {
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
@@ -2521,7 +2501,13 @@ function RoutePanel({
   journey: JourneyState
   countdownNow: number
   preferences: Preferences
-  journeyPlan: JourneyPlanOutcome | null
+  journeyPlan: Outcome | null
+  departureInput: string
+  onDepartureChange: (value: string) => void
+  selectedId?: string
+  onSelectTrip: (id: string) => void
+  stepFreeOnly: boolean
+  onStepFreeChange: (value: boolean) => void
 }) {
   return (
     <section className="panel route-panel" aria-label="Planifier un itinéraire">
@@ -2537,7 +2523,7 @@ function RoutePanel({
       <div className="route-network-filter-block">
         <div className="route-network-filter-heading">
           <strong>Réseaux à utiliser</strong>
-          <span>Activez les transports à inclure dans le calcul</span>
+          <span>Filtres du calcul. DDD, AFTU/TATA et B2 restent sans parcours validé.</span>
         </div>
         <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
           {MOBILITY_IDS.map((id) => {
@@ -2601,43 +2587,30 @@ function RoutePanel({
         </div>
 
 
+        <label className="verified-departure">Date et heure de départ à Dakar
+          <input type="datetime-local" required value={departureInput} onChange={e => onDepartureChange(e.target.value)} />
+        </label>
+        <label className="verified-departure"><input type="checkbox" checked={stepFreeOnly} onChange={e => onStepFreeChange(e.target.checked)} /> Uniquement les parcours sans marches vérifiés</label>
         <button className="primary-action route-submit" type="submit" aria-label="Rechercher mon itinéraire" disabled={!routePoints.origin || !routePoints.destination}>
           <Search size={18} /><span>Rechercher un trajet</span><ArrowRight size={19} />
         </button>
       </form>
 
+      {journeyPlan && <VerifiedJourneys result={journeyPlan} selectedId={selectedId} onSelect={onSelectTrip} preferences={preferences} />}
       {routeAttempted ? (
-        <RouteOutcome journey={journey} routePoints={routePoints} dataAvailable={dataAvailable} countdownNow={countdownNow} />
-      ) : (
-        <div className="route-truth-card">
-          <div className="route-truth-icon"><ShieldCheck size={17} /></div>
-          {dataAvailable ? (
-            <div><strong>Horaires théoriques disponibles</strong><span>Courses directes publiées ; calcul multimodal de référence si le serveur d’horaires est indisponible.</span></div>
-          ) : (
-            <div><strong>Estimation multimodale disponible</strong><span>TER, BRT, DDD et AFTU : durées calculées sur les données de référence disponibles ; pas de prochains passages ni de temps réel.</span></div>
-          )}
+        <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
+      ) : !journeyPlan && (
+        <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
+          <div><strong>Choisissez deux arrêts de desserte</strong><span>Un point GPS ne sera pas relié automatiquement à un arrêt. Seuls les parcours complets sur géométries contrôlées sont proposés. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
         </div>
       )}
-      {journeyPlan && routePoints.origin && routePoints.destination ? (
-        <JourneyOptions
-          origin={routePoints.origin}
-          destination={routePoints.destination}
-          plan={journeyPlan}
-          preferences={plannerPreferences(preferences)}
-          units={preferences.units.distance}
-          speak={preferences.language.interface}
-          publishedAlongside={Boolean(journey.search)}
-          onReadAloud={speechSynthesisSupported() ? (text, language) => { speak({ text, lang: language }) } : undefined}
-        />
-      ) : null}
     </section>
   )
 }
 
 
-function RouteOutcome({ journey, routePoints, dataAvailable, countdownNow }: {
+function RouteOutcome({ journey, dataAvailable, countdownNow }: {
   journey: JourneyState
-  routePoints: Partial<Record<RoutePointKey, MapPoint>>
   dataAvailable: boolean
   countdownNow: number
 }) {
@@ -2653,25 +2626,16 @@ function RouteOutcome({ journey, routePoints, dataAvailable, countdownNow }: {
     )
   }
 
-  if (journey.referenceOutcome) {
-    return (
-      <ReferenceJourneyOutcome
-        outcome={journey.referenceOutcome}
-        notice={journey.referenceNotice ?? ''}
-        originLabel={routePoints.origin?.label ?? 'Départ'}
-        destinationLabel={routePoints.destination?.label ?? 'Destination'}
-      />
-    )
-  }
+  if (journey.snapshotNotice) return <p className="journey-footnote" role="status">{journey.snapshotNotice}</p>
 
   if (journey.status === 'error') {
     return (
       <div className="route-unavailable" role="status" aria-live="polite">
         <div className="unavailable-icon"><AlertTriangle size={18} /></div>
         <div>
-          <strong>Itinéraire impossible pour le moment</strong>
+          <strong>Horaires du snapshot indisponibles</strong>
           <p>{journey.error}</p>
-          <p className="route-unavailable-note">Aucun trajet n’est inventé : la recherche s’arrête là.</p>
+          <p className="route-unavailable-note">Aucune course publiée n’est déduite de cette erreur. Le calcul local est indépendant.</p>
         </div>
       </div>
     )
@@ -2720,9 +2684,10 @@ function RouteOutcome({ journey, routePoints, dataAvailable, countdownNow }: {
         </div>
       </div>
 
+      <p className="journey-footnote">Horaires du flux publié, présentés à part : ils ne valident ni le tracé, ni l’accès à pied aux arrêts.</p>
       {laterDay && (
         <p className="journey-later-day" role="status">
-          Plus aucune course directe ne part aujourd’hui : voici la première course déclarée, le{' '}
+          Aucune course directe restante pour le jour demandé : première course déclarée le{' '}
           {formatJourneyDate(search.results[0].date)}.
         </p>
       )}
@@ -2743,50 +2708,9 @@ function RouteOutcome({ journey, routePoints, dataAvailable, countdownNow }: {
         <p className="journey-footnote journey-footnote-strong">
           {dataAvailable
             ? 'Aucune position de véhicule et aucun temps réel : ces heures sont celles déclarées dans le flux publié.'
-            : 'Aucune donnée publiée n’est servie : ces heures proviennent exclusivement du flux publié.'}
+            : 'Ces heures proviennent de la réponse du service horaires ; l’état du réseau publié n’est pas confirmé.'}
         </p>
       </details>
-    </section>
-  )
-}
-
-function ReferenceJourneyOutcome({ outcome, notice, originLabel, destinationLabel }: {
-  outcome: PlannerOutcome
-  notice: string
-  originLabel: string
-  destinationLabel: string
-}) {
-  if (!outcome.ok) {
-    return (
-      <div className="route-unavailable reference-route-unavailable" role="status" aria-live="polite">
-        <div className="unavailable-icon"><AlertTriangle size={18} /></div>
-        <div>
-          <strong>Aucun trajet multimodal de référence trouvé</strong>
-          <p>{notice}</p>
-          <p className="route-unavailable-note">{outcome.message}</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <section className="journey-results reference-journey-results" aria-label="Estimation de trajet multimodal">
-      <div className="journey-results-head">
-        <span className="eyebrow">ESTIMATION LOCALE · MULTIMODALE</span>
-        <span className="journey-count-chip">Réseau de référence</span>
-      </div>
-      <p className="reference-journey-notice">{notice}</p>
-      <p className="reference-journey-points"><strong>{originLabel}</strong><ArrowRight size={15} aria-hidden="true" /><strong>{destinationLabel}</strong></p>
-      <div className="planner-summary">
-        <strong>≈ {outcome.totalMinutes} min</strong>
-        <span>{outcome.transfers} correspondance{outcome.transfers > 1 ? 's' : ''}</span>
-        <span className="strip-divider" />
-        <span><Footprints size={13} /> {formatMeters(outcome.totalWalkM)}</span>
-        {outcome.boardedLines.length > 0 && <span className="strip-divider" />}
-        {outcome.boardedLines.length > 0 && <MobilityLineBadges names={outcome.boardedLines} />}
-      </div>
-      <PlannerLegList legs={outcome.legs} />
-      <p className="journey-footnote journey-footnote-strong">{outcome.limitation}</p>
     </section>
   )
 }
@@ -2831,7 +2755,7 @@ function JourneyCard({ journey, localDay, now }: { journey: Journey; localDay: s
         <div className="journey-point">
           <span className="journey-clock">{declaredClockLabel(journey.departure.declaredTime)}</span>
           <strong>{journey.departure.stopName ?? journey.departure.stopId}</strong>
-          <small>{departureWalk ? <><Footprints size={12} /> {departureWalk}</> : 'Départ à l’arrêt'}</small>
+          <small>{departureWalk ? <><Footprints size={12} /> {departureWalk}</> : 'Point de montée déclaré'}</small>
         </div>
         <div className="journey-duration">
           <span>{journey.durationMin} min</span>
@@ -2840,12 +2764,12 @@ function JourneyCard({ journey, localDay, now }: { journey: Journey; localDay: s
         <div className="journey-point journey-point-arrival">
           <span className="journey-clock">{declaredClockLabel(journey.arrival.declaredTime)}</span>
           <strong>{journey.arrival.stopName ?? journey.arrival.stopId}</strong>
-          <small>{arrivalWalk ? <><Footprints size={12} /> {arrivalWalk}</> : 'Arrivée à l’arrêt'}</small>
+          <small>{arrivalWalk ? <><Footprints size={12} /> {arrivalWalk}</> : 'Point de descente déclaré'}</small>
         </div>
       </div>
 
       {journey.date !== localDay && (
-        <p className="journey-date-note">Course du {formatJourneyDate(journey.date)} — pas aujourd’hui.</p>
+        <p className="journey-date-note">Course du {formatJourneyDate(journey.date)} — après le jour demandé.</p>
       )}
       <p className="journey-note">{journey.note}</p>
     </li>

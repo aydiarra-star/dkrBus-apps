@@ -104,7 +104,7 @@ function itineraryLine(place: PlaceEntry): string | null {
   const steps = outcome.legs.map((leg) => `• ${describeLeg(leg)}`).join('\n')
   const transfers = `${outcome.transfers} correspondance${outcome.transfers > 1 ? 's' : ''}`
   return [
-    `Itinéraire repère depuis ${hub.name} (pôle central ${networkLabel(place)}) :`,
+    `Itinéraire repère depuis ${hub.name} (simulation historique, non vérifiée, pas un trajet à suivre) :`,
     steps,
     `Environ ${outcome.totalMinutes} min, ${formatMeters(outcome.totalWalkM)} de marche, ${transfers}.`,
   ].join('\n')
@@ -115,7 +115,7 @@ function correspondenceLine(place: PlaceEntry): string | null {
   const declared = declaredTransferOf(place)
   if (declared) {
     const other = getCorridorStop(declared.fromStopId === place.id ? declared.toStopId : declared.fromStopId)
-    return `Correspondance déclarée : ${declared.label}${other ? ` — ${networkLabel(place)} ↔ ${other.id.startsWith('ter') ? 'TER' : 'BRT'}` : ''}.`
+    return `Correspondance déclarée dans le modèle historique, non activée faute de cheminement vérifié : ${declared.label}${other ? ` — ${networkLabel(place)} ↔ ${other.id.startsWith('ter') ? 'TER' : 'BRT'}` : ''}.`
   }
   const nearest = crossNetworkNearest(place)
   if (!nearest) return null
@@ -123,7 +123,7 @@ function correspondenceLine(place: PlaceEntry): string | null {
   const distance = formatMeters(nearest.distanceM)
   const radius = formatMeters(MAX_ACCESS_M)
   if (nearest.reachable) {
-    return `Correspondance possible : ${otherNetwork} ${nearest.stop.name} à ${distance} à vol d’oiseau (dans le rayon de marche du calculateur, ${radius}) — cheminement réel à confirmer sur place.`
+    return `Aucune correspondance vérifiée : ${otherNetwork} ${nearest.stop.name} à ${distance} à vol d’oiseau (dans le rayon de marche du calculateur, ${radius}) — cheminement réel à confirmer sur place.`
   }
   return `Pas de correspondance à pied dans ce modèle : l’arrêt ${otherNetwork} le plus proche est ${nearest.stop.name}, à ${distance} à vol d’oiseau — au-delà du rayon de marche de ${radius}. Il faut un autre mode pour le rejoindre.`
 }
@@ -138,7 +138,9 @@ function busFichesLine(place: PlaceEntry): string | null {
 }
 
 /** Fiche complète d'un lieu : identification, mode, desserte, correspondances, itinéraire. */
-export function placeBrief(place: PlaceEntry): string {
+export function placeBrief(place: PlaceEntry, documentaryOnly = false): string {
+  if (documentaryOnly) return [shortIdentity(place), serviceLine(place), busFichesLine(place),
+    'Ce repère ne valide ni un accès à pied ni une correspondance.'].filter(Boolean).join('\n')
   const parts = [identityLine(place), bestModeLine(place)]
   for (const part of [serviceLine(place), itineraryLine(place), correspondenceLine(place), busFichesLine(place)]) {
     if (part) parts.push(part)
@@ -155,9 +157,9 @@ export function placeBrief(place: PlaceEntry): string {
 export function placeBriefWithQuestion(
   place: PlaceEntry,
   missing: PlaceRole,
-  options: { arrivalRequested?: boolean } = {},
+  options: { arrivalRequested?: boolean; documentaryOnly?: boolean } = {},
 ): string {
-  const brief = placeBrief(place)
+  const brief = placeBrief(place, options.documentaryOnly)
   const ask = missing === 'origin'
     ? 'Il me manque votre point de départ : dites-le simplement (« je suis à … », « depuis Parcelles Assainies ») et je calcule le trajet complet avec les correspondances.'
     : 'Il me manque votre destination : dites-la (« je vais à … », « vers Rufisque ») et je calcule le trajet complet avec les correspondances.'
@@ -172,13 +174,13 @@ export function placeBriefWithQuestion(
  * `missing` précise ce qui reste à dire : quand l'usager vient d'énoncer son
  * départ, c'est la destination qui est demandée — jamais l'inverse.
  */
-export function placeQuestionReply(place: PlaceEntry, missing: PlaceRole | null = null): string {
+export function placeQuestionReply(place: PlaceEntry, missing: PlaceRole | null = null, documentaryOnly = false): string {
   const invite = missing === 'destination'
     ? 'Dites-moi où vous allez — « je vais à Diamniadio » — et je calcule l’itinéraire complet avec les correspondances.'
     : missing === 'origin'
       ? 'Dites-moi d’où vous partez — « je suis à Keur Mbaye Fall » — et je calcule l’itinéraire complet avec les correspondances.'
       : 'Dites-moi d’où vous partez (ou où vous allez) en une phrase — « je suis à Ouakam, je vais à Diamniadio » — et je calcule l’itinéraire complet.'
-  return `${placeBrief(place)}\n${invite}`
+  return `${placeBrief(place, documentaryOnly)}\n${invite}`
 }
 
 function busLineKey(line: BusLine): string {
@@ -207,14 +209,14 @@ function shortIdentity(place: PlaceEntry): string {
  * citent les deux, et ce qu'on ne peut pas faire — sans jamais fabriquer un
  * trajet ni une durée.
  */
-export function unroutablePairReply(origin: PlaceEntry | null, destination: PlaceEntry | null): string {
+export function unroutablePairReply(origin: PlaceEntry | null, destination: PlaceEntry | null, documentaryOnly = false): string {
   const places = [origin, destination].filter((place): place is PlaceEntry => place !== null)
   const parts = [`${places.map((place) => place.name).join(' → ')} : je ne peux pas calculer cet itinéraire.`]
   for (const place of places) parts.push(`• ${shortIdentity(place)}`)
   // Un lieu peut être cartographié sans être encore activé dans le calculateur.
   // Chercher le premier itinéraire réellement calculable, pas seulement le
   // premier lieu qui possède des coordonnées de référence.
-  const itinerary = places.map((place) => itineraryLine(place)).find((line): line is string => Boolean(line))
+  const itinerary = !documentaryOnly && places.map((place) => itineraryLine(place)).find((line): line is string => Boolean(line))
   if (itinerary) parts.push(itinerary)
   if (origin && destination) {
     const shared = sharedBusLines(origin, destination)
