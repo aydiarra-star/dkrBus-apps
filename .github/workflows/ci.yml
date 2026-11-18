@@ -32,7 +32,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow
+        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf
 
       - name: Install dependencies
         run: npm ci
@@ -177,6 +177,8 @@ jobs:
 
       - name: Check pedestrian graph extractor
         run: node --check scripts/export_dakar_pedestrian_network.mjs
+      - name: Check Dakar bus route relation PBF extractor
+        run: python -m py_compile scripts/extract_dakar_bus_route_relations_from_pbf.py
 
       - name: Test pedestrian graph construction and access filters
         run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
@@ -214,6 +216,12 @@ jobs:
           DAKAR_OSM_WAYS_JSON=artifacts/pedestrian/dakar-pedestrian-ways.json \
             node scripts/export_dakar_pedestrian_network.mjs
 
+      - name: Extract Dakar bus route relation candidates from the same OSM PBF
+        id: dakar_bus_routes
+        if: steps.pedestrian_geofabrik.outcome == 'success'
+        timeout-minutes: 5
+        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
+
       - name: Extract candidate Dakar pedestrian graph from Overpass when Geofabrik is unavailable
         id: pedestrian_graph
         if: steps.pedestrian_geofabrik.outcome == 'failure'
@@ -229,6 +237,15 @@ jobs:
           path: artifacts/pedestrian/dakar-pedestrian-graph-candidate.json
           if-no-files-found: error
           retention-days: 14
+
+      - name: Upload Dakar bus route relation audit
+        if: steps.dakar_bus_routes.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dakar-bus-route-relations
+          path: artifacts/pedestrian/dakar-bus-route-relations.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Build frontend
         run: npm run build
