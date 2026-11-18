@@ -79,38 +79,22 @@ describe('calculateur multimodal de référence', () => {
     expect(result.limitation).toContain('réseau de référence')
   })
 
-  it('combine BRT et TER avec la correspondance marchable déclarée pour Rufisque', () => {
-    // Départ près du terminus BRT (Guédiawaye) vers Rufisque, desservi par le seul TER.
-    // Sans le BRT, la gare TER la plus proche est à plus d'un kilomètre : le moteur
-    // doit donc emprunter la correspondance déclarée Petersen ↔ gare de Dakar.
+  it('refuse de relier BRT et TER avec une distance de marche de référence sans chemin piéton vérifié', () => {
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest', { allowedNetworks: ['ter', 'brt'] })
-    expect(outcome.ok).toBe(true)
-    const result = outcome as PlannerResult
-    const lines = result.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)
-    expect(lines).toContain('B1')
-    expect(lines).toContain('TER')
-    expect(result.transfers).toBeGreaterThanOrEqual(1)
-    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
-  it('n’enchaîne pas DDD/AFTU au TER sur la seule proximité de coordonnées approximatives', () => {
-    // Les correspondances DDD/AFTU/TATA non confirmées ne sont pas des liens du graphe.
-    // Le trajet multimodal reste possible via les deux liaisons TER ↔ BRT déclarées.
+  it('ne transforme pas les distances approximatives TER ↔ BRT en correspondances actives', () => {
     const outcome = planReferenceJourney(GUEDIAWAYE, RUFISQUE)
-    expect(outcome.ok).toBe(true)
-    const result = outcome as PlannerResult
-    expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
-    expect(result.networksUsed.every((network) => network === 'brt' || network === 'ter')).toBe(true)
-    for (const leg of result.legs.filter((entry) => entry.kind === 'walk_transfer')) {
-      expect(leg.note).toMatch(/marche de référence/)
-    }
-    expect(result.legs.filter((leg) => leg.kind === 'ride').at(-1)?.to).toBe('Rufisque')
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
   it('calcule les trois variantes sur le même réseau et expose leurs métriques', () => {
-    const fastest = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fastest')
-    const fewerTransfers = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'fewerTransfers')
-    const lessWalking = planReferenceJourney(GUEDIAWAYE, RUFISQUE, 'lessWalking')
+    const fastest = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'fastest')
+    const fewerTransfers = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'fewerTransfers')
+    const lessWalking = planReferenceJourney(PLATEAU, GUEDIAWAYE, 'lessWalking')
     for (const outcome of [fastest, fewerTransfers, lessWalking]) {
       expect(outcome.ok).toBe(true)
       if (!outcome.ok) continue
@@ -142,7 +126,7 @@ describe('calculateur multimodal de référence', () => {
   it('accepte un arrêt de référence choisi explicitement comme départ', () => {
     const stop = getCorridorStop('brt-grand-medine')!
     const origin = { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
-    const outcome = planReferenceJourney(origin, RUFISQUE)
+    const outcome = planReferenceJourney(origin, GUEDIAWAYE)
     expect(outcome.ok).toBe(true)
     const result = outcome as PlannerResult
     // Le trajet part bien de l’arrêt choisi : soit on y monte directement,
