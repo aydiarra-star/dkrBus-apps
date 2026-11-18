@@ -296,6 +296,7 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
     stops_ok = bool(
         stop_match["osmStopComparedCount"] >= 8
         and stop_match["nearestWithin50m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.8
+        and stop_match["uniqueNearestWithin25m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.5
     )
     return {
         "relationId": relation.get("id"),
