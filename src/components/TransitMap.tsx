@@ -369,7 +369,7 @@ function TransitMapView({
     const controller = new AbortController()
     const hasBusRide = highlightedJourneyLegs.some((leg) => leg.kind === 'ride' && leg.line?.network === 'aftu_tata')
     if (!hasBusRide) {
-      setHighlightedAftuTataRouteSegments([])
+      setHighlightedAftuTataRouteSegments((current) => current.length ? [] : current)
       return () => controller.abort()
     }
     void loadOsmJourneyRouteSegments(highlightedJourneyLegs, controller.signal)
