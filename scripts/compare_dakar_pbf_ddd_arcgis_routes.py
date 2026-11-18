@@ -31,10 +31,26 @@ def normalize_text(value: object) -> str:
 
 def normalize_endpoint(value: object) -> str:
     text = normalize_text(value)
-    text = re.sub(r"^(?:terminus|gare|arret|station)\s+", "", text)
-    # Collapse spaces between place names and route-terminal numbers:
-    # "Liberté 5" and "Liberté5" are the same named terminal.
+    text = re.sub(r"^(?:terminus|termibus|gare|arret|station|place)\s+", "", text)
+    # Collapse spaces between place names and route-terminal numbers.
     return re.sub(r"\s+", "", text)
+
+
+OFFICIAL_TERMINI = {
+    "1": ("parcellesassainies", "leclerc"),
+    "4": ("liberte5", "leclerc"),
+    "7": ("ouakam", "palais2"),
+    "8": ("aeroportlss", "palais2"),
+    "9": ("liberte6", "palais2"),
+    "10": ("liberte5", "palais2"),
+    "13": ("liberte5", "palais2"),
+    "18": ("dieuppeul", "centreville"),
+    "20": ("dieuppeul", "centreville"),
+    "23": ("parcellesassainies", "palais1"),
+    "121": ("scaturbam", "leclerc"),
+}
+OFFICIAL_TERMINI_SOURCE = "https://demdikk.sn/reseau-urbain-dakar/"
+OFFICIAL_TERMINI_CHECKED_AT = "2026-11-18"
 
 
 def parse_line_ref(value: object) -> str | None:
@@ -332,12 +348,18 @@ def relation_direction_candidate(relation: dict, route_layer: dict | None, stop_
         and stop_match["nearestWithin50m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.8
         and stop_match["uniqueNearestWithin25m"] / max(1, stop_match["osmStopComparedCount"]) >= 0.5
     )
+    official_termini = OFFICIAL_TERMINI.get(line)
+    official_termini_match = bool(
+        official_termini and start and end and {start, end} == set(official_termini)
+    )
     return {
         "relationId": relation.get("id"),
         "line": line,
         "name": (relation.get("tags") or {}).get("name"),
         "from": start,
         "to": end,
+        "officialTermini": list(official_termini) if official_termini else None,
+        "officialTerminiMatch": official_termini_match,
         "osmStopCount": len(stops),
         "routeLayerId": (route_layer or {}).get("layerId"),
         "routeLayerName": (route_layer or {}).get("layerName"),
@@ -383,6 +405,7 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
                         "returnStopLayerCandidate": right["stopLayerCandidate"],
                         "bidirectionalGeometryCandidate": left["geometryCandidate"] and right["geometryCandidate"],
                         "bidirectionalStopLayerCandidate": left["stopLayerCandidate"] and right["stopLayerCandidate"],
+                        "bidirectionalOfficialTerminiMatch": left["officialTerminiMatch"] and right["officialTerminiMatch"],
                         "bidirectionalCandidate": left["directionCandidate"] and right["directionCandidate"],
                     })
                     used.update({index, other_index})
@@ -394,6 +417,7 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
             "bidirectionalGeometryCandidate": any(pair["bidirectionalGeometryCandidate"] for pair in pairs),
             "bidirectionalStopLayerCandidate": any(pair["bidirectionalStopLayerCandidate"] for pair in pairs),
             "bidirectionalGeometryAndStopsCandidate": any(pair["bidirectionalCandidate"] for pair in pairs),
+            "bidirectionalOfficialTerminiMatch": any(pair["bidirectionalOfficialTerminiMatch"] for pair in pairs),
             "pairs": pairs,
             "unpairedRelations": [row["relationId"] for index, row in enumerate(rows) if index not in used],
         })
@@ -458,6 +482,8 @@ def build_report(osm: dict, arcgis: dict) -> dict:
             "arcgisGeneratedAt": arcgis.get("generatedAt"),
             "arcgisAttribution": arcgis.get("attribution"),
             "arcgisExtractionErrors": arcgis.get("errors") or [],
+            "officialDddRoutePage": OFFICIAL_TERMINI_SOURCE,
+            "officialTerminiCheckedAt": OFFICIAL_TERMINI_CHECKED_AT,
         },
         "method": "OSM route relation stop positions are projected against the matching DDD ArcGIS route paths and stop layers. All distances are metre-scale diagnostics. Explicit relation endpoints are paired only when reversed exactly. No geometry is stitched and no line is activated.",
         "thresholds": {
@@ -478,6 +504,7 @@ def build_report(osm: dict, arcgis: dict) -> dict:
             "linesWithBidirectionalGeometryCandidate": sum(row["bidirectionalGeometryCandidate"] for row in pairs),
             "linesWithBidirectionalStopLayerCandidate": sum(row["bidirectionalStopLayerCandidate"] for row in pairs),
             "linesWithBidirectionalGeometryAndStopsCandidate": sum(row["bidirectionalGeometryAndStopsCandidate"] for row in pairs),
+            "linesWithOfficialTerminiMatch": sum(row["bidirectionalOfficialTerminiMatch"] for row in pairs),
         },
         "linePairs": pairs,
         "directionComparisons": rows,
