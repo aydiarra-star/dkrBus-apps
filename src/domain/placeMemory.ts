@@ -193,9 +193,12 @@ function sharedBusLines(origin: PlaceEntry, destination: PlaceEntry): BusLine[] 
 
 function shortIdentity(place: PlaceEntry): string {
   if (place.kind === 'bus') {
-    return `${place.name} : lieu cité par les fiches DDD/AFTU — aucun arrêt géolocalisé, donc aucun calcul d’itinéraire possible.`
+    return place.name + ' : lieu cité par les fiches DDD/AFTU — aucun arrêt géolocalisé, donc aucun calcul d’itinéraire possible.'
   }
-  return `${place.name} : ${place.kind === 'ter' ? 'gare/halte TER' : 'station BRT'} du réseau de référence.`
+  if (place.kind === 'ter') return place.name + ' : gare/halte TER du réseau de référence.'
+  if (place.kind === 'brt') return place.name + ' : station BRT du réseau de référence.'
+  const network = place.kind === 'ddd' ? 'DDD' : 'AFTU/TATA'
+  return place.name + ' : arrêt candidat ' + network + ' conservé pour la cartographie ; aucun itinéraire passager n’est calculé avant validation des deux sens et du tracé routier.'
 }
 
 /**
@@ -208,8 +211,10 @@ export function unroutablePairReply(origin: PlaceEntry | null, destination: Plac
   const places = [origin, destination].filter((place): place is PlaceEntry => place !== null)
   const parts = [`${places.map((place) => place.name).join(' → ')} : je ne peux pas calculer cet itinéraire.`]
   for (const place of places) parts.push(`• ${shortIdentity(place)}`)
-  const calculable = places.find((place) => place.kind !== 'bus')
-  const itinerary = calculable ? itineraryLine(calculable) : null
+  // Un lieu peut être cartographié sans être encore activé dans le calculateur.
+  // Chercher le premier itinéraire réellement calculable, pas seulement le
+  // premier lieu qui possède des coordonnées de référence.
+  const itinerary = places.map((place) => itineraryLine(place)).find((line): line is string => Boolean(line))
   if (itinerary) parts.push(itinerary)
   if (origin && destination) {
     const shared = sharedBusLines(origin, destination)
