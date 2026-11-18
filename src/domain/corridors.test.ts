@@ -105,16 +105,18 @@ describe('réseau de référence TER/BRT', () => {
     }
   })
 
-  it('n’active que les correspondances avec preuve de pôle commun ou chemin piéton vérifié', () => {
+  it('distingue les pôles partagés, les estimations sourcées et les chemins piétons vérifiés', () => {
     const active = CORRIDOR_TRANSFERS.filter((transfer) =>
       transfer.evidence?.kind === 'shared_hub' && transfer.walkM === 0
+      || transfer.evidence?.kind === 'reference_estimate' && transfer.walkM > 0
       || transfer.evidence?.kind === 'verified_pedestrian_path',
     )
     expect(INTERMODAL_TRANSFERS).toEqual(active.map((transfer) => ({ ...transfer, declared: true })))
-    expect(INTERMODAL_TRANSFERS).toHaveLength(4)
+    expect(INTERMODAL_TRANSFERS).toHaveLength(6)
     expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.declared === true)).toBe(true)
-    expect(INTERMODAL_TRANSFERS.every((transfer) => transfer.walkM === 0)).toBe(true)
-    expect(CORRIDOR_TRANSFERS.filter((transfer) => transfer.walkM > 0).every((transfer) => !transfer.evidence)).toBe(true)
+    expect(INTERMODAL_TRANSFERS.filter((transfer) => transfer.evidence?.kind === 'shared_hub').every((transfer) => transfer.walkM === 0)).toBe(true)
+    expect(INTERMODAL_TRANSFERS.filter((transfer) => transfer.evidence?.kind === 'reference_estimate').every((transfer) => transfer.walkM > 0 && transfer.evidence?.kind === 'reference_estimate')).toBe(true)
+    expect(INTERMODAL_TRANSFERS.some((transfer) => transfer.evidence?.kind === 'verified_pedestrian_path')).toBe(false)
   })
 
   it('active les trois transferts documentés dans le pôle d’échange Petersen', () => {
