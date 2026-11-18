@@ -5,7 +5,9 @@ from scripts.compare_dakar_pbf_ddd_arcgis_routes import (
     classify_direction_pairs,
     monotonicity,
     nearest_arcgis_stop_audit,
+    parse_arcgis_layer_line_ref,
     parse_line_ref,
+    relation_line_ref_details,
     parse_relation_endpoints,
     project_stop_to_path,
 )
@@ -17,6 +19,18 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         self.assertEqual(parse_line_ref("121"), "121")
         self.assertIsNone(parse_line_ref("L23;L5"))
         self.assertIsNone(parse_line_ref(""))
+
+    def test_maps_arcgis_route_layers_by_their_published_layer_name(self):
+        self.assertEqual(parse_arcgis_layer_line_ref("Itinéraire_ligne_4_Dakar_Dem_Dikk"), "4")
+        self.assertEqual(parse_arcgis_layer_line_ref("Itinéraire_ligne_10_Dakar_Dem_Dikk"), "10")
+        self.assertIsNone(parse_arcgis_layer_line_ref("Arrets_LIgne_10_Dakar_Dem_Dikk"))
+
+    def test_rejects_osm_relations_whose_ref_and_name_disagree(self):
+        line, reason = relation_line_ref_details({
+            "tags": {"ref": "6", "name": "7 Palais 1 → Parcelles-Assainies"}
+        })
+        self.assertIsNone(line)
+        self.assertEqual(reason, "REF_NAME_LINE_MISMATCH")
 
     def test_parses_explicit_reversed_route_endpoints(self):
         relation = {"tags": {"name": "10 Palais - Liberté"}}
