@@ -74,12 +74,19 @@ export interface CorridorLine {
   expressStopIds?: readonly string[]
 }
 
+export type TransferConnectionEvidence =
+  | { kind: 'shared_hub' }
+  | { kind: 'reference_estimate'; sourceId: string }
+  | { kind: 'verified_pedestrian_path'; sourceId: string; pathId: string }
+
 export interface CorridorTransfer {
   fromStopId: string
   toStopId: string
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
+  /** Preuve exigée avant d'activer une arête de correspondance dans le graphe. */
+  evidence?: TransferConnectionEvidence
   /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
