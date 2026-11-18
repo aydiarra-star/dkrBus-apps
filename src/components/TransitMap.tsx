@@ -358,8 +358,8 @@ function TransitMapView({
   const [highlightedAftuTataRouteSegments, setHighlightedAftuTataRouteSegments] = useState<HighlightedOsmJourneyRouteSegment[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
   const highlightedDddRouteSegments = useMemo(
-    () => verifiedDddJourneyRouteSegments(highlightedJourneyLegs, dddArcgisTracks),
-    [highlightedJourneyLegs, dddArcgisTracks],
+    () => verifiedDddJourneyRouteSegments(highlightedJourneyLegs, dddArcgisTracks, dddArcgisStops),
+    [highlightedJourneyLegs, dddArcgisTracks, dddArcgisStops],
   )
 
   // Les trajets AFTU/TATA sont recherchés à la demande, uniquement pour les
