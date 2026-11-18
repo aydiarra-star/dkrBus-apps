@@ -191,34 +191,22 @@ describe('couverture des réseaux de bus dans le moteur multimodal', () => {
     return { label: stop.name, lat: stop.lat, lon: stop.lon, stopId: stop.id }
   }
 
-  it('calcule un trajet sur une ligne DDD entre deux pôles connus', () => {
-    const outcome = planReferenceJourney(endpoint('ddd-parcelles'), endpoint('ddd-leclerc'), 'fastest', {
-      allowedNetworks: ['ddd'],
-    })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('DDD 1')
-    expect(outcome.networksUsed).toEqual(['ddd'])
+  it('refuse DDD 1 tant que son sens commercial et sa géométrie routière ne sont pas validés', () => {
+    const outcome = planReferenceJourney(endpoint('ddd-parcelles'), endpoint('ddd-leclerc'), 'fastest', { allowedNetworks: ['ddd'] })
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
-  it('calcule un trajet sur une ligne AFTU sans basculer sur le TER ou le BRT', () => {
-    const outcome = planReferenceJourney(endpoint('aftu-guediawaye'), endpoint('aftu-ouakam'), 'fastest', {
-      allowedNetworks: ['aftu_tata'],
-    })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU 42')
-    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+  it('refuse AFTU 42 tant que les arrêts et la géométrie des deux sens ne sont pas validés', () => {
+    const outcome = planReferenceJourney(endpoint('aftu-guediawaye'), endpoint('aftu-ouakam'), 'fastest', { allowedNetworks: ['aftu_tata'] })
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 
-  it('calcule un trajet AFTU depuis les anciens arrêts TATA du référentiel', () => {
-    const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', {
-      allowedNetworks: ['aftu_tata'],
-    })
-    expect(outcome.ok).toBe(true)
-    if (!outcome.ok) return
-    expect(outcome.legs.filter((leg) => leg.kind === 'ride').map((leg) => leg.line?.shortName)).toContain('AFTU')
-    expect(outcome.networksUsed).toEqual(['aftu_tata'])
+  it('refuse le corridor TATA historique tant que son numéro, ses arrêts et son retour ne sont pas vérifiés', () => {
+    const outcome = planReferenceJourney(endpoint('tata-colobane'), endpoint('tata-guediawaye'), 'fastest', { allowedNetworks: ['aftu_tata'] })
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
   })
 })
 
