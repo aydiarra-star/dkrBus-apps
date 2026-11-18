@@ -78,12 +78,12 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         rows = [
             {
                 "line": "10", "relationId": 1, "name": "10 Palais - Liberté",
-                "from": "palais", "to": "liberte",
+                "from": "palais1", "to": "liberte5",
                 "geometryCandidate": True, "stopLayerCandidate": True, "directionCandidate": True,
             },
             {
                 "line": "10", "relationId": 2, "name": "10 Liberté - Palais",
-                "from": "liberte", "to": "palais",
+                "from": "liberte5", "to": "palais1",
                 "geometryCandidate": True, "stopLayerCandidate": True, "directionCandidate": True,
             },
         ]
