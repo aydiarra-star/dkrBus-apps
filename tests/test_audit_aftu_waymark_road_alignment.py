@@ -70,6 +70,7 @@ class AftuWaymarkRoadAlignmentTests(unittest.TestCase):
         }
         result = audit_route(route, grid)
         self.assertTrue(result["roadAlignedCandidate"])
+        self.assertTrue(result["directionalRoadCandidate"])
         self.assertEqual(result["orientationToMarkers"], "AS_DRAWN_MATCHES_MARKERS")
         self.assertEqual(result["roadCoverage"]["within20m"], 1.0)
         self.assertEqual(result["onewayConflicts"], 0)
@@ -99,7 +100,8 @@ class AftuWaymarkRoadAlignmentTests(unittest.TestCase):
         result = audit_route(route, grid)
         self.assertGreater(result["onewayConflicts"], 0)
         self.assertEqual(result["onewayConflictRate"], 1.0)
-        self.assertFalse(result["roadAlignedCandidate"])
+        self.assertTrue(result["roadAlignedCandidate"])
+        self.assertFalse(result["directionalRoadCandidate"])
 
 
 if __name__ == "__main__":
