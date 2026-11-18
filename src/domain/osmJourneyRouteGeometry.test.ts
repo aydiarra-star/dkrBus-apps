@@ -21,6 +21,9 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
       id: 1, type: 'route', route: 'bus', ref: '40', network: 'AFTU',
     }, '40')).toBe(true)
     expect(isMatchingAftuTataRoute({
+      id: 6, type: 'route', route: 'bus', ref: 'AFTU 40', network: 'AFTU',
+    }, '40')).toBe(true)
+    expect(isMatchingAftuTataRoute({
       id: 2, type: 'route', route: 'bus', ref: '40', network: 'DDD',
     }, '40')).toBe(false)
     expect(isMatchingAftuTataRoute({
