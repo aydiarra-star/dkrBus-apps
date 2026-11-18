@@ -76,8 +76,9 @@ export function buildOsmRouteSearchUrl(reference: string): string {
 }
 
 /** Refuse les relations sans référence exacte ou sans attribution AFTU/TATA explicite. */
-export function isMatchingAftuTataRoute(route: OSMRouteCandidate, reference: string): boolean {
-  if (route.type !== 'route' || route.route !== 'bus' || route.ref?.trim() !== reference) return false
+export function isMatchingAftuTataRoute(route: OSMRouteCandidate, reference?: string): boolean {
+  if (route.type !== 'route' || route.route !== 'bus') return false
+  if (reference && route.ref?.trim() !== reference) return false
   const attribution = [route.operator, route.network, route.name]
     .filter((value): value is string => Boolean(value))
     .join(' ')
@@ -142,13 +143,16 @@ export async function loadOsmJourneyRouteSegments(
     const reference = lineReference(leg)
     const fromNames = stopNames(leg.fromId)
     const toNames = stopNames(leg.toId)
-    return reference && fromNames.length && toNames.length ? [{ leg, index, reference, fromNames, toNames }] : []
+    const searchTerm = reference ?? fromNames[0]
+    return searchTerm && fromNames.length && toNames.length
+      ? [{ leg, index, reference, searchTerm, fromNames, toNames }]
+      : []
   })
 
   for (const ride of rides) {
     if (signal.aborted) return []
     try {
-      const searchResponse = await fetch(buildOsmRouteSearchUrl(ride.reference), {
+      const searchResponse = await fetch(buildOsmRouteSearchUrl(ride.searchTerm), {
         signal,
         headers: { Accept: 'application/json' },
       })
@@ -182,7 +186,7 @@ export async function loadOsmJourneyRouteSegments(
         segments.push({
           id: `osm-${candidate.id}-${ride.index}`,
           network: 'aftu_tata',
-          line: ride.reference,
+          line: candidate.ref?.trim() || ride.reference || 'AFTU',
           positions,
           sourceLabel: 'OpenStreetMap · relation de bus · arrêts et sens concordants',
         })
