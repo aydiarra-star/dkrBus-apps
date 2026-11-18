@@ -74,12 +74,18 @@ export interface CorridorLine {
   expressStopIds?: readonly string[]
 }
 
+export type TransferConnectionEvidence =
+  | { kind: 'shared_hub' }
+  | { kind: 'verified_pedestrian_path'; sourceId: string; pathId: string }
+
 export interface CorridorTransfer {
   fromStopId: string
   toStopId: string
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
+  /** Preuve exigée avant d'activer une arête de correspondance dans le graphe. */
+  evidence?: TransferConnectionEvidence
   /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
@@ -424,24 +430,28 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'ddd-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ DDD (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ AFTU (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'ddd-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Gare routière Petersen : DDD ↔ AFTU',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-prefecture-guediawaye',
     toStopId: 'ddd-guediawaye',
     walkM: 0,
     label: 'Pôle d’échange de Guédiawaye : BRT ↔ DDD (terminus de rabattement)',
+    evidence: { kind: 'shared_hub' },
   },
 ]
 
@@ -457,10 +467,15 @@ export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT
  * activées ; les rapprochements géographiques restent des pistes d'audit et
  * ne créent aucun changement de véhicule dans le calculateur.
  */
-export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS.map((transfer) => ({
-  ...transfer,
-  declared: true,
-}))
+function hasVerifiedTransferConnection(transfer: CorridorTransfer): boolean {
+  if (transfer.evidence?.kind === 'shared_hub') return transfer.walkM === 0
+  return transfer.evidence?.kind === 'verified_pedestrian_path'
+    && Boolean(transfer.evidence.sourceId.trim() && transfer.evidence.pathId.trim())
+}
+
+export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS
+  .filter(hasVerifiedTransferConnection)
+  .map((transfer) => ({ ...transfer, declared: true }))
 
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
 export function networkOfStopId(stopId: string): CorridorNetworkId | null {
