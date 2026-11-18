@@ -18,7 +18,6 @@ STOP_LAYER_BY_LINE = {
     "1": 5, "6": 1, "7": 2, "8": 3, "9": 4, "10": 6,
     "121": 7, "13": 8, "18": 9, "23": 10, "4": 11,
 }
-ROUTE_LAYER_BY_LINE = {line: stop_layer + 12 for line, stop_layer in STOP_LAYER_BY_LINE.items()}
 REFERENCE_LATITUDE = 14.75
 METRES_PER_DEGREE = 111_320.0
 LONGITUDE_SCALE = math.cos(math.radians(REFERENCE_LATITUDE))
@@ -48,9 +47,9 @@ def parse_line_ref(value: object) -> str | None:
 
 def parse_name_line_ref(value: object) -> str | None:
     raw = str(value or "").strip()
-    if re.match(r"^\\s*(?:L\\s*)?\\d{1,3}[A-Z]?\\s*[;,/]", raw, re.IGNORECASE):
+    if re.match(r"^\s*(?:L\s*)?\d{1,3}[A-Z]?\s*[;,/]", raw, re.IGNORECASE):
         return None
-    match = re.match(r"^\\s*(?:Ligne\\s*|L\\s*)?(\\d{1,3}[A-Z]?)\\b", raw, re.IGNORECASE)
+    match = re.match(r"^\s*(?:Ligne\s*|L\s*)?(\d{1,3}[A-Z]?)\b", raw, re.IGNORECASE)
     return match.group(1).upper() if match else None
 
 
@@ -72,7 +71,7 @@ def relation_line_ref(relation: dict) -> str | None:
 
 def parse_arcgis_layer_line_ref(layer_name: object) -> str | None:
     normalized = normalize_text(layer_name)
-    match = re.search(r"\\bligne\\s+(\\d{1,3}[a-z]?)\\b", normalized)
+    match = re.search(r"\bligne\s+(\d{1,3}[a-z]?)\b", normalized)
     return match.group(1).upper() if match else None
 
 
