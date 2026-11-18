@@ -13,7 +13,7 @@ import { focusTargetOf } from './useViewportLock'
 import { DDD_BANLIEUE_ARCGIS_LAYERS, DDD_BANLIEUE_ARCGIS_STOP_GROUPS, DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL, DDD_URBAN_ARCGIS_ROUTE_LAYERS, DDD_URBAN_ARCGIS_STOP_LAYERS } from '../data/dddBanlieueArcgisRegistry'
 import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, type DddArcgisMapTrack } from '../domain/dddArcgisMapGeometry'
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
-import { osmRouteWayMembersToTracks, type OsmRouteMapTrack } from '../domain/osmRouteGeometry'
+import { loadOsmJourneyRouteSegments, type HighlightedOsmJourneyRouteSegment } from '../domain/osmJourneyRouteGeometry'
 import type { HighlightedJourneyRouteSegment } from '../domain/journeyRouteGeometry'
 import { verifiedDddJourneyRouteSegments } from '../domain/dddJourneyRouteGeometry'
 import type { PlannerLeg } from '../domain/planner'
@@ -355,12 +355,32 @@ function TransitMapView({
   onSelectCorridorStop,
 }: TransitMapProps) {
   const [dddArcgisTracks, setDddArcgisTracks] = useState<DddArcgisMapTrack[]>([])
-  const [tataOsmTracks, setTataOsmTracks] = useState<OsmRouteMapTrack[]>([])
+  const [highlightedAftuTataRouteSegments, setHighlightedAftuTataRouteSegments] = useState<HighlightedOsmJourneyRouteSegment[]>([])
   const [dddArcgisStops, setDddArcgisStops] = useState<DddArcgisMapStop[]>([])
   const highlightedDddRouteSegments = useMemo(
     () => verifiedDddJourneyRouteSegments(highlightedJourneyLegs, dddArcgisTracks),
     [highlightedJourneyLegs, dddArcgisTracks],
   )
+
+  // Les trajets AFTU/TATA sont recherchés à la demande, uniquement pour les
+  // jambes réellement retenues par le calculateur. La relation OSM doit porter
+  // le numéro exact et retrouver les deux arrêts dans le sens demandé.
+  useEffect(() => {
+    const controller = new AbortController()
+    const hasBusRide = highlightedJourneyLegs.some((leg) => leg.kind === 'ride' && leg.line?.network === 'aftu_tata')
+    if (!hasBusRide) {
+      setHighlightedAftuTataRouteSegments([])
+      return () => controller.abort()
+    }
+    void loadOsmJourneyRouteSegments(highlightedJourneyLegs, controller.signal)
+      .then((segments) => {
+        if (!controller.signal.aborted) setHighlightedAftuTataRouteSegments(segments)
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setHighlightedAftuTataRouteSegments([])
+      })
+    return () => controller.abort()
+  }, [highlightedJourneyLegs])
 
   // Les couches ArcGIS sont des références historiques, séparées du calculateur.
   // Elles enrichissent la carte sans fabriquer d'horaires ou de positions de bus.
@@ -443,45 +463,6 @@ function TransitMapView({
       }
     }
     void Promise.all([loadTracks(), loadStops()])
-    return () => controller.abort()
-  }, [])
-
-  // Aucun itinéraire bus n'est dessiné depuis de simples waypoints géographiques.
-  // Les traces bus visibles proviennent uniquement de géométries de ligne publiées
-  // (ArcGIS DDD ou relation OSM vérifiée), jamais d'un OSRM entre centres de lieux.
-
-  // La relation OSM AFTU/TATA 40 possède une géométrie de route,
-  // même si sa séquence d'arrêts n'est pas publiée dans OSM.
-  useEffect(() => {
-    if (import.meta.env.MODE === 'test') return
-    const controller = new AbortController()
-    const query = '[out:json][timeout:30];relation(3982642);out body;>;out geom;'
-    const endpoints = [
-      'https://overpass-api.de/api/interpreter',
-      'https://overpass.private.coffee/api/interpreter',
-    ]
-    const loadTataRelation = async () => {
-      for (const endpoint of endpoints) {
-        if (controller.signal.aborted) return
-        try {
-          const url = `${endpoint}?${new URLSearchParams({ data: query }).toString()}`
-          const response = await fetch(url, {
-            signal: controller.signal,
-            headers: { Accept: 'application/json' },
-          })
-          if (!response.ok) continue
-          const payload = await response.json() as { elements?: Parameters<typeof osmRouteWayMembersToTracks>[2] }
-          const tracks = osmRouteWayMembersToTracks(3982642, '40', payload.elements ?? [])
-          if (tracks.length > 0 && !controller.signal.aborted) {
-            setTataOsmTracks(tracks)
-            return
-          }
-        } catch {
-          // Les couches AFTU/TATA déjà disponibles restent affichées si Overpass est indisponible.
-        }
-      }
-    }
-    void loadTataRelation()
     return () => controller.abort()
   }, [])
 
@@ -613,25 +594,6 @@ function TransitMapView({
 
       {/* Couverture DDD élargie : géométries routières ArcGIS conservées
           hors du calculateur, pour afficher les dessertes urbaines et banlieue. */}
-      {tataOsmTracks.map((track) => (
-        <Polyline
-          key={track.id}
-          positions={track.positions}
-          interactive
-          pathOptions={{
-            color: paintFor('aftu_tata')?.core ?? '#D97706',
-            weight: 1.9,
-            opacity: 0.72,
-            dashArray: '4 6',
-            lineCap: 'round',
-            lineJoin: 'round',
-          }}
-        >
-          <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
-            <strong>AFTU {track.line}</strong>
-          </Tooltip>
-        </Polyline>
-      ))}
       {coveragePointsToRender.map((point) => {
         const dddLines = point.routes.filter((route) => route.network === 'ddd').map((route) => route.line)
         const aftuLines = point.routes.filter((route) => route.network === 'aftu_tata').map((route) => route.line)
@@ -807,6 +769,30 @@ function TransitMapView({
           >
             <Tooltip sticky opacity={0.95} className="stop-tooltip mobility-tooltip">
               <strong>DDD {segment.line}</strong>
+              <div>{segment.sourceLabel}</div>
+            </Tooltip>
+          </Polyline>,
+        ]
+      })}
+      {highlightedAftuTataRouteSegments.flatMap((segment) => {
+        const paint = paintFor('aftu_tata')
+        if (!paint || segment.positions.length < 2) return []
+        const positions = segment.positions as [number, number][]
+        return [
+          <Polyline
+            key={`journey-aftu-tata-halo-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.96, lineCap: 'round', lineJoin: 'round' }}
+          />,
+          <Polyline
+            key={`journey-aftu-tata-${segment.id}`}
+            positions={positions}
+            interactive={false}
+            pathOptions={{ color: paint.core, weight: 5, opacity: 0.98, dashArray: '7 5', lineCap: 'round', lineJoin: 'round' }}
+          >
+            <Tooltip sticky opacity={0.95} className="stop-tooltip mobility-tooltip">
+              <strong>AFTU / TATA {segment.line}</strong>
               <div>{segment.sourceLabel}</div>
             </Tooltip>
           </Polyline>,
