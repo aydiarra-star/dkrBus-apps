@@ -39,6 +39,8 @@ describe('calculateur multimodal de référence', () => {
     const outcome = planReferenceJourney(
       { label: dakar.name, lat: dakar.lat, lon: dakar.lon, stopId: dakar.id },
       { label: pikine.name, lat: pikine.lat, lon: pikine.lon, stopId: pikine.id },
+      'fastest',
+      { allowedNetworks: ['ter'] },
     )
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
@@ -55,7 +57,7 @@ describe('calculateur multimodal de référence', () => {
       { label: 'Dakar', lat: dakar.lat, lon: dakar.lon },
       { label: 'Pikine', lat: pikine.lat, lon: pikine.lon },
       'fastest',
-      { maxAccessM: 50 },
+      { allowedNetworks: ['ter'], maxAccessM: 50 },
     )
     expect(outcome.ok).toBe(true)
     if (!outcome.ok) return
