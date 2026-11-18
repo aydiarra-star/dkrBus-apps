@@ -33,6 +33,25 @@ describe('séquences directionnelles des lignes', () => {
 })
 
 describe('calculateur multimodal de référence', () => {
+  it('n’active pas les corridors DDD/AFTU/TATA sans géométrie et séquences directionnelles vérifiées', () => {
+    const unverifiedBusLines = CORRIDOR_LINES.filter((line) => line.network === 'ddd' || line.network === 'aftu_tata')
+    expect(unverifiedBusLines.map((line) => line.id)).toEqual([
+      'ddd-1', 'ddd-2', 'ddd-3', 'aftu-1', 'aftu-2', 'aftu-3', 'tata-1',
+    ])
+    expect(unverifiedBusLines.every((line) => line.plannerEnabled === false)).toBe(true)
+
+    const dddStart = getCorridorStop('ddd-parcelles')!
+    const dddEnd = getCorridorStop('ddd-leclerc')!
+    const outcome = planReferenceJourney(
+      { label: dddStart.name, lat: dddStart.lat, lon: dddStart.lon, stopId: dddStart.id },
+      { label: dddEnd.name, lat: dddEnd.lat, lon: dddEnd.lon, stopId: dddEnd.id },
+      'fastest',
+      { allowedNetworks: ['ddd'] },
+    )
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.reason).toBe('NO_PATH')
+  })
+
   it('calcule Dakar → Pikine sur le TER lorsque les deux gares sont choisies comme points de référence', () => {
     const dakar = getCorridorStop('ter-dakar')!
     const pikine = getCorridorStop('ter-pikine')!
