@@ -31,10 +31,10 @@ def normalize_text(value: object) -> str:
 
 def normalize_endpoint(value: object) -> str:
     text = normalize_text(value)
-    text = re.sub(r"^(?:terminus|gare|arret|station)\\s+", "", text)
+    text = re.sub(r"^(?:terminus|gare|arret|station)\s+", "", text)
     # Collapse spaces between place names and route-terminal numbers:
     # "Liberté 5" and "Liberté5" are the same named terminal.
-    return re.sub(r"\\s+", "", text)
+    return re.sub(r"\s+", "", text)
 
 
 def parse_line_ref(value: object) -> str | None:
