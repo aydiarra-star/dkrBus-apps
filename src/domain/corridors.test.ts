@@ -92,7 +92,7 @@ describe('réseau de référence TER/BRT', () => {
     ])
   })
 
-  it('relie TER et BRT par des correspondances marchables cohérentes avec les positions', () => {
+  it('conserve les distances TER ↔ BRT comme candidats sans les activer comme chemins piétons', () => {
     for (const transfer of CORRIDOR_TRANSFERS) {
       const from = getCorridorStop(transfer.fromStopId)
       const to = getCorridorStop(transfer.toStopId)
