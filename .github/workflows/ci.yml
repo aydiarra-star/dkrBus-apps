@@ -32,7 +32,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf
+        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
 
       - name: Install dependencies
         run: npm ci
@@ -179,6 +179,8 @@ jobs:
         run: node --check scripts/export_dakar_pedestrian_network.mjs
       - name: Check Dakar bus route relation PBF extractor
         run: python -m py_compile scripts/extract_dakar_bus_route_relations_from_pbf.py
+      - name: Check DDD OSM-ArcGIS directional crosswalk
+        run: python -m py_compile scripts/compare_dakar_pbf_ddd_arcgis_routes.py
 
       - name: Test pedestrian graph construction and access filters
         run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
@@ -219,8 +221,8 @@ jobs:
       - name: Extract Dakar bus route relation candidates from the same OSM PBF
         id: dakar_bus_routes
         if: steps.pedestrian_geofabrik.outcome == 'success'
-        timeout-minutes: 5
-        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
+        timeout-minutes: 10
+        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
 
       - name: Extract candidate Dakar pedestrian graph from Overpass when Geofabrik is unavailable
         id: pedestrian_graph

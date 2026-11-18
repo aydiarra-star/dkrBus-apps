@@ -74,12 +74,19 @@ export interface CorridorLine {
   expressStopIds?: readonly string[]
 }
 
+export type TransferConnectionEvidence =
+  | { kind: 'shared_hub' }
+  | { kind: 'reference_estimate'; sourceId: string }
+  | { kind: 'verified_pedestrian_path'; sourceId: string; pathId: string }
+
 export interface CorridorTransfer {
   fromStopId: string
   toStopId: string
   /** Distance de marche de référence entre les deux points (mètres). */
   walkM: number
   label: string
+  /** Preuve exigée avant d'activer une arête de correspondance dans le graphe. */
+  evidence?: TransferConnectionEvidence
   /** `true` quand la correspondance est documentée et activée dans le graphe. */
   declared?: boolean
 }
@@ -412,42 +419,51 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
  *  même pôle d’échange dans la gare routière : aucune marche inter-pôle n’est
  *  ajoutée au calcul. Les distances TER ↔ BRT historiques restent inchangées.
  *  Les liaisons seulement supposées à partir de coordonnées ne sont pas activées. */
+/** Catalogue des correspondances candidates et de leurs preuves.
+ *  Les pôles partagés peuvent être activés sans marche inter-pôle.
+ *  Les distances TER ↔ BRT restent des estimations sourcées, pas des chemins piétons vérifiés. */
 export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
   {
     fromStopId: 'ter-dakar',
     toStopId: 'brt-petersen',
     walkM: 1000,
     label: 'Gare TER Dakar ↔ station BRT Petersen – Papa Gueye Fall (marche de référence ~1 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'ter-colobane',
     toStopId: 'brt-place-nation',
     walkM: 1400,
     label: 'Gare TER Colobane ↔ station BRT Place de la Nation (marche de référence ~1,4 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'brt-petersen',
     toStopId: 'ddd-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ DDD (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Pôle d’échange Petersen : BRT ↔ AFTU (transfert dans la gare routière)',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'ddd-petersen',
     toStopId: 'aftu-petersen',
     walkM: 0,
     label: 'Gare routière Petersen : DDD ↔ AFTU',
+    evidence: { kind: 'shared_hub' },
   },
   {
     fromStopId: 'brt-prefecture-guediawaye',
     toStopId: 'ddd-guediawaye',
     walkM: 0,
     label: 'Pôle d’échange de Guédiawaye : BRT ↔ DDD (terminus de rabattement)',
+    evidence: { kind: 'shared_hub' },
   },
 ]
 
@@ -463,10 +479,23 @@ export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT
  * activées ; les rapprochements géographiques restent des pistes d'audit et
  * ne créent aucun changement de véhicule dans le calculateur.
  */
-export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS.map((transfer) => ({
-  ...transfer,
-  declared: true,
-}))
+/**
+ * Seules les correspondances avec une preuve explicite sont utilisables.
+ * Une estimation sourcée peut contribuer à la durée, sans fournir de géométrie
+ * piétonne. Un chemin piéton vérifié exige sa source et son identifiant réel.
+ */
+function hasPlannerTransferEvidence(transfer: CorridorTransfer): boolean {
+  if (transfer.evidence?.kind === 'shared_hub') return transfer.walkM === 0
+  if (transfer.evidence?.kind === 'reference_estimate') {
+    return transfer.walkM > 0 && Boolean(transfer.evidence.sourceId.trim())
+  }
+  return transfer.evidence?.kind === 'verified_pedestrian_path'
+    && Boolean(transfer.evidence.sourceId.trim() && transfer.evidence.pathId.trim())
+}
+
+export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS
+  .filter(hasPlannerTransferEvidence)
+  .map((transfer) => ({ ...transfer, declared: true }))
 
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
 export function networkOfStopId(stopId: string): CorridorNetworkId | null {
