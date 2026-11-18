@@ -76,6 +76,7 @@ export interface CorridorLine {
 
 export type TransferConnectionEvidence =
   | { kind: 'shared_hub' }
+  | { kind: 'reference_estimate'; sourceId: string }
   | { kind: 'verified_pedestrian_path'; sourceId: string; pathId: string }
 
 export interface CorridorTransfer {
@@ -417,12 +418,14 @@ export const CORRIDOR_TRANSFERS: readonly CorridorTransfer[] = [
     toStopId: 'brt-petersen',
     walkM: 1000,
     label: 'Gare TER Dakar ↔ station BRT Petersen – Papa Gueye Fall (marche de référence ~1 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'ter-colobane',
     toStopId: 'brt-place-nation',
     walkM: 1400,
     label: 'Gare TER Colobane ↔ station BRT Place de la Nation (marche de référence ~1,4 km)',
+    evidence: { kind: 'reference_estimate', sourceId: 'docs/audit-moteur-multimodal-2026-11-16.md' },
   },
   {
     fromStopId: 'brt-petersen',
@@ -459,19 +462,23 @@ export const ALL_CORRIDOR_STOPS: readonly CorridorStop[] = [...TER_STOPS, ...BRT
 /**
  * Graphe des correspondances réellement activées.
  *
- * Une distance à vol d'oiseau ou une distance de marche de référence ne suffit
- * pas : une liaison positive exige une preuve de chemin piéton vérifié (source
- * et identifiant de chemin). Un pôle partagé documenté peut être activé sans
- * inventer une marche inter-pôle. Les autres correspondances restent candidates.
+ * Les liaisons positives de référence peuvent servir au calcul de durée si elles
+ * sont explicitement sourcées et signalées comme estimations ; elles ne prouvent
+ * pas une géométrie piétonne et ne doivent jamais être dessinées comme chemin.
+ * Un pôle partagé documenté peut être activé sans inventer une marche inter-pôle.
+ * Une géométrie piétonne n'est validée qu'avec source et identifiant de chemin.
  */
-function hasVerifiedTransferConnection(transfer: CorridorTransfer): boolean {
+function hasPlannerTransferEvidence(transfer: CorridorTransfer): boolean {
   if (transfer.evidence?.kind === 'shared_hub') return transfer.walkM === 0
+  if (transfer.evidence?.kind === 'reference_estimate') {
+    return transfer.walkM > 0 && Boolean(transfer.evidence.sourceId.trim())
+  }
   return transfer.evidence?.kind === 'verified_pedestrian_path'
     && Boolean(transfer.evidence.sourceId.trim() && transfer.evidence.pathId.trim())
 }
 
 export const INTERMODAL_TRANSFERS: readonly CorridorTransfer[] = CORRIDOR_TRANSFERS
-  .filter(hasVerifiedTransferConnection)
+  .filter(hasPlannerTransferEvidence)
   .map((transfer) => ({ ...transfer, declared: true }))
 
 /** Le réseau d'un arrêt de référence se lit dans son identifiant (`brt-petersen`). */
