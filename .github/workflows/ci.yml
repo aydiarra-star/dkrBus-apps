@@ -219,8 +219,8 @@ jobs:
       - name: Extract Dakar bus route relation candidates from the same OSM PBF
         id: dakar_bus_routes
         if: steps.pedestrian_geofabrik.outcome == 'success'
-        timeout-minutes: 5
-        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
+        timeout-minutes: 10
+        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
 
       - name: Extract candidate Dakar pedestrian graph from Overpass when Geofabrik is unavailable
         id: pedestrian_graph
