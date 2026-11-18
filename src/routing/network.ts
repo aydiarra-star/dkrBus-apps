@@ -2,7 +2,7 @@ import { roadDistanceMeters } from '../domain/roadNetworkRouting'
 import { isMobilityId } from '../domain/mobilityColors'
 import { sliceVerifiedRouteSegment } from '../domain/routeGeometrySlice'
 import { inDakar, reviewed, samePoint, shapeLength } from './geometry'
-import type { Dataset, Footway, Network, Pattern, PatternInput, Place, Section } from './model'
+import type { Dataset, Footway, Network, ObservedPlatform, Pattern, PatternInput, Place, PlatformBinding, Section } from './model'
 import { patternFromWays } from './vehicleGraph'
 import { validService } from './serviceTime'
 
@@ -61,7 +61,8 @@ export function buildNetwork(data: Dataset): Network {
   const places = new Map<string, Place>()
   const duplicatePlaces = duplicates(data.places.map(p => p.id))
   for (const p of data.places) {
-    if (!p.id || !p.name || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || duplicatePlaces.has(p.id) || !reviewed(p.evidence) || !inDakar(p)) rejected.push(`place:${p.id}`)
+    if (!p.id || !p.name || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || (p.id.startsWith('landmark:') && canBoard(p)) ||
+        duplicatePlaces.has(p.id) || !reviewed(p.evidence) || !inDakar(p)) rejected.push(`place:${p.id}`)
     else places.set(p.id, p)
   }
   const patterns: Pattern[] = [], boarding = new Map<string, { pattern: Pattern; index: number }[]>()
@@ -83,6 +84,28 @@ export function buildNetwork(data: Dataset): Network {
       const calls = boarding.get(place.id) ?? []; calls.push({ pattern, index }); boarding.set(place.id, calls)
     })
   }
+  const platforms = new Map<Pattern, Record<'board' | 'alight', Map<number, ObservedPlatform>>>()
+  const bindings = data.platformBindings ?? []
+  const bindingKey = (b: PlatformBinding) => JSON.stringify([b.mode, b.lineId, b.direction, b.stopId, b.role])
+  const ambiguous = duplicates(bindings.map(bindingKey))
+  for (const b of bindings) {
+    const pattern = patterns.find(p => p.mode === b.mode && p.lineId === b.lineId && p.direction === b.direction)
+    const index = pattern?.stops.indexOf(b.stopId) ?? -1
+    const platform = places.get(b.platformId)
+    // The 80 m stop-to-shape guard is only a check on an explicit observation,
+    // never the means by which the platform or the service call is chosen.
+    const position = b.role === 'board' ? pattern?.sections[index]?.positions[0] : pattern?.sections[index - 1]?.positions.at(-1)
+    if (!pattern || pattern.calls[index]?.kind !== 'call' || !position || platform?.kind !== 'platform' ||
+        !['board', 'alight'].includes(b.role) || !reviewed(b.evidence) || !accessibilityKnown(b.stepFree) ||
+        ambiguous.has(bindingKey(b)) || roadDistanceMeters(position, platform) > 80 || roadDistanceMeters(pattern.calls[index], platform) > 80) {
+      rejected.push(`platform-binding:${bindingKey(b)}`); continue
+    }
+    const observed = platforms.get(pattern) ?? { board: new Map(), alight: new Map() }
+    observed[b.role].set(index, { place: platform, stepFree: b.stepFree, evidence: b.evidence }); platforms.set(pattern, observed)
+    if (b.role === 'board') {
+      const entries = boarding.get(platform.id) ?? []; entries.push({ pattern, index }); boarding.set(platform.id, entries)
+    }
+  }
   const walking = new Map<string, Footway[]>()
   const duplicateWays = duplicates(data.footways.map(w => w.id))
   for (const w of data.footways) {
@@ -98,5 +121,5 @@ export function buildNetwork(data: Dataset): Network {
     }
     const bucket = walking.get(w.from) ?? []; bucket.push({ ...w, meters }); walking.set(w.from, bucket)
   }
-  return { places, patterns, boarding, walking, rejected }
+  return { places, patterns, boarding, platforms, walking, rejected }
 }

@@ -12,3 +12,8 @@
 .verified-wait { margin-bottom: 4px; }
 .verified-departure { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-block: 8px; font-size: 12px; }
 .verified-departure input { font: inherit; color: inherit; background: var(--surface-card); border: 1px solid var(--line); border-radius: 6px; padding: 6px; max-width: 100%; }
+.connection-details h4, .connection-details p { margin-block: 6px; }
+.connection-details ul { padding-inline-start: 18px; }
+.connection-details li { margin-block: 8px; }
+.connection-details details { margin-block: 10px; }
+.connection-details summary { cursor: pointer; font-weight: 600; }

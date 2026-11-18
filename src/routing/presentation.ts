@@ -20,7 +20,7 @@ export function mapItinerary(t: Itinerary | undefined) {
     segments.push({ id: `${leg.kind === 'ride' ? leg.lineId : 'walk'}:${leg.from.id}:${leg.to.id}:${i}`, network: leg.kind === 'ride' ? leg.network : 'walk',
       busFamily: leg.kind === 'ride' && (leg.mode === 'aftu' || leg.mode === 'tata') ? leg.mode : undefined, positions: leg.positions.map(p => [p.lat, p.lon]) })
     if (leg.kind === 'ride') {
-      leg.stops.forEach((place, j) => calls.push({ place, network: leg.network, line: leg.lineName, role: j === 0 ? 'Montée' : j === leg.stops.length - 1 ? 'Descente' : 'Desserte' }))
+      leg.stops.forEach((place, j) => calls.push({ place: j === 0 ? leg.from : j === leg.stops.length - 1 ? leg.to : place, network: leg.network, line: leg.lineName, role: j === 0 ? 'Montée' : j === leg.stops.length - 1 ? 'Descente' : 'Desserte' }))
     }
     else if (leg.role === 'transfer') changes.push(leg.from, leg.to)
   }

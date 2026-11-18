@@ -4,7 +4,7 @@ import L, { type DivIcon } from 'leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
 import { formatFrequencyPeriod, formatSourceVerification } from '../domain/frequencies'
-import { safeHttpUrl } from '../domain/http'
+import { isValidLatLng, safeHttpUrl } from '../domain/http'
 import { mobilityFromStopId, mobilityPaint, type MobilityId, type MobilityPaint } from '../domain/mobilityColors'
 import { trackPositionsForLine } from '../domain/terTrackGeometry'
 import { brtTrackPositionsForLine } from '../domain/brtTrackGeometry'
@@ -15,6 +15,7 @@ import { dddArcgisFeatureStops, dddArcgisFeatureTracks, type DddArcgisMapStop, t
 import { GREATER_DAKAR_BUS_COVERAGE_POINTS } from '../data/greaterDakarBusCoverage'
 import type { JourneyMarker, MapSegment } from '../routing/presentation'
 import type { Place } from '../routing/model'
+import type { DakarEndpoint } from '../routing/placeConnections'
 
 export interface Coordinates {
   lat: number
@@ -54,7 +55,7 @@ interface TransitMapProps {
   pickingPoint: RoutePointKey | null
   recenterTo: Coordinates | null
   zoomAction: { delta: number; nonce: number } | null
-  onChoosePoint: (coordinates: Coordinates) => void
+  onChoosePoint: (point: DakarEndpoint) => void
   publishedStops?: readonly PublishedStop[]
   selectedStopId?: string | null
   coverage?: SnapshotBounds | null
@@ -75,7 +76,7 @@ export type MappablePublishedStop = PublishedStop & { lat: number; lon: number }
 
 /** Stops are only mapped where the feed declares coordinates. */
 export function mappableStops(stops: readonly PublishedStop[]): MappablePublishedStop[] {
-  return stops.filter((stop): stop is MappablePublishedStop => stop.lat !== null && stop.lon !== null)
+  return stops.filter((stop): stop is MappablePublishedStop => isValidLatLng(stop.lat, stop.lon))
 }
 
 /** Distance minimale d'un arrêt à un segment géographique, en mètres. */
@@ -123,7 +124,7 @@ function MapClickHandler({
   useMapEvents({
     click(event) {
       if (pickingPoint) {
-        onChoosePoint({ lat: event.latlng.lat, lng: event.latlng.lng })
+        onChoosePoint({ kind: 'map', lat: event.latlng.lat, lng: event.latlng.lng })
       }
     },
   })
@@ -585,6 +586,7 @@ function TransitMapView({
             )}
             keyboard
             title={point.name}
+            eventHandlers={pickingPoint ? { click: () => onChoosePoint({ kind: 'map', landmarkId: `landmark:${point.id}`, label: point.name, lat: point.lat, lng: point.lon }) } : undefined}
           >
             <Tooltip sticky opacity={0.94} className="stop-tooltip mobility-tooltip">
               <strong>{point.name}</strong>
@@ -750,7 +752,9 @@ function TransitMapView({
             icon={makeMobilityStopLabel(paint?.id ?? null, stop.name, stop.id)}
             keyboard
             title={`${paint?.label ?? 'Mobilité'} — ${stop.name}`}
-            eventHandlers={onSelectCorridorStop ? { click: () => onSelectCorridorStop(stop) } : undefined}
+            eventHandlers={{ click: () => pickingPoint
+              ? onChoosePoint({ label: stop.name, stopId: stop.id, lat: stop.lat, lng: stop.lon })
+              : onSelectCorridorStop?.(stop) }}
           >
             <Tooltip direction="top" offset={[0, -10]} opacity={1} className={`stop-tooltip mobility-tooltip${paint ? ` mobility-${paint.id}` : ''}`}>
               <div className="map-frequency-tooltip">
@@ -796,7 +800,9 @@ function TransitMapView({
           icon={makeMobilityStopLabel(mobilityFromStopId(stop.stopId), stop.stopName, stop.stopId)}
           keyboard
           title={stop.stopName}
-          eventHandlers={onSelectStop ? { click: () => onSelectStop(stop) } : undefined}
+          eventHandlers={{ click: () => pickingPoint
+            ? onChoosePoint({ kind: 'stop', label: stop.stopName, stopId: stop.stopId, lat: stop.lat, lng: stop.lon })
+            : onSelectStop?.(stop) }}
         >
           <Tooltip direction="top" offset={[0, -10]} opacity={1} className="stop-tooltip">
             {stop.stopName}

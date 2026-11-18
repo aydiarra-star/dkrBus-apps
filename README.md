@@ -4,7 +4,9 @@ Web app mobile-first qui guide les déplacements à Dakar. Dans Explorer, la car
 
 ## Planifier un trajet sur tracés vérifiés
 
-Dans **Trajet**, choisissez deux arrêts et une heure de départ à Dakar. Le calcul local admet le TER **Dakar → Diamniadio** (phase 1) et B1 **Préfecture de Guédiawaye → Petersen**. Les heures sont estimées ; un voyage entre arrêts suppose que l’on se trouve déjà au point de montée. Aucune marche de rue, correspondance TER–BRT, desserte B2 ou ligne DDD/AFTU/TATA n’est activée sans les preuves nécessaires. Un refus ne dessine pas un trajet partiel.
+Dans **Trajet**, choisissez un départ, une destination (lieu, arrêt ou point sur la carte) et une heure de départ à Dakar. Le calcul local admet le TER **Dakar → Diamniadio** (phase 1) et B1 **Préfecture de Guédiawaye → Petersen**. Les heures sont estimées ; un voyage entre arrêts suppose que l’on se trouve déjà au point de montée. Aucune marche de rue, correspondance TER–BRT, desserte B2 ou ligne DDD/AFTU/TATA n’est activée sans les preuves nécessaires. Un refus ne dessine pas un trajet partiel.
+
+Si une marche manque, le calcul compare les tronçons possibles entre arrêts sans les présenter comme le trajet demandé. Une fiche de ligne reste une indication documentaire. [Yoff → Keur Massar à 19 h, couverture des 97 points locaux et relevés nécessaires](docs/raccordement-lieux-arrets.md) · `npm run audit:place-connections -- --at 2026-11-18T19:00 --from landmark:yoff --to 14.7900,-17.3100`.
 
 [Rapport, exemples chiffrés, architecture, contrôles et limites](docs/moteur-voyageurs-dakar-2026-11-18.md) · `npm run demo:routing` · `npm run test:routing`.
 

@@ -7,6 +7,7 @@ import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
 import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteIdentity, detailedRouteKey } from './publicBusLineCatalog'
 import { searchCorridorStops } from './corridors'
+import { BUS_OPERATOR_CONTACTS } from './busOperatorContacts'
 
 export const KNOWLEDGE_CHECKED_AT = '2026-10-10'
 export const BUS_LINES = catalog
@@ -145,9 +146,9 @@ export function setRemoteCandidateLines(lines: readonly BusLine[]): void {
 }
 
 const SOURCES = {
-  ddd: 'https://cetud.sn/reseaux-de-transport/ddd/',
+  ddd: BUS_OPERATOR_CONTACTS.ddd.sourceUrl,
   aftu: 'https://cetud.sn/reseaux-de-transport/aftu/',
-  aftuLines: 'https://aftu-senegal.org/infos-pratiques/',
+  aftuLines: BUS_OPERATOR_CONTACTS.aftu.sourceUrl,
   dddLines: 'https://demdikk.sn/reseau-urbain-dakar/',
   brtGuide: 'https://cetud.sn/wp-content/uploads/2024/11/sunubrt-guide-du-voyageur-vf.pdf',
   brtContact: 'https://sunubrt.sn/',
@@ -560,7 +561,7 @@ export function answerMobilityKnowledge(question: string, lastLineId?: string | 
       const networkLabel = (network: string) => network === 'aftu_tata' ? 'AFTU / TATA' : network.toUpperCase()
       return { text: `${networks.map(networkLabel).join(' / ')} : numéros documentés dans la mémoire (pas une garantie d’exhaustivité) :\n${networks.map((network) => `${networkLabel(network)} : ${lines.filter((line) => belongsToNetwork(line, network)).map((line) => line.code).join(', ')}`).join('\n')}\nDemandez « itinéraire AFTU 53 » ou « ligne DDD 1 » pour le détail.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }
     }
-    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : 33 824 10 10 ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU / TATA : +221 33 859 02 88 ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
+    if (/\b(telephone|contact|joindre|appeler)\b/.test(text)) return { text: networks.includes('ddd') ? `DDD : ${BUS_OPERATOR_CONTACTS.ddd.phone} ; info@demdikk.sn.${source(SOURCES.ddd)}` : `AFTU / TATA : ${BUS_OPERATOR_CONTACTS.aftu.phone} ; siège Zone de captage, 440–441 Dakar.${source(SOURCES.aftuLines)}` }
     if (/\b(arret|arrets|passe|dessert|ligne|aller)\b/.test(text)) {
       const serving = lines.filter((line) => [line.origin, line.destination, ...line.waypoints].some((point) => mentions(point, text)))
       if (serving.length) return { text: `Fiches mentionnant ce lieu :\n${serving.slice(0, 6).map((line) => `• ${label(line)}`).join('\n')}\nRepères textuels seulement, pas des arrêts géolocalisés. Précisez le numéro pour le parcours et ses réserves.${source(networks[0] === 'ddd' ? SOURCES.dddLines : SOURCES.aftuLines)}` }

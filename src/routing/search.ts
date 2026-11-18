@@ -1,11 +1,11 @@
 import { concatenate } from './geometry'
-import type { Criterion, Footway, Itinerary, Leg, Network, Outcome, Pattern, Place, Query, Walk } from './model'
+import type { Criterion, Footway, Itinerary, Leg, Network, ObservedPlatform, Outcome, Pattern, Place, Query, Walk } from './model'
 import { nondominated, rank, type Metrics } from './ranking'
 import { dayOf, followingPassages, nextRuns } from './serviceTime'
 import { walkingTree } from './walking'
 
 type Action = { kind: 'walk'; ways: Footway[]; role: Walk['role']; meters: number }
-  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null }
+  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform }
 interface Label extends Metrics { place: Place; back?: { prev: Label; action: Action } }
 type Frontier = Map<string, Label[]>
 function insert(frontier: Frontier, label: Label) {
@@ -22,13 +22,15 @@ function itinerary(last: Label, best: Criterion[], departAt: number): Itinerary 
       legs.push({ ...common, kind: 'walk', role, ways, meters, start: prev.at, positions: concatenate(ways),
         stepFree: ways.some(w => w.stepFree === 'no') ? 'no' : ways.every(w => w.stepFree === 'yes') ? 'yes' : 'unknown' })
     } else {
-      const { pattern: p, i, j, start, every } = action
+      const { pattern: p, i, j, start, every, board, alight } = action
+      const stepFree = [p.stepFree, ...[board, alight].flatMap(o => o ? [o.stepFree] : [])]
+      const sources = [p.evidence.reference, ...[board, alight].flatMap(o => o ? [`${o.place.name} : ${o.evidence.reference} (${o.evidence.date})`] : [])]
       const sections = p.sections.slice(i, j)
-      legs.push({ ...common, kind: 'ride', start, waitSeconds: start - prev.at, headwaySeconds: every,
+      legs.push({ ...common, from: board?.place ?? common.from, to: alight?.place ?? common.to, kind: 'ride', start, waitSeconds: start - prev.at, headwaySeconds: every,
         passages: followingPassages(p.service, dayOf(departAt), start, p.departures[i]),
         lineId: p.lineId, lineName: p.name, mode: p.mode, network: p.network, direction: p.direction, stops: p.calls.slice(i, j + 1),
-        source: p.evidence.reference, serviceSource: p.service.source, timing: p.service.kind, timingSource: p.times.source,
-        stepFree: p.stepFree, positions: concatenate(sections), meters: sections.reduce((m, s) => m + s.meters, 0) })
+        source: sources.join(' · '), serviceSource: p.service.source, timing: p.service.kind, timingSource: p.times.source,
+        stepFree: stepFree.includes('no') ? 'no' : stepFree.includes('unknown') ? 'unknown' : 'yes', positions: concatenate(sections), meters: sections.reduce((m, s) => m + s.meters, 0) })
     }
   }
   legs.reverse()
@@ -79,15 +81,25 @@ export function search(net: Network, query: Query): Outcome {
       const alighted: Frontier = new Map()
       for (const [id, labels] of ready) for (const { pattern: p, index: i } of net.boarding.get(id) ?? []) {
         if ((query.modes && !query.modes.includes(p.network) && !query.modes.includes(p.mode)) || (stepFreeOnly && p.stepFree !== 'yes')) continue
+        const platforms = net.platforms.get(p)
+        const board = platforms?.board.get(i)
+        if (stepFreeOnly && board && board.stepFree !== 'yes') continue
         for (const l of labels) {
           const canBoardAt = l.at + (boards > 1 ? transferBufferSeconds : 0)
           const offset = p.departures[i]
           const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }] : nextRuns(p.service, day, canBoardAt, offset)
           for (const { originAt, every } of runs) for (let j = i + 1; j < p.calls.length; j++) {
-            const arrival: Label = { place: p.calls[j], at: originAt + p.arrivals[j], boards, walked: l.walked,
-              cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every } } }
-            if (arrival.place.id === query.destination) finish(arrival)
-            else insert(alighted, arrival)
+            const arrive = (place: Place, alight?: ObservedPlatform) => {
+              const arrival: Label = { place, at: originAt + p.arrivals[j], boards, walked: l.walked,
+                cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight } } }
+              if (place.id === query.destination) finish(arrival)
+              else insert(alighted, arrival)
+            }
+            const alight = platforms?.alight.get(j)
+            if (stepFreeOnly && alight && alight.stepFree !== 'yes') continue
+            // A bound service call is a logical destination, not a second platform from which to change.
+            if (!alight || p.calls[j].id === query.destination) arrive(p.calls[j], alight)
+            if (alight) arrive(alight.place, alight)
           }
         }
       }

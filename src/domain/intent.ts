@@ -1,6 +1,6 @@
 /** Local, explicit interpretation of mobility requests. Unknown places remain unknown. */
 import { searchCorridorStops } from './corridors'
-import { getPlace, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, type PlaceEntry } from './places'
+import { getPlace, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, type PlaceEntry, type PlaceScope } from './places'
 import type { PlannerEndpoint, PlannerPriority } from './planner'
 
 export interface MobilityIntent {
@@ -73,16 +73,16 @@ export function routePreferencesFrom(question: string): RoutePreferences {
   }
 }
 
-export function extractMobilityIntent(question: string): MobilityIntent | null {
+export function extractMobilityIntent(question: string, scope: PlaceScope = 'reference'): MobilityIntent | null {
   // Le langage naturel est analysé : « comment faire pour aller à Dakar ? Je
   // suis à Keur Mbaye Fall » est une demande d'itinéraire, pas un mot-clé.
   if (!isRouteQuestion(question)) return null
   const { priority, compare, arrivalRequested, arrivalMinutes, tomorrow } = routePreferencesFrom(question)
 
-  const resolved = resolveJourneyEndpoints(question)
+  const resolved = resolveJourneyEndpoints(question, scope)
   let originPlace = resolved?.origin ?? null
   let destinationPlace = resolved?.destination ?? null
-  if (!originPlace && !destinationPlace) {
+  if (scope === 'reference' && !originPlace && !destinationPlace) {
     const legacy = legacyEndpoints(question)
     originPlace = legacy?.origin ?? null
     destinationPlace = legacy?.destination ?? null

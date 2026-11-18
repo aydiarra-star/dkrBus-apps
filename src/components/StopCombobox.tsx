@@ -3,6 +3,7 @@ import { Info, MapPin, Search, X } from 'lucide-react'
 import { searchStopIndex, type StopOption } from '../domain/stops'
 import { BRT_STOPS, TER_STOPS } from '../domain/corridors'
 import { isMobilityId } from '../domain/mobilityColors'
+import { usePublishedStopSearch } from './usePublishedStopSearch'
 import { MobilityBadge } from './MobilityBadge'
 
 /** Compteurs dérivés des données réelles : ils ne peuvent plus diverger du réseau affiché. */
@@ -21,6 +22,7 @@ export function StopCombobox({
   title,
   point,
   options,
+  snapshotId,
   isPicking,
   onPick,
   onClear,
@@ -29,6 +31,7 @@ export function StopCombobox({
   title: string
   point: { label: string; detail?: string | null } | null
   options: readonly StopOption[]
+  snapshotId?: string
   isPicking: boolean
   onPick: (option: StopOption) => void
   onClear: () => void
@@ -44,9 +47,10 @@ export function StopCombobox({
 
   // Sans saisie, la liste propose les premières entrées de l’index : l’usager
   // voit ce qui est cherchable avant même de taper.
+  const published = usePublishedStopSearch(open && !point ? query : '', snapshotId)
   const matches = useMemo(
-    () => (query.trim() ? searchStopIndex(options, query, 14) : options.slice(0, 16)),
-    [options, query],
+    () => query.trim() ? searchStopIndex([...published.options, ...options], query, 14) : options.slice(0, 16),
+    [options, query, published.options],
   )
 
   // Une fermeture au clic extérieur : la liste ne reste jamais ouverte au-dessus
@@ -117,7 +121,7 @@ export function StopCombobox({
             aria-activedescendant={open && matches[activeIndex] ? optionId(activeIndex) : undefined}
             aria-autocomplete="list"
             autoComplete="off"
-            placeholder="Arrêt, station ou mobilité…"
+            placeholder="Lieu, arrêt ou station…"
             value={query}
             onChange={(event) => {
               setQuery(event.target.value)
@@ -158,6 +162,7 @@ export function StopCombobox({
                     type="button"
                     id={optionId(index)}
                     role="option"
+                    aria-label={`${option.label} · ${option.hint} · ${option.selectable ? option.group : 'non utilisable'}`}
                     aria-selected={index === activeIndex}
                     className={`point-option${index === activeIndex ? ' is-active' : ''}${option.selectable ? '' : ' is-informative'}${isMobilityId(option.networkId) ? ` mobility-${option.networkId}` : ''}`}
                     onMouseEnter={() => setActiveIndex(index)}
@@ -180,15 +185,16 @@ export function StopCombobox({
                 </li>
               ))}
             </ul>
-          ) : (
+          ) : !published.loading && !published.unavailable && (
             <p className="point-options-empty">
-              Aucun arrêt ni mobilité ne correspond à « {query.trim()} ». Aucun lieu n’est deviné.
+              Aucun lieu, arrêt ou réseau ne correspond à « {query.trim()} ». Aucun lieu n’est deviné.
             </p>
           )}
           <p className="point-options-note">
-            Arrêts disponibles : TER ({TER_COUNT} gares SETER), BRT ({BRT_COUNT} stations SunuBRT) et arrêts du snapshot publié.
-            AFTU, DDD et TATA sont référencés mais leurs arrêts ne sont pas publiés.
+            Repères géographiques, TER ({TER_COUNT} gares SETER), BRT ({BRT_COUNT} stations SunuBRT), pôles bus de référence et arrêts publiés disponibles. Choisir un lieu ne garantit pas un accès à pied.
           </p>
+          {published.loading && <p className="point-options-empty" role="status">Recherche dans les arrêts publiés…</p>}
+          {published.unavailable && <p className="point-options-empty" role="status">Recherche des arrêts publiés indisponible. Les repères locaux restent utilisables.</p>}
         </div>
       )}
     </div>

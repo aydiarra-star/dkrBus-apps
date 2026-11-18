@@ -15,7 +15,11 @@ export function passengerLookup(options: Omit<Query, 'origin' | 'destination'>):
     const header = `${lang === 'wo' ? 'Yoon wi' : 'Trajet'} · ${from.label} → ${to.label}`
     if (prefs.arrivalRequested || prefs.tomorrow) return { text: `${header}. Choisissez la date et l’heure de départ à Dakar dans Trajet ; aucune heure de départ n’est déduite d’une durée approximative.`, memory: null }
     const result = planDakarJourney(mapPoint(from), mapPoint(to), options)
-    if (!result.ok) return { text: `${header} : ${lang === 'wo' ? 'Amul yoon wu ñu wóoral. ' : ''}${result.message}`, memory: null }
+    if (!result.ok) {
+      const notes = result.documentation?.slice(0, 2).map(d => `Fiche à vérifier, pas un trajet : ${d.line} cite « ${d.fromLabel} » puis « ${d.toLabel} ». ${d.window ?? ''} Source : ${d.source}. Pour vérifier les arrêts et le passage : ${d.operator.name}, ${d.operator.phone}.`)
+      const sections = result.connections?.sections.length ? 'Trajet propose des tronçons calculés entre arrêts ; les marches manquantes ne sont pas incluses.' : ''
+      return { text: [`${header} : ${lang === 'wo' ? 'Amul yoon wu ñu wóoral. ' : ''}${result.message}`, ...(notes ?? []), sections].filter(Boolean).join('\n'), memory: null }
+    }
     const criterion = prefs.priority === 'lessWalking' ? 'walking' : prefs.priority === 'fewerTransfers' ? 'changes' : 'fastest'
     const trip = tripId ? result.options.find(t => t.id === tripId) : result.options.find(t => t.best.includes(criterion)) ?? result.options[0]
     if (!trip) return { text: `${header} : la variante précédente n’est plus disponible à cette heure avec ces réglages. Choisissez un nouveau trajet.`, memory: null }

@@ -116,6 +116,8 @@ export interface PlannerEndpoint {
   label: string
   lat: number
   lon: number
+  /** Identité d’un repère cartographique, jamais celle d’un arrêt. */
+  landmarkId?: string
   /** Quand le point est exactement un arrêt de référence. */
   stopId?: string
 }
