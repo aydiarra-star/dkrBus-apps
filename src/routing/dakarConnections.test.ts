@@ -59,6 +59,17 @@ it('uses independently sourced orders, the date in Dakar and selected modes; nev
   expect(documentedDirections(landmark('sangalkam'), landmark('noflaye'), settings).map(x => x.line)).not.toContain('DDD 208')
 })
 
+it('keeps manual confirmation tied to the documented direction, the requested time in Dakar and the right operator', () => {
+  const [reverse] = documentedDirections(massar, yoff, { ...settings, departAt: at('00:15', '2026-11-19') })
+  expect(reverse.question).toMatch(/19 novembre 2026 vers 00:15.*ligne 66.*« Carrefour Keur Massar » puis « Marche De Yoff »/)
+  expect(reverse.url).toMatch(/18051499-1$/)
+  expect(reverse.officialLineUrl).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-66/')
+  const ddd = documentedDirections(landmark('noflaye'), landmark('sangalkam'), settings).find(d => d.line === 'DDD 208')!
+  expect(ddd.operator).toMatchObject({ name: 'Dakar Dem Dikk', phone: '+221 33 824 10 10' })
+  expect(ddd.officialLineUrl).toBeUndefined() // No AFTU link for a DDD service
+  expect(ddd.window).toBeNull()
+})
+
 it('finds real B1 sections for a locality with no certified walk, but only between stops and at a feasible service time', () => {
   const from = landmark('guediawaye-ddd-220'), to = stop('brt-petersen')
   const r = planDakarJourney(from, to, settings)
@@ -81,7 +92,7 @@ it('keeps the passenger assistant on the same named points and never remembers t
   const m = createConversationMemory()
   const ask = (q: string) => copilotAnswer(q, ctx, m, 'fr')
   const reply = ask('Trajet de Yoff à Keur Massar')
-  expect(reply.text).toContain('AFTU 66'); expect(reply.text).toContain('pas un trajet')
+  expect(reply.text).toContain('AFTU 66'); expect(reply.text).toContain('pas un trajet'); expect(reply.text).toContain('+221 33 859 02 88')
   expect(m.lastJourney).toBeNull(); expect(reply.journey?.destination.landmarkId).toBe(massar.landmarkId)
   expect(ask('Et en sens inverse ?').text).toContain('04:45–20:45')
   expect(m.lastJourney).toBeNull()

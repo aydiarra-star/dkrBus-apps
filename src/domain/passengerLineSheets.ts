@@ -2,7 +2,7 @@ import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { ALL_CORRIDOR_STOPS } from './corridors'
 import type { EstimatedLineSchedule } from './estimatedSchedules'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
-import { normalizeMobility } from './mobilityKnowledge'
+import { BUS_LINES, normalizeMobility } from './mobilityKnowledge'
 
 interface TextDirection {
   network: 'ddd' | 'aftu'
@@ -11,6 +11,7 @@ interface TextDirection {
   source: string
   url: string
   schedule?: EstimatedLineSchedule
+  officialLineUrl?: string
 }
 interface DirectionFile {
   network: string; code: string
@@ -22,12 +23,16 @@ const directions: TextDirection[] = DDD_PUBLISHED_ROUTES.filter(r => r.kind === 
   .map(r => ({ network: 'ddd', line: r.line, labels: r.stops, url: r.sourceUrl, source: r.sourceLabel }))
 for (const file of Object.values(files)) {
   if (file.network !== 'aftu') continue
+  // An official overview is a separate reading link, never the source of the
+  // stop order or timetable below. Do not manufacture URLs from line numbers.
+  const detail = BUS_LINES.find(l => l.network === 'aftu' && l.code === file.code)?.detailSourceUrl
+  const officialLineUrl = detail?.startsWith('https://aftu-senegal.org/map/') ? detail : undefined
   for (const [labels, url, schedule] of [[file.waypoints, file.detailSourceUrl, file.outboundSchedule],
     [file.inboundWaypoints, file.inboundDetailSourceUrl, file.inboundSchedule]] as const) {
     // Do not use the timetable of a similar line or attach it to an official
     // narrative which doesn't give both directions. One source for this order.
     if (!labels?.length || !url || !schedule || schedule.line !== file.code || url !== schedule.sourceUrl) continue
-    directions.push({ network: 'aftu', line: file.code, labels, url, source: schedule.sourceLabel, schedule })
+    directions.push({ network: 'aftu', line: file.code, labels, url, source: schedule.sourceLabel, schedule, officialLineUrl })
   }
 }
 

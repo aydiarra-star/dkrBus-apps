@@ -1,3 +1,4 @@
+import { BUS_OPERATOR_CONTACTS, type BusOperatorContact } from '../domain/busOperatorContacts'
 import { PASSENGER_LINE_SHEETS } from '../domain/passengerLineSheets'
 import { getCorridorStop } from '../domain/corridors'
 import type { EstimatedLineSchedule } from '../domain/estimatedSchedules'
@@ -15,7 +16,11 @@ export interface DirectionNote {
   source: string
   url: string
   window: string | null
+  operator: BusOperatorContact
+  officialLineUrl?: string
+  question: string
 }
+const dakarDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'Africa/Dakar' })
 function referenceName(p: DakarEndpoint): string | undefined {
   if (p.kind === 'stop' || (p.stopId && p.landmarkId)) return // different namespaces
   if (p.stopId || p.landmarkId) {
@@ -50,6 +55,7 @@ export function documentedDirections(from: DakarEndpoint, to: DakarEndpoint, set
   const a = normalizeSearchTerm(referenceName(from) ?? ''), b = normalizeSearchTerm(referenceName(to) ?? '')
   if (!a || !b || a === b) return []
   const notes: DirectionNote[] = []
+  const requestDate = new Date(settings.departAt * 1000)
   for (const d of PASSENGER_LINE_SHEETS) {
     if (settings.modes && !settings.modes.includes(d.network) && !(d.network === 'aftu' && settings.modes.includes('aftu_tata'))) continue
     const i = d.labels.findIndex(label => mentioned(label, a))
@@ -57,7 +63,9 @@ export function documentedDirections(from: DakarEndpoint, to: DakarEndpoint, set
     const target = d.labels.find((label, j) => j > i && mentioned(label, b))
     if (!target) continue
     notes.push({ line: `${d.network.toUpperCase()} ${d.line}`, fromLabel: d.labels[i], toLabel: target,
-      source: d.source, url: d.url, window: serviceNote(d.schedule, settings.departAt) })
+      source: d.source, url: d.url, window: serviceNote(d.schedule, settings.departAt),
+      operator: BUS_OPERATOR_CONTACTS[d.network], officialLineUrl: d.officialLineUrl,
+      question: `Le ${dakarDate.format(requestDate)} vers ${requestDate.toISOString().slice(11, 16)} (heure de Dakar), la ligne ${d.line} dessert-elle « ${d.labels[i]} » puis « ${target} » dans ce sens ? Où monter, où descendre et quels accès à pied utiliser ?` })
   }
   return notes
 }

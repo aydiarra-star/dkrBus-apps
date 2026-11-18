@@ -57,7 +57,8 @@ function ConnectionDetails({ failure, preferences, onChoose }: {
         ].filter(Boolean).join(' ; ')}.</small><br />
         <button type="button" className="text-action" onClick={() => onChoose(s)}>Choisir ce tronçon à la place du trajet</button>
       </li>)}</ul>
-    </> : (report.boardingCount ?? 1) > 0 && (report.alightingCount ?? 1) > 0 &&
+    </> : report.boardingCount === 0 || report.alightingCount === 0 ?
+      <p>Pas de tronçon calculable avec les données disponibles. Cela ne signifie pas qu’aucun bus ne circule.</p> :
       <p>Aucun tronçon entre les arrêts examinés ne convient à l’heure et aux réglages choisis, même en recherchant les correspondances vérifiées.</p>}
     {Boolean(failure.documentation?.length) && <details open>
       <summary>Fiches de lignes à vérifier · pas un itinéraire</summary>
@@ -65,6 +66,12 @@ function ConnectionDetails({ failure, preferences, onChoose }: {
       <ul>{failure.documentation?.slice(0, 3).map(d => <li key={`${d.line}:${d.url}`}>
         <strong>{d.line}</strong> : « {d.fromLabel} » puis « {d.toLabel} ».<br />
         <a href={d.url} target="_blank" rel="noreferrer">{d.source}</a>{d.window && <p>{d.window}</p>}
+        <details>
+          <summary>Vérifier auprès du réseau {d.operator.name}</summary>
+          <p>{d.question}</p>
+          <p><a href={`tel:${d.operator.phone.replaceAll(' ', '')}`}>Appeler {d.operator.name} : {d.operator.phone}</a> · <a href={d.operator.sourceUrl} target="_blank" rel="noreferrer">Source du numéro</a></p>
+          {d.officialLineUrl && <p><a href={d.officialLineUrl} target="_blank" rel="noreferrer">Fiche officielle {d.line}</a> · Présentation de la ligne, pas une confirmation du passage.</p>}
+        </details>
       </li>)}</ul>
     </details>}
   </div>
