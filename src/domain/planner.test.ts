@@ -110,6 +110,7 @@ describe('calculateur multimodal de référence', () => {
     expect(lines).toContain('TER')
     expect(result.transfers).toBeGreaterThanOrEqual(1)
     expect(result.boardedLines).toEqual(expect.arrayContaining(['B1', 'TER']))
+    expect(result.legs.filter((leg) => leg.kind === 'walk_transfer').some((leg) => leg.note?.includes('marche de référence'))).toBe(true)
   })
 
   it('n’enchaîne pas DDD/AFTU au TER sur la seule proximité de coordonnées approximatives', () => {
