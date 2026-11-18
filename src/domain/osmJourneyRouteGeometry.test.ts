@@ -13,6 +13,7 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
     expect(url.searchParams.get('mode')).toBe('bus')
     expect(url.searchParams.get('south')).toBe('14.55')
     expect(url.searchParams.get('north')).toBe('14.88')
+    expect(new URL(buildOsmRouteSearchUrl('AFTU 1')).searchParams.get('q')).toBe('AFTU 1')
   })
 
   it('refuse les relations sans attribution AFTU/TATA explicite ou sans référence exacte', () => {
