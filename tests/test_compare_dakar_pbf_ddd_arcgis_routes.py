@@ -4,6 +4,7 @@ from scripts.compare_dakar_pbf_ddd_arcgis_routes import (
     best_route_geometry_match,
     classify_direction_pairs,
     monotonicity,
+    nearest_arcgis_stop_audit,
     parse_line_ref,
     parse_relation_endpoints,
     project_stop_to_path,
@@ -86,6 +87,14 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         pair = classify_direction_pairs(rows)[0]
         self.assertEqual(pair["explicitReversePairs"], 1)
         self.assertFalse(pair["bidirectionalGeometryAndStopsCandidate"])
+
+    def test_missing_arcgis_stop_coordinates_are_ignored_without_crashing(self):
+        audit = nearest_arcgis_stop_audit(
+            {"stopsInRelationOrder": [{"id": 1, "lat": None, "lon": None, "tags": {}}]},
+            {"features": [{"attributes": {"OBJECTID": 1}, "geometry": {"x": None, "y": None}}]},
+        )
+        self.assertEqual(audit["osmStopComparedCount"], 0)
+        self.assertEqual(audit["nearestWithin50m"], 0)
 
 
 if __name__ == "__main__":
