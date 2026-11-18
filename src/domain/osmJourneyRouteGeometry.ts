@@ -143,7 +143,8 @@ export async function loadOsmJourneyRouteSegments(
     const reference = lineReference(leg)
     const fromNames = stopNames(leg.fromId)
     const toNames = stopNames(leg.toId)
-    const searchTerm = reference ?? fromNames[0]
+    // L'API OSM exige au moins deux caractères dans sa recherche textuelle.
+    const searchTerm = reference ? (reference.length >= 2 ? reference : `AFTU ${reference}`) : fromNames[0]
     return searchTerm && fromNames.length && toNames.length
       ? [{ leg, index, reference, searchTerm, fromNames, toNames }]
       : []
