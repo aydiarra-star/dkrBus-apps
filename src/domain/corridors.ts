@@ -358,7 +358,6 @@ export const CORRIDOR_LINES: readonly CorridorLine[] = [
   },
   {
     id: 'aftu-2',
-    plannerEnabled: false,
     network: 'aftu_tata',
     shortName: 'AFTU 53',
     longName: 'Keur Massar ↔ Sébikotane (parcours officiel à réintégrer)',
