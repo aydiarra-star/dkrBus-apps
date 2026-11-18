@@ -1,0 +1,92 @@
+name: Audit DDD OSM-ArcGIS directional geometry
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/audit-ddd-osm-arcgis-directional-crosswalk.yml"
+      - "scripts/compare_dakar_pbf_ddd_arcgis_routes.py"
+      - "scripts/extract_dakar_bus_route_relations_from_pbf.py"
+      - "scripts/export_ddd_arcgis_layers.mjs"
+      - "tests/test_compare_dakar_pbf_ddd_arcgis_routes.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install OSM PBF tools
+        timeout-minutes: 5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y osmium-tool
+          python -m pip install --upgrade pip
+          python -m pip install osmium
+
+      - name: Download Geofabrik Senegal and Gambia PBF
+        timeout-minutes: 15
+        run: |
+          mkdir -p artifacts/pedestrian
+          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors \
+            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf \
+            https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+          test -s artifacts/pedestrian/senegal-and-gambia.osm.pbf
+
+      - name: Extract Dakar public transport route relations
+        timeout-minutes: 12
+        run: |
+          python scripts/extract_dakar_bus_route_relations_from_pbf.py \
+            artifacts/pedestrian/senegal-and-gambia.osm.pbf \
+            artifacts/pedestrian/dakar-bus-route-relations.json
+
+      - name: Extract DDD ArcGIS route and stop layers
+        timeout-minutes: 15
+        run: node scripts/export_ddd_arcgis_layers.mjs
+
+      - name: Require complete urban ArcGIS source layers
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/arcgis/ddd-route-stop-candidates.json').read_text())
+          urban = [layer for layer in report.get('layers', []) if layer.get('group') == 'urban_routes_and_stops']
+          errors = [error for error in report.get('errors', []) if error.get('service') == 'urban_routes_and_stops']
+          if len(urban) != 24 or errors:
+              raise SystemExit(f'Urban ArcGIS source incomplete: {len(urban)}/24 layers, {len(errors)} errors: {errors}')
+          print(f'All {len(urban)} urban ArcGIS layers are available.')
+          PY
+
+      - name: Compare DDD OSM directions with ArcGIS paths and stops
+        timeout-minutes: 5
+        run: |
+          python scripts/compare_dakar_pbf_ddd_arcgis_routes.py \
+            artifacts/pedestrian/dakar-bus-route-relations.json \
+            artifacts/arcgis/ddd-route-stop-candidates.json \
+            artifacts/arcgis/ddd-osm-arcgis-directional-crosswalk.json
+
+      - name: Upload directional crosswalk audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddd-osm-arcgis-directional-crosswalk
+          path: |
+            artifacts/arcgis/ddd-osm-arcgis-directional-crosswalk.json
+            artifacts/arcgis/ddd-route-stop-candidates.json
+            artifacts/pedestrian/dakar-bus-route-relations.json
+          if-no-files-found: error
+          retention-days: 30
