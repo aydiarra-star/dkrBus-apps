@@ -1,0 +1,61 @@
+name: Audit AFTU official route pages and Waymark geometry
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/audit-aftu-official-route-geometry.yml"
+      - "scripts/fetch_aftu_official_route_pages.py"
+      - "tests/test_fetch_aftu_official_route_pages.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Test AFTU route and Waymark parsers
+        run: python -m unittest tests.test_fetch_aftu_official_route_pages
+
+      - name: Check scraper syntax
+        run: python -m py_compile scripts/fetch_aftu_official_route_pages.py
+
+      - name: Fetch AFTU official route pages and map data
+        timeout-minutes: 20
+        run: |
+          python scripts/fetch_aftu_official_route_pages.py \
+            --output artifacts/aftu/aftu-official-route-pages.json \
+            --workers 3
+
+      - name: Upload AFTU source audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-official-route-pages-and-waymark-geometry
+          path: artifacts/aftu/aftu-official-route-pages.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require route and map geometry evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/aftu/aftu-official-route-pages.json').read_text())
+          summary = report['summary']
+          if summary['routePagesFetched'] == 0 or summary['routePagesWithItinerary'] == 0:
+              raise SystemExit(f"No usable AFTU route descriptions were extracted: {summary}")
+          if summary['routePagesWithGeoJSON'] == 0 or summary['totalLineGeometryFeatures'] == 0:
+              raise SystemExit(f"No Waymark route geometry was extracted from the public pages: {summary}")
+          print(json.dumps(summary, ensure_ascii=False))
+          PY
