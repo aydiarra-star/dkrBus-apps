@@ -460,7 +460,7 @@ function planWith(
         })
       }
 
-      // 2) Correspondances marchables (déclarées ou estimées au même pôle).
+      // 2) Correspondances dont le pôle partagé ou le chemin piéton est prouvé.
       for (const transfer of TRANSFER_INDEX.get(currentStopId) ?? []) {
         const otherId = transfer.fromStopId === currentStopId ? transfer.toStopId : transfer.fromStopId
         const otherStop = getCorridorStop(otherId)
