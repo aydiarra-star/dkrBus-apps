@@ -54,12 +54,20 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
     expect(findOrderedOsmRouteStops([{ name: 'Petersen' }], ['Petersen'], ['Colobane'])).toBeNull()
   })
 
-  it('convertit une LineString GeoJSON en coordonnées Leaflet et rejette les points hors région', () => {
+  it('convertit une LineString GeoJSON en coordonnées Leaflet', () => {
     expect(osmRouteSegmentToLeafletPositions({
       features: [{ geometry: { type: 'LineString', coordinates: [
-        [-17.44, 14.67], [-17.43, 14.68], [0, 0],
+        [-17.44, 14.67], [-17.43, 14.68],
       ] } }],
     })).toEqual([[14.67, -17.44], [14.68, -17.43]])
+  })
+
+  it('rejette toute géométrie contenant un point hors région au lieu de relier les deux côtés', () => {
+    expect(osmRouteSegmentToLeafletPositions({
+      features: [{ geometry: { type: 'LineString', coordinates: [
+        [-17.44, 14.67], [0, 0], [-17.43, 14.68],
+      ] } }],
+    })).toEqual([])
   })
 
   it('ne fabrique pas de tracé depuis des géométries absentes ou des points invalides', () => {
