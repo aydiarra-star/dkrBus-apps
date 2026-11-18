@@ -46,9 +46,34 @@ def parse_line_ref(value: object) -> str | None:
     return raw if re.fullmatch(r"\d{1,3}[A-Z]?", raw) else None
 
 
-def relation_line_ref(relation: dict) -> str | None:
+def parse_name_line_ref(value: object) -> str | None:
+    raw = str(value or "").strip()
+    if re.match(r"^\\s*(?:L\\s*)?\\d{1,3}[A-Z]?\\s*[;,/]", raw, re.IGNORECASE):
+        return None
+    match = re.match(r"^\\s*(?:Ligne\\s*|L\\s*)?(\\d{1,3}[A-Z]?)\\b", raw, re.IGNORECASE)
+    return match.group(1).upper() if match else None
+
+
+def relation_line_ref_details(relation: dict) -> tuple[str | None, str | None]:
     tags = relation.get("tags") or {}
-    return parse_line_ref(tags.get("ref"))
+    raw_ref = tags.get("ref")
+    ref_line = parse_line_ref(raw_ref)
+    name_line = parse_name_line_ref(tags.get("name"))
+    if raw_ref and not ref_line:
+        return None, "AMBIGUOUS_OR_MULTILINE_REF"
+    if ref_line and name_line and ref_line != name_line:
+        return None, "REF_NAME_LINE_MISMATCH"
+    return ref_line or name_line, None if (ref_line or name_line) else "NO_UNAMBIGUOUS_LINE_REF"
+
+
+def relation_line_ref(relation: dict) -> str | None:
+    return relation_line_ref_details(relation)[0]
+
+
+def parse_arcgis_layer_line_ref(layer_name: object) -> str | None:
+    normalized = normalize_text(layer_name)
+    match = re.search(r"\\bligne\\s+(\\d{1,3}[a-z]?)\\b", normalized)
+    return match.group(1).upper() if match else None
 
 
 def parse_relation_endpoints(relation: dict) -> tuple[str | None, str | None]:
@@ -362,16 +387,52 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
 def build_report(osm: dict, arcgis: dict) -> dict:
     layers = arcgis.get("layers") or []
     layer_by_id = {(layer.get("group"), layer.get("layerId")): layer for layer in layers}
+    route_layers_by_line = {}
+    for layer in layers:
+        if layer.get("group") != "urban_routes_and_stops" or layer.get("kind") != "route":
+            continue
+        line_ref = parse_arcgis_layer_line_ref(layer.get("layerName"))
+        if line_ref:
+            route_layers_by_line.setdefault(line_ref, []).append(layer)
+
     rows = []
+    excluded_relations = []
     for relation in osm.get("relations") or []:
-        line = relation_line_ref(relation)
+        line, exclusion_reason = relation_line_ref_details(relation)
+        if exclusion_reason:
+            excluded_relations.append({
+                "relationId": relation.get("id"),
+                "ref": (relation.get("tags") or {}).get("ref"),
+                "name": (relation.get("tags") or {}).get("name"),
+                "reason": exclusion_reason,
+            })
+            continue
         if not line or line not in STOP_LAYER_BY_LINE or not is_ddd_relation(relation):
             continue
         stop_layer_id = STOP_LAYER_BY_LINE[line]
-        route_layer_id = ROUTE_LAYER_BY_LINE[line]
         stop_layer = layer_by_id.get(("urban_routes_and_stops", stop_layer_id))
-        route_layer = layer_by_id.get(("urban_routes_and_stops", route_layer_id))
-        rows.append(relation_direction_candidate(relation, route_layer, stop_layer))
+        route_layer_candidates = route_layers_by_line.get(line, [])
+        if len(route_layer_candidates) == 1:
+            route_layer = route_layer_candidates[0]
+        elif route_layer_candidates:
+            combined = dict(route_layer_candidates[0])
+            combined["layerName"] = " | ".join(layer.get("layerName") or "" for layer in route_layer_candidates)
+            combined["layerId"] = [layer.get("layerId") for layer in route_layer_candidates]
+            combined["features"] = [
+                feature
+                for layer in route_layer_candidates
+                for feature in (layer.get("features") or [])
+            ]
+            route_layer = combined
+        else:
+            route_layer = None
+        row = relation_direction_candidate(relation, route_layer, stop_layer)
+        row["routeLayerCandidateCount"] = len(route_layer_candidates)
+        row["routeLayerCandidateNames"] = [layer.get("layerName") for layer in route_layer_candidates]
+        row["stopLayerMappingVerified"] = bool(
+            stop_layer and parse_arcgis_layer_line_ref(stop_layer.get("layerName")) == line
+        )
+        rows.append(row)
     pairs = classify_direction_pairs(rows)
     return {
         "generatedAt": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
@@ -402,6 +463,7 @@ def build_report(osm: dict, arcgis: dict) -> dict:
         },
         "linePairs": pairs,
         "directionComparisons": rows,
+        "excludedRelations": excluded_relations,
         "warning": "Candidate alignment is not proof of current commercial operation. Operator approval, current stop names, complete service directions and timetable validation remain required.",
     }
 
