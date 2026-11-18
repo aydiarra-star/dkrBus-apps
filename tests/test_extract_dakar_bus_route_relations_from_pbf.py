@@ -46,7 +46,7 @@ class BusRouteRelationFilterTests(unittest.TestCase):
         self.assertEqual(audit["connectedComponentCount"], 1)
         self.assertEqual(audit["largestComponentWayCount"], 2)
         self.assertTrue(audit["simplePathCandidate"])
-        self.assertEqual(audit["adjacentMemberJoinCount"], 1)
+        self.assertEqual(audit["adjacentMemberSharedNodeCount"], 1)
 
     def test_topology_audit_keeps_disconnected_ways_separate(self):
         audit = audit_route_way_topology([
