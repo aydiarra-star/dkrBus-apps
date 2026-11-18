@@ -2,7 +2,7 @@ import type { PlannerLeg } from './planner'
 import { ALL_CORRIDOR_STOPS } from './corridors'
 import { projectStopToLine, type VerifiedLineGeometry } from './roadNetworkRouting'
 import { sliceVerifiedRouteSegment } from './routeGeometrySlice'
-import type { DddArcgisMapTrack } from './dddArcgisMapGeometry'
+import type { DddArcgisMapStop, DddArcgisMapTrack } from './dddArcgisMapGeometry'
 
 export interface HighlightedDddJourneyRouteSegment {
   id: string
@@ -14,6 +14,32 @@ export interface HighlightedDddJourneyRouteSegment {
 }
 
 const stopById = new Map(ALL_CORRIDOR_STOPS.map((stop) => [stop.id, stop]))
+
+function normalizeStopName(value: string): string {
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function resolveDddStop(
+  stopId: string | undefined,
+  label: string | undefined,
+  lineCode: string,
+  arcgisStops: readonly DddArcgisMapStop[],
+): { lat: number; lon: number } | null {
+  if (label) {
+    const normalized = normalizeStopName(label)
+    const matches = arcgisStops.filter((stop) =>
+      stop.line.toUpperCase() === lineCode && stop.name && normalizeStopName(stop.name) === normalized,
+    )
+    const positions = new Map(matches.map((stop) => [
+      `${stop.position[0].toFixed(5)},${stop.position[1].toFixed(5)}`,
+      { lat: stop.position[0], lon: stop.position[1] },
+    ]))
+    if (positions.size === 1) return [...positions.values()][0]
+    if (positions.size > 1) return null
+  }
+  const stop = stopId ? stopById.get(stopId) : undefined
+  return stop ? { lat: stop.lat, lon: stop.lon } : null
+}
 
 function dddLineCode(shortName: string): string | null {
   const match = /\bDDD\s+([0-9]+[A-Z]?)\b/i.exec(shortName)
@@ -29,6 +55,7 @@ function dddLineCode(shortName: string): string | null {
 export function verifiedDddJourneyRouteSegments(
   legs: readonly PlannerLeg[],
   tracks: readonly DddArcgisMapTrack[],
+  arcgisStops: readonly DddArcgisMapStop[] = [],
   maxStopOffsetM = 80,
 ): HighlightedDddJourneyRouteSegment[] {
   const segments: HighlightedDddJourneyRouteSegment[] = []
@@ -38,8 +65,19 @@ export function verifiedDddJourneyRouteSegments(
     const lineCode = dddLineCode(leg.line.shortName)
     if (!lineCode) continue
 
-    const orderedIds = [leg.fromId, ...(leg.intermediateStopIds ?? []), leg.toId]
-    const stops = orderedIds.map((id) => stopById.get(id))
+    const intermediateIds = leg.intermediateStopIds ?? []
+    const intermediateNames = leg.intermediateStops ?? []
+    const intermediateCount = Math.max(intermediateIds.length, intermediateNames.length)
+    const ordered = [
+      { id: leg.fromId, label: leg.from },
+      ...Array.from({ length: intermediateCount }, (_, index) => ({
+        id: intermediateIds[index],
+        label: intermediateNames[index],
+      })),
+      { id: leg.toId, label: leg.to },
+    ]
+    const orderedIds = ordered.map((stop) => stop.id ?? stop.label ?? 'unknown')
+    const stops = ordered.map((stop) => resolveDddStop(stop.id, stop.label, lineCode, arcgisStops))
     if (stops.length < 2 || stops.some((stop) => !stop)) continue
 
     for (const track of tracks) {
