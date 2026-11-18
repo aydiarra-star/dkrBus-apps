@@ -1,6 +1,7 @@
 import unittest
 
 from scripts.extract_dakar_bus_route_relations_from_pbf import (
+    audit_route_way_topology,
     is_public_transport_route,
     is_route_way_member,
     is_stop_member,
@@ -36,6 +37,44 @@ class BusRouteRelationFilterTests(unittest.TestCase):
         self.assertTrue(relation_intersects_dakar(members, {202}, set()))
         self.assertTrue(relation_intersects_dakar(members, set(), {101}))
         self.assertFalse(relation_intersects_dakar(members, {999}, {888}))
+
+    def test_topology_audit_recognizes_a_contiguous_route_without_stitching_it(self):
+        audit = audit_route_way_topology([
+            {"nodeRefs": [1, 2], "geometry": []},
+            {"nodeRefs": [2, 3], "geometry": []},
+        ])
+        self.assertEqual(audit["connectedComponentCount"], 1)
+        self.assertEqual(audit["largestComponentWayCount"], 2)
+        self.assertTrue(audit["simplePathCandidate"])
+        self.assertEqual(audit["adjacentMemberSharedNodeCount"], 1)
+
+    def test_topology_audit_keeps_disconnected_ways_separate(self):
+        audit = audit_route_way_topology([
+            {"nodeRefs": [1, 2], "geometry": []},
+            {"nodeRefs": [3, 4], "geometry": []},
+        ])
+        self.assertEqual(audit["connectedComponentCount"], 2)
+        self.assertFalse(audit["simplePathCandidate"])
+
+    def test_topology_audit_detects_branching_instead_of_calling_it_a_simple_path(self):
+        audit = audit_route_way_topology([
+            {"nodeRefs": [1, 2], "geometry": []},
+            {"nodeRefs": [2, 3], "geometry": []},
+            {"nodeRefs": [2, 4], "geometry": []},
+        ])
+        self.assertEqual(audit["connectedComponentCount"], 1)
+        self.assertEqual(audit["branchNodeCount"], 1)
+        self.assertFalse(audit["simplePathCandidate"])
+
+    def test_topology_audit_detects_a_connection_at_an_interior_node(self):
+        audit = audit_route_way_topology([
+            {"nodeRefs": [1, 2, 3], "geometry": []},
+            {"nodeRefs": [2, 4], "geometry": []},
+        ])
+        self.assertEqual(audit["connectedComponentCount"], 1)
+        self.assertEqual(audit["branchNodeCount"], 1)
+        self.assertEqual(audit["adjacentMemberSharedNodeCount"], 1)
+        self.assertFalse(audit["simplePathCandidate"])
 
 
 if __name__ == "__main__":

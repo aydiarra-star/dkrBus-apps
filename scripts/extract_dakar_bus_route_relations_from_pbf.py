@@ -45,6 +45,85 @@ def relation_intersects_dakar(members: list[dict], node_ids: set[int], way_ids: 
     )
 
 
+def audit_route_way_topology(route_ways: list[dict]) -> dict:
+    """Audit shared-node connectivity without joining or drawing any geometry."""
+    node_neighbors: dict[int, set[int]] = {}
+    node_way_membership: dict[int, set[int]] = {}
+    valid_way_count = 0
+
+    for index, way in enumerate(route_ways):
+        refs = [int(ref) for ref in (way.get("nodeRefs") or [])]
+        if len(refs) < 2:
+            continue
+        valid_way_count += 1
+        for ref in refs:
+            node_way_membership.setdefault(ref, set()).add(index)
+            node_neighbors.setdefault(ref, set())
+        for left, right in zip(refs, refs[1:]):
+            node_neighbors[left].add(right)
+            node_neighbors[right].add(left)
+
+    unseen = set(node_neighbors)
+    component_way_counts: list[int] = []
+    while unseen:
+        stack = [unseen.pop()]
+        component_nodes: set[int] = set()
+        while stack:
+            node_id = stack.pop()
+            component_nodes.add(node_id)
+            for neighbor in node_neighbors[node_id]:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    stack.append(neighbor)
+        component_ways = set()
+        for node_id in component_nodes:
+            component_ways.update(node_way_membership.get(node_id, set()))
+        component_way_counts.append(len(component_ways))
+
+    adjacent_member_join_count = 0
+    adjacent_member_endpoint_join_count = 0
+    reversed_endpoint_join_count = 0
+    for left, right in zip(route_ways, route_ways[1:]):
+        a = [int(ref) for ref in (left.get("nodeRefs") or [])]
+        b = [int(ref) for ref in (right.get("nodeRefs") or [])]
+        if len(a) < 2 or len(b) < 2:
+            continue
+        if set(a).intersection(b):
+            adjacent_member_join_count += 1
+        if a[-1] == b[0] or a[-1] == b[-1] or a[0] == b[0] or a[0] == b[-1]:
+            adjacent_member_endpoint_join_count += 1
+        if a[-1] == b[-1] or a[0] == b[0]:
+            reversed_endpoint_join_count += 1
+
+    degrees = [len(neighbors) for neighbors in node_neighbors.values()]
+    component_count = len(component_way_counts)
+    largest_component = max(component_way_counts, default=0)
+    branch_node_count = sum(degree > 2 for degree in degrees)
+    odd_degree_node_count = sum(degree % 2 == 1 for degree in degrees)
+    simple_path_candidate = (
+        component_count == 1
+        and branch_node_count == 0
+        and odd_degree_node_count in {0, 2}
+        and valid_way_count == len(route_ways)
+        and valid_way_count > 0
+    )
+    return {
+        "routeWayCount": len(route_ways),
+        "validRouteWayCount": valid_way_count,
+        "uniqueNodeCount": len(node_neighbors),
+        "connectedComponentCount": component_count,
+        "largestComponentWayCount": largest_component,
+        "isolatedWayCount": sum(1 for size in component_way_counts if size == 1),
+        "branchNodeCount": branch_node_count,
+        "degreeOneEndpointCount": sum(1 for degree in degrees if degree == 1),
+        "oddDegreeNodeCount": odd_degree_node_count,
+        "adjacentMemberSharedNodeCount": adjacent_member_join_count,
+        "adjacentMemberEndpointJoinCount": adjacent_member_endpoint_join_count,
+        "adjacentMemberReversedEndpointJoinCount": reversed_endpoint_join_count,
+        "simplePathCandidate": simple_path_candidate,
+        "warning": "Topology candidate only; this audit does not stitch ways or certify a commercial direction.",
+    }
+
 def _inside(lat: float, lon: float) -> bool:
     return BOUNDS["south"] <= lat <= BOUNDS["north"] and BOUNDS["west"] <= lon <= BOUNDS["east"]
 
@@ -83,6 +162,11 @@ def extract_route_relations(pbf_path: str) -> dict:
             ]
             self.raw_relations.append({
                 "id": int(relation.id),
+                "version": int(relation.version),
+                "timestamp": str(relation.timestamp),
+                "changeset": int(relation.changeset),
+                "uid": int(relation.uid),
+                "user": str(relation.user),
                 "tags": tags,
                 "members": members,
             })
@@ -134,14 +218,18 @@ def extract_route_relations(pbf_path: str) -> dict:
             if way_id not in needed_way_ids:
                 return
             geometry = []
+            node_refs = []
             for node in way.nodes:
                 if not node.location.valid():
                     geometry = []
+                    node_refs = []
                     break
+                node_refs.append(int(node.ref))
                 geometry.append([float(node.location.lon), float(node.location.lat)])
             self.ways[way_id] = {
                 "id": way_id,
                 "tags": {tag.k: tag.v for tag in way.tags},
+                "nodeRefs": node_refs,
                 "geometry": geometry,
             }
 
@@ -186,6 +274,11 @@ def extract_route_relations(pbf_path: str) -> dict:
         tags = relation["tags"]
         output_relations.append({
             "id": relation["id"],
+            "version": relation.get("version"),
+            "timestamp": relation.get("timestamp"),
+            "changeset": relation.get("changeset"),
+            "uid": relation.get("uid"),
+            "user": relation.get("user"),
             "tags": tags,
             "mode": tags.get("route") or tags.get("route_master"),
             "operator": tags.get("operator"),
@@ -198,6 +291,7 @@ def extract_route_relations(pbf_path: str) -> dict:
             "membersInRelationOrder": ordered_members,
             "stopsInRelationOrder": stops,
             "routeWaysInRelationOrder": route_ways,
+            "topologyAudit": audit_route_way_topology(route_ways),
             "activationStatus": "OSM_RELATION_CANDIDATE_ONLY",
             "directionWarning": "Relation member order and roles are preserved; no reverse direction is inferred.",
             "geometryWarning": "Way members are retained separately; disconnected ways are not stitched into a fabricated line.",
@@ -209,13 +303,14 @@ def extract_route_relations(pbf_path: str) -> dict:
         "routeMasterCount": len(route_masters),
         "relationsWithStopMembers": sum(bool(item["stopsInRelationOrder"]) for item in output_relations),
         "relationsWithRouteWays": sum(bool(item["routeWaysInRelationOrder"]) for item in output_relations),
+        "simplePathTopologyCandidates": sum(bool(item["topologyAudit"]["simplePathCandidate"]) for item in output_relations),
         "dddAttributed": sum("dem dikk" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
         "aftuAttributed": sum("aftu" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
         "tataAttributed": sum("tata" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
     }
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "source": "Geofabrik Senegal and Gambia OSM PBF, Dakar bbox extract",
+        "source": "Geofabrik Senegal and Gambia OSM PBF, filtered by Dakar bbox membership",
         "sourceUrl": "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf",
         "attribution": "© OpenStreetMap contributors",
         "license": "ODbL-1.0",
