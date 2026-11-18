@@ -16,7 +16,7 @@ export interface HighlightedDddJourneyRouteSegment {
 const stopById = new Map(ALL_CORRIDOR_STOPS.map((stop) => [stop.id, stop]))
 
 function dddLineCode(shortName: string): string | null {
-  const match = /\\bDDD\\s+([0-9]+[A-Z]?)\\b/i.exec(shortName)
+  const match = /\bDDD\s+([0-9]+[A-Z]?)\b/i.exec(shortName)
   return match?.[1]?.toUpperCase() ?? null
 }
 
