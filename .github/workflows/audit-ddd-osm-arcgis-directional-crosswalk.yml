@@ -16,7 +16,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,8 +56,21 @@ jobs:
             artifacts/pedestrian/dakar-bus-route-relations.json
 
       - name: Extract DDD ArcGIS route and stop layers
-        timeout-minutes: 12
+        timeout-minutes: 15
         run: node scripts/export_ddd_arcgis_layers.mjs
+
+      - name: Require complete urban ArcGIS source layers
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/arcgis/ddd-route-stop-candidates.json').read_text())
+          urban = [layer for layer in report.get('layers', []) if layer.get('group') == 'urban_routes_and_stops']
+          errors = [error for error in report.get('errors', []) if error.get('service') == 'urban_routes_and_stops']
+          if len(urban) != 24 or errors:
+              raise SystemExit(f'Urban ArcGIS source incomplete: {len(urban)}/24 layers, {len(errors)} errors: {errors}')
+          print(f'All {len(urban)} urban ArcGIS layers are available.')
+          PY
 
       - name: Compare DDD OSM directions with ArcGIS paths and stops
         timeout-minutes: 5
