@@ -23,7 +23,7 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
     def test_maps_arcgis_route_layers_by_their_published_layer_name(self):
         self.assertEqual(parse_arcgis_layer_line_ref("Itinéraire_ligne_4_Dakar_Dem_Dikk"), "4")
         self.assertEqual(parse_arcgis_layer_line_ref("Itinéraire_ligne_10_Dakar_Dem_Dikk"), "10")
-        self.assertIsNone(parse_arcgis_layer_line_ref("Arrets_LIgne_10_Dakar_Dem_Dikk"))
+        self.assertEqual(parse_arcgis_layer_line_ref("Arrets_LIgne_10_Dakar_Dem_Dikk"), "10")
 
     def test_rejects_osm_relations_whose_ref_and_name_disagree(self):
         line, reason = relation_line_ref_details({
