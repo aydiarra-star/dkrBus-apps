@@ -1,14 +1,10 @@
 /**
  * Mémoire des lieux de Dakar — la « mémoire du maître » de l'assistant.
  *
- * Trois sources, aucune invention :
- * 1. les 13 gares TER et les 23 stations BRT du réseau de référence
- *    (`corridors.ts`) — seules à porter des coordonnées, donc seules
- *    utilisables comme extrémités d'itinéraire calculé ;
- * 2. les terminus et points de passage textuels des fiches DDD/AFTU
- *    (`data/mobility-lines.json`) — repères documentaires, jamais des arrêts
- *    géolocalisés : un lieu purement « bus » ne peut pas être géocodé ici ;
- * 3. les correspondances TER ↔ BRT déclarées (`CORRIDOR_TRANSFERS`).
+ * Le catalogue conserve séparément les gares et stations, pôles bus de
+ * référence et libellés documentaires non géolocalisés. Le mode voyageurs
+ * ajoute les repères cartographiques du formulaire, sans les transformer en
+ * quais. La simulation historique conserve son propre périmètre.
  *
  * Compréhension du langage naturel : une phrase comme « Comment faire pour
  * aller à Dakar ? Je suis à Keur Mbaye Fall » est résolue par les mots de
@@ -18,6 +14,8 @@
  * pas dans le calculateur.
  */
 
+import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import { MAX_ACCESS_M } from './assumptions'
 import {
   ALL_CORRIDOR_STOPS,
@@ -29,7 +27,8 @@ import {
 import { UNIFIED_BUS_LINES, normalizeMobility, type BusLine } from './mobilityKnowledge'
 import type { PlannerEndpoint } from './planner'
 
-export type PlaceKind = 'ter' | 'brt' | 'ddd' | 'aftu_tata' | 'bus'
+export type PlaceKind = 'ter' | 'brt' | 'ddd' | 'aftu_tata' | 'bus' | 'landmark'
+export type PlaceScope = 'reference' | 'passenger'
 
 export interface PlaceEntry {
   kind: PlaceKind
@@ -68,7 +67,7 @@ export interface JourneyEndpoints {
   explicit: boolean
 }
 
-const RANK: Record<PlaceKind, number> = { ter: 0, brt: 1, ddd: 2, aftu_tata: 3, bus: 4 }
+const RANK: Record<PlaceKind, number> = { landmark: -1, ter: 0, brt: 1, ddd: 2, aftu_tata: 3, bus: 4 }
 
 /** Préfixes de voirie : un nom de rue n'est pas un lieu nommé. */
 const STREET_LIKE = /^(?:rue|avenue|avenue|bd|boulevard|route|rond point|giratoire|chemin|autoroute|voie|voies|impasse|allee|deux voies|carrefour)\b/
@@ -137,8 +136,8 @@ function busLinesForLabels(labels: readonly string[]): BusLine[] {
   return lines
 }
 
-/** Une seule entrée par arrêt physique AFTU / TATA ; les coordonnées sources
- *  restent conservées pour tracer les itinéraires complets sur la carte. */
+/** Groupement de libellés du simulateur historique uniquement. La proximité
+ * n’établit ni une identité de quai ni une correspondance pour les voyageurs. */
 const UNIQUE_REFERENCE_STOPS = ALL_CORRIDOR_STOPS.filter((stop, index, all) => {
   const prefix = stop.id.split('-')[0]
   if (prefix !== 'aftu' && prefix !== 'tata') return true
@@ -153,7 +152,7 @@ const UNIQUE_REFERENCE_STOPS = ALL_CORRIDOR_STOPS.filter((stop, index, all) => {
 })
 
 /** Gares TER, stations BRT, arrêts DDD et AFTU / TATA géolocalisés. */
-export const REFERENCE_PLACES: readonly PlaceEntry[] = UNIQUE_REFERENCE_STOPS.map((stop) => {
+function referenceEntry(stop: CorridorStop): PlaceEntry {
   const kind: PlaceKind = stop.id.startsWith('ter')
     ? 'ter'
     : stop.id.startsWith('brt')
@@ -173,7 +172,9 @@ export const REFERENCE_PLACES: readonly PlaceEntry[] = UNIQUE_REFERENCE_STOPS.ma
     ...(stop.note ? { note: stop.note } : {}),
     busLines: busLinesForLabels([stop.name, ...stop.aliases]),
   }
-})
+}
+export const REFERENCE_PLACES = UNIQUE_REFERENCE_STOPS.map(referenceEntry)
+const otherPoles = ALL_CORRIDOR_STOPS.filter(s => !UNIQUE_REFERENCE_STOPS.includes(s)).map(referenceEntry)
 
 /** Lieux cités par les fiches DDD/AFTU, hors réseau de référence. */
 export const BUS_PLACES: readonly PlaceEntry[] = [...BUS_INDEX.entries()]
@@ -189,8 +190,12 @@ export const BUS_PLACES: readonly PlaceEntry[] = [...BUS_INDEX.entries()]
 
 export const ALL_KNOWN_PLACES: readonly PlaceEntry[] = [...REFERENCE_PLACES, ...BUS_PLACES]
 
+const LANDMARK_PLACES: readonly PlaceEntry[] = JOURNEY_LANDMARKS.map(p => ({
+  ...p, kind: 'landmark', aliases: [], busLines: busLinesForLabels([p.name]),
+}))
+
 export function getPlace(placeId: string): PlaceEntry | null {
-  return ALL_KNOWN_PLACES.find((place) => place.id === placeId) ?? null
+  return passengerPlaces.find(place => place.id === placeId) ?? null
 }
 
 interface Candidate {
@@ -200,14 +205,22 @@ interface Candidate {
 }
 
 /** Index des libellés par premier mot : la recherche reste linéaire et courte. */
-const CANDIDATES_BY_FIRST_WORD = (() => {
+function indexNames(places: readonly PlaceEntry[], passenger = false) {
   const index = new Map<string, Candidate[]>()
-  for (const place of ALL_KNOWN_PLACES) {
-    const labels = place.kind === 'bus' ? [place.name] : [place.name, ...place.aliases]
+  for (const place of places) {
+    const labels = [place.name, ...place.aliases]
+    if (passenger && (place.kind === 'ddd' || place.kind === 'aftu_tata')) {
+      const operator = place.id.split('-')[0]
+      labels.push(`${operator} ${place.name}`, `${place.name} ${operator}`)
+    }
+    if (passenger && (place.kind === 'ter' || place.kind === 'brt')) {
+      const prefix = place.kind === 'ter' ? 'gare TER' : 'station BRT'
+      for (const name of [place.name, ...place.aliases]) labels.push(`${prefix} de ${name}`, `${place.kind} ${name}`)
+    }
     const seen = new Set<string>()
     for (const label of labels) {
       const normalized = normalizeMobility(label)
-      if (!normalized || seen.has(normalized) || !isPlaceName(normalized)) continue
+      if (!normalized || seen.has(normalized) || ((!passenger || place.id.startsWith('bus:')) && !isPlaceName(normalized))) continue
       seen.add(normalized)
       const [firstWord] = normalized.split(' ')
       const bucket = index.get(firstWord) ?? []
@@ -220,7 +233,17 @@ const CANDIDATES_BY_FIRST_WORD = (() => {
     bucket.sort((a, b) => b.label.length - a.label.length || a.rank - b.rank)
   }
   return index
-})()
+}
+// Historical simulation keeps its own catalogue. Passenger requests use the
+// same geolocated landmarks as the form; a bare locality is not a rail alias.
+const sheetPlaces = QUALIFIED_SHEET_LABELS.map(({ id, name, lines }): PlaceEntry => ({
+  kind: 'bus', id, name, aliases: [], busLines: UNIFIED_BUS_LINES.filter(line => lines.has(`${line.network}:${line.code}`)),
+}))
+const passengerPlaces = [...LANDMARK_PLACES, ...sheetPlaces, ...ALL_KNOWN_PLACES, ...otherPoles]
+const nameIndexes = {
+  reference: indexNames(ALL_KNOWN_PLACES),
+  passenger: indexNames(passengerPlaces, true),
+}
 
 /**
  * Mots de liaison qui désignent un départ. Un lieu n'est jamais déduit d'une
@@ -251,7 +274,7 @@ interface RawMatch {
  * longues sont retenues en priorité et ne se recouvrent jamais : « gare de
  * Dakar » n'est pas comptée deux fois.
  */
-export function findPlaceMentions(text: string): PlaceMention[] {
+export function findPlaceMentions(text: string, scope: PlaceScope = 'reference'): PlaceMention[] {
   const normalized = normalizeMobility(text)
   if (!normalized) return []
   const matches: RawMatch[] = []
@@ -263,7 +286,7 @@ export function findPlaceMentions(text: string): PlaceMention[] {
     }
     const nextSpace = normalized.indexOf(' ', position)
     const word = normalized.slice(position, nextSpace === -1 ? normalized.length : nextSpace)
-    const candidates = CANDIDATES_BY_FIRST_WORD.get(word)
+    const candidates = nameIndexes[scope].get(word)
     let matched: RawMatch | null = null
     for (const candidate of candidates ?? []) {
       const end = position + candidate.label.length
@@ -309,8 +332,8 @@ export function findPlaceMentions(text: string): PlaceMention[] {
  * 3. deux lieux sans indice : le premier cité est le départ, le second l'arrivée.
  * Un lieu cité deux fois n'est pas un trajet.
  */
-export function resolveJourneyEndpoints(text: string): JourneyEndpoints | null {
-  const mentions = findPlaceMentions(text)
+export function resolveJourneyEndpoints(text: string, scope: PlaceScope = 'reference'): JourneyEndpoints | null {
+  const mentions = findPlaceMentions(text, scope)
   if (mentions.length === 0) return null
   const explicit = mentions.some((mention) => mention.role !== null)
   const byRole = (role: PlaceRole) => mentions.filter((mention) => mention.role === role)
@@ -377,26 +400,26 @@ const UNKNOWN_CUES = [
  * Seuls les noms propres (majuscule) sont considérés, pour ne pas prendre
  * « à pied » ou « à l'école » pour un lieu.
  */
-export function unrecognizedPlaceNote(question: string): string | null {
+export function unrecognizedPlaceNote(question: string, scope: PlaceScope = 'reference'): string | null {
   for (const cue of UNKNOWN_CUES) {
     const match = cue.exec(question)
     const name = match?.[1]?.trim()
     if (!name || name.length < 3) continue
     if (/^(?:TER|BRT|DDD|AFTU|TATA|Dem|Dikk)$/i.test(name)) continue
-    if (findPlaceMentions(name).length > 0) continue
+    if (findPlaceMentions(name, scope).length > 0) continue
     return `« ${name} » ne figure pas dans ma mémoire des lieux (13 gares TER, 23 stations BRT et les lieux cités par les fiches DDD/AFTU) : je ne le situe pas et je ne le devine pas.`
   }
   return null
 }
 
-/** Extrémité de calculateur : seules les gares TER et stations BRT en ont une. */
+/** Keep the selected namespace. A named map point may be queried, not boarded. */
 export function placeEndpoint(place: PlaceEntry): PlannerEndpoint | null {
   if (place.lat === undefined || place.lon === undefined) return null
   return {
     label: place.name,
     lat: place.lat,
     lon: place.lon,
-    ...(place.kind === 'bus' ? {} : { stopId: place.id }),
+    ...(place.kind === 'landmark' ? { landmarkId: place.id } : place.kind === 'bus' ? {} : { stopId: place.id }),
   }
 }
 
@@ -425,7 +448,7 @@ export function declaredTransferOf(place: PlaceEntry) {
  * calculateur.
  */
 export function crossNetworkNearest(place: PlaceEntry): { stop: CorridorStop; distanceM: number; reachable: boolean } | null {
-  if (place.lat === undefined || place.lon === undefined || place.kind === 'bus') return null
+  if (place.lat === undefined || place.lon === undefined || place.kind === 'bus' || place.kind === 'landmark') return null
   const isSameNetwork = (stop: CorridorStop) => place.kind === 'aftu_tata'
     ? stop.id.startsWith('aftu-') || stop.id.startsWith('tata-')
     : stop.id.startsWith(`${place.kind}-`)

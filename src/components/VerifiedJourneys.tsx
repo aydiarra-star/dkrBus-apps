@@ -3,7 +3,9 @@ import { CORRIDOR_LINES } from '../domain/corridors'
 import { fareForJourney, fareStatusLabel } from '../domain/fares'
 import type { Preferences } from '../domain/preferences'
 import { formatDistance, formatDuration, transferLabel } from '../domain/units'
-import type { Leg, Outcome } from '../routing/model'
+import type { StopSection } from '../routing/placeConnections'
+import type { Leg } from '../routing/model'
+import type { DakarOutcome } from '../routing/dakar'
 import { criterionLabels, dakarClock } from '../routing/presentation'
 import { MobilityBadge } from './MobilityBadge'
 import './VerifiedJourneys.css'
@@ -31,12 +33,49 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
   </li>
 }
 
-export function VerifiedJourneys({ result, selectedId, onSelect, preferences }: {
-  result: Outcome; selectedId?: string; onSelect: (id: string) => void; preferences: Preferences
+type ChooseSection = (section: StopSection) => void
+function ConnectionDetails({ failure, preferences, onChoose }: {
+  failure: Extract<DakarOutcome, { ok: false }>; preferences: Preferences; onChoose: ChooseSection
+}) {
+  const report = failure.connections
+  if (!report) return null
+  const distance = (m: number) => formatDistance(m, preferences.units.distance)
+  const count = (n: number) => n === 0 ? 'aucun point' : `${n} point${n > 1 ? 's' : ''}`
+  return <div className="connection-details">
+    <p>Dans les dessertes vérifiées, à {distance(report.radiusM)} à vol d’oiseau ou moins : {[
+      report.boardingCount !== null && `${count(report.boardingCount)} de montée près du départ`,
+      report.alightingCount !== null && `${count(report.alightingCount)} de descente près de l’arrivée`,
+    ].filter(Boolean).join(' ; ')}. Ce rayon ne mesure pas la marche.</p>
+    {report.sections.length > 0 ? <>
+      <h4>Tronçons calculables entre arrêts</h4>
+      <p>À condition d’être déjà au départ du tronçon à l’heure demandée. Les liaisons manquantes ne sont pas incluses.</p>
+      <ul>{report.sections.map(s => <li key={JSON.stringify([s.from.id, s.to.id])}>
+        <strong>{s.from.name} → {s.to.name}</strong><br />
+        {s.lines.join(' → ')} · montée vers {dakarClock(s.boardAt)}, arrivée vers {dakarClock(s.arriveAt)} · {transferLabel(s.changes)}.<br />
+        <small>Écarts à vol d’oiseau : {[
+          s.fromGapM !== null && `${distance(s.fromGapM)} au départ`, s.toGapM !== null && `${distance(s.toGapM)} à l’arrivée`,
+        ].filter(Boolean).join(' ; ')}.</small><br />
+        <button type="button" className="text-action" onClick={() => onChoose(s)}>Choisir ce tronçon à la place du trajet</button>
+      </li>)}</ul>
+    </> : (report.boardingCount ?? 1) > 0 && (report.alightingCount ?? 1) > 0 &&
+      <p>Aucun tronçon entre les arrêts examinés ne convient à l’heure et aux réglages choisis, même en recherchant les correspondances vérifiées.</p>}
+    {Boolean(failure.documentation?.length) && <details open>
+      <summary>Fiches de lignes à vérifier · pas un itinéraire</summary>
+      <p>La fiche cite ces noms dans cet ordre. Elle ne situe pas les quais aux points choisis et ne confirme ni le tracé ni le passage demandé.</p>
+      <ul>{failure.documentation?.slice(0, 3).map(d => <li key={`${d.line}:${d.url}`}>
+        <strong>{d.line}</strong> : « {d.fromLabel} » puis « {d.toLabel} ».<br />
+        <a href={d.url} target="_blank" rel="noreferrer">{d.source}</a>{d.window && <p>{d.window}</p>}
+      </li>)}</ul>
+    </details>}
+  </div>
+}
+
+export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection, preferences }: {
+  result: DakarOutcome; onChooseSection: ChooseSection; selectedId?: string; onSelect: (id: string) => void; preferences: Preferences
 }) {
   return <section className="verified-journeys" aria-label="Itinéraires sur tracés vérifiés" aria-live="polite">
     <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : 'Pas d’itinéraire vérifié'}</h3></div></header>
-    {!result.ok ? <p role="status">{result.message}</p> : <>
+    {!result.ok ? <><p role="status">{result.message}</p><ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} /></> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>
       {!selectedId && <p role="status">La variante précédente n’est plus disponible avec ces réglages. Choisissez un trajet pour l’afficher sur la carte.</p>}
       {result.options.map(trip => {
@@ -44,7 +83,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, preferences }: 
         const rides = trip.legs.flatMap(l => l.kind === 'ride' ? [l] : [])
         const fareLegs = rides.flatMap(l => {
           const line = CORRIDOR_LINES.find(r => r.id === l.lineId && r.network === l.network)
-          return line ? [{ line, fromStopId: l.from.id, toStopId: l.to.id }] : []
+          return line ? [{ line, fromStopId: l.stops[0].id, toStopId: l.stops.at(-1)!.id }] : []
         })
         return <article key={trip.id} className={`verified-trip${selected ? ' is-selected' : ''}`}>
           <span className="eyebrow">{result.options.length === 1 ? 'SEUL PARCOURS CALCULABLE' : trip.best.map(c => criterionLabels[c]).join(' · ')}</span>

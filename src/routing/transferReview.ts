@@ -1,18 +1,13 @@
 /** Evidence review for ONE proposed direction, against an already compiled
  * staging network. It does not modify that network or authorize publication. */
-import type { Evidence, Footway, Network, StepFree, VehicleMode } from './model'
+import type { Evidence, Footway, Network, PlatformBinding, StepFree, VehicleMode } from './model'
 import { reviewed } from './geometry'
 
 export interface TransferEnd { stopId: string; mode: VehicleMode }
 export interface TransferDirection { from: TransferEnd; to: TransferEnd; betweenSites: boolean }
 /** A reviewed observation binds a catalogued stop to a specific platform and
  * service direction. It is not a station-parent link or a proximity match. */
-export interface PlatformObservation extends TransferEnd {
-  platformId: string
-  lineId: string
-  direction: string
-  evidence: Evidence
-}
+export type PlatformObservation = Omit<PlatformBinding, 'role' | 'stepFree'>
 export interface TransferProof {
   alight?: PlatformObservation
   board?: PlatformObservation
@@ -46,7 +41,8 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
     // boarding at the last call are impossible, even on an admitted pattern.
     const served = net.patterns.some(p => p.mode === end.mode &&
       (!observation || (p.lineId === observation.lineId && p.direction === observation.direction)) &&
-      p.calls.some((c, i) => c.id === (certified ? platform.id : end.stopId) && (boarding ? i < p.calls.length - 1 : i > 0)))
+      p.calls.some((c, i) => (boarding ? i < p.calls.length - 1 : i > 0) &&
+        (certified ? c.id === platform.id || (c.id === end.stopId && net.platforms.get(p)?.[boarding ? 'board' : 'alight'].get(i)?.place.id === platform.id) : c.id === end.stopId)))
     if (!served) report(boarding ? 'BOARD_DIRECTION' : 'ALIGHT_DIRECTION',
       `Valider une desserte orientée permettant la ${boarding ? 'montée' : 'descente'} à ${end.stopId}.`)
     return certified ? platform.id : undefined

@@ -194,6 +194,7 @@ function sharedBusLines(origin: PlaceEntry, destination: PlaceEntry): BusLine[] 
 }
 
 function shortIdentity(place: PlaceEntry): string {
+  if (place.kind === 'landmark') return `${place.name} : repère cartographique, pas un quai de montée.`
   if (place.kind === 'bus') {
     return place.name + ' : lieu cité par les fiches DDD/AFTU — aucun arrêt géolocalisé, donc aucun calcul d’itinéraire possible.'
   }

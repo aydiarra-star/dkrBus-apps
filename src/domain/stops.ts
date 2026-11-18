@@ -14,10 +14,14 @@
  */
 
 import { AFTU_STOPS, BRT_STOPS, DDD_STOPS, TATA_STOPS, TER_STOPS, type CorridorStop } from './corridors'
+import { isValidLatLng } from './http'
+import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import { NETWORK_SOURCES, type NetworkId } from './network'
+import type { Place } from '../routing/model'
 import type { PublishedStop } from './published'
 
-export type StopOptionKind = 'network' | 'reference' | 'published'
+export type StopOptionKind = 'network' | 'reference' | 'published' | 'landmark' | 'sheet'
 
 export interface StopOption {
   /** Valeur opaque échangée avec l'UI : « published:<id> », « ref:<id> », « network:<id> ». */
@@ -37,6 +41,8 @@ export interface StopOption {
   keywords: readonly string[]
 }
 
+export const GROUP_ACCESSES = 'Accès et quais vérifiés'
+export const GROUP_LANDMARKS = 'Lieux et repères'
 export const GROUP_MOBILITY = 'Mobilités'
 export const GROUP_PUBLISHED = 'Arrêts publiés'
 export const GROUP_TER = 'TER · SETER'
@@ -88,18 +94,19 @@ const NETWORK_SHORT_LABEL: Record<NetworkId, string> = {
 }
 
 function corridorOption(stop: CorridorStop, network: NetworkId, group: string): StopOption {
+  const operator = network === 'aftu_tata' ? (stop.id.startsWith('tata-') ? 'TATA' : 'AFTU') : NETWORK_SHORT_LABEL[network]
   return {
     value: `ref:${stop.id}`,
     kind: 'reference',
     label: stop.name,
     group,
-    hint: `${NETWORK_SHORT_LABEL[network]} · ${stop.note ?? NETWORK_SOURCE_LABEL[network]}`,
+    hint: network === 'aftu_tata' || network === 'ddd' ? `${operator} · pôle de référence, pas un quai` : `${operator} · ${stop.note ?? NETWORK_SOURCE_LABEL[network]}`,
     selectable: true,
     networkId: network,
     stopId: stop.id,
     lat: stop.lat,
     lon: stop.lon,
-    keywords: [...stop.aliases, network === 'ter' ? 'ter' : 'brt'],
+    keywords: [...stop.aliases, operator, `${operator} ${stop.name}`],
   }
 }
 
@@ -119,8 +126,12 @@ function publishedOption(stop: PublishedStop): StopOption {
   }
 }
 
+export function publishedStopOptions(stops: readonly PublishedStop[]): StopOption[] {
+  return stops.filter(s => isValidLatLng(s.lat, s.lon)).map(publishedOption)
+}
+
 /** Index complet : mobilités, arrêts publiés, puis réseaux de référence. */
-export function buildStopIndex(publishedStops: readonly PublishedStop[]): StopOption[] {
+export function buildStopIndex(publishedStops: readonly PublishedStop[], reviewed: Iterable<Place> = []): StopOption[] {
   const networks: StopOption[] = NETWORK_SOURCES.map((network) => {
     const stopCount =
       network.id === 'ter' ? TER_STOPS.length
@@ -142,15 +153,35 @@ export function buildStopIndex(publishedStops: readonly PublishedStop[]): StopOp
     }
   })
 
-  return [
+  const catalogue: StopOption[] = [
     ...networks,
-    ...publishedStops.filter((stop) => stop.lat !== null && stop.lon !== null).map(publishedOption),
+    ...publishedStopOptions(publishedStops),
     ...TER_STOPS.map((stop) => corridorOption(stop, 'ter', GROUP_TER)),
     ...BRT_STOPS.map((stop) => corridorOption(stop, 'brt', GROUP_BRT)),
     ...DDD_STOPS.map((stop) => corridorOption(stop, 'ddd', GROUP_DDD)),
     ...AFTU_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
     ...TATA_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
+    ...JOURNEY_LANDMARKS.map((p): StopOption => ({
+      value: p.id, kind: 'landmark', label: p.name, group: GROUP_LANDMARKS,
+      hint: `${p.source} · repère, pas un quai`, selectable: true,
+      networkId: null, stopId: null, lat: p.lat, lon: p.lon, keywords: [],
+    })),
   ]
+  for (const sheet of QUALIFIED_SHEET_LABELS) {
+    const lines = [...sheet.lines].map(key => key.replace(':', ' ').toUpperCase())
+    catalogue.push({ value: sheet.id, kind: 'sheet', label: sheet.name, group: 'Fiches sans coordonnées',
+      hint: `Libellé de fiche (${lines.slice(0, 3).join(', ')}) · position du quai à confirmer`,
+      selectable: false, networkId: null, stopId: null, lat: null, lon: null, keywords: [] })
+  }
+  const existing = new Set(catalogue.filter(o => o.kind !== 'published').map(o => o.value))
+  for (const p of reviewed) {
+    const landmark = p.id.startsWith('landmark:'), value = landmark ? p.id : `ref:${p.id}`
+    if ((p.kind === 'path' && !landmark) || existing.has(value)) continue
+    catalogue.push({ value, kind: landmark ? 'landmark' : 'reference', label: p.name, group: GROUP_ACCESSES,
+      hint: p.kind === 'entrance' ? 'Entrée voyageurs vérifiée' : p.kind === 'platform' ? 'Quai vérifié' : p.kind === 'path' ? 'Repère piéton vérifié' : 'Point de desserte vérifié',
+      selectable: true, networkId: null, stopId: landmark ? null : p.id, lat: p.lat, lon: p.lon, keywords: [] })
+  }
+  return catalogue
 }
 
 function scoreOption(option: StopOption, needle: string): number | null {
@@ -169,7 +200,7 @@ function scoreOption(option: StopOption, needle: string): number | null {
   return null
 }
 
-const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT, GROUP_DDD, GROUP_AFTU_TATA]
+const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_LANDMARKS, GROUP_ACCESSES, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT, GROUP_DDD, GROUP_AFTU_TATA, 'Fiches sans coordonnées']
 
 /**
  * Recherche tolérante (accents, apostrophes, tirets) sur l'index complet.

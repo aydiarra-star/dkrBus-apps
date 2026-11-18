@@ -30,7 +30,7 @@ import {
   type ConversationMemory,
 } from './conversation'
 import { extractMobilityIntent } from './intent'
-import { isRouteQuestion, placeEndpoint, resolveJourneyEndpoints } from './places'
+import { isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, type PlaceScope } from './places'
 import {
   detectLanguage,
   resolveResponseLanguage,
@@ -398,7 +398,7 @@ function journeyCompletion(
   if (!intent) return null
   const pending = memory.pendingPlace
   if (!pending) return null
-  if (intent.origin && intent.destination) return null
+  if (intent.originPlace && intent.destinationPlace) return null // never fill over a stated, unlocated stop
   if (intent.destination && !intent.origin && pending.role === 'origin') {
     return { origin: pending.place, destination: intent.destination, fromMemory: 'origin' }
   }
@@ -413,8 +413,8 @@ function journeyCompletion(
  * formulations explicites (« je suis à … », « je vais à … ») sont mémorisées :
  * un lieu isolé n'est pas un départ supposé.
  */
-function memRememberPendingPlace(memory: ConversationMemory, question: string): void {
-  const resolved = resolveJourneyEndpoints(question)
+function memRememberPendingPlace(memory: ConversationMemory, question: string, scope: PlaceScope): void {
+  const resolved = resolveJourneyEndpoints(question, scope)
   if (!resolved?.explicit) return
   const single = resolved.origin && !resolved.destination
     ? { role: 'origin' as const, place: resolved.origin }
@@ -481,25 +481,22 @@ function woFareNoteOf(option: JourneyOption): string {
 }
 
 function wolofIntentReply(question: string, context: AssistantContext, memory: ConversationMemory, _now: number): CopilotReply | null {
-  const understood = understandWolof(question)
+  const understood = understandWolof(question, context.passengerRoute ? 'passenger' : 'reference')
   if (!understood.wolof && understood.intent === 'unknown') return null
   const network = understood.network
   const route = (from: PlannerEndpoint, to: PlannerEndpoint) => context.passengerRoute
     ? passengerReply(context.passengerRoute, memory, from, to, question, 'wo') : wolofPlanReply(memory, from, to)
-  const endpointFromName = (name: string | null): PlannerEndpoint | null => {
-    if (!name) return null
-    const stop = resolveWolofPlace(name, network)[0] ?? getCorridorStop(name)
-    return stop ? endpointOf(stop) : null
-  }
-
   switch (understood.intent) {
     case 'greeting':
       return { text: woGreeting(), language: 'wo' }
     case 'thanks':
       return { text: woThanks(), language: 'wo' }
     case 'journey': {
-      const origin = endpointFromName(understood.originText)
-      const destination = endpointFromName(understood.destinationText)
+      const { origin, destination } = understood
+      if (context.passengerRoute && ((understood.originText && !origin) || (understood.destinationText && !destination))) {
+        memory.lastJourney = null; memory.lastOrigin = null; memory.lastDestination = null; memory.pendingPlace = null
+        return { text: `${woFrenchFallbackPrefix()}${understood.placeNames.join(' → ')} : la fiche cite ce lieu sans localiser le quai. Choisissez le point sur la carte ; je ne le remplace pas par le quartier.`, language: 'fr' }
+      }
       if (!origin && !destination) {
         const unknown = understood.placeNames
         return { text: `${unknown.length > 0 ? woUnknownPlaces(unknown) : woUnknownPlace()}\n${WOLOF_HELP_TEXT}`, language: 'wo' }
@@ -521,6 +518,13 @@ function wolofIntentReply(question: string, context: AssistantContext, memory: C
             text: `${woPositionOrigin(near.stop.name, near.distanceM)}\n${reply.text}`,
           }
         }
+      }
+      if (context.passengerRoute) {
+        const pending = memory.pendingPlace
+        if (destination && pending?.role === 'origin') return route(pending.place, destination)
+        if (origin && pending?.role === 'destination') return route(origin, pending.place)
+        rememberPendingPlace(memory, origin ? 'origin' : 'destination', known)
+        return { text: origin ? `Xam naa ne ${origin.label} nga jóge. Fan nga bëgg a dem ?` : woMissingOrigin(known.label), language: 'wo' }
       }
       // Un seul lieu : l'essentiel est déjà donné (desserte du pôle), puis la
       // question courte suit — jamais une phrase toute faite.
@@ -620,6 +624,7 @@ export function copilotAnswer(
   preference: AssistantLanguagePreference,
   now = Date.now(),
 ): CopilotReply {
+  const scope = context.passengerRoute ? 'passenger' : 'reference'
   const detected = detectLanguage(question)
   const language = resolveResponseLanguage(preference, detected)
   const text = normalize(question)
@@ -682,6 +687,20 @@ export function copilotAnswer(
     }
   }
 
+  // A short answer to the outstanding question (e.g. « Yoff ») is an
+  // explicit endpoint, not a request for a new stop sheet. Do not consume an
+  // unrelated question or reinterpret a newly stated role as its opposite.
+  if (context.passengerRoute && memory.pendingPlace) {
+    const pending = memory.pendingPlace, missing = pending.role === 'origin' ? 'destination' : 'origin'
+    const mentions = resolveJourneyEndpoints(question, 'passenger')?.mentions
+    const m = mentions?.length === 1 ? mentions[0] : undefined
+    if (m && m.end === text.length && (m.start === 0 || (m.role === missing && /^(?:je suis|je pars|depuis|je vais|vers)\b/.test(text)))) {
+      const point = placeEndpoint(m.place)
+      if (point) return passengerReply(context.passengerRoute, memory, missing === 'origin' ? point : pending.place,
+        missing === 'destination' ? point : pending.place, question, language)
+    }
+  }
+
   // 2) Salutations wolof.
   if (language === 'wo' && /^(nanga def|nangadef|salam|salaam|bonjour|bonsoir|salut|coucou)\b/.test(text)) {
     const reply: CopilotReply = { text: woGreeting(), language: 'wo' }
@@ -698,7 +717,7 @@ export function copilotAnswer(
       memory.lastAnswer = understood.text
       return understood
     }
-    const wolofRoute = wolofJourneyEndpoints(question)
+    const wolofRoute = context.passengerRoute ? null : wolofJourneyEndpoints(question)
     if (wolofRoute) {
       if (!wolofRoute.origin && !wolofRoute.destination) return { text: `${woUnknownPlace()}\n${woHonestLimit()}`, language: 'wo' }
       if (!wolofRoute.origin) return { text: woAskOrigin(), language: 'wo' }
@@ -708,7 +727,7 @@ export function copilotAnswer(
       memory.lastAnswer = reply.text
       return reply
     }
-    const intent = extractMobilityIntent(question)
+    const intent = extractMobilityIntent(question, scope)
     if (intent) {
       if (!intent.origin) return { text: woAskOrigin(), language: 'wo' }
       if (!intent.destination) return { text: `${woUnknownPlace()}\n${woHonestLimit()}`, language: 'wo' }
@@ -727,7 +746,7 @@ export function copilotAnswer(
   // 3b) Mémoire des lieux : le départ (ou la destination) déjà énoncé complète
   //     la phrase suivante. Le lieu repris est nommé, jamais sous-entendu.
   if (isRouteQuestion(question)) {
-    const intent = extractMobilityIntent(question)
+    const intent = extractMobilityIntent(question, scope)
     const completion = journeyCompletion(intent, memory)
     // Les deux seules réponses que le moteur rend avant le calcul gardent la
     // main : un classement par prix impossible, une heure d'arrivée invalide.
@@ -782,7 +801,7 @@ export function copilotAnswer(
     // Le classement par critère ne s'applique qu'aux questions sans lieux
     // explicites : une demande « trajet de X à Y, moins de marche » suit le
     // chemin principal du calculateur.
-    const explicitRoute = extractMobilityIntent(question)
+    const explicitRoute = extractMobilityIntent(question, scope)
     if (!explicitRoute || (!explicitRoute.origin && !explicitRoute.destination)) {
       const criterion = criterionReply(question, memory, context.passengerRoute)
       if (criterion) return rememberReply(memory, criterion)
@@ -806,7 +825,7 @@ export function copilotAnswer(
 
   // 5) Le moteur existant couvre le reste (fréquences, listes, trajets,
   //    tarifs, perturbations, état des données) — inchangé.
-  const journey = extractJourneyRequest(question)
+  const journey = extractJourneyRequest(question, scope)
   if (context.passengerRoute && journey) return passengerReply(context.passengerRoute, memory, journey.origin, journey.destination, question, language)
   const base = answerAssistant(question, context, now)
   memory.lastKnowledgeLineId = null
@@ -821,10 +840,14 @@ export function copilotAnswer(
     }
     memory.pendingPlace = null
   } else {
+    const mentioned = context.passengerRoute && resolveJourneyEndpoints(question, 'passenger')
+    if (mentioned && mentioned.origin && mentioned.destination) {
+      memory.lastJourney = null; memory.lastOrigin = null; memory.lastDestination = null; memory.pendingPlace = null
+    }
     const stops = findReferentialStops(question)
     if (stops.length > 0) memory.lastStopId = stops[0].id
     // Un lieu énoncé seul reste disponible pour la question suivante.
-    memRememberPendingPlace(memory, question)
+    memRememberPendingPlace(memory, question, scope)
   }
   const finalText = language === 'wo' ? woFrenchFallbackPrefix() + base : base
   memory.lastAnswer = finalText

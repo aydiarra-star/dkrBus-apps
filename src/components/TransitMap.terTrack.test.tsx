@@ -292,3 +292,19 @@ describe('carte de trajet, distincte de la carte de référence', () => {
     expect(drawn.markers).toHaveLength(0)
   })
 })
+
+it('picking a marker keeps its namespace even if a published ID and coordinates equal a reference call', () => {
+  const s = TER_STOPS[0], choose = vi.fn(), open = vi.fn()
+  render(<TransitMap location={null} routePoints={{}} pickingPoint="origin" recenterTo={null} zoomAction={null}
+    onChoosePoint={choose} corridorLines={CORRIDOR_LINES} corridorStops={[s]} onSelectStop={open} onSelectCorridorStop={open}
+    publishedStops={[{ stopId: s.id, stopName: 'Arrêt du flux QA', lat: s.lat, lon: s.lon, distanceM: null, locationType: null, parentStation: null }]} />)
+  const markers = drawn.markers as { title: string; eventHandlers?: { click: () => void } }[]
+  const pick = (title: RegExp) => markers.find(m => title.test(m.title))!.eventHandlers!.click()
+  pick(/^Yoff$/); pick(/— Dakar$/); pick(/^Arrêt du flux QA$/)
+  expect(choose.mock.calls.map(([p]) => p)).toEqual([
+    expect.objectContaining({ landmarkId: 'landmark:yoff', kind: 'map' }),
+    { label: s.name, stopId: s.id, lat: s.lat, lng: s.lon },
+    { label: 'Arrêt du flux QA', kind: 'stop', stopId: s.id, lat: s.lat, lng: s.lon },
+  ])
+  expect(open).not.toHaveBeenCalled()
+})

@@ -1,3 +1,4 @@
+import { REVIEWED_PASSENGER_LINKS } from '../data/reviewedPassengerLinks'
 import brtSource from '../../data/brt/brt-b1-osm.geojson?raw'
 import { hasSenegalPublicHolidayCalendar } from '../domain/senegalPublicHolidays'
 import { BRT_STOPS, TER_STOPS } from '../domain/corridors'
@@ -8,8 +9,9 @@ import { TER_CUMULATIVE_TRAVEL_TIMES, terTravelTimeMidpointMinutes } from '../do
 import { dwellMinutes, REFERENCE_COMMERCIAL_SPEED_KPH } from '../domain/assumptions'
 import { brtService, phaseOneService } from './dakarService'
 import { buildNetwork } from './network'
-import { search } from './search'
-import type { Evidence, Outcome, PatternInput, Place, Query } from './model'
+import { planPlaceJourney, type PlaceJourneyOutcome, type DakarEndpoint, type JourneySettings } from './placeConnections'
+import { documentedDirections, type DirectionNote } from './documentedDirections'
+import type { Evidence, PatternInput, Place } from './model'
 
 const auditDoc = 'docs/etat-calculateur-geometries-reelles-2026-11-17.md'
 const scopeReview: Evidence = { status: 'reviewed', reference: auditDoc, date: '2026-11-17' }
@@ -43,28 +45,26 @@ function referenceDataset() {
       evidence: { ...scopeReview, reference: `© OpenStreetMap · relation ${brt.sourceId} · ${brt.extractedOn}` }, service: brtService('B1'),
       times: { kind: 'model', speedKph: REFERENCE_COMMERCIAL_SPEED_KPH.brt, dwellSeconds: dwellMinutes('brt') * 60, source: 'Distance sur la voie B1 / vitesse du modèle + arrêts intermédiaires' } })
   }
-  // No reviewed walking links in this revision. Do not import candidate PBF,
-  // static walkM, GTFS nearby/parent edges or the reverse of either shape.
-  return buildNetwork({ places, patterns, footways: [] })
+  // Baseline calls keep their identities. A reviewed directional binding can
+  // attach a physical platform without moving the station or editing its times.
+  const links = REVIEWED_PASSENGER_LINKS
+  return buildNetwork({ ...links, places: [...places, ...links.places], patterns: [...patterns, ...links.patterns] })
 }
 export const dakarNetwork = referenceDataset()
 
-export interface DakarEndpoint { stopId?: string; lat: number; lng: number; kind?: 'map' | 'stop' }
+export type { DakarEndpoint } from './placeConnections'
+export type DakarOutcome = Extract<PlaceJourneyOutcome, { ok: true }> | (Extract<PlaceJourneyOutcome, { ok: false }> & { documentation?: DirectionNote[] })
 /** Explicit selection only. Published GTFS IDs are a separate namespace. A GPS
  * fix (even with identical coordinates) cannot silently become a platform. */
-export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options: Omit<Query, 'origin' | 'destination'>): Outcome {
+export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options: JourneySettings): DakarOutcome {
   if ([from, to].some(p => p.stopId === 'ter-aibd' && p.kind === undefined)) return { ok: false, code: 'OUT_OF_SCOPE', message: 'AIBD relève de la phase 2. Le calcul TER s’arrête à Diamniadio.' }
-  if (!from.stopId && !to.stopId && from.lat === to.lat && from.lng === to.lng) return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
-  const resolve = (p: DakarEndpoint) => {
-    const place = p.stopId && dakarNetwork.places.get(p.stopId)
-    return place && p.kind === undefined && place.lat === p.lat && place.lon === p.lng ? place.id : ''
-  }
-  const origin = resolve(from), destination = resolve(to)
-  const result = search(dakarNetwork, { ...options, origin, destination })
+  const result = planPlaceJourney(dakarNetwork, from, to, options)
+  if (!result.ok && result.code === 'UNVERIFIED_ACCESS') return { ...result, documentation: documentedDirections(from, to, options) }
   if (!result.ok && result.code === 'NO_SERVICE' && !hasSenegalPublicHolidayCalendar(options.departAt * 1000)) {
     return { ...result, message: 'Le calendrier des jours fériés du Sénégal n’est pas confirmé pour cette année. Aucun créneau n’est supposé.' }
   }
-  if (!result.ok && result.code === 'NO_PATH') {
+  if (!result.ok && result.code === 'NO_PATH' && !dakarNetwork.walking.size && from.stopId && to.stopId) {
+    const origin = from.stopId, destination = to.stopId
     const networksOf = (id: string) => dakarNetwork.patterns.filter(p => p.stops.includes(id))
     const here = networksOf(origin), there = networksOf(destination)
     if (!here.length || !there.length) return { ...result, message: 'Aucun parcours directionnel validé pour cette desserte.' }

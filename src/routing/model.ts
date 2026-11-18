@@ -65,10 +65,18 @@ export interface GraphPatternInput extends Omit<PatternInput, 'shape'> {
     ways: readonly (Omit<RoadGraphEdge, 'meters'> & { evidence: Evidence })[]
   }[]
 }
+/** Observation of the physical boarding OR alighting position of ONE service
+ * call. These are not walk edges: a traveller cannot cross a station by ID. */
+export interface PlatformBinding {
+  mode: VehicleMode; lineId: string; direction: string; stopId: string
+  role: 'board' | 'alight'; platformId: string; stepFree: StepFree; evidence: Evidence
+}
+export interface ObservedPlatform { place: Place; stepFree: StepFree; evidence: Evidence }
 export interface Dataset {
   places: readonly Place[]
   patterns: readonly PatternInput[]
   graphPatterns?: readonly GraphPatternInput[]
+  platformBindings?: readonly PlatformBinding[]
   footways: readonly FootwayInput[]
 }
 export interface Section { positions: readonly RoadPoint[]; meters: number }
@@ -83,6 +91,7 @@ export interface Pattern extends PatternInput {
 export interface Network {
   places: ReadonlyMap<string, Place>
   patterns: readonly Pattern[]
+  platforms: ReadonlyMap<Pattern, Readonly<Record<'board' | 'alight', ReadonlyMap<number, ObservedPlatform>>>>
   boarding: ReadonlyMap<string, readonly { pattern: Pattern; index: number }[]>
   walking: ReadonlyMap<string, readonly Footway[]>
   rejected: readonly string[]

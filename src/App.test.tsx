@@ -313,6 +313,41 @@ describe('Dakar Bus experience safety', () => {
     expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
   })
 
+  it('Yoff → Keur Massar, 18 novembre à 19 h : conserve les lieux et documente la lacune sans tracer de trajet', async () => {
+    const fetch = stubApi([{ match: '/api/journeys', respond: () => errorResponse(404, 'NOT_PUBLISHED') }])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T19:00' } })
+    chooseStopInField('Départ', 'Yoff', /^Yoff .*Lieux et repères/i)
+    chooseStopInField('Destination', 'Keur Massar', /^Keur Massar .*Lieux et repères/i)
+    fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toContain('Accès à pied non vérifié entre Yoff')
+    expect(panel.textContent).toContain('Marche finale non vérifiée')
+    expect(panel.textContent).toContain('Carrefour Keur Massar'); expect(panel.textContent).toContain('04:50–20:50')
+    expect(within(panel).getByRole('link', { name: /sens Yoff vers Gorom/ }).getAttribute('href')).toMatch(/18051499-0$/)
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+    const url = new URL(String(fetch.mock.calls.find(([u]) => String(u).startsWith('/api/journeys'))![0]), 'https://example.invalid')
+    expect(url.searchParams.get('destination_lat')).toBe('14.790000'); expect(url.searchParams.get('destination_lon')).toBe('-17.310000')
+    expect(url.searchParams.get('destination')).toBeNull()
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(panel.textContent).not.toContain('AFTU 66'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+  })
+
+  it('keeps a nearby B1 section off the journey map until the rider explicitly chooses its endpoints', () => {
+    stubApi([]); render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T19:00' } })
+    chooseStopInField('Départ', 'Guédiawaye', /^Guédiawaye .*Lieux et repères/i)
+    chooseStopInField('Destination', 'Petersen', /petersen.*BRT/i)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toContain('Tronçons calculables entre arrêts'); expect(panel.textContent).toContain('115 m au départ')
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+    fireEvent.click(within(panel).getAllByRole('button', { name: /choisir ce tronçon/i })[0])
+    expect(panel.textContent).toContain('Votre trajet'); expect(panel.textContent).toContain('19:52')
+    expect(panel.textContent).not.toContain('115 m'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('brt-b1')
+  })
+
   it('says the read API is unreachable instead of falling back to fabricated data', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('réseau indisponible'))))
     render(<App />)
@@ -1482,7 +1517,30 @@ describe('barre de recherche du Trajet', () => {
     fireEvent.change(input, { target: { value: 'guediawaye' } })
     expect(within(list).getByRole('option', { name: /Préfecture de Guédiawaye/ })).toBeTruthy()
     fireEvent.change(input, { target: { value: 'thiaroye' } })
-    expect(within(list).getByRole('option', { name: /Thiaroye/ })).toBeTruthy()
+    expect(within(list).getByRole('option', { name: /^Thiaroye · TER/ })).toBeTruthy()
+    expect(within(list).getByRole('option', { name: /^Cem Thiaroye.*position du quai à confirmer/ })).toBeTruthy()
+  })
+
+  it('recherche un arrêt distant du snapshot depuis le champ, sans le confondre avec un appel BRT du même ID', async () => {
+    const { lat, lon, id } = dakarRouting.dakarNetwork.places.get('brt-prefecture-guediawaye')!
+    const api = stubApi([
+      { match: '/api/network', respond: () => jsonResponse(NETWORK_PUBLISHED) },
+      { match: '/api/stops/search?q=Distant', respond: () => jsonResponse({ snapshot_id: NETWORK_PUBLISHED.snapshot.snapshot_id,
+        results: [{ stop_id: id, stop_name: 'Distant (test)', stop_lat: lat, stop_lon: lon }] }) },
+      { match: '/api/journeys', respond: () => jsonResponse(JOURNEYS_NO_RIDE) },
+    ])
+    render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T19:00' } })
+    const input = screen.getByLabelText(/^départ du trajet$/i)
+    fireEvent.focus(input); fireEvent.change(input, { target: { value: 'Distant' } })
+    fireEvent.click(await screen.findByRole('option', { name: /^Distant.*arrêts publiés/i }))
+    chooseStopInField('Destination', 'Petersen', /petersen.*BRT/i)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toContain('Accès à pied non vérifié'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+    fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
+    const query = api.mock.calls.map(([url]) => String(url)).find(url => url.startsWith('/api/journeys'))!
+    expect(new URLSearchParams(query.split('?')[1]).get('origin')).toBe(id)
   })
 
   it('explique au lieu d’inventer quand un réseau n’a aucun arrêt déclaré', () => {

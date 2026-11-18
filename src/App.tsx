@@ -53,9 +53,9 @@ import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { HistoricalPlanner } from './components/HistoricalPlanner'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { passengerLookup } from './routing/answers'
-import { planDakarJourney } from './routing/dakar'
+import { dakarNetwork, planDakarJourney, type DakarEndpoint, type DakarOutcome } from './routing/dakar'
 import { mapItinerary, tripSummary } from './routing/presentation'
-import type { Outcome } from './routing/model'
+import type { StopSection } from './routing/placeConnections'
 import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
 import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
@@ -211,7 +211,7 @@ interface JourneyState {
 const IDLE_JOURNEY: JourneyState = { status: 'idle', search: null, error: null, errorCode: null }
 type GpsState = 'idle' | 'loading' | 'ready' | 'denied' | 'error'
 type ThemeMode = 'light' | 'dark'
-type MapPoint = Coordinates & { label: string; kind?: 'map' | 'stop'; stopId?: string }
+type MapPoint = DakarEndpoint & { label: string }
 
 const SAVED_DESTINATIONS_KEY = 'dakar-bus:destinations'
 const THEME_STORAGE_KEY = 'dakar-bus:theme'
@@ -914,8 +914,8 @@ function App() {
   /** Injecte uniquement les lieux reconnus et explicitement nommés dans Trajet. */
   function openAssistantJourney(origin: PlannerEndpoint, destination: PlannerEndpoint, tripId?: string) {
     setRoutePoints({
-      origin: { label: origin.label, lat: origin.lat, lng: origin.lon, stopId: origin.stopId },
-      destination: { label: destination.label, lat: destination.lat, lng: destination.lon, stopId: destination.stopId },
+      origin: { label: origin.label, lat: origin.lat, lng: origin.lon, stopId: origin.stopId, landmarkId: origin.landmarkId },
+      destination: { label: destination.label, lat: destination.lat, lng: destination.lon, stopId: destination.stopId, landmarkId: destination.landmarkId },
     })
     setSelectedTripId(tripId)
     setJourney(IDLE_JOURNEY)
@@ -1095,13 +1095,15 @@ function App() {
     announce(`Touchez la carte pour définir ${shortcut.label}.`)
   }
 
-  function handleMapPick(point: Coordinates) {
+  function handleMapPick(point: DakarEndpoint) {
     if (!pickingPoint) return
     const picked = pickingPoint
     const shortcut = pendingShortcut
       ? DESTINATION_SHORTCUTS.find((candidate) => candidate.id === pendingShortcut)
       : undefined
-    const nextPoint: MapPoint = { ...point, label: shortcut?.label ?? 'Point choisi sur la carte' }
+    const nextPoint: MapPoint = shortcut
+      ? { kind: 'map', lat: point.lat, lng: point.lng, label: shortcut.label }
+      : { ...point, label: point.label ?? 'Point choisi sur la carte' }
     setRoutePoints((current) => ({ ...current, [picked]: nextPoint }))
     if (pendingShortcut) {
       const savedId = pendingShortcut
@@ -1234,12 +1236,11 @@ function App() {
     setNetworkLayers((current) => ({ ...current, [id]: !current[id] }))
   }
 
-  /** Index de recherche du Trajet : toutes les mobilités suivies et tous les
-   *  arrêts déclarés (arrêts publiés lus par l’application, gares TER/SETER,
-   *  stations BRT/SunuBRT). Aucun lieu n’est deviné : la liste est exhaustive. */
+  /** Base locale du sélecteur. La recherche du champ peut aussi interroger le
+   * snapshot courant par nom, indépendamment de la liste autour du GPS. */
   const routeStopOptions = useMemo<StopOption[]>(
-    () => buildStopIndex([...nearby.stops, ...stopSearch.stops]),
-    [nearby.stops, stopSearch.stops],
+    () => buildStopIndex(dataAvailable ? [...nearby.stops, ...stopSearch.stops] : [], dakarNetwork.places.values()),
+    [dataAvailable, nearby.stops, stopSearch.stops],
   )
 
   /** Pose un point choisi dans l’index, ou explique pourquoi il est inutilisable. */
@@ -1252,7 +1253,8 @@ function App() {
       lat: option.lat,
       lng: option.lon,
       label: option.label,
-      ...(option.kind === 'published' ? { kind: 'stop' as const, stopId: option.stopId ?? undefined } : { stopId: option.stopId ?? undefined }),
+      ...(option.kind === 'landmark' ? { kind: 'map' as const, landmarkId: option.value }
+        : option.kind === 'published' ? { kind: 'stop' as const, stopId: option.stopId ?? undefined } : { stopId: option.stopId ?? undefined }),
     }
     setRoutePoints((current) => ({ ...current, [key]: next }))
     setRouteAttempted(false)
@@ -1522,7 +1524,7 @@ function App() {
   const journeyPlan = useMemo(() => routePoints.origin && routePoints.destination && !searchRoute
     ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions) : null, [routePoints, routingOptions, searchRoute])
   const selectedTrip = journeyPlan?.ok ? (selectedTripId ? journeyPlan.options.find(t => t.id === selectedTripId) : journeyPlan.options[0]) : undefined
-  const journeyFocus = activeTab === 'route' && Boolean(routePoints.origin && routePoints.destination)
+  const journeyFocus = activeTab === 'route' && !pickingPoint && Boolean(routePoints.origin && routePoints.destination)
   const overlay = useMemo(() => mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip])
   const announcedPlanRef = useRef<string>()
   useEffect(() => {
@@ -1814,6 +1816,7 @@ function App() {
                 pickingPoint={pickingPoint}
                 routeAttempted={routeAttempted}
                 stopOptions={routeStopOptions}
+                snapshotId={dataAvailable ? network?.snapshot?.snapshotId : undefined}
                 onSelectPoint={startPointSelection}
                 onSelectStop={selectRoutePoint}
                 onUseLocation={() => requestLocation('origin')}
@@ -1833,6 +1836,13 @@ function App() {
                 journey={journey}
                 countdownNow={countdownNow}
                 preferences={preferences}
+                onChooseSection={({ from, to, tripId }) => {
+                  const point = (p: StopSection['from']): MapPoint => ({ label: p.name, lat: p.lat, lng: p.lon, ...(p.id.startsWith('landmark:') ? { landmarkId: p.id, kind: 'map' } : { stopId: p.id }) })
+                  setRoutePoints({ origin: point(from), destination: point(to) })
+                  setSelectedTripId(tripId)
+                  setPickingPoint(null); setRouteAttempted(false); setJourney(IDLE_JOURNEY)
+                  announce(`Trajet recalculé entre ${from.name} et ${to.name}. Les accès non vérifiés ne sont pas inclus.`)
+                }}
                 journeyPlan={journeyPlan}
                 departureInput={departureInput}
                 onDepartureChange={value => { beginRequest('journey'); setSelectedTripId(undefined); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
@@ -2442,7 +2452,7 @@ function PointComboboxField({
   point,
   pointKey,
   isPicking,
-  stopOptions,
+  stopOptions, snapshotId,
   onPick,
   onClear,
   onPickOnMap,
@@ -2452,6 +2462,7 @@ function PointComboboxField({
   pointKey: RoutePointKey
   isPicking: boolean
   stopOptions: readonly StopOption[]
+  snapshotId?: string
   onPick: (key: RoutePointKey, option: StopOption) => void
   onClear: (key: RoutePointKey) => void
   onPickOnMap: (key: RoutePointKey) => void
@@ -2459,8 +2470,8 @@ function PointComboboxField({
   return (
     <StopCombobox
       title={title}
-      point={point ? { label: point.label, detail: `${formatCoordinates(point)}${point.kind === 'stop' ? ' · arrêt publié' : ''}` } : null}
-      options={stopOptions}
+      point={point ? { label: point.label, detail: `${formatCoordinates(point)}${point.kind === 'stop' ? ' · arrêt publié' : point.landmarkId ? ' · repère géographique' : ''}` } : null}
+      options={stopOptions} snapshotId={snapshotId}
       isPicking={isPicking}
       onPick={(option) => onPick(pointKey, option)}
       onClear={() => onClear(pointKey)}
@@ -2475,7 +2486,7 @@ function RoutePanel({
   routeAttempted,
   onSelectPoint,
   onSelectStop,
-  stopOptions,
+  stopOptions, snapshotId,
   onUseLocation,
   onSwap,
   onClear,
@@ -2486,7 +2497,7 @@ function RoutePanel({
   journey,
   countdownNow,
   preferences,
-  journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange,
+  journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
 }: {
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
@@ -2494,6 +2505,7 @@ function RoutePanel({
   onSelectPoint: (key: RoutePointKey) => void
   onSelectStop: (key: RoutePointKey, option: StopOption) => void
   stopOptions: readonly StopOption[]
+  snapshotId?: string
   onUseLocation: () => void
   onSwap: () => void
   onClear: () => void
@@ -2504,7 +2516,8 @@ function RoutePanel({
   journey: JourneyState
   countdownNow: number
   preferences: Preferences
-  journeyPlan: Outcome | null
+  onChooseSection: (section: StopSection) => void
+  journeyPlan: DakarOutcome | null
   departureInput: string
   onDepartureChange: (value: string) => void
   selectedId?: string
@@ -2562,7 +2575,7 @@ function RoutePanel({
                 point={routePoints.origin}
                 pointKey="origin"
                 isPicking={pickingPoint === 'origin'}
-                stopOptions={stopOptions}
+                stopOptions={stopOptions} snapshotId={snapshotId}
                 onPick={onSelectStop}
                 onClear={() => onClearPoint('origin')}
                 onPickOnMap={onSelectPoint}
@@ -2580,7 +2593,7 @@ function RoutePanel({
                 point={routePoints.destination}
                 pointKey="destination"
                 isPicking={pickingPoint === 'destination'}
-                stopOptions={stopOptions}
+                stopOptions={stopOptions} snapshotId={snapshotId}
                 onPick={onSelectStop}
                 onClear={() => onClearPoint('destination')}
                 onPickOnMap={onSelectPoint}
@@ -2599,12 +2612,12 @@ function RoutePanel({
         </button>
       </form>
 
-      {journeyPlan && <VerifiedJourneys result={journeyPlan} selectedId={selectedId} onSelect={onSelectTrip} preferences={preferences} />}
+      {journeyPlan && <VerifiedJourneys result={journeyPlan} selectedId={selectedId} onSelect={onSelectTrip} onChooseSection={onChooseSection} preferences={preferences} />}
       {routeAttempted ? (
         <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
       ) : !journeyPlan && (
         <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
-          <div><strong>Choisissez deux arrêts de desserte</strong><span>Un point GPS ne sera pas relié automatiquement à un arrêt. Seuls les parcours complets sur géométries contrôlées sont proposés. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
+          <div><strong>Choisissez un lieu ou un arrêt</strong><span>Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
         </div>
       )}
     </section>

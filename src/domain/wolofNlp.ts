@@ -26,6 +26,9 @@
  * manque — jamais sur une invention.
  */
 
+import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { JOURNEY_LANDMARKS } from './journeyLandmarks'
+import type { PlannerEndpoint } from './planner'
 import { ALL_CORRIDOR_STOPS, networkOfStopId, type CorridorStop } from './corridors'
 
 export type WolofIntent =
@@ -52,6 +55,8 @@ export interface WolofUnderstanding {
   intent: WolofIntent
   /** Noms des lieux du référentiel reconnus, dans l'ordre d'énonciation. */
   placeNames: string[]
+  origin: PlannerEndpoint | null
+  destination: PlannerEndpoint | null
   originText: string | null
   destinationText: string | null
   /** Lieu visé par une question sans départ/destination (« où prendre le BRT »). */
@@ -296,8 +301,13 @@ function roleOfMention(folded: string, at: number): 'origin' | 'destination' | '
 
 /** Départ et destination tels que la phrase les assigne, jamais devinés. */
 export function wolofJourneyEndpoints(folded: string, preferredNetwork: string | null = null): { origin: CorridorStop | null; destination: CorridorStop | null } {
-  const entries = wolofPlaceSpans(folded, preferredNetwork)
-    .map((entry) => ({ ...entry, role: roleOfMention(folded, entry.at) }))
+  return assignRoles(folded, wolofPlaceSpans(folded, preferredNetwork))
+}
+
+type NamedPoint = { id: string; name: string; lat?: number; lon?: number }
+type Span<T> = { at: number; to: number; stop: T }
+function assignRoles<T>(folded: string, spans: Span<T>[]) {
+  const entries = spans.map((entry) => ({ ...entry, role: roleOfMention(folded, entry.at) }))
   if (entries.length === 0) return { origin: null, destination: null }
   if (entries.length === 1) {
     const only = entries[0]!
@@ -312,7 +322,43 @@ export function wolofJourneyEndpoints(folded: string, preferredNetwork: string |
   return { origin, destination }
 }
 
-export function understandWolof(question: string): WolofUnderstanding {
+// A locality in a passenger question means the locality, not a station with
+// that alias. A longer, explicitly named station still wins. Keep this index
+// separate from the historical exonym/stop lookup used for reference sheets.
+const scopedNames = [
+  ...QUALIFIED_SHEET_LABELS.map(stop => ({ key: foldWolof(stop.name), stop })),
+  ...JOURNEY_LANDMARKS.flatMap(stop => {
+    const other = stop.id === 'landmark:keur-massar' ? ['keur masar', 'masar']
+      : stop.id === 'landmark:guediawaye-ddd-220' ? ['guediaway', 'gediawi'] : []
+    return [stop.name, ...other].map(label => ({ key: foldWolof(label), stop }))
+  }),
+  ...ALL_CORRIDOR_STOPS.flatMap(stop => {
+    const network = networkOfStopId(stop.id)
+    if (network !== 'ter' && network !== 'brt') return []
+    return [stop.name, ...stop.aliases].flatMap(name => [`${network} ${name}`, `${network === 'ter' ? 'gare TER' : 'station BRT'} de ${name}`]
+      .map(label => ({ key: foldWolof(label), stop })))
+  }),
+]
+function passengerSpans(folded: string, stops: Span<CorridorStop>[]) {
+  const text = ` ${folded} `
+  const spans: Span<NamedPoint>[] = []
+  for (const { key, stop } of scopedNames) {
+    const at = text.indexOf(` ${key} `)
+    if (at >= 0) spans.push({ at, to: at + key.length, stop })
+  }
+  spans.push(...stops.filter(s => text[s.at] === ' ' && text[s.to + 1] === ' '))
+  // Stable on equal spans: prefer the named landmark over a station alias.
+  spans.sort((a, b) => (b.to - b.at) - (a.to - a.at))
+  const accepted: Span<NamedPoint>[] = []
+  for (const s of spans) if (!accepted.some(a => s.at < a.to && s.to > a.at)) accepted.push(s)
+  return accepted.sort((a, b) => a.at - b.at)
+}
+function endpoint(p: NamedPoint | null): PlannerEndpoint | null {
+  if (!p || p.lat === undefined || p.lon === undefined) return null
+  return { label: p.name, lat: p.lat, lon: p.lon, ...(p.id.startsWith('landmark:') ? { landmarkId: p.id } : { stopId: p.id }) }
+}
+
+export function understandWolof(question: string, scope: 'reference' | 'passenger' = 'reference'): WolofUnderstanding {
   const folded = foldWolof(question)
   const tokens = folded.split(' ').filter(Boolean)
   const strongHits = WOLOF_STRONG.filter((marker) => (marker.includes(' ') ? folded.includes(marker) : tokens.includes(foldWolof(marker))))
@@ -321,7 +367,9 @@ export function understandWolof(question: string): WolofUnderstanding {
   const confidence: WolofUnderstanding['confidence'] = strongHits.length >= 3 ? 'high' : strongHits.length >= 1 && (strongHits.length + contextualHits.length) >= 2 ? 'medium' : strongHits.length >= 1 ? 'medium' : 'low'
 
   const network = NETWORK_MENTIONS.find((candidate) => candidate.patterns.some((pattern) => new RegExp(`\\b${pattern}\\b`).test(folded)))?.id ?? null
-  const places = wolofPlaceMentions(folded, network)
+  const stops = wolofPlaceSpans(folded, network)
+  const spans = scope === 'passenger' ? passengerSpans(folded, stops) : stops
+  const places = spans.map(s => s.stop)
   const lineCode = /\b(?:lig[n]?|ligne|bus|numero|nimero)\s*0*(\d{1,3}[a-z]?)\b/.exec(folded)?.[1]?.toUpperCase() ?? null
 
   const saysJourney = matches(folded, INTENTS.journey)
@@ -348,17 +396,17 @@ export function understandWolof(question: string): WolofUnderstanding {
   // Le rôle de chaque lieu suit les mots de la phrase (« je suis à », « dem »),
   // pas leur ordre d'apparition : une réponse dans le sens inverse serait une
   // erreur de trajet, pas une nuance.
-  const endpoints = wolofJourneyEndpoints(folded, network)
-  const saysOriginOnly = places.length === 1 && /\bjoge\b/.test(folded)
-  const origin = intent === 'journey' ? (places.length >= 2 ? endpoints.origin : saysOriginOnly ? places[0] : null) : null
-  const destination = intent === 'journey' ? (places.length >= 2 ? endpoints.destination : places.length === 1 && !origin ? places[0] : null) : null
-  const focus = intent === 'journey' ? null : places[0] ?? null
+  const endpoints = assignRoles(folded, spans)
+  const origin = intent === 'journey' ? endpoints.origin : null
+  const destination = intent === 'journey' ? endpoints.destination : null
+  const focus = intent === 'journey' ? null : stops[0]?.stop ?? null
 
   return {
     wolof,
     confidence,
     intent,
     placeNames: places.map((stop) => stop.name),
+    origin: endpoint(origin), destination: endpoint(destination),
     originText: origin ? origin.name : null,
     destinationText: destination ? destination.name : null,
     focusText: focus ? focus.name : null,

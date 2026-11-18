@@ -31,7 +31,7 @@ import { priceRanking } from './journeyOptions'
 import { fareStatusLabel } from './fares'
 import { departureAdvice, extractMobilityIntent, routePreferencesFrom } from './intent'
 import { placeBriefWithQuestion, placeQuestionReply, unroutablePairReply } from './placeMemory'
-import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, unrecognizedPlaceNote } from './places'
+import { findPlaceMentions, isRouteQuestion, placeEndpoint, resolveJourneyEndpoints, unrecognizedPlaceNote, type PlaceScope } from './places'
 import type { PlannerPriority } from './planner'
 
 import { trafficInstant } from './trafficFreshness'
@@ -227,11 +227,11 @@ const HONEST_LIMIT =
   'Je raisonne sur les références officielles TER/BRT et les horaires GTFS publiés lorsqu’ils existent : aucune position de véhicule ni donnée temps réel. Pour DDD et AFTU, je consulte aussi des fiches de lignes et des points de passage textuels sourcés ; les fréquences par ligne et les correspondances bus ne sont pas validées.'
 
 /** Extrait un couple (origine, destination) sans inférer une position actuelle. */
-export function extractJourneyRequest(question: string): { origin: PlannerEndpoint; destination: PlannerEndpoint } | null {
-  const intent = extractMobilityIntent(question)
+export function extractJourneyRequest(question: string, scope: PlaceScope = 'reference'): { origin: PlannerEndpoint; destination: PlannerEndpoint } | null {
+  const intent = extractMobilityIntent(question, scope)
   if (intent?.origin && intent.destination) return { origin: intent.origin, destination: intent.destination }
   // Deux lieux calculables suffisent, même sans verbe de déplacement.
-  const resolved = resolveJourneyEndpoints(question)
+  const resolved = resolveJourneyEndpoints(question, scope)
   const origin = resolved?.origin ? placeEndpoint(resolved.origin) : null
   const destination = resolved?.destination ? placeEndpoint(resolved.destination) : null
   return origin && destination ? { origin, destination } : null
@@ -309,10 +309,11 @@ ${HONEST_LIMIT}`
   }
 
   // 2) Langage naturel : intention de déplacement puis calculateur de référence.
-  const intent = extractMobilityIntent(question)
+  const scope = context.passengerRoute ? 'passenger' : 'reference'
+  const intent = extractMobilityIntent(question, scope)
   if (intent) {
     if (!intent.originPlace && !intent.destinationPlace) {
-      const unknown = unrecognizedPlaceNote(question)
+      const unknown = unrecognizedPlaceNote(question, scope)
       const recall = 'Donnez-moi un lieu déclaré — « je suis à Keur Mbaye Fall, je vais à Dakar » — : je préfère le dire plutôt qu’inventer un trajet.'
       return unknown
         ? `${unknown} ${recall}`
@@ -336,7 +337,7 @@ ${HONEST_LIMIT}`
     }
     // Un lieu cité et inconnu est nommé : l'usager l'a écrit, la réponse le
     // reprend au lieu de l'ignorer.
-    const unknown = unrecognizedPlaceNote(question)
+    const unknown = unrecognizedPlaceNote(question, scope)
     // Deux lieux reconnus mais au moins un non calculable (fiche bus) : tout
     // ce qui est documenté est donné, rien n'est complété à la place de
     // l'opérateur.
@@ -491,9 +492,9 @@ Une fréquence ne donne pas l’heure du prochain passage : aucun départ indivi
   // 10) Mémoire des lieux : un lieu cité reçoit une fiche complète (mode le
   //     plus adapté, correspondances, itinéraire calculé depuis le pôle
   //     central), sans redemander ce que le message a déjà dit.
-  const mentions = findPlaceMentions(question)
+  const mentions = findPlaceMentions(question, scope)
   if (mentions.length > 0) {
-    const resolved = resolveJourneyEndpoints(question)
+    const resolved = resolveJourneyEndpoints(question, scope)
     const origin = resolved?.origin ? placeEndpoint(resolved.origin) : null
     const destination = resolved?.destination ? placeEndpoint(resolved.destination) : null
     if (origin && destination) {
