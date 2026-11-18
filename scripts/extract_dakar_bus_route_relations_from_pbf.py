@@ -45,6 +45,77 @@ def relation_intersects_dakar(members: list[dict], node_ids: set[int], way_ids: 
     )
 
 
+def audit_route_way_topology(route_ways: list[dict]) -> dict:
+    """Audit endpoint connectivity without joining or drawing any geometry."""
+    parent = list(range(len(route_ways)))
+
+    def find(value: int) -> int:
+        while parent[value] != value:
+            parent[value] = parent[parent[value]]
+            value = parent[value]
+        return value
+
+    def union(left: int, right: int) -> None:
+        root_left, root_right = find(left), find(right)
+        if root_left != root_right:
+            parent[root_right] = root_left
+
+    endpoint_owners: dict[int, list[int]] = {}
+    for index, way in enumerate(route_ways):
+        refs = way.get("nodeRefs") or []
+        if len(refs) < 2:
+            continue
+        endpoint_owners.setdefault(int(refs[0]), []).append(index)
+        endpoint_owners.setdefault(int(refs[-1]), []).append(index)
+
+    for owners in endpoint_owners.values():
+        for other in owners[1:]:
+            union(owners[0], other)
+
+    component_sizes: dict[int, int] = {}
+    for index, way in enumerate(route_ways):
+        if len(way.get("nodeRefs") or []) >= 2:
+            root = find(index)
+            component_sizes[root] = component_sizes.get(root, 0) + 1
+
+    degrees = [len(set(owners)) for owners in endpoint_owners.values()]
+    adjacent_joins = 0
+    reversed_joins = 0
+    for left, right in zip(route_ways, route_ways[1:]):
+        a = left.get("nodeRefs") or []
+        b = right.get("nodeRefs") or []
+        if len(a) < 2 or len(b) < 2:
+            continue
+        if a[-1] == b[0]:
+            adjacent_joins += 1
+        elif a[-1] == b[-1] or a[0] == b[0]:
+            adjacent_joins += 1
+            reversed_joins += 1
+
+    component_count = len(component_sizes)
+    largest_component = max(component_sizes.values(), default=0)
+    branch_count = sum(degree > 2 for degree in degrees)
+    odd_endpoint_count = sum(degree % 2 == 1 for degree in degrees)
+    simple_path_candidate = (
+        component_count == 1
+        and branch_count == 0
+        and odd_endpoint_count in {0, 2}
+        and len(route_ways) > 0
+    )
+    return {
+        "routeWayCount": len(route_ways),
+        "connectedComponentCount": component_count,
+        "largestComponentWayCount": largest_component,
+        "isolatedWayCount": sum(1 for degree in degrees if degree == 1),
+        "branchEndpointCount": branch_count,
+        "oddEndpointCount": odd_endpoint_count,
+        "adjacentMemberJoinCount": adjacent_joins,
+        "adjacentMemberReversedJoinCount": reversed_joins,
+        "simplePathCandidate": simple_path_candidate,
+        "warning": "Topology candidate only; this audit does not stitch ways or certify a commercial direction.",
+    }
+
+
 def _inside(lat: float, lon: float) -> bool:
     return BOUNDS["south"] <= lat <= BOUNDS["north"] and BOUNDS["west"] <= lon <= BOUNDS["east"]
 
@@ -134,14 +205,18 @@ def extract_route_relations(pbf_path: str) -> dict:
             if way_id not in needed_way_ids:
                 return
             geometry = []
+            node_refs = []
             for node in way.nodes:
                 if not node.location.valid():
                     geometry = []
+                    node_refs = []
                     break
+                node_refs.append(int(node.ref))
                 geometry.append([float(node.location.lon), float(node.location.lat)])
             self.ways[way_id] = {
                 "id": way_id,
                 "tags": {tag.k: tag.v for tag in way.tags},
+                "nodeRefs": node_refs,
                 "geometry": geometry,
             }
 
@@ -186,6 +261,11 @@ def extract_route_relations(pbf_path: str) -> dict:
         tags = relation["tags"]
         output_relations.append({
             "id": relation["id"],
+            "version": relation.get("version"),
+            "timestamp": relation.get("timestamp"),
+            "changeset": relation.get("changeset"),
+            "uid": relation.get("uid"),
+            "user": relation.get("user"),
             "tags": tags,
             "mode": tags.get("route") or tags.get("route_master"),
             "operator": tags.get("operator"),
@@ -198,6 +278,7 @@ def extract_route_relations(pbf_path: str) -> dict:
             "membersInRelationOrder": ordered_members,
             "stopsInRelationOrder": stops,
             "routeWaysInRelationOrder": route_ways,
+            "topologyAudit": audit_route_way_topology(route_ways),
             "activationStatus": "OSM_RELATION_CANDIDATE_ONLY",
             "directionWarning": "Relation member order and roles are preserved; no reverse direction is inferred.",
             "geometryWarning": "Way members are retained separately; disconnected ways are not stitched into a fabricated line.",
@@ -209,13 +290,14 @@ def extract_route_relations(pbf_path: str) -> dict:
         "routeMasterCount": len(route_masters),
         "relationsWithStopMembers": sum(bool(item["stopsInRelationOrder"]) for item in output_relations),
         "relationsWithRouteWays": sum(bool(item["routeWaysInRelationOrder"]) for item in output_relations),
+        "simplePathTopologyCandidates": sum(bool(item["topologyAudit"]["simplePathCandidate"]) for item in output_relations),
         "dddAttributed": sum("dem dikk" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
         "aftuAttributed": sum("aftu" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
         "tataAttributed": sum("tata" in " ".join(str(item.get(key) or "") for key in ("operator", "network", "name")).lower() for item in output_relations),
     }
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "source": "Geofabrik Senegal and Gambia OSM PBF, Dakar bbox extract",
+        "source": "Geofabrik Senegal and Gambia OSM PBF, filtered by Dakar bbox membership",
         "sourceUrl": "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf",
         "attribution": "© OpenStreetMap contributors",
         "license": "ODbL-1.0",
