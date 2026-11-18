@@ -3,10 +3,13 @@
 
 Required environment:
   DAKAR_BUS_SUPABASE_URL
-  DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY
+  DAKAR_BUS_SUPABASE_ANON_KEY
+  DAKAR_BUS_GTFS_WORKER_EMAIL
+  DAKAR_BUS_GTFS_WORKER_PASSWORD
 
-The service-role key is read only from the process environment and is never printed.
-The URL is pinned to the dedicated Dakar Bus project to prevent cross-project writes.
+The worker signs in as a dedicated Auth user whose server-managed app_metadata
+contains dakar_gtfs_worker=true. It never receives the service_role key.
+The URL is pinned to the dedicated Dakar Bus project.
 """
 from __future__ import annotations
 
@@ -26,6 +29,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts" / "validate_gtfs.py"
 MAX_ARCHIVE_BYTES = 100 * 1024 * 1024
+MAX_MANIFEST_BYTES = 1 * 1024 * 1024
+MAX_JSON_RESPONSE_BYTES = 1 * 1024 * 1024
 LEASE_SECONDS = 900
 VALIDATOR_VERSION = "dakar-gtfs-validator-v5"
 SUPABASE_PROJECT_REF = "mdmuxzaewqzqutkqdylo"
@@ -35,6 +40,7 @@ DATASET_ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 LEASE_TOKEN_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
 ARCHIVE_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/feed\.zip$")
+MANIFEST_PATH_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,119}/[a-f0-9]{64}/manifest\.json$")
 
 EXPECTED_VALIDATOR_LIMITS = {
     "max_archive_bytes": 100 * 1024 * 1024,
@@ -77,7 +83,9 @@ def open_without_redirect(request: urllib.request.Request, timeout: int):
 
 def validate_supabase_url(base_url: str) -> str:
     try:
-        parsed = urllib.parse.urlsplit(base_url.strip())
+        if not isinstance(base_url, str) or base_url != base_url.strip():
+            raise WorkerError("SUPABASE_PROJECT_URL_INVALID")
+        parsed = urllib.parse.urlsplit(base_url)
         port = parsed.port
     except ValueError as error:
         raise WorkerError("SUPABASE_PROJECT_URL_INVALID") from error
@@ -113,6 +121,46 @@ def verify_archive_bytes(payload: bytes, expected_bytes: int, expected_sha256: s
         raise WorkerError("ARCHIVE_NOT_ZIP")
 
 
+def verify_manifest_bytes(
+    payload: bytes,
+    expected_sha256: str,
+    expected_dataset_id: str,
+    expected_archive_sha256: str,
+    expected_archive_bytes: int,
+) -> None:
+    if not isinstance(payload, bytes) or not payload or len(payload) > MAX_MANIFEST_BYTES:
+        raise WorkerError("MANIFEST_SIZE_INVALID")
+    if not isinstance(expected_sha256, str) or not SHA256_RE.fullmatch(expected_sha256):
+        raise WorkerError("MANIFEST_SHA256_INVALID")
+    if hashlib.sha256(payload).hexdigest() != expected_sha256:
+        raise WorkerError("MANIFEST_SHA256_MISMATCH")
+    try:
+        manifest = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise WorkerError("MANIFEST_CONTENT_INVALID") from error
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != "1.0":
+        raise WorkerError("MANIFEST_SCHEMA_INVALID")
+    if manifest.get("dataset_id") != expected_dataset_id:
+        raise WorkerError("MANIFEST_DATASET_MISMATCH")
+    if (
+        manifest.get("review_status") != "PENDING_REVIEW"
+        or manifest.get("publication_status") != "NOT_PUBLISHED"
+        or manifest.get("publication_ready") is not False
+    ):
+        raise WorkerError("MANIFEST_GOVERNANCE_STATE_INVALID")
+    archive = manifest.get("archive")
+    if not isinstance(archive, dict) or archive.get("stored_as") != "feed.zip":
+        raise WorkerError("MANIFEST_ARCHIVE_METADATA_INVALID")
+    manifest_bytes = archive.get("bytes")
+    if (
+        not isinstance(manifest_bytes, int)
+        or isinstance(manifest_bytes, bool)
+        or manifest_bytes != expected_archive_bytes
+        or archive.get("sha256") != expected_archive_sha256
+    ):
+        raise WorkerError("MANIFEST_ARCHIVE_MISMATCH")
+
+
 def validate_claimed_job(job: Any) -> int:
     if not isinstance(job, dict):
         raise WorkerError("CLAIM_METADATA_INCOMPLETE")
@@ -120,6 +168,8 @@ def validate_claimed_job(job: Any) -> int:
     bucket = job.get("archive_bucket")
     object_path = job.get("archive_object_path")
     archive_sha256 = job.get("archive_sha256")
+    manifest_object_path = job.get("manifest_object_path")
+    manifest_sha256 = job.get("manifest_sha256")
     lease_token = job.get("lease_token")
     raw_bytes = job.get("archive_bytes")
 
@@ -132,6 +182,15 @@ def validate_claimed_job(job: Any) -> int:
     expected_path = f"{dataset_id}/{archive_sha256}/feed.zip"
     if object_path != expected_path or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
         raise WorkerError("CLAIM_OBJECT_PATH_INVALID")
+    expected_manifest_path = f"{dataset_id}/{archive_sha256}/manifest.json"
+    if (
+        manifest_object_path != expected_manifest_path
+        or not isinstance(manifest_object_path, str)
+        or not MANIFEST_PATH_RE.fullmatch(manifest_object_path)
+    ):
+        raise WorkerError("CLAIM_MANIFEST_PATH_INVALID")
+    if not isinstance(manifest_sha256, str) or not SHA256_RE.fullmatch(manifest_sha256):
+        raise WorkerError("CLAIM_MANIFEST_SHA256_INVALID")
     if not isinstance(lease_token, str) or not LEASE_TOKEN_RE.fullmatch(lease_token):
         raise WorkerError("CLAIM_LEASE_TOKEN_INVALID")
 
@@ -231,27 +290,90 @@ def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> d
 
 
 class SupabaseRest:
-    def __init__(self, base_url: str, service_key: str) -> None:
+    def __init__(self, base_url: str, anon_key: str, worker_email: str, worker_password: str) -> None:
         self.base_url = validate_supabase_url(base_url)
-        self.service_key = service_key
+        self.anon_key = anon_key
+        self.worker_email = worker_email
+        self.worker_password = worker_password
+        self.access_token: str | None = None
+        if (
+            not self.anon_key
+            or self.anon_key != self.anon_key.strip()
+            or not self.worker_email
+            or self.worker_email != self.worker_email.strip()
+            or not self.worker_password
+        ):
+            raise WorkerError("WORKER_CREDENTIALS_MISSING")
+
+    def authenticate(self) -> None:
+        """Obtain a short-lived JWT for the dedicated, server-provisioned worker user."""
+        payload = json.dumps({
+            "email": self.worker_email,
+            "password": self.worker_password,
+        }).encode("utf-8")
+        request = urllib.request.Request(
+            self.base_url + "/auth/v1/token?grant_type=password",
+            data=payload,
+            method="POST",
+            headers={
+                "apikey": self.anon_key,
+                "Content-Type": "application/json",
+            },
+        )
+        try:
+            with open_without_redirect(request, timeout=30) as response:
+                raw = response.read(65537)
+        except (urllib.error.URLError, TimeoutError) as error:
+            # Never print the Auth response or credential-bearing request.
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED") from error
+        if len(raw) > 65536:
+            raise WorkerError("WORKER_AUTH_RESPONSE_TOO_LARGE")
+        try:
+            result = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise WorkerError("WORKER_AUTH_RESPONSE_INVALID") from error
+        if not isinstance(result, dict):
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        user = result.get("user")
+        if not isinstance(user, dict):
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        confirmed_email = user.get("email")
+        if (
+            not isinstance(confirmed_email, str)
+            or confirmed_email.casefold() != self.worker_email.casefold()
+        ):
+            raise WorkerError("WORKER_ACCOUNT_MISMATCH")
+        if not user.get("email_confirmed_at"):
+            raise WorkerError("WORKER_ACCOUNT_NOT_CONFIRMED")
+        app_metadata = user.get("app_metadata")
+        if not isinstance(app_metadata, dict) or app_metadata.get("dakar_gtfs_worker") is not True:
+            raise WorkerError("WORKER_IDENTITY_CLAIM_MISSING")
+        token = result.get("access_token")
+        if not isinstance(token, str) or not token:
+            raise WorkerError("WORKER_AUTHENTICATION_FAILED")
+        self.access_token = token
 
     def request(self, path: str, method: str = "GET", payload: Any = None) -> Any:
+        if not self.access_token:
+            raise WorkerError("WORKER_AUTHENTICATION_REQUIRED")
         data = None if payload is None else json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             self.base_url + path,
             data=data,
             method=method,
             headers={
-                "apikey": self.service_key,
-                "Authorization": "Bearer " + self.service_key,
+                "apikey": self.anon_key,
+                "Authorization": "Bearer " + self.access_token,
                 "Content-Type": "application/json",
             },
         )
         try:
             with open_without_redirect(request, timeout=90) as response:
-                raw = response.read()
+                raw = response.read(MAX_JSON_RESPONSE_BYTES + 1)
         except (urllib.error.URLError, TimeoutError) as error:
             raise WorkerError("SUPABASE_REQUEST_FAILED") from error
+        if len(raw) > MAX_JSON_RESPONSE_BYTES:
+            raise WorkerError("SUPABASE_RESPONSE_TOO_LARGE")
         if not raw:
             return None
         try:
@@ -273,21 +395,32 @@ class SupabaseRest:
             raise WorkerError("CLAIM_RESPONSE_INVALID")
         return rows[0]
 
-    def download(self, bucket: str, object_path: str) -> bytes:
-        if bucket != STAGING_BUCKET or not isinstance(object_path, str) or not ARCHIVE_PATH_RE.fullmatch(object_path):
+    def download(self, bucket: str, object_path: str, max_bytes: int = MAX_ARCHIVE_BYTES) -> bytes:
+        allowed_paths = (
+            (MAX_ARCHIVE_BYTES, ARCHIVE_PATH_RE),
+            (MAX_MANIFEST_BYTES, MANIFEST_PATH_RE),
+        )
+        if (
+            bucket != STAGING_BUCKET
+            or not isinstance(object_path, str)
+            or not any(limit == max_bytes and pattern.fullmatch(object_path) for limit, pattern in allowed_paths)
+        ):
             raise WorkerError("UNSAFE_ARCHIVE_OBJECT_REFERENCE")
         encoded_path = urllib.parse.quote(object_path, safe="/")
+        if not self.access_token:
+            raise WorkerError("WORKER_AUTHENTICATION_REQUIRED")
         request = urllib.request.Request(
             f"{self.base_url}/storage/v1/object/{urllib.parse.quote(bucket, safe='')}/{encoded_path}",
-            headers={"apikey": self.service_key, "Authorization": "Bearer " + self.service_key},
+            headers={"apikey": self.anon_key, "Authorization": "Bearer " + self.access_token},
         )
         try:
             with open_without_redirect(request, timeout=120) as response:
-                payload = response.read(MAX_ARCHIVE_BYTES + 1)
+                payload = response.read(max_bytes + 1)
         except (urllib.error.URLError, TimeoutError) as error:
-            raise WorkerError("ARCHIVE_DOWNLOAD_FAILED") from error
-        if len(payload) > MAX_ARCHIVE_BYTES:
-            raise WorkerError("ARCHIVE_TOO_LARGE")
+            code = "MANIFEST_DOWNLOAD_FAILED" if max_bytes == MAX_MANIFEST_BYTES else "ARCHIVE_DOWNLOAD_FAILED"
+            raise WorkerError(code) from error
+        if len(payload) > max_bytes:
+            raise WorkerError("MANIFEST_TOO_LARGE" if max_bytes == MAX_MANIFEST_BYTES else "ARCHIVE_TOO_LARGE")
         return payload
 
     def complete(self, job: dict[str, Any], report: dict[str, Any]) -> bool:
@@ -325,6 +458,18 @@ def process_one(client: SupabaseRest) -> str:
         return "QUEUE_EMPTY"
     try:
         archive_bytes = validate_claimed_job(job)
+        manifest_payload = client.download(
+            str(job["archive_bucket"]),
+            str(job["manifest_object_path"]),
+            max_bytes=MAX_MANIFEST_BYTES,
+        )
+        verify_manifest_bytes(
+            manifest_payload,
+            str(job["manifest_sha256"]),
+            str(job["dataset_id"]),
+            str(job["archive_sha256"]),
+            archive_bytes,
+        )
         payload = client.download(str(job["archive_bucket"]), str(job["archive_object_path"]))
         verify_archive_bytes(payload, archive_bytes, str(job["archive_sha256"]))
 
@@ -374,13 +519,17 @@ def process_one(client: SupabaseRest) -> str:
 
 
 def main() -> int:
-    base_url = os.environ.get("DAKAR_BUS_SUPABASE_URL", "").strip()
-    service_key = os.environ.get("DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY", "")
-    if not base_url or not service_key:
-        print("Worker non lancé : les identifiants sécurisés ne sont pas configurés.", file=sys.stderr)
+    base_url = os.environ.get("DAKAR_BUS_SUPABASE_URL", "")
+    anon_key = os.environ.get("DAKAR_BUS_SUPABASE_ANON_KEY", "")
+    worker_email = os.environ.get("DAKAR_BUS_GTFS_WORKER_EMAIL", "")
+    worker_password = os.environ.get("DAKAR_BUS_GTFS_WORKER_PASSWORD", "")
+    if not base_url or not anon_key or not worker_email or not worker_password:
+        print("Worker non lancé : les identifiants dédiés ne sont pas configurés.", file=sys.stderr)
         return 2
     try:
-        outcome = process_one(SupabaseRest(base_url, service_key))
+        client = SupabaseRest(base_url, anon_key, worker_email, worker_password)
+        client.authenticate()
+        outcome = process_one(client)
     except Exception as error:
         print(f"Échec du traitement GTFS : {worker_error_code(error)}", file=sys.stderr)
         return 1

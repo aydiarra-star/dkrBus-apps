@@ -17,7 +17,13 @@ insert into public.dakar_admin_staged_datasets (
   'PENDING_SERVER_CHECK', 'PENDING_REVIEW', 'NOT_PUBLISHED', now()
 );
 
-set request.jwt.claim.role = 'service_role';
+insert into auth.users (id, email, email_confirmed_at)
+values ('00000000-0000-4000-8000-000000000118', 'gtfs-worker-retry-ci@example.invalid', now())
+on conflict (id) do nothing;
+
+set request.jwt.claim.role = 'authenticated';
+set request.jwt.claim.sub = '00000000-0000-4000-8000-000000000118';
+set request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000118","role":"authenticated","app_metadata":{"dakar_gtfs_worker":true}}';
 
 do $$
 declare
@@ -28,9 +34,9 @@ declare
   stored public.dakar_admin_staged_datasets%rowtype;
 begin
   if has_function_privilege('anon', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE')
-     or has_function_privilege('authenticated', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE')
-     or not has_function_privilege('service_role', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE') then
-    raise exception 'GTFS worker failure RPC permissions are not restricted to service_role';
+     or not has_function_privilege('authenticated', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE')
+     or has_function_privilege('service_role', 'public.fail_dakar_gtfs_validation(text, uuid, text)', 'EXECUTE') then
+    raise exception 'GTFS worker failure RPC permissions are not restricted to the dedicated Auth identity';
   end if;
 
   if has_column_privilege('service_role', 'public.dakar_admin_staged_datasets', 'validation_last_error_code', 'INSERT')
@@ -41,6 +47,8 @@ begin
   end if;
 
   perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '{}', true);
   rejected := false;
   begin
     perform public.fail_dakar_gtfs_validation(
@@ -52,10 +60,27 @@ begin
     rejected := true;
   end;
   if not rejected then
-    raise exception 'An authenticated role recorded a GTFS worker failure';
+    raise exception 'An authenticated user without the server worker claim recorded a GTFS failure';
   end if;
 
   perform set_config('request.jwt.claim.role', 'service_role', true);
+  rejected := false;
+  begin
+    perform public.fail_dakar_gtfs_validation(
+      'worker-retry-test',
+      gen_random_uuid(),
+      'ARCHIVE_DOWNLOAD_FAILED'
+    );
+  exception when others then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'The intake service_role credential recorded a GTFS worker failure';
+  end if;
+
+  perform set_config('request.jwt.claim.role', 'authenticated', true);
+  perform set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000118', true);
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000118","role":"authenticated","app_metadata":{"dakar_gtfs_worker":true}}', true);
   select * into claimed from public.claim_dakar_gtfs_validation(900);
   if not found or claimed.dataset_id is distinct from 'worker-retry-test' then
     raise exception 'The synthetic retry fixture was not claimed';
@@ -116,8 +141,9 @@ begin
        and target_id = 'worker-retry-test'
        and details->>'archive_sha256' = repeat('e', 64)
        and details->>'error_code' = 'ARCHIVE_DOWNLOAD_FAILED'
+       and actor_id = '00000000-0000-4000-8000-000000000118'::uuid
   ) then
-    raise exception 'The retryable worker failure was not recorded in the audit chain';
+    raise exception 'The retryable worker failure was not recorded with its dedicated Auth actor in the audit chain';
   end if;
 end;
 $$;

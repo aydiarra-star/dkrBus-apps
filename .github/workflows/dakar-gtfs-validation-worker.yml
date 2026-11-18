@@ -38,5 +38,7 @@ jobs:
       - name: Process one queued archive
         env:
           DAKAR_BUS_SUPABASE_URL: ${{ secrets.DAKAR_BUS_SUPABASE_URL }}
-          DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY }}
+          DAKAR_BUS_SUPABASE_ANON_KEY: ${{ secrets.DAKAR_BUS_SUPABASE_ANON_KEY }}
+          DAKAR_BUS_GTFS_WORKER_EMAIL: ${{ secrets.DAKAR_BUS_GTFS_WORKER_EMAIL }}
+          DAKAR_BUS_GTFS_WORKER_PASSWORD: ${{ secrets.DAKAR_BUS_GTFS_WORKER_PASSWORD }}
         run: python scripts/process_gtfs_staging.py
