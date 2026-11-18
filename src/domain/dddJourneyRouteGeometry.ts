@@ -16,7 +16,7 @@ export interface HighlightedDddJourneyRouteSegment {
 const stopById = new Map(ALL_CORRIDOR_STOPS.map((stop) => [stop.id, stop]))
 
 function normalizeStopName(value: string): string {
-  return value.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
+  return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()
 }
 
 function resolveDddStop(
