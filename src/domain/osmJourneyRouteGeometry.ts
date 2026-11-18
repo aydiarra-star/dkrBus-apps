@@ -75,10 +75,15 @@ export function buildOsmRouteSearchUrl(reference: string): string {
   return `${OSM_PT_API}/search?${params.toString()}`
 }
 
+function normalizeRouteReference(value: string): string {
+  const match = /^(?:(?:AFTU|TATA)\\s*)?([0-9]{1,3}[A-Z]?)$/i.exec(value.trim())
+  return match?.[1]?.toUpperCase() ?? value.trim().toUpperCase()
+}
+
 /** Refuse les relations sans référence exacte ou sans attribution AFTU/TATA explicite. */
 export function isMatchingAftuTataRoute(route: OSMRouteCandidate, reference?: string): boolean {
   if (route.type !== 'route' || route.route !== 'bus') return false
-  if (reference && route.ref?.trim() !== reference) return false
+  if (reference && (!route.ref || normalizeRouteReference(route.ref) !== normalizeRouteReference(reference))) return false
   const attribution = [route.operator, route.network, route.name]
     .filter((value): value is string => Boolean(value))
     .join(' ')
