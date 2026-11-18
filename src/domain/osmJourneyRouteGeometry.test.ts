@@ -1,10 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { CORRIDOR_LINES } from './corridors'
+import type { PlannerLeg } from './planner'
 import {
   buildOsmRouteSearchUrl,
   findOrderedOsmRouteStops,
   isMatchingAftuTataRoute,
+  loadOsmJourneyRouteSegments,
   osmRouteSegmentToLeafletPositions,
 } from './osmJourneyRouteGeometry'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
   it('borne la recherche des relations bus à Dakar et utilise le numéro exact', () => {
@@ -68,6 +75,65 @@ describe('géométrie des tronçons AFTU/TATA issus des relations OSM', () => {
         [-17.44, 14.67], [0, 0], [-17.43, 14.68],
       ] } }],
     })).toEqual([])
+  })
+
+  it('charge et découpe la relation OSM attribuée à la ligne AFTU et aux deux arrêts demandés', async () => {
+    const line = CORRIDOR_LINES.find((candidate) => candidate.shortName === 'AFTU 1')
+    if (!line) throw new Error('ligne AFTU 1 de référence manquante')
+    const leg: PlannerLeg = {
+      kind: 'ride',
+      line,
+      fromId: 'aftu-lat-dior',
+      toId: 'aftu-petersen',
+      minutes: 10,
+    }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [{ id: 123, type: 'route', route: 'bus', ref: '1', network: 'AFTU' }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ stops: [{ name: 'Lat Dior' }, { name: 'Petersen' }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ features: [{ geometry: { type: 'LineString', coordinates: [
+          [-17.44, 14.69], [-17.4406354, 14.6766438],
+        ] } }] }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const segments = await loadOsmJourneyRouteSegments([leg], new AbortController().signal)
+    expect(segments).toHaveLength(1)
+    expect(segments[0]).toMatchObject({ network: 'aftu_tata', line: '1', id: 'osm-123-0' })
+    expect(segments[0]?.positions).toEqual([[14.69, -17.44], [14.6766438, -17.4406354]])
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+  })
+
+  it('n'affiche aucun segment si la relation trouvée ne dessert pas les arrêts dans le sens choisi', async () => {
+    const line = CORRIDOR_LINES.find((candidate) => candidate.shortName === 'AFTU 1')
+    if (!line) throw new Error('ligne AFTU 1 de référence manquante')
+    const leg: PlannerLeg = {
+      kind: 'ride',
+      line,
+      fromId: 'aftu-lat-dior',
+      toId: 'aftu-petersen',
+      minutes: 10,
+    }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [{ id: 124, type: 'route', route: 'bus', ref: '1', network: 'AFTU' }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ stops: [{ name: 'Petersen' }, { name: 'Lat Dior' }] }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    expect(await loadOsmJourneyRouteSegments([leg], new AbortController().signal)).toEqual([])
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('ne fabrique pas de tracé depuis des géométries absentes ou des points invalides', () => {
