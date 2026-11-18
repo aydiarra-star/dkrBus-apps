@@ -404,7 +404,7 @@ def classify_direction_pairs(direction_rows: list[dict]) -> list[dict]:
                         "returnStopLayerCandidate": right["stopLayerCandidate"],
                         "bidirectionalGeometryCandidate": left["geometryCandidate"] and right["geometryCandidate"],
                         "bidirectionalStopLayerCandidate": left["stopLayerCandidate"] and right["stopLayerCandidate"],
-                        "bidirectionalOfficialTerminiMatch": left["officialTerminiMatch"] and right["officialTerminiMatch"],
+                        "bidirectionalOfficialTerminiMatch": left.get("officialTerminiMatch", False) and right.get("officialTerminiMatch", False),
                         "bidirectionalCandidate": left["directionCandidate"] and right["directionCandidate"],
                     })
                     used.update({index, other_index})
