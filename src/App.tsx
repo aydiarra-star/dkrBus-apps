@@ -1520,9 +1520,12 @@ function App() {
   // Comparaison des itinéraires sur les mêmes points que le formulaire : dès que
   // départ et destination sont connus, les critères sont calculés sans clic
   // supplémentaire. Les préférences de mobilité filtrent réellement le graphe.
-  const journeyPlan = routePoints.origin && routePoints.destination
-    ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
-    : null
+  const journeyPlan = useMemo(
+    () => routePoints.origin && routePoints.destination
+      ? referenceJourneyPlan(routePoints.origin, routePoints.destination, preferences)
+      : null,
+    [routePoints.origin, routePoints.destination, preferences],
+  )
 
   // La carte met en évidence le premier itinéraire calculé (le plus rapide).
   // Les géométries de base TER/BRT restent celles du référentiel existant.
