@@ -40,6 +40,10 @@ class DddOsmArcgisDirectionalCrosswalkTests(unittest.TestCase):
         relation = {"tags": {"from": "Terminus Palais 1", "to": "Terminus Liberté 5"}}
         self.assertEqual(parse_relation_endpoints(relation), ("palais1", "liberte5"))
 
+    def test_normalizes_termibus_prefix_for_reverse_direction_pairing(self):
+        relation = {"tags": {"from": "Termibus Liberté 6", "to": "Palais1"}}
+        self.assertEqual(parse_relation_endpoints(relation), ("liberte6", "palais1"))
+
     def test_monotonicity_detects_both_directions_and_mixed_order(self):
         self.assertEqual(monotonicity([0, 100, 200])["orientation"], "INCREASING")
         self.assertEqual(monotonicity([200, 100, 0])["orientation"], "DECREASING")
