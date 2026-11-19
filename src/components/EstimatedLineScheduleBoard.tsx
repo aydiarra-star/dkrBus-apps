@@ -230,6 +230,44 @@ function sameOrderedStops(left: readonly string[], right: readonly string[]): bo
   return a.length > 0 && a.length === b.length && a.every((stop, index) => stop === b[index])
 }
 
+function ensureBothDirectionStops(outbound: readonly string[], inbound: readonly string[]): { outbound: readonly string[]; inbound: readonly string[] } {
+  return {
+    outbound: outbound.length > 0 ? outbound : [...inbound].reverse(),
+    inbound: inbound.length > 0 ? inbound : [...outbound].reverse(),
+  }
+}
+
+function stopPassageClock(now: number, minutes: number | null): string | null {
+  if (minutes === null || minutes < 1) return null
+  const at = new Date(now + minutes * MINUTE_MS)
+  return `${String(at.getUTCHours()).padStart(2, '0')}:${String(at.getUTCMinutes()).padStart(2, '0')}`
+}
+
+function EstimatedStopPassageRow({
+  stop,
+  now,
+  minutes,
+  active,
+  inactiveLabel,
+}: {
+  stop: string
+  now: number
+  minutes: number | null
+  active: boolean
+  inactiveLabel: string
+}) {
+  const clock = active ? stopPassageClock(now, minutes) : null
+  return (
+    <li className="station-board-stop-timetable-row">
+      <span className="station-board-stop-timetable-name">{stop}</span>
+      <span className={`network-summary-passage station-board-passage station-board-stop-timetable-passage${clock ? '' : ' is-undeclared'}`} role="status">
+        <strong>{clock && minutes !== null ? <><PassageArcs />{formatPassageCountdown(minutes)}</> : inactiveLabel}</strong>
+        <small>{clock ? `créneau ${clock}` : inactiveLabel}</small>
+      </span>
+    </li>
+  )
+}
+
 function AftuTataScheduleBoard({
   catalogue,
   routeReferences,
@@ -285,7 +323,7 @@ function AftuTataScheduleBoard({
             const inboundDestination = route?.inboundDestination ?? outboundOrigin
             const rawOutboundStops = route?.waypoints?.length ? route.waypoints : line.waypoints ?? []
             const rawInboundStops = route?.inboundWaypoints ?? []
-            const { outbound: outboundStops, inbound: inboundStops } = assignDirectionStopSequences(
+            const assignedStops = assignDirectionStopSequences(
               rawOutboundStops,
               rawInboundStops,
               outboundOrigin,
@@ -293,6 +331,9 @@ function AftuTataScheduleBoard({
               inboundOrigin,
               inboundDestination,
             )
+            // Lorsqu'une fiche ne publie qu'un sens, le retour reprend le même
+            // corridor en sens inverse ; une séquence explicitement publiée reste prioritaire.
+            const { outbound: outboundStops, inbound: inboundStops } = ensureBothDirectionStops(assignedStops.outbound, assignedStops.inbound)
             const sourceUrl = route?.detailSourceUrl ?? line.sourceUrl
             const routeKey = `${line.network}:${lineRouteKey}:${line.origin}:${line.destination}:${normalizeStopsForIdentity(line.waypoints ?? []).join('>')}`
             const directions = [
@@ -333,8 +374,17 @@ function AftuTataScheduleBoard({
                         <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} AFTU / TATA ${lineNumber}`}>
                           {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
                           {direction.stops.length > 0
-                            ? <ol className="station-board-itinerary-list">{direction.stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
-                            : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}
+                            ? <ol className="station-board-itinerary-list station-board-stop-timetable">{direction.stops.map((stop, index) => (
+                              <EstimatedStopPassageRow
+                                key={`${index}-${stop}`}
+                                stop={stop}
+                                now={now}
+                                minutes={serviceState.status === 'ACTIVE' ? minutes : null}
+                                active={serviceState.status === 'ACTIVE'}
+                                inactiveLabel={serviceLabel}
+                              />
+                            ))}</ol>
+                            : <p className="station-board-itinerary-pending">Les arrêts de cet itinéraire ne sont pas disponibles dans la fiche détaillée.</p>}
                           {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? sourceUrl : sourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
                         </div>
                       )}
@@ -597,9 +647,10 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
               ) : (
                 directions.map((direction) => {
                   const selected = openedDirection?.line === routeKey && openedDirection.direction === direction.id
-                  const publishedStops = direction.id === 'outbound'
-                    ? (route?.waypoints?.length ? route.waypoints : [...(dddPublishedStopsByLine.get(line.line) ?? [])])
-                    : (route?.inboundWaypoints?.length ? route.inboundWaypoints : [])
+                  const publishedOutboundStops = route?.waypoints?.length ? route.waypoints : [...(dddPublishedStopsByLine.get(line.line) ?? [])]
+                  const publishedInboundStops = route?.inboundWaypoints?.length ? route.inboundWaypoints : []
+                  const bothDirectionStops = ensureBothDirectionStops(publishedOutboundStops, publishedInboundStops)
+                  const publishedStops = direction.id === 'outbound' ? bothDirectionStops.outbound : bothDirectionStops.inbound
                   return (
                     <div key={direction.id} className="station-board-direction-detail">
                       <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
@@ -612,7 +663,22 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                       {selected && (
                         <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} ligne ${line.line}`}>
                           {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
-                          {publishedStops.length > 0 ? <ol className="station-board-itinerary-list">{publishedStops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol> : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts de ce sens ne sont pas encore documentés séparément.' : 'Le détail des arrêts de cet aller n’est pas encore disponible.'}</p>}
+                          {publishedStops.length > 0
+                            ? <ol className="station-board-itinerary-list station-board-stop-timetable">{publishedStops.map((stop, index) => (
+                              <EstimatedStopPassageRow
+                                key={`${index}-${stop}`}
+                                stop={stop}
+                                now={now}
+                                minutes={direction.serviceState.status === 'ACTIVE' ? direction.minutes : null}
+                                active={direction.serviceState.status === 'ACTIVE'}
+                                inactiveLabel={direction.serviceState.status === 'UPCOMING'
+                                  ? direction.serviceState.label
+                                  : direction.serviceState.status === 'FINISHED'
+                                    ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service')
+                                    : 'En service'}
+                              />
+                            ))}</ol>
+                            : <p className="station-board-itinerary-pending">Les arrêts de cet itinéraire ne sont pas disponibles dans la fiche détaillée.</p>}
                           {(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl) && <a className="station-board-itinerary-source" href={(direction.id === 'inbound' ? route?.inboundDetailSourceUrl ?? route?.detailSourceUrl : route?.detailSourceUrl)!} target="_blank" rel="noreferrer">Consulter la fiche de l’itinéraire</a>}
                         </div>
                       )}
