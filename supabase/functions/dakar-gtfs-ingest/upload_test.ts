@@ -18,6 +18,7 @@ import {
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
+  signedTusHeaders,
   uploadSessionExpiryAfterTokenIssuedAt,
   validManifest,
 } from "./upload.ts";
@@ -252,6 +253,22 @@ Deno.test("reserves an issuance safety margin before requesting the signed token
       SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS + UPLOAD_SESSION_TTL_MS) {
     throw new Error("The pre-request session expiry must include the issuance safety margin");
   }
+});
+
+Deno.test("signed TUS headers carry only the immutable upload token", () => {
+  const headers = signedTusHeaders("synthetic-signed-token");
+  if (Object.keys(headers).join(",") !== "x-signature" ||
+      headers["x-signature"] !== "synthetic-signed-token" ||
+      Object.hasOwn(headers, "x-upsert")) {
+    throw new Error("The TUS grant must use x-signature only and never enable upsert");
+  }
+  let rejected = false;
+  try {
+    signedTusHeaders("");
+  } catch {
+    rejected = true;
+  }
+  if (!rejected) throw new Error("An empty signed upload token was accepted");
 });
 
 Deno.test("anchors failed-session cleanup grace to the signed-token issuance time", () => {
