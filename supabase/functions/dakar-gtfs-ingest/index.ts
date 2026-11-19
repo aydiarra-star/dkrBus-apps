@@ -17,6 +17,7 @@ import {
   MAX_JSON_REQUEST_BYTES,
   MAX_MANIFEST_BYTES,
   isUploadSessionExpired,
+  isExactBoundedObjectSize,
   uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
@@ -200,14 +201,19 @@ async function ensureManifestObject(
   if (!uploadError) return true;
 
   // A concurrent or retried finalization may have created the same immutable
-  // manifest. Accept it only after downloading and hashing the exact bytes.
+  // manifest. Check Storage metadata before downloading so a pre-existing
+  // oversized object can never be materialized in Edge Function memory.
+  const { data: existingInfo, error: infoError } = await admin.storage.from(BUCKET).info(path);
+  if (infoError || !existingInfo ||
+      !isExactBoundedObjectSize(existingInfo.size, bytes.byteLength, MAX_MANIFEST_BYTES)) {
+    return false;
+  }
   const { data: existing, error: downloadError } = await admin.storage.from(BUCKET).download(path);
   if (downloadError || !existing) return false;
   try {
     const existingBytes = new Uint8Array(await existing.arrayBuffer());
-    return existingBytes.byteLength <= MAX_MANIFEST_BYTES &&
+    return isExactBoundedObjectSize(existingBytes.byteLength, bytes.byteLength, MAX_MANIFEST_BYTES) &&
       await sha256Hex(existingBytes) === expectedSha256 &&
-      existingBytes.byteLength === bytes.byteLength &&
       existingBytes.every((byte, index) => byte === bytes[index]);
   } catch {
     return false;
@@ -478,10 +484,7 @@ async function finalizeUpload(
     return reply(409, { error: "ARCHIVE_UPLOAD_NOT_COMPLETE" }, cors);
   }
   const actualArchiveBytes = Number(archiveInfo.size);
-  if (!Number.isSafeInteger(actualArchiveBytes) ||
-      actualArchiveBytes !== Number(session.archive_bytes) ||
-      actualArchiveBytes <= 0 ||
-      actualArchiveBytes > MAX_ARCHIVE_BYTES) {
+  if (!isExactBoundedObjectSize(archiveInfo.size, Number(session.archive_bytes), MAX_ARCHIVE_BYTES)) {
     const markedFailed = await markSession(admin, session.upload_id, "FAILED");
     return reply(markedFailed ? 422 : 503, {
       error: markedFailed ? "ARCHIVE_ACTUAL_SIZE_MISMATCH_CLEANUP_DEFERRED" : "ARCHIVE_SIZE_MISMATCH_STATE_UPDATE_FAILED",
