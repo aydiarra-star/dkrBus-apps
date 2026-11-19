@@ -27,6 +27,7 @@ import {
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
+  signedTusHeaders,
   validManifest,
 } from "./upload.ts";
 
@@ -413,9 +414,7 @@ async function createUpload(
     // The signed grant itself was created with upsert:false. Do not send
     // x-upsert at all: Storage documents that its presence changes TUS
     // same-path concurrency semantics.
-    tus_headers: {
-      "x-signature": signedUpload.token,
-    },
+    tus_headers: signedTusHeaders(signedUpload.token),
     tus_metadata: {
       bucketName: BUCKET,
       objectName: paths.archivePath,
