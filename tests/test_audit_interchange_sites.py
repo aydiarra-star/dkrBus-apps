@@ -33,3 +33,36 @@ class PhysicalReviewTests(unittest.TestCase):
         dist, prev = reachable([2], graph, 16)
         self.assertEqual(dist, {2: 0, 3: 8, 5: 16})
         self.assertEqual(prev[5], (3, 100))
+
+    def test_regional_search_requires_real_nodes_and_directed_alight_board_roles(self):
+        from scripts.audit_interchange_sites import regional_candidates
+
+        def platform(i, ref, memberships):
+            return {
+                "id": i,
+                "refs": [ref],
+                "touchingFootways": [71],
+                "memberships": memberships,
+                "tags": {},
+            }
+
+        a = [31, 1, "platform_exit_only", "bus", "18", "A", "B"]
+        b = [32, 1, "platform_entry_only", "bus", "39", "C", "D"]
+        ps = {
+            p["id"]: p
+            for p in [
+                platform("n1", 1, [a, b]),
+                platform("n2", 2, [b]),
+                platform("n3", 3, [b]),
+                platform("n4", 4, [[33, 1, "platform", "stop_area", None, None, None]]),
+            ]
+        }
+        r = regional_candidates(
+            ps, {1: [(2, 30, 71)], 2: [(4, 10, 71)]}, {31: "ddd", 32: "aftu"}
+        )
+        self.assertEqual(set(r["sameObjectByRole"]), {"n1"})
+        self.assertEqual(len(r["sameObjectByRole"]["n1"]), 1)
+        self.assertEqual(
+            [p for p, _ in r["pathsBetweenRouteRoles"]], [["n1", "n2", 30, 1, 2, [71]]]
+        )
+        self.assertNotIn("n3", r["labels"])

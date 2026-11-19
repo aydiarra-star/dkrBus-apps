@@ -254,9 +254,9 @@ jobs:
           python -m scripts.audit_bus_osm_occurrences artifacts/bus-review/inventory.json artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/occurrences.json --ci-summary
           python -m scripts.audit_bus_continuity artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/continuity.json --ci-summary
 
-      - name: Check actual platform–footway junctions at the eight interchange sites
+      - name: Check platform paths at the eight sites and search the full Dakar extract for inter-network candidates
         if: steps.pedestrian_geofabrik.outcome == 'success'
-        run: python -m scripts.audit_interchange_sites artifacts/pedestrian/dakar.osm.pbf artifacts/bus-review/interchange-sites.json --ci-summary
+        run: python -m scripts.audit_interchange_sites artifacts/pedestrian/dakar.osm.pbf artifacts/bus-review/interchange-sites.json --regional artifacts/bus-review/interchange-region.json --ci-summary
 
       - name: Upload read-only bus occurrence and pinned member comparison
         if: steps.dakar_bus_routes.outcome == 'success'

@@ -14,7 +14,8 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
-from scripts.extract_dakar_pedestrian_ways_from_pbf import is_walkable
+from scripts.extract_dakar_pedestrian_ways_from_pbf import inside_bounds, is_walkable
+from scripts.audit_bus_osm_occurrences import identity
 
 # Windows for discovery, not transfer distances or passenger coordinates.
 SITES = {
@@ -101,10 +102,10 @@ def reachable(origins, graph, limit):
     return distances, prev
 
 
-def audit(pbf):
+def collect(pbf, regional=False):
     import osmium
 
-    platforms, restrictions = {}, set()
+    platforms, restrictions, routes = {}, set(), {}
     member_of = defaultdict(list)
     touch = defaultdict(set)
     graph = defaultdict(list)
@@ -115,7 +116,7 @@ def audit(pbf):
             for k, (lat, lon, r) in SITES.items()
             if any(distance(p, (lat, lon)) <= r for p in xy)
         ]
-        if sites:
+        if sites or (regional and any(inside_bounds(*pos) for pos in xy)):
             platforms[osm_id] = dict(
                 id=osm_id,
                 version=osm.version,
@@ -169,6 +170,16 @@ def audit(pbf):
                 and t.get("public_transport") != "stop_area"
             ):
                 return
+            if t.get("route") in ("train", "bus"):
+                family, line = identity(t)
+                declared = {t.get("operator"), t.get("network")}
+                if t.get("route") == "bus" and "SunuBRT" in declared:
+                    family = "brt"
+                if t.get("route") == "train" and (
+                    line == "TER" or "TER Dakar" in declared
+                ):
+                    family = "ter"
+                routes[r.id] = family
             for m in r.members:
                 key = f"{m.type}{m.ref}"
                 if key in platforms:
@@ -185,33 +196,108 @@ def audit(pbf):
                     )
 
     Collect().apply_file(str(pbf), locations=True)
+    for p in platforms.values():
+        p["touchingFootways"] = sorted({w for n in p["refs"] for w in touch[n]})
+        p["memberships"] = member_of[p["id"]]
+    return platforms, graph, routes
+
+
+def candidate_paths(ps, graph):
+    # Invert actual vertices, not a spatial index. Disconnected roadside
+    # markers never acquire an edge by snapping to even a very close path.
+    ends = defaultdict(list)
+    for p in ps:
+        if p["touchingFootways"]:
+            for n in set(p["refs"]):
+                ends[n].append(p["id"])
+    pairs = []
+    for p in ps:
+        if not p["touchingFootways"]:
+            continue
+        dist, prev = reachable(p["refs"], graph, 1200)
+        best = {}
+        for n, d in dist.items():
+            for to in ends.get(n, ()):
+                if to != p["id"] and (d, n) < best.get(to, (math.inf, 0)):
+                    best[to] = d, n
+        for to, (length, end) in sorted(best.items()):
+            target = end
+            ways = []
+            while target in prev:
+                target, w = prev[target]
+                if not ways or ways[-1] != w:
+                    ways.append(w)
+            pairs.append([p["id"], to, round(length, 1), target, end, ways[::-1]])
+    return pairs
+
+
+def site_results(platforms, graph):
     results = {}
     for site in SITES:
         ps = [p for p in platforms.values() if site in p["sites"]]
-        pairs = []
-        for p in ps:
-            p["touchingFootways"] = sorted({w for n in p["refs"] for w in touch[n]})
-            p["memberships"] = member_of[p["id"]]
-            dist, prev = reachable(p["refs"], graph, 1200)
-            for q in ps:
-                if q is p:
-                    continue
-                target = min(
-                    (n for n in q["refs"] if n in dist), key=dist.get, default=None
-                )
-                if target is None:
-                    continue
-                end = target
-                ways = []
-                while target in prev:
-                    target, w = prev[target]
-                    if not ways or ways[-1] != w:
-                        ways.append(w)
-                pairs.append(
-                    [p["id"], q["id"], round(dist[end], 1), target, end, ways[::-1]]
-                )
-        results[site] = {"platforms": ps, "candidatePaths": pairs}
+        results[site] = {"platforms": ps, "candidatePaths": candidate_paths(ps, graph)}
     return results
+
+
+def audit(pbf):
+    ps, graph, _ = collect(pbf)
+    return site_results(ps, graph)
+
+
+def regional_candidates(platforms, graph, routes):
+    def calls(p, role):
+        # A stop_area, unassigned relation, stop_position or reversed
+        # entry/exit-only member does not certify a service on this quay.
+        roles = {
+            "platform",
+            "platform_exit_only" if role == "alight" else "platform_entry_only",
+        }
+        return [
+            [routes[m[0]], *m]
+            for m in p["memberships"]
+            if routes.get(m[0]) and m[2] in roles
+        ]
+
+    def pairs(p, q):
+        return [
+            [a, b]
+            for a in calls(p, "alight")
+            for b in calls(q, "board")
+            if a[0] != b[0]
+        ]
+
+    ps = list(platforms.values())
+    paths = candidate_paths(ps, graph)
+    shared = {p["id"]: c for p in ps if (c := pairs(p, p))}
+    linked = [
+        [path, c]
+        for path in paths
+        if (c := pairs(platforms[path[0]], platforms[path[1]]))
+    ]
+
+    # Keep the less precise candidates for MANUAL investigation: platform
+    # objects often have a network tag but no membership in a bus relation.
+    def label(p):
+        t = p["tags"]
+        return [
+            p["id"],
+            t.get("railway"),
+            t.get("network"),
+            t.get("operator"),
+            t.get("route_ref"),
+            t.get("name"),
+        ]
+
+    path_labels = {i: label(platforms[i]) for path in paths for i in path[:2]}
+    return {
+        "status": "REVIEW_ONLY",
+        "platforms": len(ps),
+        "touching": sum(bool(p["touchingFootways"]) for p in ps),
+        "directedPaths": paths,
+        "labels": path_labels,
+        "sameObjectByRole": shared,
+        "pathsBetweenRouteRoles": linked,
+    }
 
 
 def summary(sites):
@@ -252,8 +338,14 @@ if __name__ == "__main__":
     parser.add_argument("pbf", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--ci-summary", action="store_true")
+    parser.add_argument(
+        "--regional",
+        type=Path,
+        help="Also inspect exact shared objects and directed footpaths in the entire Dakar extract, not just the eight windows",
+    )
     args = parser.parse_args()
-    sites = audit(args.pbf)
+    ps, graph, routes = collect(args.pbf, bool(args.regional))
+    sites = site_results(ps, graph)
     with args.pbf.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     args.output.write_text(
@@ -272,3 +364,44 @@ if __name__ == "__main__":
     )
     if args.ci_summary:
         summary(sites)
+
+    if args.regional:
+        region = regional_candidates(ps, graph, routes)
+        region.update(
+            extractSha256=digest, attribution="© OpenStreetMap contributors · ODbL 1.0"
+        )
+        args.regional.write_text(
+            json.dumps(region, ensure_ascii=False, indent=2) + "\n"
+        )
+        if args.ci_summary:
+            counts = [
+                region["platforms"],
+                region["touching"],
+                len(region["directedPaths"]),
+                len(region["sameObjectByRole"]),
+                len(region["pathsBetweenRouteRoles"]),
+            ]
+            print(f"::notice title=Topologie régionale quais::" + json.dumps(counts))
+            for key in ("sameObjectByRole", "pathsBetweenRouteRoles"):
+                for row in (
+                    region[key].items()
+                    if isinstance(region[key], dict)
+                    else region[key]
+                ):
+                    print(
+                        f"::notice title=Candidat régional {key}::"
+                        + json.dumps(row, ensure_ascii=False).replace("%", "%25")
+                    )
+            distinct = set()
+            for path in region["directedPaths"]:
+                a, b = (region["labels"][k] for k in path[:2])
+                # Surface every potential *different* or unknown facility when not already reported in the reverse order.
+                if (a[1:4] == b[1:4] and any(a[1:4])) or tuple(
+                    sorted(path[:2])
+                ) in distinct:
+                    continue
+                distinct.add(tuple(sorted(path[:2])))
+                print(
+                    "::notice title=Chemin régional à attribuer::"
+                    + json.dumps([a, b, path], ensure_ascii=False).replace("%", "%25")
+                )
