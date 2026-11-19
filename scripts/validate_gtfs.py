@@ -163,6 +163,8 @@ class Report:
                 "max_total_uncompressed_bytes": self.limits.max_total_uncompressed_bytes,
                 "max_rows_per_table": self.limits.max_rows_per_table,
                 "max_issue_details": self.limits.max_issue_details,
+                "max_issue_message_chars": MAX_ISSUE_MESSAGE_CHARS,
+                "max_issue_table_chars": MAX_ISSUE_TABLE_CHARS,
             },
         }
 
