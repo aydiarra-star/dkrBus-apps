@@ -1,10 +1,14 @@
 export const MAX_ARCHIVE_BYTES = 100 * 1024 * 1024;
 export const MAX_MANIFEST_BYTES = 1024 * 1024;
 export const MAX_JSON_REQUEST_BYTES = MAX_MANIFEST_BYTES + 16 * 1024;
-// Supabase signed upload tokens are valid for two hours and cannot be revoked individually.
-// Keep failed sessions and their objects until 15 minutes after the token has expired.
+// A signed token may create a TUS upload URL at the end of its two-hour lifetime.
+// That resumable URL can then remain valid for up to 24 hours. Keep failed sessions
+// and objects for a further 15-minute safety margin after that last possible expiry.
 export const SIGNED_UPLOAD_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
-export const UPLOAD_SESSION_TTL_MS = SIGNED_UPLOAD_TOKEN_TTL_MS + 15 * 60 * 1000;
+export const TUS_UPLOAD_URL_TTL_MS = 24 * 60 * 60 * 1000;
+export const UPLOAD_CLEANUP_GRACE_MS = 15 * 60 * 1000;
+export const UPLOAD_SESSION_TTL_MS =
+  SIGNED_UPLOAD_TOKEN_TTL_MS + TUS_UPLOAD_URL_TTL_MS + UPLOAD_CLEANUP_GRACE_MS;
 
 export function uploadSessionExpiryAfterTokenIssuedAt(tokenIssuedAtMs = Date.now()): string {
   if (!Number.isSafeInteger(tokenIssuedAtMs) || tokenIssuedAtMs < 0) {
