@@ -36,6 +36,26 @@ def allows_way(member, signed_id):
     return member['ref'] == abs(signed_id) and member['role'].casefold() != opposite
 
 
+def road_limits_match(signed, ids, specs, markers):
+    """Road limits must be literal vertices on the pinned, directed extract.
+    Applies equally to bus-relation members and documentary street sections."""
+    if not signed or len(ids) < 2 or len(set(ids)) != len(ids):
+        return False
+    vertices = []
+    for wid in signed:
+        w = specs.get(abs(wid))
+        if not w or len(w[2]) < 2 or (wid < 0 and len(w) > 3 and w[3]):
+            return False
+        part = w[2] if wid > 0 else w[2][::-1]
+        if vertices and vertices[-1] != part[0]:
+            return False
+        vertices.extend(part[1:] if vertices else part)
+    ranks = {n: i for i, (n, _, _) in enumerate(vertices)}
+    if len(ranks) != len(vertices) or not all(n in ranks and vertices[ranks[n]][1:] == markers.get(n) for n in ids):
+        return False
+    return all(ranks[a] < ranks[b] for a, b in zip(ids, ids[1:]))
+
+
 def compare(inventory, pbf):
     if not inventory['lines'] or not pbf['relations']:
         raise ValueError('Expected a nonempty bus inventory and PBF relation report')
@@ -66,6 +86,8 @@ def compare(inventory, pbf):
                 any(not subchain(members, pair) for pair in spec.get('sequences', []))):
             drift['relations'][rid] = 'members-or-route-pair'
 
+    marker_specs = {n: [lat, lon] for n, _, lat, lon in inventory['pinnedOsm']['markers']}
+    way_specs = {w[0]: w for w in inventory['pinnedOsm']['ways']}
     for nid, version, lat, lon in inventory['pinnedOsm']['markers']:
         n = nodes.get(nid)
         if not n or (n.get('version'), n.get('lat'), n.get('lon')) != (version, lat, lon):
@@ -114,7 +136,9 @@ def compare(inventory, pbf):
         for section in (e for e in row['evidence'] if e['kind'] == 'cartographic-section'):
             ids = [int(s.removeprefix('landmark:bus-osm-')) for s in section['markerIds']]
             wids = [abs(i) for i in section['ways']]
-            problems = [f'node:{n}' for n in ids if n in drift['nodes']] + [f'way:{w}' for w in wids if w in drift['ways']]
+            problems = [f'node:{n}' for n in ids if n in drift['nodes'] or n not in marker_specs] + [f'way:{w}' for w in wids if w in drift['ways'] or w not in way_specs]
+            if section['markerKind'] == 'road-limit' and not road_limits_match(section['ways'], ids, way_specs, marker_specs):
+                problems.append('street:directed-limits')
             if 'relation' in section:
                 r = relations.get(section['relation'])
                 if not r or r.get('version') != section['version'] or identity(r['tags']) != (family, code):

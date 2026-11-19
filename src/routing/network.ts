@@ -4,6 +4,7 @@ import { sliceVerifiedRouteSegment } from '../domain/routeGeometrySlice'
 import { inDakar, reviewed, samePoint, shapeLength } from './geometry'
 import type { Dataset, Footway, Network, ObservedPlatform, Pattern, PatternInput, Place, PlatformBinding, Section } from './model'
 import { patternFromWays } from './vehicleGraph'
+import { compileSamePlatformChanges } from './samePlatformChanges'
 import { validService } from './serviceTime'
 
 function duplicates(ids: readonly string[]) {
@@ -61,7 +62,7 @@ export function buildNetwork(data: Dataset): Network {
   const places = new Map<string, Place>()
   const duplicatePlaces = duplicates(data.places.map(p => p.id))
   for (const p of data.places) {
-    if (!p.id || !p.name || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || (p.id.startsWith('landmark:') && canBoard(p)) ||
+    if (!p.id || !p.name || p.id.startsWith('landmark:bus-osm-') || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || (p.id.startsWith('landmark:') && canBoard(p)) ||
         duplicatePlaces.has(p.id) || !reviewed(p.evidence) || !inDakar(p)) rejected.push(`place:${p.id}`)
     else places.set(p.id, p)
   }
@@ -122,5 +123,6 @@ export function buildNetwork(data: Dataset): Network {
     }
     const bucket = walking.get(w.from) ?? []; bucket.push({ ...w, meters }); walking.set(w.from, bucket)
   }
-  return { places, patterns, boarding, platforms, walking, rejected }
+  const samePlatform = compileSamePlatformChanges(patterns, platforms, data.samePlatformChanges ?? [], rejected)
+  return { places, patterns, boarding, platforms, samePlatform, walking, rejected }
 }

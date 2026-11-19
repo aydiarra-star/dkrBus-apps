@@ -117,7 +117,7 @@ export async function busInventory(load) {
   const { busScopes } = await load('/src/routing/busGeography.ts')
   const { dakarNetwork } = await load('/src/routing/dakar.ts')
   for (const { review: r, markers, parts } of busScopes) add(r.family, r.line, record('busSectionReview', 'cartographic-section', r.towards, markers.map(m => m.name), {
-    id: r.id, ...(r.relation ? {relation: r.relation, version: r.version} : {directionUrl: r.directionUrl}), url: r.descriptionUrl, ways: r.ways, markerIds: markers.map(m => m.id), markerKind: r.landmarkKind, meters: Math.round(parts.reduce((s, p) => s + p.meters, 0)),
+    id: r.id, ...(r.sourceSlice && { sourceSlice: r.sourceSlice }), ...(r.relation ? {relation: r.relation, version: r.version} : {directionUrl: r.directionUrl}), url: r.descriptionUrl, ways: r.ways, markerIds: markers.map(m => m.id), markerKind: r.landmarkKind, meters: Math.round(parts.reduce((s, p) => s + p.meters, 0)),
   }))
   const { line90, ...networkSettings } = (await data('aftuScheduleSettings')).AFTU_CETUD_SCHEDULE_SETTINGS
   add('aftu', '90', record('aftuScheduleSettings', 'operating-profile', 'unspecified', null, { profile: line90 }))
@@ -152,7 +152,7 @@ export function coverageTable(inventory) {
       const counts = side => [...new Set(e.filter(v => textKinds.has(v.kind) && (side === 'published' ? v.side === 'as-published' : v.side === side)).map(v => v.labels?.length).filter(Boolean))].sort((a,b) => a-b).join(' / ') || '—'
       const refs = [has('catalogue') && 'catalogue', has('circuit') && 'circuit', has('description') && 'descriptif', has('historical-layer') && 'ArcGIS',
         (has('area-marker') || has('reference-poles') || has('map-landmarks')) && 'repères', (e.some(v => v.kind === 'service-reference' && !v.scope) || has('terminal-window')) && 'horaires de référence', e.some(v => v.scope === 'other-corridor') && 'grilles d’un autre parcours', has('unconfirmed-return') && 'retour non attesté', has('operating-profile') && 'profil indicatif', e.some(v => v.sourceTimeCount) && 'heures aux repères', has('crosscheck') && 'revue de sources'].filter(Boolean)
-      const parts = e.filter(v => v.kind === 'cartographic-section').map(v => `${v.meters} m vers ${v.side}`)
+      const parts = e.filter(v => v.kind === 'cartographic-section').map(v => `${v.meters} m vers ${v.side}${v.sourceSlice ? ` (fiche ${v.sourceSlice.side === 'inbound' ? 'retour' : 'aller'}, rangs ${v.sourceSlice.first}–${v.sourceSlice.last})` : ''}`)
       out.push(`| ${r.code} | ${counts('published')} | ${counts('outbound')} | ${counts('inbound')} | ${refs.join(', ') || '—'} | ${parts.join(' ; ') || '—'} |`)
     }
     out.push('')

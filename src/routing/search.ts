@@ -1,11 +1,11 @@
 import { concatenate } from './geometry'
-import type { Criterion, Footway, Itinerary, Leg, Network, ObservedPlatform, Outcome, Pattern, Place, Query, Walk } from './model'
+import type { Criterion, Footway, Itinerary, Leg, Network, ObservedPlatform, OnwardBoarding, Outcome, Pattern, Place, Query, Walk } from './model'
 import { nondominated, rank, type Metrics } from './ranking'
 import { dayOf, followingPassages, nextRuns } from './serviceTime'
 import { walkingTree } from './walking'
 
 type Action = { kind: 'walk'; ways: Footway[]; role: Walk['role']; meters: number }
-  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform }
+  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform; change?: OnwardBoarding['proof'] }
 interface Label extends Metrics { place: Place; back?: { prev: Label; action: Action } }
 type Frontier = Map<string, Label[]>
 function insert(frontier: Frontier, label: Label) {
@@ -22,14 +22,14 @@ function itinerary(last: Label, best: Criterion[], departAt: number): Itinerary 
       legs.push({ ...common, kind: 'walk', role, ways, meters, start: prev.at, positions: concatenate(ways),
         stepFree: ways.some(w => w.stepFree === 'no') ? 'no' : ways.every(w => w.stepFree === 'yes') ? 'yes' : 'unknown' })
     } else {
-      const { pattern: p, i, j, start, every, board, alight } = action
-      const stepFree = [p.stepFree, ...[board, alight].flatMap(o => o ? [o.stepFree] : [])]
+      const { pattern: p, i, j, start, every, board, alight, change } = action
+      const stepFree = [p.stepFree, ...(change ? [change.stepFree] : []), ...[board, alight].flatMap(o => o ? [o.stepFree] : [])]
       const sources = [p.evidence.reference, ...[board, alight].flatMap(o => o ? [`${o.place.name} : ${o.evidence.reference} (${o.evidence.date})`] : [])]
       const sections = p.sections.slice(i, j)
       legs.push({ ...common, from: board?.place ?? common.from, to: alight?.place ?? common.to, kind: 'ride', start, waitSeconds: start - prev.at, headwaySeconds: every,
         passages: followingPassages(p.service, dayOf(departAt), start, p.departures[i]),
         lineId: p.lineId, lineName: p.name, mode: p.mode, network: p.network, direction: p.direction, stops: p.calls.slice(i, j + 1),
-        source: sources.join(' · '), serviceSource: p.service.source, timing: p.service.kind, timingSource: p.times.source,
+        ...(change && { samePlatformChange: change }), source: sources.join(' · '), serviceSource: p.service.source, timing: p.service.kind, timingSource: p.times.source,
         stepFree: stepFree.includes('no') ? 'no' : stepFree.includes('unknown') ? 'unknown' : 'yes', positions: concatenate(sections), meters: sections.reduce((m, s) => m + s.meters, 0) })
     }
   }
@@ -61,6 +61,14 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
 
   return function scan(topologyOnly: boolean) {
     let ready: Frontier = new Map()
+    // Kept apart from the generic walking frontier: only THIS outgoing
+    // boarding is permitted. Earlier alightings from other lines cannot
+    // dominate it or acquire its permission, even at the same place.
+    let shared = new Map<OnwardBoarding, Label[]>()
+    function* boardings() {
+      for (const [id, labels] of ready) for (const b of net.boarding.get(id) ?? []) yield { ...b, labels, change: undefined }
+      for (const [b, labels] of shared) yield { ...b, labels, change: b.proof }
+    }
     const complete: Frontier = new Map()
     const finish = (l: Label) => insert(complete, l.boards ? l : { ...l, cadence: Infinity })
     function afterWalk(l: Label, next: Frontier) {
@@ -83,22 +91,27 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
       close(l.boards ? 'transfer' : 'access', false)
     }
     insert(ready, seed); afterWalk(seed, ready)
-    for (let boards = 1; ready.size && boards <= maxChanges + 1; boards++) {
+    for (let boards = 1; (ready.size || shared.size) && boards <= maxChanges + 1; boards++) {
       const alighted: Frontier = new Map()
-      for (const [id, labels] of ready) for (const { pattern: p, index: i } of net.boarding.get(id) ?? []) {
+      const nextShared = new Map<OnwardBoarding, Label[]>()
+      for (const { labels, pattern: p, index: i, change } of boardings()) {
         if ((query.modes && !query.modes.includes(p.network) && !query.modes.includes(p.mode)) || (stepFreeOnly && p.stepFree !== 'yes')) continue
         const platforms = net.platforms.get(p)
         const board = platforms?.board.get(i)
         if (stepFreeOnly && board && board.stepFree !== 'yes') continue
         for (const l of labels) {
-          const canBoardAt = l.at + (boards > 1 ? transferBufferSeconds : 0)
+          const canBoardAt = l.at + (boards > 1 ? Math.max(transferBufferSeconds, change?.minimumSeconds ?? 0) : 0)
           const offset = p.departures[i]
           const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }] : nextRuns(p.service, day, canBoardAt, offset)
           for (const { originAt, every } of runs) for (let j = i + 1; j < p.calls.length; j++) {
             const arrive = (place: Place, alight?: ObservedPlatform) => {
               const arrival: Label = { place, at: originAt + p.arrivals[j], boards, walked: l.walked,
-                cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight } } }
+                cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight, change } } }
               if (targets.has(place.id)) finish(arrival)
+              if (place.kind === 'platform' && boards <= maxChanges) for (const b of net.samePlatform.get(p)?.get(j) ?? []) {
+                if (b.proof.platformId !== place.id || (stepFreeOnly && b.proof.stepFree !== 'yes')) continue
+                const list = nextShared.get(b) ?? []; nondominated(list, arrival); nextShared.set(b, list)
+              }
               if (net.walking.has(place.id) && (!targets.has(place.id) || targets.size > 1)) insert(alighted, arrival)
             }
             const alight = platforms?.alight.get(j)
@@ -109,6 +122,7 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
           }
         }
       }
+      shared = nextShared
       ready = new Map()
       for (const labels of alighted.values()) for (const l of labels) afterWalk(l, ready)
       if (topologyOnly && complete.size) break

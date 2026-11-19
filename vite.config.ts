@@ -77,6 +77,12 @@ export default defineConfig({
               test: /[\\/]src[\\/](?:data[\\/](?:busSection(?:Review|Ways)|reviewedPassengerLinks)|routing[\\/](?:geometry|busGeography)|domain[\\/](?:roadNetworkRouting|routeGeometrySlice))\.ts$/,
             },
             {
+              name: 'passenger-graph',
+              priority: 15,
+              // Pure admission and scan, shared by local and dated editions.
+              test: /[\\/]src[\\/]routing[\\/](?:network|search|walking|ranking|serviceTime|vehicleGraph|samePlatformChanges|passengerEdition)\.ts$/,
+            },
+            {
               name: 'schedule-board',
               priority: 15,
               test: /EstimatedLineScheduleBoard/,

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Read-only replay of the passenger form. Optionally preflight a service-day edition; never activate it.
+import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { createServer } from 'vite'
@@ -11,7 +12,7 @@ if (!values.at || !/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(values.at) || !Number.isFi
     (!values.matrix && (values.points || !values.from || !values.to))) {
   console.error('Spécifier --at AAAA-MM-JJTHH:MM (Dakar) et soit --from landmark:yoff --to 14.7900,-17.3100, soit --matrix [--points fichier-identifiants.json]. Options : --step-free, --max-changes 0…5, --edition <fichier JSON>.'); process.exit(2)
 }
-const server = await createServer({ configFile: false, appType: 'custom', server: { middlewareMode: true, hmr: false, watch: null, ws: false } })
+const server = await createServer({ configFile: false, appType: 'custom', logLevel: 'error', optimizeDeps: { noDiscovery: true, include: [] }, server: { middlewareMode: true, hmr: false, watch: null, ws: false } })
 try {
   const { localPassengerData, dakarNetwork, planDakarJourney } = await server.ssrLoadModule('/src/routing/dakar.ts')
   const { buildStopIndex } = await server.ssrLoadModule('/src/domain/stops.ts')
@@ -45,15 +46,18 @@ try {
     const form = new Map(options.filter(o => o.selectable).map(o => [o.value, o]))
     const ids = values.points ? JSON.parse(readFileSync(values.points, 'utf8')) : [...form.keys()]
     if (!Array.isArray(ids) || ids.length < 2 || new Set(ids).size !== ids.length || !ids.every(id => form.has(id))) throw Error('Cohorte invalide : fournir des identifiants de sélections distincts du formulaire courant.')
-    const selected = ids.map(id => form.get(id)).map(o => ({ point: point(o.value),
+    const selected = ids.map(id => form.get(id)).map(o => ({ id: o.value, point: point(o.value),
       group: o.value.startsWith('landmark:bus-osm-') ? 'repère de portion bus' : o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
     const matrix = {}
+    // Same totals are not proof that the SAME OD pairs and journeys survived.
+    // Stream stable selected IDs and leg timings (not mutable UI prose).
+    const completeDigest = createHash('sha256')
     // Exclusive best evidence for the requested pair. Unlike withBusMap and
     // withChangeLead below, these bins can be added to recover the denominator.
     const totals = { whole: 0, exactBusMap: 0, stopSection: 0, nearbyBusMap: 0, changeLead: 0, lineSheet: 0, noProposal: 0 }
 
     // Within whole journeys only. These overlapping counters are not extra trips.
-    const includes = { accessWalk: 0, egressWalk: 0, transferWalk: 0, bus: 0 }
+    const includes = { accessWalk: 0, egressWalk: 0, transferWalk: 0, samePositionChange: 0, anyChange: 0, bus: 0 }
     for (const a of selected) for (const b of selected) {
       if (a === b) continue
       const key = `${a.group} → ${b.group}`
@@ -68,7 +72,11 @@ try {
       if (!r.ok && r.mapSections?.length) row.withBusMap++
       if (exact) row.withExactBusMap++
       if (r.ok) {
+        completeDigest.update(JSON.stringify([a.id, b.id, r.options.map(t => [t.id, t.start, t.end,
+          t.legs.map(l => [l.from.id, l.to.id, l.start, l.end, l.meters, l.kind === 'ride' ? l.waitSeconds : l.role])])]) + '\n')
+        if (r.options.some(t => t.changes > 0)) includes.anyChange++
         const legs = r.options.flatMap(t => t.legs)
+        if (legs.some(l => l.kind === 'ride' && l.samePlatformChange)) includes.samePositionChange++
         if (legs.some(l => l.kind === 'ride' && ['aftu','ddd','tata'].includes(l.mode))) { row.wholeWithBus++; includes.bus++ }
         for (const role of ['access', 'egress', 'transfer']) if (legs.some(l => l.kind === 'walk' && l.role === role)) includes[`${role}Walk`]++
       }
@@ -76,7 +84,7 @@ try {
       else if (r.connections?.sections.length) row.sectionsOnly++
       else row.neither++
     }
-    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, includes, matrix }, null, 2))
+    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, wholeJourneySha256: completeDigest.digest('hex'), includes, matrix }, null, 2))
   } else {
     const from = point(values.from), to = point(values.to), r = plan(from, to)
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)

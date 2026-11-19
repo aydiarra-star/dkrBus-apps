@@ -7,7 +7,7 @@ import zipfile
 from unittest.mock import patch
 import hashlib
 
-from scripts.compare_bus_occurrences import alignment, compare, patterns
+from scripts.compare_bus_occurrences import alignment, compare, patterns, shared_blocks
 
 
 def fixture():
@@ -58,3 +58,16 @@ class BusOccurrenceTests(unittest.TestCase):
         self.assertTrue(alignment(['Nié (Départ)','A','A'], ['nie','A','A'])['exactOrder'])
         for a in (['A','Nié','A'], ['Nié','A'], ['Nié','A 2','A']):
             self.assertFalse(alignment(['Nié','A','A'], a)['exactOrder'])
+
+    def test_shared_block_is_directional_exact_and_keeps_all_ranks_and_anomalies(self):
+        def variant(shape, ids, tied=False):
+            return ({'shapeId': shape, 'issues': ['DUPLICATE_RANK'] if tied else [], 'directionId': '1',
+                     'rankTies': [4] if tied else [], 'code': '12', 'sequenceHash': 'fixture'}, tuple(ids))
+        seq = [variant('seed', 'abc'), variant('other', 'abdab'), variant('opposite', 'cba'), variant('tied', 'aabc', True)]
+        seed = [('area', 'seed', 1, 2)]
+        row, = shared_blocks(seq, seed)
+        self.assertEqual([(m['shapeId'], m['first'], m['last']) for m in row['matches']],
+                         [('seed', 1, 2), ('other', 1, 2), ('other', 4, 5), ('tied', 2, 3)])
+        self.assertEqual(row['matches'][-1]['issues'], ['DUPLICATE_RANK'])
+        for invalid in [seq[1:], [*seq, variant('seed', 'acb')], [variant('seed', 'ab', True)]]:
+            self.assertEqual(shared_blocks(invalid, seed)[0]['status'], 'SEED_MISSING_OR_AMBIGUOUS')

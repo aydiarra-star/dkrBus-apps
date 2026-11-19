@@ -11,6 +11,8 @@ export type PlatformObservation = Omit<PlatformBinding, 'role' | 'stepFree'>
 export interface TransferProof {
   alight?: PlatformObservation
   board?: PlatformObservation
+  /** Look for the separately admitted directed same-position rule, never an empty path. */
+  samePosition?: true
   path?: {
     scope: 'internal' | 'via-street'
     wayIds: readonly string[] // in observed traversal order, including station passages
@@ -19,13 +21,14 @@ export interface TransferProof {
   }
 }
 export type ReviewCode = 'ALIGHT_PLATFORM' | 'BOARD_PLATFORM' | 'ALIGHT_DIRECTION' | 'BOARD_DIRECTION'
-  | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES'
+  | 'SAME_POSITION_RULE' | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES'
 export interface Finding { code: ReviewCode; action: string }
 export interface TransferAssessment {
   status: 'blocked' | 'qualified-for-review'
   findings: Finding[]
   meters: number | null
   walkStepFree: StepFree | null
+  samePosition?: { minimumSeconds: number; evidence: Evidence; stepFree: StepFree }
 }
 
 export function assessTransfer(net: Network, candidate: TransferDirection, proof: TransferProof = {}): TransferAssessment {
@@ -50,6 +53,16 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
   if (net.rejected.length) report('GRAPH_ADMISSION', `Corriger les objets refusés à la compilation du dossier : ${net.rejected.join(', ')}.`)
   const from = endpoint(candidate.from, proof.alight, false), to = endpoint(candidate.to, proof.board, true)
   const path = proof.path
+  if (proof.samePosition) {
+    const a = proof.alight, b = proof.board
+    const inbound = net.patterns.find(p => a && p.mode === a.mode && p.lineId === a.lineId && p.direction === a.direction)
+    const change = a && b && inbound && net.samePlatform.get(inbound)?.get(inbound.stops.indexOf(a.stopId))?.find(({ proof: c }) =>
+      c.platformId === from && from === to && c.board.lineId === b.lineId && c.board.direction === b.direction && c.board.mode === b.mode && c.board.stopId === b.stopId)
+    if (!change || candidate.betweenSites || path) report('SAME_POSITION_RULE', 'Il faut une autorisation revue pour ces deux appels au même emplacement, sans voie ni changement de site.')
+    if (!change || findings.length) return { status: 'blocked', findings, meters: null, walkStepFree: null }
+    const { minimumSeconds, evidence, stepFree } = change.proof
+    return { status: 'qualified-for-review', findings, meters: null, walkStepFree: null, samePosition: { minimumSeconds, evidence, stepFree } }
+  }
   const edges: Footway[] = []
   if (!path || !['internal', 'via-street'].includes(path.scope) || !Array.isArray(path.wayIds) || !path.wayIds.length || !reviewed(path.evidence)) {
     report('PATH_EVIDENCE', 'Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.')

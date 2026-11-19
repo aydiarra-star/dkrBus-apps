@@ -53,10 +53,15 @@ class BusOccurrencesTest(unittest.TestCase):
         for kind in ('platform', 'road-limit'):
             with self.subTest(markerKind=kind):
                 section['markerKind'] = kind
+                if kind == 'road-limit':
+                    self.inventory['pinnedOsm']['markers'] += [[21, 2, 14.7, -17.4], [23, 2, 14.72, -17.4]]
+                    self.pbf['pinnedObjects']['nodes'] = [{'id': i, 'version': 2, 'lat': y, 'lon': -17.4} for i, y in ((21, 14.7), (23, 14.72))]
                 for role, sign, expected in [('Forward', 1, True), ('Forward', -1, False),
                                              ('Backward', 1, False), ('Backward', -1, True),
                                              ('platform', 1, False)]:
                     m['role'], section['ways'] = role, [sign * 10]
+                    if kind == 'road-limit':
+                        section['markerIds'] = [f'landmark:bus-osm-{i}' for i in ((21, 23) if sign > 0 else (23, 21))]
                     r = compare(self.inventory, self.pbf)['sections'][0]
                     self.assertEqual(r['check'] == 'pinned-objects-match', expected, (role, sign))
                 section['ways'] = []
@@ -75,3 +80,15 @@ class BusOccurrencesTest(unittest.TestCase):
         self.pbf['pinnedObjects']['relations'] = [{'id': i, 'version': 3, 'members': list(reversed(m))} for i in (31, 32)]
         self.inventory['pinnedOsm']['relations'] = [{'id': 31, 'version': 3, 'members': expected}, {'id': 32, 'version': 3, 'sequences': [expected]}]
         self.assertEqual(compare(self.inventory, self.pbf)['memberDrift']['relations'], {32: 'members-or-route-pair'})
+
+    def test_documented_street_is_not_certified_from_a_way_id_alone(self):
+        section = self.inventory['lines'][0]['evidence'][-1]
+        section.pop('relation'); section.pop('version'); section['markerKind'] = 'road-limit'
+        self.inventory['pinnedOsm']['markers'] += [[21, 2, 14.7, -17.4], [23, 2, 14.72, -17.4]]
+        self.pbf['pinnedObjects']['nodes'] = [{'id': i, 'version': 2, 'lat': y, 'lon': -17.4} for i, y in ((21, 14.7), (23, 14.72))]
+        for ways, ids, ok in [([10], [21,23], True), ([-10], [23,21], True), ([10], [23,21], False),
+                               ([10], [1,23], False), ([], [21,23], False), ([10], [], False), ([10], [21], False),
+                               ([10,12], [21,23], False), ([10,-10], [21,23], False)]:
+            section['ways'] = ways
+            section['markerIds'] = [f'landmark:bus-osm-{i}' for i in ids]
+            self.assertEqual(compare(self.inventory, self.pbf)['sections'][0]['check'] == 'pinned-objects-match', ok, (ways, ids))

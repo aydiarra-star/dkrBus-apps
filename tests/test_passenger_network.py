@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone
 
-from passenger_edition_fixture import DAY, NOW, make_publication
+from passenger_edition_fixture import DAY, NOW, make_publication, same_position_publication
 from scripts.serve_read_api import ApiError, journeys_payload, network_payload, passenger_network_payload
 from scripts.snapshot_gtfs import list_snapshots
 
@@ -120,3 +120,48 @@ class PassengerEditionTests(unittest.TestCase):
             ps = passenger_network_payload(pub, {"date": [DAY], "snapshot": [sid]}, now=NOW)["dataset"]["patterns"]
             self.assertEqual([datetime.fromtimestamp(t, timezone.utc).strftime("%H:%M") for t in ps[0]["service"]["departures"]], ["09:00", "09:10", "09:20"])
             self.assertEqual([p["stepFree"] for p in ps], ["no", "no", "yes", "yes", "yes"])
+
+    def test_same_position_permission_expands_only_reviewed_dated_profiles(self):
+        with tempfile.TemporaryDirectory() as temp:
+            pub, sid, path, review = same_position_publication(temp)
+            def get(day=DAY):
+                return passenger_network_payload(pub, {"date": [day], "snapshot": [sid]}, now=NOW)["dataset"]
+            rule, = get()['samePlatformChanges']
+            self.assertEqual((rule['alight']['lineId'], rule['board']['lineId'], rule['board']['stopId'], rule['platformId']),
+                             (f'gtfs:{sid}:qa2:0', f'gtfs:{sid}:qa3:0', f'gtfs:{sid}:stop:B2', f'access:{sid}:pB2'))
+            self.assertEqual((rule['minimumSeconds'], get('2026-11-19')['samePlatformChanges'], get()['footways']), (300, [], []))
+            base = review['links']['samePlatformChanges'][0]
+            for bad in [{'platformId': 'pA3'}, {'board': base['alight']}, {'minimumSeconds': True}, {'minimumSeconds': -1}, {'gates': ['entry']},
+                        {'alight': {'directionKey': 'qa2', 'stopId': 'A2'}}, {'evidence': {**base['evidence'], 'status': 'candidate'}}]:
+                review['links']['samePlatformChanges'] = [{**base, **bad}]
+                path.write_text(json.dumps(review))
+                with self.subTest(change=bad), self.assertRaises(ApiError):
+                    get()
+            review['links']['samePlatformChanges'] = [base, base]
+            path.write_text(json.dumps(review))
+            with self.assertRaises(ApiError):
+                get()
+
+    def test_passenger_only_path_is_not_promoted_to_a_transfer(self):
+        self.review['links']['footways'][0]['onlyFor'] = 'egress'
+        self.path.write_text(json.dumps(self.review))
+        self.assertEqual(self.get()['dataset']['footways'][0]['onlyFor'], 'egress')
+        self.review['links']['footways'][0]['onlyFor'] = 'unchecked'
+        self.path.write_text(json.dumps(self.review))
+        with self.assertRaises(ApiError):
+            self.get()
+
+    def test_cartographic_landmark_cannot_be_published_as_an_entrance(self):
+        self.review['links']['places'][0].update(id='landmark:bus-osm-4363242544', kind='entrance')
+        self.path.write_text(json.dumps(self.review))
+        with self.assertRaises(ApiError):
+            self.get()
+
+    def test_approximate_timepoint_is_not_a_dated_passage_proof(self):
+        def change(t):
+            rows = t['stop_times.txt'].splitlines()
+            t['stop_times.txt'] = '\n'.join([rows[0] + ',timepoint', *(r + (',0' if ',B2,' in r else ',1') for r in rows[1:])]) + '\n'
+        with tempfile.TemporaryDirectory() as temp:
+            pub, sid, _, _ = make_publication(temp, change)
+            with self.assertRaises(ApiError):
+                passenger_network_payload(pub, {'date': [DAY], 'snapshot': [sid]}, now=NOW)

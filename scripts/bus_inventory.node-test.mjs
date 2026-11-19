@@ -38,7 +38,7 @@ test('counts directional occurrences rather than distinct names and never lends 
 })
 test('reports cartographic sections, dated patterns and footways separately', () => {
   const traces = report.lines.flatMap(r => r.evidence.filter(e => e.kind === 'cartographic-section'))
-  assert.equal(traces.length, 11)
+  assert.equal(traces.length, 35)
   assert.deepEqual(report.pinnedOsm.relations.map(r => [r.id,r.version]), [[19961937,4],[19961993,3],[17357331,4],[19961714,2]])
   assert.equal(traces.find(e => e.id === 'aftu-40-maristes').markerKind, 'road-limit')
   assert.deepEqual(report.staticRouting.patterns.map(p => p.mode).sort(), ['brt','brt','ter'])
@@ -61,4 +61,21 @@ test('retains sources of divergent 74 evidence without calling them the Bargny r
   assert.equal(e.find(r => r.kind === 'unconfirmed-return').labels.length, 14)
   assert.deepEqual(e.filter(r => r.kind === 'service-reference').map(r => [r.scope, r.termini]), [
     ['other-corridor', ['Rufisque','Tivaouane Peul']], ['other-corridor', ['Tivaouane Peul','Rufisque']]])
+})
+
+test('the Jaxaay attributions are specific six-occurrence slices of the pinned transcriptions, not stops on a timetable', () => {
+  const a = ['Station Shell De Jaxaay 2','Devant Lycée Jaxaay','Senelec Jaxaay 1',"Restaurant Le Carré D'As",'Jaxaay Devant Equiprest','Cité Asecna En Face Un Magasin De Carreaux']
+  const b = [a[5],a[4],a[3],'Diakhaye Asecna Devant Shima Multiservices','Jaxaay En Face Lycée Plan Jaxaay Et Allo Store','Sedima Almadies 2 Route De Sedima En Face La Station Shell']
+  for (const code of ['83','84','90','91']) {
+    const entries = evidence('aftu', code), maps = entries.filter(e => e.sourceSlice)
+    assert.equal(maps.length, 2)
+    for (const map of maps) {
+      const { first, last, side } = map.sourceSlice
+      const sheet = entries.find(e => e.source === `aftu-${code}-directions.json` && e.side === side && e.labels)
+      assert.deepEqual(sheet.labels.slice(first - 1, last), map.ways[0] === 642083765 ? a : b)
+      assert.equal(map.markerKind, 'road-limit'); assert.equal(map.markerIds.length, 4)
+      assert.ok(!map.sourceTimes && !map.frequency && !map.relation)
+    }
+  }
+  assert.deepEqual(evidence('ddd','233').filter(e => e.kind === 'cartographic-section'), [])
 })

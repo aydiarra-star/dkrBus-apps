@@ -359,8 +359,8 @@ describe('Dakar Bus experience safety', () => {
   it('affiche uniquement la portion de voirie explicitement choisie et la retire au changement de sens ou de profil', () => {
     stubApi([]); render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
-    chooseStopInField('Départ', 'AFTU 40', /^Carrefour des Civilisations/)
-    chooseStopInField('Destination', 'AFTU 40', /^Route des pères Maristes/)
+    chooseStopInField('Départ', 'sortie des Maristes', /^Carrefour des Civilisations · sortie/)
+    chooseStopInField('Destination', 'Route des pères Maristes × Front de Terre', /^Route des pères Maristes × Front/)
     const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
     expect(panel.textContent).toContain('Portion cartographiée · sans horaire')
     expect(panel.textContent).toMatch(/délimitent la voirie, pas des arrêts/)
@@ -369,7 +369,7 @@ describe('Dakar Bus experience safety', () => {
     expect(map.textContent).toBe('')
     fireEvent.click(within(panel).getByRole('button', { name: /voir cette portion/i }))
     expect(JSON.parse(map.getAttribute('data-segments')!)).toMatchObject([{ geographyOnly: true, network: 'aftu_tata' }])
-    expect(screen.getByTestId('highlighted-stops').textContent).toBe('landmark:bus-osm-305375476,landmark:bus-osm-3403676386')
+    expect(screen.getByTestId('highlighted-stops').textContent).toBe('landmark:bus-osm-305375476,landmark:bus-osm-5563118329,landmark:bus-osm-3403676386')
     fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
     expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Portion cartographiée')
     fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
@@ -1246,11 +1246,16 @@ describe('décomptes dynamiques de l’Explorer', () => {
       ['DDD', 'ddd'],
       ['AFTU', 'aftu_tata'],
     ] as const
+    const legend = within(screen.getByRole('region', { name: 'Réseaux de référence' }))
     for (const [label, network] of cases) {
-      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+      // Scope the accessible-name lookup to the four controls, not the entire
+      // timetable just expanded (hundreds of unrelated interactive rows).
+      const button = legend.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` })
+      fireEvent.click(button)
       expect(container.querySelector(`.network-item-${network}`)?.className).toContain('is-selected')
       expect(container.querySelector(`.network-item-${network} .network-summary-detail .station-board`)).not.toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+      fireEvent.click(button)
+      expect(button.getAttribute('aria-pressed')).toBe('false')
     }
     vi.useRealTimers()
   })

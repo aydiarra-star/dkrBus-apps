@@ -43,6 +43,40 @@ def tables(z, table):
         yield from csv.DictReader(stream)
 
 
+# File-order occurrence ranks (1-based) in the two pinned archives. Seeds
+# live in separate agency namespaces. None of these IDs is a current platform.
+SHARED_SEEDS = {
+    'aftu': [('Jaxaay vers ASECNA', 'AFTU_74_bargny', 33, 6), ('Jaxaay vers Sédima', 'AFTU_74_SOCABECK', 52, 6),
+             ('Maristes vers Front de Terre', 'AFTU_40_Mbao', 42, 4), ('Maristes vers le giratoire', 'AFTU_40_Petersen', 7, 4),
+             ('Université vers Médina', 'AFTU_3_Yoff', 47, 11)],
+    'ddd': [('Maristes vers Front de Terre', 'DDD_232_BAUX-MARAICHERS', 11, 3), ('Maristes vers le giratoire', 'DDD_232_AEROPORT', 25, 3),
+            ('Université vers Médina', 'DDD_08_AEROPORT-LSS', 35, 6)],
+}
+
+
+def shared_blocks(variants, seeds):
+    """All literal consecutive ID matches, including repeated occurrences. No
+    fuzzy join, sorting by name, cross-agency comparison or implied return."""
+    result = []
+    for name, shape, first, length in seeds:
+        blocks = {ids[first-1:first-1+length] for m, ids in variants if m['shapeId'] == shape and not m['issues']
+                  and first > 0 and length > 1 and first-1+length <= len(ids)}
+        row = {'name': name, 'seedShape': shape, 'first': first, 'length': length, 'matches': []}
+        if len(blocks) != 1:
+            row['status'] = 'SEED_MISSING_OR_AMBIGUOUS'
+        else:
+            row['status'] = 'ARCHIVE_ONLY'
+            needle = blocks.pop()
+            row['blockSha256'] = hashlib.sha256(json.dumps(needle).encode()).hexdigest()
+            for m, ids in variants:
+                for i in range(len(ids) - length + 1):
+                    if ids[i:i+length] == needle:
+                        row['matches'].append({k: m[k] for k in ('code', 'shapeId', 'directionId', 'sequenceHash', 'issues', 'rankTies')} |
+                                              {'first': i + 1, 'last': i + length})
+        result.append(row)
+    return result
+
+
 def patterns(z, network):
     routes = {}
     for r in tables(z, 'routes'):
@@ -76,7 +110,7 @@ def patterns(z, network):
         issues = tuple(n for n, cond in [('DUPLICATE_RANK', duplicate_ranks), ('SHORT_TRIP', len(seq) < 2),
                                           ('UNKNOWN_STOP', any(s not in stops for s in ids))] if cond)
         groups[(*key, ids, duplicate_ranks, issues)] += 1
-    by_code, variants = defaultdict(list), []
+    by_code, variants, ordered_ids = defaultdict(list), [], []
     for (code, direction, shape, ids, ties, issues), n in sorted(groups.items()):
         names = [stops.get(s, '') for s in ids]
         meta = {'code': code, 'directionId': direction, 'shapeId': shape, 'shapePoints': shape_points[shape],
@@ -84,9 +118,11 @@ def patterns(z, network):
                 'distinctLabels': len(set(map(label, names))), 'rankTies': list(ties), 'issues': list(issues),
                 'sequenceHash': hashlib.sha256(json.dumps(ids).encode()).hexdigest()}
         variants.append(meta)
+        ordered_ids.append((meta, ids))
         if 'UNKNOWN_STOP' not in issues:
             by_code[code].append((meta, names))
     return by_code, {'routes': sorted(routes.values()), 'trips': len(trips), 'variants': variants,
+                     'sharedIdBlocks': shared_blocks(ordered_ids, SHARED_SEEDS.get(network, [])),
                      'validOrderGroups': sum(not v['issues'] for v in variants),
                      'tripsWithoutCalls': [dict(code=k[0], directionId=k[1], shapeId=k[2], trips=v)
                                           for k, v in sorted(missing.items())],

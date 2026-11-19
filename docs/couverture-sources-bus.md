@@ -8,17 +8,17 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 22 | 22 | — | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 746 m vers Leclerc ; 2334 m vers Leclerc |
+| 1 | 22 | 22 | — | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 2705 m vers Leclerc ; 3934 m vers Leclerc ; 911 m vers Sahm (depuis Leclerc) |
 | 2 | 35 | 35 | — | catalogue, ArcGIS | — |
 | 4 | 26 / 27 | 27 | — | catalogue, ArcGIS, repères, revue de sources | 787 m vers Leclerc ; 1790 m vers Liberté 5 |
 | 5 | 15 | 15 | — | catalogue, ArcGIS | — |
 | 6 | 24 / 25 | 24 | — | catalogue, ArcGIS, horaires de référence, revue de sources | — |
 | 7 | 21 | 21 | — | catalogue, ArcGIS, revue de sources | 2334 m vers Palais (portion UCAD–Stade) ; 2422 m vers Ouakam |
-| 8 | 28 | 28 | — | catalogue, ArcGIS | — |
+| 8 | 28 | 28 | — | catalogue, ArcGIS | 2064 m vers Palais 2 |
 | 9 | 24 | 24 | — | catalogue, ArcGIS, revue de sources | — |
 | 10 | 29 | 29 | — | catalogue, ArcGIS, revue de sources | — |
 | 11 | 16 | 16 | — | catalogue, ArcGIS | — |
-| 12 | 20 | 20 | — | catalogue, ArcGIS, horaires de référence, revue de sources | — |
+| 12 | 20 | 20 | — | catalogue, ArcGIS, horaires de référence, revue de sources | 2064 m vers Palais 1 |
 | 13 | 24 | 24 | — | catalogue, ArcGIS, revue de sources | — |
 | 15 | 18 | — | — | repères, revue de sources | — |
 | 15A | — | — | — | catalogue | — |
@@ -34,11 +34,11 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 217 | 15 | 15 | — | catalogue, ArcGIS, repères, horaires de référence | — |
 | 218 | 15 | 15 | — | catalogue, ArcGIS, horaires de référence | — |
 | 219 | 19 | 19 | — | catalogue, ArcGIS, horaires de référence | — |
-| 220 | 16 | 16 | — | catalogue, repères | — |
+| 220 | 16 | 16 | — | catalogue, repères | 441 m vers Keur Massar (sens Guédiawaye) |
 | 221 | 15 | 15 | — | catalogue | — |
 | 227 | 16 | 16 | — | catalogue, ArcGIS, horaires de référence | — |
 | 228 | 4 | 4 | — | catalogue, ArcGIS, repères | — |
-| 232 | 15 | 15 | — | catalogue, ArcGIS | — |
+| 232 | 15 | 15 | — | catalogue, ArcGIS | 917 m vers Front de Terre (sens aéroport LSS) |
 | 233 | 15 | 15 | — | catalogue, revue de sources | — |
 | 234 | 13 | 13 | — | catalogue | — |
 | 311 | 5 / 6 | — | — | circuit | — |
@@ -63,8 +63,8 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 |---|---|---|---|---|---|
 | 1 | 21 | — | — | catalogue, descriptif, repères | 903 m vers HLM Grand Médine |
 | 2 | 18 | — | — | catalogue, descriptif | — |
-| 3 | 15 | — | — | catalogue, descriptif, repères | — |
-| 4 | 10 | — | — | catalogue, descriptif | — |
+| 3 | 15 | — | — | catalogue, descriptif, repères | 2064 m vers Petersen |
+| 4 | 10 | — | — | catalogue, descriptif | 2064 m vers Petersen |
 | 5 | 17 | — | — | catalogue, descriptif, horaires de référence | — |
 | 24 | 14 | — | — | catalogue, descriptif | — |
 | 25 | 13 | — | — | catalogue, descriptif | — |
@@ -79,15 +79,15 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 34 | 10 | — | — | catalogue, descriptif | — |
 | 35 | 10 | — | — | catalogue, descriptif, repères | — |
 | 36 | 18 | — | — | catalogue, descriptif, horaires de référence | — |
-| 37 | 35 | — | — | catalogue, descriptif | — |
+| 37 | 35 | — | — | catalogue, descriptif | 917 m vers Front de Terre ; 917 m vers carrefour des Civilisations |
 | 38 | 13 | — | — | catalogue, descriptif | — |
 | 39 | 15 | — | — | catalogue, descriptif, horaires de référence | — |
-| 40 | 11 | — | — | catalogue, descriptif | 938 m vers Petersen |
+| 40 | 11 | — | — | catalogue, descriptif | 938 m vers Petersen ; 941 m vers Mbao |
 | 41 | 21 | — | — | catalogue, descriptif, horaires de référence | — |
 | 42 | 14 | — | — | catalogue, descriptif, repères, horaires de référence | — |
 | 43 | 15 | — | — | catalogue, descriptif, horaires de référence | — |
 | 44 | 13 | — | — | catalogue, descriptif | — |
-| 45 | 34 | — | — | catalogue, descriptif | — |
+| 45 | 34 | — | — | catalogue, descriptif | 1179 m vers Keur Massar |
 | 46 | 20 | — | — | catalogue, descriptif, horaires de référence | — |
 | 47 | 15 | — | — | catalogue, descriptif, horaires de référence | — |
 | 48 | 12 | — | — | catalogue, descriptif | — |
@@ -117,7 +117,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 72 | 22 | 22 | 22 | catalogue, descriptif, horaires de référence | — |
 | 73 | 10 | 10 | 10 | catalogue, descriptif, horaires de référence | — |
 | 74 | 14 | 14 | — | catalogue, descriptif, repères, grilles d’un autre parcours, retour non attesté | 1179 m vers Keur Massar ; 1117 m vers Rufisque |
-| 75 | 15 / 51 / 52 | 52 | 51 | catalogue, descriptif, repères, horaires de référence | — |
+| 75 | 15 / 51 / 52 | 52 | 51 | catalogue, descriptif, repères, horaires de référence | 917 m vers Front de Terre ; 917 m vers carrefour des Civilisations |
 | 76 | 12 | — | — | catalogue, descriptif, horaires de référence | — |
 | 77 | 14 | — | — | catalogue, descriptif | — |
 | 78 | 12 | — | — | catalogue, descriptif | — |
@@ -125,15 +125,15 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 80 | 17 | 17 | 17 | catalogue, descriptif, repères | — |
 | 81 | 16 | 16 | 16 | catalogue, descriptif, horaires de référence | — |
 | 82 | 14 / 49 | 51 | 49 | catalogue, descriptif, horaires de référence | — |
-| 83 | 14 / 90 / 93 | 93 | 90 | catalogue, descriptif | — |
-| 84 | 73 | 73 | 73 | catalogue, horaires de référence, heures aux repères | — |
+| 83 | 14 / 90 / 93 | 93 | 90 | catalogue, descriptif | 1179 m vers ASECNA (depuis le secteur Shell) (fiche aller, rangs 18–23) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche retour, rangs 69–74) |
+| 84 | 73 | 73 | 73 | catalogue, horaires de référence, heures aux repères | 1179 m vers ASECNA (depuis le secteur Shell) (fiche retour, rangs 58–63) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche aller, rangs 14–19) |
 | 85 | — | — | — | catalogue, revue de sources | — |
 | 86 | — | 68 | 64 | catalogue, repères, profil indicatif, revue de sources | — |
 | 87 | — | 68 | 71 | catalogue, repères, profil indicatif, revue de sources | — |
 | 88 | 78 / 81 | 78 | 81 | catalogue, revue de sources | — |
 | 89 | 53 / 55 | 55 | 53 | catalogue, repères, revue de sources | — |
-| 90 | 82 | 82 | 82 | catalogue, profil indicatif | — |
-| 91 | 70 | 70 | 70 | catalogue, revue de sources | — |
+| 90 | 82 | 82 | 82 | catalogue, profil indicatif | 1179 m vers ASECNA (depuis le secteur Shell) (fiche retour, rangs 42–47) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche aller, rangs 39–44) |
+| 91 | 70 | 70 | 70 | catalogue, revue de sources | 1179 m vers ASECNA (depuis le secteur Shell) (fiche aller, rangs 44–49) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche retour, rangs 21–26) |
 
 ## TATA — 65 identifiants
 
@@ -141,8 +141,8 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 |---|---|---|---|---|---|
 | 1 | 18 / 20 | — | — | catalogue, descriptif | 903 m vers HLM Grand Yoff (fiche TATA) |
 | 2 | 16 / 18 | — | — | catalogue, descriptif | — |
-| 3 | 13 / 15 | — | — | catalogue | — |
-| 4 | 8 / 10 | — | — | catalogue | — |
+| 3 | 13 / 15 | — | — | catalogue | 2064 m vers Petersen |
+| 4 | 8 / 10 | — | — | catalogue | 2064 m vers Petersen |
 | 5 | 17 / 19 | — | — | catalogue | — |
 | 24 | 12 / 14 | — | — | catalogue | — |
 | 25 | 5 / 7 | — | — | catalogue | — |
@@ -165,7 +165,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 42 | 13 / 15 | — | — | catalogue | — |
 | 43 | 12 / 14 | — | — | catalogue | — |
 | 44 | 8 / 10 | — | — | catalogue | — |
-| 45 | 31 / 33 | — | — | — | — |
+| 45 | 31 / 33 | — | — | — | 1179 m vers Keur Massar |
 | 46 | 15 / 17 | — | — | catalogue | — |
 | 47 | 13 / 15 | — | — | — | — |
 | 48 | 9 / 11 | — | — | catalogue | — |

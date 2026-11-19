@@ -4,6 +4,7 @@ import { fareForJourney, fareStatusLabel } from '../domain/fares'
 import type { Preferences } from '../domain/preferences'
 import { formatDistance, formatDuration, transferLabel } from '../domain/units'
 import type { ChangeLead, ChangeSide } from '../routing/changePreparation'
+import { BUS_SECTION_WAYS } from '../data/busSectionWays'
 import type { BusMapSection } from '../routing/busGeography'
 import type { StopSection } from '../routing/placeConnections'
 import type { Leg } from '../routing/model'
@@ -19,12 +20,14 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
   const distance = formatDistance(leg.meters, preferences.units.distance)
   return <li>
     {leg.kind === 'ride' ? <>
+      {leg.samePlatformChange && <p>Changement au même point du quai, sans marche. Délai minimal vérifié : {leg.samePlatformChange.minimumSeconds} s.</p>}
       <span className="verified-wait"><Clock3 size={13} /> Attente à {leg.from.name} : {minutes(leg.waitSeconds)}{leg.headwaySeconds !== null && ` · intervalle ${minutes(leg.headwaySeconds)}`}</span>
       <div><MobilityBadge id={leg.network}>{leg.network === 'aftu_tata' ? `${leg.mode.toUpperCase()} · ` : ''}{leg.lineName}</MobilityBadge> <strong>{dakarClock(leg.start)} · {leg.from.name}</strong></div>
       <p>Sens {leg.direction} · Descendre à <strong>{leg.to.name}</strong> vers {dakarClock(leg.end)}.</p>
       <p>{distance} · {minutes(leg.end - leg.start)} à bord · {leg.timing === 'frequency' ? 'passage projeté selon la fréquence' : 'horaire théorique déclaré'}.</p>
       <p>{leg.timing === 'frequency' ? 'Créneaux estimés' : 'Départs déclarés'} à {leg.from.name} : {leg.passages.map(dakarClock).join(' · ')}.</p>
-      <details><summary>Desserte et sources</summary><p>{leg.stops.map(s => s.name).join(' → ')}</p><p>{leg.source} · {leg.serviceSource} · {leg.timingSource}.</p></details>
+      <details><summary>Desserte et sources</summary><p>{leg.stops.map(s => s.name).join(' → ')}</p><p>{leg.source} · {leg.serviceSource} · {leg.timingSource}.</p>
+        {leg.samePlatformChange && <p>Changement : {leg.samePlatformChange.evidence.reference} · {leg.samePlatformChange.evidence.date}.</p>}</details>
     </> : <>
       <strong><Footprints size={14} /> {walkLabel[leg.role]} · {dakarClock(leg.start)}–{dakarClock(leg.end)}</strong>
       <p>{leg.from.name} → {leg.to.name} · {distance} · {minutes(leg.end - leg.start)}.</p>
@@ -108,8 +111,9 @@ function GeographicPortion({ section: s, selected, onShow, preferences }: {
     ].filter(Boolean).join(' ; ')}.</p>}
     {onShow && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onShow(s.id)}><Layers3 size={14} /> {selected ? 'Masquer cette portion' : 'Voir cette portion sur la carte'}</button>}
     <details><summary>Repères et sources de la portion</summary><p>{markers.map(m => m.name).join(' → ')}</p>
+      {review.sourceSlice && <p>Pour la portion entière : fiche transcrite, {review.sourceSlice.side === 'inbound' ? 'retour' : 'aller'}, rangs {review.sourceSlice.first} à {review.sourceSlice.last}. Les occurrences de la fiche ne sont pas des quais localisés.</p>}
       <a href={review.descriptionUrl} target="_blank" rel="noreferrer">Description de la ligne</a> · {review.relation ? <a href={`https://api.openstreetmap.org/api/0.6/relation/${review.relation}/${review.version}.json`} target="_blank" rel="noreferrer">Relation OSM {review.relation} v{review.version}</a>
-        : <><a href={review.directionUrl} target="_blank" rel="noreferrer">Recoupement du sens</a>{review.ways.map(w => <span key={w}> · <a href={`https://www.openstreetmap.org/way/${Math.abs(w)}`} target="_blank" rel="noreferrer">Voie OSM {Math.abs(w)}</a></span>)}</>} · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© les contributeurs OpenStreetMap · ODbL</a>
+        : <><a href={review.directionUrl} target="_blank" rel="noreferrer">Recoupement du sens</a>{review.ways.map(w => <span key={w}> · <a href={`https://api.openstreetmap.org/api/0.6/way/${Math.abs(w)}/${BUS_SECTION_WAYS[Math.abs(w)].version}.json`} target="_blank" rel="noreferrer">Voie OSM {Math.abs(w)} v{BUS_SECTION_WAYS[Math.abs(w)].version}</a></span>)}</>} · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© les contributeurs OpenStreetMap · ODbL</a>
     </details></article>
 }
 
@@ -122,6 +126,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
     {!result.ok ? <><p role="status">{result.message}</p>
       {!!result.mapSections?.length && <div className="connection-details"><h4>Portion cartographiée · sans horaire</h4>
         {result.mapSections.some(s => s.review.id === 'tata-1-fass') && <p>À Fass, les fiches AFTU 1 et TATA 1 décrivent la même chaussée. Ce ne sont pas deux services confirmés.</p>}
+        {result.mapSections.length > 1 && !result.mapSections.some(s => s.review.id === 'tata-1-fass') && <p>Choisissez la fiche à afficher. Deux fiches sur la même rue ne prouvent pas deux services ni une correspondance.</p>}
         {result.mapSections.map(s => <GeographicPortion key={s.id} section={s} selected={s.id === shownPortion} onShow={onShowPortion} preferences={preferences} />)}</div>}
       <ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} />{Boolean(result.changesToCheck?.length) && <ChangeDetails changes={result.changesToCheck!} onChoose={onChooseSection} />}</> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>

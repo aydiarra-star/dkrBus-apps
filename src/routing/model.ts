@@ -74,12 +74,20 @@ export interface PlatformBinding {
   mode: VehicleMode; lineId: string; direction: string; stopId: string
   role: 'board' | 'alight'; platformId: string; stepFree: StepFree; evidence: Evidence
 }
+/** Standing at the same marked boarding position, without walking or passing a
+ * gate. This directed permission is extra evidence, never inferred from two bindings. */
+export type CallRef = Pick<PlatformBinding, 'mode' | 'lineId' | 'direction' | 'stopId'>
+export interface SamePlatformChange {
+  platformId: string; alight: CallRef; board: CallRef
+  minimumSeconds: number; stepFree: StepFree; evidence: Evidence
+}
 export interface ObservedPlatform { place: Place; stepFree: StepFree; evidence: Evidence }
 export interface Dataset {
   places: readonly Place[]
   patterns: readonly PatternInput[]
   graphPatterns?: readonly GraphPatternInput[]
   platformBindings?: readonly PlatformBinding[]
+  samePlatformChanges?: readonly SamePlatformChange[]
   footways: readonly FootwayInput[]
 }
 export interface Section { positions: readonly RoadPoint[]; meters: number }
@@ -91,11 +99,13 @@ export interface Pattern extends PatternInput {
   arrivals: readonly number[]
   departures: readonly number[]
 }
+export interface OnwardBoarding { pattern: Pattern; index: number; proof: SamePlatformChange }
 export interface Network {
   places: ReadonlyMap<string, Place>
   patterns: readonly Pattern[]
   platforms: ReadonlyMap<Pattern, Readonly<Record<'board' | 'alight', ReadonlyMap<number, ObservedPlatform>>>>
   boarding: ReadonlyMap<string, readonly { pattern: Pattern; index: number }[]>
+  samePlatform: ReadonlyMap<Pattern, ReadonlyMap<number, readonly OnwardBoarding[]>>
   walking: ReadonlyMap<string, readonly Footway[]>
   rejected: readonly string[]
 }
@@ -121,6 +131,7 @@ export interface Ride extends Movement {
   /** At this boarding point, starting at the chosen run, same service day. */
   passages: readonly number[]
   headwaySeconds: number | null
+  samePlatformChange?: SamePlatformChange // only on the ride boarded after this reviewed change
   waitSeconds: number // from previous arrival, includes any transfer buffer
 }
 export interface Walk extends Movement {

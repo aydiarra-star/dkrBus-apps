@@ -30,6 +30,7 @@ try {
         for (const [role, end] of Object.entries(variant.observed ?? {})) if (end) console.log(`  Quai de ${role === 'board' ? 'montée' : 'descente'} : ${end.platformId} · ${end.direction} · ${end.evidence.reference}`)
         for (const f of variant.findings) console.log(`  ${f.code} : ${f.action}`)
       }
+      if (r.samePosition) console.log(`  Même emplacement du quai, sans marche : délai minimal ${r.samePosition.minimumSeconds} s ; ${r.samePosition.evidence.reference}.`)
       if (r.meters !== null) console.log(`  Chaîne de revue : ${Math.round(r.meters)} m ; sans marches : ${r.walkStepFree}.`)
       console.log(`  Sources documentaires : ${r.sources.join(' ; ')}`)
     }

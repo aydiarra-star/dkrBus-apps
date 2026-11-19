@@ -5,6 +5,7 @@ import { dakarNetwork, localPassengerData, planDakarJourney } from './dakar'
 import type { Dataset } from './model'
 import { endpointOf } from './placeConnections'
 import { admitPassengerEdition } from './passengerEdition'
+import { search } from './search'
 import { mapItinerary } from './presentation'
 
 // This is the actual server response from a temporary reviewed, published
@@ -59,4 +60,15 @@ it('refuses bad shapes, wrong identity/date, unsafe paths or corrupt bindings at
   expect(planDakarJourney(point('A2'), point('B3'), { departAt: at('08:20') }, missing).ok).toBe(false)
   expect([...dakarNetwork.walking.values()].flat().map(w => w.id).sort()).toEqual(localPassengerData.footways.map(w => w.id).sort())
   expect(dakarNetwork.places.has(`gtfs:${sid}:stop:A2`)).toBe(false)
+})
+
+it('does not broaden an access-only sidecar arc when publishing, reading and routing the service-day edition', () => {
+  const pack = JSON.parse(execFileSync('python3', ['tests/passenger_edition_fixture.py','--access-only'], { env: { ...process.env, PYTHONPATH: '.' }, encoding: 'utf8' }))
+  const snap = pack.snapshot_id, graph = admitPassengerEdition(pack, snap, day, localPassengerData)!
+  const end = (id: string) => endpointOf(graph.places.get(`gtfs:${snap}:stop:${id}`)!, snap)
+  const q = { departAt: at('08:20') }
+  expect(planDakarJourney(end('A2'), end('B3'), q, graph)).toMatchObject({ ok: false, code: 'NO_PATH' })
+  const run = (a: string,b: string) => search(graph, { ...q, origin: `access:${snap}:p${a}`, destination: `access:${snap}:p${b}` })
+  expect(run('B2','A3').ok).toBe(false) // same arc is not a public shortcut
+  expect(run('B2','B3')).toMatchObject({ ok: true, options: [{ changes: 0, legs: [{ role: 'access', ways: [{ onlyFor: 'access' }] }, { kind: 'ride' }] }] })
 })
