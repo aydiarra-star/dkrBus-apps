@@ -103,6 +103,10 @@ Deno.test("removes importer-supplied validation reports and row counts", () => {
     validator_version: "client-controlled",
     structure_valid: true,
     production_ready: true,
+    approved_by: "attacker",
+    server_validation: { integrity_status: "OK" },
+    unknown_extension: { trusted: true },
+    archive: { stored_as: "feed.zip", bytes: 128, sha256: "a".repeat(64), validation: "OK" },
   }), "CURRENT", "2026-11-19T12:00:00.000Z");
   for (const key of [
     "validation", "record_count", "integrity_status", "validation_report",
@@ -118,6 +122,19 @@ Deno.test("removes importer-supplied validation reports and row counts", () => {
   if (sanitized.ingested_at !== "2026-11-19T12:00:00.000Z") {
     throw new Error("The importer-controlled ingestion time was not replaced by the server time");
   }
+  if (sanitized.approved_by !== undefined || sanitized.server_validation !== undefined ||
+      sanitized.unknown_extension !== undefined) {
+    throw new Error("Unknown or alternate importer attestations were retained");
+  }
+  if (sanitized.review_status !== "PENDING_REVIEW" ||
+      sanitized.publication_status !== "NOT_PUBLISHED" ||
+      sanitized.publication_ready !== false) {
+    throw new Error("Server-owned review and publication states were not fixed to quarantine");
+  }
+  if (Object.keys(sanitized.archive as Record<string, unknown>).sort().join(",") !== "bytes,sha256,stored_as") {
+    throw new Error("Unknown archive metadata was retained");
+  }
+
 });
 
 Deno.test("uses only canonical server-generated object paths", () => {
