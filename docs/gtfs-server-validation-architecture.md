@@ -169,7 +169,7 @@ Les tests couvrent les URL invalides et l'absence de base IANA avec des archives
 
 ## Verrouillage strict du projet Supabase de réception (16 novembre 2026)
 
-La fonction `dakar-gtfs-ingest` n'accepte que les valeurs exactes de l'URL HTTPS canonique du projet Dakar Bus dédié `mdmuxzaewzqzqutkqdylo` (avec ou sans barre finale, et avec le port HTTPS explicite 443). La comparaison stricte de chaînes refuse les espaces périphériques, les hôtes alternatifs, les identifiants, les ports non canoniques, les chemins, paramètres, fragments et formes que le parseur URL pourrait normaliser. Cette garde concerne uniquement la configuration de destination de l'intake ; elle ne lit ni ne modifie aucun secret ou projet actif.
+La fonction `dakar-gtfs-ingest` n'accepte que les valeurs exactes de l'URL HTTPS canonique du projet Dakar Bus dédié `mdmuxzaewqzqutkqdylo` (avec ou sans barre finale, et avec le port HTTPS explicite 443). La comparaison stricte de chaînes refuse les espaces périphériques, les hôtes alternatifs, les identifiants, les ports non canoniques, les chemins, paramètres, fragments et formes que le parseur URL pourrait normaliser. Cette garde concerne uniquement la configuration de destination de l'intake ; elle ne lit ni ne modifie aucun secret ou projet actif.
 
 Les tests Deno positifs et négatifs utilisent des chaînes synthétiques, y compris l'identifiant du projet YÉRÉ uniquement comme cas de refus. Aucun déploiement, appel réseau Supabase, upload ou import n'est effectué.
 
