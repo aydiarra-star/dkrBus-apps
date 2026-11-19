@@ -6,6 +6,7 @@ import {
   isValidDatasetId,
   isValidUploadId,
   MAX_ARCHIVE_BYTES,
+  MAX_MANIFEST_BYTES,
   isUploadSessionExpired,
   isExactBoundedObjectSize,
   readJsonWithLimit,
