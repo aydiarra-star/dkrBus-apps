@@ -30,3 +30,9 @@ class Continuity(unittest.TestCase):
     def test_absent_way_or_unhandled_role_is_not_skipped(self):
         for m in [{'ref': 33, 'type': 'w', 'role': ''}, way(33, [2, 4], 'unexamined')]:
             self.assertFalse(check(way(1, [1, 2]), m, way(4, [2, 3]))['orderedRoadChainPossible'])
+
+    def test_occurrence_without_coordinates_is_not_dropped_or_a_zero_offset(self):
+        a = way(1, [1, 2, 3]); pt = {'ref': 8, 'type': 'n', 'role': 'platform'}
+        r = check(pt, a)
+        self.assertTrue(r['orderedRoadChainPossible']); self.assertEqual(r['stops'], 1)
+        self.assertIsNone(r['offsets'][0]['offsetM']); self.assertIsNone(r['offsets'][0]['outside20m'])

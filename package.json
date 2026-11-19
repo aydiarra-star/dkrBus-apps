@@ -10,6 +10,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:routing": "vitest run src/routing",
+    "audit:bus-day": "node scripts/audit_bus_day.mjs",
     "audit:bus": "node scripts/audit_bus_networks.mjs",
     "audit:place-connections": "node scripts/audit_place_connections.mjs",
     "audit:passenger-transfers": "node scripts/audit_passenger_transfers.mjs",

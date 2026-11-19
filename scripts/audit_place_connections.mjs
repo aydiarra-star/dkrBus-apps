@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Read-only replay of the passenger form. Optionally preflight a service-day edition; never activate it.
+import { admittedServices, journeyWitnesses } from './lib/journeyWitness.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import { parseArgs } from 'node:util'
@@ -48,7 +49,7 @@ try {
     if (!Array.isArray(ids) || ids.length < 2 || new Set(ids).size !== ids.length || !ids.every(id => form.has(id))) throw Error('Cohorte invalide : fournir des identifiants de sélections distincts du formulaire courant.')
     const selected = ids.map(id => form.get(id)).map(o => ({ id: o.value, point: point(o.value),
       group: o.value.startsWith('landmark:bus-osm-') ? 'repère de portion bus' : o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
-    const matrix = {}
+    const matrix = {}, witnesses = journeyWitnesses()
     // Same totals are not proof that the SAME OD pairs and journeys survived.
     // Stream stable selected IDs and leg timings (not mutable UI prose).
     const completeDigest = createHash('sha256')
@@ -72,6 +73,7 @@ try {
       if (!r.ok && r.mapSections?.length) row.withBusMap++
       if (exact) row.withExactBusMap++
       if (r.ok) {
+        witnesses.record(a.id, b.id, r.options)
         completeDigest.update(JSON.stringify([a.id, b.id, r.options.map(t => [t.id, t.start, t.end,
           t.legs.map(l => [l.from.id, l.to.id, l.start, l.end, l.meters, l.kind === 'ride' ? l.waitSeconds : l.role])])]) + '\n')
         if (r.options.some(t => t.changes > 0)) includes.anyChange++
@@ -84,7 +86,7 @@ try {
       else if (r.connections?.sections.length) row.sectionsOnly++
       else row.neither++
     }
-    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, wholeJourneySha256: completeDigest.digest('hex'), includes, matrix }, null, 2))
+    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, wholeJourneySha256: completeDigest.digest('hex'), includes, matrix, wholeForm: !values.points, admittedServices: admittedServices(network, Math.floor(departAt / 86400)*86400, departAt), rideWitnesses: witnesses.rows() }, null, 2))
   } else {
     const from = point(values.from), to = point(values.to), r = plan(from, to)
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)

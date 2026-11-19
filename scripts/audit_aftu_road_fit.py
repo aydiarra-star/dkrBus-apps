@@ -144,9 +144,11 @@ if __name__ == '__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ('pbf', 'maps', 'output'):
         cli.add_argument(name, type=Path)
+    cli.add_argument('--source-url')
     args = cli.parse_args()
     graph = read_pbf(args.pbf)
-    pbf_sha = hashlib.file_digest(args.pbf.open('rb'), 'sha256').hexdigest()
+    with args.pbf.open('rb') as fp:
+        pbf_sha = hashlib.file_digest(fp, 'sha256').hexdigest()
     rows = []
     for file in sorted(args.maps.glob('*.json')):
         source = json.loads(file.read_text())
@@ -155,7 +157,7 @@ if __name__ == '__main__':
             pts = [xy(p) for p in source['positions']]
             r.update(fit(pts if r['orientation'] == 'start-first' else pts[::-1], graph))
         rows.append(r)
-    args.output.write_text(json.dumps({'sha256': pbf_sha, 'relationsAndTurnRestrictionsChecked': False, 'rows': rows}, indent=2)+'\n')
+    args.output.write_text(json.dumps({'sha256': pbf_sha, 'sourceUrl': args.source_url, 'relationsAndTurnRestrictionsChecked': False, 'rows': rows}, indent=2)+'\n')
     # Compact transport receipt; full ranked gaps stay in the audit artifact.
     brief = [[r['line'], r['orientation'], r.get('probes'), {k: [len(v), v[:5]] for k,v in r.get('gaps', {}).items()}, r.get('possible')] for r in rows]
     print('::notice title=Voirie Sénégal::'+pbf_sha)

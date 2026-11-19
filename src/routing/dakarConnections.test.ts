@@ -38,7 +38,8 @@ it('Yoff → Keur Massar at 19:00 Dakar: two missing walks and an ordered docume
     if (r.ok) throw Error('Fictitious door-to-door journey')
     expect(r.message).toContain('Accès à pied'); expect(r.message).toContain('Marche finale')
     expect(r.connections).toEqual({ radiusM: 1200, boardingCount: 0, alightingCount: 0, sections: [] })
-    expect(r.documentation?.map(d => d.line)).toEqual(['AFTU 66'])
+    expect(r.documentation?.map(d => d.line)).toEqual(['AFTU 66', 'AFTU 66'])
+    expect(r.documentation?.[1]).toMatchObject({ fromLabel: 'Terminus Yoff', toLabel: 'Croisement Keur Massar', drawing: { meters: 44772 }, window: null })
     expect(r.documentation?.[0]).toMatchObject({ fromLabel: 'Marche De Yoff', toLabel: 'Carrefour Keur Massar', url: expect.stringMatching(/18051499-0$/), window: expect.stringContaining('04:50–20:50') })
     expect(r).not.toHaveProperty('options')
   }

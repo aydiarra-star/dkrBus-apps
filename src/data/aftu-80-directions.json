@@ -21,25 +21,28 @@
     "Terminus Darou Thioub"
   ],
   "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-80/",
-  "inboundWaypoints": [
-    "Terminus Darou Thioub",
-    "Niacourab",
-    "Croisement Tivaouane Peulh",
-    "Terminus Keur Massar",
-    "Station Keur Massar",
-    "Malika",
-    "Yeumbeul",
-    "Tally Diallo",
-    "Pikine Texaco",
-    "PAI",
-    "Pharmacie Golf",
-    "Cambérène",
-    "Case-Ba",
-    "Croisement 22",
-    "Église Parcelles",
-    "Unité 15",
-    "Terminus Diamalaye"
-  ],
-  "inboundDetailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-80/",
-  "note": "Les deux sens reprennent la séquence de la fiche officielle AFTU, avec retour en ordre inverse. Aucun horaire directionnel fiable n'a été retrouvé pour ce tracé précis ; les départs utilisent donc uniquement la référence moyenne du réseau AFTU, et non les horaires de la ligne 80 Moovit/TransitByCity qui décrivent un autre parcours."
+  "note": "Un seul ordre publié, de Diamalaye à Darou Thioub, sans départ daté. La moyenne des minibus ne donne pas le passage de cette ligne.",
+  "unconfirmedReturn": {
+    "waypoints": [
+      "Terminus Darou Thioub",
+      "Niacourab",
+      "Croisement Tivaouane Peulh",
+      "Terminus Keur Massar",
+      "Station Keur Massar",
+      "Malika",
+      "Yeumbeul",
+      "Tally Diallo",
+      "Pikine Texaco",
+      "PAI",
+      "Pharmacie Golf",
+      "Cambérène",
+      "Case-Ba",
+      "Croisement 22",
+      "Église Parcelles",
+      "Unité 15",
+      "Terminus Diamalaye"
+    ],
+    "url": "https://aftu-senegal.org/map/dakar-urbain-ligne-80/",
+    "reason": "La page et sa carte ne documentent que Diamalaye → Darou Thioub. Cette inversion du projet n’est pas une observation du retour."
+  }
 }

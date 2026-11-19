@@ -1,3 +1,4 @@
+import type { OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { BUS_OPERATOR_CONTACTS, type BusOperatorContact } from '../domain/busOperatorContacts'
 import { sheetEnabled, sheetHits } from './busSheetIndex'
 import { getCorridorStop } from '../domain/corridors'
@@ -17,6 +18,7 @@ export interface DirectionNote {
   url: string
   window: string | null
   operator: BusOperatorContact
+  drawing?: OperatorDrawing
   officialLineUrl?: string
   question: string
 }
@@ -73,7 +75,7 @@ export function documentedDirections(from: DakarEndpoint, to: DakarEndpoint, set
     seen.add(d)
     const target = d.labels[end.index]
     notes.push({ line: `${d.network.toUpperCase()} ${d.line}`, fromLabel: d.labels[i], toLabel: target,
-      source: d.source, url: d.url, window: serviceNote(d.schedule, settings.departAt),
+      source: d.source, url: d.url, drawing: d.drawing, window: serviceNote(d.schedule, settings.departAt),
       operator: BUS_OPERATOR_CONTACTS[d.network === 'ddd' ? 'ddd' : 'aftu'], officialLineUrl: d.officialLineUrl,
       question: `Le ${dakarDate.format(requestDate)} vers ${requestDate.toISOString().slice(11, 16)} (heure de Dakar), la ligne ${d.line} dessert-elle « ${d.labels[i]} » puis « ${target} » dans ce sens ? Où monter, où descendre et quels accès à pied utiliser ?` })
   }

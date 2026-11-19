@@ -114,5 +114,6 @@ if __name__ == '__main__':
                   'unknownWayRoles': r['unknownWayRoles'], 'orderedRoadChainPossible': r['orderedRoadChainPossible'],
                   'outside': [[s['rank'], s['offsetM']] for s in r['offsets'] if s['outside20m']],
                   'unmeasured': [s['rank'] for s in r['offsets'] if s['offsetM'] is None]} for r in rows]
+        print('::notice title=Nombre de relations bus::'+str(len(brief)))
         for i in range(0, len(brief), 4):
             print('::notice title=Continuité bus::'+json.dumps(brief[i:i+4], ensure_ascii=False, separators=(',', ':')).replace('%', '%25'))

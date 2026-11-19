@@ -273,6 +273,8 @@ function AftuTataScheduleBoard({
             // concern a different corridor; neither those nor the network
             // average are a departure from here, even before details load.
             const fromBargny74 = line.network === 'aftu' && lineNumber === '74' && stopMatchesEndpoint(line.origin, 'Bargny')
+            const fromDiamalaye80 = line.network === 'aftu' && lineNumber === '80' && stopMatchesEndpoint(line.origin, 'Diamalaye') && stopMatchesEndpoint(line.destination, 'Darou Thioub')
+            const unconfirmedReturn = fromBargny74 || fromDiamalaye80
             const outboundOrigin = route?.outboundOrigin ?? line.origin
             const outboundDestination = route?.outboundDestination ?? line.destination
             const inboundOrigin = route?.inboundOrigin ?? outboundDestination
@@ -322,10 +324,10 @@ function AftuTataScheduleBoard({
                       >
                         <span className="station-board-stop">
                           <strong>AFTU / TATA {lineNumber}</strong>
-                          <small>{fromBargny74 && direction.id === 'inbound' ? 'Retour · parcours non confirmé' : `${direction.label} · ${direction.from} → ${direction.to}`}</small>
+                          <small>{unconfirmedReturn && direction.id === 'inbound' ? 'Retour · parcours non confirmé' : `${direction.label} · ${direction.from} → ${direction.to}`}</small>
                         </span>
                         <span className="station-board-direction-action">
-                          {fromBargny74 ? <span className="network-summary-passage station-board-passage is-undeclared" role="status"><strong>Non confirmé</strong><small>Pas de grille pour ce parcours</small></span> : <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
+                          {unconfirmedReturn ? <span className="network-summary-passage station-board-passage is-undeclared" role="status"><strong>Non confirmé</strong><small>Pas de grille pour ce parcours</small></span> : <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
                             <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <PassageArcs />}{serviceLabel}</strong>
                             <small>{declaredWindow ? 'Repère de ligne' : 'Repère réseau'}</small>
                             {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
@@ -337,6 +339,7 @@ function AftuTataScheduleBoard({
                         <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} AFTU / TATA ${lineNumber}`}>
                           {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
                           {fromBargny74 && <p>La fiche AFTU décrit Bargny gare → Cité COCEHAS. Retour non confirmé. La grille Rufisque–Tivaouane Peul concerne un autre parcours.</p>}
+                          {fromDiamalaye80 && <p>La carte AFTU va de Diamalaye à Darou Thioub. Retour non confirmé. La moyenne du réseau ne donne pas l’heure du prochain bus.</p>}
                           {direction.stops.length > 0
                             ? <ol className="station-board-itinerary-list">{direction.stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
                             : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}

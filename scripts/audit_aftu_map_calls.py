@@ -84,5 +84,6 @@ if __name__ == '__main__':
     # NOT represented as a successful check (see tripsWithoutCalls in compare).
     brief = [[r['code'], r['shapeId'], r['occurrences'], r['rankTies'], r['20']['endGapsM'],
               *[[len(r[k]['outside']),len(r[k]['noProgress']),r[k]['fit']] for k in ('20','80')]] for r in data['variants']]
+    print('::notice title=Nombre de suites AFTU::'+str(len(brief)))
     for i in range(0,len(brief),20):
         print('::notice title=Appels historiques AFTU::'+json.dumps(brief[i:i+20],separators=(',',':')))

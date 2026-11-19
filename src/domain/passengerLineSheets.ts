@@ -1,3 +1,4 @@
+import { AFTU_DRAWINGS, type OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { DDD_501_PROJECT_SEQUENCE } from '../data/ddd501ProjectSequence'
 import { ALL_CORRIDOR_STOPS } from './corridors'
@@ -12,6 +13,7 @@ interface TextDirection {
   source: string
   url: string
   schedule?: EstimatedLineSchedule
+  drawing?: OperatorDrawing
   officialLineUrl?: string
 }
 interface DirectionFile {
@@ -54,8 +56,10 @@ for (const file of Object.values(files)) {
 // the overview title lists the termini in the opposite order (e.g. 24).
 const checkedAftu = new Set(['1', '3', '4', '24', '25', '29', '30', '33', '39', '40', '74'])
 for (const r of BUS_LINES) {
-  if (r.network !== 'aftu' || !checkedAftu.has(r.code) || !r.waypoints.length || r.detailSourceUrl !== `https://aftu-senegal.org/map/dakar-urbain-ligne-${r.code}/`) continue
-  directions.push({ network: 'aftu', line: r.code, labels: r.waypoints, url: r.detailSourceUrl, source: 'AFTU · descriptif dans l’ordre publié' })
+  if (r.network !== 'aftu' || !r.waypoints.length || r.detailSourceUrl !== `https://aftu-senegal.org/map/dakar-urbain-ligne-${r.code}/`) continue
+  const review = AFTU_DRAWINGS[r.code]
+  const drawing = review?.from === r.waypoints[0] && review.to === r.waypoints.at(-1) ? review : undefined
+  if (drawing || checkedAftu.has(r.code)) directions.push({ network: 'aftu', line: r.code, labels: r.waypoints, url: r.detailSourceUrl, source: 'AFTU · descriptif dans l’ordre publié', drawing })
 }
 // The app capture for 501 documents Port–Palais 2, not a merged
 // Gare de Dakar–Palais–Leclerc service. Keep its own order in each direction.

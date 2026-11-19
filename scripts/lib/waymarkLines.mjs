@@ -24,8 +24,10 @@ const hash = value => createHash('sha256').update(JSON.stringify(value)).digest(
 
 export function inspectWaymark(html, onLine) {
   const collections = []
+  let calls = 0
   for (const script of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
     for (const call of script[1].matchAll(/\bwaymark_viewer\.load_json\(\s*/g)) {
+      if (++calls > 1) return { status: 'MULTIPLE_MAPS' } // even if one is unreadable
       try {
         const fc = literal(script[1].slice(call.index + call[0].length))
         if (fc?.type === 'FeatureCollection' && Array.isArray(fc.features)) collections.push(fc)
@@ -34,7 +36,8 @@ export function inspectWaymark(html, onLine) {
   }
   if (collections.length !== 1) return { status: collections.length ? 'MULTIPLE_MAPS' : 'NO_READABLE_OVERLAY' }
   const fc = collections[0], lines = [], markers = [], other = []
-  for (const { geometry: g, properties: p } of fc.features) {
+  for (const f of fc.features) {
+    const g = f?.geometry, p = f?.properties
     if (g?.type === 'LineString') lines.push(g.coordinates)
     else if (g?.type === 'Point' && xy(g.coordinates)) markers.push({ role: String(p?.type ?? ''), position: g.coordinates, name: String(p?.title ?? '').slice(0,100) })
     else other.push(g?.type ?? 'missing') // do not stitch MultiLineStrings
@@ -51,7 +54,7 @@ export function inspectWaymark(html, onLine) {
     const orientation = uniqueEnd('start',0) && uniqueEnd('finish',1) ? 'start-first' : uniqueEnd('start',1) && uniqueEnd('finish',0) ? 'start-last' : null
     const shapeHash = hash(line)
     if (lines.length === 1 && !other.length) onLine?.({ positions: line, shapeHash, orientation })
-    return { orientation, vertices: line.length, meters: Math.round(steps.reduce((a,b) => a+b, 0)), maxStepM: Math.round(Math.max(...steps)),
+    return { orientation, vertices: line.length, meters: Math.round(steps.reduce((a,b) => a+b, 0)), maxStepM: Math.round(steps.reduce((n,d) => Math.max(n,d), 0)),
       // 1-based segment ranks. A long chord isn't necessarily a missing road;
       // it does need independent street-level evidence before vehicle use.
       over300: steps.flatMap((d, i) => d > 300 ? [i+1] : []),

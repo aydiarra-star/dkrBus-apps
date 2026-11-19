@@ -1,3 +1,4 @@
+import type { OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { BUS_OPERATOR_CONTACTS, type BusOperatorContact } from '../domain/busOperatorContacts'
 import { normalizeSearchTerm } from '../domain/stops'
 import { sheetEnabled, sheetHits } from './busSheetIndex'
@@ -9,7 +10,7 @@ import { dayOf, nextRuns } from './serviceTime'
 /** A guide to two separate enquiries, NOT an Itinerary. No transfer arc,
  * access geometry, departure after a change, fare or combined duration. */
 export type ChangeSide = { line: string; from: string; to: string } & (
-  { kind: 'sheet'; source: string; url: string; contact: BusOperatorContact } |
+  { kind: 'sheet'; source: string; url: string; contact: BusOperatorContact; drawing?: OperatorDrawing } |
   { kind: 'section'; section: { from: Place; to: Place } }
 )
 export interface ChangeLead { hub: string; check: string; before: ChangeSide; after: ChangeSide }
@@ -66,7 +67,7 @@ function sides(net: Network, point: DakarEndpoint, sector: typeof indexed[number
       const from = sheet.labels[before ? index : k], to = sheet.labels[before ? k : index]
       if (from === to) continue
       list.push({ closes, identity: `${sheet.network === 'ddd' ? 'ddd' : 'minibus'}:${sheet.line}`, count: Math.abs(k-index),
-        side: { kind: 'sheet', line: `${sheet.network.toUpperCase()} ${sheet.line}`, from, to, url: sheet.url, source: sheet.source,
+        side: { kind: 'sheet', line: `${sheet.network.toUpperCase()} ${sheet.line}`, from, to, url: sheet.url, source: sheet.source, drawing: sheet.drawing,
           contact: BUS_OPERATOR_CONTACTS[sheet.network === 'ddd' ? 'ddd' : 'aftu'] } })
     }
   }

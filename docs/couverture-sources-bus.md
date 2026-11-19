@@ -122,7 +122,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 77 | 14 | — | — | catalogue, descriptif | — |
 | 78 | 12 | — | — | catalogue, descriptif | — |
 | 79 | 15 | 15 | 15 | catalogue, descriptif, repères, horaires de référence | — |
-| 80 | 17 | 17 | 17 | catalogue, descriptif, repères | — |
+| 80 | 17 | 17 | — | catalogue, descriptif, repères, retour non attesté | — |
 | 81 | 16 | 16 | 16 | catalogue, descriptif, horaires de référence | — |
 | 82 | 14 / 49 | 51 | 49 | catalogue, descriptif, horaires de référence | — |
 | 83 | 14 / 90 / 93 | 93 | 90 | catalogue, descriptif | 1179 m vers ASECNA (depuis le secteur Shell) (fiche aller, rangs 18–23) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche retour, rangs 69–74) |

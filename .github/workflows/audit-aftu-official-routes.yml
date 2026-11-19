@@ -33,6 +33,7 @@ jobs:
           const r = JSON.parse(readFileSync('artifacts/aftu/aftu-official-route-pages.json'));
           // One compact receipt per batch, no redistribution of point arrays.
           console.log(`::notice title=Acquisition AFTU::${r.status} · ${r.summary.pagesFetched} pages · ${r.errors.length} erreurs`);
+          console.log('::notice title=Pages AFTU non acquises::'+JSON.stringify(r.errors.map(e => [e.slug,e.error])).replaceAll('%','%25'));
           const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other,m.markerNames]);
           for (let i = 0; i < rows.length; i+=10) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+10)).replaceAll('%','%25'));
           JS
@@ -48,9 +49,12 @@ jobs:
           fi
           python -m pip install osmium
           pbf="$RUNNER_TEMP/senegal.osm.pbf"
-          curl -fLsS --retry 2 https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf -o "$pbf" || \
-            curl -fLsS --retry 2 https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf -o "$pbf"
-          python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json
+          source=https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+          if ! curl -fLsS --retry 2 "$source" -o "$pbf"; then
+            source=https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf
+            curl -fLsS --retry 2 "$source" -o "$pbf"
+          fi
+          python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json --source-url "$source"
       - name: Compare every archived call sequence with the one marked map direction
         run: |
           if test -d "$RUNNER_TEMP/aftu-maps"; then
@@ -60,6 +64,7 @@ jobs:
             python -m scripts.audit_aftu_map_calls "$RUNNER_TEMP/aftu-maps" "$zip" artifacts/aftu/archived-call-fit.json
           fi
       - name: Save route audit
+        if: always() && hashFiles('artifacts/aftu/aftu-official-route-pages.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: aftu-official-route-pages

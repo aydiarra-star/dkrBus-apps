@@ -46,7 +46,7 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(28)
+  expect(report).toHaveLength(44)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
     expect(r.status).toBe('blocked'); expect(r.meters).toBeNull()
@@ -57,6 +57,9 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
     expect(r.sources.filter(s => !s.startsWith('https://')).every(s => existsSync(s))).toBe(true)
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
   }
+  const feeders = report.filter(r => r.busSources.some(id => /^ddd:50/.test(id)))
+  expect(feeders).toHaveLength(14)
+  expect(new Set(feeders.flatMap(r => r.busSources)).size).toBe(7)
   const scat = report.find(r => r.from.stopId === 'brt-scat-urbam')!
   expect([scat, ...scat.otherServiceDirections].map(v => v.observed.alight?.direction)).toEqual(['Préfecture de Guédiawaye → Petersen','Vers Guédiawaye · portion Petersen → Gueule Tapée'])
   expect(scat.otherServiceDirections[0].status).toBe('blocked')
@@ -71,6 +74,16 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
   expect([...dakarNetwork.walking.values()].flat().every(w => w.onlyFor)).toBe(true)
 })
 
+
+it('retains actual TER observations in a staging network without lending the platform to the feeder bus', () => {
+  const p = dakarNetwork.patterns.find(v => v.mode === 'ter')!, i = p.stops.indexOf('ter-colobane')
+  const base = p.calls[i], platform = { ...base, id: 'qa-station-platform', kind: 'platform' as const }
+  const net = buildNetwork({ places: [...dakarNetwork.places.values(), platform], patterns: [p], footways: [], platformBindings: [{
+    mode: 'ter', lineId: p.lineId, direction: p.direction, role: 'alight', stopId: base.id, platformId: platform.id, stepFree: 'unknown', evidence: base.evidence }] })
+  const pair = dakarTransferReport(net).find(r => r.dossier === 'colobane-ter-502a' && r.from.mode === 'ter')!
+  expect(net.rejected).toEqual([]); expect(pair.observed.alight?.platformId).toBe(platform.id)
+  expect(pair.observed.board).toBeUndefined(); expect(pair.status).toBe('blocked')
+})
 
 it('reviews one staging envelope in one direction only, without changing the Dakar inventory', () => {
   const packet = { dossier: 'petersen-brt-ddd', fromStopId: 'brt-petersen', toStopId: 'ddd-petersen',

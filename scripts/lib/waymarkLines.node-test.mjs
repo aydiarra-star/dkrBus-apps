@@ -17,3 +17,13 @@ test('unknown, ambiguous and multipart maps are not complete lines', () => {
   assert.deepEqual(inspectWaymark(html([{geometry:{type:'MultiLineString'}}])).lines,[])
   assert.equal(inspectWaymark(html([{geometry:{type:'LineString',coordinates:[[14,-17],[15,-17]]}}])).lines[0].status,'INVALID_LINE')
 })
+
+test('only hands a single valid drawing to the road check; reads Start at either end and leaves duplicate roles ambiguous', () => {
+  const start = { properties: {type: 'start'}, geometry: {type: 'Point',coordinates: line.geometry.coordinates.at(-1)} }
+  const seen = []
+  inspectWaymark(html([line,start,marker]), v => seen.push(v))
+  assert.equal(seen[0].orientation,'start-last'); assert.deepEqual(seen[0].positions,line.geometry.coordinates)
+  inspectWaymark(html([line,start,start,marker]), v => seen.push(v)); assert.equal(seen[1].orientation,null)
+  for (const h of [html([line,marker])+html([], () => 'invalid()'),html([line,null]),html([line,line]),html([{geometry:{type:'MultiLineString'}}])]) inspectWaymark(h, v => seen.push(v))
+  assert.equal(seen.length,2)
+})

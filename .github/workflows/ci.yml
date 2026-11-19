@@ -32,13 +32,18 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
+        run: python -m unittest tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
 
       - name: Install dependencies
         run: npm ci
 
       - name: Verify offline bus inventory and versioned coverage table
-        run: node --test scripts/bus_inventory.node-test.mjs
+        run: |
+          node --test scripts/bus_inventory.node-test.mjs scripts/lib/busReadiness.node-test.mjs scripts/lib/waymarkLines.node-test.mjs
+          # Recalculate at the pinned date. A changed route, selection, leg time
+          # or classification must not silently leave yesterday's receipt green.
+          node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 > "$RUNNER_TEMP/bus-day.json"
+          cmp data/bus-review/replay-2026-11-19.json "$RUNNER_TEMP/bus-day.json"
 
       - name: Check AFTU/TATA source coverage audit
         run: node --check scripts/audit_aftu_tata_directional_coverage.mjs

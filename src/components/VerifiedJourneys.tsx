@@ -1,3 +1,4 @@
+import type { OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { Clock3, Footprints, Layers3, ShieldCheck } from 'lucide-react'
 import { CORRIDOR_LINES } from '../domain/corridors'
 import { fareForJourney, fareStatusLabel } from '../domain/fares'
@@ -40,9 +41,12 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
 }
 
 export type ChooseSection = (section: Pick<StopSection, 'from' | 'to'> & { tripId?: string }) => void
+function DrawingNote({ drawing, url }: { drawing: OperatorDrawing; url: string }) {
+  return <p><a href={url} target="_blank" rel="noreferrer">Carte du sens publié par l’AFTU</a> : {drawing.from} → {drawing.to} ({(drawing.meters / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} km sur le dessin entier). Ce n’est ni la distance de votre trajet ni la position d’un quai.</p>
+}
 function Side({ side, onChoose }: { side: ChangeSide; onChoose: ChooseSection }) {
   return <li><strong>{side.line}</strong> · « {side.from} » → « {side.to} »<br />
-    {side.kind === 'sheet' ? <><a href={side.url} target="_blank" rel="noreferrer">{side.source}</a> · <a href={`tel:${side.contact.phone.replaceAll(' ', '')}`}>Renseignements {side.contact.name}</a></>
+    {side.kind === 'sheet' ? <><a href={side.url} target="_blank" rel="noreferrer">{side.source}</a> · <a href={`tel:${side.contact.phone.replaceAll(' ', '')}`}>Renseignements {side.contact.name}</a>{side.drawing && <DrawingNote drawing={side.drawing} url={side.url} />}</>
       : <button className="text-action" type="button" onClick={() => onChoose(side.section)}>Calculer ce tronçon seul</button>}
   </li>
 }
@@ -86,7 +90,7 @@ function ConnectionDetails({ failure, preferences, onChoose }: {
       <p>La fiche cite ces noms dans cet ordre. Elle ne situe pas les quais aux points choisis et ne confirme ni le tracé ni le passage demandé.</p>
       <ul>{failure.documentation?.slice(0, 3).map(d => <li key={`${d.line}:${d.url}`}>
         <strong>{d.line}</strong> : « {d.fromLabel} » puis « {d.toLabel} ».<br />
-        <a href={d.url} target="_blank" rel="noreferrer">{d.source}</a>{d.window && <p>{d.window}</p>}
+        <a href={d.url} target="_blank" rel="noreferrer">{d.source}</a>{d.window && <p>{d.window}</p>}{d.drawing && <DrawingNote drawing={d.drawing} url={d.url} />}
         <details>
           <summary>Vérifier auprès du réseau {d.operator.name}</summary>
           <p>{d.question}</p>

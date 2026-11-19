@@ -8,7 +8,7 @@ const headers = { "User-Agent": "DakarBus-official-route-audit/1.0" };
 const ADDITIONAL_OFFICIAL_PAGES = [
   { slug: "27", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-27/" },
   { slug: "36", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-36/" },
-  ...["84", "85", "86", "87", "88", "89", "91"].map((slug) => ({
+  ...["84", "85", "86", "87", "88", "89", "90", "91"].map((slug) => ({
     slug,
     url: `https://aftu-senegal.org/map/dakar-urbain-ligne-${slug}/`,
   })),

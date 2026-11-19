@@ -85,6 +85,17 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(row.textContent).toContain('Retour non confirmé')
   })
 
+  it('montre les 17 repères publiés de la 80 sans annoncer le retour inversé ni un passage réseau', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const buttons = getDirectionButtons(container, '80')
+    for (const b of buttons) expect(b.querySelector('[role="status"] strong')?.textContent).toBe('Non confirmé')
+    fireEvent.click(buttons[0]); const row = buttons[0].closest('li')!
+    await waitFor(() => expect(row.querySelectorAll('.station-board-itinerary-list li')).toHaveLength(17))
+    expect(row.querySelector('.station-board-itinerary-list')?.textContent).toMatch(/Diamalaye.*Keur Massar.*Darou Thioub/)
+    fireEvent.click(buttons[1]); expect(row.querySelector('.station-board-itinerary-list')).toBeNull()
+    expect(row.textContent).toContain('Retour non confirmé')
+  })
+
   it('n’affiche qu’une seule représentation par sens pour chaque numéro de ligne unifié', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const groups = Array.from(container.querySelectorAll('.station-board-line-group'))
@@ -125,7 +136,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(buttons).toHaveLength(2)
     expect(buttons.every((button) => button.textContent?.includes('Reprise dans 26 min'))).toBe(true)
     expect(buttons.every((button) => button.textContent?.includes('Reprise à 06:00'))).toBe(true)
-    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(108)
+    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(106)
   })
 
   it('conserve la présentation habituelle des lignes DDD', () => {
