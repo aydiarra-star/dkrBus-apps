@@ -113,17 +113,34 @@ export function sanitizeManifest(
   serverValidityStatus: "NOT_YET_VALID" | "STALE" | "CURRENT",
   serverIngestedAt: string,
 ): Record<string, unknown> {
-  const sanitized = { ...value };
-  delete sanitized.validation;
-  delete sanitized.record_count;
-  delete sanitized.integrity_status;
-  delete sanitized.validation_report;
-  delete sanitized.validator_version;
-  delete sanitized.structure_valid;
-  delete sanitized.production_ready;
-  sanitized.validity_status = serverValidityStatus;
-  sanitized.ingested_at = serverIngestedAt;
-  return sanitized;
+  const archive = value.archive as Record<string, unknown>;
+  // Persist only the documented provenance fields. Unknown importer fields,
+  // alternate validation claims, counts and approval metadata never survive.
+  return {
+    schema_version: "1.0",
+    dataset_id: value.dataset_id,
+    dataset_version: value.dataset_version,
+    operator: value.operator,
+    source: value.source,
+    source_type: value.source_type,
+    ...(value.source_url === undefined ? {} : { source_url: value.source_url }),
+    date_source: value.date_source,
+    verified_at: value.verified_at,
+    valid_from: value.valid_from,
+    valid_until: value.valid_until,
+    confidence: value.confidence,
+    service_status: value.service_status,
+    review_status: "PENDING_REVIEW",
+    publication_status: "NOT_PUBLISHED",
+    publication_ready: false,
+    archive: {
+      stored_as: "feed.zip",
+      bytes: archive.bytes,
+      sha256: archive.sha256,
+    },
+    validity_status: serverValidityStatus,
+    ingested_at: serverIngestedAt,
+  };
 }
 
 export function canonicalObjectPaths(datasetId: string, archiveSha256: string): {
