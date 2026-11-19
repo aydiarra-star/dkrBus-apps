@@ -307,7 +307,7 @@ async function createUpload(
   if (objectLookupError) return reply(503, { error: "STORAGE_PATH_LOOKUP_FAILED" }, cors);
   if (existingObjects?.length) return reply(409, { error: "CANONICAL_STORAGE_PATH_ALREADY_EXISTS" }, cors);
 
-  const expiresAt = uploadSessionExpiryAfterTokenIssuedAt();
+  const initialExpiresAt = uploadSessionExpiryAfterTokenIssuedAt();
   const { data: session, error: insertError } = await admin.from(UPLOAD_TABLE).insert({
     dataset_id: datasetId,
     dataset_version: manifest.dataset_version,
@@ -329,7 +329,7 @@ async function createUpload(
     manifest_sha256: manifestSha256,
     manifest_text: manifestText,
     imported_by: user.id,
-    expires_at: expiresAt,
+    expires_at: initialExpiresAt,
   }).select("upload_id, dataset_id, archive_object_path, archive_bytes, archive_sha256, expires_at").single();
 
   if (insertError || !session) {
