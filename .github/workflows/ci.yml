@@ -32,7 +32,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_bus_board_profiles tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_freeze_bus_checks tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
+        run: python -m unittest tests.test_bus_board_profiles tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_audit_interchange_sites tests.test_freeze_bus_checks tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
 
       - name: Install dependencies
         run: npm ci
@@ -245,6 +245,10 @@ jobs:
           python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json --inventory artifacts/bus-review/inventory.json --source-url '${{ steps.pedestrian_geofabrik.outputs.source_url }}'
           python -m scripts.audit_bus_osm_occurrences artifacts/bus-review/inventory.json artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/occurrences.json --ci-summary
           python -m scripts.audit_bus_continuity artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/continuity.json --ci-summary
+
+      - name: Check actual platform–footway junctions at the eight interchange sites
+        if: steps.pedestrian_geofabrik.outcome == 'success'
+        run: python -m scripts.audit_interchange_sites artifacts/pedestrian/dakar.osm.pbf artifacts/bus-review/interchange-sites.json --ci-summary
 
       - name: Upload read-only bus occurrence and pinned member comparison
         if: steps.dakar_bus_routes.outcome == 'success'
