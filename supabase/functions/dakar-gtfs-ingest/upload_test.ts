@@ -8,6 +8,7 @@ import {
   MAX_ARCHIVE_BYTES,
   readJsonWithLimit,
   RequestBodyTooLargeError,
+  sanitizeManifest,
   sha256Hex,
   validManifest,
 } from "./upload.ts";
@@ -80,6 +81,28 @@ Deno.test("rejects unsafe source URLs and inverted validity periods", () => {
     valid_until: "2026-11-19T00:00:00Z",
   }), "synthetic-feed")) {
     throw new Error("An inverted validity period was accepted");
+  }
+});
+
+Deno.test("removes importer-supplied validation reports and row counts", () => {
+  const sanitized = sanitizeManifest(syntheticManifest({
+    validation: { status: "STRUCTURALLY_VALID", report: { structure_valid: true } },
+    integrity_status: "OK",
+    validation_report: { structure_valid: true },
+    validator_version: "client-controlled",
+    structure_valid: true,
+    production_ready: true,
+  }), "CURRENT");
+  for (const key of [
+    "validation", "record_count", "integrity_status", "validation_report",
+    "validator_version", "structure_valid", "production_ready",
+  ]) {
+    if (Object.hasOwn(sanitized, key)) {
+      throw new Error(`Importer-supplied validation field was retained: ${key}`);
+    }
+  }
+  if (sanitized.validity_status !== "CURRENT") {
+    throw new Error("Server-computed validity status was not stored");
   }
 });
 
