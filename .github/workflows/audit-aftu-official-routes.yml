@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "scripts/lib/waymarkLines*"
       - "scripts/export_aftu_official_routes.mjs"
       - ".github/workflows/audit-aftu-official-routes.yml"
 
@@ -19,8 +20,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: node --test scripts/lib/waymarkLines.node-test.mjs
       - name: Retrieve official AFTU route pages
         run: node scripts/export_aftu_official_routes.mjs
+      - name: Report overlay measurements (not passenger geometry)
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const r = JSON.parse(readFileSync('artifacts/aftu/aftu-official-route-pages.json'));
+          // One compact receipt per batch, no redistribution of point arrays.
+          console.log(`::notice title=Acquisition AFTU::${r.status} · ${r.summary.pagesFetched} pages · ${r.errors.length} erreurs`);
+          const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other]);
+          for (let i = 0; i < rows.length; i+=5) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+5)).replaceAll('%','%25'));
+          JS
       - name: Save route audit
         uses: actions/upload-artifact@v4
         with:

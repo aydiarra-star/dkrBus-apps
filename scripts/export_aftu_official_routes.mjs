@@ -1,5 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 
+import { inspectWaymark } from './lib/waymarkLines.mjs';
+
 const INDEX = "https://aftu-senegal.org/infos-pratiques/";
 const OUTPUT = "artifacts/aftu/aftu-official-route-pages.json";
 const headers = { "User-Agent": "DakarBus-official-route-audit/1.0" };
@@ -71,6 +73,7 @@ async function extractRoute(slug, url, sourceIndexListed) {
   const lineNumber = slug.match(/^[0-9]+[a-z]?/i)?.[0]?.toUpperCase() ?? slug.toUpperCase();
   return {
     operator: "AFTU",
+    mapReview: inspectWaymark(html),
     line: lineNumber,
     slug,
     title: text.slice(Math.max(0, text.indexOf("Dakar")), Math.max(0, text.indexOf("Dakar")) + 120) || null,
