@@ -41,7 +41,7 @@ test('reports cartographic sections, dated patterns and footways separately', ()
   assert.equal(traces.length, 35)
   assert.deepEqual(report.pinnedOsm.relations.map(r => [r.id,r.version]), [[19961937,4],[19961993,3],[17357331,4],[19961714,2]])
   assert.equal(traces.find(e => e.id === 'aftu-40-maristes').markerKind, 'road-limit')
-  assert.deepEqual(report.staticRouting.patterns.map(p => p.mode).sort(), ['brt','brt','ter'])
+  assert.deepEqual(report.staticRouting.patterns.map(p => p.mode).sort(), ['brt','brt','ddd','ter'])
   assert.deepEqual(report.staticRouting.rejected, []); assert.equal(report.staticRouting.footways, 4)
 })
 

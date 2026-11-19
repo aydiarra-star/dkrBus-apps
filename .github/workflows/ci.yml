@@ -43,7 +43,13 @@ jobs:
           # Recalculate at the pinned date. A changed route, selection, leg time
           # or classification must not silently leave yesterday's receipt green.
           node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 > "$RUNNER_TEMP/bus-day.json"
-          cmp data/bus-review/replay-panneaux-v1-2026-11-19.json "$RUNNER_TEMP/bus-day.json"
+          cmp data/bus-review/replay-calculateur-2026-11-19.json "$RUNNER_TEMP/bus-day.json"
+          node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 --points data/bus-sections/selection-0c6cf56.json > "$RUNNER_TEMP/cohort.json"
+          cmp data/bus-review/replay-calculateur-144-2026-11-19.json "$RUNNER_TEMP/cohort.json"
+          for time in 05:00 19:00; do
+            node scripts/audit_timetable_advice.mjs --at "2026-11-19T$time" > "$RUNNER_TEMP/hours.json"
+            cmp "data/bus-review/horaires-maristes-2026-11-19-${time/:/}.json" "$RUNNER_TEMP/hours.json"
+          done
           node scripts/audit_bus_boards.mjs --markdown "$RUNNER_TEMP/bus-boards.md"
           cmp docs/passages-bus-par-ligne.md "$RUNNER_TEMP/bus-boards.md"
 

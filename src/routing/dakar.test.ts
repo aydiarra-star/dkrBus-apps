@@ -14,11 +14,11 @@ const endpoint = (id: string) => {
 }
 function plan(from: string, to: string, departAt = morning) { return planDakarJourney(endpoint(from), endpoint(to), { departAt }) }
 
-it('uses only the 13 phase-one calls and 23 B1 calls and does not mutate or publish the wider reference', () => {
+it('keeps the 13 phase-one and 23 B1 calls, adding only the six directional Médina platforms', () => {
   expect(net.rejected).toEqual([])
-  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23], ['19961993', 22]])
+  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23], ['19961993', 22], ['6951328/v28:25-30', 6]])
   expect([...net.places.values()].filter(p => p.kind === 'call')).toHaveLength(36)
-  expect(net.places.size).toBe(40); expect([...net.walking.values()].flat()).toHaveLength(4)
+  expect(net.places.size).toBe(46); expect([...net.walking.values()].flat()).toHaveLength(4)
   expect(net.places.has('ter-aibd')).toBe(false)
   expect(TER_STOPS).toHaveLength(14); expect(BRT_STOPS).toHaveLength(23)
   expect(CORRIDOR_TRANSFERS).toHaveLength(6)

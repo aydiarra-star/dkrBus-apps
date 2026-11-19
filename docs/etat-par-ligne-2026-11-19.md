@@ -1,18 +1,18 @@
 # Peut-on calculer un trajet sur chaque ligne de bus ?
 
-**2026-11-19 à 19:00 (Dakar)** · 144 sélections, 20592 couples orientés effectivement essayés. 716 voyages complets, dont **0 avec DDD/AFTU/TATA** et **0 avec changement**. Application embarquée, sans édition opérateur.
+**2026-11-19 à 19:00 (Dakar)** · 150 sélections, 22350 couples orientés effectivement essayés. 731 voyages complets, dont **15 avec DDD/AFTU/TATA** et **0 avec changement**. Application embarquée, sans édition opérateur.
 
 Une ligne du tableau est un **couple provenance/code**, pas forcément un service distinct. Sept questions : quais ordonnés A/R, tracé entier A/R, correspondance, départ du jour et résultat du calcul. **A** est orienté par la fiche directionnelle, sinon les marqueurs de la carte, l’ordre du texte ou le titre ; **R** est évalué indépendamment. Le titre n’atteste ni A ni R. Les variantes non équivalentes restent à part.
 
 **Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté. « 0/2 suites » signifie que, parmi deux variantes de l’archive essayées sur le seul dessin marqué, aucune ne passe tous les contrôles ; ce n’est pas un nombre de courses.
 
-[Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
+[Essayer la DDD 1 et comparer les horaires 12/75 sans les confondre avec un transfert tracé](trajets-bus-medina-maristes.md) · [Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
 
 ## DDD — 48 identités
 
 | Code · sens de lecture A | Quais A | Quais R | Tracé entier A | Tracé entier R | Changement | Départs du jour | Calcul |
 |---|---|---|---|---|---|---|---|
-| **1** · Terminus Parcelles Assainies → Terminus Leclerc | Non · 22 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · bornes seules | Non · 1 relation(s) sans desserte entière validée |
+| **1** · Terminus Parcelles Assainies → Terminus Leclerc | 6/6 sur portion | Non | Portion seulement | Non établi | Aucun dossier ciblé | fréquence modélisée | 15 couples sur la desserte témoin · ref:ddd-1-medina-4666430960 → ref:ddd-1-medina-4666430958 |
 | **2** · Terminus Daroukhane → Terminus Leclerc | Non · 35 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **4** · Terminus Liberté 5 (Dieuppeul) → Terminus Leclerc | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **5** · Terminus Guédiawaye → Palais 1 | Non · 15 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |

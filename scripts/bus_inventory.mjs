@@ -158,6 +158,6 @@ export function coverageTable(inventory) {
     out.push('')
   }
   out.push('Hors attribution :', ...inventory.unassigned.map(u => `- ${u.source}${u.sourceCode ? ` (${u.sourceCode})` : ''} : ${u.side}, ${u.labels?.length ?? 0} occurrences.`), '',
-    `Calcul daté local (hors édition opérateur) : ${inventory.staticRouting.patterns.filter(p => ['ddd','aftu','tata'].includes(p.mode)).length} sens de bus ; ${inventory.staticRouting.footways} arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.`, '')
+    `Calcul daté local (hors édition opérateur) : ${inventory.staticRouting.patterns.filter(p => ['ddd','aftu','tata'].includes(p.mode)).length} portion(s) ou sens de bus admis ; ${inventory.staticRouting.footways} arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.`, '')
   return out.join('\n')
 }

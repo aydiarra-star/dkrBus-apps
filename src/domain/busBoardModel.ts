@@ -1,5 +1,6 @@
 /** All quantities here parameterise signs, never passenger service. See
  * docs/modeles-passages-bus.md for sources, calibration and exclusions. */
+import { boundedDddWindows, DDD_ORIGIN_WINDOWS } from './dddOriginWindows'
 import profiles from '../data/bus-board-profiles.json'
 import { AFTU_DRAWINGS } from '../data/reviewedAftuDrawings'
 import { AFTU_CETUD_SCHEDULE_SETTINGS as cetud } from '../data/aftuScheduleSettings'
@@ -15,16 +16,9 @@ export const AFTU_MODEL_WEEK = everyDay([
   window('06:00', '08:59', (peak.min + peak.max) / 2), window('09:00', '16:59', (off.min + off.max) / 2),
   window('17:00', '19:59', (peak.min + peak.max) / 2), window('20:00', cetud.generalServiceWindow.end, (off.min + off.max) / 2),
 ])
-export const DDD_MODEL_WEEK = everyDay([window('05:30', '05:59', 13), window('06:00', '08:59', 8), window('09:00', '15:59', 13),
-  window('16:00', '18:59', 8), window('19:00', '21:00', 13)])
-
+export const DDD_MODEL_WEEK = everyDay(DDD_ORIGIN_WINDOWS)
 export function publishedBounds(start: string, end: string): Week {
-  // A published first/last departure constrains a model; it does not prove
-  // the frequency in between. Clip each period, and retain the real last.
-  return everyDay(DDD_MODEL_WEEK.weekday!.flatMap(w => {
-    const a = w.start < start ? start : w.start, b = w.end > end ? end : w.end
-    return a <= b ? [{ start: a, end: b, every: w.every, includePublishedLast: b === end }] : []
-  }))
+  return everyDay(boundedDddWindows(start, end))
 }
 export function sheetWeek(s: EstimatedLineSchedule): Week {
   const convert = (w: EstimatedLineSchedule['weekday']) => {

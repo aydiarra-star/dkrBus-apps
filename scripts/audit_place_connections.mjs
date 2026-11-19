@@ -92,7 +92,10 @@ try {
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)
     if (r.ok) for (const t of r.options) {
       console.log(tripSummary(t))
-      for (const leg of t.legs) console.log(`  ${leg.kind === 'walk' ? `Marche (${leg.role})` : leg.lineName} : ${leg.from.name} → ${leg.to.name} · ${Math.round(leg.meters)} m · ${dakarClock(leg.start)}–${dakarClock(leg.end)}`)
+      for (const leg of t.legs) {
+        console.log(`  ${leg.kind === 'walk' ? `Marche (${leg.role})` : leg.lineName} : ${leg.from.name} → ${leg.to.name} · ${Math.round(leg.meters)} m · ${dakarClock(leg.start)}–${dakarClock(leg.end)}`)
+        if (leg.kind === 'ride' && leg.timing === 'frequency' && leg.mode === 'ddd') console.log(`  Passage modélisé : ${leg.serviceSource}`)
+      }
     }
     else {
       console.log(`${r.code} : ${r.message}`)

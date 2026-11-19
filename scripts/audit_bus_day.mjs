@@ -32,7 +32,7 @@ try {
   if (replay.snapshotId !== snapshot || net.rejected.length || !isDeepStrictEqual(replay.pointIds, buildStopIndex([],net.places.values(),snapshot).filter(o => o.selectable).map(o => o.value)) ||
       !isDeepStrictEqual(replay.admittedServices, admittedServices(net,Math.floor(epoch/86400)*86400,epoch))) throw Error('Le reçu ne correspond pas au graphe et aux sélections de cette version.')
   const { dakarTransferReport } = await load('/src/admin/dakarTransferDossiers.ts')
-  const report = busReadiness(await busInventory(load), observations, dakarTransferReport(net,epoch), replay, v.at, v.bindings ? json(v.bindings) : [])
+  const report = busReadiness(await busInventory(load), observations, dakarTransferReport(net,epoch), replay, v.at, [...json('data/bus-review/local-pattern-bindings.json'), ...(v.bindings ? json(v.bindings) : [])])
   if (v.output) writeFileSync(v.output, JSON.stringify(report,null,2)+'\n')
   if (v.markdown) writeFileSync(v.markdown, readinessTable(report))
   console.log(`${report.atDakar} (Dakar) · ${report.rows.length} identités · ${report.pairs} couples · ${report.includes.bus} avec bus DDD/AFTU/TATA · ${report.includes.anyChange} avec changement.`)

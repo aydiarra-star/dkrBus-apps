@@ -51,13 +51,14 @@ import { EstimatedLineScheduleBoard, type ExplorerBusEdition } from './component
 import { ExternalDirections } from './components/ExternalDirections'
 import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
+import { TimetablePlanner } from './components/TimetablePlanner'
 import { HistoricalPlanner } from './components/HistoricalPlanner'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { passengerLookup } from './routing/answers'
 import { usePassengerNetwork } from './components/usePassengerNetwork'
 import { planDakarJourney, type DakarEndpoint, type DakarOutcome } from './routing/dakar'
 import { mapBusSection, mapItinerary, tripSummary } from './routing/presentation'
-import { endpointOf } from './routing/placeConnections'
+import { endpointOf, type JourneySettings } from './routing/placeConnections'
 import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
 import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
@@ -463,6 +464,7 @@ function App() {
   const [selectedTripId, setSelectedTripId] = useState<string>()
   const [stepFreeOnly, setStepFreeOnly] = useState(false)
   const [maxChanges, setMaxChanges] = useState(3)
+  const [hoursOnly, setHoursOnly] = useState(false)
   const roadRouteRequestId = useRef(0)
   /** Comparaison calculée pour l'écran Trajet, conservée entre les onglets. */
   const [pickingPoint, setPickingPoint] = useState<RoutePointKey | null>(null)
@@ -530,6 +532,7 @@ function App() {
     roadRouteRequestId.current += 1
     requestIds.current.journey += 1
     setSelectedTripId(undefined)
+    setHoursOnly(false) // an explicit map/stop choice returns to geographic routing
     storeRoutePoints(next)
   }, [])
   /** Dernière valeur des points de trajet, lue par les rappels asynchrones (GPS). */
@@ -1085,6 +1088,15 @@ function App() {
     if (target && target !== 'explore') setActiveTab(target)
   }
 
+  function changeRouteMode(value: boolean) {
+    if (hoursOnly === value) return
+    beginRequest('journey') // supersede an in-flight snapshot result or GPS origin
+    roadRouteRequestId.current += 1
+    setRouteAttempted(false); setJourney(IDLE_JOURNEY)
+    setPickingPoint(null); setPendingShortcut(null); setPickReturnTab(null)
+    setHoursOnly(value)
+  }
+
   function startPointSelection(key: RoutePointKey) {
     // La carte est visible directement dans Trajet : le choix reste sur place.
     setPendingShortcut(null)
@@ -1168,6 +1180,7 @@ function App() {
       return
     }
 
+    const requestedJourney = requestIds.current.journey
     setGpsState('loading')
     setGpsMessage(null)
     navigator.geolocation.getCurrentPosition(
@@ -1187,6 +1200,8 @@ function App() {
         setGpsMessage(position.coords.accuracy > 100 ? 'Position approximative' : 'Position localisée')
         if (dataAvailable) void loadNearbyStops(coords)
         if (purpose === 'origin') {
+          // The user may have selected another stop or switched to timetable sheets.
+          if (!isLatestRequest('journey', requestedJourney)) return
           const origin: MapPoint = { ...coords, label: 'Ma position' }
           setRoutePoints((current) => ({ ...current, origin }))
           setActiveTab('route')
@@ -1551,8 +1566,8 @@ function App() {
 
   // La carte accompagne Explorer et Trajet : le calcul multimodal reste visible
   // pendant la recherche, sans remplacer les géométries du réseau.
-  const mapVisible = activeTab === 'explore' || activeTab === 'route'
-  const showStopCard = activeTab === 'explore' || activeTab === 'route'
+  const mapVisible = activeTab === 'explore' || (activeTab === 'route' && !hoursOnly)
+  const showStopCard = mapVisible
 
   const routingOptions = useMemo(() => ({
     departAt, modes: MOBILITY_IDS.filter(id => preferences.mobility.networks[id]),
@@ -1561,10 +1576,10 @@ function App() {
   }), [departAt, preferences.mobility, stepFreeOnly, maxChanges])
   const lookup = useMemo(() => passengerLookup(routingOptions, edition.network), [routingOptions, edition.network])
   // The selected itinerary is the single source for the list, speech and map.
-  const journeyPlan = useMemo(() => routePoints.origin && routePoints.destination && !searchRoute
-    ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions, edition.network) : null, [routePoints, routingOptions, searchRoute, edition.network])
+  const journeyPlan = useMemo(() => !hoursOnly && routePoints.origin && routePoints.destination && !searchRoute
+    ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions, edition.network) : null, [hoursOnly, routePoints, routingOptions, searchRoute, edition.network])
   const selectedTrip = journeyPlan?.ok ? (selectedTripId ? journeyPlan.options.find(t => t.id === selectedTripId) : journeyPlan.options[0]) : undefined
-  const journeyFocus = activeTab === 'route' && !pickingPoint && Boolean(routePoints.origin && routePoints.destination)
+  const journeyFocus = activeTab === 'route' && !hoursOnly && !pickingPoint && Boolean(routePoints.origin && routePoints.destination)
   const mapPortion = journeyPlan && !journeyPlan.ok && portionChoice?.result === journeyPlan
     ? journeyPlan.mapSections?.find(s => s.id === portionChoice.id) : undefined
   const overlay = useMemo(() => journeyFocus && mapPortion ? mapBusSection(mapPortion) : mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip, mapPortion])
@@ -1839,7 +1854,7 @@ function App() {
 
           {activeTab === 'route' && (
             <>
-              {search.trim() && (
+              {!hoursOnly && search.trim() && (
                 <UniversalSearchCard
                   query={search}
                   answer={assistantAnswer?.traffic ? { ...assistantAnswer, answer: answerAssistant(assistantAnswer.question, {
@@ -1855,6 +1870,7 @@ function App() {
                 />
               )}
               <RoutePanel
+                hoursOnly={hoursOnly} onHoursOnly={changeRouteMode} routingOptions={routingOptions}
                 routePoints={routePoints}
                 pickingPoint={pickingPoint}
                 routeAttempted={routeAttempted}
@@ -1871,7 +1887,7 @@ function App() {
                   const nextPreferences = updatePreferences('mobility', {
                     networks: { ...preferences.mobility.networks, [id]: !preferences.mobility.networks[id] },
                   })
-                  if (routeAttempted && routePoints.origin && routePoints.destination) {
+                  if (!hoursOnly && routeAttempted && routePoints.origin && routePoints.destination) {
                     void runJourneySearch(routePoints.origin, routePoints.destination, nextPreferences)
                   }
                 }}
@@ -1893,7 +1909,7 @@ function App() {
                 selectedId={selectedTrip?.id} onSelectTrip={setSelectedTripId}
                 stepFreeOnly={stepFreeOnly} onStepFreeChange={value => { beginRequest('journey'); setJourney(IDLE_JOURNEY); setRouteAttempted(false); setStepFreeOnly(value) }}
               />
-              <HistoricalPlanner origin={routePoints.origin} destination={routePoints.destination} preferences={preferences} />
+              {!hoursOnly && <HistoricalPlanner origin={routePoints.origin} destination={routePoints.destination} preferences={preferences} />}
             </>
           )}
 
@@ -2528,6 +2544,7 @@ function PointComboboxField({
 }
 
 function RoutePanel({
+  hoursOnly, onHoursOnly, routingOptions,
   routePoints,
   pickingPoint,
   routeAttempted,
@@ -2546,6 +2563,7 @@ function RoutePanel({
   preferences,
   maxChanges, onMaxChanges, editionNotice, journeyPlan, shownPortion, onShowPortion, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
 }: {
+  hoursOnly: boolean; onHoursOnly: (value: boolean) => void; routingOptions: JourneySettings
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
   routeAttempted: boolean
@@ -2577,6 +2595,17 @@ function RoutePanel({
   stepFreeOnly: boolean
   onStepFreeChange: (value: boolean) => void
 }) {
+  const controls = <>
+    <label className="verified-departure">Date et heure de départ à Dakar
+      <input type="datetime-local" required value={departureInput} onChange={e => onDepartureChange(e.target.value)} />
+    </label>
+    <label className="verified-departure">Correspondances autorisées
+      <select value={maxChanges} onChange={e => onMaxChanges(Number(e.target.value))}>
+        <option value={0}>Trajet direct uniquement</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} au maximum</option>)}
+      </select>
+    </label>
+    <label className="verified-departure"><input type="checkbox" checked={stepFreeOnly} onChange={e => onStepFreeChange(e.target.checked)} /> Uniquement les parcours sans marches vérifiés</label>
+  </>
   return (
     <section className="panel route-panel" aria-label="Planifier un itinéraire">
       <div className="panel-heading-row">
@@ -2585,13 +2614,17 @@ function RoutePanel({
           <h2>Planifier un trajet</h2>
 
         </div>
-        {(routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
+        {!hoursOnly && (routePoints.origin || routePoints.destination) && <button type="button" className="icon-button clear-route" aria-label="Effacer le trajet" onClick={onClear}><X size={16} /></button>}
       </div>
 
+      <div className="route-calculation-mode" role="group" aria-label="Type de calcul">
+        <button type="button" aria-pressed={!hoursOnly} onClick={() => onHoursOnly(false)}>Sur la carte</button>
+        <button type="button" aria-pressed={hoursOnly} onClick={() => onHoursOnly(true)}>Sur horaires · Maristes</button>
+      </div>
       <div className="route-network-filter-block">
         <div className="route-network-filter-heading">
           <strong>Réseaux à utiliser</strong>
-          <span>Le calcul utilise uniquement les lignes et les correspondances vérifiées des réseaux activés.</span>
+          <span>{hoursOnly ? 'Seules les fiches des réseaux activés sont comparées.' : 'Le calcul utilise uniquement les lignes et les correspondances vérifiées des réseaux activés.'}</span>
         </div>
         <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
           {MOBILITY_IDS.map((id) => {
@@ -2618,6 +2651,7 @@ function RoutePanel({
         </div>
       </div>
 
+      {hoursOnly ? <TimetablePlanner controls={controls} settings={routingOptions} /> : <>
       <form onSubmit={onSubmit}>
         <div className="route-fields-wrap">
           <div className="route-fields-card">
@@ -2655,15 +2689,7 @@ function RoutePanel({
         </div>
 
 
-        <label className="verified-departure">Date et heure de départ à Dakar
-          <input type="datetime-local" required value={departureInput} onChange={e => onDepartureChange(e.target.value)} />
-        </label>
-        <label className="verified-departure">Correspondances autorisées
-          <select value={maxChanges} onChange={e => onMaxChanges(Number(e.target.value))}>
-            <option value={0}>Trajet direct uniquement</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} au maximum</option>)}
-          </select>
-        </label>
-        <label className="verified-departure"><input type="checkbox" checked={stepFreeOnly} onChange={e => onStepFreeChange(e.target.checked)} /> Uniquement les parcours sans marches vérifiés</label>
+        {controls}
         <button className="primary-action route-submit" type="submit" aria-label="Rechercher mon itinéraire" disabled={!routePoints.origin || !routePoints.destination}>
           <Search size={18} /><span>Rechercher un trajet</span><ArrowRight size={19} />
         </button>
@@ -2677,9 +2703,10 @@ function RoutePanel({
           : <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
       ) : !journeyPlan && (
         <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
-          <div><strong>Choisissez un lieu ou un arrêt</strong><span>Pour voir une portion de bus sans horaire, cherchez « DDD 1 », « DDD 4 » ou « AFTU 40 » dans les champs. Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
+          <div><strong>Choisissez un lieu ou un arrêt</strong><span>Pour prendre la DDD 1 vers Leclerc, choisissez par exemple « École Manguiers » et « Stade Iba Mar Diop ». Les passages sont estimés. Les repères « Portions de bus cartographiées » montrent seulement la voirie. Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
         </div>
       )}
+      </>}
     </section>
   )
 }

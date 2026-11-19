@@ -1,0 +1,11 @@
+[
+  {
+    "mode": "ddd",
+    "lineId": "ddd-1-medina",
+    "direction": "Leclerc · portion Manguiers → Stade",
+    "code": "1",
+    "side": "outbound",
+    "scope": "section",
+    "reference": "DDD Parcelles → Leclerc : six appels (34–39), membres 25–30 de la relation OSM 6951328 v28. Voir docs/trajets-bus-medina-maristes.md."
+  }
+]

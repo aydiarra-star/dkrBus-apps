@@ -8,6 +8,7 @@ import { TER_TRACK } from '../domain/terTrackGeometry'
 import { auditBrtB1DirectionalGeometry, auditTerPhaseOneGeometry } from '../domain/referenceRouteGeometry'
 import { TER_CUMULATIVE_TRAVEL_TIMES, terTravelTimeMidpointMinutes } from '../domain/terTravelTimes'
 import { dwellMinutes, REFERENCE_COMMERCIAL_SPEED_KPH } from '../domain/assumptions'
+import { medinaService } from './medinaService'
 import { brtService, phaseOneService } from './dakarService'
 import { buildNetwork } from './network'
 import { planPlaceJourney, type PlaceJourneyOutcome, type DakarEndpoint, type JourneySettings } from './placeConnections'
@@ -62,7 +63,8 @@ function referenceDataset(): Dataset {
   // Baseline calls keep their identities. A reviewed directional binding can
   // attach a physical platform without moving the station or editing its times.
   const links = REVIEWED_PASSENGER_LINKS
-  return { ...links, places: [...places, ...links.places], patterns: [...patterns, ...links.patterns] }
+  const medina = medinaService()
+  return { ...links, places: [...places, ...links.places, ...medina.places], patterns: [...patterns, ...links.patterns, ...medina.patterns] }
 }
 export const localPassengerData = referenceDataset()
 export const dakarNetwork = buildNetwork(localPassengerData)

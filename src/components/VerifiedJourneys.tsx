@@ -21,9 +21,10 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
   const distance = formatDistance(leg.meters, preferences.units.distance)
   return <li>
     {leg.kind === 'ride' ? <>
+      {leg.timing === 'frequency' && leg.mode === 'ddd' && <p><strong>Passage modélisé, pas un horaire DDD.</strong> {leg.serviceSource}</p>}
       {leg.samePlatformChange && <p>Changement au même point du quai, sans marche. Délai minimal vérifié : {leg.samePlatformChange.minimumSeconds} s.</p>}
       <span className="verified-wait"><Clock3 size={13} /> Attente à {leg.from.name} : {minutes(leg.waitSeconds)}{leg.headwaySeconds !== null && ` · intervalle ${minutes(leg.headwaySeconds)}`}</span>
-      <div><MobilityBadge id={leg.network}>{leg.network === 'aftu_tata' ? `${leg.mode.toUpperCase()} · ` : ''}{leg.lineName}</MobilityBadge> <strong>{dakarClock(leg.start)} · {leg.from.name}</strong></div>
+      <div><MobilityBadge id={leg.network}>{leg.network === 'aftu_tata' ? `${leg.mode.toUpperCase()} · ` : ''}{leg.lineName}</MobilityBadge> <strong>{leg.timing === 'frequency' ? 'Vers ' : ''}{dakarClock(leg.start)} · {leg.from.name}</strong></div>
       <p>Sens {leg.direction} · Descendre à <strong>{leg.to.name}</strong> vers {dakarClock(leg.end)}.</p>
       <p>{distance} · {minutes(leg.end - leg.start)} à bord · {leg.timing === 'frequency' ? 'passage projeté selon la fréquence' : 'horaire théorique déclaré'}.</p>
       <p>{leg.timing === 'frequency' ? 'Créneaux estimés' : 'Départs déclarés'} à {leg.from.name} : {leg.passages.map(dakarClock).join(' · ')}.</p>
@@ -153,6 +154,6 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
         </article>
       })}
     </>}
-    <p className="verified-hint">Sans édition opérateur : TER Dakar → Diamniadio ; B1 Préfecture → Petersen et Petersen → Gueule Tapée. Pour B1, vérifier la desserte du jour : la liste de stations est celle du modèle de référence. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
+    <p className="verified-hint">Sans édition opérateur : TER Dakar → Diamniadio ; B1 Préfecture → Petersen et Petersen → Gueule Tapée ; DDD 1 de l’École Manguiers au Stade Iba Mar Diop, vers Leclerc uniquement. Pour B1, vérifier la desserte du jour : la liste de stations est celle du modèle de référence. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
   </section>
 }

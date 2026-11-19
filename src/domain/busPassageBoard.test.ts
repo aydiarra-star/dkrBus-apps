@@ -128,7 +128,8 @@ describe('time on a bus sign, not a trip planner', () => {
     for (const code of ['74','80']) expect(dirs('aftu',code)[1].clock).toBeNull()
     for (const code of ['85','86','87']) expect(dirs('aftu',code).every(d => d.clock === null)).toBe(true)
     expect(dirs('tata','84').every(d => d.clock === null)).toBe(true)
-    expect(dakarNetwork.patterns.some(p => ['ddd','aftu','tata'].includes(p.mode))).toBe(false)
+    // A modelled directional ride is not a dated timetable for Explorer.
+    for (const family of ['ddd','aftu','tata'] as const) expect(datedBusBoards(dakarNetwork.patterns, family, at('00:00'))).toEqual([])
   })
 })
 

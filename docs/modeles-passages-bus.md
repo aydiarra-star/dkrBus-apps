@@ -56,13 +56,15 @@ Les ZIP historiques [PassBi, révision `7a2b998`](https://github.com/impactsolut
 
 Ce sont **neuf profils relatifs**, pas neuf dessertes admises. Pour la 90, on garde les parts de distance, mais on recale la durée à **82,5 min** (milieu des 75–90 min transmis au projet). Si la suite change, on refuse le profil plutôt que de l’appliquer à une autre variante.
 
-## Ce que le calculateur peut réellement proposer
+## Calculateur au gel des panneaux (`1a415a1`)
 
-Sur les 144 points du formulaire, **716 voyages complets / 20 592 couples** à 19 h, comme à `32f3776`. Répartition des complets : 78 TER, 294 B1 vers Petersen, 344 B1 dans le sens opposé admis ; 44 marches initiales, 44 finales, **zéro** changement, **zéro** trajet incluant un bus DDD, AFTU ou TATA. Empreinte des voyages complets (couples, modes, rangs, mètres, temps) : `8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162`.
+Ces résultats concernent le formulaire **avant** l’ajout des six quais de Médina. Pour le calculateur actuel (731 voyages) et le mode sur horaires distinct : [trajets à Médina et aux Maristes](trajets-bus-medina-maristes.md). Le tableau des passages d’Explorer reste identique.
+
+Sur les 144 points du formulaire, **716 voyages complets / 20 592 couples** à 19 h, comme à `32f3776`. Répartition des complets : 78 TER, 344 B1 vers Petersen, 294 B1 Petersen → Gueule Tapée ; 44 marches initiales, 44 finales, **zéro** changement, **zéro** trajet incluant un bus DDD, AFTU ou TATA. Empreinte des voyages complets (couples, modes, rangs, mètres, temps) : `8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162`.
 
 Les catégories exclusives sont **716** complets, **108** cartes exactes sans course, **4 746** tronçons, **0** carte approchée, **976** pistes de correspondance à vérifier, **334** fiches seules, **13 712** sans proposition. Les trois derniers nombres étaient 966/338/13 718 : le changement est documentaire, pas un nouveau voyage. Sur les cohortes figées de 97/114/132/144 sélections à 19 h : 562/562/716/716 complets ; sur les 144 à 08:10, 21:10 et à 19 h sans obstacle : 716, 389, 0. [Reçus et commandes de rejeu](../data/bus-review/README.md).
 
-Les **22 dossiers, 44 sens** de correspondance donnent **46 évaluations de variantes** bloquées avant même l’horaire. À Bargny notamment, le nom d’une gare dans la fiche du 74 ne prouve pas le chemin du quai ferroviaire jusqu’au point de montée. [Contrôle par ligne des quais, chaussées, accès, horaires et témoins](etat-par-ligne-2026-11-19.md). Le test d’une **édition synthétique** fait enchaîner TER, BRT, DDD, AFTU et TATA avec quatre changements physiques et vérifie la marche, l’attente, la durée et les refus si un maillon manque. Ce témoin n’est pas livré dans le graphe local. Pour obtenir le premier voyage bus sur données réelles : [pièces minimales d’un sens puis d’une correspondance](preparer-une-correspondance.md).
+Les **22 dossiers, 44 sens** de correspondance donnent **46 évaluations de variantes** bloquées avant même l’horaire. À Bargny notamment, le nom d’une gare dans la fiche du 74 ne prouve pas le chemin du quai ferroviaire jusqu’au point de montée. [Contrôle par ligne des quais, chaussées, accès, horaires et témoins](etat-par-ligne-2026-11-19.md). Le test d’une **édition synthétique** fait enchaîner TER, BRT, DDD, AFTU et TATA avec quatre changements physiques et vérifie la marche, l’attente, la durée et les refus si un maillon manque. Ce témoin n’est pas livré dans le graphe local. Pour documenter un premier changement physique entre deux bus : [pièces minimales d’un sens puis d’une correspondance](preparer-une-correspondance.md).
 
 ## Refaire la recette sans publier
 
@@ -76,7 +78,7 @@ python3 -m scripts.bus_board_profiles --inventory /tmp/inventory.json \
   --ddd /chemin/Dem_Dikk.zip --aftu /chemin/AFTU.zip --output /tmp/profiles.json
 cmp /tmp/profiles.json src/data/bus-board-profiles.json
 node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 > /tmp/form.json
-cmp /tmp/form.json data/bus-review/replay-panneaux-v1-2026-11-19.json
+cmp /tmp/form.json data/bus-review/replay-calculateur-2026-11-19.json
 node scripts/audit_bus_day.mjs --at 2026-11-19T19:00 --replay /tmp/form.json --markdown /tmp/day.md
 cmp /tmp/day.md docs/etat-par-ligne-2026-11-19.md
 node scripts/audit_passenger_transfers.mjs --at 2026-11-19T19:00 --json
