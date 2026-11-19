@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isDakarBusSupabaseUrl } from "./project.ts";
 import {
   cleanupUploadedObjects,
@@ -28,6 +28,7 @@ import {
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+type AdminClient = SupabaseClient<any, "public", "public">;
 const BUCKET = "dakar-gtfs-staging";
 const STAGED_TABLE = "dakar_admin_staged_datasets";
 const UPLOAD_TABLE = "dakar_admin_gtfs_upload_sessions";
@@ -74,7 +75,7 @@ function validityStatus(validFrom: unknown, validUntil: unknown): "NOT_YET_VALID
   return "CURRENT";
 }
 
-async function authenticateReviewer(req: Request, admin: ReturnType<typeof createClient>) {
+async function authenticateReviewer(req: Request, admin: AdminClient) {
   const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!bearer) return { user: null, status: 401, error: "AUTHENTICATION_REQUIRED" };
 
@@ -97,7 +98,7 @@ async function authenticateReviewer(req: Request, admin: ReturnType<typeof creat
 }
 
 async function markSession(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   uploadId: string,
   state: "FINALIZED" | "FAILED",
 ): Promise<boolean> {
@@ -120,7 +121,7 @@ async function markSession(
  * Any uncertain database outcome preserves both objects and the session.
  */
 async function cleanupSession(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   session: UploadSession,
 ): Promise<boolean> {
   // Signed upload tokens are not individually revocable. Never remove the
@@ -161,7 +162,7 @@ async function cleanupSession(
   return !deleteError;
 }
 
-async function cleanupExpiredSessions(admin: ReturnType<typeof createClient>): Promise<void> {
+async function cleanupExpiredSessions(admin: AdminClient): Promise<void> {
   const { data: sessions, error } = await admin
     .from(UPLOAD_TABLE)
     .select("upload_id, dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256, expires_at, state")
@@ -177,7 +178,7 @@ async function cleanupExpiredSessions(admin: ReturnType<typeof createClient>): P
   }
 }
 
-async function getStagedRow(admin: ReturnType<typeof createClient>, datasetId: string) {
+async function getStagedRow(admin: AdminClient, datasetId: string) {
   return await admin
     .from(STAGED_TABLE)
     .select("dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256")
@@ -186,7 +187,7 @@ async function getStagedRow(admin: ReturnType<typeof createClient>, datasetId: s
 }
 
 async function ensureManifestObject(
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   path: string,
   bytes: Uint8Array,
   expectedSha256: string,
@@ -254,7 +255,7 @@ function acceptedResponse(session: UploadSession, cors: Record<string, string>, 
 async function createUpload(
   body: Record<string, unknown>,
   user: { id: string },
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   cors: Record<string, string>,
 ): Promise<Response> {
   if (!hasExactKeys(body, ["action", "dataset_id", "manifest"]) ||
@@ -368,7 +369,7 @@ async function createUpload(
 async function finalizeUpload(
   body: Record<string, unknown>,
   user: { id: string },
-  admin: ReturnType<typeof createClient>,
+  admin: AdminClient,
   cors: Record<string, string>,
 ): Promise<Response> {
   if (!hasExactKeys(body, ["action", "upload_id"]) ||
