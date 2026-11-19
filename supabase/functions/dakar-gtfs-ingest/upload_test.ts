@@ -11,6 +11,7 @@ import {
   isExactBoundedObjectSize,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
+  SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS,
   TUS_UPLOAD_URL_TTL_MS,
   UPLOAD_CLEANUP_GRACE_MS,
   UPLOAD_SESSION_TTL_MS,
@@ -239,6 +240,17 @@ Deno.test("bounds Storage metadata sizes before downloading existing objects", (
       isExactBoundedObjectSize("1.5", 1, MAX_MANIFEST_BYTES) ||
       isExactBoundedObjectSize(-1, 1, MAX_MANIFEST_BYTES)) {
     throw new Error("An oversized or malformed Storage object size was accepted");
+  }
+});
+
+Deno.test("reserves an issuance safety margin before requesting the signed token", () => {
+  const requestStartedAt = Date.parse("2026-11-19T12:00:00.000Z");
+  const initialExpiry = Date.parse(uploadSessionExpiryAfterTokenIssuedAt(
+    requestStartedAt + SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS,
+  ));
+  if (initialExpiry - requestStartedAt !==
+      SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS + UPLOAD_SESSION_TTL_MS) {
+    throw new Error("The pre-request session expiry must include the issuance safety margin");
   }
 });
 
