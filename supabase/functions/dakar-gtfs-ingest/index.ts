@@ -21,6 +21,7 @@ import {
   uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
+  SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS,
   TUS_UPLOAD_URL_TTL_MS,
   UPLOAD_CLEANUP_GRACE_MS,
   RequestBodyTooLargeError,
@@ -328,7 +329,9 @@ async function createUpload(
   if (objectLookupError) return reply(503, { error: "STORAGE_PATH_LOOKUP_FAILED" }, cors);
   if (existingObjects?.length) return reply(409, { error: "CANONICAL_STORAGE_PATH_ALREADY_EXISTS" }, cors);
 
-  const initialExpiresAt = uploadSessionExpiryAfterTokenIssuedAt();
+  const initialExpiresAt = uploadSessionExpiryAfterTokenIssuedAt(
+    Date.now() + SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS,
+  );
   const { data: session, error: insertError } = await admin.from(UPLOAD_TABLE).insert({
     dataset_id: datasetId,
     dataset_version: manifest.dataset_version,
