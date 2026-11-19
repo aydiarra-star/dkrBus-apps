@@ -16,7 +16,9 @@ import {
   MAX_ARCHIVE_BYTES,
   MAX_JSON_REQUEST_BYTES,
   MAX_MANIFEST_BYTES,
+  isUploadSessionExpired,
   readJsonWithLimit,
+  SIGNED_UPLOAD_TOKEN_TTL_MS,
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
@@ -100,11 +102,16 @@ async function markSession(
   state: "FINALIZED" | "FAILED",
 ): Promise<boolean> {
   const now = new Date().toISOString();
-  const { error } = await admin.from(UPLOAD_TABLE).update({
+  let query = admin.from(UPLOAD_TABLE).update({
     state,
     finalized_at: state === "FINALIZED" ? now : null,
-    ...(state === "FAILED" ? { expires_at: now } : {}),
   }).eq("upload_id", uploadId);
+  // Never shorten the expiry of a failed session: its signed Storage token
+  // remains usable until its own two-hour expiry and cannot be revoked.
+  query = state === "FAILED"
+    ? query.eq("state", "UPLOAD_PENDING")
+    : query.in("state", ["UPLOAD_PENDING", "FAILED"]);
+  const { error } = await query;
   return !error;
 }
 
@@ -116,6 +123,10 @@ async function cleanupSession(
   admin: ReturnType<typeof createClient>,
   session: UploadSession,
 ): Promise<boolean> {
+  // Signed upload tokens are not individually revocable. Never remove the
+  // object/session before the token has expired, even on a failure path.
+  if (!isUploadSessionExpired(session.expires_at)) return false;
+
   const { data: existing, error: lookupError } = await admin
     .from(STAGED_TABLE)
     .select("archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256")
@@ -350,7 +361,7 @@ async function createUpload(
     archive_sha256: archive.sha256,
     max_archive_bytes: MAX_ARCHIVE_BYTES,
     expires_at: expiresAt,
-    signed_url_validity_seconds: 7200,
+    signed_url_validity_seconds: SIGNED_UPLOAD_TOKEN_TTL_MS / 1000,
   }, cors);
 }
 
@@ -389,7 +400,7 @@ async function finalizeUpload(
   if (session.state !== "UPLOAD_PENDING") {
     return reply(410, { error: "UPLOAD_SESSION_NOT_ACTIVE" }, cors);
   }
-  if (!Number.isFinite(Date.parse(session.expires_at)) || Date.parse(session.expires_at) <= Date.now()) {
+  if (!Number.isFinite(Date.parse(session.expires_at)) || isUploadSessionExpired(session.expires_at)) {
     const cleaned = await cleanupSession(admin, session);
     return reply(cleaned ? 410 : 503, {
       error: cleaned ? "UPLOAD_SESSION_EXPIRED" : "UPLOAD_SESSION_EXPIRED_CLEANUP_PENDING",
@@ -441,9 +452,10 @@ async function finalizeUpload(
       actualArchiveBytes !== Number(session.archive_bytes) ||
       actualArchiveBytes <= 0 ||
       actualArchiveBytes > MAX_ARCHIVE_BYTES) {
-    const cleaned = await cleanupSession(admin, session);
-    return reply(cleaned ? 422 : 503, {
-      error: cleaned ? "ARCHIVE_ACTUAL_SIZE_MISMATCH" : "ARCHIVE_SIZE_MISMATCH_CLEANUP_PENDING",
+    const markedFailed = await markSession(admin, session.upload_id, "FAILED");
+    return reply(markedFailed ? 422 : 503, {
+      error: markedFailed ? "ARCHIVE_ACTUAL_SIZE_MISMATCH_CLEANUP_DEFERRED" : "ARCHIVE_SIZE_MISMATCH_STATE_UPDATE_FAILED",
+      cleanup_after: session.expires_at,
     }, cors);
   }
 
@@ -454,9 +466,10 @@ async function finalizeUpload(
     session.manifest_sha256,
   );
   if (!manifestStored) {
-    const cleaned = await cleanupSession(admin, session);
-    return reply(cleaned ? 500 : 503, {
-      error: cleaned ? "MANIFEST_STORAGE_FAILED" : "MANIFEST_STORAGE_FAILED_CLEANUP_PENDING",
+    const markedFailed = await markSession(admin, session.upload_id, "FAILED");
+    return reply(markedFailed ? 500 : 503, {
+      error: markedFailed ? "MANIFEST_STORAGE_FAILED_CLEANUP_DEFERRED" : "MANIFEST_STORAGE_FAILED_STATE_UPDATE_FAILED",
+      cleanup_after: session.expires_at,
     }, cors);
   }
 
@@ -501,9 +514,10 @@ async function finalizeUpload(
     if (references !== "NONE") {
       return reply(503, { error: "STAGING_REGISTRATION_REFERENCE_CONFLICT" }, cors);
     }
-    const cleaned = await cleanupSession(admin, session);
-    return reply(cleaned ? 409 : 503, {
-      error: cleaned ? "STAGING_REGISTRATION_FAILED" : "STAGING_REGISTRATION_CLEANUP_PENDING",
+    const markedFailed = await markSession(admin, session.upload_id, "FAILED");
+    return reply(markedFailed ? 409 : 503, {
+      error: markedFailed ? "STAGING_REGISTRATION_FAILED_CLEANUP_DEFERRED" : "STAGING_REGISTRATION_FAILED_STATE_UPDATE_FAILED",
+      cleanup_after: session.expires_at,
     }, cors);
   }
 
