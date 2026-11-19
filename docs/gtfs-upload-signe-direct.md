@@ -61,7 +61,7 @@ La finalisation est idempotente pour une ligne de staging qui référence exacte
 
 ## Quarantaine, concurrence et nettoyage
 
-- `dakar_admin_gtfs_upload_sessions` est une table privée RLS, accessible uniquement au credential serveur de l'intake. Le worker n'a aucun accès direct à cette table.
+- `dakar_admin_gtfs_upload_sessions` est une table privée RLS, accessible uniquement au credential serveur de l'intake. Le worker n'a aucun accès direct à cette table. Une contrainte SQL impose une expiration minimale de 26 h 15 après la création (2 h de token + 24 h d'URL TUS + 15 min de marge) ; l'intake réserve dix minutes de plus avant l'émission pour couvrir une mise à jour en base qui échoue.
 - L'identifiant de dataset est unique dans les sessions et dans le staging ; les chemins sont canoniques et uniques. L'upload signé n'autorise pas l'écrasement.
 - Le token signé peut créer une session TUS pendant deux heures ; cette session TUS peut rester utilisable jusqu'à 24 heures après sa création. La session administrative n'est donc nettoyable qu'après 26 h 15 à compter de l'émission du token (2 h + 24 h + 15 min). Les sessions expirées ou échouées sont nettoyées lors d'un prochain appel d'intake : les références en base sont vérifiées avant toute suppression.
 - Après un résultat réseau ambigu, le serveur relit la ligne de staging. Si la base ne permet pas de savoir si l'objet est référencé, il le conserve et renvoie une erreur explicite plutôt que de risquer une référence cassée.
