@@ -202,6 +202,53 @@ def collect(pbf, regional=False):
     return platforms, graph, routes
 
 
+def trace(end, distances, previous):
+    if end not in distances:
+        return None
+    start, ways = end, []
+    while start in previous:
+        start, way = previous[start]
+        if not ways or ways[-1] != way:
+            ways.append(way)
+    return [round(distances[end], 1), start, end, ways[::-1]]
+
+
+# Ends of BRT infrastructure and separately identified marked crossings.
+# These are survey landmarks, NOT the vehicle door or a DDD boarding node.
+APPROACHES = (
+    ("Petersen", "w1458575520", 13376766706, 13376766714, None),
+    ("Guédiawaye NO", "w1458592784", 13376903833, 13376903816, "n6440488778"),
+    ("Guédiawaye SE", "w1458592786", 13376903836, 13376903816, "n6440488778"),
+)
+
+
+def survey_approaches(platforms, graph):
+    def route(a, b):
+        return trace(b, *reachable([a], graph, 1200))
+
+    rows = []
+    for site, infrastructure, end, crossing, marker in APPROACHES:
+        p = platforms.get(infrastructure, {})
+        ok = end in p.get("refs", ())
+        bus = platforms.get(marker, {}) if marker else {}
+        ref = bus["refs"][0] if bus else None
+        rows.append(
+            {
+                "site": site,
+                "platformWay": infrastructure,
+                "version": p.get("version"),
+                "endNode": end,
+                "crossingNode": crossing,
+                "busMarker": marker,
+                "toCrossing": route(end, crossing) if ok else None,
+                "fromCrossing": route(crossing, end) if ok else None,
+                "toBusMarker": route(end, ref) if ok and ref else None,
+                "fromBusMarker": route(ref, end) if ok and ref else None,
+            }
+        )
+    return rows
+
+
 def candidate_paths(ps, graph):
     # Invert actual vertices, not a spatial index. Disconnected roadside
     # markers never acquire an edge by snapping to even a very close path.
@@ -220,14 +267,8 @@ def candidate_paths(ps, graph):
             for to in ends.get(n, ()):
                 if to != p["id"] and (d, n) < best.get(to, (math.inf, 0)):
                     best[to] = d, n
-        for to, (length, end) in sorted(best.items()):
-            target = end
-            ways = []
-            while target in prev:
-                target, w = prev[target]
-                if not ways or ways[-1] != w:
-                    ways.append(w)
-            pairs.append([p["id"], to, round(length, 1), target, end, ways[::-1]])
+        for to, (_, end) in sorted(best.items()):
+            pairs.append([p["id"], to, *trace(end, dist, prev)])
     return pairs
 
 
@@ -368,40 +409,10 @@ if __name__ == "__main__":
     if args.regional:
         region = regional_candidates(ps, graph, routes)
         region.update(
-            extractSha256=digest, attribution="© OpenStreetMap contributors · ODbL 1.0"
+            surveyApproaches=survey_approaches(ps, graph),
+            extractSha256=digest,
+            attribution="© OpenStreetMap contributors · ODbL 1.0",
         )
         args.regional.write_text(
             json.dumps(region, ensure_ascii=False, indent=2) + "\n"
         )
-        if args.ci_summary:
-            counts = [
-                region["platforms"],
-                region["touching"],
-                len(region["directedPaths"]),
-                len(region["sameObjectByRole"]),
-                len(region["pathsBetweenRouteRoles"]),
-            ]
-            print(f"::notice title=Topologie régionale quais::" + json.dumps(counts))
-            for key in ("sameObjectByRole", "pathsBetweenRouteRoles"):
-                for row in (
-                    region[key].items()
-                    if isinstance(region[key], dict)
-                    else region[key]
-                ):
-                    print(
-                        f"::notice title=Candidat régional {key}::"
-                        + json.dumps(row, ensure_ascii=False).replace("%", "%25")
-                    )
-            distinct = set()
-            for path in region["directedPaths"]:
-                a, b = (region["labels"][k] for k in path[:2])
-                # Surface every potential *different* or unknown facility when not already reported in the reverse order.
-                if (a[1:4] == b[1:4] and any(a[1:4])) or tuple(
-                    sorted(path[:2])
-                ) in distinct:
-                    continue
-                distinct.add(tuple(sorted(path[:2])))
-                print(
-                    "::notice title=Chemin régional à attribuer::"
-                    + json.dumps([a, b, path], ensure_ascii=False).replace("%", "%25")
-                )

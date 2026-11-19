@@ -66,3 +66,16 @@ class PhysicalReviewTests(unittest.TestCase):
             [p for p, _ in r["pathsBetweenRouteRoles"]], [["n1", "n2", 30, 1, 2, [71]]]
         )
         self.assertNotIn("n3", r["labels"])
+
+    def test_crossing_at_platform_end_is_not_a_walk_to_the_bus(self):
+        from scripts.audit_interchange_sites import APPROACHES, survey_approaches
+
+        _, way, end, crossing, marker = APPROACHES[1]
+        graph = {end: [(1001, 5.4, 7)], 1001: [(crossing, 10.6, 8)]}
+        ps = {way: {"version": 3, "refs": [end]}, marker: {"refs": [1002]}}
+        result = survey_approaches(ps, graph)[1]
+        self.assertEqual(result["toCrossing"], [16.0, end, crossing, [7, 8]])
+        for missing in ("fromCrossing", "toBusMarker", "fromBusMarker"):
+            self.assertIsNone(result[missing])
+        ps[way]["refs"] = [1001]  # A formerly pinned vertex disappeared.
+        self.assertIsNone(survey_approaches(ps, graph)[1]["toCrossing"])

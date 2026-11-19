@@ -258,6 +258,17 @@ jobs:
         if: steps.pedestrian_geofabrik.outcome == 'success'
         run: python -m scripts.audit_interchange_sites artifacts/pedestrian/dakar.osm.pbf artifacts/bus-review/interchange-sites.json --regional artifacts/bus-review/interchange-region.json --ci-summary
 
+      # GitHub only retains ten notices per step. The eight sites and two
+      # junction lists already use those. Read the regional result separately.
+      - name: Report regional candidates and incomplete walks (not passenger transfers)
+        if: steps.pedestrian_geofabrik.outcome == 'success'
+        run: |
+          file=artifacts/bus-review/interchange-region.json
+          jq -cr '"::notice title=Topologie régionale quais::" + ({extractSha256,platforms,touching,directedPaths:(.directedPaths|length),shared:(.sameObjectByRole|length),betweenRoles:(.pathsBetweenRouteRoles|length)}|tojson)' "$file"
+          jq -cr '"::notice title=Rôles interréseaux::" + ({sameObjectByRole,pathsBetweenRouteRoles}|tojson|gsub("%";"%25"))' "$file"
+          jq -cr '"::notice title=Chemins régionaux::" + ({directedPaths,labels}|tojson|gsub("%";"%25"))' "$file"
+          jq -cr '"::notice title=Approches partielles::" + (.surveyApproaches|tojson)' "$file"
+
       - name: Upload read-only bus occurrence and pinned member comparison
         if: steps.dakar_bus_routes.outcome == 'success'
         uses: actions/upload-artifact@v4
