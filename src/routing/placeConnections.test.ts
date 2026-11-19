@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fixtureData, testEpoch } from '../test/passengerTransferFixture'
+import { search, fastestRideSections } from './search'
 import { buildNetwork } from './network'
 import { compareStopSections, planPlaceJourney, selectedVertex, type DakarEndpoint } from './placeConnections'
 import type { Dataset, FootwayInput, Place, PlatformBinding } from './model'
@@ -112,4 +113,16 @@ it('does not transfer through a catalogue call shared by two different physical 
   expect(first.ok && mapItinerary(first.options[0]).calls.map(m => m.place.id)).toEqual([a.id, b.id])
   const second = planPlaceJourney(net, ref(shared), ref(call(d)), settings)
   expect(second.ok && mapItinerary(second.options[0]).calls.map(m => m.place.id)).toEqual([c.id, d.id])
+})
+
+it('a single multi-target section scan reproduces the selected per-destination journey, even through another target', () => {
+  const net = buildNetwork(data), targets = new Set(net.places.keys())
+  for (const origin of [home, a, c]) {
+    const batch = fastestRideSections(net, origin, targets, settings)
+    for (const id of targets) {
+      const single = search(net, { ...settings, origin: origin.id, destination: id })
+      const ride = single.ok ? single.options.filter(t => t.legs.some(l => l.kind === 'ride')).sort((x, y) => x.end-y.end)[0] : undefined
+      expect(batch.get(id)?.id, `${origin.id} → ${id}`).toBe(ride?.id)
+    }
+  }
 })

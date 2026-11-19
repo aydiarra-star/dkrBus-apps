@@ -1,5 +1,7 @@
 # Raccorder un lieu à un trajet voyageur
 
+> Mesures de référence de la PR #273. [Couverture suivante, retour B1 partiel, préparation d’un changement et éditions opérateur](preparer-une-correspondance.md).
+
 **État du 18 novembre 2026.** Dans Trajet, un quartier sélectionné reste un quartier ; il ne devient pas la gare ou le terminus le plus proche. Le calcul distingue trois réponses : le trajet complet depuis les points demandés ; à défaut, un tronçon calculé que l’usager peut choisir **à la place** de ce trajet ; enfin, une fiche qui cite les lieux mais ne permet pas de calculer un déplacement. Seul un itinéraire complet pour la sélection courante est tracé.
 
 ## Rejouer le cas Yoff → Keur Massar

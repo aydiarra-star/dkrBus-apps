@@ -1,6 +1,5 @@
 import {
   measureVerifiedRouteSegment,
-  projectStopToLine,
   type RoadPoint,
   type VerifiedLineGeometry,
 } from './roadNetworkRouting'
@@ -16,10 +15,10 @@ export function sliceVerifiedRouteSegment(
   to: RoadPoint,
   maxStopOffsetM = 80,
 ): RoadPoint[] | null {
-  if (!route || !measureVerifiedRouteSegment(route, from, to, maxStopOffsetM)) return null
-  const start = projectStopToLine(from, route.positions)
-  const end = projectStopToLine(to, route.positions)
-  if (!start || !end || end.chainageM <= start.chainageM) return null
+  if (!route) return null
+  const measure = measureVerifiedRouteSegment(route, from, to, maxStopOffsetM)
+  if (!measure) return null
+  const { from: start, to: end } = measure
 
   const interpolate = (index: number, fraction: number): RoadPoint => {
     const a = route.positions[index]

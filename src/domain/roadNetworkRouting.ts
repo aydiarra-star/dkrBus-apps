@@ -10,7 +10,7 @@ export interface RoadPoint {
   lon: number
 }
 
-export type RouteGeometrySource = 'OSM_ROUTE_RELATION' | 'OPERATOR_ARCGIS' | 'OPERATOR_GEOJSON'
+export type RouteGeometrySource = 'OSM_ROUTE_RELATION' | 'OPERATOR_ARCGIS' | 'OPERATOR_GEOJSON' | 'REVIEWED_GTFS_SHAPE'
 
 export interface VerifiedLineGeometry {
   network: 'ter' | 'brt' | 'ddd' | 'aftu_tata'

@@ -48,14 +48,16 @@ import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
 import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
-import { VerifiedJourneys } from './components/VerifiedJourneys'
+import { ExternalDirections } from './components/ExternalDirections'
+import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
 import { HistoricalPlanner } from './components/HistoricalPlanner'
 import { SettingsPreferences } from './components/SettingsPreferences'
 import { passengerLookup } from './routing/answers'
-import { dakarNetwork, planDakarJourney, type DakarEndpoint, type DakarOutcome } from './routing/dakar'
+import { usePassengerNetwork } from './components/usePassengerNetwork'
+import { planDakarJourney, type DakarEndpoint, type DakarOutcome } from './routing/dakar'
 import { mapItinerary, tripSummary } from './routing/presentation'
-import type { StopSection } from './routing/placeConnections'
+import { endpointOf } from './routing/placeConnections'
 import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
 import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
 import { speak, speechSynthesisSupported } from './domain/speech'
@@ -459,6 +461,7 @@ function App() {
   const departAt = Date.parse(`${departureInput}Z`) / 1000 // field is explicitly Dakar time, never browser local
   const [selectedTripId, setSelectedTripId] = useState<string>()
   const [stepFreeOnly, setStepFreeOnly] = useState(false)
+  const [maxChanges, setMaxChanges] = useState(3)
   const roadRouteRequestId = useRef(0)
   /** Comparaison calculée pour l'écran Trajet, conservée entre les onglets. */
   const [pickingPoint, setPickingPoint] = useState<RoutePointKey | null>(null)
@@ -532,6 +535,7 @@ function App() {
   const routePointsRef = useRef(routePoints)
   const network = published.network
   const dataAvailable = network !== null && isCurrentSnapshot(network)
+  const snapshotId = dataAvailable ? network.snapshot?.snapshotId : undefined
   const mappablePublishedStops = dataAvailable ? nearby.stops : NO_PUBLISHED_STOPS
 
   // Réseau de référence : TER/BRT en tracés structurants complets (continu),
@@ -776,6 +780,29 @@ function App() {
     void loadPublishedNetwork()
   }, [loadPublishedNetwork])
 
+  const reviewedSnapshot = network?.passengerReview && Date.parse(network.snapshot?.validUntil ?? '') > Date.now() ? snapshotId : undefined
+  const edition = usePassengerNetwork(reviewedSnapshot, departureInput.slice(0, 10), loadPublishedNetwork)
+  // Discover a newly available review on a live API too. Static hosting has no
+  // network payload: it must not start a recurring 404 poll.
+  const discover = network !== null && !reviewedSnapshot
+  useEffect(() => {
+    if (!discover) return
+    const refresh = () => { if (!document.hidden) void loadPublishedNetwork() }
+    document.addEventListener('visibilitychange', refresh)
+    const timer = setInterval(refresh, 60_000)
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', refresh) }
+  }, [discover, loadPublishedNetwork])
+  const previousSnapshot = useRef(snapshotId)
+  useEffect(() => {
+    const previous = previousSnapshot.current
+    previousSnapshot.current = snapshotId
+    // First discovery can legitimately finish just after a coordinate-based
+    // search. Keep it if it refers to the same snapshot, never on rotation.
+    if ((previous && previous !== snapshotId) || (snapshotId && journey.search && journey.search.snapshotId !== snapshotId)) {
+      beginRequest('journey'); setJourney(IDLE_JOURNEY); setRouteAttempted(false)
+    }
+  }, [snapshotId, journey.search, beginRequest])
+
   const loadPublishedLines = useCallback(async () => {
     const id = beginRequest('lines')
     setLines({ status: 'loading', routes: [], error: null })
@@ -998,7 +1025,7 @@ function App() {
       announce('Cet arrêt n’a pas de coordonnées déclarées : il ne peut pas servir de point.')
       return
     }
-    const point: MapPoint = { lat, lng: lon, label: stop.stopName, kind: 'stop', stopId: stop.stopId }
+    const point: MapPoint = { lat, lng: lon, label: stop.stopName, kind: 'stop', stopId: stop.stopId, snapshotId: stop.snapshotId }
     const other = key === 'origin' ? routePoints.destination : routePoints.origin
     setRoutePoints((current) => ({ ...current, [key]: point }))
     setRouteAttempted(false)
@@ -1239,8 +1266,8 @@ function App() {
   /** Base locale du sélecteur. La recherche du champ peut aussi interroger le
    * snapshot courant par nom, indépendamment de la liste autour du GPS. */
   const routeStopOptions = useMemo<StopOption[]>(
-    () => buildStopIndex(dataAvailable ? [...nearby.stops, ...stopSearch.stops] : [], dakarNetwork.places.values()),
-    [dataAvailable, nearby.stops, stopSearch.stops],
+    () => buildStopIndex(dataAvailable ? [...nearby.stops, ...stopSearch.stops].filter(s => !s.snapshotId || s.snapshotId === snapshotId) : [], edition.network.places.values(), snapshotId),
+    [dataAvailable, nearby.stops, stopSearch.stops, edition.network, snapshotId],
   )
 
   /** Pose un point choisi dans l’index, ou explique pourquoi il est inutilisable. */
@@ -1254,7 +1281,7 @@ function App() {
       lng: option.lon,
       label: option.label,
       ...(option.kind === 'landmark' ? { kind: 'map' as const, landmarkId: option.value }
-        : option.kind === 'published' ? { kind: 'stop' as const, stopId: option.stopId ?? undefined } : { stopId: option.stopId ?? undefined }),
+        : option.kind === 'published' ? { kind: 'stop' as const, stopId: option.stopId ?? undefined, snapshotId: option.snapshotId } : { stopId: option.stopId ?? undefined }),
     }
     setRoutePoints((current) => ({ ...current, [key]: next }))
     setRouteAttempted(false)
@@ -1291,9 +1318,16 @@ function App() {
     setSearchRoute(null)
     if (!Number.isFinite(departAt)) return
     setRouteAttempted(true)
+    if (stepFreeOnly) { setJourney(IDLE_JOURNEY); return } // the direct read API does not verify accessibility
     setJourney({ status: 'loading', search: null, error: null, errorCode: null })
 
     const parameters = new URLSearchParams()
+    const boundSnapshots = [origin, destination].flatMap(p => p.kind === 'stop' && p.snapshotId ? [p.snapshotId] : [])
+    if (boundSnapshots.some(id => id !== snapshotId)) {
+      setJourney({ ...IDLE_JOURNEY, status: 'error', error: 'La publication a changé. Sélectionnez à nouveau les arrêts publiés.' })
+      return
+    }
+    if (snapshotId) parameters.set('snapshot', snapshotId)
     const addPoint = (prefix: 'origin' | 'destination', point: MapPoint) => {
       // A published stop is sent by identity so the server answers with the name
       // it holds; anything else is a raw coordinate pair, never a guessed address.
@@ -1332,6 +1366,11 @@ function App() {
     if (!parsed.ok) {
       setJourney({ status: 'error', search: null, error: parsed.reason, errorCode: null })
       announce(parsed.reason)
+      return
+    }
+    const expected = snapshotId ?? previousSnapshot.current
+    if (expected && parsed.value.snapshotId !== expected) {
+      setJourney({ ...IDLE_JOURNEY, status: 'error', error: 'Les horaires reçus concernent une autre publication.' })
       return
     }
     let unclassifiedExcluded = 0
@@ -1374,7 +1413,7 @@ function App() {
         ? `${found} course${found > 1 ? 's' : ''} directe${found > 1 ? 's' : ''} déclarée${found > 1 ? 's' : ''} trouvée${found > 1 ? 's' : ''} avec les réseaux autorisés.`
         : 'Aucune course directe identifiée avec les réseaux autorisés. Le calcul sur tracés vérifiés reste affiché séparément si disponible.',
     )
-  }, [beginRequest, isLatestRequest, preferences, departAt])
+  }, [beginRequest, isLatestRequest, preferences, departAt, snapshotId, stepFreeOnly])
 
   /** Un geste qui complète un trajet va jusqu’au calcul, sans s’arrêter au
    *  milieu : c’est la règle « aucun bouton mort ». */
@@ -1517,12 +1556,12 @@ function App() {
   const routingOptions = useMemo(() => ({
     departAt, modes: MOBILITY_IDS.filter(id => preferences.mobility.networks[id]),
     walkSpeedMpm: walkSpeedOf(preferences.mobility.walkSpeed), maxWalkPerLegM: accessRadiusOf(preferences.mobility.accessRadius),
-    transferBufferSeconds: preferences.mobility.transferBufferMin * 60, stepFreeOnly,
-  }), [departAt, preferences.mobility, stepFreeOnly])
-  const lookup = useMemo(() => passengerLookup(routingOptions), [routingOptions])
+    transferBufferSeconds: preferences.mobility.transferBufferMin * 60, stepFreeOnly, maxChanges,
+  }), [departAt, preferences.mobility, stepFreeOnly, maxChanges])
+  const lookup = useMemo(() => passengerLookup(routingOptions, edition.network), [routingOptions, edition.network])
   // The selected itinerary is the single source for the list, speech and map.
   const journeyPlan = useMemo(() => routePoints.origin && routePoints.destination && !searchRoute
-    ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions) : null, [routePoints, routingOptions, searchRoute])
+    ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions, edition.network) : null, [routePoints, routingOptions, searchRoute, edition.network])
   const selectedTrip = journeyPlan?.ok ? (selectedTripId ? journeyPlan.options.find(t => t.id === selectedTripId) : journeyPlan.options[0]) : undefined
   const journeyFocus = activeTab === 'route' && !pickingPoint && Boolean(routePoints.origin && routePoints.destination)
   const overlay = useMemo(() => mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip])
@@ -1837,17 +1876,17 @@ function App() {
                 countdownNow={countdownNow}
                 preferences={preferences}
                 onChooseSection={({ from, to, tripId }) => {
-                  const point = (p: StopSection['from']): MapPoint => ({ label: p.name, lat: p.lat, lng: p.lon, ...(p.id.startsWith('landmark:') ? { landmarkId: p.id, kind: 'map' } : { stopId: p.id }) })
-                  setRoutePoints({ origin: point(from), destination: point(to) })
+                  setRoutePoints({ origin: endpointOf(from, snapshotId), destination: endpointOf(to, snapshotId) })
                   setSelectedTripId(tripId)
                   setPickingPoint(null); setRouteAttempted(false); setJourney(IDLE_JOURNEY)
                   announce(`Trajet recalculé entre ${from.name} et ${to.name}. Les accès non vérifiés ne sont pas inclus.`)
                 }}
+                maxChanges={maxChanges} onMaxChanges={setMaxChanges} editionNotice={edition.notice}
                 journeyPlan={journeyPlan}
                 departureInput={departureInput}
                 onDepartureChange={value => { beginRequest('journey'); setSelectedTripId(undefined); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
                 selectedId={selectedTrip?.id} onSelectTrip={setSelectedTripId}
-                stepFreeOnly={stepFreeOnly} onStepFreeChange={setStepFreeOnly}
+                stepFreeOnly={stepFreeOnly} onStepFreeChange={value => { beginRequest('journey'); setJourney(IDLE_JOURNEY); setRouteAttempted(false); setStepFreeOnly(value) }}
               />
               <HistoricalPlanner origin={routePoints.origin} destination={routePoints.destination} preferences={preferences} />
             </>
@@ -2497,7 +2536,7 @@ function RoutePanel({
   journey,
   countdownNow,
   preferences,
-  journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
+  maxChanges, onMaxChanges, editionNotice, journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
 }: {
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
@@ -2516,7 +2555,10 @@ function RoutePanel({
   journey: JourneyState
   countdownNow: number
   preferences: Preferences
-  onChooseSection: (section: StopSection) => void
+  onChooseSection: ChooseSection
+  maxChanges: number
+  onMaxChanges: (n: number) => void
+  editionNotice: string
   journeyPlan: DakarOutcome | null
   departureInput: string
   onDepartureChange: (value: string) => void
@@ -2539,7 +2581,7 @@ function RoutePanel({
       <div className="route-network-filter-block">
         <div className="route-network-filter-heading">
           <strong>Réseaux à utiliser</strong>
-          <span>Filtres du calcul. DDD, AFTU/TATA et B2 restent sans parcours validé.</span>
+          <span>Le calcul utilise uniquement les lignes et les correspondances vérifiées des réseaux activés.</span>
         </div>
         <div className="route-network-filters" role="group" aria-label="Réseaux à utiliser">
           {MOBILITY_IDS.map((id) => {
@@ -2606,15 +2648,23 @@ function RoutePanel({
         <label className="verified-departure">Date et heure de départ à Dakar
           <input type="datetime-local" required value={departureInput} onChange={e => onDepartureChange(e.target.value)} />
         </label>
+        <label className="verified-departure">Correspondances autorisées
+          <select value={maxChanges} onChange={e => onMaxChanges(Number(e.target.value))}>
+            <option value={0}>Trajet direct uniquement</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} au maximum</option>)}
+          </select>
+        </label>
         <label className="verified-departure"><input type="checkbox" checked={stepFreeOnly} onChange={e => onStepFreeChange(e.target.checked)} /> Uniquement les parcours sans marches vérifiés</label>
         <button className="primary-action route-submit" type="submit" aria-label="Rechercher mon itinéraire" disabled={!routePoints.origin || !routePoints.destination}>
           <Search size={18} /><span>Rechercher un trajet</span><ArrowRight size={19} />
         </button>
       </form>
 
+      {editionNotice && <p className="verified-hint" role="status">{editionNotice}</p>}
       {journeyPlan && <VerifiedJourneys result={journeyPlan} selectedId={selectedId} onSelect={onSelectTrip} onChooseSection={onChooseSection} preferences={preferences} />}
+      {journeyPlan && !journeyPlan.ok && ['NO_SERVICE', 'NO_PATH', 'UNVERIFIED_ACCESS'].includes(journeyPlan.code) && !stepFreeOnly && routePoints.origin && routePoints.destination && <ExternalDirections from={routePoints.origin} to={routePoints.destination} />}
       {routeAttempted ? (
-        <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
+        stepFreeOnly ? <p className="verified-hint">Les horaires directs sans preuve d’accessibilité ne sont pas proposés avec le filtre sans marches.</p>
+          : <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
       ) : !journeyPlan && (
         <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
           <div><strong>Choisissez un lieu ou un arrêt</strong><span>Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>

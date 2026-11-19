@@ -4,9 +4,9 @@ import { isValidLatLng } from '../domain/http'
 import { walkingTree } from './walking'
 import { inDakar } from './geometry'
 import type { Network, Outcome, Place, Query } from './model'
-import { search } from './search'
+import { fastestRideSections, search } from './search'
 
-export interface DakarEndpoint { stopId?: string; landmarkId?: string; lat: number; lng: number; kind?: 'map' | 'stop'; label?: string }
+export interface DakarEndpoint { snapshotId?: string; stopId?: string; landmarkId?: string; lat: number; lng: number; kind?: 'map' | 'stop'; label?: string }
 export type JourneySettings = Omit<Query, 'origin' | 'destination'>
 
 /** Bind an explicit selection to a reviewed vertex, never to a neighbour.
@@ -14,13 +14,24 @@ export type JourneySettings = Omit<Query, 'origin' | 'destination'>
  * walk links. A landmark cannot masquerade as a call. Published stops belong
  * to a different snapshot/namespace, and a GPS fix carries no vertex ID. */
 export function selectedVertex(net: Network, point: DakarEndpoint): Place | undefined {
-  if (point.kind === 'stop' || (point.landmarkId && point.stopId)) return
-  const id = point.landmarkId ?? (point.kind === undefined ? point.stopId : undefined)
+  if ((point.landmarkId && point.stopId) || (point.kind !== 'stop' && point.stopId?.startsWith('gtfs:'))) return
+  const id = point.kind === 'stop' ? (point.snapshotId && point.stopId ? `gtfs:${point.snapshotId}:stop:${point.stopId}` : undefined)
+    : point.landmarkId ?? (point.kind === undefined ? point.stopId : undefined)
   if (!id || (id.startsWith('landmark:') && !point.landmarkId)) return
   const vertex = net.places.get(id)
   if (!vertex || vertex.lat !== point.lat || vertex.lon !== point.lng) return
   if (point.landmarkId && (!id.startsWith('landmark:') || (vertex.kind !== 'entrance' && vertex.kind !== 'path'))) return
   return vertex
+}
+
+/** Replacing the requested journey is an explicit user action. A published
+ * logical call keeps its original GTFS ID for the read API, never a synthetic
+ * ref: ID or the old snapshot's index. */
+export function endpointOf(p: Place, snapshotId?: string): DakarEndpoint & { label: string } {
+  const base = { label: p.name, lat: p.lat, lng: p.lon }
+  const prefix = `gtfs:${snapshotId}:stop:`
+  if (snapshotId && p.id.startsWith(prefix)) return { ...base, kind: 'stop', snapshotId, stopId: p.id.slice(prefix.length) }
+  return p.id.startsWith('landmark:') ? { ...base, kind: 'map', landmarkId: p.id } : { ...base, stopId: p.id }
 }
 
 export interface StopSection {
@@ -85,12 +96,10 @@ export function compareStopSections(net: Network, from: DakarEndpoint, to: Dakar
   const ends = choices(net, to, 'alight', settings, radiusM)
   if (starts[0]?.gapM === null && ends[0]?.gapM === null) return { radiusM, boardingCount: null, alightingCount: null, sections: [] }
   const sections: StopSection[] = []
-  for (const a of starts) for (const b of ends) {
-    if (a.place.id === b.place.id) continue
-    const result = search(net, { ...settings, origin: a.place.id, destination: b.place.id })
-    if (!result.ok) continue
-    const trip = result.options.filter(t => t.legs.some(l => l.kind === 'ride')).sort((x, y) => x.end - y.end)[0]
-    if (!trip) continue
+  const endById = new Map(ends.map(b => [b.place.id, b]))
+  const targets = new Set(endById.keys())
+  for (const a of starts) for (const [id, trip] of fastestRideSections(net, a.place, targets, settings)) {
+    const b = endById.get(id)!
     const rides = trip.legs.flatMap(l => l.kind === 'ride' ? [l] : [])
     sections.push({ tripId: trip.id, from: a.place, to: b.place, fromGapM: a.gapM, toGapM: b.gapM,
       boardAt: rides[0].start, arriveAt: trip.end, lines: rides.map(l => l.mode === 'aftu' || l.mode === 'tata' ? `${l.mode.toUpperCase()} ${l.lineName}` : l.lineName), changes: trip.changes })
@@ -108,7 +117,8 @@ export type PlaceJourneyOutcome = Extract<Outcome, { ok: true }> | (Extract<Outc
  * named entrance. Stop-section comparisons can only enrich a refusal. */
 export function planPlaceJourney(net: Network, from: DakarEndpoint, to: DakarEndpoint, settings: JourneySettings): PlaceJourneyOutcome {
   if (!isValidLatLng(from.lat, from.lng) || !isValidLatLng(to.lat, to.lng)) return { ok: false, code: 'INVALID_QUERY', message: 'Coordonnées de départ ou de destination invalides.' }
-  if (!from.stopId && !to.stopId && from.landmarkId === to.landmarkId && from.lat === to.lat && from.lng === to.lng) {
+  if (from.lat === to.lat && from.lng === to.lng && from.stopId === to.stopId && from.landmarkId === to.landmarkId &&
+      from.kind === to.kind && from.snapshotId === to.snapshotId) {
     return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
   }
   const origin = selectedVertex(net, from), destination = selectedVertex(net, to)

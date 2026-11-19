@@ -55,7 +55,8 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
   }
   const pair = report.find(r => r.from.stopId === 'ter-dakar' && r.to.stopId === 'brt-petersen')!
-  expect(pair.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_DIRECTION','BOARD_DIRECTION','PUBLIC_GATES']))
+  expect(pair.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_DIRECTION','PUBLIC_GATES']))
+  expect(pair.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION') // the partial 19961993 now boards at Petersen, not a walk from TER
   const opposite = report.find(r => r.to.stopId === 'ter-dakar' && r.from.stopId === 'brt-petersen')!
   expect(opposite.findings.map(f => f.code)).not.toContain('ALIGHT_DIRECTION')
   expect(opposite.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION')

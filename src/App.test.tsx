@@ -356,6 +356,28 @@ describe('Dakar Bus experience safety', () => {
     expect(panel.textContent).not.toContain('115 m'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('brt-b1')
   })
 
+  it('sépare le changement à Bargny en deux recherches, respecte les filtres et ne trace que le tronçon choisi', () => {
+    stubApi([]); render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T19:00' } })
+    chooseStopInField('Départ', 'gare de Dakar', /^Dakar · TER/)
+    chooseStopInField('Destination', 'Keur Massar', /^Keur Massar .*Lieux et repères/i)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toMatch(/Bargny.*AFTU 74/); expect(panel.textContent).not.toContain('Votre trajet')
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
+    const count = screen.getByLabelText(/correspondances autorisées/i)
+    fireEvent.change(count, { target: { value: '0' } }); expect(panel.textContent).not.toContain('Préparer un changement')
+    fireEvent.change(count, { target: { value: '1' } }); expect(panel.textContent).toContain('Préparer un changement')
+    const link = screen.getByText('Transports en commun', { selector: 'a' }) as HTMLAnchorElement
+    expect(new URL(link.href).searchParams.get('destination')).toBe('14.79000,-17.31000')
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i)); expect(panel.textContent).not.toContain('Préparer un changement')
+    expect(screen.queryByText('Transports en commun', { selector: 'a' })).toBeNull()
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    fireEvent.click(within(panel).getByRole('button', { name: /calculer ce tronçon seul/i }))
+    expect(panel.textContent).toMatch(/Votre trajet.*Descendre à Bargny/); expect(panel.textContent).not.toContain('AFTU 74')
+    expect(screen.getByTestId('highlighted-lines').textContent).toBe('ter-dakar-diamniadio')
+  })
+
   it('says the read API is unreachable instead of falling back to fabricated data', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('réseau indisponible'))))
     render(<App />)

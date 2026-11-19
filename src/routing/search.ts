@@ -47,33 +47,34 @@ function itinerary(last: Label, best: Criterion[], departAt: number): Itinerary 
 /** Multicriteria, round-based transit scan. Round k = k boardings. The label
  * frontier is Pareto-pruned, not a fixed top-N of nearby stops. Foot closures
  * use directed Dijkstra trees cached per source for this query/profile. */
-export function search(net: Network, query: Query): Outcome {
+type Settings = Omit<Query, 'origin' | 'destination'>
+function validQuery(query: Settings) {
+  const { departAt, maxChanges = 3, maxWalkPerLegM = 1200, walkSpeedMpm = 80, transferBufferSeconds = 180 } = query
+  return Number.isSafeInteger(departAt) && Number.isFinite(new Date(departAt * 1000).getTime()) && Number.isInteger(maxChanges) && maxChanges >= 0 && maxChanges <= 5 &&
+    Number.isFinite(walkSpeedMpm) && walkSpeedMpm > 0 && Number.isFinite(maxWalkPerLegM) && maxWalkPerLegM >= 0 && Number.isSafeInteger(transferBufferSeconds) && transferBufferSeconds >= 0
+}
+function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, query: Settings) {
   const { departAt, maxChanges = 3, maxWalkPerLegM = 1200, walkSpeedMpm = 80, transferBufferSeconds = 180, stepFreeOnly = false } = query
-  if (!Number.isSafeInteger(departAt) || !Number.isFinite(new Date(departAt * 1000).getTime()) || !Number.isInteger(maxChanges) || maxChanges < 0 || maxChanges > 5 ||
-      !Number.isFinite(walkSpeedMpm) || walkSpeedMpm <= 0 || !Number.isFinite(maxWalkPerLegM) || maxWalkPerLegM < 0 ||
-      !Number.isSafeInteger(transferBufferSeconds) || transferBufferSeconds < 0) return { ok: false, code: 'INVALID_QUERY', message: 'Date, heure de Dakar ou paramètres de trajet invalides.' }
-  const origin = net.places.get(query.origin), dest = net.places.get(query.destination)
-  if (!origin || !dest) return { ok: false, code: 'UNVERIFIED_ACCESS', message: 'Le départ ou la destination ne dispose pas d’un point de desserte ou d’accès vérifié. Aucun raccordement par proximité.' }
-  if (origin.id === dest.id) return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
   const day = dayOf(departAt)
   const trees = new Map<string, ReturnType<typeof walkingTree>>()
   const seed: Label = { place: origin, at: departAt, boards: 0, walked: 0, cadence: 0 }
 
-  function scan(topologyOnly: boolean) {
+  return function scan(topologyOnly: boolean) {
     let ready: Frontier = new Map()
-    const complete: Label[] = []
-    const finish = (l: Label) => nondominated(complete, l.boards ? l : { ...l, cadence: Infinity })
+    const complete: Frontier = new Map()
+    const finish = (l: Label) => insert(complete, l.boards ? l : { ...l, cadence: Infinity })
     function afterWalk(l: Label, next: Frontier) {
       let tree = trees.get(l.place.id)
       if (!tree) { tree = walkingTree(net, l.place.id, maxWalkPerLegM, stepFreeOnly); trees.set(l.place.id, tree) }
       for (const [id, meters] of tree.distances) {
         // Even platforms at the same station never imply a change of vehicle.
-        if (!meters || (id !== query.destination && !net.boarding.has(id))) continue
-        const role = id === query.destination ? (l.boards ? 'egress' : 'direct') : (l.boards ? 'transfer' : 'access')
-        const walked: Label = { ...l, place: net.places.get(id)!, walked: l.walked + meters,
-          at: l.at + Math.ceil(meters * 60 / walkSpeedMpm), back: { prev: l, action: { kind: 'walk', ways: tree.pathTo(id), meters, role } } }
-        if (id === query.destination) finish(walked)
-        else insert(next, walked)
+        const last = targets.has(id), onward = net.boarding.has(id) && (!last || targets.size > 1)
+        if (!meters || (!last && !onward)) continue
+        const ways = tree.pathTo(id)
+        const walked = (role: Walk['role']): Label => ({ ...l, place: net.places.get(id)!, walked: l.walked + meters,
+          at: l.at + Math.ceil(meters * 60 / walkSpeedMpm), back: { prev: l, action: { kind: 'walk', ways, meters, role } } })
+        if (last) finish(walked(l.boards ? 'egress' : 'direct'))
+        if (onward) insert(next, walked(l.boards ? 'transfer' : 'access'))
       }
     }
     insert(ready, seed); afterWalk(seed, ready)
@@ -92,30 +93,52 @@ export function search(net: Network, query: Query): Outcome {
             const arrive = (place: Place, alight?: ObservedPlatform) => {
               const arrival: Label = { place, at: originAt + p.arrivals[j], boards, walked: l.walked,
                 cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight } } }
-              if (place.id === query.destination) finish(arrival)
-              else insert(alighted, arrival)
+              if (targets.has(place.id)) finish(arrival)
+              if (net.walking.has(place.id) && (!targets.has(place.id) || targets.size > 1)) insert(alighted, arrival)
             }
             const alight = platforms?.alight.get(j)
             if (stepFreeOnly && alight && alight.stepFree !== 'yes') continue
             // A bound service call is a logical destination, not a second platform from which to change.
-            if (!alight || p.calls[j].id === query.destination) arrive(p.calls[j], alight)
+            if (!alight || targets.has(p.calls[j].id)) arrive(p.calls[j], alight)
             if (alight) arrive(alight.place, alight)
           }
         }
       }
       ready = new Map()
       for (const labels of alighted.values()) for (const l of labels) afterWalk(l, ready)
-      if (topologyOnly && complete.length) break
+      if (topologyOnly && complete.size) break
     }
     return complete
   }
-  const labels = scan(false)
+}
+
+export function search(net: Network, query: Query): Outcome {
+  if (!validQuery(query)) return { ok: false, code: 'INVALID_QUERY', message: 'Date, heure de Dakar ou paramètres de trajet invalides.' }
+  const origin = net.places.get(query.origin), dest = net.places.get(query.destination)
+  if (!origin || !dest) return { ok: false, code: 'UNVERIFIED_ACCESS', message: 'Le départ ou la destination ne dispose pas d’un point de desserte ou d’accès vérifié. Aucun raccordement par proximité.' }
+  if (origin.id === dest.id) return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
+  const scan = scanner(net, origin, new Set([dest.id]), query)
+  const labels = scan(false).get(dest.id) ?? []
   if (!labels.length) {
     // This second scan diagnoses a calendar failure; its hypothetical times
     // NEVER leave this function as an itinerary.
-    return scan(true).length
+    return scan(true).size
       ? { ok: false, code: 'NO_SERVICE', message: 'Aucun passage compatible avec l’heure, la date et le temps de correspondance pour ce jour de service.' }
       : { ok: false, code: 'NO_PATH', message: 'Aucun itinéraire complet dans ce sens avec les lignes et cheminements vérifiés et les filtres choisis.' }
   }
-  return { ok: true, options: [...rank(labels)].map(([l, best]) => itinerary(l, best, departAt)) }
+  return { ok: true, options: [...rank(labels)].map(([l, best]) => itinerary(l, best, query.departAt)) }
+}
+
+/** Nearby-stop fallback: one dated scan per boarding point for ALL candidate
+ * destinations, not a new scan and topology diagnosis for every pair. Keep a
+ * winning ride so selecting its exact endpoints reproduces the same variant. */
+export function fastestRideSections(net: Network, origin: Place, targets: ReadonlySet<string>, query: Settings) {
+  const trips = new Map<string, Itinerary>()
+  if (!targets.size || !validQuery(query)) return trips
+  for (const [id, labels] of scanner(net, origin, targets, query)(false)) {
+    if (id === origin.id) continue
+    const win = [...rank(labels)].filter(([l]) => l.boards).sort(([a], [b]) => a.at - b.at)[0]
+    if (win) trips.set(id, itinerary(win[0], win[1], query.departAt))
+  }
+  return trips
 }

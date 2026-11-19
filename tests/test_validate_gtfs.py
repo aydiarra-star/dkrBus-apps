@@ -57,6 +57,14 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertEqual(report["tables"]["stop_times.txt"], 2)  # type: ignore[index]
         self.assertIn("sha256", report["dataset"])  # type: ignore[operator]
 
+    def test_accessibility_flags_are_checked_not_just_whitelisted(self) -> None:
+        tables = dict(VALID_TABLES)
+        tables["stops.txt"] = "stop_id,stop_name,stop_lat,stop_lon,wheelchair_boarding\nS1,One,14.7,-17.4,3\nS2,Two,14.71,-17.41,\n"
+        tables["trips.txt"] = "route_id,service_id,trip_id,wheelchair_accessible\nR1,WK,T1,yes\n"
+        report = validate_gtfs_archive(self.make_archive(tables))
+        self.assertFalse(report["structure_valid"])
+        self.assertTrue({"INVALID_WHEELCHAIR_BOARDING", "INVALID_WHEELCHAIR_ACCESSIBLE"} <= self.issue_codes(report))
+
     def test_agency_url_must_be_an_absolute_http_url(self) -> None:
         tables = dict(VALID_TABLES)
         tables["agency.txt"] = (
