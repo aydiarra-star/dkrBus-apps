@@ -54,7 +54,7 @@ create table if not exists public.dakar_admin_gtfs_upload_sessions (
   check (archive_object_path = dataset_id || '/' || archive_sha256 || '/feed.zip'),
   check (manifest_object_path = dataset_id || '/' || archive_sha256 || '/manifest.json'),
   check ((state = 'FINALIZED') = (finalized_at is not null)),
-  check (expires_at > created_at)
+  check (expires_at >= created_at + interval '26 hours 15 minutes')
 );
 
 create index if not exists dakar_admin_gtfs_upload_sessions_expiry_idx
