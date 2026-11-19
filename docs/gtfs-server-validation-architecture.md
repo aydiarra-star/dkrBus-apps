@@ -4,7 +4,7 @@
 
 Keep `scripts/validate_gtfs.py` as the reference validator and execute it only in a trusted server-side worker. Do not duplicate its rules in the browser and do not trust any validation status supplied by the uploaded manifest.
 
-The current `dakar-gtfs-ingest` Edge Function remains an intake-only endpoint: authenticate an active reviewer, enforce the actual request-body limit, verify the archive checksum, and store the archive and manifest privately. A successful upload must remain `PENDING_SERVER_CHECK`, `PENDING_REVIEW`, and `NOT_PUBLISHED`.
+The current `dakar-gtfs-ingest` Edge Function is an intake-only control plane: authenticate an active reviewer, accept bounded JSON commands, issue a short-lived signed upload token for a server-generated canonical path in the private bucket, and finalize only after checking the actual Storage object size. It never receives or materializes the archive bytes. The declared archive SHA-256 is recomputed by the dedicated worker after download. A successful intake must remain `PENDING_SERVER_CHECK`, `PENDING_REVIEW`, and `NOT_PUBLISHED`.
 
 ## Why validation must not run inside the intake Edge Function
 
@@ -64,18 +64,18 @@ The new migration is exercised only against an isolated PostgreSQL 16 service in
 
 ## Intake cleanup and activation boundary
 
-The intake function now accepts exactly one `feed`, `manifest`, and `dataset_id` multipart field. If a later upload or staging-row insert fails, it attempts to remove only the objects created by that request and returns a distinct error when Storage reports that cleanup was incomplete. Database error details are not returned to the caller.
+Depuis le 19 novembre 2026, le chemin multipart qui transmettait le ZIP à l'Edge Function est remplacé par un téléversement direct vers le bucket privé au moyen d'un token Storage signé. L'Edge Function ne matérialise plus les 100 MiB : elle reçoit uniquement un manifeste JSON borné, crée une session serveur et retourne un token limité à un chemin canonique. La finalisation vérifie les métadonnées Storage réelles et crée une ligne de staging en quarantaine ; le worker reste responsable du SHA-256 réel et de la validation structurelle.
 
-The multipart parser enforces the actual request-stream byte count even when `Content-Length` is absent. It still materializes the bounded `FormData` and archive bytes in the Edge Function before hashing; the 100 MiB archive limit is therefore a request cap, not proof that a 100 MiB upload fits the active Edge Function memory/CPU budget. Do not deploy or enable this intake path until its runtime resource behavior is verified in a dedicated non-production Supabase project, or the upload path is changed to a bounded direct-to-private-Storage flow. CI uses only synthetic in-memory multipart tests and does not upload files or write to Supabase.
+Les anciens tests du parseur multipart sont conservés comme régressions du helper historique, mais `readMultipartWithLimit` n'est plus utilisé pour recevoir les archives. Les tests du nouveau protocole couvrent les limites JSON, les chemins, le manifeste, les empreintes et l'expiration du token. Ils restent synthétiques et ne téléversent aucun fichier vers Supabase.
 
 
-## Garde-fous complémentaires de réception (13 novembre 2026)
+## Historique des garde-fous multipart (13 novembre 2026)
 
-Le formulaire multipart n'accepte que les trois champs contractuels `feed`, `manifest` et `dataset_id`, chacun présent exactement une fois. Le lecteur du flux d'origine est annulé puis libéré aussi bien après dépassement de taille qu'après erreur de parsing.
+Le chemin multipart historique exigeait exactement un champ `feed`, `manifest` et `dataset_id`, et annulait/libérait le lecteur du flux après erreur. Cette réception a été retirée le 19 novembre au profit du token Storage signé ; les helpers restent couverts par les tests historiques mais ne reçoivent plus les archives.
 
-Après une erreur de réponse lors de l'insertion Postgres, l'Edge Function relit la ligne par `dataset_id` avant tout nettoyage. Si la ligne référence les objets envoyés, ils sont conservés ; si la lecture de vérification échoue ou si la référence est partielle, aucun objet n'est supprimé et l'API renvoie un résultat indéterminé. Le nettoyage compensatoire n'est lancé que lorsque la lecture confirme qu'aucune ligne ne référence les chemins.
+Le contrôle des références base/Storage reste applicable à la finalisation : après une issue réseau ambiguë lors de l'insertion Postgres, l'Edge Function relit la ligne par `dataset_id`. Si les objets sont référencés, partiellement référencés ou si la lecture est incertaine, aucun nettoyage destructif n'est tenté.
 
-Une erreur de téléversement Storage peut elle-même avoir une issue réseau ambiguë. Le chemin reste privé et non publié ; aucun nettoyage destructif n'est tenté sur un chemin dont l'appartenance à la requête n'est pas établie. Une réconciliation des objets privés orphelins reste une opération distincte, à concevoir et tester avant toute activation réelle.
+Les tokens Storage signés ne peuvent pas être révoqués individuellement. Une session en échec conserve donc son expiration initiale ; les objets et la session ne sont nettoyés qu'après l'expiration du token de deux heures et une marge de quinze minutes. Un échec de finalisation renvoie `cleanup_after` au lieu de supprimer un objet encore téléversable. Les objets privés orphelins restent hors catalogue et leur réconciliation demeure distincte.
 
 Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclenchent aucune écriture Supabase, migration active ou publication.
 
@@ -83,7 +83,7 @@ Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclench
 
 Le worker Python décrit ci-dessus est maintenant présent dans `scripts/process_gtfs_staging.py`. Il réutilise le validateur de référence et les fonctions SQL de réservation/finalisation. Son workflow GitHub Actions est manuel uniquement ; le job est désormais conditionné à la branche `main` et à une confirmation booléenne explicite dont la valeur par défaut est `false`.
 
-Les secrets attendus restent exclusivement dans l'environnement GitHub `dakar-bus-private-validation` : `DAKAR_BUS_SUPABASE_URL` et `DAKAR_BUS_SUPABASE_SERVICE_ROLE_KEY`. Leur présence, la protection de cet environnement et l'obtention d'une approbation humaine ne sont pas présumées. Aucun secret n'a été créé ou modifié et le workflow n'a pas été déclenché.
+Les secrets attendus restent exclusivement dans l'environnement GitHub `dakar-bus-private-validation` : `DAKAR_BUS_SUPABASE_URL`, `DAKAR_BUS_SUPABASE_ANON_KEY`, `DAKAR_BUS_GTFS_WORKER_EMAIL` et `DAKAR_BUS_GTFS_WORKER_PASSWORD`. Le worker n'utilise pas de credential `service_role`. Leur présence, la protection de cet environnement et l'obtention d'une approbation humaine ne sont pas présumées. Aucun secret n'a été créé ou modifié et le workflow n'a pas été déclenché.
 
 La CI teste uniquement le code du worker, le validateur et les migrations dans un PostgreSQL isolé avec des fixtures synthétiques. Elle ne lance jamais le worker opérationnel et n'écrit pas dans le projet Supabase Dakar Bus actif. L'activation réelle reste bloquée tant que l'accès sécurisé, la protection de l'environnement et les limites d'exécution ne sont pas vérifiés séparément.
 
@@ -132,7 +132,7 @@ La migration `20261114190000_dakar_gtfs_staging_least_privilege.sql` réduit les
 - `dakar_admin_audit_events` : aucun accès direct ; les événements sont ajoutés par les fonctions serveur de confiance et leurs triggers.
 - Les nouveaux enregistrements reçoivent leurs états de quarantaine depuis les valeurs par défaut SQL : `PENDING_SERVER_CHECK`, `PENDING_REVIEW`, `NOT_PUBLISHED`, avec un rapport `PENDING_SERVER_VALIDATION`.
 
-Les fonctions `claim_dakar_gtfs_validation` et `complete_dakar_gtfs_validation` conservent leurs privilèges d'exécution `service_role` et effectuent leurs écritures sous `SECURITY DEFINER`. Cette limite empêche les écritures directes sur les colonnes protégées ; elle ne constitue pas une identité distincte du worker. Tant que l'intake et le worker partagent le credential Supabase `service_role`, toute compromission de ce secret pourrait encore appeler ces RPC. Une identité/clé dédiée au worker et la protection effective de l'environnement GitHub restent des prérequis avant activation réelle.
+Dans la migration du 14 novembre, les RPC étaient encore attribuées à `service_role`. Cette configuration historique a été remplacée par `20261116200000_dakar_gtfs_worker_identity_isolation.sql` : les RPC de claim/finalisation/reprise sont désormais accordées à `authenticated` et vérifient le claim JWT serveur `app_metadata.dakar_gtfs_worker=true`. Le credential `service_role` de l'intake est refusé par ces RPC. La protection effective de l'environnement GitHub et le provisionnement du compte dédié restent des prérequis avant activation réelle.
 
 Les tests de privilèges utilisent uniquement un PostgreSQL isolé et des lignes synthétiques. Aucune migration n'est appliquée à la base Supabase active ; aucun secret, import, dataset, horaire ou catalogue n'est modifié.
 
