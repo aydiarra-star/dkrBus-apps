@@ -11,6 +11,8 @@ import {
   isExactBoundedObjectSize,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
+  TUS_UPLOAD_URL_TTL_MS,
+  UPLOAD_CLEANUP_GRACE_MS,
   UPLOAD_SESSION_TTL_MS,
   RequestBodyTooLargeError,
   sanitizeManifest,
@@ -246,22 +248,28 @@ Deno.test("anchors failed-session cleanup grace to the signed-token issuance tim
   if (cleanupAt - issuedAt !== UPLOAD_SESSION_TTL_MS) {
     throw new Error("The cleanup deadline was not anchored to token issuance");
   }
-  if (cleanupAt - (issuedAt + SIGNED_UPLOAD_TOKEN_TTL_MS) !== 15 * 60 * 1000) {
-    throw new Error("The signed token must expire at least 15 minutes before cleanup");
+  const lastPossibleTusExpiry = issuedAt + SIGNED_UPLOAD_TOKEN_TTL_MS + TUS_UPLOAD_URL_TTL_MS;
+  if (cleanupAt - lastPossibleTusExpiry !== UPLOAD_CLEANUP_GRACE_MS) {
+    throw new Error("Cleanup must follow the last possible TUS URL expiry by the full grace period");
   }
 });
 
 Deno.test("does not permit failed-session cleanup before the signed token expires", () => {
   const createdAt = Date.parse("2026-11-19T12:00:00.000Z");
   const signedTokenExpiresAt = createdAt + SIGNED_UPLOAD_TOKEN_TTL_MS;
+  const lastPossibleTusExpiry = signedTokenExpiresAt + TUS_UPLOAD_URL_TTL_MS;
+  const cleanupAt = lastPossibleTusExpiry + UPLOAD_CLEANUP_GRACE_MS;
   const sessionExpiresAt = createdAt + UPLOAD_SESSION_TTL_MS;
-  if (UPLOAD_SESSION_TTL_MS <= SIGNED_UPLOAD_TOKEN_TTL_MS || sessionExpiresAt <= signedTokenExpiresAt) {
-    throw new Error("The cleanup grace period must outlast the signed upload token");
+  if (sessionExpiresAt !== cleanupAt || UPLOAD_SESSION_TTL_MS <= SIGNED_UPLOAD_TOKEN_TTL_MS) {
+    throw new Error("The cleanup deadline must include token, resumable URL and grace lifetimes");
   }
-  if (isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), signedTokenExpiresAt)) {
-    throw new Error("A failed session became cleanup-eligible while its token was still valid");
+  if (isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), lastPossibleTusExpiry)) {
+    throw new Error("A failed session became cleanup-eligible while a TUS URL could still be valid");
   }
-  if (!isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), sessionExpiresAt)) {
+  if (isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), cleanupAt - 1)) {
+    throw new Error("A failed session became cleanup-eligible before the safety margin elapsed");
+  }
+  if (!isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), cleanupAt)) {
     throw new Error("An expired failed session was not cleanup-eligible");
   }
   if (isUploadSessionExpired("not-a-timestamp", sessionExpiresAt + 1)) {
