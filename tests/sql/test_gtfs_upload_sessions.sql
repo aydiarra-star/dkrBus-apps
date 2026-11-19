@@ -60,7 +60,7 @@ insert into public.dakar_admin_gtfs_upload_sessions (
   repeat('b', 64),
   '{"schema_version":"1.0","dataset_id":"synthetic-upload-session"}',
   null,
-  now() + interval '2 hours 15 minutes'
+  now() + interval '26 hours 25 minutes'
 );
 
 do $upload_session_constraint_test$
@@ -86,13 +86,36 @@ begin
       archive_object_path, manifest_object_path, archive_sha256, archive_bytes,
       manifest_sha256, manifest_text, expires_at
     ) values (
+      'synthetic-too-short',
+      'synthetic-v1', 'Synthetic', 'CI', 'UNKNOWN', 'CI',
+      now(), now() - interval '1 day', now() + interval '1 day', 0.5, 'UNKNOWN', 'CURRENT',
+      'synthetic-too-short/' || repeat('9', 64) || '/feed.zip',
+      'synthetic-too-short/' || repeat('9', 64) || '/manifest.json',
+      repeat('9', 64), 128, repeat('8', 64), '{"schema_version":"1.0"}',
+      now() + interval '26 hours 14 minutes'
+    );
+  exception when check_violation then
+    rejected := true;
+  end;
+  if not rejected then
+    raise exception 'A session expiring before the full TUS cleanup window was accepted';
+  end if;
+
+  rejected := false;
+  begin
+    insert into public.dakar_admin_gtfs_upload_sessions (
+      dataset_id, dataset_version, operator, source, source_type, date_source,
+      verified_at, valid_from, valid_until, confidence, service_status, validity_status,
+      archive_object_path, manifest_object_path, archive_sha256, archive_bytes,
+      manifest_sha256, manifest_text, expires_at
+    ) values (
       'synthetic-too-large',
       'synthetic-v1', 'Synthetic', 'CI', 'UNKNOWN', 'CI',
       now(), now() - interval '1 day', now() + interval '1 day', 0.5, 'UNKNOWN', 'CURRENT',
       'synthetic-too-large/' || repeat('c', 64) || '/feed.zip',
       'synthetic-too-large/' || repeat('c', 64) || '/manifest.json',
       repeat('c', 64), 104857601, repeat('d', 64), '{"schema_version":"1.0"}',
-      now() + interval '2 hours'
+      now() + interval '26 hours 25 minutes'
     );
   exception when check_violation then
     rejected := true;
@@ -115,7 +138,7 @@ begin
       '../escape/' || repeat('e', 64) || '/feed.zip',
       '../escape/' || repeat('e', 64) || '/manifest.json',
       repeat('e', 64), 128, repeat('f', 64), '{"schema_version":"1.0"}',
-      now() + interval '2 hours'
+      now() + interval '26 hours 25 minutes'
     );
   exception when check_violation then
     rejected := true;
