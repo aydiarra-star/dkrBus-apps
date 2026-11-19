@@ -7,6 +7,7 @@ import {
   isValidUploadId,
   MAX_ARCHIVE_BYTES,
   isUploadSessionExpired,
+  isExactBoundedObjectSize,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
   UPLOAD_SESSION_TTL_MS,
@@ -225,6 +226,18 @@ Deno.test("compares staged references and bytes exactly", async () => {
   }
 });
 
+
+Deno.test("bounds Storage metadata sizes before downloading existing objects", () => {
+  if (!isExactBoundedObjectSize(128, 128, MAX_MANIFEST_BYTES) ||
+      !isExactBoundedObjectSize("128", 128, MAX_MANIFEST_BYTES)) {
+    throw new Error("An exact bounded Storage object size was rejected");
+  }
+  if (isExactBoundedObjectSize(MAX_MANIFEST_BYTES + 1, MAX_MANIFEST_BYTES + 1, MAX_MANIFEST_BYTES) ||
+      isExactBoundedObjectSize("1.5", 1, MAX_MANIFEST_BYTES) ||
+      isExactBoundedObjectSize(-1, 1, MAX_MANIFEST_BYTES)) {
+    throw new Error("An oversized or malformed Storage object size was accepted");
+  }
+});
 
 Deno.test("anchors failed-session cleanup grace to the signed-token issuance time", () => {
   const issuedAt = Date.parse("2026-11-19T12:00:00.000Z");
