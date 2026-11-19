@@ -14,6 +14,14 @@ export const SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS = 10 * 60 * 1000;
 export const UPLOAD_SESSION_TTL_MS =
   SIGNED_UPLOAD_TOKEN_TTL_MS + TUS_UPLOAD_URL_TTL_MS + UPLOAD_CLEANUP_GRACE_MS;
 
+export function signedTusHeaders(token: string): Record<string, string> {
+  if (typeof token !== "string" || token.length === 0) {
+    throw new RangeError("SIGNED_UPLOAD_TOKEN_REQUIRED");
+  }
+  // Deliberately omit x-upsert: the signed token is already bound to upsert:false.
+  return { "x-signature": token };
+}
+
 export function uploadSessionExpiryAfterTokenIssuedAt(tokenIssuedAtMs = Date.now()): string {
   if (!Number.isSafeInteger(tokenIssuedAtMs) || tokenIssuedAtMs < 0) {
     throw new RangeError("tokenIssuedAtMs must be a non-negative safe integer");
