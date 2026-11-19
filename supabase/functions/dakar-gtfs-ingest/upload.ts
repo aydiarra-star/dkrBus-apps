@@ -48,9 +48,11 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
   if (value.schema_version !== "1.0" || value.dataset_id !== datasetId) return false;
   if (value.publication_status !== "NOT_PUBLISHED" || value.publication_ready !== false) return false;
   if (value.review_status !== "PENDING_REVIEW") return false;
-  if (!isInstant(value.ingested_at) || !isInstant(value.verified_at) ||
-      Date.parse(value.verified_at) > Date.now() + 5 * 60 * 1000 ||
-      Date.parse(value.verified_at) > Date.parse(value.ingested_at)) return false;
+  const ingestedAt = value.ingested_at;
+  const verifiedAt = value.verified_at;
+  if (!isInstant(ingestedAt) || !isInstant(verifiedAt) ||
+      Date.parse(verifiedAt) > Date.now() + 5 * 60 * 1000 ||
+      Date.parse(verifiedAt) > Date.parse(ingestedAt)) return false;
 
   if (!isRecord(value.record_count)) return false;
   for (const count of Object.values(value.record_count)) {
@@ -63,8 +65,10 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
   if (typeof value.source_type !== "string" || !SOURCE_TYPES.has(value.source_type)) return false;
   if (typeof value.service_status !== "string" || !SERVICE_STATUSES.has(value.service_status)) return false;
   if (typeof value.date_source !== "string" || !value.date_source.trim()) return false;
-  if (!isInstant(value.valid_from) || !isInstant(value.valid_until) ||
-      Date.parse(value.valid_until) <= Date.parse(value.valid_from)) return false;
+  const validFrom = value.valid_from;
+  const validUntil = value.valid_until;
+  if (!isInstant(validFrom) || !isInstant(validUntil) ||
+      Date.parse(validUntil) <= Date.parse(validFrom)) return false;
   if (typeof value.confidence !== "number" || !Number.isFinite(value.confidence) ||
       value.confidence < 0 || value.confidence > 1) return false;
 
