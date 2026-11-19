@@ -15,18 +15,21 @@ try {
     if (result.status === 'blocked') process.exitCode = 1
   } else {
     const { dakarNetwork } = await server.ssrLoadModule('/src/routing/dakar.ts')
-    const walkingEdges = [...dakarNetwork.walking.values()].reduce((n, edges) => n + edges.length, 0)
-    report = { scope: 'documentary-inventory', walkingEdges, directions: dakarTransferReport(dakarNetwork) }
+    const edges = [...dakarNetwork.walking.values()].flat()
+    report = { scope: 'documentary-inventory', walkingEdges: edges.length, accessOrEgressOnly: edges.filter(e => e.onlyFor).length, directions: dakarTransferReport(dakarNetwork) }
   }
   if (values.json) {
     console.log(JSON.stringify(report, null, 2))
   } else {
     console.log(`${report.scope} · ${report.directions.length} sens étudié(s). Revue seule, aucune activation.`)
-    if ('walkingEdges' in report) console.log(`${report.walkingEdges} arcs piétons dans le graphe voyageurs.`)
+    if ('walkingEdges' in report) console.log(`${report.walkingEdges} arcs piétons, dont ${report.accessOrEgressOnly} réservés à l’entrée ou à la sortie, pas aux changements.`)
     for (const r of report.directions) {
       console.log(`\n${r.dossier} · ${r.from.stopId} → ${r.to.stopId} : ${r.status}`)
       console.log(r.observation)
-      for (const f of r.findings) console.log(`  ${f.code} : ${f.action}`)
+      for (const variant of [r, ...(r.otherServiceDirections ?? [])]) {
+        for (const [role, end] of Object.entries(variant.observed ?? {})) if (end) console.log(`  Quai de ${role === 'board' ? 'montée' : 'descente'} : ${end.platformId} · ${end.direction} · ${end.evidence.reference}`)
+        for (const f of variant.findings) console.log(`  ${f.code} : ${f.action}`)
+      }
       if (r.meters !== null) console.log(`  Chaîne de revue : ${Math.round(r.meters)} m ; sans marches : ${r.walkStepFree}.`)
       console.log(`  Sources documentaires : ${r.sources.join(' ; ')}`)
     }

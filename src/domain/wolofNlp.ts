@@ -27,6 +27,7 @@
  */
 
 import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { REVIEWED_PASSENGER_LINKS } from '../data/reviewedPassengerLinks'
 import { busMapPoints } from '../routing/busGeography'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import type { PlannerEndpoint } from './planner'
@@ -327,6 +328,7 @@ function assignRoles<T>(folded: string, spans: Span<T>[]) {
 // that alias. A longer, explicitly named station still wins. Keep this index
 // separate from the historical exonym/stop lookup used for reference sheets.
 const scopedNames = [
+  ...REVIEWED_PASSENGER_LINKS.places.map(stop => ({ key: foldWolof(stop.name), stop })),
   ...busMapPoints.map(({ marker: stop }) => ({ key: foldWolof(stop.name), stop })),
   ...QUALIFIED_SHEET_LABELS.map(stop => ({ key: foldWolof(stop.name), stop })),
   ...JOURNEY_LANDMARKS.flatMap(stop => {

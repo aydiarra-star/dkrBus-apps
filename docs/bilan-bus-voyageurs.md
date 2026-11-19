@@ -1,16 +1,22 @@
 # Bus à Dakar : ce que le calculateur peut montrer
 
-**Cinq portions de voirie, mais pas cinq nouvelles courses.** Sur la base de la PR #274, *Trajet* permet désormais de chercher **17 repères** et d’afficher un tracé orienté de DDD 1, DDD 4 ou AFTU 40. Les deux sens de la 4 utilisent des chaussées et des quais différents. Le tronçon AFTU 40 est délimité par deux carrefours, **pas par des arrêts**. Aucune marche ni course datée de ces lignes n’a pu être ajoutée au réseau embarqué. Le TER et B1 n’ont pas été modifiés.
+**À Scat Urbam, on peut désormais calculer la marche depuis l’un des deux îlots jusqu’au quai central B1, puis prendre le bus dans un sens documenté.** Dans le sens inverse, le voyage peut finir sur l’îlot. À Petersen, seul le quai de descente du modèle est rattaché. Aucun trottoir, transfert ou horaire BRT n’a été ajouté. Il s’agit d’une revue cartographique, pas d’un relevé d’accessibilité.
+
+**Pour DDD/AFTU/TATA : 31 repères, 11 portions de carte, toujours zéro nouvelle course datée.** Les nouvelles portions concernent UCAD, le boulevard de la Gueule Tapée et les deux chaussées de Jaxaay. Deux fiches peuvent décrire la même chaussée sans prouver deux véhicules. Les cartes et les fiches n’ajoutent ni durée ni tarif de voyage complet.
 
 ## Essayer sans API
 
 | Dans les champs Départ puis Destination | Résultat |
 |---|---|
-| Chercher « DDD 1 » ; choisir **Manguiers → Stade · avenue Blaise Diagne** | 1 667 m vers Leclerc, six quais cartographiés. « Voir cette portion sur la carte » montre seulement cette portion, en tirets, avec des losanges. Pas d’heure ni de symbole de montée. |
-| **Médina · vers Leclerc → Stade · avenue Blaise Diagne** | DDD 1 et DDD 4 partagent ici 787 m. Choisir l’une des deux cartes ; on ne prend pas deux bus. |
+| **Scat Urbam · îlot du passage piéton nord → station BRT de Petersen**, 19 h | 61 m sur les voies piétonnes, 47 s de marche, 4 min 06 s d’attente ; B1 vers 19:04, arrivée au quai de descente vers 19:28. Depuis l’appel BRT Petersen vers l’îlot sud : B1 puis 71 m à pied, arrivée vers 19:24. Aucun de ces chemins ne traverse la chaussée. |
+| Chercher « DDD 1 » ; choisir **UCAD · vers Sahm → Stade · avenue Blaise Diagne** | 2 334 m, huit quais cartographiés (DDD 1 et 7 sur cette portion). « Voir cette portion sur la carte » montre seulement cette portion, en tirets, avec des losanges. Pas d’heure ni de symbole de montée. |
+| **Médina · sens centre-ville → Stade · avenue Blaise Diagne** | DDD 1, 4 et 7 partagent ici 787 m. Choisir une seule carte : ce n’est pas une correspondance. |
 | Chercher « AFTU 40 » ; choisir **Carrefour des Civilisations → Route des pères Maristes × Front de Terre** | 938 m vers Petersen ; la limite au carrefour n’est pas un quai où attendre. Inverser : aucun retour de la 40 déduit. |
+| **Jaxaay · virage côté Shell → Route de Diakhaye · secteur ASECNA**, tous deux « vers Keur Massar » | 1 179 m sur la chaussée de la 74. Pour le sens vers Rufisque, sélectionner des points de **l’autre chaussée**, pas les mêmes en sens inverse. |
 | **Gorom 2 → Noflaye**, 19 h | La fiche AFTU 90 cite « Croisement Gorom 2 » puis « Noflaye ». Son ordre est consultable, pas la position des quais ni l’heure de passage. Pas de tracé. |
 | **Gare TER de Dakar → Keur Massar** (`14.7900,-17.3100`), 18 novembre 2026 à 19 h | Le TER jusqu’à Bargny peut être calculé **à part** ; la [fiche AFTU 74](https://aftu-senegal.org/map/dakar-urbain-ligne-74/) cite ensuite le terminus de Keur Massar. Ni la sortie de gare vers le quai du 74, ni le bus suivant, ni la marche finale ne sont établis. Le point de la capture ne devient pas un terminus. |
+
+Le départ n’est **pas visible** sur la capture de Keur Massar : la gare TER de Dakar et Yoff sont des départs de rejeu, pas des données lues dans l’image.
 
 La carte ne s’affiche pas automatiquement lors d’un refus. Un point GPS à ≤350 m d’un repère (ou moins si le rayon choisi est plus petit) peut faire découvrir une portion. L’écart à vol d’oiseau reste un écart, **même à 0 m**. Un ID de quai publié, une épingle et un repère local ne sont pas interchangeables. Les filtres de modes et sans marches s’appliquent aussi à ces propositions. Le copilote peut expliquer une portion, mais ne la mémorise pas comme un trajet accompli.
 
@@ -20,9 +26,9 @@ La carte ne s’affiche pas automatiquement lors d’un refus. Un point GPS à �
 
 | Famille de **provenance** | Identités locales, union des registres | Dans un catalogue propre à la famille | Avec au moins une liste ordonnée¹ | Avec des listes balisées dans les deux sens¹ | Codes avec fiche consultable dans les résultats | Portions de carte | Sens datés de bus embarqués |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 48 | 41 | 40 | 2 | 33 | 4 sur 2 lignes | 0 |
-| AFTU | 73 | 73 | 72 | 27 | 30 | 1 sur 1 ligne | 0 |
-| TATA | 65 | 62 | 62 | 0 | 37 | 0 distincte | 0 |
+| DDD | 48 | 41 | 40 | 2 | 33 | 6 sur 3 lignes | 0 |
+| AFTU | 73 | 73 | 72 | 26 | 31 | 4 sur 3 lignes | 0 |
+| TATA | 65 | 62 | 62 | 0 | 37 | 1, identique à la portion AFTU 1 | 0 |
 
 ¹ Comptage des listes de libellés des fichiers et registres (`source-order`, `directional-sheet`, `owner-sequence`, `reader-sheet`, `circuit`) : ni nombre de quais géolocalisés, ni homologation des intitulés « aller/retour ». Une description officielle peut inclure des variantes de retour **sans** publier de seconde liste. Une seule liste figurant sous plusieurs sources ne devient pas plusieurs preuves indépendantes. Les `stopIds` hérités pouvant être des chaînes comme « UCAD » restent non résolus, pas des clés de quai.
 
@@ -47,31 +53,39 @@ Aucun groupe d’appels orphelin. Les 4 suites AFTU avec rangs dupliqués porten
 | DDD 501 | 9/9 dans chaque sens après normalisation. Les shapes examinées n’ont que 9 points pour 9 appels. | Ordres consultables ; les segments entre positions d’arrêt ne sont pas la voirie. Les quais OSM près du Port ou de Clémenceau ne sont pas attribués à la 501 par proximité. |
 | AFTU 83 / 89 | Correspondances ordonnées 93/93 et 90/90 pour la 83 ; 55/55 et 53/53 pour la 89. | Préserver les répétitions. 83 : référence 11 min, pas d’heure par quai. 89 : aucune fréquence dans la fiche. « Près de la gare TER » n’est pas une traversée mesurée. |
 | AFTU 84 | Projet **73 aller / 73 retour**. Aller : 71 labels alignés sur 73. Retour : 73 labels projet alignés sur 76 de `AFTU_84_UCAD` (1→1 sur 67 ; 68→69 sur 6), **ex æquo au rang 40**. Même début, autre fin : l’archive poursuit après « Jaxaay2 Route Du 84 ». | Aucun arrêt intercalé, supprimé ou renuméroté. Les **73 heures retour** de 05:49 à 07:09 décrivent les appels d’une même référence ; les rangs 7–9 à 05:54/55/56 ne donnent pas une cadence d’une minute. La référence de fréquence est **14 min**, pas un départ daté. Le guide JOJ et les quais DDD relus sur la VDN ne valident pas la chaussée ou les quais de la 84. |
+| AFTU 74 | Fiche AFTU : **14 repères** de Bargny gare à Cité COCEHAS. Archives `AFTU_74_bargny` / `AFTU_74_SOCABECK` : **87 occurrences chacune**. L’agrégateur décrit **51 arrêts par sens** sur Rufisque–Tivaouane Peul. Colobane Rufisque n’est pas Colobane TER. | Retour inversé du fichier conservé en `unconfirmedReturn` ; grilles du corridor court conservées avec leur URL en `otherCorridor`. Dans Explorer : **« Non confirmé »**, pas de compte à rebours pour Bargny. À Jaxaay, les repères délimitent une chaussée, pas des arrêts de bus. |
 | AFTU 85 | Fichier `85-unverified` : 89/95 occurrences avec « Terminus De La Ligne 73 » et des repères de Lac Rose. Index : Banoba–Liberté 5. | Hors attribution ; ni renommé 73, ni attaché à 85 par le chargeur d’Explorer. |
 | AFTU 58 / 88 / 91 | 58 historique : Yeumbeul/Comico, 41/49 appels ; [PDF 58](https://appassets.mvtdev.com/map/48/l/5996/18051519.pdf) Fass Mbao, 39/43. 88 : 77/78 et 81/81 alignés ; 91 : 69/70 dans chaque sens. | Maintenir les variantes et les deux séquences de chaque source. Les textes, droits et points de quai d’un agrégateur ne sont pas repris comme une nouvelle base géographique. |
 
-**Limites de la recherche.** Le [relevé PBF](audit-relations-bus-osm-dakar-2026-11-18.md) donne 25 relations `route=bus`, dont 15 DDD et une AFTU/Tata ; ce n’est pas le dénominateur des lignes de Dakar. Le téléchargement de l’artefact CI complet a échoué au stockage distant. Les quatre relations et les voies des cinq portions ont été relues directement par l’API OSM ; les décomptes globaux du PBF demeurent ceux de l’audit versionné. Une requête Overpass en échec ne signifie pas « aucun arrêt ». Un trajet **voiture** OSRM n’est pas la preuve d’un sens commercial, d’une traversée ou de sa durée : près de la VDN, certains calculs font jusqu’à près de 3 km pour atteindre l’autre chaussée. Aucun de ces résultats n’est embarqué. Autres pistes explorées (ArcGIS, exports 2017, dépôt `dakar-bus`, Waymark, Moovit/TransitByCity, plans JOJ) : recoupements ou divergences, pas de nouvelle édition datée avec droits et accès validés.
+**Limites de la recherche.** Le [relevé PBF](audit-relations-bus-osm-dakar-2026-11-18.md) donne 25 relations `route=bus`, dont 15 DDD et une AFTU/Tata ; ce n’est pas le dénominateur des lignes de Dakar. Les membres des portions ont été relus directement dans l’API OSM. La CI produit en plus une comparaison par occurrence et par version sur le PBF qu’elle obtient (voir la procédure ci-dessous) ; elle ne transforme pas un nom identique ou un score en droit de monter. Le téléchargement de l’ancien artefact CI complet depuis le poste de recette a échoué ; les chiffres historiques ci-dessus ne sont pas présentés comme une seconde mesure indépendante du jour. Une requête Overpass en échec ne signifie pas « aucun arrêt ». Un trajet **voiture** OSRM n’est pas la preuve d’un sens commercial, d’une traversée ou de sa durée : près de la VDN, certains calculs font jusqu’à près de 3 km pour atteindre l’autre chaussée. Aucun de ces résultats n’est embarqué. Autres pistes explorées (ArcGIS, exports 2017, dépôt `dakar-bus`, Waymark, Moovit/TransitByCity, plans JOJ) : recoupements ou divergences, pas de nouvelle édition datée avec droits et accès validés.
 
 ## Mesure avant / après
 
-Rejeu sans API, avec les réglages par défaut, heure de Dakar, le **18 novembre 2026**. Les 97 points précédents sont toujours présents. Les 17 nouveaux sont des repères de carte : un total sur 114 points n’est pas directement un gain sur les anciennes demandes.
+Rejeu sans API, réglages par défaut, heure de Dakar, **18 novembre 2026**. Les couples sont orientés, départ ≠ arrivée. Un « voyage complet » répond aux deux sélections exactes, pas à deux arrêts proposés à proximité.
 
-À **périmètre constant** (97 × 96 = 9 312 couples orientés), à 08:10 et 19:00 : **562 voyages complets**, 1 354 couples avec seulement un tronçon calculable après substitution, 7 396 sans l’un ni l’autre, comme en #274. À 21:10 : 288 / 675 / 8 349. **Gain de voyages complets : zéro.** Les fiches offrent néanmoins une indication supplémentaire, par exemple pour Gorom 2 → Noflaye et Liberté 5 → Malika.
+| Même sélection qu’avant | Couples | À 08:10 et 19:00 | À 21:10 |
+|---|---:|---|---|
+| 97 points de #274 | 9 312 | **562 complets**, 1 354 avec tronçon après substitution, 7 396 ni l’un ni l’autre | **288** / 675 / 8 349 |
+| 114 points de la première version de #275 (`39517c0`) | 12 882 | **562 complets**, 38 cartes exactes sans horaire ; sinon 2 539 tronçons | **288 complets**, 38 cartes exactes ; sinon 1 126 tronçons |
 
-À **périmètre étendu** (114 × 113 = 12 882), voici une partition **exclusive**, dans l’ordre de priorité indiqué. Un tronçon calculable à partir d’arrêts de remplacement ne répond pas à la demande initiale. « Autre refus » peut contenir une explication utile, mais aucune des propositions classées ici.
+**Gain de voyages complets sur les anciennes sélections : zéro.** À 19 h, sur les 97 points, 1 263 refus donnent aussi une piste de changement (contre 1 221 précédemment), notamment le nom du terminus DDD 121 à vérifier à Scat Urbam. Ces pistes recoupent les refus avec tronçon ; elles ne complètent pas le trajet. Les [114 identifiants de référence](../data/bus-sections/selection-39517c0.json) sont figés, pas reconstruits d’après le seul nombre de points.
+
+**Sélection étendue : 132 points** (14 repères de carte de plus, deux îlots, deux quais). Partition **exclusive**, dans l’ordre ci-dessous :
 
 | Meilleure réponse pour une demande | 08:10 | 19:00 | 21:10 | 19:00 sans marches strict |
 |---|---:|---:|---:|---:|
-| Voyage complet entre les points choisis | 562 | 562 | 288 | 0 |
-| Carte bus reliant les deux repères exacts, sans horaire | 38 | 38 | 38 | 0 |
-| Sinon : tronçon entre arrêts de remplacement, avec créneau | 2 539 | 2 539 | 1 126 | 0 |
-| Sinon : carte bus à proximité, sans accès vérifié | 0 | 0 | 0 | 0 |
-| Sinon : piste de changement à vérifier | 951 | 951 | 693 | 0 |
-| Sinon : fiche de ligne à vérifier | 274 | 274 | 331 | 0 |
-| Autre refus | 8 518 | 8 518 | 10 406 | 12 882 |
-| **Total** | **12 882** | **12 882** | **12 882** | **12 882** |
+| Voyage complet entre les points choisis | 716 | 716 | 389 | 0 |
+| Carte de bus entre les deux repères exacts, sans horaire | 80 | 80 | 80 | 0 |
+| Sinon : tronçon entre arrêts de remplacement, avec créneau | 3 645 | 3 645 | 1 597 | 0 |
+| Sinon : carte à proximité, sans accès vérifié | 0 | 0 | 0 | 0 |
+| Sinon : changement à vérifier | 951 | 951 | 693 | 0 |
+| Sinon : fiche de ligne | 274 | 274 | 331 | 0 |
+| Autre refus | 11 626 | 11 626 | 14 202 | 17 292 |
+| **Total** | **17 292** | **17 292** | **17 292** | **17 292** |
 
-Les 38 couples de repères sont 1 sur la VDN + 15 sur la portion Manguiers–Stade (dont 6 aussi documentés par la 4) + 21 dans l’autre sens sur la 4 + 1 aux Maristes. Aucun des voyages complets ne contient un bus DDD/AFTU/TATA. Sans la priorité à la carte exacte, on compterait **2 571** couples avec tronçon de remplacement à 19 h, dont **32** proposent aussi cette carte. Les 1 221 pistes de changement à 19 h recoupent aussi les autres catégories. **Ne pas additionner ces derniers nombres** aux lignes du tableau.
+Parmi les **716** couples complets à 19 h, **44** comprennent la marche initiale depuis un îlot de Scat Urbam et **44** la marche finale jusqu’à un îlot. Les autres nouvelles sélections calculables incluent les quais comme points de départ ou d’arrivée. Ce ne sont pas 154 nouvelles courses, ni un gain sur les anciennes demandes. À 21:10 : 44 avec accès et 14 avec marche finale. Aucun voyage n’emprunte DDD, AFTU ou TATA ; **aucun changement de véhicule**, y compris à Scat Urbam. « Aucun résultat sans marches strict » signifie manque de preuve, pas que tous les lieux sont inaccessibles.
+
+Les 80 cartes exactes sont des **couples distincts**, recouvrements déduits. Si on compte tous les refus avec tronçon de remplacement à 19 h, on en trouve 3 711 ; **66** proposent également une carte exacte. Ne pas additionner ces nombres aux voyages complets.
 
 ## Reproduire et débloquer la suite
 
@@ -85,13 +99,26 @@ python3 scripts/compare_bus_occurrences.py --inventory "$D/inventaire.json" \
 # SHA-256 attendus (autres archives refusées) :
 # DDD   578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159
 # AFTU  7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428
+# Rejouer les sélections antérieures, puis l’ensemble actuel :
+sel=data/bus-sections/selection-39517c0.json
+node -e 'console.log(JSON.stringify(require("./"+process.argv[1]).filter(id => !id.startsWith("landmark:bus-osm-"))))' "$sel" > "$D/97.json"
+for cohort in "$D/97.json" "$sel"; do
+  npm run --silent audit:place-connections -- --at 2026-11-18T19:00 --matrix --points "$cohort"
+done
 npm run --silent audit:place-connections -- --at 2026-11-18T19:00 --matrix
 npm run --silent audit:place-connections -- --at 2026-11-18T19:00 --matrix --step-free
 npm run --silent audit:passenger-transfers -- --json
 ```
 
-**Priorité pour Keur Massar :** obtenir du GIE/CETUD ou d’un relevé autorisé les positions des quais du **74 à Bargny et Keur Massar**, dans le sens concerné ; le chemin de la sortie publique TER au quai de montée et celui de descente à la destination ; le calendrier, le dernier départ atteignable et la durée selon la voirie. Pour la 83 à Rufisque, distinguer les deux occurrences Sonadis et le quai de retour. Pour la 84, lever le désaccord d’occurrences et obtenir les quais par chaussée ; pour la 501, confirmer le service Port/Palais plutôt que résoudre le conflit par le nom. À Petersen, Colobane et Guédiawaye, valider séparément chaque sens de changement : **8 dossiers, 16 sens encore bloqués, 0 liaison piétonne embarquée**. Un cheminement dirigé et sa preuve d’accessibilité ne se déduisent ni de l’identité d’un quartier ni d’une distance courte.
+**Priorité pour Keur Massar :** obtenir du GIE/CETUD ou d’un relevé autorisé les positions des quais du **74 à Bargny et Keur Massar**, dans le sens concerné ; le chemin de la sortie publique TER au quai de montée et celui de descente à la destination ; le calendrier, le dernier départ atteignable et la durée selon la voirie. Pour la 83 à Rufisque, distinguer les deux occurrences Sonadis et le quai de retour. Pour la 84, lever le désaccord d’occurrences et obtenir les quais par chaussée ; pour la 501, confirmer le service Port/Palais plutôt que résoudre le conflit par le nom. Les [dossiers par pôle](../src/admin/dakarTransferDossiers.ts) distinguent notamment Bargny, PNR, gare TER Rufisque, gare routière, Colobane Rufisque, gare routière de Keur Massar et terminus 52. **14 dossiers, 28 sens de changement bloqués, 4 arcs piétons embarqués réservés à l’accès/sortie de B1**. L’audit sépare le quai de montée ou de descente, la marche et la desserte dans le bon sens. Un cheminement dirigé et sa preuve d’accessibilité ne se déduisent ni de l’identité d’un quartier ni d’une distance courte.
 
 La [procédure d’admission d’une édition opérateur](preparer-une-correspondance.md) existe déjà : snapshot, droits, revue, tracés, appels ordonnés et services datés. Les exemples synthétiques multimodaux dans les tests prouvent le fonctionnement du moteur, **pas la circulation de ces services à Dakar**.
 
-**Recette locale.** `npm run build` (TypeScript, Vite, contrôles de taille et montage du bundle) : entrée 497 991 octets sur la limite de 500 000. `npm run test:all` : 1 046 tests Vitest et 286 Python ; 51 tests Node des scripts et 3 tests d’extraction piétonne PBF. Dans Chromium à 393 × 852, sans API : soumission de la demande aux Maristes, deux losanges et zéro marqueur de montée ; six repères de Manguiers à Stade ; alternance entre 1 et 4 sur la même chaussée avec libellé de ligne actualisé ; masquage, inversion, filtres réseau et sans marches vérifiés sur le bundle construit.
+**Contrôle PBF en CI, en lecture seule.** L’artefact `dakar-bus-occurrence-review` contient l’inventaire et `occurrences.json` : URL et SHA-256 du fichier téléchargé, familles/codes sans relation attribuée, rangs de chaque membre (y compris homonymes et rôles), drapeaux `recheck` sur les extraits figés. Une zone d’arrêt n’est pas une relation de route : à Petersen notamment, l’ordre de ses membres **n’apparie pas** un stop à un quai. Reproduction avec son propre extrait :
+
+```sh
+python3 scripts/extract_dakar_bus_route_relations_from_pbf.py "$PBF" "$D/pbf.json" --inventory "$D/inventaire.json"
+python3 -m scripts.audit_bus_osm_occurrences "$D/inventaire.json" "$D/pbf.json" "$D/occurrences.json"
+```
+
+**Recette locale.** TypeScript, bundle statique et contrôle de montage ; tests du moteur, des refus, de l’affiche 74, du jeu de données et des scripts. Dans Chromium mobile (393 × 852), sans API : Maristes (deux limites, aucun marqueur de montée), superposition 1/4/7 à Médina (une seule carte affichée), chaussée de Jaxaay non inversée ; montée et descente B1 avec marche à Scat Urbam, retrait du tracé en mode sans marches, aucun départ du quai de descente à Petersen. Voir aussi les [preuves, durées et commandes spécifiques à la marche](../data/bus-sections/acces-scat-urbam.md).

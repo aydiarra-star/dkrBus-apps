@@ -12,21 +12,23 @@
 2. La [fiche officielle AFTU 74](https://aftu-senegal.org/map/dakar-urbain-ligne-74/) cite **« Terminus Bargny (Gare ferroviaire) »** puis **« Terminus Keur Massar »**. Elle ne place ni le quai à la sortie du TER, ni le terminus bus au repère de destination.
 3. Demander au réseau l’accès entre les deux quais, si cet arrêt est desservi dans le sens voulu et l’heure du dernier bus. **Aucune heure de montée sur le 74, durée totale, marche ou arrivée à Keur Massar** n’est calculée avec cette fiche. Le copilote ne mémorise pas ce changement comme un voyage accompli.
 
-L’index utilise les positions **dans l’ordre d’une même fiche** et des libellés de secteurs explicites : Petersen, Colobane, Bargny gare, Guédiawaye, Grand Médine, UCAD, Lat Dior, ainsi que les deux paires de gares Dakar/Petersen et Colobane/Place de la Nation. Il ne joint pas les deux réseaux par toutes les rues homonymes. Deux fiches de même numéro AFTU/TATA ne constituent pas un changement. Les circuits DDD sont lus dans l’ordre, sans boucler artificiellement sur le terminus ; les fiches TATA indépendantes gardent leur provenance. On ne déduit ni quai DDD de la station BRT du même nom, ni correspondance à la gare TER Rufisque d’une mention de SONADIS. Voir les [dossiers des pôles](audit-poles-correspondance-2026-11-16.md), [Petersen](audit-pole-petersen-acces-correspondances-2026-11-16.md), [Colobane](colobane-walking-transfer-audit-2026-11-16.md) et [Bargny/Rufisque](audit-geographique-rufisque-bargny-keur-massar-sangalkam-2026-11-16.md).
+L’index utilise les positions **dans l’ordre d’une même fiche** et des libellés de secteurs explicites : Petersen, Colobane, Bargny gare, Guédiawaye, Scat Urbam, Grand Médine, UCAD, Lat Dior, ainsi que les deux paires de gares Dakar/Petersen et Colobane/Place de la Nation. Il ne joint pas les deux réseaux par toutes les rues homonymes. Deux fiches de même numéro AFTU/TATA ne constituent pas un changement. Les circuits DDD sont lus dans l’ordre, sans boucler artificiellement sur le terminus ; les fiches TATA indépendantes gardent leur provenance. On ne déduit ni quai DDD de la station BRT du même nom, ni correspondance à la gare TER Rufisque d’une mention de SONADIS. Voir les [dossiers des pôles](audit-poles-correspondance-2026-11-16.md), [Petersen](audit-pole-petersen-acces-correspondances-2026-11-16.md), [Colobane](colobane-walking-transfer-audit-2026-11-16.md) et [Bargny/Rufisque](audit-geographique-rufisque-bargny-keur-massar-sangalkam-2026-11-16.md).
 
 Pour deux points sans résultat, l’utilisateur peut également **choisir** de les ouvrir dans Google Maps (transports ou marche). Seules les coordonnées sont inscrites dans ce lien externe, pas l’heure et les filtres. Il n’y a ni appel en arrière-plan à ce calculateur, ni import de ses résultats. Cette option n’est pas une validation d’accessibilité.
 
-## Couverture réellement livrée sur Pages, sans API
+## Référence livrée sur Pages par la PR #274, sans API
 
 Les mêmes **97 sélections**, **9 312 couples orientés distincts**, à 19 h le 18 novembre à Dakar, avec les valeurs par défaut :
 
-| Résultat entre les sélections initiales | #273 | Cette version |
+| Résultat entre les sélections initiales | #273 | #274 |
 |---|---:|---:|
 | Trajet complet entre les points demandés | 331 | **562** |
 | Tronçon entre arrêts seulement, après substitution | 849 | **1 354** |
 | Ni trajet complet ni tronçon entre arrêts | 8 132 | **7 396** |
 
-**1 221 recherches non abouties** présentent aussi au moins un changement à vérifier ; ce nombre recoupe les deux dernières lignes. Aucun de ces rapprochements n’est compté comme trajet complet. Les 16 sens de l’inventaire terrain restent bloqués, zéro arc piéton admis dans le réseau embarqué.
+**1 221 recherches non abouties** présentent aussi au moins un changement à vérifier ; ce nombre recoupe les deux dernières lignes. Aucun de ces rapprochements n’est compté comme trajet complet. Dans cette édition #274, les 16 sens de l’inventaire étaient bloqués, sans arc piéton admis.
+
+**Suite sur la PR #275 :** les deux îlots de Scat Urbam disposent d’accès dirigés au quai central B1 ; ils ne connectent pas deux réseaux. Un quai de descente est identifié à Petersen, pas la marche jusqu’au prochain bus. Les dossiers distinguent aussi le TER à Bargny, PNR, Rufisque TER, la gare routière et le terminus 52 à Keur Massar. **14 dossiers, 28 sens de changement étudiés, aucun transfert activé.** Le [bilan de la version candidate](bilan-bus-voyageurs.md) donne la comparaison à sélection constante et le résultat sur les 132 points actuels.
 
 Avec la même sélection à **08:10**, on retrouve 562 trajets complets. À **21:10**, il en reste **288** (un départ antérieur du terminus peut encore passer à un arrêt intermédiaire). À 19 h en **sans marches strict**, zéro complet, zéro tronçon et zéro piste documentaire ; c’est une absence de preuve d’accessibilité, pas l’affirmation que tous les quais sont inaccessibles.
 

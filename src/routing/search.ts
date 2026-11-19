@@ -64,18 +64,23 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
     const complete: Frontier = new Map()
     const finish = (l: Label) => insert(complete, l.boards ? l : { ...l, cadence: Infinity })
     function afterWalk(l: Label, next: Frontier) {
-      let tree = trees.get(l.place.id)
-      if (!tree) { tree = walkingTree(net, l.place.id, maxWalkPerLegM, stepFreeOnly); trees.set(l.place.id, tree) }
-      for (const [id, meters] of tree.distances) {
-        // Even platforms at the same station never imply a change of vehicle.
-        const last = targets.has(id), onward = net.boarding.has(id) && (!last || targets.size > 1)
-        if (!meters || (!last && !onward)) continue
-        const ways = tree.pathTo(id)
-        const walked = (role: Walk['role']): Label => ({ ...l, place: net.places.get(id)!, walked: l.walked + meters,
-          at: l.at + Math.ceil(meters * 60 / walkSpeedMpm), back: { prev: l, action: { kind: 'walk', ways, meters, role } } })
-        if (last) finish(walked(l.boards ? 'egress' : 'direct'))
-        if (onward) insert(next, walked(l.boards ? 'transfer' : 'access'))
+      if (!net.walking.has(l.place.id)) return
+      const close = (role: Walk['role'], final: boolean) => {
+        // A path to catch a bus is not necessarily open to through pedestrians.
+        // Filter *inside* Dijkstra: a longer general-use path might still exist.
+        const key = JSON.stringify([l.place.id, role])
+        let tree = trees.get(key)
+        if (!tree) { tree = walkingTree(net, l.place.id, maxWalkPerLegM, stepFreeOnly, role); trees.set(key, tree) }
+        for (const [id, meters] of tree.distances) {
+          if (!meters || (final ? !targets.has(id) : !net.boarding.has(id) || (targets.size === 1 && targets.has(id)))) continue
+          const arrival: Label = { ...l, place: net.places.get(id)!, walked: l.walked + meters,
+            at: l.at + Math.ceil(meters * 60 / walkSpeedMpm), back: { prev: l, action: { kind: 'walk', ways: tree.pathTo(id), meters, role } } }
+          if (final) finish(arrival)
+          else insert(next, arrival)
+        }
       }
+      close(l.boards ? 'egress' : 'direct', true)
+      close(l.boards ? 'transfer' : 'access', false)
     }
     insert(ready, seed); afterWalk(seed, ready)
     for (let boards = 1; ready.size && boards <= maxChanges + 1; boards++) {

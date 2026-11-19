@@ -78,7 +78,11 @@ describe('adaptateur de preuves AFTU', () => {
     const missing = AFTU_ROUTE_EVIDENCE
       .filter((route) => route.inbound.sequenceStatus === 'missing')
       .map((route) => route.line)
-    expect(missing).toEqual([])
+    expect(missing).toEqual(['74'])
+    const route = getAftuRouteEvidence('74')!
+    expect(route.outbound.waypoints).toHaveLength(14); expect(route.outbound.waypoints.at(-1)).toBe('Terminus Cité COCEHAS')
+    expect(route.outbound.scheduleInterval).toBeNull(); expect(route.inbound.scheduleInterval).toBeNull()
+    expect(route.inbound.waypoints).toEqual([]); expect(route.inbound.sourceUrl).toBeNull()
     expect(AFTU_ROUTE_EVIDENCE.every((route) =>
       route.outbound.sequenceStatus === 'documented' && route.serviceWindow.start === '05:30' && route.serviceWindow.end === '22:00',
     )).toBe(true)

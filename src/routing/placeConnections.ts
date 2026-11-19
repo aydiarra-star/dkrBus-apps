@@ -77,7 +77,7 @@ function choices(net: Network, point: DakarEndpoint, side: 'board' | 'alight', s
   // A surveyed entrance may lack the directed link for this side. Keep a
   // reachable entrance; merely having a vertex does not certify either walk.
   if (selected) {
-    const walk = (id: string) => walkingTree(net, id, radiusM, settings.stepFreeOnly ?? false).distances
+    const walk = (id: string) => walkingTree(net, id, radiusM, settings.stepFreeOnly ?? false, side === 'board' ? 'access' : 'egress').distances
     if (side === 'board') {
       const reachable = walk(selected.id)
       if (nearby.some(c => reachable.has(c.place.id))) return keep

@@ -74,6 +74,17 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     }
   })
 
+  it('isole le parcours AFTU 74 des horaires Rufisque–Tivaouane Peul et du retour retourné à la main', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const buttons = getDirectionButtons(container, '74')
+    for (const button of buttons) expect(button.querySelector('.station-board-passage strong')?.textContent).toBe('Non confirmé')
+    fireEvent.click(buttons[0]); const row = buttons[0].closest('li')!
+    await waitFor(() => expect(row.querySelectorAll('.station-board-itinerary-list li')).toHaveLength(14))
+    expect(row.querySelector('.station-board-itinerary-list')?.textContent).toMatch(/Bargny.*Colobane.*Jaxaay.*Keur Massar.*COCEHAS/i)
+    fireEvent.click(buttons[1]); expect(row.querySelector('.station-board-itinerary-list')).toBeNull()
+    expect(row.textContent).toContain('Retour non confirmé')
+  })
+
   it('n’affiche qu’une seule représentation par sens pour chaque numéro de ligne unifié', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const groups = Array.from(container.querySelectorAll('.station-board-line-group'))
@@ -114,7 +125,7 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(buttons).toHaveLength(2)
     expect(buttons.every((button) => button.textContent?.includes('Reprise dans 26 min'))).toBe(true)
     expect(buttons.every((button) => button.textContent?.includes('Reprise à 06:00'))).toBe(true)
-    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(110)
+    expect(container.querySelectorAll('.station-board-passage.is-upcoming')).toHaveLength(108)
   })
 
   it('conserve la présentation habituelle des lignes DDD', () => {

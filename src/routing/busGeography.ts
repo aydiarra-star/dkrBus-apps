@@ -33,22 +33,30 @@ export function compileBusScope(review: SectionReview, ways: Readonly<Record<num
   }
   // These specific reviewed sections are simple paths, not folded loops.
   if (new Set(vertices.map(v => v[0])).size !== vertices.length) return null
-  const shape: VerifiedLineGeometry = { network: review.family === 'ddd' ? 'ddd' : 'aftu_tata', lineId: review.line,
-    directionId: review.id, source: 'OSM_ROUTE_RELATION', sourceId: `${review.relation}/v${review.version}`, verified: true, positions: vertices.map(point) }
-  if (!shapeLength(shape.positions, maxSourceStepM)) return null
+  const positions = vertices.map(point)
+  if (!shapeLength(positions, maxSourceStepM)) return null
+  const shape: VerifiedLineGeometry | undefined = review.relation ? { network: review.family === 'ddd' ? 'ddd' : 'aftu_tata', lineId: review.line,
+    directionId: review.id, source: 'OSM_ROUTE_RELATION', sourceId: `${review.relation}/v${review.version}`, verified: true, positions } : undefined
+  // A road named by the operator isn't an OSM bus relation. For that case
+  // slice only at literal, reviewed road nodes, never project a bus platform.
+  let lastIndex = -1
   const markers: BusMapMarker[] = [], parts: Section[] = []
   for (const node of review.markers) {
     const m = BUS_SECTION_MARKERS[node]
     if (!m) return null
     const marker = { id: namespace + node, name: m[3], lat: m[1], lon: m[2] }
-    if (!inDakar(marker) || (review.landmarkKind === 'road-limit' && !vertices.some(v => v[0] === node && samePoint(point(v), marker)))) return null
+    if (!inDakar(marker)) return null
+    const i = vertices.findIndex(v => v[0] === node && samePoint(point(v), marker))
+    const road = review.landmarkKind === 'road-limit'
+    if (road && i <= lastIndex) return null
     const previous = markers.at(-1)
     if (previous) {
-      const positions = sliceVerifiedRouteSegment(shape, previous, marker, 20)
-      const meters = positions && shapeLength(positions, maxSourceStepM)
-      if (!positions || !meters) return null // includes reversed order and offsets
-      parts.push({ positions, meters })
+      const span = road ? positions.slice(lastIndex, i + 1) : sliceVerifiedRouteSegment(shape, previous, marker, 20)
+      const meters = span && shapeLength(span, maxSourceStepM)
+      if (!span || !meters) return null // includes reversed order and offsets
+      parts.push({ positions: span, meters })
     }
+    lastIndex = i
     markers.push(marker)
   }
   return { review, markers, parts }

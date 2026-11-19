@@ -30,7 +30,7 @@ export function passengerLookup(options: Omit<Query, 'origin' | 'destination'>, 
     const rides = trip.legs.flatMap(l => l.kind === 'ride' ? [l] : [])
     const steps = trip.legs.map(l => `${dakarClock(l.start)} · ${l.kind === 'ride' ? `${l.lineName} (${l.direction})` : 'Marche'} : ${l.from.name} → ${l.to.name} · ${dakarClock(l.end)}`)
     const stops = /arr[êe]ts/i.test(question) ? rides.map(r => `Desserte ${r.lineName} : ${r.stops.map(s => s.name).join(' → ')}`).join('\n') : ''
-    return { text: `${header}\n${tripSummary(trip)}\n${steps.join('\n')}${stops ? `\n${stops}` : ''}\nDe point de desserte à point de desserte ; temps estimés, pas de temps réel.${prefs.priority === 'cheapest' ? ' Aucun classement par prix.' : ''} Les options et les sources sont dans Trajet.`,
+    return { text: `${header}\n${tripSummary(trip)}\n${steps.join('\n')}${stops ? `\n${stops}` : ''}\n${trip.legs.some(l => l.kind === 'walk') ? 'Seuls les cheminements indiqués sont inclus' : 'De point de desserte à point de desserte'} ; temps estimés, pas de temps réel.${prefs.priority === 'cheapest' ? ' Aucun classement par prix.' : ''} Les options et les sources sont dans Trajet.`,
       memory: { tripId: trip.id, origin: from, destination: to, steps, totalMinutes: Math.ceil(trip.totalSeconds / 60), transfers: trip.changes,
         boardedLines: rides.map(r => r.lineName), alightStop: rides.at(-1)?.to.name ?? null } }
   }

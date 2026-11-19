@@ -46,21 +46,29 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(16)
+  expect(report).toHaveLength(28)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
     expect(r.status).toBe('blocked'); expect(r.meters).toBeNull()
-    expect(r.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_PLATFORM', 'BOARD_PLATFORM', 'PATH_EVIDENCE']))
-    expect(r.sources.filter(s => s.startsWith('docs/')).every(s => existsSync(s))).toBe(true)
+    const missing = r.findings.map(f => f.code)
+    expect(missing).toContain('PATH_EVIDENCE')
+    expect(missing.includes('ALIGHT_PLATFORM')).toBe(!r.observed.alight)
+    expect(missing.includes('BOARD_PLATFORM')).toBe(!r.observed.board)
+    expect(r.sources.filter(s => !s.startsWith('https://')).every(s => existsSync(s))).toBe(true)
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
   }
+  const scat = report.find(r => r.from.stopId === 'brt-scat-urbam')!
+  expect([scat, ...scat.otherServiceDirections].map(v => v.observed.alight?.direction)).toEqual(['Préfecture de Guédiawaye → Petersen','Vers Guédiawaye · portion Petersen → Gueule Tapée'])
+  expect(scat.otherServiceDirections[0].status).toBe('blocked')
   const pair = report.find(r => r.from.stopId === 'ter-dakar' && r.to.stopId === 'brt-petersen')!
   expect(pair.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_DIRECTION','PUBLIC_GATES']))
   expect(pair.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION') // the partial 19961993 now boards at Petersen, not a walk from TER
   const opposite = report.find(r => r.to.stopId === 'ter-dakar' && r.from.stopId === 'brt-petersen')!
   expect(opposite.findings.map(f => f.code)).not.toContain('ALIGHT_DIRECTION')
   expect(opposite.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION')
-  expect(dakarNetwork.walking.size).toBe(0)
+  expect(opposite.observed.alight).toMatchObject({ platformId: 'brt-petersen-quai-arrivee', evidence: { reference: expect.stringContaining('13376766987') } })
+  expect(pair.observed.board).toBeUndefined()
+  expect([...dakarNetwork.walking.values()].flat().every(w => w.onlyFor)).toBe(true)
 })
 
 

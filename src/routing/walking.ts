@@ -1,4 +1,4 @@
-import type { Footway, Network } from './model'
+import type { Footway, Network, Walk } from './model'
 
 interface Entry { id: string; meters: number }
 /** Binary min-heap; stale entries are discarded when popped (no decrease-key). */
@@ -31,7 +31,7 @@ class Queue {
 
 /** Bounded directed Dijkstra on reviewed pedestrian ways only. No reverse
  * edges, coordinate lookup, station-parent links or zero-cost transfers. */
-export function walkingTree(net: Network, origin: string, budgetM: number, stepFreeOnly: boolean) {
+export function walkingTree(net: Network, origin: string, budgetM: number, stepFreeOnly: boolean, role: Walk['role']) {
   const distances = new Map<string, number>([[origin, 0]])
   const previous = new Map<string, Footway>()
   const queue = new Queue()
@@ -39,7 +39,7 @@ export function walkingTree(net: Network, origin: string, budgetM: number, stepF
   for (let item = queue.pop(); item; item = queue.pop()) {
     if (item.meters !== distances.get(item.id)) continue
     for (const edge of net.walking.get(item.id) ?? []) {
-      if (stepFreeOnly && edge.stepFree !== 'yes') continue
+      if ((edge.onlyFor && edge.onlyFor !== role) || (stepFreeOnly && edge.stepFree !== 'yes')) continue
       const meters = item.meters + edge.meters
       if (meters > budgetM || meters >= (distances.get(edge.to) ?? Infinity)) continue
       distances.set(edge.to, meters); previous.set(edge.to, edge); queue.push({ id: edge.to, meters })

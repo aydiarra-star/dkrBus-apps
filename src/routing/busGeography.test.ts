@@ -15,10 +15,10 @@ const pin = (p: BusMapMarker) => ({ kind: 'map' as const, lat: p.lat, lng: p.lon
 const at = (p: BusMapMarker) => ({ ...pin(p), landmarkId: p.id })
 const scope = (id: string) => busScopes.find(s => s.review.id === id)!
 
-it('uses only the five manually bounded reviews, 17 distinct OSM nodes, and no fabricated service or walk', () => {
+it('uses only the eleven documentary scopes, 31 distinct OSM nodes, and no fabricated service or walk', () => {
   expect(busScopes.map(s => s.review.id)).toEqual(BUS_SECTION_REVIEWS.map(r => r.id))
-  expect(busMapPoints).toHaveLength(17)
-  expect(busScopes.map(s => Math.round(s.parts.reduce((n,p) => n + p.meters, 0)))).toEqual([746,1667,787,1790,938])
+  expect(busMapPoints).toHaveLength(31)
+  expect(busScopes.map(s => Math.round(s.parts.reduce((n,p) => n + p.meters, 0)))).toEqual([746,2334,787,1790,938,2334,2422,903,903,1179,1117])
   for (const { marker } of busMapPoints) {
     expect(selectedVertex(dakarNetwork, at(marker))).toBeUndefined()
     expect(dakarNetwork.places.has(marker.id)).toBe(false)
@@ -47,18 +47,25 @@ it('checks every ordered pair across all bus scopes; no crossing scopes, return,
       }
     }
   }
-  expect(exact.size).toBe(38)
+  expect(exact.size).toBe(80)
 })
 
 it('keeps the pinned OSM members on the right line, carriageway and side of each discontinuity', () => {
   const point = (id: number) => at(busMapPoints.find(p => p.marker.id === `landmark:bus-osm-${id}`)!.marker)
   const matches = (a: number, b: number) => findBusMapSections(point(a), point(b), settings).map(s => s.review.id).sort()
-  // Only Médina–Stade is shared. Manguiers is NOT a call of this DDD 4 scope.
-  expect(matches(4666430955, 4666430950)).toEqual(['ddd-1-sahm','ddd-4-medina'])
-  expect(matches(4666430960, 4666430950)).toEqual(['ddd-1-sahm'])
+  // Only Médina–Stade is shared with the 4. Manguiers is NOT a call of this DDD 4 scope.
+  expect(matches(4666430955, 4666430950)).toEqual(['ddd-1-sahm','ddd-4-medina','ddd-7-sahm'])
+  expect(matches(4666430960, 4666430950)).toEqual(['ddd-1-sahm','ddd-7-sahm'])
   expect(matches(4666430949, 4754647805)).toEqual(['ddd-4-gueule-tapee'])
   expect(matches(4666430953, 4666430954)).toEqual([]) // opposite sides at Tilène
   expect(matches(4363242544, 4666430950)).toEqual([]) // missing VDN→Sahm
+  expect(matches(4666430949, 4666430963)).toEqual(['ddd-7-ucad']) // Ouakam, not the DDD 4's boulevard
+  expect(matches(4666430964, 4666430963)).toEqual([]) // UCAD on opposite carriageways
+  expect(matches(1745835667, 297238941)).toEqual(['aftu-1-fass','tata-1-fass']) // two sheets, same road, no vehicles
+  expect(matches(6047705119, 4873880717)).toEqual(['aftu-74-keur-massar'])
+  expect(matches(4873881075, 2415437588)).toEqual(['aftu-74-rufisque'])
+  expect(matches(4873880717, 6047705119)).toEqual([]) // not the other carriageway
+  expect(matches(4873881075, 6047705119)).toEqual([]) // no cross-carriageway substitution
   expect(matches(3403676386, 305375476)).toEqual([]) // no implicit return on HB-69
 })
 

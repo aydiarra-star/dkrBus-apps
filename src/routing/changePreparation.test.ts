@@ -40,3 +40,9 @@ it('checks the second service cannot already be over; a working northbound B1 se
   expect(planDakarJourney(x, y, { departAt: at('20:55') })).toMatchObject({ ok: false, code: 'NO_SERVICE' })
   expect(planDakarJourney(x, a, q).ok).toBe(false)
 })
+
+it('names the 121 terminus as a separate enquiry, not a B1 connection from the central platform', () => {
+  const r = prepareChanges(dakarNetwork, stop('brt-prefecture-guediawaye'), stop('ddd-petersen'), q)
+  expect(r.find(x => x.hub === 'Scat Urbam')).toMatchObject({ before: { kind: 'section', line: 'B1' }, after: { kind: 'sheet', line: 'DDD 121', from: 'Terminus Scat Urbam', to: 'Petersen' } })
+  expect(planDakarJourney(stop('brt-prefecture-guediawaye'), stop('ddd-petersen'), q).ok).toBe(false)
+})

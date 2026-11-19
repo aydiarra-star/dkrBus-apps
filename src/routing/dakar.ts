@@ -95,7 +95,9 @@ export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options
   if (!result.ok && result.code === 'NO_SERVICE' && network === dakarNetwork && !hasSenegalPublicHolidayCalendar(options.departAt * 1000)) {
     return { ...result, message: 'Le calendrier des jours fériés du Sénégal n’est pas confirmé pour cette année. Aucun créneau n’est supposé.' }
   }
-  if (!result.ok && result.code === 'NO_PATH' && !network.walking.size && from.stopId && to.stopId) {
+  if (!result.ok && result.code === 'NO_PATH' && from.stopId && to.stopId &&
+      ![...network.walking.values()].some(edges => edges.some(e => !e.onlyFor)) &&
+      network.places.get(from.stopId)?.kind === 'call' && network.places.get(to.stopId)?.kind === 'call') {
     const origin = from.stopId, destination = to.stopId
     const networksOf = (id: string) => network.patterns.filter(p => p.stops.includes(id))
     const here = networksOf(origin), there = networksOf(destination)

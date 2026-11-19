@@ -52,7 +52,7 @@ for (const file of Object.values(files)) {
 
 // For the following official sheets the *body* gives the order, even where
 // the overview title lists the termini in the opposite order (e.g. 24).
-const checkedAftu = new Set(['3', '4', '24', '25', '29', '30', '33', '39', '40', '74'])
+const checkedAftu = new Set(['1', '3', '4', '24', '25', '29', '30', '33', '39', '40', '74'])
 for (const r of BUS_LINES) {
   if (r.network !== 'aftu' || !checkedAftu.has(r.code) || !r.waypoints.length || r.detailSourceUrl !== `https://aftu-senegal.org/map/dakar-urbain-ligne-${r.code}/`) continue
   directions.push({ network: 'aftu', line: r.code, labels: r.waypoints, url: r.detailSourceUrl, source: 'AFTU · descriptif dans l’ordre publié' })

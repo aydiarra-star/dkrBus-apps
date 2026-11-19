@@ -115,6 +115,7 @@ export function buildNetwork(data: Dataset): Network {
     // A station's service-call reference never doubles as a pedestrian access.
     if (!meters || !w.id || !w.name || duplicateWays.has(w.id) || w.from === w.to || !a || !b || a.kind === 'call' || b.kind === 'call' ||
         !samePoint(a, w.positions[0]) || !samePoint(b, w.positions.at(-1)!) || !reviewed(w.evidence) ||
+        (w.onlyFor !== undefined && !['access','egress'].includes(w.onlyFor)) ||
         w.access !== 'public' || w.crossingsAndBarriersChecked !== true || !accessibilityKnown(w.stepFree) ||
         !['footway','sidewalk','crossing','steps','ramp','station-path'].includes(w.kind) || (w.kind === 'steps' && w.stepFree === 'yes')) {
       rejected.push(`footway:${w.id}`); continue

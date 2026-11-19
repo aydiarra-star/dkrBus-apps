@@ -269,6 +269,10 @@ function AftuTataScheduleBoard({
             // AFTU et TATA partagent l'affichage, mais les arrêts restent
             // strictement rattachés à la fiche de leur propre itinéraire.
             const route = [...matchingSameNetwork].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
+            // This catalogue row starts at Bargny gare. The Moovit 74 grids
+            // concern a different corridor; neither those nor the network
+            // average are a departure from here, even before details load.
+            const fromBargny74 = line.network === 'aftu' && lineNumber === '74' && stopMatchesEndpoint(line.origin, 'Bargny')
             const outboundOrigin = route?.outboundOrigin ?? line.origin
             const outboundDestination = route?.outboundDestination ?? line.destination
             const inboundOrigin = route?.inboundOrigin ?? outboundDestination
@@ -318,20 +322,21 @@ function AftuTataScheduleBoard({
                       >
                         <span className="station-board-stop">
                           <strong>AFTU / TATA {lineNumber}</strong>
-                          <small>{direction.label} · {direction.from} → {direction.to}</small>
+                          <small>{fromBargny74 && direction.id === 'inbound' ? 'Retour · parcours non confirmé' : `${direction.label} · ${direction.from} → ${direction.to}`}</small>
                         </span>
                         <span className="station-board-direction-action">
-                          <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
+                          {fromBargny74 ? <span className="network-summary-passage station-board-passage is-undeclared" role="status"><strong>Non confirmé</strong><small>Pas de grille pour ce parcours</small></span> : <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
                             <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <PassageArcs />}{serviceLabel}</strong>
                             <small>{declaredWindow ? 'Repère de ligne' : 'Repère réseau'}</small>
                             {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
-                          </span>
+                          </span>}
                           <span aria-hidden="true">{selected ? '−' : '+'}</span>
                         </span>
                       </button>
                       {selected && (
                         <div className="station-board-itinerary" aria-label={`Itinéraire ${direction.label} AFTU / TATA ${lineNumber}`}>
                           {location && nearestStop && <p className="station-board-nearest-stop">Votre position : arrêt de référence le plus proche « {nearestStop.stop.name} », à {nearestStop.distance < 1000 ? `${Math.round(nearestStop.distance)} m` : `${(nearestStop.distance / 1000).toFixed(1)} km`}.</p>}
+                          {fromBargny74 && <p>La fiche AFTU décrit Bargny gare → Cité COCEHAS. Retour non confirmé. La grille Rufisque–Tivaouane Peul concerne un autre parcours.</p>}
                           {direction.stops.length > 0
                             ? <ol className="station-board-itinerary-list">{direction.stops.map((stop, index) => <li key={`${index}-${stop}`}>{stop}</li>)}</ol>
                             : <p className="station-board-itinerary-pending">{direction.id === 'inbound' ? 'Les arrêts du retour ne sont pas documentés séparément.' : 'Les arrêts de cet aller ne sont pas disponibles dans la fiche détaillée.'}</p>}
@@ -411,7 +416,9 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '75': aftu75.default as Partial<MobilityRouteReference>,
         '72': aftu72.default as Partial<MobilityRouteReference>,
         '73': aftu73.default as Partial<MobilityRouteReference>,
-        '74': aftu74.default as Partial<MobilityRouteReference>,
+        // Select the reviewed fields, not the unconfirmed reverse or other corridor's grid.
+        '74': { waypoints: aftu74.default.waypoints, outboundOrigin: aftu74.default.outboundOrigin, outboundDestination: aftu74.default.outboundDestination,
+          detailSourceUrl: aftu74.default.detailSourceUrl, inboundWaypoints: [], outboundSchedule: null, inboundSchedule: null },
         '79': aftu79.default as Partial<MobilityRouteReference>,
         '80': aftu80.default as Partial<MobilityRouteReference>,
         '81': aftu81.default as Partial<MobilityRouteReference>,

@@ -15,6 +15,7 @@
  */
 
 import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { REVIEWED_PASSENGER_LINKS } from '../data/reviewedPassengerLinks'
 import { busMapPoints } from '../routing/busGeography'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import { MAX_ACCESS_M } from './assumptions'
@@ -241,7 +242,8 @@ const sheetPlaces = QUALIFIED_SHEET_LABELS.map(({ id, name, lines }): PlaceEntry
   kind: 'bus', id, name, aliases: [], busLines: UNIFIED_BUS_LINES.filter(line => lines.has(`${line.network}:${line.code}`)),
 }))
 const busMapPlaces = busMapPoints.map(({ marker }): PlaceEntry => ({ ...marker, kind: 'landmark', aliases: [], busLines: [] }))
-const passengerPlaces = [...LANDMARK_PLACES, ...busMapPlaces, ...sheetPlaces, ...ALL_KNOWN_PLACES, ...otherPoles]
+const stationLinks = REVIEWED_PASSENGER_LINKS.places.map((p): PlaceEntry => ({ ...p, kind: p.kind === 'platform' ? 'brt' : 'landmark', aliases: [], busLines: [] }))
+const passengerPlaces = [...LANDMARK_PLACES, ...stationLinks, ...busMapPlaces, ...sheetPlaces, ...ALL_KNOWN_PLACES, ...otherPoles]
 const nameIndexes = {
   reference: indexNames(ALL_KNOWN_PLACES),
   passenger: indexNames(passengerPlaces, true),

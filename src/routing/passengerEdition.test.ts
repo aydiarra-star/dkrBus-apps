@@ -57,5 +57,6 @@ it('refuses bad shapes, wrong identity/date, unsafe paths or corrupt bindings at
   expect(mutate(d => ({ ...d, platformBindings: d.platformBindings?.map(b => ({ ...b, platformId: 'absent' })) }))).toBeNull()
   const missing = mutate(d => ({ ...d, footways: [] }))!
   expect(planDakarJourney(point('A2'), point('B3'), { departAt: at('08:20') }, missing).ok).toBe(false)
-  expect(dakarNetwork.walking.size).toBe(0)
+  expect([...dakarNetwork.walking.values()].flat().map(w => w.id).sort()).toEqual(localPassengerData.footways.map(w => w.id).sort())
+  expect(dakarNetwork.places.has(`gtfs:${sid}:stop:A2`)).toBe(false)
 })

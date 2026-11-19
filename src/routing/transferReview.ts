@@ -60,7 +60,7 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
     const nodes = [from]
     for (const id of path.wayIds) {
       const edge = net.walking.get(nodes[nodes.length - 1])?.find(w => w.id === id)
-      if (!edge || nodes.includes(edge.to)) break
+      if (!edge || edge.onlyFor || nodes.includes(edge.to)) break
       edges.push(edge); nodes.push(edge.to)
     }
     if (nodes.at(-1) !== to || edges.length !== path.wayIds.length) {

@@ -206,14 +206,15 @@ jobs:
           sudo apt-get install --yes osmium-tool
           python -m pip install --disable-pip-version-check osmium
           mkdir -p artifacts/pedestrian
-          if ! curl --fail --location --retry 2 --retry-delay 5 \
-            https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf \
+          pbf_url=https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+          if ! curl --fail --location --retry 2 --retry-delay 5 "$pbf_url" \
             --output artifacts/pedestrian/senegal-and-gambia.osm.pbf; then
             rm -f artifacts/pedestrian/senegal-and-gambia.osm.pbf
-            curl --fail --location --retry 2 --retry-delay 5 \
-              https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf \
+            pbf_url=https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf
+            curl --fail --location --retry 2 --retry-delay 5 "$pbf_url" \
               --output artifacts/pedestrian/senegal-and-gambia.osm.pbf
           fi
+          echo "source_url=$pbf_url" >> "$GITHUB_OUTPUT"
           osmium extract --bbox -17.60,14.50,-17.05,14.95 --strategy complete_ways \
             -o artifacts/pedestrian/dakar.osm.pbf artifacts/pedestrian/senegal-and-gambia.osm.pbf --overwrite
           python scripts/extract_dakar_pedestrian_ways_from_pbf.py \
@@ -225,7 +226,20 @@ jobs:
         id: dakar_bus_routes
         if: steps.pedestrian_geofabrik.outcome == 'success'
         timeout-minutes: 10
-        run: python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json
+        run: |
+          mkdir -p artifacts/bus-review
+          node scripts/audit_bus_networks.mjs --output artifacts/bus-review/inventory.json
+          python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json --inventory artifacts/bus-review/inventory.json --source-url '${{ steps.pedestrian_geofabrik.outputs.source_url }}'
+          python -m scripts.audit_bus_osm_occurrences artifacts/bus-review/inventory.json artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/occurrences.json
+
+      - name: Upload read-only bus occurrence and pinned member comparison
+        if: steps.dakar_bus_routes.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dakar-bus-occurrence-review
+          path: artifacts/bus-review/
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Extract candidate Dakar pedestrian graph from Overpass when Geofabrik is unavailable
         id: pedestrian_graph

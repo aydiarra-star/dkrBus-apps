@@ -28,6 +28,7 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
     </> : <>
       <strong><Footprints size={14} /> {walkLabel[leg.role]} · {dakarClock(leg.start)}–{dakarClock(leg.end)}</strong>
       <p>{leg.from.name} → {leg.to.name} · {distance} · {minutes(leg.end - leg.start)}.</p>
+      {leg.ways.some(w => w.onlyFor) && <p>Accès voyageurs uniquement. La marche commence et finit aux points indiqués ; aucun trajet depuis le trottoir voisin n’est inclus.</p>}
       <p>{leg.ways.map(w => w.name).join(' → ')}</p>
       <details><summary>Sources du cheminement</summary>{leg.ways.map(w => <p key={w.id}>{w.name} · {w.evidence.reference} · {w.evidence.date}</p>)}</details>
     </>}
@@ -101,13 +102,14 @@ function GeographicPortion({ section: s, selected, onShow, preferences }: {
   const distance = (m: number) => formatDistance(m, preferences.units.distance)
   return <article className="verified-trip"><strong>{review.family.toUpperCase()} {review.line} · sens {review.towards}</strong>
     <p>{markers[0].name} → {markers.at(-1)!.name} · {distance(s.meters)} sur la voirie.</p>
-    <p>{review.landmarkKind === 'road-limit' ? 'Les deux repères délimitent une rue, pas des arrêts de montée ou de descente.' : 'Les quais figurent dans cet ordre sur la carte de la ligne. Aucun passage ni accès à pied n’est établi.'}</p>
+    <p>{review.landmarkKind === 'road-limit' ? 'Les repères délimitent la voirie, pas des arrêts de montée ou de descente.' : 'Les quais figurent dans cet ordre sur la carte de la ligne. Aucun passage ni accès à pied n’est établi.'}</p>
     {(s.fromGapM !== null || s.toGapM !== null) && <p>Écart à vol d’oiseau, pas une marche : {[
       s.fromGapM !== null && `${distance(s.fromGapM)} au départ`, s.toGapM !== null && `${distance(s.toGapM)} à l’arrivée`,
     ].filter(Boolean).join(' ; ')}.</p>}
     {onShow && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onShow(s.id)}><Layers3 size={14} /> {selected ? 'Masquer cette portion' : 'Voir cette portion sur la carte'}</button>}
     <details><summary>Repères et sources de la portion</summary><p>{markers.map(m => m.name).join(' → ')}</p>
-      <a href={review.operatorUrl} target="_blank" rel="noreferrer">Description de la ligne</a> · <a href={`https://www.openstreetmap.org/relation/${review.relation}/history/${review.version}`} target="_blank" rel="noreferrer">Relation OSM {review.relation} v{review.version}</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© les contributeurs OpenStreetMap · ODbL</a>
+      <a href={review.descriptionUrl} target="_blank" rel="noreferrer">Description de la ligne</a> · {review.relation ? <a href={`https://api.openstreetmap.org/api/0.6/relation/${review.relation}/${review.version}.json`} target="_blank" rel="noreferrer">Relation OSM {review.relation} v{review.version}</a>
+        : <><a href={review.directionUrl} target="_blank" rel="noreferrer">Recoupement du sens</a>{review.ways.map(w => <span key={w}> · <a href={`https://www.openstreetmap.org/way/${Math.abs(w)}`} target="_blank" rel="noreferrer">Voie OSM {Math.abs(w)}</a></span>)}</>} · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© les contributeurs OpenStreetMap · ODbL</a>
     </details></article>
 }
 
@@ -119,6 +121,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
     <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : result.code === 'DOCUMENTED_SECTION_ONLY' ? 'Tracé disponible, passage non confirmé' : 'Pas d’itinéraire vérifié'}</h3></div></header>
     {!result.ok ? <><p role="status">{result.message}</p>
       {!!result.mapSections?.length && <div className="connection-details"><h4>Portion cartographiée · sans horaire</h4>
+        {result.mapSections.some(s => s.review.id === 'tata-1-fass') && <p>À Fass, les fiches AFTU 1 et TATA 1 décrivent la même chaussée. Ce ne sont pas deux services confirmés.</p>}
         {result.mapSections.map(s => <GeographicPortion key={s.id} section={s} selected={s.id === shownPortion} onShow={onShowPortion} preferences={preferences} />)}</div>}
       <ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} />{Boolean(result.changesToCheck?.length) && <ChangeDetails changes={result.changesToCheck!} onChoose={onChooseSection} />}</> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>

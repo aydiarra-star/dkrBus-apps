@@ -8,12 +8,12 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 22 | 22 | — | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 746 m vers Leclerc ; 1667 m vers Leclerc |
+| 1 | 22 | 22 | — | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 746 m vers Leclerc ; 2334 m vers Leclerc |
 | 2 | 35 | 35 | — | catalogue, ArcGIS | — |
 | 4 | 26 / 27 | 27 | — | catalogue, ArcGIS, repères, revue de sources | 787 m vers Leclerc ; 1790 m vers Liberté 5 |
 | 5 | 15 | 15 | — | catalogue, ArcGIS | — |
 | 6 | 24 / 25 | 24 | — | catalogue, ArcGIS, horaires de référence, revue de sources | — |
-| 7 | 21 | 21 | — | catalogue, ArcGIS, revue de sources | — |
+| 7 | 21 | 21 | — | catalogue, ArcGIS, revue de sources | 2334 m vers Palais (portion UCAD–Stade) ; 2422 m vers Ouakam |
 | 8 | 28 | 28 | — | catalogue, ArcGIS | — |
 | 9 | 24 | 24 | — | catalogue, ArcGIS, revue de sources | — |
 | 10 | 29 | 29 | — | catalogue, ArcGIS, revue de sources | — |
@@ -61,7 +61,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 21 | — | — | catalogue, descriptif, repères | — |
+| 1 | 21 | — | — | catalogue, descriptif, repères | 903 m vers HLM Grand Médine |
 | 2 | 18 | — | — | catalogue, descriptif | — |
 | 3 | 15 | — | — | catalogue, descriptif, repères | — |
 | 4 | 10 | — | — | catalogue, descriptif | — |
@@ -116,7 +116,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 71 | 18 / 54 / 55 | 54 | 55 | catalogue, descriptif, horaires de référence | — |
 | 72 | 22 | 22 | 22 | catalogue, descriptif, horaires de référence | — |
 | 73 | 10 | 10 | 10 | catalogue, descriptif, horaires de référence | — |
-| 74 | 14 | 14 | 14 | catalogue, descriptif, repères, horaires de référence | — |
+| 74 | 14 | 14 | — | catalogue, descriptif, repères, grilles d’un autre parcours, retour non attesté | 1179 m vers Keur Massar ; 1117 m vers Rufisque |
 | 75 | 15 / 51 / 52 | 52 | 51 | catalogue, descriptif, repères, horaires de référence | — |
 | 76 | 12 | — | — | catalogue, descriptif, horaires de référence | — |
 | 77 | 14 | — | — | catalogue, descriptif | — |
@@ -139,7 +139,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 18 / 20 | — | — | catalogue, descriptif | — |
+| 1 | 18 / 20 | — | — | catalogue, descriptif | 903 m vers HLM Grand Yoff (fiche TATA) |
 | 2 | 16 / 18 | — | — | catalogue, descriptif | — |
 | 3 | 13 / 15 | — | — | catalogue | — |
 | 4 | 8 / 10 | — | — | catalogue | — |
@@ -210,4 +210,4 @@ Hors attribution :
 - aftu-85-directions.json (85-unverified) : inbound, 95 occurrences.
 - corridors : as-published, 4 occurrences.
 
-Calcul daté local (hors édition opérateur) : 0 sens de bus ; 0 chemins piétons. Une ligne absente du calculateur n’est pas déclarée hors service.
+Calcul daté local (hors édition opérateur) : 0 sens de bus ; 4 arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.

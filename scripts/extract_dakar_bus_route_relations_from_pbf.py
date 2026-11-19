@@ -6,8 +6,9 @@ commercial direction, stitch disconnected ways, or activate any route.
 """
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -128,11 +129,14 @@ def _inside(lat: float, lon: float) -> bool:
     return BOUNDS["south"] <= lat <= BOUNDS["north"] and BOUNDS["west"] <= lon <= BOUNDS["east"]
 
 
-def extract_route_relations(pbf_path: str) -> dict:
+def extract_route_relations(pbf_path: str, pinned: dict | None = None) -> dict:
     try:
         import osmium
     except ImportError as exc:
         raise RuntimeError("Le module Python pyosmium est requis (pip install osmium).") from exc
+
+    pin_relations = {r['id'] for r in (pinned or {}).get('relations', [])}
+    station_relations = []
 
     class CandidateCollector(osmium.SimpleHandler):
         def __init__(self):
@@ -154,12 +158,16 @@ def extract_route_relations(pbf_path: str) -> dict:
 
         def relation(self, relation):
             tags = {tag.k: tag.v for tag in relation.tags}
-            if not is_public_transport_route(tags):
+            if int(relation.id) not in pin_relations and not is_public_transport_route(tags):
                 return
             members = [
                 {"type": str(member.type), "ref": int(member.ref), "role": str(member.role or "")}
                 for member in relation.members
             ]
+            if int(relation.id) in pin_relations:
+                station_relations.append({"id": int(relation.id), "version": int(relation.version), "members": members})
+            if not is_public_transport_route(tags):
+                return  # station area metadata is not a route
             self.raw_relations.append({
                 "id": int(relation.id),
                 "version": int(relation.version),
@@ -187,8 +195,12 @@ def extract_route_relations(pbf_path: str) -> dict:
     ]
     selected_relations = route_relations + route_masters
 
-    needed_node_ids: set[int] = set()
-    needed_way_ids: set[int] = set()
+    # Additional bounded road/marker objects for evidence checks. They may not
+    # belong to ANY bus relation. Never add them to a relation's members.
+    pin_nodes = {m[0] for m in (pinned or {}).get("markers", [])}
+    pin_ways = {w[0] for w in (pinned or {}).get("ways", [])}
+    needed_node_ids = set(pin_nodes)
+    needed_way_ids = set(pin_ways)
     for relation in selected_relations:
         for member in relation["members"]:
             if member["type"] == "n":
@@ -207,7 +219,7 @@ def extract_route_relations(pbf_path: str) -> dict:
             if node_id not in needed_node_ids or not node.location.valid():
                 return
             self.nodes[node_id] = {
-                "id": node_id,
+                "id": node_id, "version": int(node.version),
                 "lat": float(node.location.lat),
                 "lon": float(node.location.lon),
                 "tags": {tag.k: tag.v for tag in node.tags},
@@ -227,7 +239,7 @@ def extract_route_relations(pbf_path: str) -> dict:
                 node_refs.append(int(node.ref))
                 geometry.append([float(node.location.lon), float(node.location.lat)])
             self.ways[way_id] = {
-                "id": way_id,
+                "id": way_id, "version": int(way.version),
                 "tags": {tag.k: tag.v for tag in way.tags},
                 "nodeRefs": node_refs,
                 "geometry": geometry,
@@ -310,23 +322,32 @@ def extract_route_relations(pbf_path: str) -> dict:
     }
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "source": "Geofabrik Senegal and Gambia OSM PBF, filtered by Dakar bbox membership",
-        "sourceUrl": "https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf",
+        "source": "OSM PBF, filtered by Dakar bbox membership",
         "attribution": "© OpenStreetMap contributors",
         "license": "ODbL-1.0",
         "geographicBounds": BOUNDS,
         "summary": summary,
+        "pinnedObjects": {"relations": station_relations,
+                          "nodes": [members.nodes[i] for i in sorted(pin_nodes & members.nodes.keys())],
+                          "ways": [members.ways[i] for i in sorted(pin_ways & members.ways.keys())]},
         "relations": output_relations,
         "warning": "Audit candidates only. OSM route relations do not by themselves prove current commercial service, operator approval, exact stop equivalence, or both service directions.",
     }
 
 
 def main() -> int:
-    if len(sys.argv) != 3:
-        print("Usage: extract_dakar_bus_route_relations_from_pbf.py INPUT.osm.pbf OUTPUT.json", file=sys.stderr)
-        return 2
-    report = extract_route_relations(sys.argv[1])
-    output = Path(sys.argv[2])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('input')
+    parser.add_argument('output', type=Path)
+    parser.add_argument('--inventory', type=Path, help='Also read the pinned way and marker IDs from audit:bus')
+    parser.add_argument('--source-url', help='URL of the actual input, including mirror if used')
+    args = parser.parse_args()
+    pinned = json.loads(args.inventory.read_text())['pinnedOsm'] if args.inventory else None
+    report = extract_route_relations(args.input, pinned)
+    report["sourceUrl"] = args.source_url
+    with open(args.input, "rb") as pbf:
+        report["sourceSha256"] = hashlib.file_digest(pbf, "sha256").hexdigest()
+    output = args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(report["summary"], ensure_ascii=False))

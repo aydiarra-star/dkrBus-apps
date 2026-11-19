@@ -52,6 +52,9 @@ export interface FootwayInput {
   kind: 'footway' | 'sidewalk' | 'crossing' | 'steps' | 'ramp' | 'station-path'
   access: 'public' | 'restricted' | 'unknown'
   crossingsAndBarriersChecked: boolean
+  /** A station passage may be reviewed only for catching/leaving a service,
+   * not as a public shortcut through the paid area. Absent = general use. */
+  onlyFor?: 'access' | 'egress'
   stepFree: StepFree
   evidence: Evidence
   positions: readonly RoadPoint[]

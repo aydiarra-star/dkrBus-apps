@@ -46,6 +46,10 @@ export async function busInventory(load) {
   const files = (await readdir(new URL('../src/data/', import.meta.url))).filter(f => /^aftu-.+-(directions|return)\.json$/.test(f)).sort()
   for (const file of files) {
     const r = await json(file)
+    if (r.unconfirmedReturn) add(r.network, r.code, record(file, 'unconfirmed-return', 'inbound', r.unconfirmedReturn.waypoints, {
+      url: r.unconfirmedReturn.url, note: r.unconfirmedReturn.reason }))
+    if (r.otherCorridor) for (const side of sides) add(r.network, r.code, record(file, 'service-reference', side, null, {
+      termini: side === 'outbound' ? r.otherCorridor.termini : [...r.otherCorridor.termini].reverse(), schedule: r.otherCorridor[`${side}Schedule`], scope: 'other-corridor' }))
     for (const side of sides) {
       const nested = r.directions?.[side], flat = side === 'outbound' ? r.waypoints : r.inboundWaypoints
       const blocks = [[side === 'outbound' ? 'waypoints' : 'inboundWaypoints', flat], [`directions.${side}`, nested?.waypoints]].filter(([, a]) => a?.length)
@@ -106,15 +110,24 @@ export async function busInventory(load) {
     const codes = r.line === 'TAF_TAF / TO1' ? ['TAF_TAF', 'TO1'] : [r.line]
     for (const code of codes) add('ddd', code, record('dddOfficialSourceCrosswalk', 'crosscheck', 'unspecified', null, { sourceCode: r.line, status: r.kind, note: r.decision, claims: r.claims }))
   }
+  const { stationOsmPins } = await data('reviewedPassengerLinks')
+  const station = stationOsmPins()
+  const { BUS_SECTION_MARKERS } = await data('busSectionReview')
+  const { BUS_SECTION_WAYS } = await data('busSectionWays')
   const { busScopes } = await load('/src/routing/busGeography.ts')
   const { dakarNetwork } = await load('/src/routing/dakar.ts')
   for (const { review: r, markers, parts } of busScopes) add(r.family, r.line, record('busSectionReview', 'cartographic-section', r.towards, markers.map(m => m.name), {
-    id: r.id, relation: r.relation, version: r.version, markerIds: markers.map(m => m.id), markerKind: r.landmarkKind, meters: Math.round(parts.reduce((s, p) => s + p.meters, 0)),
+    id: r.id, ...(r.relation ? {relation: r.relation, version: r.version} : {directionUrl: r.directionUrl}), url: r.descriptionUrl, ways: r.ways, markerIds: markers.map(m => m.id), markerKind: r.landmarkKind, meters: Math.round(parts.reduce((s, p) => s + p.meters, 0)),
   }))
   const { line90, ...networkSettings } = (await data('aftuScheduleSettings')).AFTU_CETUD_SCHEDULE_SETTINGS
   add('aftu', '90', record('aftuScheduleSettings', 'operating-profile', 'unspecified', null, { profile: line90 }))
   const lines = [...rows.values()].sort((a,b) => a.network.localeCompare(b.network) || a.code.localeCompare(b.code, 'fr', { numeric:true }))
-  return { version: 1, lines, unassigned,
+  return { version: 2, lines, unassigned,
+    // PBF drift checks must detect moved interior nodes even if the way
+    // retained its version. Keep the literal bounded subchain in storage order.
+    pinnedOsm: { attribution: '© OpenStreetMap contributors · ODbL 1.0',
+      markers: [...Object.entries(BUS_SECTION_MARKERS).map(([id,[version,lat,lon]]) => [Number(id),version,lat,lon]), ...station.markers],
+      ways: [...Object.entries(BUS_SECTION_WAYS).map(([id,w]) => [Number(id),w.version,w.vertices,w.oneWay]), ...station.ways], relations: station.relations },
     context: { aftuNetworkSettings: networkSettings, siteObservations: (await data('cetudFrequencyObservations')).CETUD_FREQUENCY_OBSERVATIONS,
       officialPageAudit: (await data('aftuOfficialPageAudit')).AFTU_OFFICIAL_PAGE_AUDIT },
     staticRouting: {
@@ -138,13 +151,13 @@ export function coverageTable(inventory) {
       const e = r.evidence, has = kind => e.some(v => v.kind === kind)
       const counts = side => [...new Set(e.filter(v => textKinds.has(v.kind) && (side === 'published' ? v.side === 'as-published' : v.side === side)).map(v => v.labels?.length).filter(Boolean))].sort((a,b) => a-b).join(' / ') || '—'
       const refs = [has('catalogue') && 'catalogue', has('circuit') && 'circuit', has('description') && 'descriptif', has('historical-layer') && 'ArcGIS',
-        (has('area-marker') || has('reference-poles') || has('map-landmarks')) && 'repères', (has('service-reference') || has('terminal-window')) && 'horaires de référence', has('operating-profile') && 'profil indicatif', e.some(v => v.sourceTimeCount) && 'heures aux repères', has('crosscheck') && 'revue de sources'].filter(Boolean)
+        (has('area-marker') || has('reference-poles') || has('map-landmarks')) && 'repères', (e.some(v => v.kind === 'service-reference' && !v.scope) || has('terminal-window')) && 'horaires de référence', e.some(v => v.scope === 'other-corridor') && 'grilles d’un autre parcours', has('unconfirmed-return') && 'retour non attesté', has('operating-profile') && 'profil indicatif', e.some(v => v.sourceTimeCount) && 'heures aux repères', has('crosscheck') && 'revue de sources'].filter(Boolean)
       const parts = e.filter(v => v.kind === 'cartographic-section').map(v => `${v.meters} m vers ${v.side}`)
       out.push(`| ${r.code} | ${counts('published')} | ${counts('outbound')} | ${counts('inbound')} | ${refs.join(', ') || '—'} | ${parts.join(' ; ') || '—'} |`)
     }
     out.push('')
   }
   out.push('Hors attribution :', ...inventory.unassigned.map(u => `- ${u.source}${u.sourceCode ? ` (${u.sourceCode})` : ''} : ${u.side}, ${u.labels?.length ?? 0} occurrences.`), '',
-    `Calcul daté local (hors édition opérateur) : ${inventory.staticRouting.patterns.filter(p => ['ddd','aftu','tata'].includes(p.mode)).length} sens de bus ; ${inventory.staticRouting.footways} chemins piétons. Une ligne absente du calculateur n’est pas déclarée hors service.`, '')
+    `Calcul daté local (hors édition opérateur) : ${inventory.staticRouting.patterns.filter(p => ['ddd','aftu','tata'].includes(p.mode)).length} sens de bus ; ${inventory.staticRouting.footways} arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.`, '')
   return out.join('\n')
 }

@@ -38,10 +38,11 @@ test('counts directional occurrences rather than distinct names and never lends 
 })
 test('reports cartographic sections, dated patterns and footways separately', () => {
   const traces = report.lines.flatMap(r => r.evidence.filter(e => e.kind === 'cartographic-section'))
-  assert.equal(traces.length, 5)
+  assert.equal(traces.length, 11)
+  assert.deepEqual(report.pinnedOsm.relations.map(r => [r.id,r.version]), [[19961937,4],[19961993,3],[17357331,4],[19961714,2]])
   assert.equal(traces.find(e => e.id === 'aftu-40-maristes').markerKind, 'road-limit')
   assert.deepEqual(report.staticRouting.patterns.map(p => p.mode).sort(), ['brt','brt','ter'])
-  assert.deepEqual(report.staticRouting.rejected, []); assert.equal(report.staticRouting.footways, 0)
+  assert.deepEqual(report.staticRouting.rejected, []); assert.equal(report.staticRouting.footways, 4)
 })
 
 test('the passenger CLI distinguishes street limits, source-only directions and dated rides', async () => {
@@ -52,4 +53,12 @@ test('the passenger CLI distinguishes street limits, source-only directions and 
   assert.doesNotMatch(plan(b, a), /Carte uniquement/)
   assert.doesNotMatch(plan(a, b, '--step-free'), /Carte uniquement/)
   assert.match(plan('landmark:gorom-2', 'landmark:noflaye'), /UNVERIFIED_ACCESS[^]*Fiche uniquement : AFTU 90/)
+})
+
+test('retains sources of divergent 74 evidence without calling them the Bargny return or its timetable', () => {
+  const e = evidence('aftu','74').filter(r => r.source === 'aftu-74-directions.json')
+  assert.deepEqual(e.filter(r => r.kind === 'directional-sheet').map(r => [r.side, r.labels.length]), [['outbound',14]])
+  assert.equal(e.find(r => r.kind === 'unconfirmed-return').labels.length, 14)
+  assert.deepEqual(e.filter(r => r.kind === 'service-reference').map(r => [r.scope, r.termini]), [
+    ['other-corridor', ['Rufisque','Tivaouane Peul']], ['other-corridor', ['Tivaouane Peul','Rufisque']]])
 })

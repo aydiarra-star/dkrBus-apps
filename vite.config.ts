@@ -74,7 +74,7 @@ export default defineConfig({
             {
               name: 'bus-geography',
               priority: 15,
-              test: /[\\/]src[\\/](?:data[\\/]busSection(?:Review|Ways)|routing[\\/](?:geometry|busGeography)|domain[\\/](?:roadNetworkRouting|routeGeometrySlice))\.ts$/,
+              test: /[\\/]src[\\/](?:data[\\/](?:busSection(?:Review|Ways)|reviewedPassengerLinks)|routing[\\/](?:geometry|busGeography)|domain[\\/](?:roadNetworkRouting|routeGeometrySlice))\.ts$/,
             },
             {
               name: 'schedule-board',
