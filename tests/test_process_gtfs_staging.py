@@ -234,6 +234,7 @@ class GTFSWorkerTests(unittest.TestCase):
             f" https://{SUPABASE_HOST}",
             f"https://{SUPABASE_HOST} ",
             "https://other-project.supabase.co",
+            "https://mdmuxzaewzqzqutkqdylo.supabase.co",
             f"http://{SUPABASE_HOST}",
             f"https://{SUPABASE_HOST}/other",
             f"https://user:pass@{SUPABASE_HOST}",
