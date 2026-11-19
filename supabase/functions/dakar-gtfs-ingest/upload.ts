@@ -6,6 +6,13 @@ export const MAX_JSON_REQUEST_BYTES = MAX_MANIFEST_BYTES + 16 * 1024;
 export const SIGNED_UPLOAD_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
 export const UPLOAD_SESSION_TTL_MS = SIGNED_UPLOAD_TOKEN_TTL_MS + 15 * 60 * 1000;
 
+export function uploadSessionExpiryAfterTokenIssuedAt(tokenIssuedAtMs = Date.now()): string {
+  if (!Number.isSafeInteger(tokenIssuedAtMs) || tokenIssuedAtMs < 0) {
+    throw new RangeError("tokenIssuedAtMs must be a non-negative safe integer");
+  }
+  return new Date(tokenIssuedAtMs + UPLOAD_SESSION_TTL_MS).toISOString();
+}
+
 export function isUploadSessionExpired(expiresAt: unknown, now = Date.now()): boolean {
   if (typeof expiresAt !== "string" || !Number.isFinite(now)) return false;
   const expiry = Date.parse(expiresAt);
