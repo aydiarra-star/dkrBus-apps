@@ -32,7 +32,11 @@ jobs:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
-        run: python -m unittest tests.test_bus_board_profiles tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_audit_interchange_sites tests.test_freeze_bus_checks tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
+        run: python -m unittest tests.test_bus_board_profiles tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_audit_interchange_sites tests.test_audit_maristes_pins tests.test_freeze_bus_checks tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
+
+      - name: Check explicit location metadata on the public directional stop sheets (review only)
+        if: github.event_name == 'pull_request'
+        run: python -m scripts.audit_maristes_pins --ci-summary
 
       - name: Install dependencies
         run: npm ci
