@@ -11,7 +11,7 @@ update storage.buckets
 
 do $bucket_guard$
 begin
-  if not found then
+  if not exists (select 1 from storage.buckets where id = 'dakar-gtfs-staging') then
     raise exception 'The private dakar-gtfs-staging bucket must exist before signed uploads are enabled';
   end if;
 end;
