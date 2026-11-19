@@ -1,4 +1,4 @@
-const DAKAR_BUS_PROJECT_REF = "mdmuxzaewzqzqutkqdylo";
+const DAKAR_BUS_PROJECT_REF = "mdmuxzaewqzqutkqdylo";
 const DAKAR_BUS_PROJECT_HOST = `${DAKAR_BUS_PROJECT_REF}.supabase.co`;
 export const DAKAR_BUS_TUS_UPLOAD_ENDPOINT =
   `https://${DAKAR_BUS_PROJECT_REF}.storage.supabase.co/storage/v1/upload/resumable`;
