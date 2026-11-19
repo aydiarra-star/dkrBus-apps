@@ -19,6 +19,24 @@ export function isUploadSessionExpired(expiresAt: unknown, now = Date.now()): bo
   return Number.isFinite(expiry) && expiry <= now;
 }
 
+export function isExactBoundedObjectSize(
+  actualValue: unknown,
+  expectedBytes: number,
+  maxBytes: number,
+): boolean {
+  const actualBytes = typeof actualValue === "number"
+    ? actualValue
+    : typeof actualValue === "string" && /^[0-9]+$/.test(actualValue)
+    ? Number(actualValue)
+    : Number.NaN;
+  return Number.isSafeInteger(actualBytes) &&
+    Number.isSafeInteger(expectedBytes) &&
+    Number.isSafeInteger(maxBytes) &&
+    expectedBytes > 0 &&
+    maxBytes >= expectedBytes &&
+    actualBytes === expectedBytes;
+}
+
 const DATASET_ID_RE = /^[a-z0-9][a-z0-9-]{0,119}$/;
 const UPLOAD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SHA256_RE = /^[a-f0-9]{64}$/;
