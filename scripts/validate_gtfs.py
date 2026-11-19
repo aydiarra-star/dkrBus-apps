@@ -289,19 +289,30 @@ class GTFSValidator:
         seen_names: set[str] = set()
         valid_infos: list[zipfile.ZipInfo] = []
         for info in infos:
-            if info.filename in seen_names:
-                self.report.add("ERROR", "DUPLICATE_ARCHIVE_ENTRY", f"L’entrée ZIP « {info.filename} » apparaît plusieurs fois.")
+            # ZipInfo.filename is truncated at the first NUL by Python's zipfile
+            # reader. orig_filename retains the decoded central-directory name;
+            # reject any mismatch before using a potentially sanitized path.
+            raw_filename = getattr(info, "orig_filename", info.filename)
+            if not isinstance(raw_filename, str) or raw_filename != info.filename or "\x00" in raw_filename:
+                self.report.add(
+                    "ERROR",
+                    "UNSAFE_ARCHIVE_PATH",
+                    "Une entrée ZIP contient un nom brut tronqué ou un octet NUL.",
+                )
                 continue
-            seen_names.add(info.filename)
 
-            member_path = PurePosixPath(info.filename)
+            if raw_filename in seen_names:
+                self.report.add("ERROR", "DUPLICATE_ARCHIVE_ENTRY", f"L’entrée ZIP « {raw_filename} » apparaît plusieurs fois.")
+                continue
+            seen_names.add(raw_filename)
+
+            member_path = PurePosixPath(raw_filename)
             unix_mode = info.external_attr >> 16
             if (
                 member_path.is_absolute()
                 or ".." in member_path.parts
-                or "\\" in info.filename
-                or re.match(r"^[A-Za-z]:", info.filename) is not None
-                or "\x00" in info.filename
+                or "\\" in raw_filename
+                or re.match(r"^[A-Za-z]:", raw_filename) is not None
                 or stat.S_ISLNK(unix_mode)
             ):
                 self.report.add("ERROR", "UNSAFE_ARCHIVE_PATH", f"Chemin ZIP refusé : « {info.filename} ».")
