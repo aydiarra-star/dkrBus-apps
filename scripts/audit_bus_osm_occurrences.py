@@ -30,6 +30,12 @@ def subchain(haystack, needle):
     return bool(needle) and any(haystack[i:i+len(needle)] == needle for i in range(len(haystack)-len(needle)+1))
 
 
+def allows_way(member, signed_id):
+    """A directional member cannot be read against its explicit OSM role."""
+    opposite = 'forward' if signed_id < 0 else 'backward'
+    return member['ref'] == abs(signed_id) and member['role'].casefold() != opposite
+
+
 def compare(inventory, pbf):
     if not inventory['lines'] or not pbf['relations']:
         raise ValueError('Expected a nonempty bus inventory and PBF relation report')
@@ -115,17 +121,21 @@ def compare(inventory, pbf):
                     problems.append('relation:identity-or-version')
                 if r:
                     members = r['membersInRelationOrder']
-                    candidates_w = [m['ref'] for m in members if is_route_way_member(m['type'], m['role'])]
+                    roads = [m for m in members if is_route_way_member(m['type'], m['role'])]
+                    signed = section['ways']
                     # Branch reviews (e.g. 40) are not necessarily raw adjacent
                     # members. Platform scopes, by contrast, review a specific run.
                     if section['markerKind'] == 'platform':
                         platforms = [m['ref'] if m['type'] == 'n' and m['role'] == 'platform' else None for m in members if is_stop_member(m['type'], m['role'])]
                         if not subchain(platforms, ids):
                             problems.append('relation:platform-order')
-                        if not subchain(candidates_w, wids):
-                            problems.append('relation:way-order')
-                    elif not set(wids).issubset(candidates_w):
-                        problems.append('relation:way-membership')
+                        if not signed or not any(
+                            all(allows_way(roads[i + j], wid) for j, wid in enumerate(signed))
+                            for i in range(len(roads) - len(signed) + 1)
+                        ):
+                            problems.append('relation:way-order-or-direction')
+                    elif not signed or any(not any(allows_way(m, wid) for m in roads) for wid in signed):
+                        problems.append('relation:way-membership-or-direction')
             reviews.append({'section': section['id'], 'basis': 'route-relation' if 'relation' in section else 'documented-street',
                             'check': 'recheck' if problems else 'pinned-objects-match', 'problems': problems})
     return {'status': 'REVIEW_ONLY', 'source': pbf.get('sourceUrl'), 'sourceSha256': pbf.get('sourceSha256'), 'extractedAt': pbf.get('generatedAt'),
@@ -159,3 +169,7 @@ if __name__ == '__main__':
         if count:
             print('::warning title=Objets OSM à relire::' + ' ; '.join(
                 f"{kind}: " + ', '.join(str(int(i)) for i in ids) for kind, ids in report['memberDrift'].items() if ids))
+        for row in report['sections']:
+            if row['check'] == 'recheck':
+                detail = json.dumps([row['section'], row['problems']], ensure_ascii=True).replace('%', '%25')
+                print('::warning title=Portion OSM à relire::' + detail)

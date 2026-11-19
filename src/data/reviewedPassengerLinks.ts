@@ -4,7 +4,7 @@ import type { Dataset, Evidence, FootwayInput, Place, PlatformBinding } from '..
 // © OpenStreetMap contributors, ODbL 1.0. These are two site-specific
 // reviews, NOT a resolver for arbitrary stop areas, centroids or nearby ways.
 // See data/bus-sections/acces-scat-urbam.md for the identities and limits.
-const reviewed = (reference: string): Evidence => ({ status: 'reviewed', date: '2026-11-18', reference: `© OpenStreetMap · ${reference}` })
+const reviewed = (reference: string): Evidence => ({ status: 'reviewed', date: '2026-11-19', reference: `© OpenStreetMap · ${reference}` })
 const towardsPetersen = 'Préfecture de Guédiawaye → Petersen'
 const towardsGuediawaye = 'Vers Guédiawaye · portion Petersen → Gueule Tapée'
 

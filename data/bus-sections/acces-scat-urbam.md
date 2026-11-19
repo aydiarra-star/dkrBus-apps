@@ -1,6 +1,6 @@
 # B1 : jusqu’où la marche est-elle documentée ?
 
-Revue cartographique du 18 novembre 2026, **pas un relevé sur place**. Source des objets et de l’extrait [`reviewedPassengerLinks.ts`](../../src/data/reviewedPassengerLinks.ts) : [© les contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Horaires et appels : modèle B1 existant, inchangé. Ni la fréquence ni l’accessibilité ne proviennent de ces objets OSM.
+Revue cartographique contrôlée sur le [PBF régional du job du 19 novembre 2026](https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44557429279/job/135677253857), **pas un relevé sur place**. Le 18 novembre reste la date du scénario de voyage. Source des objets et de l’extrait [`reviewedPassengerLinks.ts`](../../src/data/reviewedPassengerLinks.ts) : [© les contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Horaires et appels : modèle B1 existant, inchangé. Ni la fréquence ni l’accessibilité ne proviennent de ces objets OSM.
 
 ## Scat Urbam : deux îlots, un quai central
 

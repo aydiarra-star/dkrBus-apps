@@ -35,7 +35,9 @@ def is_stop_member(member_type: str, role: str) -> bool:
 
 
 def is_route_way_member(member_type: str, role: str) -> bool:
-    return member_type == "w" and role in ROUTE_WAY_ROLES
+    # AFTU 40 (3982642 v25) spells four directional roles "Forward".
+    # Classify the literal at read time; never rewrite the stored member.
+    return member_type == "w" and role.casefold() in ROUTE_WAY_ROLES
 
 
 def relation_intersects_dakar(members: list[dict], node_ids: set[int], way_ids: set[int]) -> bool:

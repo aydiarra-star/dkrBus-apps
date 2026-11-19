@@ -46,6 +46,22 @@ class BusOccurrencesTest(unittest.TestCase):
         w['feature']['nodeRefs'].reverse()
         self.assertEqual(compare(self.inventory, p)['memberDrift']['ways'][10], 'source-vertices')
 
+    def test_mixed_case_direction_is_membership_not_permission_to_reverse(self):
+        # Like AFTU 40: the member role is capitalised in the source relation.
+        m = self.pbf['relations'][0]['membersInRelationOrder'][-1]
+        section = self.inventory['lines'][0]['evidence'][-1]
+        for kind in ('platform', 'road-limit'):
+            with self.subTest(markerKind=kind):
+                section['markerKind'] = kind
+                for role, sign, expected in [('Forward', 1, True), ('Forward', -1, False),
+                                             ('Backward', 1, False), ('Backward', -1, True),
+                                             ('platform', 1, False)]:
+                    m['role'], section['ways'] = role, [sign * 10]
+                    r = compare(self.inventory, self.pbf)['sections'][0]
+                    self.assertEqual(r['check'] == 'pinned-objects-match', expected, (role, sign))
+                section['ways'] = []
+                self.assertEqual(compare(self.inventory, self.pbf)['sections'][0]['check'], 'recheck')
+
     def test_no_promotion_of_unattributed_same_number_or_master(self):
         p = deepcopy(self.pbf)
         p['relations'][0]['tags'].update(type='route_master')

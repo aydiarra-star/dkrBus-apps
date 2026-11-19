@@ -28,6 +28,9 @@ class BusRouteRelationFilterTests(unittest.TestCase):
         self.assertTrue(is_stop_member("n", "platform"))
         self.assertTrue(is_stop_member("w", "platform"))
         self.assertFalse(is_stop_member("w", "forward"))
+        self.assertTrue(is_route_way_member("w", "Forward"))
+        self.assertFalse(is_route_way_member("n", "Forward"))
+        self.assertFalse(is_route_way_member("w", "platform"))
         self.assertTrue(is_route_way_member("w", "forward"))
         self.assertTrue(is_route_way_member("w", "backward"))
         self.assertFalse(is_route_way_member("n", "stop"))
@@ -91,11 +94,13 @@ class BusRouteRelationFilterTests(unittest.TestCase):
                 writer.add_way(Way(id=4, version=6, nodes=[1, 2]))
                 writer.add_way(Way(id=5, version=4, nodes=[2, 3]))
                 writer.add_relation(Relation(id=6, version=5, tags={'type': 'route', 'route': 'bus', 'ref': '1'},
-                                             members=[('n', 1, 'platform'), ('w', 4, '')]))
+                                             members=[('n', 1, 'platform'), ('w', 4, 'Forward')]))
                 writer.add_relation(Relation(id=7, version=3, tags={'type': 'public_transport', 'public_transport': 'stop_area'},
                                              members=[('n', 1, 'platform'), ('w', 5, 'platform')]))
             output = extract_route_relations(file, {'markers': [[2, 2, 14.7373054, -17.4550269]], 'ways': [[5, 4, []]], 'relations': [{'id': 7}]})
         self.assertEqual([r['id'] for r in output['relations']], [6])
+        roads = output['relations'][0]['routeWaysInRelationOrder']
+        self.assertEqual([(w['id'], w['role'], w['memberOrder']) for w in roads], [(4, 'Forward', 1)])
         a, b = output['relations'][0]['membersInRelationOrder']
         self.assertEqual((a['feature']['version'], b['feature']['version']), (2, 6))
         objects = output['pinnedObjects']
