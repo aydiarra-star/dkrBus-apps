@@ -1,0 +1,81 @@
+{
+  "scope": "HISTORICAL_REVIEW_ONLY",
+  "attribution": "© OpenStreetMap contributors · ODbL 1.0",
+  "markerSignedOffsetsM": {
+    "n4697843990": -12.8,
+    "n4697855389": -11.7
+  },
+  "dddArcgis544": {
+    "toMarkersM": {
+      "n4697843990": 13.5,
+      "n4697855389": 11.0
+    },
+    "signedOffsetToWestboundRoadM": -15.2
+  },
+  "archives": {
+    "ddd": {
+      "route": "DDD_218",
+      "archiveSha256": "578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159",
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "window": [
+        "D_485",
+        "D_501",
+        "D_657"
+      ],
+      "toMarkersM": {
+        "n4697843990": 6.0,
+        "n4697855389": 22.5
+      },
+      "signedOffsetToWestboundRoadM": -7.0,
+      "variants": [
+        {
+          "shape": "DDD_218_AEROPORT-LSS",
+          "directionId": "0",
+          "calls": 35,
+          "rank": null,
+          "trips": 66
+        },
+        {
+          "shape": "DDD_218_THIAROYE",
+          "directionId": "1",
+          "calls": 34,
+          "rank": 11,
+          "trips": 87
+        }
+      ]
+    },
+    "aftu": {
+      "route": "AFTU_60",
+      "archiveSha256": "7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428",
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": null,
+      "window": [
+        "A_1254",
+        "A_990",
+        "A_1564"
+      ],
+      "toMarkersM": {
+        "n4697843990": 9.3,
+        "n4697855389": 17.5
+      },
+      "signedOffsetToWestboundRoadM": -6.6,
+      "variants": [
+        {
+          "shape": "AFTU_60_Colobane",
+          "directionId": "0",
+          "calls": 45,
+          "rank": null,
+          "trips": 92
+        },
+        {
+          "shape": "AFTU_60_bargny",
+          "directionId": "1",
+          "calls": 46,
+          "rank": 45,
+          "trips": 91
+        }
+      ]
+    }
+  }
+}

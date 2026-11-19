@@ -36,7 +36,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **208** · Gorom 01 → Rufisque | Non · 7 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **213** · Gare de Rufisque → Terminus Dieuppeul | Non · 17 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **217** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
-| **218** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
+| **218** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
 | **219** · Daroukhane → Terminus Ouakam | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
 | **220** · Terminus Rufisque → Terminus Guédiawaye | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **221** · Terminus Gadaye (Filaos) → Terminus Almadies | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
@@ -268,7 +268,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **57** · Terminus Rufisque Gouye Mouride → Giratoire Liberté 6 | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **58** · Fass Mbao → SHAM | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (7 noms) à rattacher au sens |
 | **59** · Stade L.S.S → Mbarou Samba Dème (Mbeubeuss) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (12 noms) à rattacher au sens |
-| **60** · Colobane → Bargny | Non · 8 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (6 noms) à rattacher au sens |
+| **60** · Colobane → Bargny | Non · 8 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · ordre publié (6 noms) à rattacher au sens |
 | **61** · Keur Massar → Almadies | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (9 noms) à rattacher au sens |
 | **62** · Arrêt Chérif (Rufisque) → Penc Mi (Gueule Tapée) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (17 noms) à rattacher au sens |
 | **63** · Stade LSS → Camp Marchand Rufisque | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (16 noms) à rattacher au sens |

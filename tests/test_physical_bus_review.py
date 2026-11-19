@@ -78,3 +78,22 @@ class PhysicalBusTests(unittest.TestCase):
             drawing_control({**identity, "orientation": "start-last"})["status"],
             "DESSIN_A_RELIRE",
         )
+
+    def test_patte_doie_uses_the_whole_ordered_window_and_regular_roles(self):
+        from scripts.audit_patte_doie import event_rank
+
+        triple = ("first", "at", "next")
+        rows = [
+            dict(stop_id=k, stop_sequence=str(i), pickup_type="0", drop_off_type="0")
+            for i, k in enumerate(triple, 1)
+        ]
+        self.assertEqual(event_rank(rows[::-1], triple), 2)
+        self.assertIsNone(event_rank(rows[:1], triple))
+        for bad in (
+            rows[:-1],
+            rows + [rows[1]],
+            [rows[0], dict(rows[1], pickup_type="1"), rows[2]],
+            [dict(rows[0], stop_id="other"), *rows[1:]],
+        ):
+            with self.assertRaises(ValueError):
+                event_rank(bad, triple)

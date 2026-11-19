@@ -1796,6 +1796,9 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: .025em;
 }
 .network-summary-passage { display: grid; justify-items: end; gap: 1px; text-align: right; }
+.passage-remaining { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.network-summary-passage > .passage-remaining { font-size: 11px; line-height: 1.1; }
+.passage-clock-key { margin: 2px 0 8px; color: var(--muted); font-size: 11px; }
 .station-board-double-apostrophe { display: inline-block; flex: 0 0 auto; width: 0.5625em; height: 0.9em; margin-right: 0.35em; vertical-align: -0.09em; overflow: visible; fill: none; stroke: var(--passage-green); stroke-width: 4.6; stroke-linecap: round; filter: drop-shadow(0 0 0.8px color-mix(in srgb, var(--passage-green) 50%, transparent)); animation: station-board-apostrophe-twinkle 1.35s ease-in-out infinite; }
 @keyframes station-board-apostrophe-twinkle {
   0%, 100% { opacity: .65; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--passage-green) 25%, transparent)); }
@@ -1804,8 +1807,8 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .station-board-double-apostrophe { animation: none; opacity: 1; }
 }
+.network-summary-passage > strong, .passage-remaining { color: var(--passage-green); }
 .network-summary-passage > strong {
-  color: var(--passage-green);
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: -.015em;
@@ -4276,6 +4279,9 @@ button:disabled { cursor: not-allowed; }
 .bus-board-switch button[aria-pressed=true] { color: var(--text); background: var(--surface-sunken); font-weight: 750; }
 .bus-board-section-title, .bus-occurrences-head { color: var(--muted); padding: 6px 12px; font-size: 10px; }
 .bus-occurrences { padding: 0; }
+.bus-survey-note { margin: 4px 12px 8px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.bus-survey-note summary { cursor: pointer; }
+.bus-survey-note p { margin: 4px 0; }
 .bus-occurrences .bus-occurrences-list { list-style: none; padding: 0; gap: 0; }
 .bus-occurrences .bus-occurrences-list > li { padding: 6px 14px; }
 .bus-board .station-board-stop { min-width: 0; overflow-wrap: anywhere; }

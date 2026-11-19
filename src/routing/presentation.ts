@@ -6,7 +6,8 @@ export const criterionLabels: Record<Criterion, string> = {
   fastest: 'Le plus rapide', changes: 'Moins de correspondances', walking: 'Moins de marche',
   simple: 'Le plus simple', cadence: 'Cadence la plus rapprochée',
 }
-export function dakarClock(epochSeconds: number): string { return new Date(epochSeconds * 1000).toISOString().slice(11, 16) }
+export function dakarClockAtSecond(epochSeconds: number): string { return new Date(epochSeconds * 1000).toISOString().slice(11, 19) }
+export function dakarClock(epochSeconds: number): string { return dakarClockAtSecond(epochSeconds).slice(0, 5) }
 export function tripSummary(t: Itinerary): string {
   const lines = t.legs.flatMap(l => l.kind === 'ride' ? [l.lineName] : [])
   return `${lines.join(' → ') || 'À pied'} · ${dakarClock(t.start)} → ${dakarClock(t.end)} · ≈ ${Math.ceil(t.totalSeconds / 60)} min · ${t.changes} correspondance${t.changes > 1 ? 's' : ''}`

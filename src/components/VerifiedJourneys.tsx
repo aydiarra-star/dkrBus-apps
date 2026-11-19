@@ -1,3 +1,7 @@
+import { PassageClock, usePassageClock } from './PassageClock'
+import { PassageArcs } from './PassageArcs'
+import { formatPassageCountdown } from '../domain/headways'
+import { midnight } from '../domain/stopPassageCountdown'
 import type { OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { Clock3, Footprints, Layers3, ShieldCheck } from 'lucide-react'
 import { CORRIDOR_LINES } from '../domain/corridors'
@@ -10,24 +14,39 @@ import type { BusMapSection } from '../routing/busGeography'
 import type { StopSection } from '../routing/placeConnections'
 import type { Leg } from '../routing/model'
 import type { DakarOutcome } from '../routing/dakar'
-import { criterionLabels, dakarClock } from '../routing/presentation'
+import { criterionLabels, dakarClock, dakarClockAtSecond } from '../routing/presentation'
 import { MobilityBadge } from './MobilityBadge'
 import './VerifiedJourneys.css'
 
 const walkLabel = { access: 'Accès à pied', egress: 'Marche finale', direct: 'Marche', transfer: 'Correspondance à pied' }
 const accessible = { unknown: 'Accessibilité sans marches non renseignée', no: 'Parcours non accessible sans marches', yes: 'Parcours sans marches vérifié' }
 function minutes(s: number) { return s > 0 && s < 60 ? '< 1 min' : `${Math.round(s / 60)} min` }
-function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
+/** Unlike a station board, an itinerary refers to ONE specific run. Never
+ * roll it over to a later departure: its connection would have to be replanned. */
+function LegClock({ leg, now }: { leg: Leg; now: number }) {
+  const start = leg.start * 1000, end = leg.end * 1000
+  const before = now < start, target = before ? start : end
+  if (midnight(target) !== midnight(now) || now >= end) return null
+  const estimate = leg.kind === 'walk' || leg.timing === 'frequency' || leg.timeProfile === 'model'
+  const label = leg.kind === 'walk' ? (before ? 'Début de marche prévu dans' : 'Fin de marche prévue dans')
+    : before ? (estimate ? 'Montée estimée dans' : 'Montée prévue dans') : `Montée passée. Si vous êtes à bord, descente ${estimate ? 'estimée' : 'prévue'} dans`
+  return <p className="leg-clock" role="timer" aria-live="off">{label} <span><PassageArcs />{formatPassageCountdown(Math.ceil((target - now) / 60_000))} · <PassageClock atMs={target} now={now} /></span> (min:s)</p>
+}
+function Step({ leg, preferences, now }: { leg: Leg; preferences: Preferences; now?: number }) {
   const distance = formatDistance(leg.meters, preferences.units.distance)
+  const projected = leg.kind === 'ride' && (leg.timing === 'frequency' || leg.timeProfile === 'model')
   return <li>
     {leg.kind === 'ride' ? <>
       {leg.timing === 'frequency' && leg.mode === 'ddd' && <p><strong>Passage modélisé, pas un horaire DDD.</strong> {leg.serviceSource}</p>}
       {leg.samePlatformChange && <p>Changement au même point du quai, sans marche. Délai minimal vérifié : {leg.samePlatformChange.minimumSeconds} s.</p>}
       <span className="verified-wait"><Clock3 size={13} /> Attente à {leg.from.name} : {minutes(leg.waitSeconds)}{leg.headwaySeconds !== null && ` · intervalle ${minutes(leg.headwaySeconds)}`}</span>
-      <div><MobilityBadge id={leg.network}>{leg.network === 'aftu_tata' ? `${leg.mode.toUpperCase()} · ` : ''}{leg.lineName}</MobilityBadge> <strong>{leg.timing === 'frequency' ? 'Vers ' : ''}{dakarClock(leg.start)} · {leg.from.name}</strong></div>
+      {leg.changeBufferSeconds !== undefined && <p>Arrivée prévue au point de montée : {dakarClockAtSecond(leg.start - leg.waitSeconds)}.
+        {' '}Marge incluse dans l’attente : {leg.changeBufferSeconds} s (jusqu’à {dakarClockAtSecond(leg.start - leg.waitSeconds + leg.changeBufferSeconds)}).
+        {' '}Temps restant après cette marge : {leg.waitSeconds - leg.changeBufferSeconds} s, pour un départ à {dakarClockAtSecond(leg.start)}.</p>}
+      <div><MobilityBadge id={leg.network}>{leg.network === 'aftu_tata' ? `${leg.mode.toUpperCase()} · ` : ''}{leg.lineName}</MobilityBadge> <strong>{projected ? 'Vers ' : ''}{dakarClock(leg.start)} · {leg.from.name}</strong></div>
       <p>Sens {leg.direction} · Descendre à <strong>{leg.to.name}</strong> vers {dakarClock(leg.end)}.</p>
-      <p>{distance} · {minutes(leg.end - leg.start)} à bord · {leg.timing === 'frequency' ? 'passage projeté selon la fréquence' : 'horaire théorique déclaré'}.</p>
-      <p>{leg.timing === 'frequency' ? 'Créneaux estimés' : 'Départs déclarés'} à {leg.from.name} : {leg.passages.map(dakarClock).join(' · ')}.</p>
+      <p>{distance} · {minutes(leg.end - leg.start)} à bord · {leg.timing === 'frequency' ? 'passage projeté selon la fréquence' : projected ? 'durée de parcours modélisée' : 'horaire théorique déclaré'}.</p>
+      <p>{projected ? 'Créneaux estimés' : 'Départs déclarés'} à {leg.from.name} : {leg.passages.map(dakarClock).join(' · ')}.</p>
       <details><summary>Desserte et sources</summary><p>{leg.stops.map(s => s.name).join(' → ')}</p><p>{leg.source} · {leg.serviceSource} · {leg.timingSource}.</p>
         {leg.samePlatformChange && <p>Changement : {leg.samePlatformChange.evidence.reference} · {leg.samePlatformChange.evidence.date}.</p>}</details>
     </> : <>
@@ -37,6 +56,7 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
       <p>{leg.ways.map(w => w.name).join(' → ')}</p>
       <details><summary>Sources du cheminement</summary>{leg.ways.map(w => <p key={w.id}>{w.name} · {w.evidence.reference} · {w.evidence.date}</p>)}</details>
     </>}
+    {now !== undefined && <LegClock leg={leg} now={now} />}
     <small>{accessible[leg.stepFree]}</small>
   </li>
 }
@@ -127,6 +147,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
   shownPortion?: string; onShowPortion?: (id: string) => void
   result: DakarOutcome; onChooseSection: ChooseSection; selectedId?: string; onSelect: (id: string) => void; preferences: Preferences
 }) {
+  const now = usePassageClock(result.ok && Boolean(selectedId))
   return <section className="verified-journeys" aria-label="Itinéraires sur tracés vérifiés" aria-live="polite">
     <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : result.code === 'DOCUMENTED_SECTION_ONLY' ? 'Tracé disponible, passage non confirmé' : 'Pas d’itinéraire vérifié'}</h3></div></header>
     {!result.ok ? <><p role="status">{result.message}</p>
@@ -151,7 +172,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
           <p>Marche : {minutes(trip.walkSeconds)} ({formatDistance(trip.walkMeters, preferences.units.distance)}) · Attente : {minutes(trip.waitSeconds)} · À bord : {minutes(trip.rideSeconds)}.</p>
           {preferences.mobility.showFares && <p>Tarif de référence : {fareLegs.length === rides.length ? fareStatusLabel(fareForJourney(fareLegs, { terClass: preferences.mobility.terClass })) : 'non disponible'}.</p>}
           {(result.options.length > 1 || !selectedId) && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onSelect(trip.id)}><Layers3 size={14} /> {selected ? 'Affiché sur la carte' : 'Afficher ce trajet sur la carte'}</button>}
-          <ol>{trip.legs.map((leg, i) => <Step key={i} leg={leg} preferences={preferences} />)}</ol>
+          <ol>{trip.legs.map((leg, i) => <Step key={i} leg={leg} preferences={preferences} now={selected ? now : undefined} />)}</ol>
         </article>
       })}
     </>}

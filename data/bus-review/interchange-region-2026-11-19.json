@@ -1,0 +1,122 @@
+{
+  "topology": {
+    "extractSha256": "2573b0a9adfb9748b92e845c167a228b7e4777574b219268bb787b9067c882c4",
+    "platforms": 967,
+    "touching": 57,
+    "directedPaths": 52,
+    "shared": 0,
+    "betweenRoles": 0
+  },
+  "roles": {
+    "sameObjectByRole": {},
+    "pathsBetweenRouteRoles": []
+  },
+  "patteDoie": [
+    [
+      "n4697843990",
+      "n4697855389",
+      23.7,
+      4697843990,
+      4697855389,
+      [
+        639363334
+      ]
+    ],
+    [
+      "n4697855389",
+      "n4697843990",
+      23.7,
+      4697855389,
+      4697843990,
+      [
+        639363334
+      ]
+    ]
+  ],
+  "surveyApproaches": [
+    {
+      "site": "Petersen",
+      "platformWay": "w1458575520",
+      "version": 3,
+      "endNode": 13376766706,
+      "crossingNode": 13376766714,
+      "busMarker": null,
+      "toCrossing": [
+        50.7,
+        13376766706,
+        13376766714,
+        [
+          1458575519
+        ]
+      ],
+      "fromCrossing": [
+        50.7,
+        13376766714,
+        13376766706,
+        [
+          1458575519
+        ]
+      ],
+      "toBusMarker": null,
+      "fromBusMarker": null
+    },
+    {
+      "site": "Guédiawaye NO",
+      "platformWay": "w1458592784",
+      "version": 3,
+      "endNode": 13376903833,
+      "crossingNode": 13376903816,
+      "busMarker": "n6440488778",
+      "toCrossing": [
+        84.8,
+        13376903833,
+        13376903816,
+        [
+          1458592783,
+          1458592779
+        ]
+      ],
+      "fromCrossing": [
+        84.8,
+        13376903816,
+        13376903833,
+        [
+          1458592779,
+          1458592783
+        ]
+      ],
+      "toBusMarker": null,
+      "fromBusMarker": null
+    },
+    {
+      "site": "Guédiawaye SE",
+      "platformWay": "w1458592786",
+      "version": 3,
+      "endNode": 13376903836,
+      "crossingNode": 13376903816,
+      "busMarker": "n6440488778",
+      "toCrossing": [
+        251.4,
+        13376903836,
+        13376903816,
+        [
+          1458592787,
+          1458592780,
+          1458592779
+        ]
+      ],
+      "fromCrossing": [
+        251.4,
+        13376903816,
+        13376903836,
+        [
+          1458592779,
+          1458592780,
+          1458592787
+        ]
+      ],
+      "toBusMarker": null,
+      "fromBusMarker": null
+    }
+  ]
+}

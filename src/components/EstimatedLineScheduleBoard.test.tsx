@@ -97,3 +97,43 @@ describe('panneaux voyageurs des bus', () => {
     expect(buttons(container,'Bus de recette')).toHaveLength(0); expect(fetcher.mock.calls[0]?.[0]).toContain('date=2026-11-20')
   })
 })
+
+it('counts the seconds of both directions and stop occurrences; sleeps when hidden and resyncs to the actual wall clock', () => {
+  vi.setSystemTime(new Date('2026-11-19T19:00:01Z'))
+  const { container, unmount } = render(<EstimatedLineScheduleBoard network="ddd" />)
+  const [a, b] = buttons(container, '1'); fireEvent.click(a)
+  const time = (el: Element) => Number(el.querySelector('time')!.dateTime.match(/^PT(\d+)S$/)![1])
+  const rows = [a, b, ...opened(container)], before = rows.map(time)
+  expect(before.every(s => s > 1)).toBe(true)
+  expect(vi.getTimerCount()).toBe(1)
+  act(() => vi.advanceTimersByTime(1000)); expect(rows.map(time)).toEqual(before.map(s => s - 1))
+  fireEvent.click(b); expect(opened(container).length).toBeGreaterThan(0)
+  const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true)
+  try {
+    act(() => document.dispatchEvent(new Event('visibilitychange'))); expect(vi.getTimerCount()).toBe(0)
+    vi.setSystemTime(new Date('2026-11-19T23:59:00Z')); hidden.mockReturnValue(false)
+    act(() => document.dispatchEvent(new Event('visibilitychange')))
+    expect([value(a), value(b)]).toEqual(['Fin de service', 'Fin de service'])
+    for (const el of [a, b, ...opened(container)]) expect(el.querySelector('time, svg.station-board-double-apostrophe')).toBeNull()
+    unmount(); expect(vi.getTimerCount()).toBe(0)
+  } finally { hidden.mockRestore() }
+})
+
+
+it('keeps the Patte d’Oie marker walk on the two nominated directions, without assigning either bus to a marker', () => {
+  const { container, rerender } = render(<EstimatedLineScheduleBoard network="ddd" />)
+  const note = () => container.querySelector('.bus-survey-note')
+  const inspect = (code: string, side: number, qualifies: boolean) => {
+    fireEvent.click(buttons(container, code)[side]); expect(Boolean(note())).toBe(qualifies)
+    if (qualifies) {
+      expect(note()?.querySelector('a')?.href).toBe('https://www.openstreetmap.org/way/639363334')
+      expect(note()?.textContent).toContain('ne confirment pas cette correspondance')
+      expect(note()?.querySelector('time')).toBeNull()
+    }
+  }
+  inspect('218', 0, true); inspect('218', 1, false); inspect('218', 2, false)
+  rerender(<EstimatedLineScheduleBoard network="aftu_tata" />)
+  inspect('60', 0, false); inspect('60', 1, false)
+  fireEvent.click(within(container).getByRole('button', {name:'TATA'}))
+  inspect('60', 1, true); inspect('60', 0, false)
+})

@@ -1,21 +1,37 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
+import { TATA_2020_SOURCE } from '../data/tataBoardReview'
 import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { boardDay, busPassage, datedBusBoards, type BusBoardDirection, type BusFamily, type BusPassage } from '../domain/busPassageBoard'
 import { midnight } from '../domain/stopPassageCountdown'
 import type { Network } from '../routing/model'
+import { PassageClock, usePassageClock } from './PassageClock'
 import { PassageArcs } from './PassageArcs'
 import { usePassengerNetwork } from './usePassengerNetwork'
 
 /** Reuse the journey edition only when it is for the day on the sign. */
 export interface ExplorerBusEdition { day: string; snapshot?: string; network: Network; rediscover: () => void }
 
-function Passage({ passage, caption }: { passage: BusPassage; caption?: string }) {
+function Passage({ passage, now, caption }: { passage: BusPassage; now: number; caption?: string }) {
   const p = passage
   const value = p.state === 'active' ? `${p.minutes} min` : p.state === 'upcoming' ? `Dès ${new Date(p.at).toISOString().slice(11,16)}`
     : p.state === 'finished' ? 'Fin de service' : p.state === 'closed' ? 'Pas de créneau' : p.state === 'calendar' ? 'Non confirmé' : '—'
   return <span className={`network-summary-passage station-board-passage${p.state === 'active' ? '' : p.state === 'upcoming' ? ' is-upcoming' : p.state === 'finished' ? ' is-finished' : ' is-undeclared'}`} role="timer" aria-live="off">
-    <strong>{p.state === 'active' && <PassageArcs />}{value}</strong>{caption && <small>{caption}</small>}
+    <strong>{p.state === 'active' && <PassageArcs />}{value}</strong>{p.state === 'active' && <PassageClock atMs={p.at} now={now} />}{caption && <small>{caption}</small>}
   </span>
+}
+
+/** Only these two reading sheets name the sector in the candidate travel
+ * direction. Do not attach a marker to an occurrence or inherit this note on
+ * the homonymous AFTU 60, the 218 from Rufisque, or a published edition. */
+function PatteDoieNote({ name, d }: { name: string; d: BusBoardDirection }) {
+  const westbound = (name === 'DDD 218' && d.source === 'https://demdikk.sn/reseau-urbain-dakar/' &&
+    d.from === 'Dépôt Thiaroye' && d.to === 'Terminus Aéroport LSS' && d.points[3] === 'Patte d’Oie') ||
+    (name === 'TATA 60' && d.source === TATA_2020_SOURCE && d.from === 'Bargny' && d.to === 'Colobane' && d.points[6] === 'Patte d’Oie')
+  if (!westbound || d.clock?.kind !== 'model') return null
+  return <details className="bus-survey-note"><summary>Changer à Patte d’Oie ?</summary>
+    <p>Un <a href="https://www.openstreetmap.org/way/639363334" target="_blank" rel="noreferrer">chemin de 23,7 m entre deux poteaux</a> figure sur la carte. La carte les nomme DDD et TATA sans indiquer les lignes desservies.</p>
+    <p>Demandez si la 218 vers Aéroport LSS et la 60 vers Colobane s’y arrêtent et à quelles heures. Les minutes du panneau ne confirment pas cette correspondance.</p>
+  </details>
 }
 
 function Direction({ d, day, now, name, open, toggle, id }: {
@@ -27,18 +43,19 @@ function Direction({ d, day, now, name, open, toggle, id }: {
     <button type="button" className={`station-board-row station-board-direction-row station-board-direction-toggle${open ? ' is-expanded' : ''}`}
       aria-expanded={open} aria-controls={open ? id : undefined} onClick={toggle}>
       <span className="station-board-stop"><strong>{name}</strong><small>{heading}</small></span>
-      <span className="station-board-direction-action"><Passage passage={origin} caption={d.clock ? d.pointKind === 'secteurs' ? 'Premier secteur' : 'Au départ' : undefined} />
+      <span className="station-board-direction-action"><Passage now={now} passage={origin} caption={d.clock ? d.pointKind === 'secteurs' ? 'Premier secteur' : 'Au départ' : undefined} />
         <span aria-hidden="true">{open ? '−' : '+'}</span></span>
     </button>
     {open && <div className="station-board-itinerary bus-occurrences" id={id} aria-label={`${name} · ${d.label}`}>
       {d.points.length ? <>
         <div className="bus-occurrences-head"><strong>{d.pointKind === 'départ seul' ? 'Départ seul' : `${d.points.length} ${d.pointKind}`}</strong>
           <small>{d.clock ? scheduled ? 'Horaire du jour' : 'Passages estimés' : d.reason}</small></div>
+        <PatteDoieNote name={name} d={d} />
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1
           return <li className="station-board-row station-board-row-static" key={index}>
             <span className="station-board-stop"><small className="bus-rank">{index + 1}.</small> <strong>{point}</strong></span>
-            <Passage passage={busPassage(day, index, now)} caption={terminal ? d.pointKind === 'secteurs' ? 'Dernier secteur' : 'Arrivée au terminus' : undefined} />
+            <Passage now={now} passage={busPassage(day, index, now)} caption={terminal ? d.pointKind === 'secteurs' ? 'Dernier secteur' : 'Arrivée au terminus' : undefined} />
           </li>
         })}</ol>
       </> : <span className="station-board-itinerary-pending">{d.reason}</span>}
@@ -47,17 +64,16 @@ function Direction({ d, day, now, name, open, toggle, id }: {
   </div>
 }
 
-export function EstimatedLineScheduleBoard({ network, published }: { network: 'ddd' | 'aftu_tata'; published?: ExplorerBusEdition }) {
-  const [now, setNow] = useState(Date.now)
+type BoardProps = { network: 'ddd' | 'aftu_tata'; published?: ExplorerBusEdition }
+export function EstimatedLineScheduleBoard(props: BoardProps) {
+  const now = usePassageClock()
+  return <BusLineScheduleBoard {...props} now={now} />
+}
+
+export function BusLineScheduleBoard({ network, published, now }: BoardProps & { now: number }) {
   const [source, setSource] = useState<'aftu' | 'tata'>('aftu')
   const [opened, setOpened] = useState('')
   const [filter, setFilter] = useState('')
-  useEffect(() => {
-    const wake = () => { if (!document.hidden) setNow(Date.now()) }
-    const timer = window.setInterval(wake, 1000)
-    document.addEventListener('visibilitychange', wake)
-    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', wake) }
-  }, [])
   const family: BusFamily = network === 'ddd' ? 'ddd' : source, day = midnight(now), date = new Date(day).toISOString().slice(0,10)
   const otherDay = usePassengerNetwork(published?.day === date ? undefined : published?.snapshot, date, published?.rediscover)
   const net = published?.snapshot && published.day === date ? published.network : otherDay.network

@@ -128,10 +128,12 @@ export interface Ride extends Movement {
   serviceSource: string
   timingSource: string
   timing: Service['kind']
+  timeProfile: PatternInput['times']['kind'] // scheduled offsets or estimated running times
   /** At this boarding point, starting at the chosen run, same service day. */
   passages: readonly number[]
   headwaySeconds: number | null
   samePlatformChange?: SamePlatformChange // only on the ride boarded after this reviewed change
+  changeBufferSeconds?: number // already included in the wait after a transfer
   waitSeconds: number // from previous arrival, includes any transfer buffer
 }
 export interface Walk extends Movement {

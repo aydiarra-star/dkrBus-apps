@@ -266,7 +266,10 @@ jobs:
           file=artifacts/bus-review/interchange-region.json
           jq -cr '"::notice title=Topologie régionale quais::" + ({extractSha256,platforms,touching,directedPaths:(.directedPaths|length),shared:(.sameObjectByRole|length),betweenRoles:(.pathsBetweenRouteRoles|length)}|tojson)' "$file"
           jq -cr '"::notice title=Rôles interréseaux::" + ({sameObjectByRole,pathsBetweenRouteRoles}|tojson|gsub("%";"%25"))' "$file"
-          jq -cr '"::notice title=Chemins régionaux::" + ({directedPaths,labels}|tojson|gsub("%";"%25"))' "$file"
+          # A check annotation is truncated at 4096 characters. Full regional
+          # paths and labels stay in the artifact. Report this pair separately.
+          jq -cr '"::notice title=Patte d’Oie entre poteaux::" + ([.directedPaths[]|select((.[:2]|sort)==["n4697843990","n4697855389"])]|tojson)' "$file"
+          jq -cr '.labels as $l | [.directedPaths[] | select(any(.[:2][]; $l[.][2] != "SunuBRT"))] | "::notice title=Chemins hors paires SunuBRT::" + ({total:length,first:.[0:12]}|tojson)' "$file"
           jq -cr '"::notice title=Approches partielles::" + (.surveyApproaches|tojson)' "$file"
 
       - name: Upload read-only bus occurrence and pinned member comparison

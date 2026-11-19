@@ -1,6 +1,6 @@
 # Prendre la DDD 1 à Médina ; où en sont les correspondances ?
 
-**Jeudi 19 novembre 2026 à 19 h, heure de Dakar, sans édition opérateur.** La DDD 1 est calculable sur huit quais vers Leclerc et sur deux autres vers les Parcelles. Cela donne **29 directs** sur le formulaire étendu. Il n’y a pas de correspondance interréseaux admise : les deux cas les plus avancés n’ont pas la même pièce manquante.
+**Jeudi 19 novembre 2026 à 19 h, heure de Dakar, sans édition opérateur.** La DDD 1 est calculable sur huit quais vers Leclerc et sur deux autres vers les Parcelles. Cela donne **29 directs** sur le formulaire étendu. Il n’y a pas de correspondance interréseaux admise : un poteau portant deux numéros (GT-54), des horaires au même libellé (Maristes) et un chemin entre deux poteaux (Patte d’Oie) ne prouvent pas la même chose.
 
 | Essai dans Trajet | Résultat pour le voyageur |
 |---|---|
@@ -8,6 +8,8 @@
 | **Sur la carte** · PMI Médina → Rue 37 × Blaise Diagne, choisir « DDD 1 vers Parcelles » | **290 m**, montée vers **19:05**, descente vers **19:06**. Ce n’est pas le sens inverse du premier trajet. |
 | **Sur la carte** · Colobane (référence DDD) → Diamalaye (référence AFTU) | Sous **Préparer un changement**, la **18 puis la 39** : lien vers le poteau « 18 / 39 » et sens à demander. **Pas de voyage complet, d’ETA ni de traversée proposée.** Ne pas choisir la station TER Colobane pour tester ces deux fiches de bus. |
 | **Sur horaires · Maristes** · Terminus Guédiawaye → Gare de Colobane | DDD 12 **19:00–19:33**, AFTU 75 **19:38–19:54**. Les **5 min** d’écart laissent **au plus 2 min** pour se déplacer si l’on garde 3 min de marge. La durée nécessaire est inconnue. Ce n’est pas une correspondance cartographiée. |
+
+**Patte d’Oie, dans Explorer.** La 218 depuis Thiaroye et les secteurs de la TATA 60 vers Colobane renvoient au **chemin de 23,7 m**, pas à un changement autorisé. Sur l’ensemble de l’extrait régional : 967 objets de quai, 57 en contact avec un chemin, 52 parcours dirigés, aucun entre rôles de lignes de réseaux différents. [Les deux poteaux, les approches de Petersen et de Guédiawaye, et le contrôle des courses 218/60](patte-doie.md).
 
 ### DDD 1 : les quais et les minutes ont des sources différentes
 
@@ -52,7 +54,7 @@ Le [contrôle des huit sites](https://github.com/aydiarra-star/dkrBus-apps/actio
 | Rufisque | 8 | 0 | 0 | Deux quais ferroviaires, plusieurs poteaux dont un ancien terminus 63. Aucun parcours quai à quai établi. |
 | Diamniadio | 5 | 1 | 0 | Un quai TER touche une voie. L’archive « Gare TER Diamniadio » (`D_1267`, 504 sans lettre) est à 363 m du repère TER à vol d’oiseau : ni une marche ni un rôle de la 504A/B. Les mesures du [guide des JOJ](https://www.vie-publique.sn/docs/7ec17f81-341f-48d4-a0b1-c18ea09c3603/guide-mobilite-dakar-joj-2026.pdf) ont pris fin le 14/11. |
 
-Les [dossiers de correspondance](../src/admin/dakarTransferDossiers.ts) incluent les deux ordres des lignes 18/39 et 12/75. **24 dossiers, 48 sens, 50 évaluations bloquées avant l’horaire**. Aucun `survey:` dans le formulaire ou le graphe. Les quatre arcs existants de Scat Urbam servent uniquement à entrer ou sortir du BRT. Il n’y a ni arc piéton de changement ni exception de même quai sur la base locale.
+Les [dossiers de correspondance](../src/admin/dakarTransferDossiers.ts) incluent les deux ordres des lignes 18/39, 12/75 et 218/60. **25 dossiers, 50 sens, 52 évaluations bloquées avant l’horaire**. Aucun `survey:` dans le formulaire ou le graphe. Les quatre arcs existants de Scat Urbam servent uniquement à entrer ou sortir du BRT. Il n’y a ni arc piéton de changement ni exception de même quai sur la base locale.
 
 ### Rejeu à sélection constante et sur le formulaire actuel
 

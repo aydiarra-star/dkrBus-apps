@@ -16,6 +16,8 @@ Ces fichiers servent à la revue hors ligne. Aucun n’est chargé comme réseau
 - [Neuf combinaisons interréseaux](replay-reseaux-2026-11-19.json) : 23 562 couples par filtre ; `withBoth` compte un couple seulement si **une option** contient les deux familles. [GT-54](gt54-occurrences.json) documente le côté et les rôles des occurrences **historiques** ; ni arc, ni horaire, ni marche implicite.
 - [Fiches à 05 h](horaires-maristes-2026-11-19-0500.json) et [à 19 h](horaires-maristes-2026-11-19-1900.json) : deux enchaînements parmi 20 couples de fiches ; ni `Itinerary` ni témoin d’accès. [Exemples, huit sites, sources et reproduction](../../docs/validation-physique.md).
 
+- [`interchange-region-2026-11-19.json`](interchange-region-2026-11-19.json) : chiffres du balayage régional, rôles, **les deux chemins de Patte d’Oie seulement** et trois approches partielles de quais BRT ; ce n’est pas l’artefact intégral des 52 parcours dirigés. [`patte-doie-occurrences.json`](patte-doie-occurrences.json) vérifie séparément toutes les courses 218/60 des deux archives épinglées, pas l’affectation actuelle d’un poteau. [Lecture, sources et commandes](../../docs/patte-doie.md).
+
 **Droits et périmètre.** Voirie et relations : [© les contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Les positions des polylignes Waymark acquises dans la CI restent temporaires. Aucune liste de coordonnées ou grille de départ de l’archive historique AFTU n’est redistribuée. Les géométries locales effectivement réutilisées pour les **portions** ont [leur propre registre de sources](../bus-sections/README.md).
 
 ### Reproduction

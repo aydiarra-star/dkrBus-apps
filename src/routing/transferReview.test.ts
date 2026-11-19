@@ -46,7 +46,7 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(48)
+  expect(report).toHaveLength(50)
   expect(report.filter(d=>['gt54-18-39','maristes-12-75'].includes(d.dossier))).toHaveLength(4)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
@@ -57,6 +57,13 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
     expect(missing.includes('BOARD_PLATFORM')).toBe(!r.observed.board)
     expect(r.sources.filter(s => !s.startsWith('https://')).every(s => existsSync(s))).toBe(true)
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
+  }
+  const patte = report.filter(r => r.dossier === 'patte-doie-ddd-tata')
+  expect(patte.map(r => [r.from.mode, r.to.mode])).toEqual([['ddd','tata'], ['tata','ddd']])
+  for (const r of patte) {
+    expect(r.observation).toContain('23,7 m sur le chemin 639363334')
+    expect(r.busSources).not.toContain('aftu:60')
+    expect(r.meters).toBeNull() // marker-to-marker distance isn't an admitted walk between serviced platforms
   }
   const feeders = report.filter(r => r.busSources.some(id => /^ddd:50/.test(id)))
   expect(feeders).toHaveLength(14)

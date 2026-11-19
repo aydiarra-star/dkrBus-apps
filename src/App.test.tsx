@@ -868,6 +868,9 @@ describe('published snapshot in the app', () => {
       await Promise.resolve()
     })
     expect(screen.getByText(/Départ programmé dans 6 min/)).toBeTruthy()
+    expect(view.container.querySelector('.journey-countdown time')?.textContent).toBe('5:01')
+    act(() => vi.advanceTimersByTime(1000))
+    expect(view.container.querySelector('.journey-countdown time')?.textContent).toBe('5:00')
     await act(async () => {
       await vi.advanceTimersByTimeAsync(31_000)
     })
@@ -1392,9 +1395,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
     const firstOutboundRow = board.querySelector('.station-direction-outbound .station-board-row') as HTMLElement
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Fin de service')
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Reprise demain')
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).not.toMatch(/créneau|7 h/i)
+    const passage = firstOutboundRow.querySelector('.station-board-passage')!
+    expect(passage.textContent).toMatch(/Fin de serviceProchain créneau : 09\/10\/2026 à \d{2}:\d{2}/)
+    expect(passage.classList.contains('is-finished')).toBe(true)
+    expect(passage.querySelector('time, .passage-arcs')).toBeNull()
     vi.useRealTimers()
   })
 

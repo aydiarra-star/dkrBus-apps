@@ -13,7 +13,7 @@ from pathlib import Path
 from scripts.passenger_network import REVIEW_DIR
 from scripts.publish_gtfs import publish_dataset
 from scripts.review_gtfs import approve_dataset
-from scripts.serve_read_api import passenger_network_payload
+from scripts.serve_read_api import network_payload, passenger_network_payload
 from scripts.snapshot_gtfs import resolve_active_snapshot
 from auth_helpers import proof
 from test_serve_admin_api import ApiTestSupport, FULL_ATTESTATIONS
@@ -108,4 +108,5 @@ if __name__ == "__main__":
         if "--access-only" in sys.argv:
             next(w for w in review['links']['footways'] if w['id'] == 'w3')['onlyFor'] = 'access'
             path.write_text(json.dumps(review), encoding='utf-8')
-        print(json.dumps(passenger_network_payload(pub, {"date": [DAY], "snapshot": [sid]}, now=NOW)))
+        edition = passenger_network_payload(pub, {"date": [DAY], "snapshot": [sid]}, now=NOW)
+        print(json.dumps({"snapshot": network_payload(pub, now=NOW), "edition": edition} if "--with-snapshot" in sys.argv else edition))

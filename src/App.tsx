@@ -46,8 +46,9 @@ import { TRAFFIC_ALERT_TTL_MS } from './domain/trafficFreshness'
 import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityText } from './components/MobilityBadge'
+import { PassageClock, usePassageClock } from './components/PassageClock'
 import { PassageArcs } from './components/PassageArcs'
-import { EstimatedLineScheduleBoard, type ExplorerBusEdition } from './components/EstimatedLineScheduleBoard'
+import { BusLineScheduleBoard, type ExplorerBusEdition } from './components/EstimatedLineScheduleBoard'
 import { ExternalDirections } from './components/ExternalDirections'
 import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
@@ -644,17 +645,6 @@ function App() {
     [countdownNow],
   )
 
-  /** Tableau des créneaux par station et par sens du réseau sélectionné.
-   *  Mémorisé sur l’horloge des décomptes : il descend au même rythme qu’eux.
-   *  Aujourd’hui TER et BRT publient des lignes de référence ; DDD, AFTU et
-   *  TATA entreront ici dès que des lignes leur seront publiées. */
-  const selectedNetworkBoards = useMemo(() => {
-    if (!selectedExploreNetwork) return []
-    return boardLinesForNetwork(selectedExploreNetwork)
-      .map((line) => buildStationBoard(line, countdownNow))
-      .filter((board): board is StationBoard => board !== null)
-  }, [selectedExploreNetwork, countdownNow])
-
   // Une seule temporisation est armée : elle vise l’instant précis où l’une des
   // valeurs affichées doit diminuer (départ GTFS programmé ou créneau de
   // référence). Elle est nettoyée au démontage et à chaque réveil.
@@ -671,15 +661,8 @@ function App() {
       const passage = estimatedNextPassage(id, countdownNow)
       if (passage) deadlines.push(passage.nextDepartureAt)
     }
-    // Tableau par station : chaque créneau affiché doit vivre au même rythme.
-    for (const board of selectedNetworkBoards) {
-      for (const row of board.rows) {
-        if (row.outbound) deadlines.push(row.outbound.nextDepartureAt)
-        if (row.inbound) deadlines.push(row.inbound.nextDepartureAt)
-      }
-    }
     return deadlines
-  }, [journey.search, referencePassages, selectedNetworkBoards])
+  }, [journey.search, referencePassages, countdownNow])
 
   useEffect(() => {
     const delay = nextCountdownTickDelay(countdownDeadlines, countdownNow)
@@ -1846,7 +1829,6 @@ function App() {
               searchInputRef={searchInputRef}
               savedDestinations={savedDestinations}
               onChooseShortcut={chooseDestinationShortcut}
-              countdownNow={countdownNow}
               selectedNetwork={selectedExploreNetwork}
               onSelectNetwork={handleSelectExploreNetwork}
             />
@@ -1893,7 +1875,6 @@ function App() {
                 }}
                 dataAvailable={dataAvailable}
                 journey={journey}
-                countdownNow={countdownNow}
                 preferences={preferences}
                 onChooseSection={({ from, to, tripId }) => {
                   setRoutePoints({ origin: endpointOf(from, snapshotId), destination: endpointOf(to, snapshotId) })
@@ -2083,7 +2064,6 @@ function ExplorerPanel({
   searchInputRef,
   savedDestinations,
   onChooseShortcut,
-  countdownNow,
   selectedNetwork,
   onSelectNetwork,
 }: {
@@ -2104,7 +2084,6 @@ function ExplorerPanel({
   searchInputRef: { current: HTMLInputElement | null }
   savedDestinations: Partial<Record<DestinationShortcutId, MapPoint>>
   onChooseShortcut: (id: DestinationShortcutId) => void
-  countdownNow: number
   selectedNetwork: NetworkId | null
   onSelectNetwork: (id: NetworkId) => void
 }) {
@@ -2297,37 +2276,36 @@ function ExplorerPanel({
       </div>
 
       <ExploreNetworkLegend selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
-      <ExploreMobilityCountdowns busEdition={busEdition} now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
+      <ExploreMobilityCountdowns busEdition={busEdition} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
     </section>
   )
 }
 
 function ExploreMobilityCountdowns({
   busEdition,
-  now,
   selectedNetwork,
   onSelectNetwork,
   onFocusNearbyStop,
 }: {
   busEdition: ExplorerBusEdition
-  now: number
   selectedNetwork: NetworkId | null
   onSelectNetwork: (id: NetworkId) => void
   onFocusNearbyStop: (stop: CorridorStop) => void
 }) {
+  const now = usePassageClock()
   return (
     <section className="network-summary-section" aria-label="Prochains passages des mobilités">
       <div className="network-summary-heading">
         <strong>Prochains passages</strong>
         <span>Horaires de référence</span>
       </div>
+      <p className="passage-clock-key">Minutes arrondies · détail min:s jusqu’au créneau prévu.</p>
       <ul className="network-summary-list" aria-label="Comptes à rebours des mobilités">
         {MOBILITY_IDS.map((id) => {
           const network = NETWORK_REFERENCE_DATA[id]
           const passage = id === 'ter' || id === 'brt'
             ? nextReferencePassage(network.officialFrequencies, now)
             : estimatedNextPassage(id, now)
-          const clock = passage?.nextDepartureAt.slice(11, 16) ?? null
           const isSelected = selectedNetwork === id
           return (
             <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
@@ -2338,24 +2316,20 @@ function ExploreMobilityCountdowns({
                 aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
-                <span className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`} aria-hidden="true" />
+                <span className={`network-summary-dot is-referenced${passage && (!('status' in passage) || passage.status === 'RUNNING') ? ' is-counting' : ''}`} aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && id !== 'ddd' && network.label !== network.shortName && (
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
-                <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
-                  <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
-                  <small>{!passage || !clock ? (id === 'ddd' || id === 'aftu_tata' ? 'Voir les lignes' : 'Aucun créneau déclaré')
-                    : (id === 'ter' || id === 'brt') ? `créneau ${clock} · ${passage.headwayMinutes} min` : 'Modèle réseau'}</small>
-                </span>
+                <ReferencePassage passage={passage} now={now} network={id} />
               </button>
               {isSelected && (
                 <div className="network-summary-detail">
                   {(id === 'ter' || id === 'brt')
                     ? <ReferenceStationBoard network={id} now={now} onSelectStop={onFocusNearbyStop} />
-                    : <EstimatedLineScheduleBoard network={id} published={busEdition} />}
+                    : <BusLineScheduleBoard now={now} network={id} published={busEdition} />}
                 </div>
               )}
             </li>
@@ -2364,6 +2338,24 @@ function ExploreMobilityCountdowns({
       </ul>
     </section>
   )
+}
+
+/** The origin's service window, not the calendar date of an offset at this
+ * station, decides whether a late running slot is still on the sign. */
+function ReferencePassage({ passage, now, network, terminus }: {
+  passage: NextPassage | ReturnType<typeof estimatedNextPassage>; now: number; network?: NetworkId; terminus?: boolean
+}) {
+  const status = passage && 'status' in passage ? passage.status : undefined
+  const active = passage && (!status || status === 'RUNNING')
+  const upcoming = status === 'BEFORE_SERVICE', clock = passage?.nextDepartureAt.slice(11,16)
+  const missing = network === 'ddd' || network === 'aftu_tata' ? 'Voir les lignes' : terminus ? 'Terminus' : 'Aucun créneau déclaré'
+  const caption = !passage ? missing : !status ? 'Modèle réseau' : active || upcoming ? `créneau ${clock} · ${passage.headwayMinutes} min`
+    : `Prochain créneau : ${formatJourneyDate(passage.nextDepartureAt.slice(0,10))} à ${clock}`
+  return <span className={`network-summary-passage${network ? '' : ' station-board-passage'}${active ? '' : !passage ? ' is-undeclared' : upcoming ? ' is-upcoming' : ' is-finished'}`} role="timer" aria-live="off">
+    <strong>{active ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : !passage ? terminus ? 'Terminus' : '—' : upcoming ? `Dès ${clock}` : 'Fin de service'}</strong>
+    {active && <PassageClock atMs={Date.parse(passage.nextDepartureAt)} now={now} />}
+    <small>{caption}</small>
+  </span>
 }
 
 function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' | 'brt'; now: number; onSelectStop: (stop: CorridorStop) => void }) {
@@ -2384,10 +2376,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
             {board.rows.map((row) => (
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
-                <span className={`network-summary-passage station-board-passage${row.outbound ? '' : ' is-undeclared'}`} role="status">
-                  <strong>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.outbound.minutes)}</>) : 'Terminus'}</strong>
-                  <small>{row.outbound ? (row.outbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.outbound.nextDepartureAt.slice(11, 16)} · ${row.outbound.headwayMinutes} min`) : 'Terminus'}</small>
-                </span>
+                <ReferencePassage passage={row.outbound} now={now} terminus={row.stop.id === board.destinationStop.id} />
               </button>
             ))}
           </div>
@@ -2399,10 +2388,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
             {[...board.rows].reverse().map((row) => (
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
-                <span className={`network-summary-passage station-board-passage${row.inbound ? '' : ' is-undeclared'}`} role="status">
-                  <strong>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Fin de service' : <><PassageArcs />{formatPassageCountdown(row.inbound.minutes)}</>) : 'Terminus'}</strong>
-                  <small>{row.inbound ? (row.inbound.nextDepartureAt.slice(0, 10) !== new Date(now).toISOString().slice(0, 10) ? 'Reprise demain' : `créneau ${row.inbound.nextDepartureAt.slice(11, 16)} · ${row.inbound.headwayMinutes} min`) : 'Terminus'}</small>
-                </span>
+                <ReferencePassage passage={row.inbound} now={now} terminus={row.stop.id === board.originStop.id} />
               </button>
             ))}
           </div>
@@ -2559,7 +2545,6 @@ function RoutePanel({
   onToggleNetwork,
   dataAvailable,
   journey,
-  countdownNow,
   preferences,
   maxChanges, onMaxChanges, editionNotice, journeyPlan, shownPortion, onShowPortion, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
 }: {
@@ -2579,7 +2564,6 @@ function RoutePanel({
   onToggleNetwork: (id: MobilityId) => void
   dataAvailable: boolean
   journey: JourneyState
-  countdownNow: number
   preferences: Preferences
   onChooseSection: ChooseSection
   maxChanges: number
@@ -2700,7 +2684,7 @@ function RoutePanel({
       {journeyPlan && !journeyPlan.ok && ['NO_SERVICE', 'NO_PATH', 'UNVERIFIED_ACCESS', 'DOCUMENTED_SECTION_ONLY'].includes(journeyPlan.code) && !stepFreeOnly && routePoints.origin && routePoints.destination && <ExternalDirections from={routePoints.origin} to={routePoints.destination} />}
       {routeAttempted ? (
         stepFreeOnly ? <p className="verified-hint">Les horaires directs sans preuve d’accessibilité ne sont pas proposés avec le filtre sans marches.</p>
-          : <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
+          : <RouteOutcome journey={journey} dataAvailable={dataAvailable} />
       ) : !journeyPlan && (
         <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
           <div><strong>Choisissez un lieu ou un arrêt</strong><span>Pour prendre la DDD 1 vers Leclerc, choisissez par exemple « École Manguiers » et « Stade Iba Mar Diop ». Les passages sont estimés. Les repères « Portions de bus cartographiées » montrent seulement la voirie. Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
@@ -2712,11 +2696,11 @@ function RoutePanel({
 }
 
 
-function RouteOutcome({ journey, dataAvailable, countdownNow }: {
+function RouteOutcome({ journey, dataAvailable }: {
   journey: JourneyState
   dataAvailable: boolean
-  countdownNow: number
 }) {
+  const now = usePassageClock(journey.status === 'ready' && journey.search?.results.some(r => r.departureStatus === 'SCHEDULED') === true)
   if (journey.status === 'loading') {
     return (
       <div className="route-unavailable" role="status" aria-live="polite">
@@ -2797,7 +2781,7 @@ function RouteOutcome({ journey, dataAvailable, countdownNow }: {
 
       <ul className="journey-list">
         {search.results.map((item) => (
-          <JourneyCard key={`${item.tripId ?? item.routeId}-${item.departure.declaredTime}-${item.date}`} journey={item} localDay={search.localDay} now={countdownNow} />
+          <JourneyCard key={`${item.tripId ?? item.routeId}-${item.departure.declaredTime}-${item.date}`} journey={item} localDay={search.localDay} now={now} />
         ))}
       </ul>
 
@@ -2832,10 +2816,10 @@ function JourneyCard({ journey, localDay, now }: { journey: Journey; localDay: s
         <span className={`journey-route-badge${mobility ? ` mobility-badge mobility-${mobility}` : ''}`}>{journeyRouteLabel(journey)}</span>
         <span className="journey-mode">{describeRouteType(journey.routeType)}</span>
         {journey.routeLongName && <span className="journey-route-name">{journey.routeLongName}</span>}
-        {countdownMinutes !== null && (
-          <span className="journey-countdown" role="status" aria-label={`Départ programmé dans ${countdownMinutes} minute${countdownMinutes > 1 ? 's' : ''}`}>
+        {countdownMinutes !== null && journey.nextDepartureAt && (
+          <span className="journey-countdown" role="timer" aria-live="off">
             <PassageArcs />
-            Départ programmé dans {formatPassageCountdown(countdownMinutes)}
+            Départ programmé dans {formatPassageCountdown(countdownMinutes)} · <PassageClock atMs={Date.parse(journey.nextDepartureAt)} now={now} />
           </span>
         )}
         {scheduledDepartureExpired && (

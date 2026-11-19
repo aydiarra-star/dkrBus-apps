@@ -5,7 +5,7 @@ import { dayOf, followingPassages, nextRuns } from './serviceTime'
 import { walkingTree } from './walking'
 
 type Action = { kind: 'walk'; ways: Footway[]; role: Walk['role']; meters: number }
-  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform; change?: OnwardBoarding['proof'] }
+  | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform; change?: OnwardBoarding['proof']; changeBufferSeconds?: number }
 interface Label extends Metrics { place: Place; back?: { prev: Label; action: Action } }
 type Frontier = Map<string, Label[]>
 function insert(frontier: Frontier, label: Label) {
@@ -22,14 +22,15 @@ function itinerary(last: Label, best: Criterion[], departAt: number): Itinerary 
       legs.push({ ...common, kind: 'walk', role, ways, meters, start: prev.at, positions: concatenate(ways),
         stepFree: ways.some(w => w.stepFree === 'no') ? 'no' : ways.every(w => w.stepFree === 'yes') ? 'yes' : 'unknown' })
     } else {
-      const { pattern: p, i, j, start, every, board, alight, change } = action
+      const { pattern: p, i, j, start, every, board, alight, change, changeBufferSeconds } = action
       const stepFree = [p.stepFree, ...(change ? [change.stepFree] : []), ...[board, alight].flatMap(o => o ? [o.stepFree] : [])]
       const sources = [p.evidence.reference, ...[board, alight].flatMap(o => o ? [`${o.place.name} : ${o.evidence.reference} (${o.evidence.date})`] : [])]
       const sections = p.sections.slice(i, j)
       legs.push({ ...common, from: board?.place ?? common.from, to: alight?.place ?? common.to, kind: 'ride', start, waitSeconds: start - prev.at, headwaySeconds: every,
         passages: followingPassages(p.service, dayOf(departAt), start, p.departures[i]),
         lineId: p.lineId, lineName: p.name, mode: p.mode, network: p.network, direction: p.direction, stops: p.calls.slice(i, j + 1),
-        ...(change && { samePlatformChange: change }), source: sources.join(' · '), serviceSource: p.service.source, timing: p.service.kind, timingSource: p.times.source,
+        ...(change && { samePlatformChange: change }), ...(changeBufferSeconds !== undefined && { changeBufferSeconds }),
+        source: sources.join(' · '), serviceSource: p.service.source, timing: p.service.kind, timeProfile: p.times.kind, timingSource: p.times.source,
         stepFree: stepFree.includes('no') ? 'no' : stepFree.includes('unknown') ? 'unknown' : 'yes', positions: concatenate(sections), meters: sections.reduce((m, s) => m + s.meters, 0) })
     }
   }
@@ -100,13 +101,14 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
         const board = platforms?.board.get(i)
         if (stepFreeOnly && board && board.stepFree !== 'yes') continue
         for (const l of labels) {
-          const canBoardAt = l.at + (boards > 1 ? Math.max(transferBufferSeconds, change?.minimumSeconds ?? 0) : 0)
+          const changeBufferSeconds = boards > 1 ? Math.max(transferBufferSeconds, change?.minimumSeconds ?? 0) : undefined
+          const canBoardAt = l.at + (changeBufferSeconds ?? 0)
           const offset = p.departures[i]
           const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }] : nextRuns(p.service, day, canBoardAt, offset)
           for (const { originAt, every } of runs) for (let j = i + 1; j < p.calls.length; j++) {
             const arrive = (place: Place, alight?: ObservedPlatform) => {
               const arrival: Label = { place, at: originAt + p.arrivals[j], boards, walked: l.walked,
-                cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight, change } } }
+                cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight, change, changeBufferSeconds } } }
               if (targets.has(place.id)) finish(arrival)
               if (place.kind === 'platform' && boards <= maxChanges) for (const b of net.samePlatform.get(p)?.get(j) ?? []) {
                 if (b.proof.platformId !== place.id || (stepFreeOnly && b.proof.stepFree !== 'yes')) continue
