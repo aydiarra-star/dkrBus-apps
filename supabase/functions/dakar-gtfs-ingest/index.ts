@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { isDakarBusSupabaseUrl } from "./project.ts";
+import { DAKAR_BUS_TUS_UPLOAD_ENDPOINT, isDakarBusSupabaseUrl } from "./project.ts";
 import {
   cleanupUploadedObjects,
   classifyStagingObjectReferences,
@@ -21,6 +21,8 @@ import {
   uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
+  TUS_UPLOAD_URL_TTL_MS,
+  UPLOAD_CLEANUP_GRACE_MS,
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
@@ -113,8 +115,19 @@ async function markSession(
   query = state === "FAILED"
     ? query.eq("state", "UPLOAD_PENDING")
     : query.in("state", ["UPLOAD_PENDING", "FAILED"]);
-  const { error } = await query;
-  return !error;
+  const { data: updated, error } = await query.select("upload_id").maybeSingle();
+  if (error) return false;
+  if (updated) return true;
+
+  // A zero-row UPDATE is not proof of success: the row may have been removed
+  // or may have moved to a conflicting state. Treat an already-achieved target
+  // state as idempotent success, but never infer success from the absence of SQL error.
+  const { data: current, error: lookupError } = await admin
+    .from(UPLOAD_TABLE)
+    .select("state")
+    .eq("upload_id", uploadId)
+    .maybeSingle();
+  return !lookupError && current?.state === state;
 }
 
 /**
@@ -390,14 +403,27 @@ async function createUpload(
     upload_id: session.upload_id,
     bucket: BUCKET,
     path: paths.archivePath,
-    token: signedUpload.token,
-    upload_method: "uploadToSignedUrl",
+    upload_method: "tus",
+    tus_endpoint: DAKAR_BUS_TUS_UPLOAD_ENDPOINT,
+    tus_headers: {
+      "x-signature": signedUpload.token,
+      "x-upsert": "false",
+    },
+    tus_metadata: {
+      bucketName: BUCKET,
+      objectName: paths.archivePath,
+      contentType: "application/zip",
+      cacheControl: "3600",
+    },
+    chunk_size_bytes: 6 * 1024 * 1024,
     content_type: "application/zip",
     archive_bytes: archive.bytes,
     archive_sha256: archive.sha256,
     max_archive_bytes: MAX_ARCHIVE_BYTES,
     expires_at: expiresAt,
-    signed_url_validity_seconds: SIGNED_UPLOAD_TOKEN_TTL_MS / 1000,
+    signed_token_validity_seconds: SIGNED_UPLOAD_TOKEN_TTL_MS / 1000,
+    tus_upload_url_validity_seconds: TUS_UPLOAD_URL_TTL_MS / 1000,
+    cleanup_grace_seconds: UPLOAD_CLEANUP_GRACE_MS / 1000,
   }, cors);
 }
 
