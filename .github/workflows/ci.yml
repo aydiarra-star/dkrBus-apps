@@ -309,7 +309,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Test bounded multipart upload parsing
+      - name: Test bounded intake request parsing and signed upload helpers
         run: deno test supabase/functions/dakar-gtfs-ingest/multipart_test.ts supabase/functions/dakar-gtfs-ingest/upload_test.ts
 
       - name: Test dedicated Dakar Bus Supabase project guard
