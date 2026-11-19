@@ -46,7 +46,7 @@ const transfer = new Upload(file, {
 transfer.start();
 ```
 
-Le client TUS envoie `x-signature` lors de la création de la session et réutilise ensuite l'URL TUS de reprise. Le token n'est jamais placé dans une URL ou un journal applicatif.
+Le client TUS envoie `x-signature` lors de la création de la session et réutilise ensuite l'URL TUS de reprise. Le token n'est jamais placé dans une URL ou un journal applicatif. Le paquet `tus-js-client` sera ajouté au bundle d'administration uniquement lors du raccordement effectif du formulaire ; il n'est pas ajouté au bundle public dans cette PR.
 
 Finalisation :
 
