@@ -1,31 +1,62 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
 import { isDakarBusSupabaseUrl } from "./project.ts";
-import { classifyManifestUploadFailure, classifyStagingObjectReferences, cleanupUploadedObjects, getExactlyOneFormValue, hasOnlyExpectedFormFields, inspectContentLength, readMultipartWithLimit, RequestBodyTooLargeError } from "./multipart.ts";
+import {
+  cleanupUploadedObjects,
+  classifyStagingObjectReferences,
+  inspectContentLength,
+} from "./multipart.ts";
+import {
+  canonicalObjectPaths,
+  hasExactKeys,
+  isMatchingStagedRow,
+  isRecord,
+  isValidDatasetId,
+  isValidUploadId,
+  MAX_ARCHIVE_BYTES,
+  MAX_JSON_REQUEST_BYTES,
+  MAX_MANIFEST_BYTES,
+  readJsonWithLimit,
+  RequestBodyTooLargeError,
+  sha256Hex,
+  UPLOAD_SESSION_TTL_MS,
+  validManifest,
+} from "./upload.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const BUCKET = "dakar-gtfs-staging";
-const MAX_ARCHIVE_BYTES = 100 * 1024 * 1024;
-const MAX_REQUEST_BYTES = MAX_ARCHIVE_BYTES + 2 * 1024 * 1024;
+const STAGED_TABLE = "dakar_admin_staged_datasets";
+const UPLOAD_TABLE = "dakar_admin_gtfs_upload_sessions";
 const ALLOWED_ORIGINS = new Set([
   "https://aydiarra-star.github.io",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ]);
-const DATASET_ID_RE = /^[a-z0-9][a-z0-9-]{0,119}$/;
-const SHA256_RE = /^[a-f0-9]{64}$/;
-const SOURCE_TYPES = new Set(["OFFICIAL", "GTFS", "VERIFIED", "COMMUNITY", "UNKNOWN"]);
-const SERVICE_STATUSES = new Set(["ACTIVE", "PLANNED", "SUSPENDED", "UNKNOWN"]);
+
+type UploadSession = Record<string, unknown> & {
+  upload_id: string;
+  dataset_id: string;
+  archive_object_path: string;
+  manifest_object_path: string;
+  archive_sha256: string;
+  archive_bytes: number;
+  manifest_sha256: string;
+  manifest_text: string;
+  imported_by: string;
+  expires_at: string;
+  state: string;
+};
 
 function headers(origin: string | null): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin && ALLOWED_ORIGINS.has(origin) ? origin : "null",
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
+    "Pragma": "no-cache",
   };
 }
 
@@ -33,47 +64,432 @@ function reply(status: number, body: Record<string, unknown>, cors: Record<strin
   return new Response(JSON.stringify(body), { status, headers: cors });
 }
 
-function isInstant(value: unknown): value is string {
-  return typeof value === "string" && Number.isFinite(Date.parse(value)) && /(?:Z|[+-]\d{2}:\d{2})$/.test(value);
+function validityStatus(validFrom: unknown, validUntil: unknown): "NOT_YET_VALID" | "STALE" | "CURRENT" {
+  const now = Date.now();
+  if (now < Date.parse(String(validFrom))) return "NOT_YET_VALID";
+  if (now >= Date.parse(String(validUntil))) return "STALE";
+  return "CURRENT";
 }
 
-function validManifest(value: unknown, datasetId: string): value is Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const m = value as Record<string, unknown>;
-  const archive = m.archive;
-  if (m.schema_version !== "1.0" || m.dataset_id !== datasetId) return false;
-  if (m.publication_status !== "NOT_PUBLISHED" || m.publication_ready !== false) return false;
-  if (m.review_status !== "PENDING_REVIEW") return false;
-  if (!isInstant(m.ingested_at) || Date.parse(String(m.verified_at)) > Date.parse(String(m.ingested_at))) return false;
-  // The manifest is importer-controlled metadata. Never trust a client-declared
-  // validation status; only the separate trusted server validator may set integrity_status.
-  if (!m.record_count || typeof m.record_count !== "object" || Array.isArray(m.record_count)) return false;
-  for (const count of Object.values(m.record_count as Record<string, unknown>)) {
-    if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return false;
+async function authenticateReviewer(req: Request, admin: ReturnType<typeof createClient>) {
+  const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!bearer) return { user: null, status: 401, error: "AUTHENTICATION_REQUIRED" };
+
+  const { data: userData, error: authError } = await admin.auth.getUser(bearer);
+  const user = userData?.user;
+  if (authError || !user || !user.email_confirmed_at) {
+    return { user: null, status: 401, error: "AUTHENTICATION_FAILED" };
   }
-  for (const key of ["dataset_version", "operator", "source"] as const) {
-    if (typeof m[key] !== "string" || !m[key].trim()) return false;
+
+  const { data: actor, error: actorError } = await admin
+    .from("dakar_admin_actors")
+    .select("user_id, role, active")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (actorError) return { user: null, status: 503, error: "ROLE_LOOKUP_FAILED" };
+  if (!actor?.active || actor.role !== "reviewer") {
+    return { user: null, status: 403, error: "REVIEWER_ROLE_REQUIRED" };
   }
-  if (typeof m.source_type !== "string" || !SOURCE_TYPES.has(m.source_type)) return false;
-  if (typeof m.service_status !== "string" || !SERVICE_STATUSES.has(m.service_status)) return false;
-  if (typeof m.date_source !== "string" || !m.date_source.trim()) return false;
-  if (!isInstant(m.verified_at) || !isInstant(m.valid_from) || !isInstant(m.valid_until)) return false;
-  if (Date.parse(m.valid_until) <= Date.parse(m.valid_from)) return false;
-  if (typeof m.confidence !== "number" || !Number.isFinite(m.confidence) || m.confidence < 0 || m.confidence > 1) return false;
-  if (!archive || typeof archive !== "object" || Array.isArray(archive)) return false;
-  const a = archive as Record<string, unknown>;
-  if (a.stored_as !== "feed.zip" || typeof a.bytes !== "number" || !Number.isSafeInteger(a.bytes) || a.bytes <= 0) return false;
-  if (typeof a.sha256 !== "string" || !SHA256_RE.test(a.sha256)) return false;
-  if (m.source_url !== null && m.source_url !== undefined) {
-    if (typeof m.source_url !== "string") return false;
-    try {
-      const url = new URL(m.source_url);
-      if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return false;
-    } catch {
-      return false;
+  return { user, status: 200, error: null };
+}
+
+async function markSession(
+  admin: ReturnType<typeof createClient>,
+  uploadId: string,
+  state: "FINALIZED" | "FAILED",
+): Promise<boolean> {
+  const now = new Date().toISOString();
+  const { error } = await admin.from(UPLOAD_TABLE).update({
+    state,
+    finalized_at: state === "FINALIZED" ? now : null,
+    ...(state === "FAILED" ? { expires_at: now } : {}),
+  }).eq("upload_id", uploadId);
+  return !error;
+}
+
+/**
+ * Delete only objects proven not to be referenced by a staged dataset.
+ * Any uncertain database outcome preserves both objects and the session.
+ */
+async function cleanupSession(
+  admin: ReturnType<typeof createClient>,
+  session: UploadSession,
+): Promise<boolean> {
+  const { data: existing, error: lookupError } = await admin
+    .from(STAGED_TABLE)
+    .select("archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256")
+    .eq("dataset_id", session.dataset_id)
+    .maybeSingle();
+  if (lookupError) return false;
+
+  const references = classifyStagingObjectReferences(
+    existing,
+    session.archive_object_path,
+    session.manifest_object_path,
+  );
+  if (references === "BOTH") {
+    if (isMatchingStagedRow(existing as Record<string, unknown>, session)) {
+      await markSession(admin, session.upload_id, "FINALIZED");
+      return true;
     }
+    return false;
   }
-  return true;
+  if (references === "PARTIAL") return false;
+
+  const cleaned = await cleanupUploadedObjects(
+    (paths) => admin.storage.from(BUCKET).remove(paths),
+    [session.archive_object_path, session.manifest_object_path],
+  );
+  if (!cleaned) return false;
+
+  const { error: deleteError } = await admin
+    .from(UPLOAD_TABLE)
+    .delete()
+    .eq("upload_id", session.upload_id);
+  return !deleteError;
+}
+
+async function cleanupExpiredSessions(admin: ReturnType<typeof createClient>): Promise<void> {
+  const { data: sessions, error } = await admin
+    .from(UPLOAD_TABLE)
+    .select("*")
+    .in("state", ["UPLOAD_PENDING", "FAILED"])
+    .lt("expires_at", new Date().toISOString())
+    .order("expires_at", { ascending: true })
+    .limit(25);
+  if (error || !sessions) return;
+
+  for (const value of sessions) {
+    const session = value as UploadSession;
+    await cleanupSession(admin, session);
+  }
+}
+
+async function getStagedRow(admin: ReturnType<typeof createClient>, datasetId: string) {
+  return await admin
+    .from(STAGED_TABLE)
+    .select("dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256")
+    .eq("dataset_id", datasetId)
+    .maybeSingle();
+}
+
+async function ensureManifestObject(
+  admin: ReturnType<typeof createClient>,
+  path: string,
+  bytes: Uint8Array,
+  expectedSha256: string,
+): Promise<boolean> {
+  const { error: uploadError } = await admin.storage.from(BUCKET).upload(path, bytes, {
+    contentType: "application/json",
+    cacheControl: "3600",
+    upsert: false,
+  });
+  if (!uploadError) return true;
+
+  // A concurrent or retried finalization may have created the same immutable
+  // manifest. Accept it only after downloading and hashing the exact bytes.
+  const { data: existing, error: downloadError } = await admin.storage.from(BUCKET).download(path);
+  if (downloadError || !existing) return false;
+  try {
+    const existingBytes = new Uint8Array(await existing.arrayBuffer());
+    return existingBytes.byteLength <= MAX_MANIFEST_BYTES &&
+      await sha256Hex(existingBytes) === expectedSha256 &&
+      existingBytes.byteLength === bytes.byteLength &&
+      existingBytes.every((byte, index) => byte === bytes[index]);
+  } catch {
+    return false;
+  }
+}
+
+function sessionManifestMatches(session: UploadSession, manifest: Record<string, unknown>): boolean {
+  const archive = manifest.archive as Record<string, unknown>;
+  return manifest.dataset_version === session.dataset_version &&
+    manifest.operator === session.operator &&
+    manifest.source === session.source &&
+    manifest.source_type === session.source_type &&
+    (manifest.source_url ?? null) === (session.source_url ?? null) &&
+    manifest.date_source === session.date_source &&
+    manifest.verified_at === session.verified_at &&
+    manifest.valid_from === session.valid_from &&
+    manifest.valid_until === session.valid_until &&
+    Number(archive.bytes) === Number(session.archive_bytes) &&
+    archive.sha256 === session.archive_sha256;
+}
+
+function acceptedResponse(session: UploadSession, cors: Record<string, string>, sessionStateUpdated: boolean) {
+  return reply(202, {
+    accepted: true,
+    dataset_id: session.dataset_id,
+    archive_sha256: session.archive_sha256,
+    manifest_sha256: session.manifest_sha256,
+    integrity_status: "PENDING_SERVER_CHECK",
+    review_status: "PENDING_REVIEW",
+    publication_status: "NOT_PUBLISHED",
+    session_state_update_pending: !sessionStateUpdated,
+    next_step: "The dedicated server worker must hash and structurally validate the private ZIP before integrity_status can become OK.",
+  }, cors);
+}
+
+async function createUpload(
+  body: Record<string, unknown>,
+  user: { id: string },
+  admin: ReturnType<typeof createClient>,
+  cors: Record<string, string>,
+): Promise<Response> {
+  if (!hasExactKeys(body, ["action", "dataset_id", "manifest"]) ||
+      body.action !== "create_upload" || !isValidDatasetId(body.dataset_id)) {
+    return reply(400, { error: "UPLOAD_COMMAND_INVALID" }, cors);
+  }
+  const datasetId = body.dataset_id;
+  if (!validManifest(body.manifest, datasetId)) {
+    return reply(422, { error: "MANIFEST_SCHEMA_INVALID" }, cors);
+  }
+
+  let manifestText: string;
+  try {
+    manifestText = JSON.stringify(body.manifest);
+  } catch {
+    return reply(400, { error: "MANIFEST_SERIALIZATION_FAILED" }, cors);
+  }
+  const manifestBytes = new TextEncoder().encode(manifestText);
+  if (manifestBytes.byteLength <= 0 || manifestBytes.byteLength > MAX_MANIFEST_BYTES) {
+    return reply(413, { error: "MANIFEST_SIZE_OUT_OF_RANGE", max_bytes: MAX_MANIFEST_BYTES }, cors);
+  }
+  const manifestSha256 = await sha256Hex(manifestBytes);
+  const manifest = body.manifest as Record<string, unknown>;
+  const archive = manifest.archive as Record<string, unknown>;
+  const paths = canonicalObjectPaths(datasetId, String(archive.sha256));
+
+  await cleanupExpiredSessions(admin);
+
+  const { data: staged, error: stagedLookupError } = await getStagedRow(admin, datasetId);
+  if (stagedLookupError) return reply(503, { error: "STAGING_LOOKUP_FAILED" }, cors);
+  if (staged) return reply(409, { error: "DATASET_ALREADY_REGISTERED" }, cors);
+
+  const { data: existingSession, error: sessionLookupError } = await admin
+    .from(UPLOAD_TABLE)
+    .select("upload_id, state, expires_at")
+    .eq("dataset_id", datasetId)
+    .maybeSingle();
+  if (sessionLookupError) return reply(503, { error: "UPLOAD_SESSION_LOOKUP_FAILED" }, cors);
+  if (existingSession) return reply(409, { error: "UPLOAD_SESSION_ALREADY_EXISTS" }, cors);
+
+  const { data: existingObjects, error: objectLookupError } = await admin.storage
+    .from(BUCKET)
+    .list(`${datasetId}/${archive.sha256}`, { limit: 10 });
+  if (objectLookupError) return reply(503, { error: "STORAGE_PATH_LOOKUP_FAILED" }, cors);
+  if (existingObjects?.length) return reply(409, { error: "CANONICAL_STORAGE_PATH_ALREADY_EXISTS" }, cors);
+
+  const now = Date.now();
+  const expiresAt = new Date(now + UPLOAD_SESSION_TTL_MS).toISOString();
+  const { data: session, error: insertError } = await admin.from(UPLOAD_TABLE).insert({
+    dataset_id: datasetId,
+    dataset_version: manifest.dataset_version,
+    operator: manifest.operator,
+    source: manifest.source,
+    source_type: manifest.source_type,
+    source_url: manifest.source_url ?? null,
+    date_source: manifest.date_source,
+    verified_at: manifest.verified_at,
+    valid_from: manifest.valid_from,
+    valid_until: manifest.valid_until,
+    confidence: manifest.confidence,
+    service_status: manifest.service_status,
+    validity_status: validityStatus(manifest.valid_from, manifest.valid_until),
+    archive_object_path: paths.archivePath,
+    manifest_object_path: paths.manifestPath,
+    archive_sha256: archive.sha256,
+    archive_bytes: archive.bytes,
+    manifest_sha256: manifestSha256,
+    manifest_text: manifestText,
+    imported_by: user.id,
+    expires_at: expiresAt,
+  }).select("upload_id, dataset_id, archive_object_path, archive_bytes, archive_sha256, expires_at").single();
+
+  if (insertError || !session) {
+    return reply(409, { error: "UPLOAD_SESSION_CREATE_FAILED" }, cors);
+  }
+
+  const { data: signedUpload, error: signedUploadError } = await admin.storage
+    .from(BUCKET)
+    .createSignedUploadUrl(paths.archivePath, { upsert: false });
+  if (signedUploadError || !signedUpload?.token) {
+    const { error: deleteError } = await admin.from(UPLOAD_TABLE).delete().eq("upload_id", session.upload_id);
+    if (deleteError) {
+      await admin.from(UPLOAD_TABLE).update({
+        state: "FAILED",
+        expires_at: new Date().toISOString(),
+      }).eq("upload_id", session.upload_id);
+    }
+    return reply(503, { error: "SIGNED_UPLOAD_URL_CREATION_FAILED" }, cors);
+  }
+
+  return reply(201, {
+    upload_id: session.upload_id,
+    bucket: BUCKET,
+    path: paths.archivePath,
+    token: signedUpload.token,
+    upload_method: "uploadToSignedUrl",
+    content_type: "application/zip",
+    archive_bytes: archive.bytes,
+    archive_sha256: archive.sha256,
+    max_archive_bytes: MAX_ARCHIVE_BYTES,
+    expires_at: expiresAt,
+    signed_url_validity_seconds: 7200,
+  }, cors);
+}
+
+async function finalizeUpload(
+  body: Record<string, unknown>,
+  user: { id: string },
+  admin: ReturnType<typeof createClient>,
+  cors: Record<string, string>,
+): Promise<Response> {
+  if (!hasExactKeys(body, ["action", "upload_id"]) ||
+      body.action !== "finalize_upload" || !isValidUploadId(body.upload_id)) {
+    return reply(400, { error: "FINALIZE_COMMAND_INVALID" }, cors);
+  }
+
+  const { data: rawSession, error: sessionError } = await admin
+    .from(UPLOAD_TABLE)
+    .select("*")
+    .eq("upload_id", body.upload_id)
+    .maybeSingle();
+  if (sessionError) return reply(503, { error: "UPLOAD_SESSION_LOOKUP_FAILED" }, cors);
+  if (!rawSession) return reply(404, { error: "UPLOAD_SESSION_NOT_FOUND" }, cors);
+
+  const session = rawSession as UploadSession;
+  if (session.imported_by !== user.id) return reply(403, { error: "UPLOAD_SESSION_OWNER_REQUIRED" }, cors);
+
+  const { data: existing, error: stagedLookupError } = await getStagedRow(admin, session.dataset_id);
+  if (stagedLookupError) return reply(503, { error: "STAGING_LOOKUP_FAILED" }, cors);
+  if (existing && isMatchingStagedRow(existing as Record<string, unknown>, session)) {
+    const updated = await markSession(admin, session.upload_id, "FINALIZED");
+    return acceptedResponse(session, cors, updated);
+  }
+  if (existing) {
+    return reply(409, { error: "DATASET_ALREADY_REGISTERED_WITH_DIFFERENT_OBJECTS" }, cors);
+  }
+
+  if (session.state !== "UPLOAD_PENDING") {
+    return reply(410, { error: "UPLOAD_SESSION_NOT_ACTIVE" }, cors);
+  }
+  if (!Number.isFinite(Date.parse(session.expires_at)) || Date.parse(session.expires_at) <= Date.now()) {
+    const cleaned = await cleanupSession(admin, session);
+    return reply(cleaned ? 410 : 503, {
+      error: cleaned ? "UPLOAD_SESSION_EXPIRED" : "UPLOAD_SESSION_EXPIRED_CLEANUP_PENDING",
+    }, cors);
+  }
+
+  const paths = canonicalObjectPaths(session.dataset_id, session.archive_sha256);
+  if (session.archive_object_path !== paths.archivePath ||
+      session.manifest_object_path !== paths.manifestPath ||
+      !Number.isSafeInteger(Number(session.archive_bytes)) ||
+      Number(session.archive_bytes) <= 0 ||
+      Number(session.archive_bytes) > MAX_ARCHIVE_BYTES) {
+    await markSession(admin, session.upload_id, "FAILED");
+    return reply(500, { error: "UPLOAD_SESSION_INTEGRITY_INVALID" }, cors);
+  }
+
+  const manifestBytes = new TextEncoder().encode(session.manifest_text);
+  if (manifestBytes.byteLength <= 0 || manifestBytes.byteLength > MAX_MANIFEST_BYTES ||
+      await sha256Hex(manifestBytes) !== session.manifest_sha256) {
+    await markSession(admin, session.upload_id, "FAILED");
+    return reply(500, { error: "STORED_MANIFEST_INTEGRITY_INVALID" }, cors);
+  }
+
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(session.manifest_text);
+  } catch {
+    await markSession(admin, session.upload_id, "FAILED");
+    return reply(500, { error: "STORED_MANIFEST_JSON_INVALID" }, cors);
+  }
+  if (!validManifest(manifest, session.dataset_id) ||
+      !sessionManifestMatches(session, manifest as Record<string, unknown>)) {
+    await markSession(admin, session.upload_id, "FAILED");
+    return reply(500, { error: "STORED_MANIFEST_SESSION_MISMATCH" }, cors);
+  }
+
+  const { data: archiveInfo, error: archiveInfoError } = await admin.storage
+    .from(BUCKET)
+    .info(session.archive_object_path);
+  if (archiveInfoError || !archiveInfo) {
+    return reply(409, { error: "ARCHIVE_UPLOAD_NOT_COMPLETE" }, cors);
+  }
+  const actualArchiveBytes = Number(archiveInfo.size);
+  if (!Number.isSafeInteger(actualArchiveBytes) ||
+      actualArchiveBytes !== Number(session.archive_bytes) ||
+      actualArchiveBytes <= 0 ||
+      actualArchiveBytes > MAX_ARCHIVE_BYTES) {
+    const cleaned = await cleanupSession(admin, session);
+    return reply(cleaned ? 422 : 503, {
+      error: cleaned ? "ARCHIVE_ACTUAL_SIZE_MISMATCH" : "ARCHIVE_SIZE_MISMATCH_CLEANUP_PENDING",
+    }, cors);
+  }
+
+  const manifestStored = await ensureManifestObject(
+    admin,
+    session.manifest_object_path,
+    manifestBytes,
+    session.manifest_sha256,
+  );
+  if (!manifestStored) {
+    const cleaned = await cleanupSession(admin, session);
+    return reply(cleaned ? 500 : 503, {
+      error: cleaned ? "MANIFEST_STORAGE_FAILED" : "MANIFEST_STORAGE_FAILED_CLEANUP_PENDING",
+    }, cors);
+  }
+
+  const { error: insertError } = await admin.from(STAGED_TABLE).insert({
+    dataset_id: session.dataset_id,
+    dataset_version: session.dataset_version,
+    operator: session.operator,
+    source: session.source,
+    source_type: session.source_type,
+    source_url: session.source_url ?? null,
+    date_source: session.date_source,
+    verified_at: session.verified_at,
+    valid_from: session.valid_from,
+    valid_until: session.valid_until,
+    confidence: session.confidence,
+    service_status: session.service_status,
+    validity_status: session.validity_status,
+    archive_bucket: BUCKET,
+    archive_object_path: session.archive_object_path,
+    manifest_object_path: session.manifest_object_path,
+    archive_sha256: session.archive_sha256,
+    archive_bytes: actualArchiveBytes,
+    manifest_sha256: session.manifest_sha256,
+    imported_by: user.id,
+  });
+
+  if (insertError) {
+    const { data: existingAfterInsert, error: lookupError } = await getStagedRow(admin, session.dataset_id);
+    if (lookupError) {
+      return reply(503, { error: "STAGING_REGISTRATION_OUTCOME_UNKNOWN" }, cors);
+    }
+    if (existingAfterInsert && isMatchingStagedRow(existingAfterInsert as Record<string, unknown>, session)) {
+      const updated = await markSession(admin, session.upload_id, "FINALIZED");
+      return acceptedResponse(session, cors, updated);
+    }
+
+    const references = classifyStagingObjectReferences(
+      existingAfterInsert,
+      session.archive_object_path,
+      session.manifest_object_path,
+    );
+    if (references !== "NONE") {
+      return reply(503, { error: "STAGING_REGISTRATION_REFERENCE_CONFLICT" }, cors);
+    }
+    const cleaned = await cleanupSession(admin, session);
+    return reply(cleaned ? 409 : 503, {
+      error: cleaned ? "STAGING_REGISTRATION_FAILED" : "STAGING_REGISTRATION_CLEANUP_PENDING",
+    }, cors);
+  }
+
+  const updated = await markSession(admin, session.upload_id, "FINALIZED");
+  return acceptedResponse(session, cors, updated);
 }
 
 Deno.serve(async (req: Request) => {
@@ -86,201 +502,50 @@ Deno.serve(async (req: Request) => {
   }
   if (!origin || !ALLOWED_ORIGINS.has(origin)) return reply(403, { error: "ORIGIN_FORBIDDEN" }, cors);
   if (req.method !== "POST") return reply(405, { error: "METHOD_NOT_ALLOWED" }, cors);
-  if (!isDakarBusSupabaseUrl(SUPABASE_URL)) return reply(503, { error: "DAKAR_BUS_PROJECT_CONFIGURATION_INVALID" }, cors);
+  if (!isDakarBusSupabaseUrl(SUPABASE_URL)) {
+    return reply(503, { error: "DAKAR_BUS_PROJECT_CONFIGURATION_INVALID" }, cors);
+  }
   if (!SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
 
-  const contentLength = inspectContentLength(req.headers.get("Content-Length"), MAX_REQUEST_BYTES);
-  if (!contentLength.valid) {
-    return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
+  const contentType = req.headers.get("Content-Type") ?? "";
+  if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {
+    return reply(415, { error: "APPLICATION_JSON_REQUIRED" }, cors);
   }
+  const contentLength = inspectContentLength(req.headers.get("Content-Length"), MAX_JSON_REQUEST_BYTES);
+  if (!contentLength.valid) return reply(400, { error: "INVALID_CONTENT_LENGTH" }, cors);
   if (contentLength.tooLarge) {
-    return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
+    return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_JSON_REQUEST_BYTES }, cors);
   }
-
-  const bearer = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
-  if (!bearer) return reply(401, { error: "AUTHENTICATION_REQUIRED" }, cors);
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: userData, error: authError } = await admin.auth.getUser(bearer);
-  const user = userData?.user;
-  if (authError || !user || !user.email_confirmed_at) {
-    return reply(401, { error: "AUTHENTICATION_FAILED" }, cors);
-  }
 
-  const { data: actor, error: actorError } = await admin
-    .from("dakar_admin_actors")
-    .select("user_id, role, active")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (actorError) return reply(503, { error: "ROLE_LOOKUP_FAILED" }, cors);
-  if (!actor?.active || actor.role !== "reviewer") {
-    return reply(403, { error: "REVIEWER_ROLE_REQUIRED" }, cors);
-  }
-
-  let form: FormData;
   try {
-    form = await readMultipartWithLimit(req, MAX_REQUEST_BYTES);
-  } catch (error) {
-    if (error instanceof RequestBodyTooLargeError) {
-      return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_REQUEST_BYTES }, cors);
+    const auth = await authenticateReviewer(req, admin);
+    if (!auth.user) return reply(auth.status, { error: auth.error }, cors);
+
+    let body: unknown;
+    try {
+      body = await readJsonWithLimit(req, MAX_JSON_REQUEST_BYTES);
+    } catch (error) {
+      if (error instanceof RequestBodyTooLargeError) {
+        return reply(413, { error: "REQUEST_TOO_LARGE", max_bytes: MAX_JSON_REQUEST_BYTES }, cors);
+      }
+      return reply(400, { error: "JSON_BODY_INVALID" }, cors);
     }
-    return reply(400, { error: "MULTIPART_FORM_REQUIRED" }, cors);
-  }
+    if (!isRecord(body) || typeof body.action !== "string") {
+      return reply(400, { error: "JSON_COMMAND_REQUIRED" }, cors);
+    }
 
-  if (!hasOnlyExpectedFormFields(form, ["feed", "manifest", "dataset_id"])) {
-    return reply(400, { error: "UNEXPECTED_MULTIPART_FIELD" }, cors);
-  }
-
-  const archive = getExactlyOneFormValue(form, "feed");
-  const manifestFile = getExactlyOneFormValue(form, "manifest");
-  const datasetId = getExactlyOneFormValue(form, "dataset_id");
-  if (!(archive instanceof File) || !(manifestFile instanceof File) || typeof datasetId !== "string" || !DATASET_ID_RE.test(datasetId)) {
-    return reply(400, { error: "FEED_MANIFEST_AND_VALID_DATASET_ID_REQUIRED" }, cors);
-  }
-  if (archive.size <= 0 || archive.size > MAX_ARCHIVE_BYTES) {
-    return reply(413, { error: "ARCHIVE_SIZE_OUT_OF_RANGE", max_bytes: MAX_ARCHIVE_BYTES }, cors);
-  }
-  if (manifestFile.size <= 0 || manifestFile.size > 1024 * 1024) {
-    return reply(413, { error: "MANIFEST_SIZE_OUT_OF_RANGE", max_bytes: 1024 * 1024 }, cors);
-  }
-
-  let manifest: unknown;
-  try {
-    manifest = JSON.parse(await manifestFile.text());
+    if (body.action === "create_upload") {
+      return await createUpload(body, auth.user, admin, cors);
+    }
+    if (body.action === "finalize_upload") {
+      return await finalizeUpload(body, auth.user, admin, cors);
+    }
+    return reply(400, { error: "UNKNOWN_UPLOAD_ACTION" }, cors);
   } catch {
-    return reply(400, { error: "MANIFEST_INVALID_JSON" }, cors);
+    return reply(500, { error: "GTFS_INTAKE_INTERNAL_ERROR" }, cors);
   }
-  if (!validManifest(manifest, datasetId)) return reply(422, { error: "MANIFEST_SCHEMA_INVALID" }, cors);
-
-  const archiveBytes = new Uint8Array(await archive.arrayBuffer());
-  if (archiveBytes.byteLength !== archive.size || archiveBytes.byteLength < 4 ||
-      archiveBytes[0] !== 0x50 || archiveBytes[1] !== 0x4b) {
-    return reply(422, { error: "ARCHIVE_NOT_A_VALID_ZIP_HEADER" }, cors);
-  }
-  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", archiveBytes));
-  const actualSha256 = Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  const declaredArchive = (manifest as Record<string, unknown>).archive as Record<string, unknown>;
-  if (declaredArchive.bytes !== archiveBytes.byteLength || declaredArchive.sha256 !== actualSha256) {
-    return reply(422, { error: "ARCHIVE_MANIFEST_CHECKSUM_MISMATCH" }, cors);
-  }
-
-  const manifestBytes = new TextEncoder().encode(JSON.stringify(manifest));
-  const manifestDigest = new Uint8Array(await crypto.subtle.digest("SHA-256", manifestBytes));
-  const manifestSha256 = Array.from(manifestDigest, (byte) => byte.toString(16).padStart(2, "0")).join("");
-  const objectRoot = `${datasetId}/${actualSha256}`;
-  const archivePath = `${objectRoot}/feed.zip`;
-  const manifestPath = `${objectRoot}/manifest.json`;
-
-  const { error: archiveUploadError } = await admin.storage.from(BUCKET).upload(archivePath, archiveBytes, {
-    contentType: "application/zip",
-    upsert: false,
-  });
-  if (archiveUploadError) {
-    return reply(409, { error: "ARCHIVE_UPLOAD_FAILED" }, cors);
-  }
-
-  const { error: manifestUploadError } = await admin.storage.from(BUCKET).upload(manifestPath, manifestBytes, {
-    contentType: "application/json",
-    upsert: false,
-  });
-  if (manifestUploadError) {
-    // A previous attempt may already have a staging row for this canonical path.
-    // Resolve that reference before deleting the archive; on an uncertain lookup,
-    // preserve the object rather than risk breaking a committed dataset.
-    const { data: existing, error: lookupError } = await admin
-      .from("dakar_admin_staged_datasets")
-      .select("archive_object_path, manifest_object_path")
-      .eq("dataset_id", datasetId)
-      .maybeSingle();
-
-    const cleanupDecision = classifyManifestUploadFailure(
-      existing,
-      Boolean(lookupError),
-      archivePath,
-      manifestPath,
-    );
-    if (cleanupDecision === "DATASET_ALREADY_REGISTERED") {
-      return reply(409, { error: "DATASET_ALREADY_REGISTERED" }, cors);
-    }
-    if (cleanupDecision === "OUTCOME_UNKNOWN") {
-      return reply(503, { error: "MANIFEST_UPLOAD_OUTCOME_UNKNOWN" }, cors);
-    }
-
-    const cleanupSucceeded = await cleanupUploadedObjects(
-      (paths) => admin.storage.from(BUCKET).remove(paths),
-      [archivePath],
-    );
-    return cleanupSucceeded
-      ? reply(500, { error: "MANIFEST_UPLOAD_FAILED" }, cors)
-      : reply(500, { error: "MANIFEST_UPLOAD_FAILED_CLEANUP_INCOMPLETE" }, cors);
-  }
-
-  const m = manifest as Record<string, unknown>;
-  const { error: insertError } = await admin.from("dakar_admin_staged_datasets").insert({
-    dataset_id: datasetId,
-    dataset_version: m.dataset_version,
-    operator: m.operator,
-    source: m.source,
-    source_type: m.source_type,
-    source_url: m.source_url ?? null,
-    date_source: m.date_source,
-    verified_at: m.verified_at,
-    valid_from: m.valid_from,
-    valid_until: m.valid_until,
-    confidence: m.confidence,
-    service_status: m.service_status,
-    validity_status: Date.now() < Date.parse(String(m.valid_from))
-      ? "NOT_YET_VALID"
-      : Date.now() >= Date.parse(String(m.valid_until)) ? "STALE" : "CURRENT",
-    archive_bucket: BUCKET,
-    archive_object_path: archivePath,
-    manifest_object_path: manifestPath,
-    archive_sha256: actualSha256,
-    archive_bytes: archiveBytes.byteLength,
-    manifest_sha256: manifestSha256,
-    imported_by: user.id,
-  });
-
-  if (insertError) {
-    // A network error can occur after Postgres committed the insert. Resolve the
-    // outcome before deleting any object that a committed row may reference.
-    const { data: existing, error: lookupError } = await admin
-      .from("dakar_admin_staged_datasets")
-      .select("archive_object_path, manifest_object_path")
-      .eq("dataset_id", datasetId)
-      .maybeSingle();
-
-    if (lookupError) {
-      return reply(503, { error: "STAGING_REGISTRATION_OUTCOME_UNKNOWN" }, cors);
-    }
-
-    const references = classifyStagingObjectReferences(existing, archivePath, manifestPath);
-    if (references === "BOTH") {
-      return reply(409, { error: "DATASET_ALREADY_REGISTERED" }, cors);
-    }
-    if (references === "PARTIAL") {
-      return reply(503, { error: "STAGING_REGISTRATION_OUTCOME_UNKNOWN" }, cors);
-    }
-
-    const cleanupSucceeded = await cleanupUploadedObjects(
-      (paths) => admin.storage.from(BUCKET).remove(paths),
-      [archivePath, manifestPath],
-    );
-    return cleanupSucceeded
-      ? reply(409, { error: "STAGING_REGISTRATION_FAILED" }, cors)
-      : reply(500, { error: "STAGING_REGISTRATION_FAILED_CLEANUP_INCOMPLETE" }, cors);
-  }
-
-  return reply(202, {
-    accepted: true,
-    dataset_id: datasetId,
-    archive_sha256: actualSha256,
-    manifest_sha256: manifestSha256,
-    integrity_status: "PENDING_SERVER_CHECK",
-    review_status: "PENDING_REVIEW",
-    publication_status: "NOT_PUBLISHED",
-    next_step: "A separate trusted validator must inspect the ZIP contents before integrity_status can become OK.",
-  }, cors);
 });
