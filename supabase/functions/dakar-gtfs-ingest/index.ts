@@ -219,7 +219,7 @@ function sessionManifestMatches(session: UploadSession, manifest: Record<string,
     sameInstant(manifest.verified_at, session.verified_at) &&
     sameInstant(manifest.valid_from, session.valid_from) &&
     sameInstant(manifest.valid_until, session.valid_until) &&
-    Number(manifest.confidence) === Number(session.confidence) &&
+    Math.round(Number(manifest.confidence) * 1000) / 1000 === Number(session.confidence) &&
     manifest.service_status === session.service_status &&
     Number(archive.bytes) === Number(session.archive_bytes) &&
     archive.sha256 === session.archive_sha256;
@@ -249,14 +249,15 @@ async function createUpload(
       body.action !== "create_upload" || !isValidDatasetId(body.dataset_id)) {
     return reply(400, { error: "UPLOAD_COMMAND_INVALID" }, cors);
   }
-  const datasetId = body.dataset_id;
+  const datasetId = String(body.dataset_id);
   if (!validManifest(body.manifest, datasetId)) {
     return reply(422, { error: "MANIFEST_SCHEMA_INVALID" }, cors);
   }
 
   const inputManifest = body.manifest as Record<string, unknown>;
+  const serverIngestedAt = new Date().toISOString();
   const serverValidityStatus = validityStatus(inputManifest.valid_from, inputManifest.valid_until);
-  const manifest = sanitizeManifest(inputManifest, serverValidityStatus);
+  const manifest = sanitizeManifest(inputManifest, serverValidityStatus, serverIngestedAt);
   let manifestText: string;
   try {
     const serialized = JSON.stringify(manifest);
