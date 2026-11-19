@@ -10,7 +10,13 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.validate_gtfs import ValidationLimits, validate_gtfs_archive
+from scripts.validate_gtfs import (
+    MAX_ISSUE_MESSAGE_CHARS,
+    MAX_ISSUE_TABLE_CHARS,
+    Report,
+    ValidationLimits,
+    validate_gtfs_archive,
+)
 
 
 VALID_TABLES = {
@@ -35,6 +41,15 @@ VALID_TABLES = {
 
 
 class GTFSValidatorTests(unittest.TestCase):
+    def test_issue_details_are_bounded_for_untrusted_archive_values(self) -> None:
+        report = Report("feed.zip", ValidationLimits())
+        report.add("ERROR", "SYNTHETIC", "x" * 100_000, "untrusted-table-name" * 100, 2)
+        issue = report.to_dict()["issues"][0]
+        self.assertLessEqual(len(issue["message"]), MAX_ISSUE_MESSAGE_CHARS)
+        self.assertLessEqual(len(issue["table"]), MAX_ISSUE_TABLE_CHARS)
+        serialized = json.dumps(report.to_dict(), ensure_ascii=False).encode("utf-8")
+        self.assertLess(len(serialized), 1024 * 1024)
+
     def make_archive(self, tables: dict[str, str], wrapper: str | None = None) -> Path:
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
