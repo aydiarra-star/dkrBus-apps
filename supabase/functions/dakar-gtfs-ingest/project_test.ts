@@ -2,10 +2,10 @@ import { DAKAR_BUS_TUS_UPLOAD_ENDPOINT, isDakarBusSupabaseUrl } from "./project.
 
 Deno.test("accepts only canonical Dakar Bus Supabase URL variants", () => {
   for (const value of [
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co/",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co:443",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co:443/",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co/",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co:443",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co:443/",
   ]) {
     if (!isDakarBusSupabaseUrl(value)) {
       throw new Error(`Canonical Dakar Bus project URL was rejected: ${value}`);
@@ -15,7 +15,7 @@ Deno.test("accepts only canonical Dakar Bus Supabase URL variants", () => {
 
 Deno.test("pins resumable uploads to the dedicated Dakar Bus Storage hostname", () => {
   if (DAKAR_BUS_TUS_UPLOAD_ENDPOINT !==
-      "https://mdmuxzaewzqzqutkqdylo.storage.supabase.co/storage/v1/upload/resumable") {
+      "https://mdmuxzaewqzqutkqdylo.storage.supabase.co/storage/v1/upload/resumable") {
     throw new Error("The TUS endpoint is not pinned to the Dakar Bus Storage host");
   }
 });
@@ -33,17 +33,18 @@ Deno.test("rejects another Supabase project, including the Yere project", () => 
 
 Deno.test("rejects non-HTTPS, credentials, non-canonical ports and URL components", () => {
   const invalid = [
-    "http://mdmuxzaewzqzqutkqdylo.supabase.co",
-    "https://user@mdmuxzaewzqzqutkqdylo.supabase.co",
-    "https://user:password@mdmuxzaewzqzqutkqdylo.supabase.co",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co:444",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co/storage",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co/?project=other",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co/#other",
-    " https://mdmuxzaewzqzqutkqdylo.supabase.co",
+    "http://mdmuxzaewqzqutkqdylo.supabase.co",
+    "https://mdmuxzaewzqzqutkqdylo.supabase.co",
+    "https://user@mdmuxzaewqzqutkqdylo.supabase.co",
+    "https://user:password@mdmuxzaewqzqutkqdylo.supabase.co",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co:444",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co/storage",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co/?project=other",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co/#other",
+    " https://mdmuxzaewqzqutkqdylo.supabase.co",
     "https://MDMUXZAEWZQZQUTKQDYLO.supabase.co",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co./",
-    "https://mdmuxzaewzqzqutkqdylo.supabase.co/%2e%2e",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co./",
+    "https://mdmuxzaewqzqutkqdylo.supabase.co/%2e%2e",
     "not a URL",
     "",
   ];
