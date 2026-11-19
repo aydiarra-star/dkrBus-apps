@@ -1,0 +1,172 @@
+import {
+  bytesEqual,
+  canonicalObjectPaths,
+  hasExactKeys,
+  isMatchingStagedRow,
+  isValidDatasetId,
+  isValidUploadId,
+  MAX_ARCHIVE_BYTES,
+  readJsonWithLimit,
+  RequestBodyTooLargeError,
+  sha256Hex,
+  validManifest,
+} from "./upload.ts";
+
+function syntheticManifest(overrides: Record<string, unknown> = {}) {
+  return {
+    schema_version: "1.0",
+    dataset_id: "synthetic-feed",
+    dataset_version: "synthetic-v1",
+    operator: "Synthetic test operator",
+    source: "CI fixture only",
+    source_type: "UNKNOWN",
+    source_url: null,
+    date_source: "CI fixture",
+    verified_at: "2026-11-19T10:00:00Z",
+    ingested_at: "2026-11-19T10:01:00Z",
+    valid_from: "2026-11-19T00:00:00Z",
+    valid_until: "2026-12-31T23:59:59Z",
+    confidence: 0.5,
+    service_status: "UNKNOWN",
+    record_count: { routes: 1, stops: 2 },
+    review_status: "PENDING_REVIEW",
+    publication_status: "NOT_PUBLISHED",
+    publication_ready: false,
+    archive: { stored_as: "feed.zip", bytes: 128, sha256: "a".repeat(64) },
+    ...overrides,
+  };
+}
+
+Deno.test("accepts a structurally well-formed synthetic intake manifest", () => {
+  if (!validManifest(syntheticManifest(), "synthetic-feed")) {
+    throw new Error("A valid synthetic manifest was rejected");
+  }
+});
+
+Deno.test("rejects a manifest for another dataset or a client-approved status", () => {
+  if (validManifest(syntheticManifest(), "other-feed")) {
+    throw new Error("A manifest bound to another dataset was accepted");
+  }
+  if (validManifest(syntheticManifest({ review_status: "APPROVED" }), "synthetic-feed")) {
+    throw new Error("A client-supplied approval status was accepted");
+  }
+  if (validManifest(syntheticManifest({ publication_ready: true }), "synthetic-feed")) {
+    throw new Error("A client-supplied publication-ready flag was accepted");
+  }
+});
+
+Deno.test("rejects oversized archive declarations and malformed SHA-256", () => {
+  if (validManifest(syntheticManifest({
+    archive: { stored_as: "feed.zip", bytes: MAX_ARCHIVE_BYTES + 1, sha256: "a".repeat(64) },
+  }), "synthetic-feed")) {
+    throw new Error("An archive larger than the bucket limit was accepted");
+  }
+  if (validManifest(syntheticManifest({
+    archive: { stored_as: "feed.zip", bytes: 128, sha256: "not-a-hash" },
+  }), "synthetic-feed")) {
+    throw new Error("A malformed archive digest was accepted");
+  }
+});
+
+Deno.test("rejects unsafe source URLs and inverted validity periods", () => {
+  if (validManifest(syntheticManifest({ source_url: "javascript:alert(1)" }), "synthetic-feed")) {
+    throw new Error("A non-HTTP source URL was accepted");
+  }
+  if (validManifest(syntheticManifest({ source_url: "https://user:pass@example.invalid/feed.zip" }), "synthetic-feed")) {
+    throw new Error("A source URL containing credentials was accepted");
+  }
+  if (validManifest(syntheticManifest({
+    valid_from: "2026-12-31T00:00:00Z",
+    valid_until: "2026-11-19T00:00:00Z",
+  }), "synthetic-feed")) {
+    throw new Error("An inverted validity period was accepted");
+  }
+});
+
+Deno.test("uses only canonical server-generated object paths", () => {
+  const paths = canonicalObjectPaths("synthetic-feed", "a".repeat(64));
+  if (paths.archivePath !== `synthetic-feed/${"a".repeat(64)}/feed.zip` ||
+      paths.manifestPath !== `synthetic-feed/${"a".repeat(64)}/manifest.json`) {
+    throw new Error("Canonical GTFS object paths changed");
+  }
+  for (const [datasetId, sha] of [["../escape", "a".repeat(64)], ["synthetic-feed", "../escape"]]) {
+    let rejected = false;
+    try {
+      canonicalObjectPaths(datasetId, sha);
+    } catch {
+      rejected = true;
+    }
+    if (!rejected) throw new Error("An unsafe object path component was accepted");
+  }
+});
+
+Deno.test("validates dataset and upload identifiers", () => {
+  if (!isValidDatasetId("synthetic-feed") || isValidDatasetId("../feed")) {
+    throw new Error("Dataset identifier validation is incorrect");
+  }
+  if (!isValidUploadId("8b3c0e51-5e42-4f5c-9a0a-2d5f9c3f8b11") || isValidUploadId("../upload")) {
+    throw new Error("Upload identifier validation is incorrect");
+  }
+});
+
+Deno.test("requires exact JSON command keys", () => {
+  if (!hasExactKeys({ action: "finalize_upload", upload_id: "id" }, ["action", "upload_id"])) {
+    throw new Error("A valid command shape was rejected");
+  }
+  if (hasExactKeys({ action: "finalize_upload", upload_id: "id", path: "../other" }, ["action", "upload_id"])) {
+    throw new Error("An untrusted extra path field was accepted");
+  }
+});
+
+Deno.test("accepts bounded JSON without Content-Length", async () => {
+  const request = new Request("https://example.invalid/intake", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "finalize_upload", upload_id: "synthetic" }),
+  });
+  const parsed = await readJsonWithLimit(request, 256);
+  if (!hasExactKeys(parsed, ["action", "upload_id"])) {
+    throw new Error("A valid bounded JSON body was not parsed");
+  }
+});
+
+Deno.test("rejects JSON whose actual stream exceeds the limit", async () => {
+  const request = new Request("https://example.invalid/intake", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ payload: "x".repeat(2048) }),
+  });
+  let rejected = false;
+  try {
+    await readJsonWithLimit(request, 128);
+  } catch (error) {
+    rejected = error instanceof RequestBodyTooLargeError;
+  }
+  if (!rejected) throw new Error("An oversized JSON stream was accepted");
+  if (request.body?.locked) throw new Error("The JSON request reader remained locked");
+});
+
+Deno.test("compares staged references and bytes exactly", async () => {
+  const left = new Uint8Array([1, 2, 3]);
+  const right = new Uint8Array([1, 2, 3]);
+  if (!bytesEqual(left, right) || bytesEqual(left, new Uint8Array([1, 2, 4]))) {
+    throw new Error("Byte comparison is incorrect");
+  }
+  if (await sha256Hex(new Uint8Array()) !== "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855") {
+    throw new Error("SHA-256 helper does not match the standard empty digest");
+  }
+
+  const session = {
+    archive_object_path: "synthetic-feed/" + "a".repeat(64) + "/feed.zip",
+    manifest_object_path: "synthetic-feed/" + "a".repeat(64) + "/manifest.json",
+    archive_sha256: "a".repeat(64),
+    archive_bytes: 128,
+    manifest_sha256: "b".repeat(64),
+  };
+  if (!isMatchingStagedRow({ ...session }, session)) {
+    throw new Error("An identical staged row was not recognized");
+  }
+  if (isMatchingStagedRow({ ...session, manifest_sha256: "c".repeat(64) }, session)) {
+    throw new Error("A staged row with a different manifest digest was accepted");
+  }
+});
