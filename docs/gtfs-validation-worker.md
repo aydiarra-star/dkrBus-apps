@@ -5,10 +5,10 @@
 ## Parcours de réception
 
 1. `dakar-gtfs-ingest` exige un JWT Supabase valide, un compte confirmé et un acteur administratif actif avec le rôle `reviewer`.
-2. Le corps multipart est limité sur le flux réellement lu, même sans `Content-Length`. La limite de requête est de 102 MiB ; l'archive est limitée à 100 MiB et le manifeste à 1 MiB.
-3. Le serveur vérifie le manifeste, recalcule le SHA-256 de l'archive et compare la taille et l'empreinte déclarées.
-4. Les objets sont stockés dans le bucket privé `dakar-gtfs-staging`, sous un chemin canonique lié à l'identifiant et au SHA-256. Les téléversements utilisent `upsert: false`.
-5. L'enregistrement reste en `PENDING_SERVER_CHECK`, `PENDING_REVIEW` et `NOT_PUBLISHED`. Le navigateur ne peut pas déclarer l'intégrité structurelle.
+2. Le navigateur envoie un manifeste JSON borné (1 MiB + 16 Kio). Le serveur supprime les attestations de validation et les comptages fournis par l'importateur, remplace l'heure d'ingestion et calcule le SHA-256 du manifeste.
+3. Le serveur crée une session privée et un token Storage signé à durée limitée, lié au chemin canonique `<dataset_id>/<sha256>/feed.zip`, avec `upsert: false`. Le navigateur téléverse directement dans le bucket privé ; le ZIP ne transite pas par l'Edge Function.
+4. `finalize_upload` vérifie la propriété de la session, l'expiration, les métadonnées Storage et la taille réelle de l'objet. Le serveur écrit le manifeste privé puis crée la ligne de staging uniquement avec `PENDING_SERVER_CHECK`, `PENDING_REVIEW` et `NOT_PUBLISHED`.
+5. Le SHA-256 du ZIP n'est pas attesté par l'Edge Function : le worker le recalcule sur les octets téléchargés et le compare à la valeur attendue avant de lancer le validateur. Le navigateur ne peut pas déclarer l'intégrité structurelle.
 
 ## Validation structurelle
 
@@ -24,9 +24,13 @@ Le worker `scripts/process_gtfs_staging.py` :
 
 Le validateur contrôle les tables GTFS prises en charge, les en-têtes CSV, les identifiants et références, les séquences, les heures, les calendriers, les coordonnées, les fréquences, les chemins ZIP, les entrées dupliquées ou dangereuses, les liens symboliques, les méthodes de compression et les limites de ressources. Les tables optionnelles non prises en charge ou non validées sont refusées plutôt que considérées valides.
 
-Limites appliquées : archive 100 MiB, 1 000 entrées ZIP, 200 MiB par membre, 500 MiB décompressés au total, 2 000 000 lignes par table et 200 détails d'anomalie dans le rapport.
+Limites appliquées : archive 100 MiB, 1 000 entrées ZIP, 200 MiB par membre, 500 MiB décompressés au total, 2 000 000 lignes par table et 200 détails d'anomalie dans le rapport. Le plafond global Storage du projet doit lui aussi autoriser au moins 100 MiB ; le plafond du bucket ne peut pas dépasser le plafond global. La limite maximale d'un projet Supabase Free est de 50 MB. Aucun réglage global ni abonnement n'est modifié par ce chantier.
 
 Une structure valide signifie uniquement **GTFS Static structurellement valide**. Le rapport conserve `production_ready=false`. Il ne certifie ni la provenance, ni les droits de réutilisation, ni l'autorité de l'opérateur, ni l'actualité du service. La revue humaine reste `PENDING_REVIEW` et la publication reste `NOT_PUBLISHED`.
+
+## Téléversement signé, expiration et nettoyage
+
+Les tokens Storage signés sont valides deux heures et ne peuvent pas être révoqués individuellement. Les sessions restent ouvertes deux heures quinze pour conserver une marge de nettoyage. Un échec de finalisation passe la session à `FAILED` sans raccourcir `expires_at`; les objets ne deviennent supprimables qu'après expiration du token et de la marge. Une réponse d'erreur peut donc indiquer `cleanup_after` au lieu d'une suppression immédiate. Le nettoyage vérifie d'abord les références de staging et préserve les objets si la lecture base/Storage est incertaine.
 
 ## Échecs opérationnels et reprise
 
