@@ -128,3 +128,22 @@ Le dépôt déclare explicitement que les horaires/fréquences TATA autonomes ne
 5. N'afficher le retour comme itinéraire complet que lorsque sa propre séquence est disponible.
 6. Ne pas modifier les références ni les panneaux TER/BRT.
 
+
+
+## Ajout — candidats directionnels DDD Moovit (17 novembre 2026)
+
+Une extraction secondaire récente a maintenant été conservée dans `src/data/dddMoovitDirectionalCandidates.ts` pour les lignes DDD 7 et 13 :
+
+- Ligne 7 : deux listes Moovit distinctes, 29 occurrences vers Ouakam et 27 vers Palais ; pages mises à jour les 7 et 14 novembre 2026.
+- Ligne 13 : deux listes Moovit distinctes de 30 occurrences chacune ; pages mises à jour le 14 novembre 2026.
+
+Ces listes sont enregistrées avec leurs URL, leurs dates et leur ordre exact. Elles restent au statut `SECONDARY_SOURCE_NEEDS_RECONCILIATION` : les libellés génériques, les arrêts de rue et les terminus « Gare Palais » doivent être rapprochés des repères DDD officiels et des couches géographiques. Elles ne contredisent pas le constat précédent : le registre officiel DDD ne fournit toujours qu'un ordre publié par ligne, sans retour officiel séparé validé. Les deux sens Moovit ne sont donc pas encore des séquences passager certifiées.
+
+Détail et décisions : `docs/ddd-moovit-directional-candidates-2026-11-17.md`.
+
+
+## Ajout — inventaire TATA (17 novembre 2026)
+
+Le fichier `src/data/tata-lines.json` a été contrôlé : il contient 62 fiches candidates, 762 occurrences de repères, 42 fiches issues de Covoiturage.sn et 20 issues de Xibaaru. Aucune ne possède de séquence retour distincte structurée dans ce fichier. Ces éléments sont des références secondaires, pas 762 arrêts géolocalisés ni la preuve d'un réseau opérateur TATA indépendant.
+
+Les fiches restent conservées pour rapprochement ligne par ligne avec AFTU. Aucune direction retour n'est inversée automatiquement et aucun horaire/compte à rebours n'est créé sans offsets propres au sens. Audit détaillé : `docs/tata-route-candidates-audit-2026-11-17.md`.

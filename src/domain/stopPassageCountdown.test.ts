@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextStopPassageCountdown } from './stopPassageCountdown'
+import { isValidStopPassageTimetable, nextStopPassageCountdown, nextTimetableStopPassageCountdown } from './stopPassageCountdown'
 
 const plan = {
   firstDeparture: '06:00',
@@ -44,5 +44,161 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, 19, 7] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown({ ...plan, cumulativeMinutesByStop: [0, Number.NaN, 19] }, 1, at(6, 0))).toBeNull()
     expect(nextStopPassageCountdown(plan, 1, new Date(Number.NaN))).toBeNull()
+  })
+})
+
+
+describe('nextTimetableStopPassageCountdown', () => {
+  const grid = [
+    ['06:00', '06:02', '06:05'],
+    ['06:15', '06:17', '06:20'],
+    ['06:42', '06:44', '06:47'],
+  ]
+
+  it('uses the actual next time for the selected stop, including irregular gaps', () => {
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 18))).toBe(26)
+    expect(nextTimetableStopPassageCountdown(grid, 2, at(6, 21))).toBe(26)
+  })
+
+  it('returns zero for a passage due now and null after the final passage', () => {
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 17))).toBe(0)
+    expect(nextTimetableStopPassageCountdown(grid, 1, at(6, 45))).toBeNull()
+  })
+
+  it('rejects incomplete, malformed, or non-chronological grids', () => {
+    expect(nextTimetableStopPassageCountdown([], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:00'], ['06:10', '06:12']], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:00', 'bad']], 1, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown([['06:10'], ['06:00']], 0, at(6, 0))).toBeNull()
+    expect(nextTimetableStopPassageCountdown(grid, 4, at(6, 0))).toBeNull()
+  })
+
+  it('rejects a bad value in any column, even when another stop is selected', () => {
+    expect(nextTimetableStopPassageCountdown([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', 'bad', '06:20'],
+    ], 0, at(6, 0))).toBeNull()
+  })
+
+  it('rejects a row whose stop times go backwards outside the selected column', () => {
+    expect(nextTimetableStopPassageCountdown([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', '06:17', '06:10'],
+    ], 0, at(6, 0))).toBeNull()
+  })
+})
+
+
+describe('ligne 13 DDD — contrôle des grilles Moovit à 30 arrêts', () => {
+  // Extraits fidèles des premières lignes visibles sur les pages horaires,
+  // conservés ici comme tests de parsing, pas comme grille exhaustive.
+  const liberte5ToPalais = [
+    '06:30','06:30','06:32','06:33','06:33','06:34','06:35','06:35','06:37','06:37',
+    '06:38','06:39','06:40','06:41','06:42','06:43','06:44','06:45','06:46','06:47',
+    '06:48','06:48','06:49','06:49','06:50','06:51','06:52','06:53','06:54','06:55',
+  ]
+  const liberte5ToPalaisWeekday = [
+    '06:00','06:00','06:02','06:03','06:03','06:04','06:05','06:05','06:07','06:07',
+    '06:08','06:09','06:10','06:11','06:12','06:13','06:14','06:15','06:16','06:17',
+    '06:18','06:18','06:19','06:19','06:20','06:21','06:22','06:23','06:24','06:25',
+  ]
+  const palaisToLiberte5 = [
+    '07:00','07:00','07:02','07:04','07:04','07:06','07:06','07:07','07:08','07:09',
+    '07:10','07:11','07:12','07:14','07:16','07:18','07:19','07:20','07:21','07:22',
+    '07:23','07:24','07:25','07:26','07:27','07:28','07:29','07:30','07:31','07:32',
+  ]
+
+  it('lit les heures aux deux terminus et aux arrêts intermédiaires sur 30 colonnes', () => {
+    expect(liberte5ToPalais).toHaveLength(30)
+    expect(palaisToLiberte5).toHaveLength(30)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 0, at(6, 29))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 29, at(6, 29))).toBe(26)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5], 0, at(6, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5], 29, at(6, 59))).toBe(33)
+  })
+
+  const palaisToLiberte5Weekday = [
+    '06:45','06:45','06:46','06:48','06:48','06:49','06:50','06:50','06:51','06:52',
+    '06:53','06:53','06:54','06:56','06:57','06:59','06:59','07:00','07:01','07:02',
+    '07:03','07:04','07:05','07:07','07:07','07:08','07:09','07:11','07:11','07:13',
+  ]
+
+  it('contrôle aussi la première ligne semaine publiée dans le sens Liberté 5 → Palais', () => {
+    expect(liberte5ToPalaisWeekday).toHaveLength(30)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalaisWeekday], 0, at(5, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalaisWeekday], 29, at(5, 59))).toBe(26)
+  })
+
+  it('contrôle la première ligne semaine publiée dans le sens Palais → Liberté 5', () => {
+    expect(palaisToLiberte5Weekday).toHaveLength(30)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5Weekday], 0, at(6, 44))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([palaisToLiberte5Weekday], 29, at(6, 44))).toBe(29)
+  })
+
+  it('ne mélange pas les deux sens et refuse un arrêt hors grille', () => {
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 29, at(6, 29))).not.toBe(
+      nextTimetableStopPassageCountdown([palaisToLiberte5], 29, at(6, 59)),
+    )
+    expect(nextTimetableStopPassageCountdown([liberte5ToPalais], 30, at(6, 29))).toBeNull()
+  })
+})
+
+describe('ligne 7 DDD — contrôle des premières grilles Moovit à chaque arrêt', () => {
+  const garePalaisToOuakam = [
+    '05:00','05:00','05:01','05:03','05:04','05:05','05:07','05:09','05:10','05:11',
+    '05:11','05:13','05:15','05:16','05:17','05:18','05:18','05:19','05:21','05:22',
+    '05:23','05:25','05:26','05:26','05:27','05:28','05:29','05:29','05:30',
+  ]
+  const ouakamToGarePalais = [
+    '04:00','04:00','04:00','04:01','04:02','04:02','04:03','04:04','04:06','04:07',
+    '04:08','04:09','04:10','04:11','04:12','04:13','04:15','04:17','04:17','04:19',
+    '04:21','04:22','04:23','04:24','04:25','04:26','04:27',
+  ]
+
+  it('vérifie les 29 colonnes du sens Gare Palais → Ouakam', () => {
+    expect(garePalaisToOuakam).toHaveLength(29)
+    expect(nextTimetableStopPassageCountdown([garePalaisToOuakam], 0, at(4, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([garePalaisToOuakam], 28, at(4, 59))).toBe(31)
+  })
+
+  it('vérifie les 27 colonnes du sens Ouakam → Gare Palais', () => {
+    expect(ouakamToGarePalais).toHaveLength(27)
+    expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 0, at(3, 59))).toBe(1)
+    expect(nextTimetableStopPassageCountdown([ouakamToGarePalais], 26, at(3, 59))).toBe(28)
+  })
+})
+
+
+describe('isValidStopPassageTimetable', () => {
+  it('accepts complete chronological grids with repeated stop times', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:00', '06:05'],
+      ['06:15', '06:17', '06:20'],
+    ])).toBe(true)
+  })
+
+  it('rejects a malformed time even in a column not selected for countdown', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:02', '06:05'],
+      ['06:15', 'bad', '06:20'],
+    ])).toBe(false)
+  })
+
+  it('rejects a passage sequence that goes backwards within a trip', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:07', '06:05'],
+    ])).toBe(false)
+  })
+
+  it('rejects departures that go backwards at an individual stop', () => {
+    expect(isValidStopPassageTimetable([
+      ['06:00', '06:02'],
+      ['06:10', '06:01'],
+    ])).toBe(false)
+  })
+
+  it('rejects empty and ragged grids', () => {
+    expect(isValidStopPassageTimetable([])).toBe(false)
+    expect(isValidStopPassageTimetable([['06:00'], ['06:10', '06:12']])).toBe(false)
   })
 })

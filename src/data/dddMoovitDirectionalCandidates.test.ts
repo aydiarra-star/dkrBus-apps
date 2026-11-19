@@ -1,0 +1,89 @@
+import { describe, expect, it } from 'vitest'
+import {
+  DDD_MOOVIT_DIRECTIONAL_CANDIDATES,
+  DDD_MOOVIT_DIRECTIONAL_CANDIDATE_RETRIEVED_ON,
+} from './dddMoovitDirectionalCandidates'
+
+describe('recent Moovit DDD directional candidates', () => {
+  it('records two independently sourced directions for lines 7 and 13', () => {
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES).toHaveLength(4)
+    for (const line of ['7', '13']) {
+      const directions = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === line)
+      expect(directions).toHaveLength(2)
+      expect(new Set(directions.map((item) => item.direction)).size).toBe(2)
+    }
+  })
+
+  it('preserves source dates, endpoint labels and occurrence counts without activating candidates', () => {
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATE_RETRIEVED_ON).toBe('2026-11-17')
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.map((item) => item.occurrenceCount)).toEqual([29, 27, 30, 30])
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.map((item) => item.publishedJourneyDurationMinutes)).toEqual([35, 34, 31, 30])
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES.every(
+      (item) => item.status === 'SECONDARY_SOURCE_NEEDS_RECONCILIATION' && item.sourceUrl.startsWith('https://'),
+    )).toBe(true)
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES[0].sourceUpdatedOn).toBe('2026-11-07')
+    expect(DDD_MOOVIT_DIRECTIONAL_CANDIDATES[1].sourceUpdatedOn).toBe('2026-11-14')
+  })
+
+  it('preserves each sourced stop occurrence in its published direction order', () => {
+    for (const candidate of DDD_MOOVIT_DIRECTIONAL_CANDIDATES) {
+      expect(candidate.stops).toHaveLength(candidate.occurrenceCount)
+      expect(candidate.stops[0]).toBe(candidate.from)
+      expect(candidate.stops.at(-1)).toBe(candidate.to)
+    }
+    const line7Out = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.find(
+      (item) => item.line === '7' && item.direction === 'to_ouakam',
+    )
+    const line7Back = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.find(
+      (item) => item.line === '7' && item.direction === 'to_palais',
+    )
+    expect(line7Out?.stops).not.toEqual(line7Back?.stops)
+  })
+
+  it('links both DDD 7 directions to separately sourced stop-by-stop timetables', () => {
+    const line7 = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === '7')
+    expect(line7).toHaveLength(2)
+    expect(line7.every((item) =>
+      'timetableUrl' in item &&
+      item.timetableUrl.startsWith('https://moovitapp.com/') &&
+      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_SATURDAY_SUNDAY' &&
+      'timetableUpdatedOn' in item &&
+      'timetableCoverageByDay' in item,
+    )).toBe(true)
+    expect(line7.map((item) => item.timetableUpdatedOn)).toEqual(['2026-11-16', '2026-11-16'])
+    expect(line7.map((item) => item.timetableCoverageByDay)).toEqual([
+      {
+        weekday: { firstDeparture: '05:00', lastDeparture: '22:38' },
+        saturday: { firstDeparture: '05:00', lastDeparture: '22:44' },
+        sunday: { firstDeparture: '06:00', lastDeparture: '21:57' },
+      },
+      {
+        weekday: { firstDeparture: '04:00', lastDeparture: '22:00' },
+        saturday: { firstDeparture: '04:00', lastDeparture: '21:55' },
+        sunday: { firstDeparture: '05:00', lastDeparture: '22:00' },
+      },
+    ])
+  })
+
+  it('links both DDD 13 directions to stop-by-stop timetable sources', () => {
+    const line13 = DDD_MOOVIT_DIRECTIONAL_CANDIDATES.filter((item) => item.line === '13')
+    expect(line13).toHaveLength(2)
+    expect(line13.every((item) =>
+      'timetableUrl' in item &&
+      item.timetableUrl.startsWith('https://moovitapp.com/') &&
+      item.timetableCoverage === 'STOP_BY_STOP_WEEKDAY_AND_SATURDAY' &&
+      'timetableUpdatedOn' in item && item.timetableUpdatedOn === '2026-11-16' &&
+      'timetableCoverageByDay' in item,
+    )).toBe(true)
+    expect(line13.map((item) => item.timetableCoverageByDay)).toEqual([
+      {
+        weekday: { departureCount: 53, firstDeparture: '06:00', lastDeparture: '20:30' },
+        saturday: { departureCount: 37, firstDeparture: '06:30', lastDeparture: '20:35' },
+      },
+      {
+        weekday: { departureCount: 49, firstDeparture: '06:45', lastDeparture: '21:00' },
+        saturday: { departureCount: 43, firstDeparture: '07:00', lastDeparture: '21:00' },
+      },
+    ])
+  })
+})
