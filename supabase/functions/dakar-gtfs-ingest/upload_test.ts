@@ -69,6 +69,13 @@ Deno.test("rejects oversized archive declarations and malformed SHA-256", () => 
   }
 });
 
+Deno.test("rejects a future verified_at even when the importer also claims a future ingestion time", () => {
+  const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  if (validManifest(syntheticManifest({ verified_at: future, ingested_at: future }), "synthetic-feed")) {
+    throw new Error("A future verification timestamp was accepted");
+  }
+});
+
 Deno.test("rejects unsafe source URLs and inverted validity periods", () => {
   if (validManifest(syntheticManifest({ source_url: "javascript:alert(1)" }), "synthetic-feed")) {
     throw new Error("A non-HTTP source URL was accepted");
@@ -92,7 +99,7 @@ Deno.test("removes importer-supplied validation reports and row counts", () => {
     validator_version: "client-controlled",
     structure_valid: true,
     production_ready: true,
-  }), "CURRENT");
+  }), "CURRENT", "2026-11-19T12:00:00.000Z");
   for (const key of [
     "validation", "record_count", "integrity_status", "validation_report",
     "validator_version", "structure_valid", "production_ready",
@@ -103,6 +110,9 @@ Deno.test("removes importer-supplied validation reports and row counts", () => {
   }
   if (sanitized.validity_status !== "CURRENT") {
     throw new Error("Server-computed validity status was not stored");
+  }
+  if (sanitized.ingested_at !== "2026-11-19T12:00:00.000Z") {
+    throw new Error("The importer-controlled ingestion time was not replaced by the server time");
   }
 });
 
