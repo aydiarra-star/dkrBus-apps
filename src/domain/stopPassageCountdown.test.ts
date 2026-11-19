@@ -27,8 +27,8 @@ describe('nextStopPassageCountdown', () => {
     expect(nextStopPassageCountdown(fractionalPlan, 1, at(6, 8, 30))).toBe(11)
   })
 
-  it('returns zero when the estimated passage is due now', () => {
-    expect(nextStopPassageCountdown(plan, 1, at(6, 7))).toBe(0)
+  it('at the exact call, skips to the next strictly future passage', () => {
+    expect(nextStopPassageCountdown(plan, 1, at(6, 7))).toBe(10)
   })
 
   it('returns null when no further passage exists today', () => {

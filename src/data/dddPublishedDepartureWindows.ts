@@ -1,7 +1,8 @@
 /**
  * Fenêtres de premiers et derniers départs explicitement publiées par DDD.
  * Elles sont propres à chaque terminus et ne décrivent aucun intervalle
- * entre deux bus. Elles ne peuvent donc pas alimenter un compte à rebours.
+ * entre deux bus. Seules, elles ne donnent pas le prochain départ. Explorer
+ * peut y borner un modèle de cadence distinct, explicitement estimé.
  */
 export interface DddPublishedDepartureWindow {
   service: 'Ligne 1' | 'TAF TAF'

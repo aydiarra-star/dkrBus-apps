@@ -47,7 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
-import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
+import { EstimatedLineScheduleBoard, type ExplorerBusEdition } from './components/EstimatedLineScheduleBoard'
 import { ExternalDirections } from './components/ExternalDirections'
 import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
 import { calculateRoadRoute, parseRoadRouteQuery } from './domain/roadRouting'
@@ -1814,6 +1814,7 @@ function App() {
         <div className="panel-content" key={activeTab}>
           {activeTab === 'explore' && (
             <ExplorerPanel
+              busEdition={{ day: departureInput.slice(0, 10), snapshot: reviewedSnapshot, network: edition.network, rediscover: loadPublishedNetwork }}
               gpsState={gpsState}
               gpsMessage={gpsMessage}
               location={location}
@@ -2049,6 +2050,7 @@ function publishedBadge(state: PublishedState): { label: string; tone: 'neutral'
 
 /** Guide de déplacement : carte en tête, recherche claire et raccourcis utiles. */
 function ExplorerPanel({
+  busEdition,
   gpsState,
   gpsMessage,
   location,
@@ -2069,6 +2071,7 @@ function ExplorerPanel({
   selectedNetwork,
   onSelectNetwork,
 }: {
+  busEdition: ExplorerBusEdition
   gpsState: GpsState
   gpsMessage: string | null
   location: UserLocation | null
@@ -2278,17 +2281,19 @@ function ExplorerPanel({
       </div>
 
       <ExploreNetworkLegend selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} />
-      <ExploreMobilityCountdowns now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
+      <ExploreMobilityCountdowns busEdition={busEdition} now={countdownNow} selectedNetwork={selectedNetwork} onSelectNetwork={onSelectNetwork} onFocusNearbyStop={onFocusNearbyStop} />
     </section>
   )
 }
 
 function ExploreMobilityCountdowns({
+  busEdition,
   now,
   selectedNetwork,
   onSelectNetwork,
   onFocusNearbyStop,
 }: {
+  busEdition: ExplorerBusEdition
   now: number
   selectedNetwork: NetworkId | null
   onSelectNetwork: (id: NetworkId) => void
@@ -2314,28 +2319,27 @@ function ExploreMobilityCountdowns({
                 type="button"
                 className="network-summary-header"
                 aria-pressed={isSelected}
-                aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU' : network.shortName}`}
+                aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
                 <span className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`} aria-hidden="true" />
                 <span className="network-summary-name">
-                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && id !== 'ddd' && network.label !== network.shortName && (
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
                 <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
                   <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
-                  <small>{passage && clock
-                    ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
-                    : 'Aucun créneau déclaré'}</small>
+                  <small>{!passage || !clock ? (id === 'ddd' || id === 'aftu_tata' ? 'Voir les lignes' : 'Aucun créneau déclaré')
+                    : (id === 'ter' || id === 'brt') ? `créneau ${clock} · ${passage.headwayMinutes} min` : 'Modèle réseau'}</small>
                 </span>
               </button>
               {isSelected && (
                 <div className="network-summary-detail">
                   {(id === 'ter' || id === 'brt')
                     ? <ReferenceStationBoard network={id} now={now} onSelectStop={onFocusNearbyStop} />
-                    : <EstimatedLineScheduleBoard network={id} />}
+                    : <EstimatedLineScheduleBoard network={id} published={busEdition} />}
                 </div>
               )}
             </li>

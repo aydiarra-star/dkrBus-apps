@@ -6,7 +6,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 
 **Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté. « 0/2 suites » signifie que, parmi deux variantes de l’archive essayées sur le seul dessin marqué, aucune ne passe tous les contrôles ; ce n’est pas un nombre de courses.
 
-[Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
+[Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
 
 ## DDD — 48 identités
 
@@ -131,18 +131,18 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **67** · Espi → Poste De Sante | Non · 71 noms | Non · 71 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **68** · Terminus 68 → Complexe Islamique | Non · 50 noms | Non · 50 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **69** · Terminus Diamalaye → Terminus Namora | Non · 15 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/1 suites historiques sur le dessin à 20 m |
-| **70** · Terminus Daroukhane (Keur Serigne Assane) → Terminus Jaxaay 2 | Non · 14 noms | Non · 14 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **70** · Arrêt De Bus → Terminus Jaxaay | Non · 58 noms | Non · 57 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **71** · Terminus 71 → Bvard. Canal 4 / Rue Fn-32 | Non · 54 noms | Non · 55 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **72** · Terminus Guédiawaye (Cité des Enseignants) → Terminus Kounoune (Cité Cardinal Thiandoum) | Non · 22 noms | Non · 22 noms | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **73** · Terminus Lac Rose → Terminus Poste Thiaroye | Non · 10 noms | Non · 10 noms | Non établi | Carte · écarts de voirie | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **72** · Terminus 38 - 72 → Terminus 72 | Non · 78 noms | Non · 78 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **73** · Terminus 73 → Dépot Thiaroye | Non · 75 noms | Non · 75 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **74** · Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | Non · 14 noms | Non · inversion écartée | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · autre grille écartée | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **76** · TERMINUS SIPRES → TERMINUS CITE ASSURANCE | Non · 12 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **77** · Terminus Rufisque Cité Tacco → Terminus Liberté 5 | Non · 14 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **78** · Terminus Diamaguène → Terminus Liberté 5 | Non · 12 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **79** · Terminus Sangalkam → Terminus Cambérène | Non · 15 noms | Non · 15 noms | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **79** · Arrêt De Bus → Terminus 6 - 79 | Non · 92 noms | Non · 93 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **80** · Terminus Diamalaye → Terminus Darou Thioub | Non · 17 noms | Non · inversion écartée | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **81** · Terminus Tawfeex → Gare des Baux Maraîchers | Non · 16 noms | Non · 16 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **81** · Mosquée Faye → Gare Baux Maraichers | Non · 71 noms | Non · 71 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **82** · Avenue Pl 52, 122 → Arrêt de bus | Non · 51 noms | Non · 49 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **83** · Sonadis près du Jardin En Face Hôtel De Ville (Départ) → Zone De Captage (Terminus) | Non · 93 noms | Non · 90 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **84** · Jaxaay 2 Pénitence → Terminus 84_54Derrière Ucad En Face Canal 4 | Non · 73 noms | Non · 73 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · 73 heures aux arrêts | Non · 2 portion(s) seulement |
@@ -267,8 +267,8 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **56** · Jaxaay 2 → Petersen | Non · 12 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (10 noms) à rattacher au sens |
 | **57** · Terminus Rufisque Gouye Mouride → Giratoire Liberté 6 | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **58** · Fass Mbao → SHAM | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (7 noms) à rattacher au sens |
-| **59** · Cité Gendarmerie Keur Massar → Diamalaye | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (12 noms) à rattacher au sens |
-| **60** · Bargny → Colobane | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (6 noms) à rattacher au sens |
+| **59** · Stade L.S.S → Mbarou Samba Dème (Mbeubeuss) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (12 noms) à rattacher au sens |
+| **60** · Colobane → Bargny | Non · 8 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (6 noms) à rattacher au sens |
 | **61** · Keur Massar → Almadies | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (9 noms) à rattacher au sens |
 | **62** · Arrêt Chérif (Rufisque) → Penc Mi (Gueule Tapée) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (17 noms) à rattacher au sens |
 | **63** · Stade LSS → Camp Marchand Rufisque | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (16 noms) à rattacher au sens |

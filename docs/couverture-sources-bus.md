@@ -112,19 +112,19 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 67 | 22 / 71 | 71 | 71 | catalogue, descriptif, repères, horaires de référence | — |
 | 68 | 9 / 50 | 50 | 50 | catalogue, descriptif, horaires de référence | — |
 | 69 | 15 | — | — | catalogue, descriptif | — |
-| 70 | 14 | 14 | 14 | catalogue, descriptif, horaires de référence | — |
+| 70 | 14 / 57 / 58 | 58 | 57 | catalogue, descriptif, horaires de référence | — |
 | 71 | 18 / 54 / 55 | 54 | 55 | catalogue, descriptif, horaires de référence | — |
-| 72 | 22 | 22 | 22 | catalogue, descriptif, horaires de référence | — |
-| 73 | 10 | 10 | 10 | catalogue, descriptif, horaires de référence | — |
+| 72 | 22 / 78 | 78 | 78 | catalogue, descriptif, horaires de référence | — |
+| 73 | 10 / 75 | 75 | 75 | catalogue, descriptif, horaires de référence | — |
 | 74 | 14 | 14 | — | catalogue, descriptif, repères, grilles d’un autre parcours, retour non attesté | 1179 m vers Keur Massar ; 1117 m vers Rufisque |
 | 75 | 15 / 51 / 52 | 52 | 51 | catalogue, descriptif, repères, horaires de référence | 917 m vers Front de Terre ; 917 m vers carrefour des Civilisations |
 | 76 | 12 | — | — | catalogue, descriptif, horaires de référence | — |
 | 77 | 14 | — | — | catalogue, descriptif | — |
 | 78 | 12 | — | — | catalogue, descriptif | — |
-| 79 | 15 | 15 | 15 | catalogue, descriptif, repères, horaires de référence | — |
+| 79 | 15 / 92 / 93 | 92 | 93 | catalogue, descriptif, repères, horaires de référence | — |
 | 80 | 17 | 17 | — | catalogue, descriptif, repères, retour non attesté | — |
-| 81 | 16 | 16 | 16 | catalogue, descriptif, horaires de référence | — |
-| 82 | 14 / 49 | 51 | 49 | catalogue, descriptif, horaires de référence | — |
+| 81 | 16 / 71 | 71 | 71 | catalogue, descriptif, horaires de référence | — |
+| 82 | 14 / 49 / 51 | 51 | 49 | catalogue, descriptif, horaires de référence | — |
 | 83 | 14 / 90 / 93 | 93 | 90 | catalogue, descriptif | 1179 m vers ASECNA (depuis le secteur Shell) (fiche aller, rangs 18–23) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche retour, rangs 69–74) |
 | 84 | 73 | 73 | 73 | catalogue, horaires de référence, heures aux repères | 1179 m vers ASECNA (depuis le secteur Shell) (fiche retour, rangs 58–63) ; 1117 m vers Sédima (depuis le secteur ASECNA) (fiche aller, rangs 14–19) |
 | 85 | — | — | — | catalogue, revue de sources | — |
@@ -180,7 +180,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 57 | 11 / 13 | — | — | catalogue | — |
 | 58 | 7 | — | — | catalogue | — |
 | 59 | 12 | — | — | catalogue | — |
-| 60 | 6 | — | — | catalogue | — |
+| 60 | 6 / 8 | — | — | catalogue | — |
 | 61 | 9 | — | — | catalogue | — |
 | 62 | 17 | — | — | catalogue | — |
 | 63 | 16 | — | — | catalogue | — |

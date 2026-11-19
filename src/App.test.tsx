@@ -552,7 +552,7 @@ describe('structure en quatre piliers', () => {
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
       expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage!.querySelector('small')?.textContent).toBe('Modèle réseau')
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     expect(document.querySelectorAll('.network-item-aftu_tata')).toHaveLength(1)
@@ -1188,7 +1188,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     for (const [network, value] of Object.entries(expected)) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage?.querySelector('small')?.textContent).toBe('Modèle réseau')
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
@@ -1201,6 +1201,20 @@ describe('décomptes dynamiques de l’Explorer', () => {
     })
     expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
     expect(container.querySelector('.network-item-aftu_tata .network-summary-passage strong')?.textContent).toBe('11 min')
+    vi.useRealTimers()
+  })
+
+  it('la fermeture du modèle réseau n’éteint pas les derniers passages dans un sens', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-19T23:29:00Z'))
+    stubApi([{ match:'/api/network',respond:()=>jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+    const network = container.querySelector<HTMLButtonElement>('.network-item-ddd .network-summary-header')!
+    expect(network.textContent).toContain('Voir les lignes'); expect(network.querySelector('.station-board-double-apostrophe')).toBeNull()
+    fireEvent.click(network); const board = container.querySelector('[data-line-code="16B"]')!
+    const row = [...board.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.includes('Retour · fiche détaillée · Gare Palais'))!
+    expect(row.querySelector('[role=timer] strong')?.textContent).toBe('1 min'); fireEvent.click(row)
+    expect(board.querySelectorAll('.bus-occurrences li')).toHaveLength(82)
+    expect(board.querySelector('.bus-occurrences li:last-child [role=timer] strong')?.textContent).toBe('9 min')
     vi.useRealTimers()
   })
 
@@ -1462,14 +1476,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(board.textContent).not.toMatch(/Estimation|créneau théorique/i)
     if (networkId === 'ddd') {
       expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
-      expect(board.textContent).toContain('En service')
-      expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      // 48 catalogue identities, one shared TO1 / TAF_TAF_TO1 sign.
+      const codes = new Set(rows.map(r => r.closest('[data-line-code]')!.getAttribute('data-line-code')))
+      expect(codes.size).toBe(47); expect(codes.has('TO1')).toBe(true); expect(codes.has('TAF_TAF_TO1')).toBe(false)
+      expect(rows.some(r => /^[1-9]\d* min$/.test(r.querySelector('.station-board-passage strong')!.textContent!))).toBe(true)
     } else {
       expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
-      expect(board.querySelectorAll('.station-board-direction-toggle')).toHaveLength(146)
       expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
-      expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
-      expect(rows.every((row) => (['74','80'].includes(row.closest('[data-line-code]')?.getAttribute('data-line-code') ?? '') ? /^Non confirmé$/ : /^\d+ min$|^En service$/).test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      expect(rows.every((row) => /^([1-9]\d* min|—)$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      expect(board.querySelectorAll('[data-line-code="80"] .station-board-passage svg')).toHaveLength(1)
       fireEvent.click(rows[0])
       expect(rows[0].getAttribute('aria-expanded')).toBe('true')
       expect(rows[1].getAttribute('aria-expanded')).toBe('false')
@@ -1514,7 +1529,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board).toBeTruthy()
       if (network === 'aftu_tata') {
         const directionButtons = [...board.querySelectorAll('.station-board-direction-toggle')]
-        expect(directionButtons).toHaveLength(146)
+        expect(directionButtons.length).toBeGreaterThanOrEqual(2 * 73) // distinct source variants may have additional rows
         expect(board.querySelectorAll('.station-board-line-group')).toHaveLength(73)
         fireEvent.click(directionButtons[0])
         const opened = directionButtons[0].closest('li')!

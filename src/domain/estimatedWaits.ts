@@ -1,3 +1,5 @@
+import { hasSenegalPublicHolidayCalendar, isSenegalPublicHoliday } from './senegalPublicHolidays'
+
 /**
  * Estimations horaires DDD, AFTU et TATA pour les tableaux par arrêt.
  *
@@ -128,10 +130,12 @@ export function estimatedNextPassage(network: string | null, now = Date.now()): 
     : network === 'aftu' || network === 'tata' || network === 'aftu_tata'
       ? AFTU_TATA_HEADWAY_PERIODS
       : null
-  if (!periods) return null
+  if (!periods || !hasSenegalPublicHolidayCalendar(now) || isSenegalPublicHoliday(now)) return null
 
   const dayStart = Math.floor(now / DAY_MS) * DAY_MS
   const minuteOfDay = Math.floor((now - dayStart) / MINUTE_MS)
+
+  if (minuteOfDay < periods[0].startMinute) return null
 
   for (const period of periods) {
     const startAt = dayStart + period.startMinute * MINUTE_MS

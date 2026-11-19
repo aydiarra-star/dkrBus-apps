@@ -7,7 +7,7 @@ import { admittedServices, journeyWitnesses } from './journeyWitness.mjs'
 import { busReadiness, readinessTable } from './busReadiness.mjs'
 import { busInventory } from '../bus_inventory.mjs'
 const observations = JSON.parse(readFileSync('data/bus-review/sources-2026-11-19.json','utf8'))
-const matrix = JSON.parse(readFileSync('data/bus-review/replay-2026-11-19.json','utf8'))
+const matrix = JSON.parse(readFileSync('data/bus-review/replay-panneaux-v1-2026-11-19.json','utf8'))
 
 test('the published seven-column audit covers every family/code; the service-day test is separate from all geometry candidates', async () => {
   const server = await createServer({ configFile: false, appType:'custom', logLevel:'error', server:{middlewareMode:true,watch:null,hmr:false,ws:false} })

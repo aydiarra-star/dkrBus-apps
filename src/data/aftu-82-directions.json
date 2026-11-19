@@ -105,23 +105,49 @@
     "Avenue Jean Jaures, 7",
     "Avenue Pl 52, 122"
   ],
-  "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-82/",
+  "detailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-82-Dakar-5996-1618038-18051521-1",
   "inboundDetailSourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-82-Dakar-5996-1618038-18051521-0",
   "outboundSchedule": {
     "line": "82",
-    "weekday": { "start": "05:25", "end": "22:05", "interval": "20 min" },
-    "saturday": { "start": "05:35", "end": "22:15", "interval": "25 min" },
-    "sunday": { "start": "05:35", "end": "22:15", "interval": "25 min" },
+    "weekday": {
+      "start": "05:25",
+      "end": "22:05",
+      "interval": "20 min"
+    },
+    "saturday": {
+      "start": "05:35",
+      "end": "22:15",
+      "interval": "25 min"
+    },
+    "sunday": {
+      "start": "05:35",
+      "end": "22:15",
+      "interval": "25 min"
+    },
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-82-Dakar-5996-1618038-18051521-1",
     "sourceLabel": "Moovit · direction Yeumbeul"
   },
   "inboundSchedule": {
     "line": "82",
-    "weekday": { "start": "05:20", "end": "22:08", "interval": "16 min" },
-    "saturday": { "start": "05:30", "end": "22:10", "interval": "20 min" },
-    "sunday": { "start": "05:30", "end": "22:10", "interval": "20 min" },
+    "weekday": {
+      "start": "05:20",
+      "end": "22:08",
+      "interval": "16 min"
+    },
+    "saturday": {
+      "start": "05:30",
+      "end": "22:10",
+      "interval": "20 min"
+    },
+    "sunday": {
+      "start": "05:30",
+      "end": "22:10",
+      "interval": "20 min"
+    },
     "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-82-Dakar-5996-1618038-18051521-0",
     "sourceLabel": "Moovit · direction Rebeuss"
   },
-  "note": "Les terminus sont désormais rapprochés : la fiche officielle AFTU confirme le corridor COMICO–LAT DIOR. Moovit détaille les deux sens sous les appellations Yeumbeul (51 arrêts, départ Avenue Pl 52, 122) et Rebeuss (49 arrêts, départ Marché, arrivée Avenue Pl 52, 122). Les horaires et séquences directionnels sont conservés depuis les fiches Moovit correspondantes. Les arrêts génériques « Arrêt de bus » sont conservés exactement comme publiés, sans nom inventé."
+  "note": "Les terminus sont désormais rapprochés : la fiche officielle AFTU confirme le corridor COMICO–LAT DIOR. Moovit détaille les deux sens sous les appellations Yeumbeul (51 arrêts, départ Avenue Pl 52, 122) et Rebeuss (49 arrêts, départ Marché, arrivée Avenue Pl 52, 122). Les horaires et séquences directionnels sont conservés depuis les fiches Moovit correspondantes. Les arrêts génériques « Arrêt de bus » sont conservés exactement comme publiés, sans nom inventé.",
+  "outboundDurationMinutes": 60,
+  "inboundDurationMinutes": 58
 }

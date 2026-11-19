@@ -4265,3 +4265,22 @@ button:disabled { cursor: not-allowed; }
   text-overflow: clip;
   white-space: nowrap;
 }
+
+/* Bus signs use the station palette in both themes. A street reference is
+   not a clickable platform; long labels wrap without obscuring the minutes. */
+.bus-board > .station-board-head, .bus-occurrences-head {
+  display: flex; align-items: center; justify-content: space-between; gap: .65rem;
+}
+.bus-board-switch { display: inline-flex; gap: 2px; }
+.bus-board-switch button { border: 1px solid var(--line); border-radius: .4rem; background: var(--surface-card); color: var(--muted); padding: .35rem .6rem; font: inherit; cursor: pointer; }
+.bus-board-switch button[aria-pressed=true] { color: var(--text); background: var(--surface-sunken); font-weight: 750; }
+.bus-board-section-title, .bus-occurrences-head { color: var(--muted); padding: 6px 12px; font-size: 10px; }
+.bus-occurrences { padding: 0; }
+.bus-occurrences .bus-occurrences-list { list-style: none; padding: 0; gap: 0; }
+.bus-occurrences .bus-occurrences-list > li { padding: 6px 14px; }
+.bus-board .station-board-stop { min-width: 0; overflow-wrap: anywhere; }
+.bus-board .station-board-direction-action, .bus-occurrences .station-board-passage { flex: 0 0 auto; }
+.bus-occurrences .station-board-itinerary-source, .bus-occurrences .station-board-itinerary-pending { display: block; margin: 6px 12px; font-size: 11px; }
+.bus-occurrences .bus-rank { display: inline; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+.bus-board-filter { display: block; width: calc(100% - 24px); margin: 8px 12px; padding: 6px 9px; border-radius: .4rem; border: 1px solid var(--line); background: var(--surface-card); color: var(--text); font: inherit; }
