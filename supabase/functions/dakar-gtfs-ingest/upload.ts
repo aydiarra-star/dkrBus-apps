@@ -1,9 +1,16 @@
 export const MAX_ARCHIVE_BYTES = 100 * 1024 * 1024;
 export const MAX_MANIFEST_BYTES = 1024 * 1024;
 export const MAX_JSON_REQUEST_BYTES = MAX_MANIFEST_BYTES + 16 * 1024;
-// Supabase signed upload tokens are valid for two hours. Keep the session open
-// for an additional 15 minutes of clock/network tolerance, never less than the token.
-export const UPLOAD_SESSION_TTL_MS = 2 * 60 * 60 * 1000 + 15 * 60 * 1000;
+// Supabase signed upload tokens are valid for two hours and cannot be revoked individually.
+// Keep failed sessions and their objects until 15 minutes after the token has expired.
+export const SIGNED_UPLOAD_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
+export const UPLOAD_SESSION_TTL_MS = SIGNED_UPLOAD_TOKEN_TTL_MS + 15 * 60 * 1000;
+
+export function isUploadSessionExpired(expiresAt: unknown, now = Date.now()): boolean {
+  if (typeof expiresAt !== "string" || !Number.isFinite(now)) return false;
+  const expiry = Date.parse(expiresAt);
+  return Number.isFinite(expiry) && expiry <= now;
+}
 
 const DATASET_ID_RE = /^[a-z0-9][a-z0-9-]{0,119}$/;
 const UPLOAD_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
