@@ -71,9 +71,17 @@ async function extractRoute(slug, url, sourceIndexListed) {
   const collectionIndex = itinerary.toUpperCase().indexOf("COLLECTION");
   if (collectionIndex >= 0) itinerary = itinerary.slice(0, collectionIndex).trim();
   const lineNumber = slug.match(/^[0-9]+[a-z]?/i)?.[0]?.toUpperCase() ?? slug.toUpperCase();
+  let drawn;
+  const mapReview = inspectWaymark(html, line => { drawn = line; });
+  // Optional local intermediate for road QA. Neither the page geometry nor
+  // the PBF goes in the browser, audit artifact or versioned repository.
+  if (drawn && process.env.AFTU_TEMP_MAPS && /^\d+[A-Z]?$/.test(lineNumber)) {
+    await mkdir(process.env.AFTU_TEMP_MAPS, { recursive: true });
+    await writeFile(`${process.env.AFTU_TEMP_MAPS}/${lineNumber}.json`, JSON.stringify(drawn));
+  }
   return {
     operator: "AFTU",
-    mapReview: inspectWaymark(html),
+    mapReview,
     line: lineNumber,
     slug,
     title: text.slice(Math.max(0, text.indexOf("Dakar")), Math.max(0, text.indexOf("Dakar")) + 120) || null,

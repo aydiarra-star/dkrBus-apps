@@ -45,9 +45,12 @@ jobs:
         timeout-minutes: 15
         run: |
           mkdir -p artifacts/pedestrian
-          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors \
-            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf \
-            "$PBF_URL"
+          file=artifacts/pedestrian/senegal-and-gambia.osm.pbf
+          if ! curl --fail --location --retry 2 --retry-delay 2 --retry-all-errors --output "$file" "$PBF_URL"; then
+            PBF_URL=https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf
+            curl --fail --location --retry 2 --retry-delay 2 --retry-all-errors --output "$file" "$PBF_URL"
+            echo "PBF_URL=$PBF_URL" >> "$GITHUB_ENV"
+          fi
           test -s artifacts/pedestrian/senegal-and-gambia.osm.pbf
 
       - name: Extract Dakar public transport route relations

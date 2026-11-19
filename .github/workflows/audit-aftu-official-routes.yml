@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "scripts/lib/waymarkLines*"
+      - "scripts/audit_aftu_road_fit.py"
       - "scripts/export_aftu_official_routes.mjs"
       - ".github/workflows/audit-aftu-official-routes.yml"
 
@@ -22,7 +23,7 @@ jobs:
           node-version: 22
       - run: node --test scripts/lib/waymarkLines.node-test.mjs
       - name: Retrieve official AFTU route pages
-        run: node scripts/export_aftu_official_routes.mjs
+        run: AFTU_TEMP_MAPS="$RUNNER_TEMP/aftu-maps" node scripts/export_aftu_official_routes.mjs
       - name: Report overlay measurements (not passenger geometry)
         run: |
           node --input-type=module <<'JS'
@@ -30,13 +31,28 @@ jobs:
           const r = JSON.parse(readFileSync('artifacts/aftu/aftu-official-route-pages.json'));
           // One compact receipt per batch, no redistribution of point arrays.
           console.log(`::notice title=Acquisition AFTU::${r.status} · ${r.summary.pagesFetched} pages · ${r.errors.length} erreurs`);
-          const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other]);
-          for (let i = 0; i < rows.length; i+=5) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+5)).replaceAll('%','%25'));
+          const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other,m.markerNames]);
+          for (let i = 0; i < rows.length; i+=10) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+10)).replaceAll('%','%25'));
           JS
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check directed road continuity of the acquired AFTU drawings
+        if: hashFiles('artifacts/aftu/aftu-official-route-pages.json') != ''
+        run: |
+          if ! test -d "$RUNNER_TEMP/aftu-maps"; then
+            echo '::warning::Aucune géométrie AFTU acquise : contrôle de voirie non exécuté.'
+            exit 0
+          fi
+          python -m pip install osmium
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          curl -fLsS --retry 2 https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf -o "$pbf" || \
+            curl -fLsS --retry 2 https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf -o "$pbf"
+          python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json
       - name: Save route audit
         uses: actions/upload-artifact@v4
         with:
           name: aftu-official-route-pages
-          path: artifacts/aftu/aftu-official-route-pages.json
+          path: artifacts/aftu/
           if-no-files-found: error
           retention-days: 14
