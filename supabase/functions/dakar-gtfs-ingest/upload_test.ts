@@ -13,6 +13,7 @@ import {
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
+  uploadSessionExpiryAfterTokenIssuedAt,
   validManifest,
 } from "./upload.ts";
 
@@ -207,6 +208,17 @@ Deno.test("compares staged references and bytes exactly", async () => {
   }
 });
 
+
+Deno.test("anchors failed-session cleanup grace to the signed-token issuance time", () => {
+  const issuedAt = Date.parse("2026-11-19T12:00:00.000Z");
+  const cleanupAt = Date.parse(uploadSessionExpiryAfterTokenIssuedAt(issuedAt));
+  if (cleanupAt - issuedAt !== UPLOAD_SESSION_TTL_MS) {
+    throw new Error("The cleanup deadline was not anchored to token issuance");
+  }
+  if (cleanupAt - (issuedAt + SIGNED_UPLOAD_TOKEN_TTL_MS) !== 15 * 60 * 1000) {
+    throw new Error("The signed token must expire at least 15 minutes before cleanup");
+  }
+});
 
 Deno.test("does not permit failed-session cleanup before the signed token expires", () => {
   const createdAt = Date.parse("2026-11-19T12:00:00.000Z");
