@@ -6,7 +6,10 @@ import {
   isValidDatasetId,
   isValidUploadId,
   MAX_ARCHIVE_BYTES,
+  isUploadSessionExpired,
   readJsonWithLimit,
+  SIGNED_UPLOAD_TOKEN_TTL_MS,
+  UPLOAD_SESSION_TTL_MS,
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
@@ -201,5 +204,24 @@ Deno.test("compares staged references and bytes exactly", async () => {
   }
   if (isMatchingStagedRow({ ...session, manifest_sha256: "c".repeat(64) }, session)) {
     throw new Error("A staged row with a different manifest digest was accepted");
+  }
+});
+
+
+Deno.test("does not permit failed-session cleanup before the signed token expires", () => {
+  const createdAt = Date.parse("2026-11-19T12:00:00.000Z");
+  const signedTokenExpiresAt = createdAt + SIGNED_UPLOAD_TOKEN_TTL_MS;
+  const sessionExpiresAt = createdAt + UPLOAD_SESSION_TTL_MS;
+  if (UPLOAD_SESSION_TTL_MS <= SIGNED_UPLOAD_TOKEN_TTL_MS || sessionExpiresAt <= signedTokenExpiresAt) {
+    throw new Error("The cleanup grace period must outlast the signed upload token");
+  }
+  if (isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), signedTokenExpiresAt)) {
+    throw new Error("A failed session became cleanup-eligible while its token was still valid");
+  }
+  if (!isUploadSessionExpired(new Date(sessionExpiresAt).toISOString(), sessionExpiresAt)) {
+    throw new Error("An expired failed session was not cleanup-eligible");
+  }
+  if (isUploadSessionExpired("not-a-timestamp", sessionExpiresAt + 1)) {
+    throw new Error("An invalid expiry timestamp must not authorize deletion");
   }
 });
