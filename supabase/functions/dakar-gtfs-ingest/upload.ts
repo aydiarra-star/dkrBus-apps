@@ -49,6 +49,7 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
   if (value.publication_status !== "NOT_PUBLISHED" || value.publication_ready !== false) return false;
   if (value.review_status !== "PENDING_REVIEW") return false;
   if (!isInstant(value.ingested_at) || !isInstant(value.verified_at) ||
+      Date.parse(value.verified_at) > Date.now() + 5 * 60 * 1000 ||
       Date.parse(value.verified_at) > Date.parse(value.ingested_at)) return false;
 
   if (!isRecord(value.record_count)) return false;
@@ -92,6 +93,7 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
 export function sanitizeManifest(
   value: Record<string, unknown>,
   serverValidityStatus: "NOT_YET_VALID" | "STALE" | "CURRENT",
+  serverIngestedAt: string,
 ): Record<string, unknown> {
   const sanitized = { ...value };
   delete sanitized.validation;
@@ -102,6 +104,7 @@ export function sanitizeManifest(
   delete sanitized.structure_valid;
   delete sanitized.production_ready;
   sanitized.validity_status = serverValidityStatus;
+  sanitized.ingested_at = serverIngestedAt;
   return sanitized;
 }
 
