@@ -1,0 +1,111 @@
+name: Audit AFTU official route pages and Waymark geometry
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/audit-aftu-official-route-geometry.yml"
+      - "scripts/fetch_aftu_official_route_pages.py"
+      - "scripts/audit_aftu_waymark_road_alignment.py"
+      - "tests/test_fetch_aftu_official_route_pages.py"
+      - "tests/test_audit_aftu_waymark_road_alignment.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Test AFTU route and road alignment parsers
+        run: |
+          python -m unittest \
+            tests.test_fetch_aftu_official_route_pages \
+            tests.test_audit_aftu_waymark_road_alignment
+
+      - name: Check audit script syntax
+        run: |
+          python -m py_compile \
+            scripts/fetch_aftu_official_route_pages.py \
+            scripts/audit_aftu_waymark_road_alignment.py
+
+      - name: Fetch AFTU official route pages and map data
+        timeout-minutes: 20
+        run: |
+          python scripts/fetch_aftu_official_route_pages.py \
+            --output artifacts/aftu/aftu-official-route-pages.json \
+            --workers 3
+
+      - name: Upload AFTU source audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-official-route-pages-and-waymark-geometry
+          path: artifacts/aftu/aftu-official-route-pages.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require route and map geometry evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/aftu/aftu-official-route-pages.json').read_text())
+          summary = report['summary']
+          if summary['routePagesFetched'] == 0 or summary['routePagesWithItinerary'] == 0:
+              raise SystemExit(f"No usable AFTU route descriptions were extracted: {summary}")
+          if summary['routePagesWithGeoJSON'] == 0 or summary['totalLineGeometryFeatures'] == 0:
+              raise SystemExit(f"No Waymark route geometry was extracted from the public pages: {summary}")
+          print(json.dumps(summary, ensure_ascii=False))
+          PY
+
+      - name: Install pyosmium
+        timeout-minutes: 5
+        run: python -m pip install --upgrade pip osmium
+
+      - name: Download Geofabrik Senegal and Gambia PBF
+        timeout-minutes: 15
+        run: |
+          mkdir -p artifacts/pedestrian
+          curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors \
+            --output artifacts/pedestrian/senegal-and-gambia.osm.pbf \
+            https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+          test -s artifacts/pedestrian/senegal-and-gambia.osm.pbf
+
+      - name: Audit AFTU route geometry against drivable OSM roads
+        timeout-minutes: 10
+        run: |
+          python scripts/audit_aftu_waymark_road_alignment.py \
+            --pbf artifacts/pedestrian/senegal-and-gambia.osm.pbf \
+            --aftu-json artifacts/aftu/aftu-official-route-pages.json \
+            --output artifacts/aftu/aftu-road-alignment-report.json
+
+      - name: Upload AFTU road alignment report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftu-waymark-road-alignment
+          path: artifacts/aftu/aftu-road-alignment-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require complete road alignment audit output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/aftu/aftu-road-alignment-report.json').read_text())
+          summary = report['summary']
+          if summary['osmDrivableRoadSegments'] == 0 or summary['routesWithLineGeometry'] == 0:
+              raise SystemExit(f"Road alignment audit has no usable input: {summary}")
+          print(json.dumps(summary, ensure_ascii=False))
+          PY
