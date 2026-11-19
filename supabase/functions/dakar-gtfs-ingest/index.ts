@@ -159,8 +159,7 @@ async function cleanupSession(
   );
   if (references === "BOTH") {
     if (isMatchingStagedRow(existing as Record<string, unknown>, session)) {
-      await markSession(admin, session.upload_id, "FINALIZED");
-      return true;
+      return await markSession(admin, session.upload_id, "FINALIZED");
     }
     return false;
   }
@@ -365,8 +364,8 @@ async function createUpload(
     .createSignedUploadUrl(paths.archivePath, { upsert: false });
   if (signedUploadError || !signedUpload?.token) {
     // The Storage request may have succeeded even if its response was lost.
-    // Do not delete the session or shorten its expiry: an issued token cannot
-    // be revoked individually, and may still be usable for the full two hours.
+    // Do not delete the session or shorten its expiry: the token may still create
+    // a TUS URL, which can remain usable for up to 24 hours after token expiry.
     const cleanupAfter = uploadSessionExpiryAfterTokenIssuedAt();
     const { error: stateError } = await admin.from(UPLOAD_TABLE).update({
       state: "FAILED",
@@ -381,8 +380,9 @@ async function createUpload(
   }
 
   // The signed token's two-hour lifetime starts when Storage issues it, not
-  // when the earlier database reservation was created. Anchor the cleanup
-  // grace to this later instant so cleanup can never race a still-live token.
+  // when the earlier database reservation was created. A TUS URL created near
+  // token expiry can live another 24 hours; the helper includes both windows
+  // and the final 15-minute grace before any object/session cleanup.
   const expiresAt = uploadSessionExpiryAfterTokenIssuedAt();
   const { data: expiryUpdate, error: expiryUpdateError } = await admin.from(UPLOAD_TABLE)
     .update({ expires_at: expiresAt })
