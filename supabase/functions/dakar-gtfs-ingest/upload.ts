@@ -84,6 +84,27 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
   return true;
 }
 
+/**
+ * Remove every importer-supplied validation attestation before the manifest is
+ * persisted. The dedicated server worker creates the only trusted validation
+ * report; importer row counts are also excluded from the stored manifest.
+ */
+export function sanitizeManifest(
+  value: Record<string, unknown>,
+  serverValidityStatus: "NOT_YET_VALID" | "STALE" | "CURRENT",
+): Record<string, unknown> {
+  const sanitized = { ...value };
+  delete sanitized.validation;
+  delete sanitized.record_count;
+  delete sanitized.integrity_status;
+  delete sanitized.validation_report;
+  delete sanitized.validator_version;
+  delete sanitized.structure_valid;
+  delete sanitized.production_ready;
+  sanitized.validity_status = serverValidityStatus;
+  return sanitized;
+}
+
 export function canonicalObjectPaths(datasetId: string, archiveSha256: string): {
   archivePath: string;
   manifestPath: string;
