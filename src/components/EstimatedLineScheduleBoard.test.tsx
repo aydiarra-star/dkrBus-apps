@@ -44,6 +44,36 @@ describe('affiches de comptes à rebours DDD et AFTU / TATA', () => {
     expect(buttons[1].getAttribute('aria-expanded')).toBe('true')
   })
 
+  it('ne réattribue pas le fichier 85-unverified par numéro lors du chargement différé', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const ready = getDirectionButtons(container, '83')[0]
+    fireEvent.click(ready)
+    await waitFor(() => expect(ready.closest('li')!.querySelectorAll('.station-board-itinerary-list li')).toHaveLength(93))
+    const quarantine = getDirectionButtons(container, '85')
+    expect(quarantine).toHaveLength(2)
+    for (const button of quarantine) {
+      fireEvent.click(button)
+      expect(button.closest('li')!.textContent).not.toMatch(/Terminus De La Ligne 73|Baye Ly Lac Rose/i)
+      expect(button.closest('li')!.querySelector('.station-board-itinerary-list')).toBeNull()
+      expect(button.textContent).toContain('Repère réseau')
+    }
+  })
+
+  it('ne prête pas les horaires de Fass Mbao à la fiche Sahm–Comico du même numéro 58', async () => {
+    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const ready = getDirectionButtons(container, '83')[0]
+    fireEvent.click(ready)
+    await waitFor(() => expect(ready.closest('li')!.querySelectorAll('.station-board-itinerary-list li')).toHaveLength(93))
+    const variants = getDirectionButtons(container, '58')
+    expect(variants).toHaveLength(2)
+    for (const button of variants) {
+      expect(button.textContent).toMatch(/Comico/i)
+      expect(button.textContent).toContain('Repère réseau')
+      fireEvent.click(button)
+      expect(button.closest('li')!.textContent).not.toMatch(/Terminus Fass Mbao/)
+    }
+  })
+
   it('n’affiche qu’une seule représentation par sens pour chaque numéro de ligne unifié', () => {
     const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const groups = Array.from(container.querySelectorAll('.station-board-line-group'))

@@ -65,3 +65,5 @@ Décision :
 ## Reproductibilité
 
 L'artefact `dakar-bus-route-relations` du workflow CI contient le JSON complet, avec identifiants de relations et de nœuds, versions, horodatages, changesets, utilisateurs, membres ordonnés et audit topologique. Le script `scripts/extract_dakar_bus_route_relations_from_pbf.py` produit cet audit sans fabriquer de géométrie.
+
+**Revue ultérieure bornée :** [cinq portions cartographiques](../data/bus-sections/README.md) ont été examinées séparément à partir des membres et versions OSM. Elles ne valident pas les relations entières et n’ajoutent aucune course ou correspondance au réseau daté.

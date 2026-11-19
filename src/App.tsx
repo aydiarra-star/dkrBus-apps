@@ -56,7 +56,7 @@ import { SettingsPreferences } from './components/SettingsPreferences'
 import { passengerLookup } from './routing/answers'
 import { usePassengerNetwork } from './components/usePassengerNetwork'
 import { planDakarJourney, type DakarEndpoint, type DakarOutcome } from './routing/dakar'
-import { mapItinerary, tripSummary } from './routing/presentation'
+import { mapBusSection, mapItinerary, tripSummary } from './routing/presentation'
 import { endpointOf } from './routing/placeConnections'
 import { accessRadiusOf, walkSpeedOf } from './domain/assumptions'
 import { accessibilityStyle, getPreferences, updatePreferences, usePreferences, type Preferences } from './domain/preferences'
@@ -459,6 +459,7 @@ function App() {
   const searchRoute = roadResult && roadResult.origin === routePoints.origin && roadResult.destination === routePoints.destination ? roadResult.geometry : null
   const [departureInput, setDepartureInput] = useState(() => new Date().toISOString().slice(0, 16))
   const departAt = Date.parse(`${departureInput}Z`) / 1000 // field is explicitly Dakar time, never browser local
+  const [portionChoice, setPortionChoice] = useState<{ result: DakarOutcome; id: string }>()
   const [selectedTripId, setSelectedTripId] = useState<string>()
   const [stepFreeOnly, setStepFreeOnly] = useState(false)
   const [maxChanges, setMaxChanges] = useState(3)
@@ -1564,7 +1565,9 @@ function App() {
     ? planDakarJourney(routePoints.origin, routePoints.destination, routingOptions, edition.network) : null, [routePoints, routingOptions, searchRoute, edition.network])
   const selectedTrip = journeyPlan?.ok ? (selectedTripId ? journeyPlan.options.find(t => t.id === selectedTripId) : journeyPlan.options[0]) : undefined
   const journeyFocus = activeTab === 'route' && !pickingPoint && Boolean(routePoints.origin && routePoints.destination)
-  const overlay = useMemo(() => mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip])
+  const mapPortion = journeyPlan && !journeyPlan.ok && portionChoice?.result === journeyPlan
+    ? journeyPlan.mapSections?.find(s => s.id === portionChoice.id) : undefined
+  const overlay = useMemo(() => journeyFocus && mapPortion ? mapBusSection(mapPortion) : mapItinerary(journeyFocus ? selectedTrip : undefined), [journeyFocus, selectedTrip, mapPortion])
   const announcedPlanRef = useRef<string>()
   useEffect(() => {
     if (!selectedTrip || !preferences.accessibility.announceResults || !speechSynthesisSupported()) return
@@ -1882,7 +1885,8 @@ function App() {
                   announce(`Trajet recalculé entre ${from.name} et ${to.name}. Les accès non vérifiés ne sont pas inclus.`)
                 }}
                 maxChanges={maxChanges} onMaxChanges={setMaxChanges} editionNotice={edition.notice}
-                journeyPlan={journeyPlan}
+                journeyPlan={journeyPlan} shownPortion={mapPortion?.id}
+                onShowPortion={id => setPortionChoice(journeyPlan && id !== mapPortion?.id ? { result: journeyPlan, id } : undefined)}
                 departureInput={departureInput}
                 onDepartureChange={value => { beginRequest('journey'); setSelectedTripId(undefined); setDepartureInput(value); setRouteAttempted(false); setJourney(IDLE_JOURNEY) }}
                 selectedId={selectedTrip?.id} onSelectTrip={setSelectedTripId}
@@ -2536,7 +2540,7 @@ function RoutePanel({
   journey,
   countdownNow,
   preferences,
-  maxChanges, onMaxChanges, editionNotice, journeyPlan, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
+  maxChanges, onMaxChanges, editionNotice, journeyPlan, shownPortion, onShowPortion, departureInput, onDepartureChange, selectedId, onSelectTrip, stepFreeOnly, onStepFreeChange, onChooseSection,
 }: {
   routePoints: Partial<Record<RoutePointKey, MapPoint>>
   pickingPoint: RoutePointKey | null
@@ -2560,6 +2564,8 @@ function RoutePanel({
   onMaxChanges: (n: number) => void
   editionNotice: string
   journeyPlan: DakarOutcome | null
+  shownPortion?: string
+  onShowPortion: (id: string) => void
   departureInput: string
   onDepartureChange: (value: string) => void
   selectedId?: string
@@ -2660,14 +2666,14 @@ function RoutePanel({
       </form>
 
       {editionNotice && <p className="verified-hint" role="status">{editionNotice}</p>}
-      {journeyPlan && <VerifiedJourneys result={journeyPlan} selectedId={selectedId} onSelect={onSelectTrip} onChooseSection={onChooseSection} preferences={preferences} />}
-      {journeyPlan && !journeyPlan.ok && ['NO_SERVICE', 'NO_PATH', 'UNVERIFIED_ACCESS'].includes(journeyPlan.code) && !stepFreeOnly && routePoints.origin && routePoints.destination && <ExternalDirections from={routePoints.origin} to={routePoints.destination} />}
+      {journeyPlan && <VerifiedJourneys result={journeyPlan} shownPortion={shownPortion} onShowPortion={onShowPortion} selectedId={selectedId} onSelect={onSelectTrip} onChooseSection={onChooseSection} preferences={preferences} />}
+      {journeyPlan && !journeyPlan.ok && ['NO_SERVICE', 'NO_PATH', 'UNVERIFIED_ACCESS', 'DOCUMENTED_SECTION_ONLY'].includes(journeyPlan.code) && !stepFreeOnly && routePoints.origin && routePoints.destination && <ExternalDirections from={routePoints.origin} to={routePoints.destination} />}
       {routeAttempted ? (
         stepFreeOnly ? <p className="verified-hint">Les horaires directs sans preuve d’accessibilité ne sont pas proposés avec le filtre sans marches.</p>
           : <RouteOutcome journey={journey} dataAvailable={dataAvailable} countdownNow={countdownNow} />
       ) : !journeyPlan && (
         <div className="route-truth-card"><div className="route-truth-icon"><ShieldCheck size={17} /></div>
-          <div><strong>Choisissez un lieu ou un arrêt</strong><span>Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
+          <div><strong>Choisissez un lieu ou un arrêt</strong><span>Pour voir une portion de bus sans horaire, cherchez « DDD 1 », « DDD 4 » ou « AFTU 40 » dans les champs. Le calcul distingue le trajet complet et les tronçons entre arrêts. Un point GPS ne vaut pas un accès piéton vérifié. Pour le calcul automobile distinct, cherchez « Voiture : Dakar à Pikine » dans Explorer.</span></div>
         </div>
       )}
     </section>

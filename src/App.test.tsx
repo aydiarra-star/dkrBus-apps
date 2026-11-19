@@ -356,6 +356,29 @@ describe('Dakar Bus experience safety', () => {
     expect(panel.textContent).not.toContain('115 m'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('brt-b1')
   })
 
+  it('affiche uniquement la portion de voirie explicitement choisie et la retire au changement de sens ou de profil', () => {
+    stubApi([]); render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    chooseStopInField('Départ', 'AFTU 40', /^Carrefour des Civilisations/)
+    chooseStopInField('Destination', 'AFTU 40', /^Route des pères Maristes/)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toContain('Portion cartographiée · sans horaire')
+    expect(panel.textContent).toMatch(/délimitent une rue, pas des arrêts/)
+    expect(panel.textContent).not.toContain('Votre trajet')
+    const map = screen.getByTestId('highlighted-lines')
+    expect(map.textContent).toBe('')
+    fireEvent.click(within(panel).getByRole('button', { name: /voir cette portion/i }))
+    expect(JSON.parse(map.getAttribute('data-segments')!)).toMatchObject([{ geographyOnly: true, network: 'aftu_tata' }])
+    expect(screen.getByTestId('highlighted-stops').textContent).toBe('landmark:bus-osm-305375476,landmark:bus-osm-3403676386')
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Portion cartographiée')
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(map.textContent).toBe('')
+    fireEvent.click(within(panel).getByRole('button', { name: /voir cette portion/i }))
+    fireEvent.click(screen.getByRole('button', { name: /inverser départ et destination/i }))
+    expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Portion cartographiée')
+  })
+
   it('sépare le changement à Bargny en deux recherches, respecte les filtres et ne trace que le tronçon choisi', () => {
     stubApi([]); render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
@@ -781,7 +804,7 @@ describe('published snapshot in the app', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'keur mbaye', /keur mbaye fall/i)
+    chooseStopInField('Destination', 'keur mbaye', /^Keur Mbaye Fall · TER/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
     const results = await screen.findByRole('region', { name: /courses directes proposées/i })

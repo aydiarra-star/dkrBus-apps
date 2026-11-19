@@ -316,6 +316,11 @@ function mobilityStopLabel(mobility: MobilityId | null, _stopId?: string): strin
   return 'BUS'
 }
 
+// A cartographic limit is not a stop for boarding. Use a hollow diamond
+// rather than the network's station badge, including at road intersections.
+const geographicMarkerIcon = L.divIcon({ className: 'geographic-marker-shell',
+  html: '<span aria-hidden="true"></span>', iconSize: [18, 18], iconAnchor: [9, 9] })
+
 function makeMobilityStopLabel(mobility: MobilityId | null, label: string, stopId?: string, displayLabel?: string): DivIcon {
   const paint = mobility ? mobilityPaint(mobility) : null
   const shortLabel = displayLabel ?? mobilityStopLabel(mobility, stopId)
@@ -725,7 +730,7 @@ function TransitMapView({
             key={`journey-segment-${segment.id}`}
             positions={positions}
             interactive={false}
-            pathOptions={{ color, dashArray: segment.network === 'walk' ? '4 6' : segment.busFamily === 'tata' ? '12 3' : undefined, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+            pathOptions={{ color, dashArray: segment.geographyOnly ? '8 5' : segment.network === 'walk' ? '4 6' : segment.busFamily === 'tata' ? '12 3' : undefined, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
           />,
         ]
       })}
@@ -734,8 +739,8 @@ function TransitMapView({
         <Tooltip>Correspondance · {p.name}</Tooltip>
       </Circle>)}
       {highlightedCalls.map(({ place, network, line, role }, i) => (
-        <Marker key={`journey-call-${place.id}-${i}`} position={[place.lat, place.lon]} keyboard
-          icon={makeMobilityStopLabel(network, place.name, place.id)} title={`${role} · ${place.name} · ${line}`}>
+        <Marker key={`journey-call-${line}-${role}-${place.id}-${i}`} position={[place.lat, place.lon]} keyboard
+          icon={role === 'Repère cartographique' ? geographicMarkerIcon : makeMobilityStopLabel(network, place.name, place.id)} title={`${role} · ${place.name} · ${line}`}>
           <Tooltip>{role} · {place.name} · {line}</Tooltip>
         </Marker>
       ))}

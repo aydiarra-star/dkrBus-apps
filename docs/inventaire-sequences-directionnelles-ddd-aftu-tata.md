@@ -1,5 +1,7 @@
 # Inventaire des séquences directionnelles DDD / AFTU / TATA
 
+> **Pour le comptage actuel**, voir le [tableau régénéré par provenance, code et sens](couverture-sources-bus.md) et son [bilan voyageurs](bilan-bus-voyageurs.md). Le relevé historique ci-dessous ne remplace pas les listes 83 (93/90) et inclut une transcription 89/95 dont l’attribution à la 85 n’est pas confirmée.
+
 Date de mise à jour : 2026-11-14  
 Dépôt de référence : `aydiarra-star/dkrBus-apps`
 

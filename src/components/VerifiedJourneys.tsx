@@ -4,6 +4,7 @@ import { fareForJourney, fareStatusLabel } from '../domain/fares'
 import type { Preferences } from '../domain/preferences'
 import { formatDistance, formatDuration, transferLabel } from '../domain/units'
 import type { ChangeLead, ChangeSide } from '../routing/changePreparation'
+import type { BusMapSection } from '../routing/busGeography'
 import type { StopSection } from '../routing/placeConnections'
 import type { Leg } from '../routing/model'
 import type { DakarOutcome } from '../routing/dakar'
@@ -93,12 +94,33 @@ function ConnectionDetails({ failure, preferences, onChoose }: {
   </div>
 }
 
-export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection, preferences }: {
+function GeographicPortion({ section: s, selected, onShow, preferences }: {
+  section: BusMapSection; selected: boolean; onShow?: (id: string) => void; preferences: Preferences
+}) {
+  const { review, markers } = s
+  const distance = (m: number) => formatDistance(m, preferences.units.distance)
+  return <article className="verified-trip"><strong>{review.family.toUpperCase()} {review.line} · sens {review.towards}</strong>
+    <p>{markers[0].name} → {markers.at(-1)!.name} · {distance(s.meters)} sur la voirie.</p>
+    <p>{review.landmarkKind === 'road-limit' ? 'Les deux repères délimitent une rue, pas des arrêts de montée ou de descente.' : 'Les quais figurent dans cet ordre sur la carte de la ligne. Aucun passage ni accès à pied n’est établi.'}</p>
+    {(s.fromGapM !== null || s.toGapM !== null) && <p>Écart à vol d’oiseau, pas une marche : {[
+      s.fromGapM !== null && `${distance(s.fromGapM)} au départ`, s.toGapM !== null && `${distance(s.toGapM)} à l’arrivée`,
+    ].filter(Boolean).join(' ; ')}.</p>}
+    {onShow && <button type="button" className="text-action" aria-pressed={selected} onClick={() => onShow(s.id)}><Layers3 size={14} /> {selected ? 'Masquer cette portion' : 'Voir cette portion sur la carte'}</button>}
+    <details><summary>Repères et sources de la portion</summary><p>{markers.map(m => m.name).join(' → ')}</p>
+      <a href={review.operatorUrl} target="_blank" rel="noreferrer">Description de la ligne</a> · <a href={`https://www.openstreetmap.org/relation/${review.relation}/history/${review.version}`} target="_blank" rel="noreferrer">Relation OSM {review.relation} v{review.version}</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© les contributeurs OpenStreetMap · ODbL</a>
+    </details></article>
+}
+
+export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection, preferences, shownPortion, onShowPortion }: {
+  shownPortion?: string; onShowPortion?: (id: string) => void
   result: DakarOutcome; onChooseSection: ChooseSection; selectedId?: string; onSelect: (id: string) => void; preferences: Preferences
 }) {
   return <section className="verified-journeys" aria-label="Itinéraires sur tracés vérifiés" aria-live="polite">
-    <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : 'Pas d’itinéraire vérifié'}</h3></div></header>
-    {!result.ok ? <><p role="status">{result.message}</p><ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} />{Boolean(result.changesToCheck?.length) && <ChangeDetails changes={result.changesToCheck!} onChoose={onChooseSection} />}</> : <>
+    <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : result.code === 'DOCUMENTED_SECTION_ONLY' ? 'Tracé disponible, passage non confirmé' : 'Pas d’itinéraire vérifié'}</h3></div></header>
+    {!result.ok ? <><p role="status">{result.message}</p>
+      {!!result.mapSections?.length && <div className="connection-details"><h4>Portion cartographiée · sans horaire</h4>
+        {result.mapSections.map(s => <GeographicPortion key={s.id} section={s} selected={s.id === shownPortion} onShow={onShowPortion} preferences={preferences} />)}</div>}
+      <ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} />{Boolean(result.changesToCheck?.length) && <ChangeDetails changes={result.changesToCheck!} onChoose={onChooseSection} />}</> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>
       {!selectedId && <p role="status">La variante précédente n’est plus disponible avec ces réglages. Choisissez un trajet pour l’afficher sur la carte.</p>}
       {result.options.map(trip => {

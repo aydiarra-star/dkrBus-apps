@@ -1,4 +1,5 @@
 import type { MobilityId } from '../domain/mobilityColors'
+import type { BusMapSection } from './busGeography'
 import type { Criterion, Itinerary, Place } from './model'
 
 export const criterionLabels: Record<Criterion, string> = {
@@ -10,8 +11,8 @@ export function tripSummary(t: Itinerary): string {
   const lines = t.legs.flatMap(l => l.kind === 'ride' ? [l.lineName] : [])
   return `${lines.join(' → ') || 'À pied'} · ${dakarClock(t.start)} → ${dakarClock(t.end)} · ≈ ${Math.ceil(t.totalSeconds / 60)} min · ${t.changes} correspondance${t.changes > 1 ? 's' : ''}`
 }
-export interface JourneyMarker { place: Place; network: MobilityId; line: string; role: 'Montée' | 'Descente' | 'Desserte' }
-export interface MapSegment { id: string; busFamily?: 'aftu' | 'tata'; network: MobilityId | 'walk'; positions: readonly (readonly [number, number])[] }
+export interface JourneyMarker { place: Pick<Place, 'id' | 'name' | 'lat' | 'lon'>; network: MobilityId; line: string; role: 'Montée' | 'Descente' | 'Desserte' | 'Repère cartographique' }
+export interface MapSegment { id: string; geographyOnly?: boolean; busFamily?: 'aftu' | 'tata'; network: MobilityId | 'walk'; positions: readonly (readonly [number, number])[] }
 /** Coordinate order conversion only: no routing, projecting, interpolation or
  * async geometry lookup in the map. Never draw between the ends of two legs. */
 export function mapItinerary(t: Itinerary | undefined) {
@@ -25,4 +26,12 @@ export function mapItinerary(t: Itinerary | undefined) {
     else if (leg.role === 'transfer') changes.push(leg.from, leg.to)
   }
   return { segments, changes, calls }
+}
+
+/** Explicit opt-in after a routing refusal. Never reuses boarding, alighting or
+ * transfer symbology. Only the selected slice, not the whole relation. */
+export function mapBusSection(s: BusMapSection): ReturnType<typeof mapItinerary> {
+  const network = s.review.family === 'ddd' ? 'ddd' : 'aftu_tata'
+  return { changes: [], segments: [{ id: s.id, network, geographyOnly: true, positions: s.positions.map(p => [p.lat, p.lon]) }],
+    calls: s.markers.map(place => ({ place, network, line: `${s.review.family.toUpperCase()} ${s.review.line} · sans horaire`, role: 'Repère cartographique' })) }
 }

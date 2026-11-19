@@ -18,6 +18,7 @@ import { isValidLatLng } from './http'
 import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import { NETWORK_SOURCES, type NetworkId } from './network'
+import { busMapPoints } from '../routing/busGeography'
 import type { Place } from '../routing/model'
 import type { PublishedStop } from './published'
 
@@ -163,6 +164,11 @@ export function buildStopIndex(publishedStops: readonly PublishedStop[], reviewe
     ...DDD_STOPS.map((stop) => corridorOption(stop, 'ddd', GROUP_DDD)),
     ...AFTU_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
     ...TATA_STOPS.map((stop) => corridorOption(stop, 'aftu_tata', GROUP_AFTU_TATA)),
+    ...busMapPoints.map(({ marker: p, lines, roadLimit }): StopOption => ({
+      value: p.id, kind: 'landmark', label: p.name, group: 'Portions de bus cartographiées', selectable: true,
+      networkId: null, stopId: null, lat: p.lat, lon: p.lon, keywords: [...lines],
+      hint: `${[...lines].join(' / ')} · ${roadLimit ? 'limite de voirie, pas un quai' : 'quai cartographié'} · sans horaire`,
+    })),
     ...JOURNEY_LANDMARKS.map((p): StopOption => ({
       value: p.id, kind: 'landmark', label: p.name, group: GROUP_LANDMARKS,
       hint: `${p.source} · repère, pas un quai`, selectable: true,
@@ -210,7 +216,7 @@ function scoreOption(option: StopOption, needle: string): number | null {
   return null
 }
 
-const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_LANDMARKS, GROUP_ACCESSES, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT, GROUP_DDD, GROUP_AFTU_TATA, 'Fiches sans coordonnées']
+const GROUP_ORDER: readonly string[] = [GROUP_MOBILITY, GROUP_LANDMARKS, 'Portions de bus cartographiées', GROUP_ACCESSES, GROUP_PUBLISHED, GROUP_TER, GROUP_BRT, GROUP_DDD, GROUP_AFTU_TATA, 'Fiches sans coordonnées']
 
 /**
  * Recherche tolérante (accents, apostrophes, tirets) sur l'index complet.

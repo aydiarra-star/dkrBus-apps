@@ -43,20 +43,31 @@ try {
     // Count every ordered pair of distinct local form selections. Retain
     // separate identities even for catalogue poles at identical coordinates.
     const selected = options.filter(o => o.selectable).map(o => ({ point: point(o.value),
-      group: o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
+      group: o.value.startsWith('landmark:bus-osm-') ? 'repère de portion bus' : o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
     const matrix = {}
+    // Exclusive best evidence for the requested pair. Unlike withBusMap and
+    // withChangeLead below, these bins can be added to recover the denominator.
+    const totals = { whole: 0, exactBusMap: 0, stopSection: 0, nearbyBusMap: 0, changeLead: 0, lineSheet: 0, noProposal: 0 }
+
     for (const a of selected) for (const b of selected) {
       if (a === b) continue
       const key = `${a.group} → ${b.group}`
-      const row = matrix[key] ??= { pairs: 0, whole: 0, sectionsOnly: 0, neither: 0, withChangeLead: 0 }
+      const row = matrix[key] ??= { pairs: 0, whole: 0, sectionsOnly: 0, neither: 0, withChangeLead: 0, withBusMap: 0, withExactBusMap: 0, wholeWithBus: 0 }
       const r = plan(a.point, b.point)
+      const exact = !r.ok && r.mapSections?.some(s => s.fromGapM === null && s.toGapM === null)
+      const bin = r.ok ? 'whole' : exact ? 'exactBusMap' : r.connections?.sections.length ? 'stopSection'
+        : r.mapSections?.length ? 'nearbyBusMap' : r.changesToCheck?.length ? 'changeLead' : r.documentation?.length ? 'lineSheet' : 'noProposal'
+      totals[bin]++
       row.pairs++
       if (!r.ok && r.changesToCheck?.length) row.withChangeLead++
+      if (!r.ok && r.mapSections?.length) row.withBusMap++
+      if (exact) row.withExactBusMap++
+      if (r.ok && r.options.some(t => t.legs.some(l => l.kind === 'ride' && ['aftu','ddd','tata'].includes(l.mode)))) row.wholeWithBus++
       if (r.ok) row.whole++
       else if (r.connections?.sections.length) row.sectionsOnly++
       else row.neither++
     }
-    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, matrix }, null, 2))
+    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, exclusive: totals, matrix }, null, 2))
   } else {
     const from = point(values.from), to = point(values.to), r = plan(from, to)
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)
@@ -69,6 +80,7 @@ try {
         for (const s of c.sections) console.log(`Tronçon seul : ${s.from.name} → ${s.to.name} · ${s.lines.join(' → ')} · ${dakarClock(s.boardAt)}–${dakarClock(s.arriveAt)}`)
       }
       for (const c of r.changesToCheck ?? []) console.log(`À confirmer séparément (${c.hub}) : ${c.before.line} · ${c.before.from} → ${c.before.to} ; ${c.after.line} · ${c.after.from} → ${c.after.to}. ${c.check}`)
+      for (const s of r.mapSections ?? []) console.log(`Carte uniquement : ${s.review.family.toUpperCase()} ${s.review.line} vers ${s.review.towards} · ${s.markers[0].name} → ${s.markers.at(-1).name} · ${Math.round(s.meters)} m sur voirie · aucun horaire.`)
       for (const d of r.documentation ?? []) console.log(`Fiche uniquement : ${d.line} · ${d.fromLabel} puis ${d.toLabel}. ${d.window ?? ''}\n${d.url}`)
     }
   }

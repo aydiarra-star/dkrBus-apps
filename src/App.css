@@ -311,6 +311,10 @@ button:disabled { cursor: not-allowed; }
 .control-divider { display: block; height: 1px; margin: 2px 3px; background: #e8efec; }
 
 .dakar-marker-shell { border: 0; background: transparent; }
+.geographic-marker-shell > span {
+  position: absolute; inset: 3px; transform: rotate(45deg);
+  background: white; border: 2px solid #334155; box-shadow: 0 0 0 1px white;
+}
 .mobility-stop-label-shell { border: 0; background: transparent; overflow: visible; }
 .mobility-stop-label {
   display: block;

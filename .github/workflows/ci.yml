@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify offline bus inventory and versioned coverage table
+        run: node --test scripts/bus_inventory.node-test.mjs
+
       - name: Check AFTU/TATA source coverage audit
         run: node --check scripts/audit_aftu_tata_directional_coverage.mjs
 

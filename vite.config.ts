@@ -72,6 +72,11 @@ export default defineConfig({
               test: /bidirectionalBusLines|publicBusLineCatalog|dddPublishedRoutes/,
             },
             {
+              name: 'bus-geography',
+              priority: 15,
+              test: /[\\/]src[\\/](?:data[\\/]busSection(?:Review|Ways)|routing[\\/](?:geometry|busGeography)|domain[\\/](?:roadNetworkRouting|routeGeometrySlice))\.ts$/,
+            },
+            {
               name: 'schedule-board',
               priority: 15,
               test: /EstimatedLineScheduleBoard/,

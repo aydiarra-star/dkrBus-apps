@@ -3,7 +3,6 @@ import { formatPassageCountdown } from '../domain/headways'
 import { PassageArcs } from './PassageArcs'
 import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import aftu84Directions from '../data/aftu-84-directions.json'
-import aftu85Directions from '../data/aftu-85-directions.json'
 import aftu82Directions from '../data/aftu-82-directions.json'
 import aftu83Directions from '../data/aftu-83-directions.json'
 import { AFTU_STOPS, DDD_STOPS, TATA_STOPS, haversineMeters } from '../domain/corridors'
@@ -20,7 +19,6 @@ import {
   AFTU_TATA_PUBLIC_LINE_CATALOG,
   DDD_PUBLIC_LINE_CATALOG,
   detailedRouteKey,
-  AFTU_TATA_SHARED_ROUTE_KEYS,
   type PublicBusLineReference,
   groupPublicBusLinesByCode,
   sameDetailedRouteDirection,
@@ -252,17 +250,9 @@ function AftuTataScheduleBoard({
   return (
     <section className="station-board" aria-label="Affichage des lignes AFTU / TATA">
       <header className="station-board-head"><strong>Lignes AFTU / TATA</strong></header>
+      <p className="verified-hint">Les minutes sont des repères indicatifs, pas des passages observés à votre arrêt.</p>
       <ul className="station-board-list">
         {groups.map(({ line: lineNumber, variants }) => {
-          const schedule = schedulesByLine.get(lineNumber)
-            ?? routeReferences.find((item) => item.code === lineNumber && item.outboundSchedule)?.outboundSchedule
-            ?? AFTU_TATA_NETWORK_REFERENCE
-          const declaredWindow = weekday === 0 ? schedule.sunday : weekday === 6 ? schedule.saturday : schedule.weekday
-          const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_DEFAULT_WINDOW, 'aftu_tata') ?? AFTU_TATA_DEFAULT_WINDOW
-          const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
-          const countdownSchedule = { ...schedule, weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
-          const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
-
           return variants.map((line) => {
             const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
             const sameNetworkByCode = routeReferences.filter((item) =>
@@ -304,6 +294,15 @@ function AftuTataScheduleBoard({
               <li key={routeKey} className="station-board-line-group" data-line-code={lineNumber}>
                 {directions.map((direction) => {
                   const selected = openedDirection?.key === routeKey && openedDirection.direction === direction.id
+                  // A destination-specific return reference is not the outbound
+                  // window; another corridor with the same number is not a source.
+                  const lineSchedule = (direction.id === 'inbound' ? route?.inboundSchedule : route?.outboundSchedule)
+                    ?? (line.network === 'aftu' ? schedulesByLine.get(lineNumber) : undefined)
+                  const declaredWindow = lineSchedule && (weekday === 0 ? lineSchedule.sunday : weekday === 6 ? lineSchedule.saturday : lineSchedule.weekday)
+                  const scheduleWindow = capAftuTataServiceWindow(declaredWindow ?? AFTU_TATA_DEFAULT_WINDOW, 'aftu_tata')!
+                  const serviceState = getServiceDisplayState(now, scheduleWindow.start, scheduleWindow.end)
+                  const countdownSchedule = { ...(lineSchedule ?? AFTU_TATA_NETWORK_REFERENCE), weekday: scheduleWindow, saturday: scheduleWindow, sunday: scheduleWindow }
+                  const minutes = serviceState.status === 'ACTIVE' ? scheduleCountdownMinutes(countdownSchedule, now) : null
                   const serviceLabel = serviceState.status === 'UPCOMING'
                     ? serviceState.label
                     : serviceState.status === 'FINISHED'
@@ -324,6 +323,7 @@ function AftuTataScheduleBoard({
                         <span className="station-board-direction-action">
                           <span className={`network-summary-passage station-board-passage${serviceState.status === 'UPCOMING' ? ' is-upcoming' : serviceState.status === 'FINISHED' ? ' is-finished' : minutes === null ? ' is-undeclared' : ''}`} role="status">
                             <strong>{minutes !== null && serviceState.status === 'ACTIVE' && <PassageArcs />}{serviceLabel}</strong>
+                            <small>{declaredWindow ? 'Repère de ligne' : 'Repère réseau'}</small>
                             {serviceState.status !== 'ACTIVE' && <small>Reprise à {scheduleWindow.start}</small>}
                           </span>
                           <span aria-hidden="true">{selected ? '−' : '+'}</span>
@@ -426,7 +426,6 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         '82': normalizeRouteDetails(aftu82Directions),
         '83': normalizeRouteDetails(aftu83Directions),
         '84': normalizeRouteDetails(aftu84Directions),
-        '85': normalizeRouteDetails(aftu85Directions),
       }
       if (active) {
         const baseReferences: MobilityRouteReference[] = [
@@ -437,7 +436,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
         ]
         const knownAftuCodes = new Set(baseReferences.filter((item) => item.network === 'aftu').map((item) => item.code))
         for (const line of AFTU_TATA_PUBLIC_LINE_CATALOG) {
-          if (knownAftuCodes.has(line.line)) continue
+          if (line.network !== 'aftu' || knownAftuCodes.has(line.line)) continue
           const base = {
             network: 'aftu' as const,
             code: line.line,
@@ -472,14 +471,14 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
   return (
     <section className="station-board" aria-label={`Affichage des lignes ${label}`}>
       <header className="station-board-head"><strong>Lignes {label}</strong></header>
+      <p className="verified-hint">Sans horaire de ligne, l’affiche utilise un repère du réseau. Il ne confirme pas le passage à votre arrêt.</p>
       <ul className="station-board-list">
         {catalogue.map((line) => {
           const lineRouteKey = detailedRouteKey({ code: line.line, origin: line.origin, destination: line.destination })
           const routeCandidates = routeReferences.filter((item) => {
-            if (item.code !== line.line) return false
-            if (!item.origin || !item.destination) return item.network === line.network
+            if (item.network !== line.network || item.code !== line.line) return false
+            if (!item.origin || !item.destination) return true
             return detailedRouteKey({ code: item.code, origin: item.origin, destination: item.destination }) === lineRouteKey
-              && (item.network === line.network || AFTU_TATA_SHARED_ROUTE_KEYS.has(lineRouteKey))
           })
           const richestRoute = [...routeCandidates].sort((a, b) => routeCompleteness(b) - routeCompleteness(a))[0]
           // Garder les séquences du parcours le plus complet, sans perdre les
@@ -489,11 +488,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
             outboundSchedule: routeCandidates.find((item) => item.outboundSchedule)?.outboundSchedule ?? richestRoute.outboundSchedule,
             inboundSchedule: routeCandidates.find((item) => item.inboundSchedule)?.inboundSchedule ?? richestRoute.inboundSchedule,
           } : undefined
-          // AFTU et TATA partagent le même référentiel horaire : la référence
-          // est choisie par numéro de ligne, sans distinction d'opérateur.
-          // L'identité des itinéraires et leurs listes d'arrêts restent séparées.
-          const sharedRouteSchedule = routeReferences.find((item) => item.code === line.line && item.outboundSchedule)?.outboundSchedule
-          const lineSchedule = schedulesByLine.get(line.line) ?? sharedRouteSchedule ?? route?.outboundSchedule
+          const lineSchedule = schedulesByLine.get(line.line) ?? route?.outboundSchedule
           const schedule = lineSchedule ?? (isDdd ? DDD_NETWORK_REFERENCE : AFTU_TATA_NETWORK_REFERENCE)
           const weekday = new Date(now).getUTCDay()
           const declaredWindow = schedule
@@ -605,7 +600,7 @@ export function EstimatedLineScheduleBoard({ network, location = null }: { netwo
                       <button type="button" className={`station-board-row station-board-row-static station-board-direction-row station-board-direction-${direction.id} station-board-direction-toggle${selected ? ' is-expanded' : ''}`} aria-expanded={selected} onClick={() => setOpenedDirection(selected ? null : { line: routeKey, direction: direction.id })}>
                         <span className="station-board-stop"><strong>{label} {line.line}</strong><small>{direction.label} · {direction.from} → {direction.to}</small></span>
                         <span className="station-board-direction-action">
-                          <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <PassageArcs />}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
+                          <span className={`network-summary-passage station-board-passage${direction.minutes === null ? ' is-undeclared' : ''}`} role="status"><strong>{direction.minutes !== null && direction.serviceState.status === 'ACTIVE' && <PassageArcs />}{direction.serviceState.status === 'UPCOMING' ? direction.serviceState.label : direction.serviceState.status === 'FINISHED' ? (direction.hasExplicitNoService ? 'Pas de service' : 'Fin de service') : direction.minutes === null ? 'En service' : formatPassageCountdown(direction.minutes)}</strong><small>{(direction.id === 'inbound' && inboundSchedule ? inboundDayWindow || inboundHasExplicitNoService : lineSchedule && (declaredWindow || hasExplicitNoService)) ? 'Repère de ligne' : 'Repère réseau'}</small>{direction.serviceState.status !== 'ACTIVE' && <small>{direction.serviceWindow ? `Reprise à ${direction.serviceWindow.start}` : ''}</small>}</span>
                           <span aria-hidden="true">{selected ? '−' : '+'}</span>
                         </span>
                       </button>
