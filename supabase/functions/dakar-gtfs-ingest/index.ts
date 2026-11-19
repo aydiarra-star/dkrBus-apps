@@ -43,7 +43,7 @@ type UploadSession = Record<string, unknown> & {
   archive_sha256: string;
   archive_bytes: number;
   manifest_sha256: string;
-  manifest_text: string;
+  manifest_text?: string;
   imported_by: string;
   expires_at: string;
   state: string;
@@ -153,7 +153,7 @@ async function cleanupSession(
 async function cleanupExpiredSessions(admin: ReturnType<typeof createClient>): Promise<void> {
   const { data: sessions, error } = await admin
     .from(UPLOAD_TABLE)
-    .select("*")
+    .select("upload_id, dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256, expires_at, state")
     .in("state", ["UPLOAD_PENDING", "FAILED"])
     .lt("expires_at", new Date().toISOString())
     .order("expires_at", { ascending: true })
@@ -219,6 +219,7 @@ function sessionManifestMatches(session: UploadSession, manifest: Record<string,
     sameInstant(manifest.verified_at, session.verified_at) &&
     sameInstant(manifest.valid_from, session.valid_from) &&
     sameInstant(manifest.valid_until, session.valid_until) &&
+    manifest.validity_status === session.validity_status &&
     Math.round(Number(manifest.confidence) * 1000) / 1000 === Number(session.confidence) &&
     manifest.service_status === session.service_status &&
     Number(archive.bytes) === Number(session.archive_bytes) &&
@@ -405,6 +406,10 @@ async function finalizeUpload(
     return reply(500, { error: "UPLOAD_SESSION_INTEGRITY_INVALID" }, cors);
   }
 
+  if (typeof session.manifest_text !== "string") {
+    await markSession(admin, session.upload_id, "FAILED");
+    return reply(500, { error: "STORED_MANIFEST_MISSING" }, cors);
+  }
   const manifestBytes = new TextEncoder().encode(session.manifest_text);
   if (manifestBytes.byteLength <= 0 || manifestBytes.byteLength > MAX_MANIFEST_BYTES ||
       await sha256Hex(manifestBytes) !== session.manifest_sha256) {
