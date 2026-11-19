@@ -410,9 +410,11 @@ async function createUpload(
     path: paths.archivePath,
     upload_method: "tus",
     tus_endpoint: DAKAR_BUS_TUS_UPLOAD_ENDPOINT,
+    // The signed grant itself was created with upsert:false. Do not send
+    // x-upsert at all: Storage documents that its presence changes TUS
+    // same-path concurrency semantics.
     tus_headers: {
       "x-signature": signedUpload.token,
-      "x-upsert": "false",
     },
     tus_metadata: {
       bucketName: BUCKET,
