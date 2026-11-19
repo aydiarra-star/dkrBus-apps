@@ -201,6 +201,12 @@ async function ensureManifestObject(
   }
 }
 
+function sameInstant(left: unknown, right: unknown): boolean {
+  const leftMs = Date.parse(String(left));
+  const rightMs = Date.parse(String(right));
+  return Number.isFinite(leftMs) && Number.isFinite(rightMs) && leftMs === rightMs;
+}
+
 function sessionManifestMatches(session: UploadSession, manifest: Record<string, unknown>): boolean {
   const archive = manifest.archive as Record<string, unknown>;
   return manifest.dataset_version === session.dataset_version &&
@@ -209,9 +215,11 @@ function sessionManifestMatches(session: UploadSession, manifest: Record<string,
     manifest.source_type === session.source_type &&
     (manifest.source_url ?? null) === (session.source_url ?? null) &&
     manifest.date_source === session.date_source &&
-    manifest.verified_at === session.verified_at &&
-    manifest.valid_from === session.valid_from &&
-    manifest.valid_until === session.valid_until &&
+    sameInstant(manifest.verified_at, session.verified_at) &&
+    sameInstant(manifest.valid_from, session.valid_from) &&
+    sameInstant(manifest.valid_until, session.valid_until) &&
+    Number(manifest.confidence) === Number(session.confidence) &&
+    manifest.service_status === session.service_status &&
     Number(archive.bytes) === Number(session.archive_bytes) &&
     archive.sha256 === session.archive_sha256;
 }
