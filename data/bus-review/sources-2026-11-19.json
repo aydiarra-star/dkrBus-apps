@@ -1,8 +1,42 @@
 {
-  "sourceRevision": "949aa5ba0edb2e91aa88750f0e1e8cb797e1474d",
-  "aftuCheck": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44582409542/job/135766250810",
-  "regionalCheck": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44582409534/job/135766419846",
-  "acquisition": "PARTIAL_SOURCE_RESPONSE · 65 pages · 7 erreurs",
+  "sourceRevision": "621849d6149bfd892727355fb647bc160f4240a5",
+  "aftuCheck": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44584780753/job/135774669030",
+  "regionalCheck": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44584780667/job/135774669811",
+  "acquisition": "PARTIAL_SOURCE_RESPONSE · 65 pages · 8 erreurs",
+  "pageErrors": [
+    [
+      "84",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-84/: HTTP 404"
+    ],
+    [
+      "85",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-85/: HTTP 404"
+    ],
+    [
+      "86",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-86/: HTTP 404"
+    ],
+    [
+      "87",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-87/: HTTP 404"
+    ],
+    [
+      "88",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-88/: HTTP 404"
+    ],
+    [
+      "89",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-89/: HTTP 404"
+    ],
+    [
+      "90",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-90/: HTTP 404"
+    ],
+    [
+      "91",
+      "https://aftu-senegal.org/map/dakar-urbain-ligne-91/: HTTP 404"
+    ]
+  ],
   "pbfSha256": "71283e1dddedef3c60336a0b9b1a4d1bf0a6e4508f688cf6eadaca6e0e09cbf6",
   "attribution": "© OpenStreetMap contributors · ODbL 1.0",
   "pinnedReview": "PBF 71283e1dddedef3c60336a0b9b1a4d1bf0a6e4508f688cf6eadaca6e0e09cbf6 ; 13 relations attribuées, 12 non attribuées à ces codes ; 0 objets épinglés en écart ; 0/35 portions à relire.",

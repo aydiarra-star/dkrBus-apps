@@ -33,6 +33,8 @@ class Continuity(unittest.TestCase):
 
     def test_occurrence_without_coordinates_is_not_dropped_or_a_zero_offset(self):
         a = way(1, [1, 2, 3]); pt = {'ref': 8, 'type': 'n', 'role': 'platform'}
-        r = check(pt, a)
-        self.assertTrue(r['orderedRoadChainPossible']); self.assertEqual(r['stops'], 1)
-        self.assertIsNone(r['offsets'][0]['offsetM']); self.assertIsNone(r['offsets'][0]['outside20m'])
+        for f in [None, {}, {'lat': None, 'lon': None}, {'lat': 14.7}, {'lat': True, 'lon': 0}, {'lat': 92, 'lon': -17.4}]:
+            with self.subTest(feature=f):
+                r = check({**pt, 'feature': f}, a)
+                self.assertTrue(r['orderedRoadChainPossible']); self.assertEqual(r['stops'], 1)
+                self.assertIsNone(r['offsets'][0]['offsetM']); self.assertIsNone(r['offsets'][0]['outside20m'])

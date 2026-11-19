@@ -74,7 +74,7 @@ export async function busInventory(load) {
     }
   }
   for (const r of (await domain('passengerLineSheets')).PASSENGER_LINE_SHEETS)
-    add(r.network, r.line, record('passengerLineSheets', 'reader-sheet', 'as-published', r.labels, { url: r.url }))
+    add(r.network, r.line, record('passengerLineSheets', 'reader-sheet', 'as-published', r.labels, { url: r.url, ...(r.drawing && { drawing: r.drawing }) }))
   for (const [file, key, network] of [['aftuPublishedRouteCandidates','AFTU_PUBLISHED_ROUTE_CANDIDATES','aftu'], ['tataPublishedRouteCandidates','TATA_PUBLISHED_ROUTE_CANDIDATES','tata']]) {
     for (const r of (await data(file))[key]) add(network, r.line, record(file, 'description', 'as-published', null, { url: r.sourceUrl, status: r.directionCoverage, description: r.description, publishedOn: r.publishedOn, returnVariants: r.returnVariants }))
   }

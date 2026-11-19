@@ -84,7 +84,10 @@ def review(relation):
     offsets = []
     for i, m in enumerate(stops, 1):
         f = m.get('feature') or {}
-        offset = nearest_offset(f, roads) if m['type'] == 'n' and 'lat' in f and 'lon' in f else None
+        coords = (f.get('lat'), f.get('lon'))
+        located = all(type(v) in (int, float) and math.isfinite(v) and abs(v) <= bound
+                      for v, bound in zip(coords, (90, 180)))
+        offset = nearest_offset(f, roads) if m['type'] == 'n' and located else None
         offsets.append({'rank': i, 'id': m['ref'], 'role': m['role'], 'closestWayRank': offset[1] if offset else None,
                         'closestWayId': offset[2] if offset else None, 'offsetM': round(offset[0], 2) if offset else None,
                         'outside20m': offset[0] > 20 if offset else None})

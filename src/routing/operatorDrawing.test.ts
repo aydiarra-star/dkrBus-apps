@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
 import { PASSENGER_LINE_SHEETS } from '../domain/passengerLineSheets'
 import { documentedDirections } from './documentedDirections'
@@ -7,8 +8,10 @@ const at = Date.parse('2026-11-19T19:00:00Z')/1000
 const point = (id: string) => { const p = ALL_CORRIDOR_STOPS.find(s => s.id === id)!; return { stopId: id, lat: p.lat, lng: p.lon } }
 
 it('attaches the source map only to its identified direction, not the 83 stop transcriptions or a TATA sheet', () => {
+  const receipt = JSON.parse(readFileSync('data/bus-review/sources-2026-11-19.json','utf8'))
   expect(PASSENGER_LINE_SHEETS.filter(s => s.drawing)).toHaveLength(15)
   for (const s of PASSENGER_LINE_SHEETS.filter(s => s.drawing)) {
+    expect(receipt.drawings[s.line]).toMatchObject({ pageStatus: 'MAP_READ', lineCount: 1, meters: s.drawing!.meters, orientation: expect.stringMatching(/^start-(first|last)$/) })
     expect(s.network).toBe('aftu'); expect(s.drawing).toMatchObject({ from: s.labels[0], to: s.labels.at(-1) })
     expect(s.url).toBe(`https://aftu-senegal.org/map/dakar-urbain-ligne-${s.line}/`); expect(s.schedule).toBeUndefined()
   }

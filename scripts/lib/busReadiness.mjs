@@ -18,7 +18,7 @@ function markedEnds(m) {
  * the output of the real passenger search needs no such external assertion. */
 export function busReadiness(inventory, observations, dossiers, replay, at, links = []) {
   if (replay.atDakar !== at || !replay.wholeForm || replay.stepFreeOnly || !Array.isArray(replay.admittedServices) || !Array.isArray(replay.rideWitnesses) ||
-      replay.points !== new Set(replay.pointIds).size || Object.values(replay.exclusive).reduce((a,b) => a+b,0) !== replay.points * (replay.points-1)) throw Error('Matrice exhaustive du formulaire courant, à la date et à l’heure demandées, requise.')
+      replay.maxChanges !== 3 || replay.points !== replay.pointIds.length || replay.points !== new Set(replay.pointIds).size || Object.values(replay.exclusive).reduce((a,b) => a+b,0) !== replay.points * (replay.points-1)) throw Error('Matrice exhaustive du formulaire courant, à la date et à l’heure demandées, requise.')
   const witnesses = new Map(replay.rideWitnesses.map(w => [key(w),w]))
   const mappings = new Map(links.map(l => [key(l), l]))
   if (mappings.size !== links.length) throw Error('Attribution dupliquée.')
@@ -42,12 +42,14 @@ export function busReadiness(inventory, observations, dossiers, replay, at, link
     const pins = markedEnds(map)
     // This axis only labels the columns. If no field documents side A, use the
     // map's explicitly marked endpoints, else the source order, else the title.
-    const usePins = !axisSource && pins?.every(Boolean)
-    const axis = axisSource ? endpoints(axisSource) : usePins ? pins : publishedEnds ?? e.find(v => v.kind === 'catalogue')?.termini
+    const reviewedSheet = map?.orientation && text.find(v => v.drawing && v.drawing.meters === map.meters && sameEnds(endpoints(v),[v.drawing.from,v.drawing.to]))
+    const mapEnds = reviewedSheet ? endpoints(reviewedSheet) : pins
+    const useMap = !axisSource && mapEnds?.every(Boolean)
+    const axis = axisSource ? endpoints(axisSource) : useMap ? mapEnds : publishedEnds ?? e.find(v => v.kind === 'catalogue')?.termini
     const backSource = text.find(v => v.side === 'inbound' && v.source === axisSource?.source)
     const back = backSource ? endpoints(backSource) : axis?.slice().reverse() // comparison key ONLY, never evidence
     const sideOf = ends => sameEnds(axis, back) ? null : sameEnds(axis,ends) ? 'outbound' : sameEnds(back,ends) ? 'inbound' : null
-    const mapSide = sideOf(pins)
+    const mapSide = sideOf(mapEnds)
     const pieces = e.filter(v => v.kind === 'cartographic-section')
     const direction = Object.fromEntries(sides.map(side => {
       // Do not move an explicitly labelled return into outbound merely because
@@ -62,8 +64,9 @@ export function busReadiness(inventory, observations, dossiers, replay, at, link
     const contacts = dossiers.filter(d => d.busSources.includes(id)).map(d => ({ dossier: d.dossier, from: d.from.stopId, to: d.to.stopId,
       assessments: [d,...d.otherServiceDirections].map(v => ({ status: v.status, timed: v.timed, missing: v.findings.map(f => f.code) })) }))
     const runs = active.map(p => ({ side: p.side, kind: p.service, atOriginOnDay: p.originDepartures, nextOrigin: p.nextOrigin }))
-    return { network, code, axis: axis ?? null, axisSource: axisSource?.source ?? (usePins ? 'AFTU Start/Finish' : firstPublished?.source ?? 'catalogue'), direction,
-      mapSide, map: map ?? null, relations, pieces: pieces.map(p => ({ id: p.id, toward: p.side, meters: p.meters })),
+    return { network, code, axis: axis ?? null, axisSource: axisSource?.source ?? (useMap ? 'AFTU Start/Finish' : firstPublished?.source ?? 'catalogue'), direction,
+      mapSide, map: map ?? null, relations, unassignedText: unique(text.filter(v => v.side === 'as-published' && !sideOf(endpoints(v))).map(v => v.labels.length)),
+      circuit: text.some(v => v.kind === 'circuit'), pieces: pieces.map(p => ({ id: p.id, toward: p.side, meters: p.meters })),
       transfers: contacts, runs, active, sources: unique(e.flatMap(v => v.url ? [v.url] : [])), conflicts: e.filter(v => v.conflict || v.kind === 'crosscheck').map(v => v.conflict || v.note),
       serviceNotes: { timeCount: Math.max(0,...e.map(v => v.sourceTimeCount ?? 0)), otherCorridor: e.some(v => v.scope === 'other-corridor'),
         window: e.some(v => v.kind === 'terminal-window'), indicative: e.some(v => (['service-reference','operating-profile'].includes(v.kind) || v.frequency) && !v.scope) },
@@ -77,7 +80,7 @@ export function busReadiness(inventory, observations, dossiers, replay, at, link
 export function readinessTable(r) {
   const out = ['# Peut-on calculer un trajet sur chaque ligne de bus ?', '', `**${r.atDakar.replace('T',' à ')} (Dakar)** · ${r.points} sélections, ${r.pairs} couples orientés effectivement essayés. ${r.exclusive.whole} voyages complets, dont **${r.includes.bus} avec DDD/AFTU/TATA** et **${r.includes.anyChange} avec changement**. ${r.snapshotId ? `Édition : ${r.snapshotId}.` : 'Application embarquée, sans édition opérateur.'}`, '',
     'Une ligne du tableau est un **couple provenance/code**, pas forcément un service distinct. Sept questions : quais ordonnés A/R, tracé entier A/R, correspondance, départ du jour et résultat du calcul. **A** est orienté par la fiche directionnelle, sinon les marqueurs de la carte, l’ordre du texte ou le titre ; **R** est évalué indépendamment. Le titre n’atteste ni A ni R. Les variantes non équivalentes restent à part.', '',
-    '**Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté.', '',
+    '**Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté. « 0/2 suites » signifie que, parmi deux variantes de l’archive essayées sur le seul dessin marqué, aucune ne passe tous les contrôles ; ce n’est pas un nombre de courses.', '',
     '[Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).', '']
   const compact = s => String(s).replaceAll('|','\\|').replace(/\s+/g,' ').trim()
   for (const family of ['ddd','aftu','tata']) {
@@ -90,7 +93,13 @@ export function readinessTable(r) {
       const n = l.serviceNotes, timing = l.runs.length ? l.runs.map(s => s.kind === 'timetable' ? String(s.atOriginOnDay) : 'fréquence').join(' / ') : `0${n.timeCount ? ` · ${n.timeCount} heures aux arrêts` : n.otherCorridor ? ' · autre grille écartée' : n.window ? ' · bornes seules' : n.indicative ? ' · indicatif seul' : ''}`
       const change = l.calculation.find(w => w.changeExample), example = change?.changeExample ?? l.calculation.find(w => w.directExample)?.directExample
       const transfers = change ? 'Témoin daté' : l.transfers.length ? `${l.transfers.length} sens étudiés · aucun témoin` : 'Aucun dossier ciblé'
-      const calc = example ? `${example.from} → ${example.to}` : l.blocker ? 'Aucune direction admise' : 'Aucun témoin à cette heure'
+      // Describe the best available piece without turning a road, archive or
+      // timetable reference into a boarding permit. Full diagnostics below.
+      const why = l.map?.archive?.length ? `${l.map.archive.filter(v => v.at20[2]).length}/${l.map.archive.length} suites historiques sur le dessin à 20 m` :
+        l.map?.orientation === null ? 'sens de la carte indéterminé' : l.relations.length ? `${l.relations.length} relation(s) sans desserte entière validée` :
+        l.pieces.length ? `${l.pieces.length} portion(s) seulement` : l.circuit ? 'circuit non ventilé' : l.unassignedText.length ? `ordre publié (${l.unassignedText.join('/')} noms) à rattacher au sens` :
+        sides.some(s => d(s).textCounts.length) ? 'libellés sans quais validés' : 'pas de séquence physique attribuée'
+      const calc = example ? `${example.from} → ${example.to}` : l.blocker ? `Non · ${why}` : 'Aucun témoin à cette heure'
       out.push(`| **${l.code}**${l.axis ? ` · ${compact(l.axis.join(' → '))}` : ' · sens non établi'} | ${q('outbound')} | ${q('inbound')} | ${g('outbound')} | ${g('inbound')} | ${transfers} | ${timing} | ${compact(calc)} |`)
     }
     out.push('')
@@ -101,7 +110,7 @@ export function readinessTable(r) {
       if (m) {
         const pins = m.markers.map(([role,name]) => `${role} « ${name || 'sans nom'} »`).join(', ')
         const road = m.possible == null ? 'sens non résolu, voirie non testée' : m.possible ? 'chaîne possible' : Object.entries(m.roadGaps).map(([k,[n,ranks]]) => `${k === 'NO_DIRECTED_ROAD' ? 'sans chaussée compatible' : 'rupture'} : ${n} segment(s), rang(s) ${ranks.join(', ')}${ranks.length < n ? '…' : ''}`).join(' ; ')
-        out.push(`- **${family.toUpperCase()} ${l.code}** : ${compact(pins)}. ${m.vertices} sommets, ${m.meters} m ; ${road}. ${m.archive?.length ? `${m.archive.filter(v => v.at20[2]).length}/${m.archive.length} suites historiques compatibles à 20 m (de bout en bout).` : 'Pas de suite historique testée pour ce dessin.'}`)
+        out.push(`- **${family.toUpperCase()} ${l.code}** : ${compact(pins)}. ${m.vertices ?? '?'} sommets, ${m.meters ?? '?'} m ; ${road}. ${m.archive?.length ? `${m.archive.filter(v => v.at20[2]).length}/${m.archive.length} suites historiques compatibles à 20 m (de bout en bout).` : 'Pas de suite historique testée pour ce dessin.'}`)
       }
       for (const p of l.relations) out.push(`- **${family.toUpperCase()} ${l.code}** : [${p.id} v${p.version}](https://www.openstreetmap.org/relation/${p.id}/history/${p.version}), ${compact(p.from ?? '?')} → ${compact(p.to ?? '?')}. ${p.stops} membres d’arrêt, ${p.ways} ways ; ${p.breaks.length} rupture(s) de nœuds, ${p.directionConflicts.length} conflit(s) orienté(s), ${p.outside.length} occurrence(s) à plus de 20 m. ${p.orderedRoadChainPossible ? 'Chaîne possible, étendue commerciale non établie.' : 'Chaîne entière non établie.'}`)
     }

@@ -26,15 +26,20 @@ def freeze(aftu, regional, revision, aftu_job, regional_job):
         raise ValueError('Révision source requise')
     pages = unpack(aftu, 'Cartes AFTU')
     acquisition = one(aftu, 'Acquisition AFTU')
-    count = re.search(r' · (\d+) pages · ', acquisition)
+    count = re.search(r' · (\d+) pages · (\d+) erreurs$', acquisition)
+    errors = json.loads(one(aftu, 'Pages AFTU non acquises'))
     if not count or len(pages) != int(count[1]) or not pages or len({r[0] for r in pages}) != len(pages):
         raise ValueError('Reçus des pages absents, dupliqués ou tronqués')
+    if len(errors) != int(count[2]) or len({r[0] for r in pages + errors}) != len(pages) + len(errors):
+        raise ValueError('Liste des erreurs de page incomplète ou contradictoire')
     fits = unpack(aftu, 'Ajustement AFTU')
     indexed = {r[0]: r[1:] for r in fits}
     if len(indexed) != len(fits):
         raise ValueError('Mesure dupliquée')
     drawings = {}
     for code, status, roles, lines, page_hash, other, names in sorted(pages, key=lambda r: int(r[0])):
+        if len(roles or []) != len(names or []):
+            raise ValueError('Marqueurs et noms incohérents')
         row = {'pageStatus': status, 'pageHash': page_hash, 'markers': list(zip(roles or [], names or [])), 'lineCount': len(lines or [])}
         if status == 'MAP_READ' and len(lines) == 1 and not other and lines[0][0] is not None:
             vertices, meters, longest, over300, _, offsets, shape_hash = lines[0]
@@ -53,7 +58,7 @@ def freeze(aftu, regional, revision, aftu_job, regional_job):
     relations = sorted(unpack(regional, 'Continuité bus'), key=lambda r: r['id'])
     if len(relations) != int(one(regional, 'Nombre de relations bus')) or len({r['id'] for r in relations}) != len(relations):
         raise ValueError('Reçus régionaux absents ou dupliqués')
-    return {'sourceRevision': revision, 'aftuCheck': aftu_job, 'regionalCheck': regional_job, 'acquisition': acquisition, 'pageErrors': json.loads(one(aftu, 'Pages AFTU non acquises')),
+    return {'sourceRevision': revision, 'aftuCheck': aftu_job, 'regionalCheck': regional_job, 'acquisition': acquisition, 'pageErrors': errors,
             'pbfSha256': pbf, 'attribution': '© OpenStreetMap contributors · ODbL 1.0', 'pinnedReview': one(regional, 'Revue OSM'),
             'drawings': drawings, 'relations': relations}
 

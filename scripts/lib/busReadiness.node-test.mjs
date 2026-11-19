@@ -38,9 +38,16 @@ test('the ledger can credit a dated bus and an actual transfer in a synthetic pu
     const at=pack.date+'T08:20', epoch=Date.parse(at+'Z')/1000, sid=pack.snapshot_id, net=admitPassengerEdition(pack,sid,pack.date,localPassengerData)
     const point = id => endpointOf(net.places.get(`gtfs:${sid}:stop:${id}`),sid)
     const actual=planDakarJourney(point('A2'),point('B3'),{departAt:epoch},net); assert.ok(actual.ok)
+    const { assessTransfer }=await load('/src/routing/transferReview.ts'), { transferWitness }=await load('/src/admin/transferWitness.ts')
+    const change=pack.dataset.samePlatformChanges[0], binding=role=>pack.dataset.platformBindings.find(b=>b.role===role && b.lineId===change[role].lineId && b.stopId===change[role].stopId)
+    const proof={samePosition:true,alight:binding('alight'),board:binding('board')}
+    const assessment=assessTransfer(net,{from:change.alight,to:change.board,betweenSites:false},proof)
+    const timed=transferWitness(net,assessment,proof,epoch)
+    assert.equal(timed.status,'DATED_WITNESS'); assert.equal(timed.walkSeconds,0); assert.equal(timed.onwardWaitSeconds,300)
+    assert.equal(transferWitness(net,assessment,proof,epoch+1).status,'NO_DATED_WITNESS')
     const w=journeyWitnesses(); w.record('published:A2','published:B3',[...actual.options,...actual.options])
     assert.ok(w.rows().every(v=>v.odPairs===1 && v.withChange===1 && v.changeExample && !v.directExample))
-    const replay={atDakar:at,points:2,pointIds:['published:A2','published:B3'],wholeForm:true,exclusive:{whole:1,noProposal:1},includes:{bus:1,anyChange:1},admittedServices:admittedServices(net,Math.floor(epoch/86400)*86400,epoch),rideWitnesses:w.rows()}
+    const replay={atDakar:at,maxChanges:3,points:2,pointIds:['published:A2','published:B3'],wholeForm:true,exclusive:{whole:1,noProposal:1},includes:{bus:1,anyChange:1},admittedServices:admittedServices(net,Math.floor(epoch/86400)*86400,epoch),rideWitnesses:w.rows()}
     // Identities in this fixture are SYNTHETIC (no attribution to real Dakar codes).
     const links=replay.admittedServices.filter(v=>['ddd','aftu','tata'].includes(v.mode)).map(p=>({...p,code:'QA',side:'outbound',scope:p.mode==='ddd'?'whole':'section',reference:'fixture'}))
     const inv={lines:links.map(l=>({network:l.mode,code:'QA',evidence:[]}))}
