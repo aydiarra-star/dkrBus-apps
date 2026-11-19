@@ -6,6 +6,8 @@ on:
     paths:
       - "scripts/lib/waymarkLines*"
       - "scripts/audit_aftu_road_fit.py"
+      - "scripts/audit_aftu_map_calls.py"
+      - "scripts/compare_bus_occurrences.py"
       - "scripts/export_aftu_official_routes.mjs"
       - ".github/workflows/audit-aftu-official-routes.yml"
 
@@ -49,6 +51,14 @@ jobs:
           curl -fLsS --retry 2 https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf -o "$pbf" || \
             curl -fLsS --retry 2 https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf -o "$pbf"
           python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json
+      - name: Compare every archived call sequence with the one marked map direction
+        run: |
+          if test -d "$RUNNER_TEMP/aftu-maps"; then
+            zip="$RUNNER_TEMP/aftu.zip"
+            curl -fLsS --retry 2 -H 'Accept: application/vnd.github.raw+json' \
+              'https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder/gtfs_AFTU.zip?ref=7a2b99824699cb10daf69852c8fbecb746200d77' -o "$zip"
+            python -m scripts.audit_aftu_map_calls "$RUNNER_TEMP/aftu-maps" "$zip" artifacts/aftu/archived-call-fit.json
+          fi
       - name: Save route audit
         uses: actions/upload-artifact@v4
         with:

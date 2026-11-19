@@ -77,7 +77,7 @@ def shared_blocks(variants, seeds):
     return result
 
 
-def patterns(z, network):
+def patterns(z, network, *, visit_variant=None):
     routes = {}
     for r in tables(z, 'routes'):
         rid = r['route_id']
@@ -117,6 +117,8 @@ def patterns(z, network):
                 'trips': n, 'occurrences': len(ids), 'distinctStopIds': len(set(ids)),
                 'distinctLabels': len(set(map(label, names))), 'rankTies': list(ties), 'issues': list(issues),
                 'sequenceHash': hashlib.sha256(json.dumps(ids).encode()).hexdigest()}
+        if visit_variant:
+            visit_variant(meta, ids)
         variants.append(meta)
         ordered_ids.append((meta, ids))
         if 'UNKNOWN_STOP' not in issues:

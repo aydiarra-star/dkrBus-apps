@@ -93,12 +93,6 @@ def review(relation):
             'missingRoads': missing, 'offsets': offsets, 'orderedRoadChainPossible': bool(roads) and not any((breaks, conflicts, unknown, missing))}
 
 
-def receipt(r):
-    return {k: v for k, v in r.items() if k != 'offsets'} | {
-        'outside': [[s['rank'], s['id'], s['offsetM']] for s in r['offsets'] if s['outside20m']],
-        'unmeasured': [s['rank'] for s in r['offsets'] if s['offsetM'] is None]}
-
-
 if __name__ == '__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     for arg in ('input', 'output'):
@@ -112,5 +106,13 @@ if __name__ == '__main__':
     args.output.write_text(json.dumps(out, ensure_ascii=False, indent=2)+'\n')
     if args.ci_summary:
         print('::notice title=Empreinte continuité::'+out['sha256'])
-        for r in rows:
-            print('::notice title=Continuité bus::'+json.dumps(receipt(r), separators=(',', ':')).replace('%', '%25'))
+        # Actions only retains ten notices per step. The artifact contains all
+        # ranks; these per-relation measurements also fit in the check summary.
+        brief = [{'id': r['id'], 'version': r['version'], 'identity': r['identity'], 'from': r['from'], 'to': r['to'],
+                  'ways': r['ways'], 'stops': r['stops'], 'breaks': [b['after'] for b in r['breaks']],
+                  'directionConflicts': [b['rank'] for b in r['directionConflicts']], 'missingRoads': r['missingRoads'],
+                  'unknownWayRoles': r['unknownWayRoles'], 'orderedRoadChainPossible': r['orderedRoadChainPossible'],
+                  'outside': [[s['rank'], s['offsetM']] for s in r['offsets'] if s['outside20m']],
+                  'unmeasured': [s['rank'] for s in r['offsets'] if s['offsetM'] is None]} for r in rows]
+        for i in range(0, len(brief), 4):
+            print('::notice title=Continuité bus::'+json.dumps(brief[i:i+4], ensure_ascii=False, separators=(',', ':')).replace('%', '%25'))
