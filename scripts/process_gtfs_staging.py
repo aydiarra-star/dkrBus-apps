@@ -50,6 +50,8 @@ EXPECTED_VALIDATOR_LIMITS = {
     "max_total_uncompressed_bytes": 500 * 1024 * 1024,
     "max_rows_per_table": 2_000_000,
     "max_issue_details": 200,
+    "max_issue_message_chars": 512,
+    "max_issue_table_chars": 64,
 }
 
 
