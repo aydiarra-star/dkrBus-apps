@@ -110,8 +110,9 @@ async function markSession(
     state,
     finalized_at: state === "FINALIZED" ? now : null,
   }).eq("upload_id", uploadId);
-  // Never shorten the expiry of a failed session: its signed Storage token
-  // remains usable until its own two-hour expiry and cannot be revoked.
+  // Never shorten the expiry of a failed session: the signed token may create
+  // a TUS URL near the end of its two-hour lifetime, and that URL can remain
+  // usable for up to 24 more hours. The session expiry includes both windows.
   query = state === "FAILED"
     ? query.eq("state", "UPLOAD_PENDING")
     : query.in("state", ["UPLOAD_PENDING", "FAILED"]);
@@ -138,8 +139,9 @@ async function cleanupSession(
   admin: AdminClient,
   session: UploadSession,
 ): Promise<boolean> {
-  // Signed upload tokens are not individually revocable. Never remove the
-  // object/session before the token has expired, even on a failure path.
+  // Signed upload tokens are not individually revocable. A TUS URL created
+  // just before token expiry may remain valid for another 24 hours. Never remove
+  // the object/session before that final resumable URL window and grace period end.
   if (!isUploadSessionExpired(session.expires_at)) return false;
 
   const { data: existing, error: lookupError } = await admin
