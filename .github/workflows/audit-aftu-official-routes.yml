@@ -7,6 +7,9 @@ on:
       - "scripts/lib/waymarkLines*"
       - "scripts/audit_aftu_road_fit.py"
       - "scripts/audit_aftu_map_calls.py"
+      - "scripts/audit_gt54.py"
+      - "scripts/medina_phase.py"
+      - "data/bus-sections/gt54-pins.json"
       - "scripts/compare_bus_occurrences.py"
       - "scripts/export_aftu_official_routes.mjs"
       - ".github/workflows/audit-aftu-official-routes.yml"
@@ -55,14 +58,31 @@ jobs:
             curl -fLsS --retry 2 "$source" -o "$pbf"
           fi
           python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json --source-url "$source"
+      - name: Check historical call roles at GT-54 and independent approach phases at Médina
+        run: |
+          base='https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder'
+          ref=7a2b99824699cb10daf69852c8fbecb746200d77
+          for file in AFTU Dem_Dikk; do
+            curl -fLsS --retry 2 -H 'Accept: application/vnd.github.raw+json' "$base/gtfs_$file.zip?ref=$ref" -o "$RUNNER_TEMP/$file.zip"
+          done
+          ddd="$RUNNER_TEMP/Dem_Dikk.zip"
+          python -m scripts.audit_gt54 "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/gt54.json
+          cmp data/bus-review/gt54-occurrences.json artifacts/aftu/gt54.json
+          test "$(python -m scripts.medina_phase "$ddd")" = '119 2097 3518 4645'
+          test "$(python -m scripts.medina_phase "$ddd" --direction inbound)" = '89 631 1066 1355'
       - name: Compare every archived call sequence with the one marked map direction
         run: |
           if test -d "$RUNNER_TEMP/aftu-maps"; then
-            zip="$RUNNER_TEMP/aftu.zip"
-            curl -fLsS --retry 2 -H 'Accept: application/vnd.github.raw+json' \
-              'https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder/gtfs_AFTU.zip?ref=7a2b99824699cb10daf69852c8fbecb746200d77' -o "$zip"
-            python -m scripts.audit_aftu_map_calls "$RUNNER_TEMP/aftu-maps" "$zip" artifacts/aftu/archived-call-fit.json
+            python -m scripts.audit_aftu_map_calls "$RUNNER_TEMP/aftu-maps" "$RUNNER_TEMP/AFTU.zip" artifacts/aftu/archived-call-fit.json
           fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from scripts.audit_gt54 import drawing_control
+          f = Path(os.environ['RUNNER_TEMP']) / 'aftu-maps/39.json'
+          r = drawing_control(json.loads(f.read_text())) if f.exists() else {'status':'DESSIN_NON_ACQUIS'}
+          print('::notice title=Rue GT-54 sur le dessin marqué 39::'+json.dumps(r))
+          PY
       - name: Save route audit
         if: always() && hashFiles('artifacts/aftu/aftu-official-route-pages.json') != ''
         uses: actions/upload-artifact@v4

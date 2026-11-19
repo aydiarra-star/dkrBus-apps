@@ -46,6 +46,16 @@ const feeders: readonly [string, string, string, string][] = [
   ['504B','diamniadio','Sébikotane','Ni le quai de la 504B ni le parcours jusqu’à la voie du train ne se déduisent de l’intitulé de gare.'],
 ]
 export const dakarTransferDossiers: readonly Dossier[] = [
+  { id: 'gt54-18-39', busSources: ['ddd:18','aftu:39'], betweenSites: false,
+    ends: [{ ...ddd('survey:gt54:18:delafosse'), documentaryName: 'Rue GT-54 · 18 sur le circuit par le lycée Delafosse' },
+      { ...aftu('survey:gt54:39:diamalaye'), documentaryName: 'Rue GT-54 · 39 depuis Lat Dior vers Diamalaye' }],
+    observation: 'Poteau 2175197258 et appels réguliers dans les deux archives, du même côté vers GT-73. Le retour de la 39 n’y est pas. Ni droits du jour ni prochaine montée atteignable établis.',
+    sources: ['docs/validation-physique.md', 'https://www.openstreetmap.org/node/2175197258', urbanPage, 'https://aftu-senegal.org/map/dakar-urbain-ligne-39/'] },
+  { id: 'maristes-12-75', busSources: ['ddd:12','aftu:75'], betweenSites: false,
+    ends: [{ ...ddd('survey:maristes:12:palais'), documentaryName: 'Fiche 37702688 · 12 vers Gare Palais' },
+      { ...aftu('survey:maristes:75:colobane'), documentaryName: 'Fiche 37702688 · 75 vers Colobane' }],
+    observation: 'Les deux fiches de sens et les heures à l’appel 37 ne prouvent pas un même point d’attente. Aucune distance réelle ni traversée établie entre ces deux appels.',
+    sources: ['docs/validation-physique.md','docs/trajets-bus-medina-maristes.md', 'https://moovitapp.com/index/fr/transport_en_commun-Route_Des_Maristes_141-Dakar-stop_37702688-5996'] },
   { id: 'dakar-petersen', ends: [ter('ter-dakar'), brt('brt-petersen')], betweenSites: true,
     observation: 'Le quai B1 de descente est identifié. Le quai de montée vers Guédiawaye est distinct et hors du seuil du point de référence. Les 1 km historiques ne décrivent pas un chemin entre gares.', sources: [legacy, petersen, b1] },
   { id: 'colobane-place-nation', ends: [ter('ter-colobane'), brt('brt-place-nation')], betweenSites: true,

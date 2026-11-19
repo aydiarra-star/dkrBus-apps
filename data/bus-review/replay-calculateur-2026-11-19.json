@@ -2,7 +2,7 @@
   "atDakar": "2026-11-19T19:00",
   "maxChanges": 3,
   "stepFreeOnly": false,
-  "points": 150,
+  "points": 154,
   "pointIds": [
     "ref:ter-dakar",
     "ref:ter-colobane",
@@ -153,72 +153,97 @@
     "ref:ddd-1-medina-4666430955",
     "ref:ddd-1-medina-4666430953",
     "ref:ddd-1-medina-4666430951",
-    "ref:ddd-1-medina-4666430950"
+    "ref:ddd-1-medina-4666430950",
+    "ref:ddd-1-medina-4666430947",
+    "ref:ddd-1-medina-4666430945",
+    "ref:ddd-1-medina-retour-4666430956",
+    "ref:ddd-1-medina-retour-4666430957"
   ],
   "exclusive": {
-    "whole": 731,
+    "whole": 745,
     "exactBusMap": 108,
-    "stopSection": 5040,
+    "stopSection": 5160,
     "nearbyBusMap": 0,
-    "changeLead": 976,
-    "lineSheet": 334,
-    "noProposal": 15161
+    "changeLead": 979,
+    "lineSheet": 331,
+    "noProposal": 16239
   },
-  "wholeJourneySha256": "e36444488a415f31674646d0559152cc5addc2ab8fd11428e4e9eaf85074b2a5",
+  "diagnosis": {
+    "minimumChanges": {
+      "direct": 745,
+      "one": 0,
+      "multiple": 0
+    },
+    "usesMode": {
+      "ter": 78,
+      "brt": 638,
+      "ddd": 29,
+      "aftu": 0,
+      "tata": 0
+    },
+    "refusalsByCode": {
+      "OUT_OF_SCOPE": 306,
+      "NO_PATH": 1705,
+      "UNVERIFIED_ACCESS": 20698,
+      "DOCUMENTED_SECTION_ONLY": 108
+    }
+  },
+  "movementSha256": "cc60af5e48d89d3a61a679ff7a3ae5dcb8fb8a19788ef66fb7c0f788ee818380",
+  "wholeJourneySha256": "585342a320cc9223faece4ea4142f3d915f0c319368f671ac62c3d4a6de02083",
   "includes": {
     "accessWalk": 44,
     "egressWalk": 44,
     "transferWalk": 0,
     "samePositionChange": 0,
     "anyChange": 0,
-    "bus": 15
+    "bus": 29
   },
   "matrix": {
     "graphe → graphe": {
-      "pairs": 1892,
-      "whole": 643,
+      "pairs": 2256,
+      "whole": 657,
       "sectionsOnly": 0,
-      "neither": 1249,
+      "neither": 1599,
       "withChangeLead": 294,
       "withBusMap": 0,
       "withExactBusMap": 0,
-      "wholeWithBus": 15
+      "wholeWithBus": 29
     },
     "graphe → catalogue seul": {
-      "pairs": 1496,
+      "pairs": 1632,
       "whole": 0,
-      "sectionsOnly": 435,
-      "neither": 1061,
+      "sectionsOnly": 439,
+      "neither": 1193,
       "withChangeLead": 100,
       "withBusMap": 0,
       "withExactBusMap": 0,
       "wholeWithBus": 0
     },
     "graphe → repère de portion bus": {
-      "pairs": 1892,
+      "pairs": 2064,
       "whole": 0,
-      "sectionsOnly": 792,
-      "neither": 1100,
+      "sectionsOnly": 829,
+      "neither": 1235,
       "withChangeLead": 0,
       "withBusMap": 0,
       "withExactBusMap": 0,
       "wholeWithBus": 0
     },
     "graphe → repère": {
-      "pairs": 1276,
+      "pairs": 1392,
       "whole": 44,
       "sectionsOnly": 65,
-      "neither": 1167,
+      "neither": 1283,
       "withChangeLead": 34,
       "withBusMap": 0,
       "withExactBusMap": 0,
       "wholeWithBus": 0
     },
     "catalogue seul → graphe": {
-      "pairs": 1496,
+      "pairs": 1632,
       "whole": 0,
-      "sectionsOnly": 489,
-      "neither": 1007,
+      "sectionsOnly": 493,
+      "neither": 1139,
       "withChangeLead": 411,
       "withBusMap": 0,
       "withExactBusMap": 0,
@@ -229,7 +254,7 @@
       "whole": 0,
       "sectionsOnly": 285,
       "neither": 837,
-      "withChangeLead": 210,
+      "withChangeLead": 214,
       "withBusMap": 0,
       "withExactBusMap": 0,
       "wholeWithBus": 0
@@ -255,10 +280,10 @@
       "wholeWithBus": 0
     },
     "repère de portion bus → graphe": {
-      "pairs": 1892,
+      "pairs": 2064,
       "whole": 0,
-      "sectionsOnly": 842,
-      "neither": 1050,
+      "sectionsOnly": 917,
+      "neither": 1147,
       "withChangeLead": 0,
       "withBusMap": 0,
       "withExactBusMap": 0,
@@ -295,10 +320,10 @@
       "wholeWithBus": 0
     },
     "repère → graphe": {
-      "pairs": 1276,
+      "pairs": 1392,
       "whole": 44,
       "sectionsOnly": 54,
-      "neither": 1178,
+      "neither": 1294,
       "withChangeLead": 120,
       "withBusMap": 0,
       "withExactBusMap": 0,
@@ -402,25 +427,49 @@
     {
       "mode": "ddd",
       "lineId": "ddd-1-medina",
-      "direction": "Leclerc · portion Manguiers → Stade",
-      "calls": 6,
+      "direction": "Médina → Sandaga · vers Leclerc",
+      "calls": 8,
       "physicalCallRanks": [
         1,
         2,
         3,
         4,
         5,
-        6
+        6,
+        7,
+        8
       ],
-      "shapeSource": "OSM_ROUTE_RELATION",
-      "shapeId": "6951328/v28:25-30",
+      "shapeSource": "REVIEWED_OSM_WAYS",
+      "shapeId": "6951328/v28:25-32+Poste/OID25",
       "source": {
         "status": "reviewed",
         "date": "2026-11-19",
-        "reference": "Six quais vers Leclerc · Dakar Dem Dikk / chatbot-arrêts et © OpenStreetMap relation 6951328 v28 (ODbL)"
+        "reference": "Dakar Dem Dikk · demdikk.sn/chatbot-arrets/ · © OpenStreetMap (ODbL) · Quais OSM 25–32 ; giratoire recoupé avec ArcGIS OID 25 · voir docs/validation-physique.md"
       },
       "firstStop": "ddd-1-medina-4666430960",
-      "lastStop": "ddd-1-medina-4666430950",
+      "lastStop": "ddd-1-medina-4666430945",
+      "service": "frequency",
+      "originDepartures": null,
+      "nextOrigin": null
+    },
+    {
+      "mode": "ddd",
+      "lineId": "ddd-1-medina",
+      "direction": "Vers Parcelles · PMI Médina → Rue 37",
+      "calls": 2,
+      "physicalCallRanks": [
+        1,
+        2
+      ],
+      "shapeSource": "REVIEWED_OSM_WAYS",
+      "shapeId": "DDD1/retour:57-58/Sahm",
+      "source": {
+        "status": "reviewed",
+        "date": "2026-11-19",
+        "reference": "Dakar Dem Dikk · demdikk.sn/chatbot-arrets/ · © OpenStreetMap (ODbL) · Deux appels après Leclerc sur les chaussées montantes au giratoire de Sahm. Aucune permission de changer de bus."
+      },
+      "firstStop": "ddd-1-medina-retour-4666430956",
+      "lastStop": "ddd-1-medina-retour-4666430957",
       "service": "frequency",
       "originDepartures": null,
       "nextOrigin": null
@@ -505,8 +554,8 @@
     {
       "mode": "ddd",
       "lineId": "ddd-1-medina",
-      "direction": "Leclerc · portion Manguiers → Stade",
-      "odPairs": 15,
+      "direction": "Médina → Sandaga · vers Leclerc",
+      "odPairs": 28,
       "withChange": 0,
       "directExample": {
         "from": "ref:ddd-1-medina-4666430960",
@@ -521,8 +570,33 @@
             "end": 1795115274,
             "mode": "ddd",
             "lineId": "ddd-1-medina",
-            "direction": "Leclerc · portion Manguiers → Stade",
+            "direction": "Médina → Sandaga · vers Leclerc",
             "waitSeconds": 398
+          }
+        ]
+      }
+    },
+    {
+      "mode": "ddd",
+      "lineId": "ddd-1-medina",
+      "direction": "Vers Parcelles · PMI Médina → Rue 37",
+      "odPairs": 1,
+      "withChange": 0,
+      "directExample": {
+        "from": "ref:ddd-1-medina-retour-4666430956",
+        "to": "ref:ddd-1-medina-retour-4666430957",
+        "start": 1795114800,
+        "end": 1795115204,
+        "legs": [
+          {
+            "from": "ddd-1-medina-retour-4666430956",
+            "to": "ddd-1-medina-retour-4666430957",
+            "start": 1795115146,
+            "end": 1795115204,
+            "mode": "ddd",
+            "lineId": "ddd-1-medina",
+            "direction": "Vers Parcelles · PMI Médina → Rue 37",
+            "waitSeconds": 346
           }
         ]
       }

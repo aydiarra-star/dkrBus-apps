@@ -20,10 +20,10 @@ const maxSourceStepM = 300
 const namespace = 'landmark:bus-osm-'
 const point = ([, lat, lon]: OsmVertex): RoadPoint => ({ lat, lon })
 
-export function compileBusScope(review: SectionReview, ways: Readonly<Record<number, BusWay>> = BUS_SECTION_WAYS): BusScope | null {
-  if (review.ways.length === 0 || review.markers.length < 2 || new Set(review.markers).size !== review.markers.length) return null
+/** A literal simple subchain, including partial ways. No routing across missing members. */
+export function orderedWayVertices(ids: readonly number[], ways: Readonly<Record<number, BusWay>> = BUS_SECTION_WAYS) {
   const vertices: OsmVertex[] = []
-  for (const signed of review.ways) {
+  for (const signed of ids) {
     const w = ways[Math.abs(signed)]
     if (!w || w.vertices.length < 2 || (signed < 0 && w.oneWay)) return null
     const ordered = signed > 0 ? w.vertices : [...w.vertices].reverse()
@@ -33,8 +33,14 @@ export function compileBusScope(review: SectionReview, ways: Readonly<Record<num
   }
   // These specific reviewed sections are simple paths, not folded loops.
   if (new Set(vertices.map(v => v[0])).size !== vertices.length) return null
+  return shapeLength(vertices.map(point), maxSourceStepM) ? vertices : null
+}
+
+export function compileBusScope(review: SectionReview, ways: Readonly<Record<number, BusWay>> = BUS_SECTION_WAYS): BusScope | null {
+  if (review.markers.length < 2 || new Set(review.markers).size !== review.markers.length) return null
+  const vertices = orderedWayVertices(review.ways, ways)
+  if (!vertices) return null
   const positions = vertices.map(point)
-  if (!shapeLength(positions, maxSourceStepM)) return null
   const shape: VerifiedLineGeometry | undefined = review.relation ? { network: review.family === 'ddd' ? 'ddd' : 'aftu_tata', lineId: review.line,
     directionId: review.id, source: 'OSM_ROUTE_RELATION', sourceId: `${review.relation}/v${review.version}`, verified: true, positions } : undefined
   // A road named by the operator isn't an OSM bus relation. For that case

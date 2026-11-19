@@ -1,6 +1,6 @@
 # Bus à Dakar : ce que le calculateur peut montrer
 
-**Calculateur actuel :** [DDD 1 à Médina et horaires 12/75 aux Maristes](trajets-bus-medina-maristes.md). À 19 h, 731 voyages sur 22 350 couples, dont 15 entre les nouveaux quais de la 1. Aucun changement physique admis.
+**Calculateur actuel :** [DDD 1 à Médina dans deux sens, rue GT-54, Maristes et vérification des huit pôles](validation-physique.md). À 19 h, **745 voyages sur 23 562 couples**, dont 29 directs DDD. Les 731 voyages sur les 150 anciennes sélections sont conservés. Aucune correspondance interréseaux cartographiée.
 
 **Rejeu du 19 novembre 2026, avant les six nouveaux quais (`32f3776`).** [Résultat pour chacune des 186 identités](etat-par-ligne-2026-11-19.md) · [revue du 19 : sources, correspondances et couverture](revue-bus-2026-11-19.md). Les 65 dessins AFTU lus, les 117 suites historiques comparées et les 16 relations bus entières contrôlées n’apportent aucun service DDD/AFTU/TATA daté. Le meilleur changement pour le voyageur est documentaire : 15 liens de sens identifiés, pas de retour reconstruit pour la 80. À 19 h, 716 couples ont un trajet complet, aucun de plus que dans le rejeu à date et périmètre identiques. Les 22 dossiers de correspondance sont bloqués dans les deux sens. **Les mesures ci-dessous décrivent la précédente revue, du 18 novembre.**
 

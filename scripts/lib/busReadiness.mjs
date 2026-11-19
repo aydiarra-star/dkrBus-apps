@@ -81,7 +81,7 @@ export function readinessTable(r) {
   const out = ['# Peut-on calculer un trajet sur chaque ligne de bus ?', '', `**${r.atDakar.replace('T',' à ')} (Dakar)** · ${r.points} sélections, ${r.pairs} couples orientés effectivement essayés. ${r.exclusive.whole} voyages complets, dont **${r.includes.bus} avec DDD/AFTU/TATA** et **${r.includes.anyChange} avec changement**. ${r.snapshotId ? `Édition : ${r.snapshotId}.` : 'Application embarquée, sans édition opérateur.'}`, '',
     'Une ligne du tableau est un **couple provenance/code**, pas forcément un service distinct. Sept questions : quais ordonnés A/R, tracé entier A/R, correspondance, départ du jour et résultat du calcul. **A** est orienté par la fiche directionnelle, sinon les marqueurs de la carte, l’ordre du texte ou le titre ; **R** est évalué indépendamment. Le titre n’atteste ni A ni R. Les variantes non équivalentes restent à part.', '',
     '**Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté. « 0/2 suites » signifie que, parmi deux variantes de l’archive essayées sur le seul dessin marqué, aucune ne passe tous les contrôles ; ce n’est pas un nombre de courses.', '',
-    '[Essayer la DDD 1 et comparer les horaires 12/75 sans les confondre avec un transfert tracé](trajets-bus-medina-maristes.md) · [Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).', '']
+    '[Essayer les deux portions DDD 1 et vérifier les correspondances étudiées](validation-physique.md) · [Comparer les horaires 12/75](trajets-bus-medina-maristes.md) · [Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).', '']
   const compact = s => String(s).replaceAll('|','\\|').replace(/\s+/g,' ').trim()
   for (const family of ['ddd','aftu','tata']) {
     const rows = r.rows.filter(l => l.network === family)
@@ -101,7 +101,10 @@ export function readinessTable(r) {
         l.map?.orientation === null ? 'sens de la carte indéterminé' : l.relations.length ? `${l.relations.length} relation(s) sans desserte entière validée` :
         l.pieces.length ? `${l.pieces.length} portion(s) seulement` : l.circuit ? 'circuit non ventilé' : l.unassignedText.length ? `ordre publié (${l.unassignedText.join('/')} noms) à rattacher au sens` :
         sides.some(s => d(s).textCounts.length) ? 'libellés sans quais validés' : 'pas de séquence physique attribuée'
-      const calc = example ? `${witness.odPairs} couples sur la desserte témoin · ${example.from} → ${example.to}` : l.blocker ? `Non · ${why}` : 'Aucun témoin à cette heure'
+      const calc = example ? l.calculation.map(w => {
+        const e = w.changeExample ?? w.directExample
+        return `${w.odPairs} couple(s) · ${e.from} → ${e.to}`
+      }).join(' ; ') : l.blocker ? `Non · ${why}` : 'Aucun témoin à cette heure'
       out.push(`| **${l.code}**${l.axis ? ` · ${compact(l.axis.join(' → '))}` : ' · sens non établi'} | ${q('outbound')} | ${q('inbound')} | ${g('outbound')} | ${g('inbound')} | ${transfers} | ${timing} | ${compact(calc)} |`)
     }
     out.push('')

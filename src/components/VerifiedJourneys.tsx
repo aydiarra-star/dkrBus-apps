@@ -57,6 +57,7 @@ function ChangeDetails({ changes, onChoose }: { changes: ChangeLead[]; onChoose:
     {changes.map((c, i) => <details key={c.hub} open={i === 0}><summary>{c.hub} · {c.before.line} puis {c.after.line}</summary>
       <ol><Side side={c.before} onChoose={onChoose} /><Side side={c.after} onChoose={onChoose} /></ol>
       <p>{c.check}</p>
+      {c.poleUrl && <a href={c.poleUrl} target="_blank" rel="noreferrer">Voir le poteau sur OpenStreetMap</a>}
     </details>)}
   </div>
 }
@@ -154,6 +155,6 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
         </article>
       })}
     </>}
-    <p className="verified-hint">Sans édition opérateur : TER Dakar → Diamniadio ; B1 Préfecture → Petersen et Petersen → Gueule Tapée ; DDD 1 de l’École Manguiers au Stade Iba Mar Diop, vers Leclerc uniquement. Pour B1, vérifier la desserte du jour : la liste de stations est celle du modèle de référence. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
+    <p className="verified-hint">Sans édition opérateur : TER Dakar → Diamniadio ; B1 Préfecture → Petersen et Petersen → Gueule Tapée ; DDD 1 de l’École Manguiers à El Malick Sandaga vers Leclerc, et de PMI Médina à Rue 37 vers les Parcelles. Pour B1, vérifier la desserte du jour : la liste de stations est celle du modèle de référence. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
   </section>
 }

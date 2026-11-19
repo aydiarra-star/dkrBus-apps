@@ -210,4 +210,4 @@ Hors attribution :
 - aftu-85-directions.json (85-unverified) : inbound, 95 occurrences.
 - corridors : as-published, 4 occurrences.
 
-Calcul daté local (hors édition opérateur) : 1 portion(s) ou sens de bus admis ; 4 arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.
+Calcul daté local (hors édition opérateur) : 2 portion(s) ou sens de bus admis ; 4 arcs piétons orientés (tous usages confondus). Une ligne absente du calculateur n’est pas déclarée hors service.

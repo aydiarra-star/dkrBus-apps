@@ -38,6 +38,8 @@ export const BUS_SECTION_MARKERS: Readonly<Record<number, readonly [number, numb
   4666430953: [5,14.6814319,-17.4502967,'Marché Tilène · côté Sahm, vers Stade'],
   4666430951: [6,14.6794172,-17.4481891,'Marché Tilène · côté Stade, vers le centre'],
   4666430950: [2,14.6784889,-17.4471505,'Stade · avenue Blaise Diagne'],
+  4666430947: [7,14.6748817,-17.4433605,'Crédit Foncier · vers Leclerc'],
+  4666430945: [6,14.6705731,-17.4402706,'El Malick Sandaga · vers Leclerc'],
   4666430949: [6,14.6779668,-17.4463337,'Polyclinique · avenue Blaise Diagne'],
   4666430952: [3,14.6799822,-17.4485358,'Marché Tilène · côté Stade, vers Sahm'],
   4666430954: [3,14.6820994,-17.4507748,'Marché Tilène · côté Sahm, vers le rond-point'],

@@ -1,5 +1,7 @@
 # Deux façons de préparer un trajet en bus : Médina et Maristes
 
+**Mise à jour :** [les huit quais vers Leclerc, la portion de retour et les contrôles physiques aux Maristes et rue GT-54](validation-physique.md). La mesure initiale à 150 sélections et les six premiers quais décrits ci-dessous sont ceux de `1c720c6`. Les exemples de cette page restent utilisables.
+
 Dans **Trajet**, le choix dépend de ce que l’on peut établir. **Sur la carte** répond entre les points géographiques sélectionnés. **Sur horaires · Maristes** compare des courses qui citent les mêmes fiches d’arrêt ; il ne connaît ni les coordonnées des quais ni le temps pour passer de l’un à l’autre. Les résultats des deux modes ne s’additionnent pas.
 
 ## Essayer dans l’application, sans API
@@ -13,7 +15,7 @@ Dans **Trajet**, le choix dépend de ce que l’on peut établir. **Sur la carte
 
 À **19:00**, les deux mêmes demandes sur fiches donnent respectivement **19:00 → 19:33 / 19:38 → 19:54** (5 min) et **19:08 → 19:24 / 19:33 → 19:47** (9 min). Un horaire compatible ne garantit ni le passage du véhicule ni que l’on atteindra la montée. Vérifier sur place où attendre. Aucun de ces changements n’est dessiné sur la carte.
 
-## Médina : pourquoi ces six quais, dans un seul sens ?
+## Première portion de Médina : six quais vers Leclerc à `1c720c6`
 
 Le [tableau des arrêts de Dakar Dem Dikk](https://demdikk.sn/chatbot-arrets/) place les six appels ci-dessous à la suite sur la 01 **avant** le terminus Leclerc. La [relation OSM 6951328, version 28](https://api.openstreetmap.org/api/0.6/relation/6951328/28.json) va des Parcelles vers Leclerc. Les rangs ci-dessous comptent les appels dans chacune de ces sources (base 1), pas les ways. Les noms affichés suivent la desserte DDD ; un repère OSM peut porter un autre nom. Le contrôle porte sur l’ordre, le rôle de quai, le sens, le côté de la chaussée et la position, pas sur le seul nom.
 
@@ -26,7 +28,7 @@ Le [tableau des arrêts de Dakar Dem Dikk](https://demdikk.sn/chatbot-arrets/) p
 | 38 | Rue 11 × Blaise Diagne | 29 | 4666430951 v6 | 4,1 m |
 | 39 | Stade Iba Mar Diop | 30 | 4666430950 v2 | 3,2 m |
 
-Les cinq segments sont découpés **sur la voirie** du sens déjà relu, entre projections successives des quais. Le [registre des ways et jointures](../data/bus-sections/README.md) conserve la portion plus large `ddd-1-sahm`, ses extrémités et la rupture en amont au rang 21. Le [service](../src/routing/medinaService.ts) ne prend que les rangs 25–30 et leurs versions de nœuds. Ses six identifiants `ref:ddd-1-medina-…` sont distincts des `landmark:bus-osm-…`. Il ne raccorde pas l’origine des Parcelles, une ligne partageant la rue, le trottoir, un quai du retour ou le TER/B1. Aucune voie piétonne ni permission de changer de véhicule n’a été ajoutée.
+Les cinq segments sont découpés **sur la voirie** du sens déjà relu, entre projections successives des quais. Le [registre des ways et jointures](../data/bus-sections/README.md) conserve la portion plus large `ddd-1-sahm`, ses extrémités et la rupture en amont au rang 21. Le [service initial](https://github.com/aydiarra-star/dkrBus-apps/blob/1c720c699aebf3f546db563d1b6a163eb2432b11/src/routing/medinaService.ts) ne prenait que les rangs 25–30 et leurs versions de nœuds. Ses six identifiants `ref:ddd-1-medina-…` sont distincts des `landmark:bus-osm-…`. Il ne raccorde pas l’origine des Parcelles, une ligne partageant la rue, le trottoir, un quai du retour ou le TER/B1. Aucune voie piétonne ni permission de changer de véhicule n’a été ajoutée.
 
 **D’où viennent les minutes ?** [DDD](https://demdikk.sn/) publie **05:30–20:30 aux Parcelles** (06:30–21:00 à Leclerc dans l’autre sens). Il ne s’agit pas des bornes d’un quai de Médina. Pour les jours de semaine non fériés du calendrier connu, le modèle applique aux Parcelles les [plages d’intervalle supposé](../src/domain/dddOriginWindows.ts) de **8 min** en pointe et **13 min** hors pointe, avec le dernier départ du terminus. Les créneaux sont ensuite décalés, pas réinitialisés à chaque quai.
 
@@ -47,17 +49,17 @@ Le [relevé](../src/data/maristesTimetables.ts) garde chaque triplet d’heures 
 
 Le [comparateur](../src/routing/timetableAdvice.ts) cherche un premier départ non manqué **dans l’heure**. Il évalue les directs et, si autorisé, l’enchaînement des deux sens à `37702688`. Il exige entre les deux passages au moins **3 min** ou la marge réglée par le voyageur si elle est supérieure, au plus **60 min**. Cette marge **n’est pas** un temps de marche. Parmi ces seules courses : première arrivée, puis moins de changements, puis départ le plus tardif. Réseaux désactivés, option « direct », heure modifiée et accessibilité stricte s’appliquent aussi ici. Aucune requête trajet à l’API, géométrie, substitution GPS ou voie de correspondance ne découle du résultat.
 
-## Ce qui change dans les mesures
+## Mesures de la première portion (`1c720c6`)
 
 Jeudi **19/11/2026 à 19:00, Dakar**, sans édition opérateur, mêmes réglages du formulaire géographique. Un couple = deux sélections distinctes, orientées ; chaque colonne est exclusive.
 
 | Formulaire | Couples | Complets | Carte exacte | Tronçon seul | Carte approchée | Changement à vérifier | Fiche seule | Sans proposition |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | [Avant : 144 IDs](../data/bus-review/replay-panneaux-v1-2026-11-19.json) | 20 592 | 716 | 108 | 4 746 | 0 | 976 | 334 | 13 712 |
-| [Après : mêmes 144 IDs](../data/bus-review/replay-calculateur-144-2026-11-19.json) | 20 592 | **716** | 108 | 4 804 | 0 | 976 | 334 | 13 654 |
-| [Après : les 150 IDs actuels](../data/bus-review/replay-calculateur-2026-11-19.json) | 22 350 | **731** | 108 | 5 040 | 0 | 976 | 334 | 15 161 |
+| [À `1c720c6` : mêmes 144 IDs](https://github.com/aydiarra-star/dkrBus-apps/blob/1c720c699aebf3f546db563d1b6a163eb2432b11/data/bus-review/replay-calculateur-144-2026-11-19.json) | 20 592 | **716** | 108 | 4 804 | 0 | 976 | 334 | 13 654 |
+| [À `1c720c6` : 150 IDs](https://github.com/aydiarra-star/dkrBus-apps/blob/1c720c699aebf3f546db563d1b6a163eb2432b11/data/bus-review/replay-calculateur-2026-11-19.json) | 22 350 | **731** | 108 | 5 040 | 0 | 976 | 334 | 15 161 |
 
-À périmètre constant, les **mêmes couples, étapes, heures et mètres** donnent l’empreinte `8b88d089…dbf162`. Le gain de 58 tronçons de remplacement n’est pas un gain de voyages complets. Dans le formulaire étendu : 78 couples TER, **344** B1 Préfecture → Petersen, **294** B1 Petersen → Gueule Tapée et **15 DDD 1** (tous les couples en avant sur six quais). **44** marches initiales, **44** finales, **zéro** changement. Empreinte `e3644448…74b2a5`. L’[attribution](../data/bus-review/local-pattern-bindings.json) est une **portion** du sens vers Leclerc, pas la ligne 1 entière. Aucun départ d’origine daté n’a été fabriqué.
+À périmètre constant, les **mêmes couples, étapes, heures et mètres** donnent l’empreinte `8b88d089…dbf162`. Le gain de 58 tronçons de remplacement n’est pas un gain de voyages complets. Dans le formulaire étendu : 78 couples TER, **344** B1 Préfecture → Petersen, **294** B1 Petersen → Gueule Tapée et **15 DDD 1** (tous les couples en avant sur six quais). **44** marches initiales, **44** finales, **zéro** changement. Empreinte `e3644448…74b2a5`. L’attribution de ce premier service était une **portion** du sens vers Leclerc, pas la ligne 1 entière. Aucun départ d’origine daté n’a été fabriqué.
 
 **Dénominateur séparé pour les fiches** : 5 fiches → 20 couples. À [05:00](../data/bus-review/horaires-maristes-2026-11-19-0500.json) et à [19:00](../data/bus-review/horaires-maristes-2026-11-19-1900.json), 6 directs sur horaires, **2 enchaînements possibles sur horaires** et 12 sans comparaison. Ils ne font pas passer les 731 voyages géographiques à 733. Les [6 950 décomptes actifs dans Explorer à 19 h](passages-bus-par-ligne.md) sont, elles aussi, un autre indicateur.
 

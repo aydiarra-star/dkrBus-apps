@@ -58,7 +58,7 @@ Ce sont **neuf profils relatifs**, pas neuf dessertes admises. Pour la 90, on ga
 
 ## Calculateur au gel des panneaux (`1a415a1`)
 
-Ces résultats concernent le formulaire **avant** l’ajout des six quais de Médina. Pour le calculateur actuel (731 voyages) et le mode sur horaires distinct : [trajets à Médina et aux Maristes](trajets-bus-medina-maristes.md). Le tableau des passages d’Explorer reste identique.
+Ces résultats concernent le formulaire **avant** l’ajout des six quais de Médina. Pour le [calculateur actuel (745 voyages)](validation-physique.md) et le mode sur horaires distinct : [trajets à Médina et aux Maristes](trajets-bus-medina-maristes.md). Le tableau des passages d’Explorer reste identique.
 
 Sur les 144 points du formulaire, **716 voyages complets / 20 592 couples** à 19 h, comme à `32f3776`. Répartition des complets : 78 TER, 344 B1 vers Petersen, 294 B1 Petersen → Gueule Tapée ; 44 marches initiales, 44 finales, **zéro** changement, **zéro** trajet incluant un bus DDD, AFTU ou TATA. Empreinte des voyages complets (couples, modes, rangs, mètres, temps) : `8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162`.
 

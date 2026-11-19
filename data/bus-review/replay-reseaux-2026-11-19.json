@@ -1,0 +1,188 @@
+{
+  "atDakar": "2026-11-19T19:00",
+  "points": 154,
+  "orderedPairsPerFilter": 23562,
+  "selectionSha256": "2b7bcdd1f4ca446b1490d463ea5cb6b85ce76c9a7cc239147d46b1f0d8eda295",
+  "results": [
+    {
+      "modes": [
+        "ddd",
+        "aftu"
+      ],
+      "whole": 29,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 29,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 2227,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20892,
+        "DOCUMENTED_SECTION_ONLY": 108
+      },
+      "movementSha256": "708f40881b953158a98a584ee5474397a5a6a8e7b9d23221f61310c6a2c9fb88"
+    },
+    {
+      "modes": [
+        "ddd",
+        "tata"
+      ],
+      "whole": 29,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 29,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 2227,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20903,
+        "DOCUMENTED_SECTION_ONLY": 97
+      },
+      "movementSha256": "708f40881b953158a98a584ee5474397a5a6a8e7b9d23221f61310c6a2c9fb88"
+    },
+    {
+      "modes": [
+        "aftu",
+        "tata"
+      ],
+      "whole": 0,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 0,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 2256,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20978,
+        "DOCUMENTED_SECTION_ONLY": 22
+      },
+      "movementSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "modes": [
+        "ter",
+        "ddd"
+      ],
+      "whole": 107,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 107,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "OUT_OF_SCOPE": 306,
+        "NO_PATH": 2149,
+        "UNVERIFIED_ACCESS": 20909,
+        "DOCUMENTED_SECTION_ONLY": 91
+      },
+      "movementSha256": "4c00d23632a10d65195039020f581aaf22c8335c5423d4c0374d7bc1f51584ad"
+    },
+    {
+      "modes": [
+        "ter",
+        "aftu"
+      ],
+      "whole": 78,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 78,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "OUT_OF_SCOPE": 306,
+        "NO_PATH": 2178,
+        "UNVERIFIED_ACCESS": 20978,
+        "DOCUMENTED_SECTION_ONLY": 22
+      },
+      "movementSha256": "d816b9396ffaf3c5ef31ef825717131c857bd63d0c8d9a104c492bb92057caee"
+    },
+    {
+      "modes": [
+        "ter",
+        "tata"
+      ],
+      "whole": 78,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 78,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "OUT_OF_SCOPE": 306,
+        "NO_PATH": 2178,
+        "UNVERIFIED_ACCESS": 20990,
+        "DOCUMENTED_SECTION_ONLY": 10
+      },
+      "movementSha256": "d816b9396ffaf3c5ef31ef825717131c857bd63d0c8d9a104c492bb92057caee"
+    },
+    {
+      "modes": [
+        "brt",
+        "ddd"
+      ],
+      "whole": 667,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 667,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 1783,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20715,
+        "DOCUMENTED_SECTION_ONLY": 91
+      },
+      "movementSha256": "b42c53f03e7aef404be0e8eb8727d7e12b66abdc730216345d8c0e3ac80d147a"
+    },
+    {
+      "modes": [
+        "brt",
+        "aftu"
+      ],
+      "whole": 638,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 638,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 1812,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20784,
+        "DOCUMENTED_SECTION_ONLY": 22
+      },
+      "movementSha256": "7f7d8b1e8ae268d10b8196f42f9e174db7b0216c2e4289d22cffe2e2fed17b4b"
+    },
+    {
+      "modes": [
+        "brt",
+        "tata"
+      ],
+      "whole": 638,
+      "withBoth": 0,
+      "minimumChanges": {
+        "direct": 638,
+        "one": 0,
+        "multiple": 0
+      },
+      "refusals": {
+        "NO_PATH": 1812,
+        "OUT_OF_SCOPE": 306,
+        "UNVERIFIED_ACCESS": 20796,
+        "DOCUMENTED_SECTION_ONLY": 10
+      },
+      "movementSha256": "7f7d8b1e8ae268d10b8196f42f9e174db7b0216c2e4289d22cffe2e2fed17b4b"
+    }
+  ]
+}

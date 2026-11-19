@@ -154,10 +154,31 @@
     "exactBusMap": 108,
     "stopSection": 4804,
     "nearbyBusMap": 0,
-    "changeLead": 976,
-    "lineSheet": 334,
+    "changeLead": 979,
+    "lineSheet": 331,
     "noProposal": 13654
   },
+  "diagnosis": {
+    "minimumChanges": {
+      "direct": 716,
+      "one": 0,
+      "multiple": 0
+    },
+    "usesMode": {
+      "ter": 78,
+      "brt": 638,
+      "ddd": 0,
+      "aftu": 0,
+      "tata": 0
+    },
+    "refusalsByCode": {
+      "OUT_OF_SCOPE": 286,
+      "NO_PATH": 844,
+      "UNVERIFIED_ACCESS": 18638,
+      "DOCUMENTED_SECTION_ONLY": 108
+    }
+  },
+  "movementSha256": "f728e23c4c436225e508d2ed2b635f774ce65153a62cd2c4af636acc99f9327e",
   "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162",
   "includes": {
     "accessWalk": 44,
@@ -223,7 +244,7 @@
       "whole": 0,
       "sectionsOnly": 285,
       "neither": 837,
-      "withChangeLead": 210,
+      "withChangeLead": 214,
       "withBusMap": 0,
       "withExactBusMap": 0,
       "wholeWithBus": 0
@@ -396,25 +417,49 @@
     {
       "mode": "ddd",
       "lineId": "ddd-1-medina",
-      "direction": "Leclerc · portion Manguiers → Stade",
-      "calls": 6,
+      "direction": "Médina → Sandaga · vers Leclerc",
+      "calls": 8,
       "physicalCallRanks": [
         1,
         2,
         3,
         4,
         5,
-        6
+        6,
+        7,
+        8
       ],
-      "shapeSource": "OSM_ROUTE_RELATION",
-      "shapeId": "6951328/v28:25-30",
+      "shapeSource": "REVIEWED_OSM_WAYS",
+      "shapeId": "6951328/v28:25-32+Poste/OID25",
       "source": {
         "status": "reviewed",
         "date": "2026-11-19",
-        "reference": "Six quais vers Leclerc · Dakar Dem Dikk / chatbot-arrêts et © OpenStreetMap relation 6951328 v28 (ODbL)"
+        "reference": "Dakar Dem Dikk · demdikk.sn/chatbot-arrets/ · © OpenStreetMap (ODbL) · Quais OSM 25–32 ; giratoire recoupé avec ArcGIS OID 25 · voir docs/validation-physique.md"
       },
       "firstStop": "ddd-1-medina-4666430960",
-      "lastStop": "ddd-1-medina-4666430950",
+      "lastStop": "ddd-1-medina-4666430945",
+      "service": "frequency",
+      "originDepartures": null,
+      "nextOrigin": null
+    },
+    {
+      "mode": "ddd",
+      "lineId": "ddd-1-medina",
+      "direction": "Vers Parcelles · PMI Médina → Rue 37",
+      "calls": 2,
+      "physicalCallRanks": [
+        1,
+        2
+      ],
+      "shapeSource": "REVIEWED_OSM_WAYS",
+      "shapeId": "DDD1/retour:57-58/Sahm",
+      "source": {
+        "status": "reviewed",
+        "date": "2026-11-19",
+        "reference": "Dakar Dem Dikk · demdikk.sn/chatbot-arrets/ · © OpenStreetMap (ODbL) · Deux appels après Leclerc sur les chaussées montantes au giratoire de Sahm. Aucune permission de changer de bus."
+      },
+      "firstStop": "ddd-1-medina-retour-4666430956",
+      "lastStop": "ddd-1-medina-retour-4666430957",
       "service": "frequency",
       "originDepartures": null,
       "nextOrigin": null

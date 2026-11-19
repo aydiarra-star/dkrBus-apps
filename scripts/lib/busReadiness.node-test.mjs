@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { createServer } from 'vite'
 import { admittedServices, journeyWitnesses } from './journeyWitness.mjs'
@@ -25,9 +27,9 @@ test('the published seven-column audit covers every family/code; the service-day
     assert.deepEqual(get('aftu','83').direction.outbound.textCounts,[93]); assert.equal(get('aftu','83').mapSide,null)
     assert.deepEqual(get('ddd','1').relations[0].outside,[[21,22.07]]); assert.equal(get('ddd','23').relations.length,0)
     const one = get('ddd','1')
-    assert.deepEqual(one.active.map(p=>[p.scope,p.side,p.calls,p.physicalCallRanks,p.service]), [['section','outbound',6,[1,2,3,4,5,6],'frequency']])
+    assert.deepEqual(one.active.map(p=>[p.scope,p.side,p.calls,p.physicalCallRanks,p.service]), [['section','outbound',8,[1,2,3,4,5,6,7,8],'frequency'],['section','inbound',2,[1,2],'frequency']])
     assert.equal(one.direction.outbound.fullShape,false); assert.equal(one.direction.outbound.physical,false)
-    assert.equal(one.calculation[0].odPairs,15); assert.equal(one.calculation[0].withChange,0)
+    assert.deepEqual(one.calculation.map(w=>[w.odPairs,w.withChange]), [[28,0],[1,0]])
     assert.ok(report.rows.filter(l=>l!==one).every(l=>!l.calculation.length && !l.runs.length && l.blocker))
     assert.ok(get('ddd','501').transfers.every(t=>t.assessments.every(a=>a.timed.status==='BLOCKED_BEFORE_TIMETABLE')))
     assert.throws(()=>busReadiness(inventory,observations,ds,matrix,'2026-11-18T19:00'), /Matrice/)
@@ -40,10 +42,15 @@ test('new form selections do not recategorize the 716 old complete journeys or t
   const before=read('replay-panneaux-v1'), after=read('replay-calculateur-144')
   for (const k of ['pointIds','atDakar','maxChanges','stepFreeOnly','includes','wholeJourneySha256','rideWitnesses']) assert.deepEqual(after[k],before[k],k)
   assert.equal(after.exclusive.whole,716); assert.equal(after.wholeForm,false)
-  assert.equal(matrix.points,150); assert.deepEqual(matrix.pointIds.slice(0,144),after.pointIds)
+  assert.equal(matrix.points,154); assert.deepEqual(matrix.pointIds.slice(0,144),after.pointIds)
   assert.ok(matrix.pointIds.slice(144).every(id=>id.startsWith('ref:ddd-1-medina-')))
   assert.deepEqual(matrix.rideWitnesses.filter(w=>w.mode!=='ddd'),before.rideWitnesses)
-  assert.equal(matrix.exclusive.whole,731); assert.equal(matrix.includes.bus,15); assert.equal(matrix.includes.anyChange,0)
+  const fixed=read('replay-calculateur-150')
+  assert.deepEqual(fixed.pointIds,matrix.pointIds.slice(0,150)); assert.equal(fixed.wholeForm,false)
+  assert.equal(fixed.exclusive.whole,731); assert.equal(fixed.includes.bus,15)
+  assert.equal(fixed.movementSha256,'e52dea221c8b05d325f468aaee574a273a219b1e7d1a010ee7f0b8457842d63d')
+  assert.equal(after.movementSha256,'f728e23c4c436225e508d2ed2b635f774ce65153a62cd2c4af636acc99f9327e')
+  assert.equal(matrix.exclusive.whole,745); assert.equal(matrix.includes.bus,29); assert.equal(matrix.includes.anyChange,0)
 })
 
 test('the ledger can credit a dated bus and an actual transfer in a synthetic publication, not a whole line from a section', async () => {
@@ -77,4 +84,19 @@ test('the ledger can credit a dated bus and an actual transfer in a synthetic pu
     assert.equal(aftu.calculation[0].changeExample.legs.at(-1).samePosition,`access:${sid}:pB2`)
     assert.equal(tata.calculation.length,0); assert.equal(tata.runs.length,1)
   } finally { await s.close() }
+})
+
+
+test('mode diagnosis counts a real mixed option on a dated test edition but not a missed onward boarding', () => {
+  const dir = mkdtempSync(join(tmpdir(),'mode-witness-'))
+  try {
+    const pack = JSON.parse(execFileSync('python3',['tests/passenger_edition_fixture.py','--same-position'],{encoding:'utf8',env:{...process.env,PYTHONPATH:'.'}}))
+    const edition = join(dir,'edition.json'), points = join(dir,'two.json')
+    writeFileSync(edition,JSON.stringify(pack)); writeFileSync(points,JSON.stringify(['published:A2','published:B3']))
+    const run = t => JSON.parse(execFileSync(process.execPath,['scripts/audit_place_connections.mjs','--matrix','--edition',edition,'--points',points,'--modes','ddd,aftu','--at',`${pack.date}T${t}`],{encoding:'utf8'}))
+    const result = run('08:20'); assert.equal(result.wholeForm,false)
+    assert.deepEqual(result.diagnosis.minimumChanges,{direct:0,one:1,multiple:0}); assert.equal(result.diagnosis.withAllRequiredModes,1)
+    assert.equal(result.includes.samePositionChange,1); assert.equal(result.includes.transferWalk,0)
+    assert.equal(run('08:21').diagnosis.withAllRequiredModes,0)
+  } finally { rmSync(dir,{force:true,recursive:true}) }
 })

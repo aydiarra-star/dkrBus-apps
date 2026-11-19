@@ -1,18 +1,18 @@
 # Peut-on calculer un trajet sur chaque ligne de bus ?
 
-**2026-11-19 à 19:00 (Dakar)** · 150 sélections, 22350 couples orientés effectivement essayés. 731 voyages complets, dont **15 avec DDD/AFTU/TATA** et **0 avec changement**. Application embarquée, sans édition opérateur.
+**2026-11-19 à 19:00 (Dakar)** · 154 sélections, 23562 couples orientés effectivement essayés. 745 voyages complets, dont **29 avec DDD/AFTU/TATA** et **0 avec changement**. Application embarquée, sans édition opérateur.
 
 Une ligne du tableau est un **couple provenance/code**, pas forcément un service distinct. Sept questions : quais ordonnés A/R, tracé entier A/R, correspondance, départ du jour et résultat du calcul. **A** est orienté par la fiche directionnelle, sinon les marqueurs de la carte, l’ordre du texte ou le titre ; **R** est évalué indépendamment. Le titre n’atteste ni A ni R. Les variantes non équivalentes restent à part.
 
 **Lecture.** « Non · 93 noms » = une liste de 93 occurrences, pas 93 quais validés. « Carte » = dessin de l’opérateur ; « voirie candidate » = au moins une chaîne possible au contrôle géométrique, pas un sens homologué. L’absence de tracé *entier* n’efface pas une portion. Les départs sont ceux à l’origine d’une direction admise pour cette date ; une fenêtre, une cadence de référence ou les heures successives aux arrêts ne les remplacent pas. « Aucun dossier ciblé » ne signifie pas « aucune correspondance dans la ville ». Les témoins proviennent uniquement des **étapes d’un voyage complet** ; un changement à vérifier ou un tronçon de remplacement n’est pas compté. « 0/2 suites » signifie que, parmi deux variantes de l’archive essayées sur le seul dessin marqué, aucune ne passe tous les contrôles ; ce n’est pas un nombre de courses.
 
-[Essayer la DDD 1 et comparer les horaires 12/75 sans les confondre avec un transfert tracé](trajets-bus-medina-maristes.md) · [Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
+[Essayer les deux portions DDD 1 et vérifier les correspondances étudiées](validation-physique.md) · [Comparer les horaires 12/75](trajets-bus-medina-maristes.md) · [Passages estimés par ligne, distincts des voyages](passages-bus-par-ligne.md) · [Méthode, cas concrets et reproduction](revue-bus-2026-11-19.md) · [Tableau détaillé des pièces locales](couverture-sources-bus.md) · [Mesures par page, variante historique et relation](../data/bus-review/sources-2026-11-19.json).
 
 ## DDD — 48 identités
 
 | Code · sens de lecture A | Quais A | Quais R | Tracé entier A | Tracé entier R | Changement | Départs du jour | Calcul |
 |---|---|---|---|---|---|---|---|
-| **1** · Terminus Parcelles Assainies → Terminus Leclerc | 6/6 sur portion | Non | Portion seulement | Non établi | Aucun dossier ciblé | fréquence modélisée | 15 couples sur la desserte témoin · ref:ddd-1-medina-4666430960 → ref:ddd-1-medina-4666430958 |
+| **1** · Terminus Parcelles Assainies → Terminus Leclerc | 8/8 sur portion | 2/2 sur portion | Portion seulement | Portion seulement | Aucun dossier ciblé | fréquence modélisée / fréquence modélisée | 28 couple(s) · ref:ddd-1-medina-4666430960 → ref:ddd-1-medina-4666430958 ; 1 couple(s) · ref:ddd-1-medina-retour-4666430956 → ref:ddd-1-medina-retour-4666430957 |
 | **2** · Terminus Daroukhane → Terminus Leclerc | Non · 35 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **4** · Terminus Liberté 5 (Dieuppeul) → Terminus Leclerc | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **5** · Terminus Guédiawaye → Palais 1 | Non · 15 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
@@ -22,14 +22,14 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **9** · Terminus Liberté 6 → Terminus Palais 2 | Non · 24 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **10** · Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | Non · 29 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **11** · Terminus Keur Massar → Terminus Lat Dior | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
-| **12** · Terminus Guédiawaye → Palais 1 | Non · 20 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 1 portion(s) seulement |
+| **12** · Terminus Guédiawaye → Palais 1 | Non · 20 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 1 portion(s) seulement |
 | **13** · Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | Non · 24 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **15** · Terminus Rufisque → Palais 1 | Non · 18 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **15A** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **15B** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **16A** · Terminus Malika → Palais 1 | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
 | **16B** · Terminus Malika → Palais 1 | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
-| **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 relation(s) sans desserte entière validée |
+| **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
 | **20** · Terminus Dieuppeul → Terminus Dieuppeul | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · circuit non ventilé |
 | **23** · Terminus des Parcelles → Terminus Palais 2 | Non · 40 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **121** · Terminus Scat Urbam → Terminus Leclerc | Non · 25 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
@@ -100,7 +100,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **36** · TERMINUS MARCHE NDIAREME → TERMINUS NGOR | Non · 18 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **37** · TERMINUS APIX → TERMINUS UCAD (CLAUDEL) | Non · 35 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **38** · Cité Enseignants → Terminus Sahm | Non · 13 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/1 suites historiques sur le dessin à 20 m |
-| **39** · TERMINUS LAT - DIOR → TERMINUS DIAMALAYE | Non | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **39** · TERMINUS LAT - DIOR → TERMINUS DIAMALAYE | Non | Non | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **40** · TERMINUS GRAND MBAO → TERMINUS PETERSEN | Non · 11 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **41** · TERMINUS PETERSEN → TERMINUS ETAGE MADIALE | Non · 21 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/1 suites historiques sur le dessin à 20 m |
 | **42** · Terminus Gadaye → Terminus Ouakam Baye | Non · 14 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
@@ -136,7 +136,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **72** · Terminus 38 - 72 → Terminus 72 | Non · 78 noms | Non · 78 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **73** · Terminus 73 → Dépot Thiaroye | Non · 75 noms | Non · 75 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **74** · Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | Non · 14 noms | Non · inversion écartée | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · autre grille écartée | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **76** · TERMINUS SIPRES → TERMINUS CITE ASSURANCE | Non · 12 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **77** · Terminus Rufisque Cité Tacco → Terminus Liberté 5 | Non · 14 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **78** · Terminus Diamaguène → Terminus Liberté 5 | Non · 12 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |

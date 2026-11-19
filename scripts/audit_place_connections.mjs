@@ -7,11 +7,13 @@ import { parseArgs } from 'node:util'
 import { createServer } from 'vite'
 
 const { values } = parseArgs({ options: { from: { type: 'string' }, to: { type: 'string' }, at: { type: 'string' },
-  points: { type: 'string' }, edition: { type: 'string' }, 'max-changes': { type: 'string' }, matrix: { type: 'boolean' }, 'step-free': { type: 'boolean' } } })
+  points: { type: 'string' }, modes: { type: 'string' }, edition: { type: 'string' }, 'max-changes': { type: 'string' }, matrix: { type: 'boolean' }, 'step-free': { type: 'boolean' } } })
+const modes = values.modes?.split(',')
+if (modes && (new Set(modes).size !== modes.length || modes.some(m => !['ter','brt','ddd','aftu','tata'].includes(m)))) throw Error('--modes : familles explicites séparées par des virgules (ter,brt,ddd,aftu,tata).')
 const departAt = Date.parse(`${values.at}Z`) / 1000
 if (!values.at || !/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(values.at) || !Number.isFinite(departAt) || new Date(departAt * 1000).toISOString().slice(0, 16) !== values.at ||
     (!values.matrix && (values.points || !values.from || !values.to))) {
-  console.error('Spécifier --at AAAA-MM-JJTHH:MM (Dakar) et soit --from landmark:yoff --to 14.7900,-17.3100, soit --matrix [--points fichier-identifiants.json]. Options : --step-free, --max-changes 0…5, --edition <fichier JSON>.'); process.exit(2)
+  console.error('Spécifier --at AAAA-MM-JJTHH:MM (Dakar) et soit --from landmark:yoff --to 14.7900,-17.3100, soit --matrix [--points fichier-identifiants.json]. Options : --modes ddd,aftu, --step-free, --max-changes 0…5, --edition <fichier JSON>.'); process.exit(2)
 }
 const server = await createServer({ configFile: false, appType: 'custom', logLevel: 'error', optimizeDeps: { noDiscovery: true, include: [] }, server: { middlewareMode: true, hmr: false, watch: null, ws: false } })
 try {
@@ -40,7 +42,7 @@ try {
     throw Error(`Point inconnu : ${value}. Choisir un identifiant landmark:…, ref:… ou published:… (avec --edition), ou une paire latitude,longitude.`)
   }
   if (network.rejected.length) throw Error(`Admission refusée : ${network.rejected.join(', ')}`)
-  const plan = (a, b) => planDakarJourney(a, b, { departAt, maxChanges, stepFreeOnly: Boolean(values['step-free']) }, network)
+  const plan = (a, b) => planDakarJourney(a, b, { departAt, maxChanges, modes, stepFreeOnly: Boolean(values['step-free']) }, network)
   if (values.matrix) {
     // Count every ordered pair of distinct local form selections. Retain
     // separate identities even for catalogue poles at identical coordinates.
@@ -52,7 +54,11 @@ try {
     const matrix = {}, witnesses = journeyWitnesses()
     // Same totals are not proof that the SAME OD pairs and journeys survived.
     // Stream stable selected IDs and leg timings (not mutable UI prose).
-    const completeDigest = createHash('sha256')
+    const completeDigest = createHash('sha256'), movement = createHash('sha256')
+    // Exclusive minimum changes per OD; mode counts may overlap. Using both
+    // modes requires ONE actual option with both, never two unrelated directs.
+    const diagnosis = { minimumChanges: { direct: 0, one: 0, multiple: 0 }, usesMode: { ter: 0, brt: 0, ddd: 0, aftu: 0, tata: 0 },
+      refusalsByCode: {}, ...(modes && { requiredModes: modes, withAllRequiredModes: 0 }) }
     // Exclusive best evidence for the requested pair. Unlike withBusMap and
     // withChangeLead below, these bins can be added to recover the denominator.
     const totals = { whole: 0, exactBusMap: 0, stopSection: 0, nearbyBusMap: 0, changeLead: 0, lineSheet: 0, noProposal: 0 }
@@ -72,7 +78,17 @@ try {
       if (!r.ok && r.changesToCheck?.length) row.withChangeLead++
       if (!r.ok && r.mapSections?.length) row.withBusMap++
       if (exact) row.withExactBusMap++
+      if (!r.ok) diagnosis.refusalsByCode[r.code] = (diagnosis.refusalsByCode[r.code] ?? 0) + 1
       if (r.ok) {
+        const changes = Math.min(...r.options.map(t => t.changes))
+        diagnosis.minimumChanges[changes === 0 ? 'direct' : changes === 1 ? 'one' : 'multiple']++
+        const perOption = r.options.map(t => new Set(t.legs.filter(l => l.kind === 'ride').map(l => l.mode)))
+        for (const m of Object.keys(diagnosis.usesMode)) if (perOption.some(set => set.has(m))) diagnosis.usesMode[m]++
+        if (modes && perOption.some(set => modes.every(m => set.has(m)))) diagnosis.withAllRequiredModes++
+        // Independent of an editorial direction label. Compare rides, calls,
+        // walking ways, seconds and millimetres, not just their totals.
+        movement.update(JSON.stringify([a.id,b.id,r.options.map(t => [t.start,t.end,t.legs.map(l => [l.kind,l.from.id,l.to.id,l.start,l.end,
+          Math.round(l.meters*1000),l.kind === 'ride' ? [l.mode,l.lineId,l.stops.map(s=>s.id),l.waitSeconds,l.timing,l.samePlatformChange?.platformId] : [l.role,l.ways.map(w=>w.id)]])])]) + '\n')
         witnesses.record(a.id, b.id, r.options)
         completeDigest.update(JSON.stringify([a.id, b.id, r.options.map(t => [t.id, t.start, t.end,
           t.legs.map(l => [l.from.id, l.to.id, l.start, l.end, l.meters, l.kind === 'ride' ? l.waitSeconds : l.role])])]) + '\n')
@@ -86,7 +102,7 @@ try {
       else if (r.connections?.sections.length) row.sectionsOnly++
       else row.neither++
     }
-    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, wholeJourneySha256: completeDigest.digest('hex'), includes, matrix, wholeForm: !values.points, admittedServices: admittedServices(network, Math.floor(departAt / 86400)*86400, departAt), rideWitnesses: witnesses.rows() }, null, 2))
+    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, diagnosis, movementSha256: movement.digest('hex'), wholeJourneySha256: completeDigest.digest('hex'), includes, matrix, wholeForm: !values.points && !modes, admittedServices: admittedServices(network, Math.floor(departAt / 86400)*86400, departAt), rideWitnesses: witnesses.rows() }, null, 2))
   } else {
     const from = point(values.from), to = point(values.to), r = plan(from, to)
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)

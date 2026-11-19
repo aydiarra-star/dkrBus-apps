@@ -31,6 +31,17 @@ class Sheet(HTMLParser):
         self.pins = set()
         self.meta = {}
 
+    def is_this_sheet(self, url):
+        if not isinstance(url, str):
+            return False
+        u = parse.urlsplit(url)
+        return (
+            u.scheme == "https"
+            and u.netloc == "moovitapp.com"
+            and u.path.startswith("/index/")
+            and u.path.rstrip("/").endswith(f"-Dakar-stop_{self.stop}-5996")
+        )
+
     def pin(self, label, a, b):
         try:
             lat, lon = float(a), float(b)
@@ -49,7 +60,10 @@ class Sheet(HTMLParser):
             self.meta[d.get("property", d.get("name"))] = d.get("content")
         # Only links naming this exact stop AND an explicit destination.
         if name == "a":
-            q = parse.parse_qs(parse.urlsplit(d.get("href") or "").query)
+            u = parse.urlsplit(parse.urljoin(BASE, d.get("href") or ""))
+            if (u.scheme, u.netloc) != ("https", "moovitapp.com"):
+                return
+            q = parse.parse_qs(u.query)
             if q.get("tsid") == [self.stop] and len(q.get("tll", [])) == 1:
                 xy = q["tll"][0].split(",")
                 if len(xy) == 2:
@@ -73,6 +87,7 @@ class Sheet(HTMLParser):
                 if (
                     isinstance(r, dict)
                     and r.get("@type") in ("BusStop", "BusStation", "TrainStation")
+                    and any(self.is_this_sheet(r.get(k)) for k in ("url", "@id"))
                     and isinstance(r.get("geo"), dict)
                 ):
                     self.pin(
@@ -85,7 +100,7 @@ class Sheet(HTMLParser):
         self.jsonld = None
 
     def result(self):
-        if not self.canonical.rstrip("/").endswith(f"-Dakar-stop_{self.stop}-5996"):
+        if not self.is_this_sheet(self.canonical):
             return {"status": "UNCONFIRMED_PAGE"}
         self.pin(
             "page-location",
@@ -113,7 +128,10 @@ def audit():
     robots = robotparser.RobotFileParser()
     # Never retry a refusal, solve a challenge, or look inside private APIs.
     try:
-        robots.parse(read_url(BASE + "/robots.txt").decode().splitlines())
+        rules = read_url(BASE + "/robots.txt").decode()
+        if not rules.strip():
+            return {"status": "ROBOTS_UNAVAILABLE"}
+        robots.parse(rules.splitlines())
     except (OSError, ValueError):
         return {"status": "ROBOTS_UNAVAILABLE"}
     rows = {}
@@ -124,6 +142,9 @@ def audit():
             continue
         try:
             body = read_url(url)
+            if not body.strip():
+                rows[stop] = {"status": "EMPTY_RESPONSE"}
+                break
             parser = Sheet(stop)
             parser.feed(body.decode("utf-8"))
             parser.close()

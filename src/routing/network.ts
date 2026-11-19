@@ -21,7 +21,7 @@ function compilePattern(p: PatternInput, places: ReadonlyMap<string, Place>, anc
   const shape = p.shape
   const maxStep = p.network === 'ter' ? 2000 : 1000
   if (!p.lineId || !p.name || !p.direction || !isMobilityId(p.network) || !reviewed(p.evidence) ||
-      shape?.verified !== true || !['OSM_ROUTE_RELATION', 'OPERATOR_ARCGIS', 'OPERATOR_GEOJSON', 'REVIEWED_GTFS_SHAPE'].includes(shape.source) || !shape.sourceId || shape.lineId !== p.lineId || shape.network !== p.network || shape.directionId !== p.direction ||
+      shape?.verified !== true || !['OSM_ROUTE_RELATION', 'REVIEWED_OSM_WAYS', 'OPERATOR_ARCGIS', 'OPERATOR_GEOJSON', 'REVIEWED_GTFS_SHAPE'].includes(shape.source) || !shape.sourceId || shape.lineId !== p.lineId || shape.network !== p.network || shape.directionId !== p.direction ||
       !shapeLength(shape.positions, maxStep) || !validService(p.service) || !p.times.source || !accessibilityKnown(p.stepFree)) return null
   const calls = p.stops.map(id => places.get(id))
   if (calls.length < 2 || !calls.every(canBoard) || duplicates(p.stops).size) return null

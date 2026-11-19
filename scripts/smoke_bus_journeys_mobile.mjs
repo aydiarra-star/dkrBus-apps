@@ -51,6 +51,30 @@ for (const theme of ['light','dark']) {
     await date.fill('2026-11-22T19:00'); await result.waitFor({state:'detached'}); assert.match(await hours.innerText(),/Pas de grille relue pour ce jour/)
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false); assert.equal(apiTrips.length,tripsAtStart)
     await mode.getByRole('button',{name:'Sur la carte',exact:true}).click(); await page.getByRole('region',{name:'Carte de Dakar'}).waitFor()
-    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : Médina, sens/heure/filtres/GPS, Maristes et retour à la carte OK`)
+    const clear=page.getByRole('button',{name:'Effacer le trajet'}), submit=page.getByRole('button',{name:'Rechercher mon itinéraire'})
+    await date.fill('2026-11-19T19:00'); await clear.click()
+    await choose('Départ','École Manguiers'); await choose('Destination','El Malick Sandaga'); await submit.click(); await ride.waitFor()
+    assert.match(await geo.innerText(),/19:19/); await boards.first().waitFor(); assert.match(await boards.first().getAttribute('title'),/Manguiers/)
+    await clear.click(); await choose('Départ','PMI Médina'); await choose('Destination','Rue 37 × Blaise Diagne'); await submit.click(); await ride.waitFor()
+    assert.match(await geo.innerText(),/19:05[^]*19:06/); assert.match(await geo.innerText(),/290 m/)
+    // Deliver a GPS callback only AFTER switching to schedules. On returning
+    // to the map the selected northbound origin must not have been replaced.
+    await page.evaluate(()=>Object.defineProperty(navigator.geolocation,'getCurrentPosition',{configurable:true,value: success=>{
+      window.releaseOrigin=()=>success({coords:{latitude:14.6890347,longitude:-17.4577499,accuracy:5}})
+    }}))
+    await page.getByRole('button',{name:'Utiliser ma position comme départ'}).click(); await page.waitForFunction(()=>typeof window.releaseOrigin==='function')
+    await mode.getByRole('button',{name:'Sur horaires · Maristes'}).click(); const n=apiTrips.length
+    await page.evaluate(()=>window.releaseOrigin()); await hours.waitFor(); assert.equal(apiTrips.length,n)
+    await mode.getByRole('button',{name:'Sur la carte',exact:true}).click(); assert.match(await page.locator('.route-origin-group').innerText(),/PMI Médina/)
+    // The HTTP request really was made. The late NOT_PUBLISHED response must
+    // not announce a map search in the independent timetable comparison.
+    let pending; await page.route('**/api/journeys?**',r=>{ pending=r },{times:1})
+    await Promise.all([page.waitForRequest(req=>new URL(req.url()).pathname==='/api/journeys'),submit.click()])
+    await page.getByText('Recherche des courses directes déclarées…').waitFor(); await mode.getByRole('button',{name:'Sur horaires · Maristes'}).click()
+    await Promise.all([page.waitForResponse(r=>new URL(r.url()).pathname==='/api/journeys'),pending.fulfill({status:503,contentType:'application/json',body:'{"error":"NOT_PUBLISHED"}'})])
+    await hours.getByRole('button',{name:'Comparer les horaires'}).click(); await result.waitFor(); assert.equal(await geo.count(),0)
+    assert.equal(await page.getByText('Aucun jeu de transport publié. Le calcul sur tracés vérifiés fonctionne localement.',{exact:true}).count(),0)
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
+    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : 3 directs Médina, filtres, Maristes, bascules pendant le GPS et la réponse HTTP OK`)
   } finally { await browser.close() }
 }

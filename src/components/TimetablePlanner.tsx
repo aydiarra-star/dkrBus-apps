@@ -28,11 +28,11 @@ export function TimetablePlanner({ settings, controls }: { settings: JourneySett
       <ol>{advice.legs.map(l => <li key={l.line}>
         <strong>{l.line} vers {l.towards}</strong><br/>{dakarClock(l.start)} · {stop(l.from).name} → {dakarClock(l.end)} · {stop(l.to).name}
       </li>)}</ol>
-      {advice.gapSeconds !== null && <p><strong>{advice.gapSeconds / 60} min entre les deux passages</strong> sur la <a href={stop(MARISTES_ID).url} target="_blank" rel="noreferrer">même fiche « Route des Maristes, 141 »</a>. Marge retenue : {advice.marginSeconds / 60} min. Vérifiez sur place où attendre le second bus ; le quai et le temps de déplacement ne sont pas établis.</p>}
+      {advice.gapSeconds !== null && <p><strong>{advice.gapSeconds / 60} min entre les deux passages</strong> sur la <a href={stop(MARISTES_ID).url} target="_blank" rel="noreferrer">même fiche « Route des Maristes, 141 »</a>. Marge retenue : {advice.marginSeconds / 60} min. Il reste au plus {(advice.gapSeconds - advice.marginSeconds) / 60} min pour rejoindre le second bus en conservant cette marge. Ce budget n’est pas une durée de marche : le point de montée et le chemin restent à confirmer.</p>}
       <p>Aucun tracé ni accès à pied vérifié pour cette proposition.</p>
     </article>)}</div>
     <details><summary>Sources et limites</summary><p>Horaires de semaine publiés sur Moovit : {maristesSheets.map((s,i) => <span key={s.line}>{i > 0 && ' · '}<a href={s.url} target="_blank" rel="noreferrer">{s.line} vers {s.towards}</a></span>)}. Les fiches d’arrêt du jeudi ont été mises à jour le 16 novembre. Il ne s’agit pas d’une édition opérateur datée.</p>
-      <p><a href={stop(from).url} target="_blank" rel="noreferrer">Fiche de départ</a> · <a href={stop(to).url} target="_blank" rel="noreferrer">Fiche d’arrivée</a>. La fiche de l’autre côté de la route n’est pas utilisée. Aucune course n’est déduite d’un intervalle entre deux lignes du tableau.</p>
+      <p><a href={stop(from).url} target="_blank" rel="noreferrer">Fiche de départ</a> · <a href={stop(to).url} target="_blank" rel="noreferrer">Fiche d’arrivée</a>. La fiche de l’autre côté de la route n’est pas utilisée. Les poteaux de la 232 aux Maristes ne localisent pas la montée dans la 12. Aucune course n’est déduite d’un intervalle entre deux lignes du tableau.</p>
     </details>
   </section>
 }

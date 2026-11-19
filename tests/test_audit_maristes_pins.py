@@ -24,10 +24,14 @@ class PublicSheetTests(unittest.TestCase):
         self,
     ):
         result = self.parse(
-            '<script type="application/ld+json">{"@type":"BusStop","geo":{"latitude":14.73,"longitude":-17.44}}</script><a href="/?tsid=37702688&tll=14.72,-17.43"></a>'
+            '<script type="application/ld+json">{"@type":"BusStop","url":"https://moovitapp.com/index/fr/transport_en_commun-x-Dakar-stop_37702688-5996","geo":{"latitude":14.73,"longitude":-17.44}}</script><a href="/?tsid=37702688&tll=14.72,-17.43"></a>'
         )
         self.assertEqual(result["status"], "REVIEW_ONLY")
         self.assertEqual(
             result["pins"],
             [("destination-link", 14.72, -17.43), ("stop-jsonld", 14.73, -17.44)],
         )
+
+    def test_geo_of_other_named_entity_is_not_the_sheet_pin(self):
+        page = '<script type="application/ld+json">{"@graph":[{"@type":"BusStop","url":"https://moovitapp.com/index/fr/transport_en_commun-x-Dakar-stop_37702687-5996","geo":{"latitude":14.73,"longitude":-17.44}}]}</script>'
+        self.assertEqual(self.parse(page)["pins"], [])
