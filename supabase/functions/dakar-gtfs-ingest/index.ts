@@ -23,7 +23,6 @@ import {
   RequestBodyTooLargeError,
   sanitizeManifest,
   sha256Hex,
-  UPLOAD_SESSION_TTL_MS,
   validManifest,
 } from "./upload.ts";
 
