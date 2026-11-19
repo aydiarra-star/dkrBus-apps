@@ -64,7 +64,7 @@ The new migration is exercised only against an isolated PostgreSQL 16 service in
 
 ## Intake cleanup and activation boundary
 
-Depuis le 19 novembre 2026, le chemin multipart qui transmettait le ZIP à l'Edge Function est remplacé par un téléversement direct vers le bucket privé au moyen d'un token Storage signé. L'Edge Function ne matérialise plus les 100 MiB : elle reçoit uniquement un manifeste JSON borné, crée une session serveur et retourne un token limité à un chemin canonique. La finalisation vérifie les métadonnées Storage réelles et crée une ligne de staging en quarantaine ; le worker reste responsable du SHA-256 réel et de la validation structurelle.
+Depuis le 19 novembre 2026, le chemin multipart qui transmettait le ZIP à l'Edge Function est remplacé par un téléversement direct et reprenable TUS vers le bucket privé. L'Edge Function ne matérialise plus les 100 MiB : elle reçoit uniquement un manifeste JSON borné, crée une session serveur et retourne un token limité à un chemin canonique, à utiliser dans `x-signature` sur l'endpoint TUS Storage direct. Le token signé peut créer une URL TUS pendant deux heures ; cette URL de reprise peut rester valable jusqu'à 24 heures supplémentaires. Le nettoyage est donc différé de 26 h 15 après l'émission du token, marge de quinze minutes comprise. La finalisation vérifie les métadonnées Storage réelles et crée une ligne de staging en quarantaine ; le worker reste responsable du SHA-256 réel et de la validation structurelle.
 
 Les anciens tests du parseur multipart sont conservés comme régressions du helper historique, mais `readMultipartWithLimit` n'est plus utilisé pour recevoir les archives. Les tests du nouveau protocole couvrent les limites JSON, les chemins, le manifeste, les empreintes et l'expiration du token. Ils restent synthétiques et ne téléversent aucun fichier vers Supabase.
 
@@ -75,7 +75,7 @@ Le chemin multipart historique exigeait exactement un champ `feed`, `manifest` e
 
 Le contrôle des références base/Storage reste applicable à la finalisation : après une issue réseau ambiguë lors de l'insertion Postgres, l'Edge Function relit la ligne par `dataset_id`. Si les objets sont référencés, partiellement référencés ou si la lecture est incertaine, aucun nettoyage destructif n'est tenté.
 
-Les tokens Storage signés ne peuvent pas être révoqués individuellement. Une session en échec conserve donc son expiration initiale ; les objets et la session ne sont nettoyés qu'après l'expiration du token de deux heures et une marge de quinze minutes. Un échec de finalisation renvoie `cleanup_after` au lieu de supprimer un objet encore téléversable. Les objets privés orphelins restent hors catalogue et leur réconciliation demeure distincte.
+Les tokens Storage signés ne peuvent pas être révoqués individuellement. En mode TUS, un token de deux heures peut créer une URL de reprise valide jusqu'à 24 heures supplémentaires. Une session en échec conserve donc son expiration calculée à 26 h 15 après l'émission du token (quinze minutes de marge comprises). Un échec de finalisation renvoie `cleanup_after` au lieu de supprimer un objet encore téléversable. Les objets privés orphelins restent hors catalogue et leur réconciliation demeure distincte.
 
 Ces changements sont couverts par des tests Deno synthétiques. Ils ne déclenchent aucune écriture Supabase, migration active ou publication.
 
