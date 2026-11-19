@@ -77,6 +77,10 @@ VALIDATED_COLUMNS = {
 
 TIME_RE = re.compile(r"^(\d{1,3}):(\d{2}):(\d{2})$")
 
+MAX_ISSUE_MESSAGE_CHARS = 512
+MAX_ISSUE_TABLE_CHARS = 64
+
+
 
 def _valid_http_url(value: str) -> bool:
     """Return true only for an absolute HTTP(S) URL with a valid authority."""
@@ -127,9 +131,12 @@ class Report:
         else:
             self.warnings += 1
         if len(self.issues) < self.limits.max_issue_details:
-            issue: dict[str, object] = {"severity": severity, "code": code, "message": message}
+            bounded_message = message
+            if len(bounded_message) > MAX_ISSUE_MESSAGE_CHARS:
+                bounded_message = bounded_message[:MAX_ISSUE_MESSAGE_CHARS - 1] + "…"
+            issue: dict[str, object] = {"severity": severity, "code": code, "message": bounded_message}
             if table:
-                issue["table"] = table
+                issue["table"] = table[:MAX_ISSUE_TABLE_CHARS]
             if row is not None:
                 issue["row"] = row
             self.issues.append(issue)
