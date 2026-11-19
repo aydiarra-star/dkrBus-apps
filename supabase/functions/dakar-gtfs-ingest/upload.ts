@@ -188,7 +188,11 @@ export async function readJsonWithLimit(request: Request, maxBytes: number): Pro
 }
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  // DOM/Deno type definitions distinguish ArrayBuffer from ArrayBufferLike.
+  // Copy into an owned ArrayBuffer before passing the data to SubtleCrypto.
+  const input = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(input).set(bytes);
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", input));
   return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
