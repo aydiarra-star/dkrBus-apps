@@ -487,6 +487,21 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertFalse(report["structure_valid"])
         self.assertIn("INCONSISTENT_EXACT_TIMES", self.issue_codes(report))
 
+    def test_zip_entry_names_with_nul_are_rejected_before_zipfile_truncates_them(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with zipfile.ZipFile(archive, "r") as zipped:
+            infos = zipped.infolist()
+
+        malicious = zipfile.ZipInfo("ignored.txt\x00/../../outside.txt")
+        self.assertEqual(malicious.filename, "ignored.txt")
+        self.assertIn("\x00", malicious.orig_filename)
+
+        with patch.object(zipfile.ZipFile, "infolist", return_value=infos + [malicious]):
+            report = validate_gtfs_archive(archive)
+
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSAFE_ARCHIVE_PATH", self.issue_codes(report))
+
     def test_symlink_archive_entries_are_rejected(self) -> None:
         archive = self.make_archive(VALID_TABLES)
         with zipfile.ZipFile(archive, "a") as zipped:
