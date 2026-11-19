@@ -172,3 +172,7 @@ Les tests couvrent les URL invalides et l'absence de base IANA avec des archives
 La fonction `dakar-gtfs-ingest` n'accepte que les valeurs exactes de l'URL HTTPS canonique du projet Dakar Bus dédié `mdmuxzaewzqzqutkqdylo` (avec ou sans barre finale, et avec le port HTTPS explicite 443). La comparaison stricte de chaînes refuse les espaces périphériques, les hôtes alternatifs, les identifiants, les ports non canoniques, les chemins, paramètres, fragments et formes que le parseur URL pourrait normaliser. Cette garde concerne uniquement la configuration de destination de l'intake ; elle ne lit ni ne modifie aucun secret ou projet actif.
 
 Les tests Deno positifs et négatifs utilisent des chaînes synthétiques, y compris l'identifiant du projet YÉRÉ uniquement comme cas de refus. Aucun déploiement, appel réseau Supabase, upload ou import n'est effectué.
+
+## Bornage du rapport de validation (19 novembre 2026)
+
+Les valeurs d'identifiants, d'en-têtes et de chemins présentes dans un ZIP peuvent être contrôlées par l'importateur. Pour éviter qu'elles gonflent le journal de revue ou la requête RPC, chaque détail d'anomalie est limité à 512 caractères et le nom de table à 64 caractères. Le worker refuse en défense supplémentaire tout rapport JSON supérieur à 1 Mio avant l'appel de finalisation. Cette évolution de bornage est identifiée par `dakar-gtfs-validator-v6` ; elle ne change pas les critères structurels ni les statuts de revue/publication. Les tests utilisent uniquement des valeurs synthétiques.
