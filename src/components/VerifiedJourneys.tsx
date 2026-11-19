@@ -3,6 +3,7 @@ import { CORRIDOR_LINES } from '../domain/corridors'
 import { fareForJourney, fareStatusLabel } from '../domain/fares'
 import type { Preferences } from '../domain/preferences'
 import { formatDistance, formatDuration, transferLabel } from '../domain/units'
+import type { ChangeLead, ChangeSide } from '../routing/changePreparation'
 import type { StopSection } from '../routing/placeConnections'
 import type { Leg } from '../routing/model'
 import type { DakarOutcome } from '../routing/dakar'
@@ -33,7 +34,22 @@ function Step({ leg, preferences }: { leg: Leg; preferences: Preferences }) {
   </li>
 }
 
-type ChooseSection = (section: StopSection) => void
+export type ChooseSection = (section: Pick<StopSection, 'from' | 'to'> & { tripId?: string }) => void
+function Side({ side, onChoose }: { side: ChangeSide; onChoose: ChooseSection }) {
+  return <li><strong>{side.line}</strong> · « {side.from} » → « {side.to} »<br />
+    {side.kind === 'sheet' ? <><a href={side.url} target="_blank" rel="noreferrer">{side.source}</a> · <a href={`tel:${side.contact.phone.replaceAll(' ', '')}`}>Renseignements {side.contact.name}</a></>
+      : <button className="text-action" type="button" onClick={() => onChoose(side.section)}>Calculer ce tronçon seul</button>}
+  </li>
+}
+function ChangeDetails({ changes, onChoose }: { changes: ChangeLead[]; onChoose: ChooseSection }) {
+  return <div className="connection-details"><h4>Préparer un changement · à confirmer</h4>
+    <p>Ces lignes se documentent séparément. Aucun chemin à pied ni horaire de correspondance n’est établi. Demandez où descendre, comment rejoindre le prochain quai et à quelle heure passe le dernier service.</p>
+    {changes.map((c, i) => <details key={c.hub} open={i === 0}><summary>{c.hub} · {c.before.line} puis {c.after.line}</summary>
+      <ol><Side side={c.before} onChoose={onChoose} /><Side side={c.after} onChoose={onChoose} /></ol>
+      <p>{c.check}</p>
+    </details>)}
+  </div>
+}
 function ConnectionDetails({ failure, preferences, onChoose }: {
   failure: Extract<DakarOutcome, { ok: false }>; preferences: Preferences; onChoose: ChooseSection
 }) {
@@ -82,7 +98,7 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
 }) {
   return <section className="verified-journeys" aria-label="Itinéraires sur tracés vérifiés" aria-live="polite">
     <header><ShieldCheck size={18} /><div><span className="eyebrow">CALCUL SUR TRACÉS VÉRIFIÉS</span><h3>{result.ok ? 'Votre trajet' : 'Pas d’itinéraire vérifié'}</h3></div></header>
-    {!result.ok ? <><p role="status">{result.message}</p><ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} /></> : <>
+    {!result.ok ? <><p role="status">{result.message}</p><ConnectionDetails failure={result} preferences={preferences} onChoose={onChooseSection} />{Boolean(result.changesToCheck?.length) && <ChangeDetails changes={result.changesToCheck!} onChoose={onChooseSection} />}</> : <>
       <p className="verified-hint">Heures de Dakar. Les créneaux de fréquence et les durées sont des estimations, pas des passages garantis.</p>
       {!selectedId && <p role="status">La variante précédente n’est plus disponible avec ces réglages. Choisissez un trajet pour l’afficher sur la carte.</p>}
       {result.options.map(trip => {
@@ -103,6 +119,6 @@ export function VerifiedJourneys({ result, selectedId, onSelect, onChooseSection
         </article>
       })}
     </>}
-    <p className="verified-hint">Périmètre actuel : gares TER de phase 1 et BRT B1, dans les sens contrôlés. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
+    <p className="verified-hint">Sans édition opérateur : TER Dakar → Diamniadio ; B1 Préfecture → Petersen et Petersen → Gueule Tapée. Pour B1, vérifier la desserte du jour : la liste de stations est celle du modèle de référence. Un trajet entre arrêts suppose le voyageur déjà au point de montée ; il ne certifie pas l’accès depuis la rue. Aucun transfert piéton n’est activé à Dakar sans preuve quai à quai.</p>
   </section>
 }

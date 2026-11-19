@@ -24,6 +24,7 @@ import type { PublishedStop } from './published'
 export type StopOptionKind = 'network' | 'reference' | 'published' | 'landmark' | 'sheet'
 
 export interface StopOption {
+  snapshotId?: string
   /** Valeur opaque échangée avec l'UI : « published:<id> », « ref:<id> », « network:<id> ». */
   value: string
   kind: StopOptionKind
@@ -113,6 +114,7 @@ function corridorOption(stop: CorridorStop, network: NetworkId, group: string): 
 function publishedOption(stop: PublishedStop): StopOption {
   return {
     value: `published:${stop.stopId}`,
+    ...(stop.snapshotId && { snapshotId: stop.snapshotId }),
     kind: 'published',
     label: stop.stopName,
     group: GROUP_PUBLISHED,
@@ -131,7 +133,7 @@ export function publishedStopOptions(stops: readonly PublishedStop[]): StopOptio
 }
 
 /** Index complet : mobilités, arrêts publiés, puis réseaux de référence. */
-export function buildStopIndex(publishedStops: readonly PublishedStop[], reviewed: Iterable<Place> = []): StopOption[] {
+export function buildStopIndex(publishedStops: readonly PublishedStop[], reviewed: Iterable<Place> = [], snapshotId?: string): StopOption[] {
   const networks: StopOption[] = NETWORK_SOURCES.map((network) => {
     const stopCount =
       network.id === 'ter' ? TER_STOPS.length
@@ -174,7 +176,15 @@ export function buildStopIndex(publishedStops: readonly PublishedStop[], reviewe
       selectable: false, networkId: null, stopId: null, lat: null, lon: null, keywords: [] })
   }
   const existing = new Set(catalogue.filter(o => o.kind !== 'published').map(o => o.value))
+  const publishedIds = new Set(publishedStops.map(p => p.stopId))
   for (const p of reviewed) {
+    if (p.id.startsWith('gtfs:')) {
+      const prefix = `gtfs:${snapshotId}:stop:`
+      if (!snapshotId || !p.id.startsWith(prefix)) continue
+      const stopId = p.id.slice(prefix.length)
+      if (!publishedIds.has(stopId)) catalogue.push(publishedOption({ snapshotId, stopId, stopName: p.name, lat: p.lat, lon: p.lon, distanceM: null, locationType: '0', parentStation: null }))
+      continue
+    }
     const landmark = p.id.startsWith('landmark:'), value = landmark ? p.id : `ref:${p.id}`
     if ((p.kind === 'path' && !landmark) || existing.has(value)) continue
     catalogue.push({ value, kind: landmark ? 'landmark' : 'reference', label: p.name, group: GROUP_ACCESSES,

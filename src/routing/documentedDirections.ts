@@ -1,5 +1,5 @@
 import { BUS_OPERATOR_CONTACTS, type BusOperatorContact } from '../domain/busOperatorContacts'
-import { PASSENGER_LINE_SHEETS } from '../domain/passengerLineSheets'
+import { sheetEnabled, sheetHits } from './busSheetIndex'
 import { getCorridorStop } from '../domain/corridors'
 import type { EstimatedLineSchedule } from '../domain/estimatedSchedules'
 import { JOURNEY_LANDMARKS } from '../domain/journeyLandmarks'
@@ -21,7 +21,7 @@ export interface DirectionNote {
   question: string
 }
 const dakarDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'Africa/Dakar' })
-function referenceName(p: DakarEndpoint): string | undefined {
+export function referenceName(p: DakarEndpoint): string | undefined {
   if (p.kind === 'stop' || (p.stopId && p.landmarkId)) return // different namespaces
   if (p.stopId || p.landmarkId) {
     const ref = p.landmarkId ? JOURNEY_LANDMARKS.find(l => l.id === p.landmarkId) : p.kind === undefined && getCorridorStop(p.stopId!)
@@ -33,17 +33,25 @@ function referenceName(p: DakarEndpoint): string | undefined {
   return refs.length === 1 ? refs[0].name : undefined
 }
 
-const contextPrefix = /^(?:terminus|marche|croisement|carrefour|gare routiere|station)(?: de| du| des)? /
-function mentioned(label: string, name: string) {
-  const key = normalizeSearchTerm(label)
-  return key === name || key.replace(contextPrefix, '') === name
+function sheetWindow(schedule: EstimatedLineSchedule, at: number) {
+  const day = new Date(at * 1000).getUTCDay()
+  return day === 0 ? schedule.sunday : day === 6 ? schedule.saturday : schedule.weekday
+}
+/** An indicative window can rule out a suggestion for this day, but it can
+ * never establish a specific departure after an unmeasured walk. */
+export function sheetClosingTime(schedule: EstimatedLineSchedule | undefined, at: number): number | undefined {
+  if (!schedule || !hasSenegalPublicHolidayCalendar(at * 1000) || isSenegalPublicHoliday(at * 1000)) return
+  const w = sheetWindow(schedule, at)
+  if (!w || !/^\d\d:[0-5]\d$/.test(w.end) || w.end <= w.start) return
+  const [h, m] = w.end.split(':').map(Number)
+  return Math.floor(at / 86400) * 86400 + h * 3600 + m * 60
 }
 function serviceNote(schedule: EstimatedLineSchedule | undefined, at: number): string | null {
   if (!schedule) return null
   const ms = at * 1000
   if (!hasSenegalPublicHolidayCalendar(ms) || isSenegalPublicHoliday(ms)) return 'Aucune plage spécifique confirmée pour cette date.'
   const date = new Date(ms), day = date.getUTCDay()
-  const w = day === 0 ? schedule.sunday : day === 6 ? schedule.saturday : schedule.weekday
+  const w = sheetWindow(schedule, at)
   if (!w) return null
   const hhmm = date.toISOString().slice(11, 16)
   const period = day === 0 ? 'dimanche' : day === 6 ? 'samedi' : 'semaine'
@@ -56,15 +64,17 @@ export function documentedDirections(from: DakarEndpoint, to: DakarEndpoint, set
   if (!a || !b || a === b) return []
   const notes: DirectionNote[] = []
   const requestDate = new Date(settings.departAt * 1000)
-  for (const d of PASSENGER_LINE_SHEETS) {
-    if (settings.modes && !settings.modes.includes(d.network) && !(d.network === 'aftu' && settings.modes.includes('aftu_tata'))) continue
-    const i = d.labels.findIndex(label => mentioned(label, a))
-    if (i < 0) continue
-    const target = d.labels.find((label, j) => j > i && mentioned(label, b))
-    if (!target) continue
+  const targets = sheetHits(b)
+  const seen = new Set<object>()
+  for (const { sheet: d, index: i } of sheetHits(a)) {
+    if (seen.has(d) || !sheetEnabled(d, settings)) continue
+    const end = targets.find(t => t.sheet === d && t.index > i)
+    if (!end) continue
+    seen.add(d)
+    const target = d.labels[end.index]
     notes.push({ line: `${d.network.toUpperCase()} ${d.line}`, fromLabel: d.labels[i], toLabel: target,
       source: d.source, url: d.url, window: serviceNote(d.schedule, settings.departAt),
-      operator: BUS_OPERATOR_CONTACTS[d.network], officialLineUrl: d.officialLineUrl,
+      operator: BUS_OPERATOR_CONTACTS[d.network === 'ddd' ? 'ddd' : 'aftu'], officialLineUrl: d.officialLineUrl,
       question: `Le ${dakarDate.format(requestDate)} vers ${requestDate.toISOString().slice(11, 16)} (heure de Dakar), la ligne ${d.line} dessert-elle « ${d.labels[i]} » puis « ${target} » dans ce sens ? Où monter, où descendre et quels accès à pied utiliser ?` })
   }
   return notes

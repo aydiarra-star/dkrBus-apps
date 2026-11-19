@@ -801,7 +801,7 @@ function TransitMapView({
           keyboard
           title={stop.stopName}
           eventHandlers={{ click: () => pickingPoint
-            ? onChoosePoint({ kind: 'stop', label: stop.stopName, stopId: stop.stopId, lat: stop.lat, lng: stop.lon })
+            ? onChoosePoint({ kind: 'stop', label: stop.stopName, stopId: stop.stopId, snapshotId: stop.snapshotId, lat: stop.lat, lng: stop.lon })
             : onSelectStop?.(stop) }}
         >
           <Tooltip direction="top" offset={[0, -10]} opacity={1} className="stop-tooltip">

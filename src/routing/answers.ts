@@ -3,22 +3,24 @@ import type { JourneyMemory } from '../domain/conversation'
 import { routePreferencesFrom } from '../domain/intent'
 import { planDakarJourney } from './dakar'
 import { dakarClock, tripSummary } from './presentation'
-import type { Query } from './model'
+import type { Network, Query } from './model'
 
 /** The passenger UI injects the SAME dated service into text search and chat.
  * Historical simulation is not a fallback when the verified graph says no. */
 export type PassengerLookup = (from: PlannerEndpoint, to: PlannerEndpoint, question: string, lang: 'fr' | 'wo', tripId?: string) => { text: string; memory: JourneyMemory | null }
-export function passengerLookup(options: Omit<Query, 'origin' | 'destination'>): PassengerLookup {
+export function passengerLookup(options: Omit<Query, 'origin' | 'destination'>, network?: Network): PassengerLookup {
   return (from, to, question, lang, tripId) => {
     const mapPoint = (p: PlannerEndpoint) => ({ ...p, lng: p.lon })
     const prefs = routePreferencesFrom(question)
     const header = `${lang === 'wo' ? 'Yoon wi' : 'Trajet'} · ${from.label} → ${to.label}`
     if (prefs.arrivalRequested || prefs.tomorrow) return { text: `${header}. Choisissez la date et l’heure de départ à Dakar dans Trajet ; aucune heure de départ n’est déduite d’une durée approximative.`, memory: null }
-    const result = planDakarJourney(mapPoint(from), mapPoint(to), options)
+    const result = planDakarJourney(mapPoint(from), mapPoint(to), options, network)
     if (!result.ok) {
       const notes = result.documentation?.slice(0, 2).map(d => `Fiche à vérifier, pas un trajet : ${d.line} cite « ${d.fromLabel} » puis « ${d.toLabel} ». ${d.window ?? ''} Source : ${d.source}. Pour vérifier les arrêts et le passage : ${d.operator.name}, ${d.operator.phone}.`)
       const sections = result.connections?.sections.length ? 'Trajet propose des tronçons calculés entre arrêts ; les marches manquantes ne sont pas incluses.' : ''
-      return { text: [`${header} : ${lang === 'wo' ? 'Amul yoon wu ñu wóoral. ' : ''}${result.message}`, ...(notes ?? []), sections].filter(Boolean).join('\n'), memory: null }
+      const c = result.changesToCheck?.[0]
+      const change = c && `À vérifier séparément, secteur ${c.hub} : ${c.before.line} (« ${c.before.from} » → « ${c.before.to} »), puis ${c.after.line} (« ${c.after.from} » → « ${c.after.to} »). Marche et départ suivant non confirmés. Voir les deux sources dans Trajet.`
+      return { text: [`${header} : ${lang === 'wo' ? 'Amul yoon wu ñu wóoral. ' : ''}${result.message}`, ...(notes ?? []), change, sections].filter(Boolean).join('\n'), memory: null }
     }
     const criterion = prefs.priority === 'lessWalking' ? 'walking' : prefs.priority === 'fewerTransfers' ? 'changes' : 'fastest'
     const trip = tripId ? result.options.find(t => t.id === tripId) : result.options.find(t => t.best.includes(criterion)) ?? result.options[0]

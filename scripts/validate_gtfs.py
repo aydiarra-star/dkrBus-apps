@@ -58,9 +58,9 @@ SUPPORTED_TABLES = set(REQUIRED_TABLES) | CALENDAR_TABLES | {"frequencies.txt", 
 # being silently ignored and allowing a false structural-validity result.
 VALIDATED_COLUMNS = {
     "agency.txt": {"agency_id", "agency_name", "agency_url", "agency_timezone"},
-    "stops.txt": {"stop_id", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station"},
+    "stops.txt": {"stop_id", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station", "wheelchair_boarding"},
     "routes.txt": {"route_id", "agency_id", "route_short_name", "route_long_name", "route_type"},
-    "trips.txt": {"route_id", "service_id", "trip_id", "direction_id", "shape_id"},
+    "trips.txt": {"route_id", "service_id", "trip_id", "direction_id", "shape_id", "wheelchair_accessible"},
     "stop_times.txt": {
         "trip_id", "arrival_time", "departure_time", "stop_id", "stop_sequence",
         "timepoint", "pickup_type", "drop_off_type",
@@ -505,6 +505,8 @@ class GTFSValidator:
         else:
             self.stop_ids.add(stop_id)
 
+        if self._value(row, "wheelchair_boarding") not in {"", "0", "1", "2"}:
+            self.report.add("ERROR", "INVALID_WHEELCHAIR_BOARDING", "wheelchair_boarding doit être vide ou valoir 0, 1 ou 2.", "stops.txt", line)
         location_type_raw = self._value(row, "location_type")
         location_type = self._integer(location_type_raw, "location_type", "stops.txt", line, required=False)
         if location_type is None:
@@ -544,6 +546,8 @@ class GTFSValidator:
             self.route_agencies[route_id] = self._value(row, "agency_id")
 
     def _trip_row(self, row: dict[str, str | None], line: int) -> None:
+        if self._value(row, "wheelchair_accessible") not in {"", "0", "1", "2"}:
+            self.report.add("ERROR", "INVALID_WHEELCHAIR_ACCESSIBLE", "wheelchair_accessible doit être vide ou valoir 0, 1 ou 2.", "trips.txt", line)
         trip_id = self._value(row, "trip_id")
         route_id = self._value(row, "route_id")
         service_id = self._value(row, "service_id")

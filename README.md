@@ -4,7 +4,9 @@ Web app mobile-first qui guide les déplacements à Dakar. Dans Explorer, la car
 
 ## Planifier un trajet sur tracés vérifiés
 
-Dans **Trajet**, choisissez un départ, une destination (lieu, arrêt ou point sur la carte) et une heure de départ à Dakar. Le calcul local admet le TER **Dakar → Diamniadio** (phase 1) et B1 **Préfecture de Guédiawaye → Petersen**. Les heures sont estimées ; un voyage entre arrêts suppose que l’on se trouve déjà au point de montée. Aucune marche de rue, correspondance TER–BRT, desserte B2 ou ligne DDD/AFTU/TATA n’est activée sans les preuves nécessaires. Un refus ne dessine pas un trajet partiel.
+Dans **Trajet**, choisissez un départ, une destination (lieu, arrêt ou point sur la carte) et une heure de départ à Dakar. Le calcul local admet le TER **Dakar → Diamniadio** (phase 1) et B1 **Préfecture de Guédiawaye → Petersen** ainsi que **Petersen → Gueule Tapée** (pas jusqu’à Préfecture). Les heures sont estimées ; un voyage entre arrêts suppose que l’on se trouve déjà au point de montée. Aucune marche de rue, correspondance TER–BRT, desserte B2 ou ligne DDD/AFTU/TATA n’est activée sans les preuves nécessaires. Un refus ne dessine pas un trajet partiel.
+
+Le moteur peut combiner TER, BRT, DDD, AFTU, TATA et marche à partir d’une **édition opérateur du jour** : sens et tracés propres à chaque desserte, quais observés, chemins piétons dirigés, calendrier, dernier départ et marge au changement. Aucun GTFS opérateur ni chemin entre quais n’est publié par cette livraison. Sur Pages, **Préparer un changement** permet de lire les deux côtés d’une correspondance à confirmer, sans la tracer ni promettre le bus suivant. [Exemple Dakar → Keur Massar par Bargny, couverture avant/après et procédure de raccordement](docs/preparer-une-correspondance.md).
 
 Si une marche manque, le calcul compare les tronçons possibles entre arrêts sans les présenter comme le trajet demandé. Une fiche de ligne reste une indication documentaire. [Yoff → Keur Massar à 19 h, couverture des 97 points locaux et relevés nécessaires](docs/raccordement-lieux-arrets.md) · `npm run audit:place-connections -- --at 2026-11-18T19:00 --from landmark:yoff --to 14.7900,-17.3100`.
 
@@ -27,7 +29,7 @@ Cette première fondation fournit :
 - un outil de staging versionné qui conserve le ZIP original, son checksum, le manifeste de provenance déclaré, les comptages et le rapport de validation, sans publication automatique ;
 - une revue humaine traçable : cinq attestations obligatoires, un relecteur nominatif, un journal append-only chaîné par empreintes et un retour arrière qui n'efface rien ;
 - une étape de publication qui gèle une version approuvée dans un snapshot daté et immuable (`network.sqlite` + manifeste haché), avec un journal append-only chaîné par empreintes et un retour arrière qui n'efface rien ;
-- une API locale qui sert en lecture seule la gouvernance du staging (`/api/pipeline`, `/api/catalog`, `/api/datasets/<id>`, `/api/publications`) et le snapshot publié (`/api/network`, `/api/stops/search`, `/api/stops/near`, `/api/stops/<id>`, `/api/routes`, `/api/routes/<id>`, `/api/journeys`) ;
+- une API locale qui sert en lecture seule la gouvernance du staging (`/api/pipeline`, `/api/catalog`, `/api/datasets/<id>`, `/api/publications`) et le snapshot publié (`/api/network`, `/api/stops/search`, `/api/stops/near`, `/api/stops/<id>`, `/api/routes`, `/api/routes/<id>`, `/api/journeys`, `/api/passenger-network`) ;
 - un graphe d'itinéraires dérivé du snapshot actif (`data/published/network.graph.json`) : marche par liens déclarés, courses directes déclarées, refus explicite dès qu'il ne correspond plus exactement au snapshot publié ;
 - une interface branchée sur ces API : recherche d’arrêts, arrêts autour de vous, lignes et horaires directs déclarés du snapshot, séparés des itinéraires locaux sur tracés vérifiés ;
 - des comptes locaux nominatifs (secret haché en scrypt, registre `data/actors/` ignoré par Git) : jeton Bearer court pour la CLI, session à cookie `HttpOnly`/`SameSite=Strict` plus jeton CSRF pour la console ;
@@ -303,6 +305,7 @@ Les routes publiques répondent uniquement depuis le snapshot actif, en URL rela
 - `GET /api/stops/<stop_id>` — un arrêt, les lignes qui le desservent et la plage horaire théorique déclarée (`stop_times`) ;
 - `GET /api/routes` et `GET /api/routes/<route_id>` — lignes déclarées, agence, nombre de courses et d'arrêts, présence de tracés ;
 - `GET /api/journeys` — courses directes déclarées entre deux lieux publiés (voir la section suivante) ;
+- `GET /api/passenger-network?snapshot=…&date=AAAA-MM-JJ` — [édition facultative des services et chemins revus](docs/preparer-une-correspondance.md) pour le calcul multimodal ;
 - `GET /api/publications` — journal des publications : entrées, snapshot actif, snapshots listés (`ACTIVE`, `SUPERSEDED`, `REVOKED`, `UNLISTED`).
 
 Chaque réponse porte `publication_status`, `snapshot_id`, `data_policy` et `realtime: false`. Les horaires sont des heures théoriques déclarées dans le flux : aucune position de véhicule, aucune estimation d'arrivée et aucune donnée inventée ne sont produites. Les requêtes invalides renvoient `400 INVALID_QUERY`, les identifiants inconnus `404 NOT_FOUND` et l'absence de publication `404 NOT_PUBLISHED`.
@@ -393,13 +396,13 @@ La navigation est répartie sur quatre onglets, chacun avec un rôle unique : au
 | Onglet | Rôle exclusif | Contenu |
 | --- | --- | --- |
 | **Explorer** | Guide de destination, carte et géolocalisation | Carte Leaflet en tiers supérieur, recherche « On va où ? », bouton « Mobilités à proximité » (GPS, arrêts TER / stations BRT / DDD, AFTU et TATA dans 1,5 km), couches TER/BRT, géolocalisation, arrêts proches vérifiés, raccourcis compacts Maison, Boulot et Adresse sur une ligne, et réseaux de référence déclinables station par station et sens par sens (TER, BRT ; AFTU et TATA dès publication de leurs lignes). Assistant IA disponible depuis la carte. |
-| **Trajet** | Planification d’un itinéraire | Titre « Planifier un trajet » et couverture annoncée (TER · BRT · DDD · TATA · AFTU), deux encadrés Départ/Destination avec icônes repères et inversion en un geste, barre de recherche unique couvrant les cinq mobilités et tous les arrêts déclarés, bouton « Rechercher mon itinéraire », résultats avec durée, correspondances, ligne empruntée et prochain départ (point vert). Pas de fond de carte. |
+| **Trajet** | Planification d’un itinéraire | Titre « Planifier un trajet » et couverture annoncée (TER · BRT · DDD · TATA · AFTU), deux encadrés Départ/Destination avec icônes repères et inversion en un geste, barre de recherche unique couvrant les cinq mobilités et tous les arrêts déclarés, bouton « Rechercher mon itinéraire », carte du parcours choisi avec montées, descentes et marches vérifiées ; résultats avec durée, correspondances, ligne et départ atteignable. Les pistes documentaires ne sont pas tracées. |
 | **Alertes** | Information voyageur | Deux vues inchangées : « Autour de moi » et « Direct rue ». Veille publique, adaptateurs officiels autorisés et témoignages d’usagers clairement distingués. Actualisation/purge horaire, priorité GPS, notifications périssables ; une panne ne prouve jamais un trafic fluide. |
 | **Paramètres** | Guide, informations et données | Guide d’utilisation visible ; réseaux, conditions, mises à jour et état des données dans des sections repliables ; console d’administration repliée par défaut. Pas de barre de recherche. |
 
 Règles appliquées par le code et vérifiées par les tests (`src/App.test.tsx`, bloc « structure en quatre piliers ») :
 
-- la carte Leaflet n'est **jamais montée** ailleurs que dans Explorer : sur les autres onglets elle est retirée du DOM (`is-map-hidden`), donc aucune tuile ni calcul de carte ;
+- la même carte Leaflet accompagne Explorer et Trajet. Son affichage dans Trajet se concentre sur les étapes réellement parcourues ; elle n’est pas montée dans Alertes ou Paramètres ;
 - les points choisis « sur la carte » depuis Trajet passent par Explorer puis reviennent automatiquement à Trajet, et tout arrêt reste sélectionnable par son nom sans quitter Trajet ;
 - tout bouton va jusqu’au bout de son action : un raccourci Maison/Boulot/Adresse, un « Partir d’ici » / « Aller ici » ou un choix sur la carte déclenchent le calcul dès que le départ et la destination sont connus ; aucun bouton ne s’arrête à mi-chemin ;
 - les 23 stations BRT affichées suivent la séquence de référence encodée dans `src/domain/corridors.ts` ; les positions sont associées aux identifiants OSM du projet, mais leur exactitude et leur date de vérification externe ne sont pas documentées ;
@@ -499,6 +502,6 @@ Détail, sources et vérifications : `docs/memoire-maitre-2026-10-10.md`.
 1. Identifier les sources officielles, leurs conditions de réutilisation, la fréquence de mise à jour et les responsables de validation.
 2. ~~Revue humaine traçable autour du staging/catalogue~~ — fait : journal chaîné, attestations obligatoires, retour arrière, et décisions authentifiées depuis la console comme depuis la CLI (comptes locaux, jeton Bearer, session à cookie). Reste la revue à plusieurs yeux et la rotation planifiée des secrets.
 3. ~~Publier une version approuvée~~ — fait : snapshot SQLite daté et haché, journal append-only, retour arrière, API de lecture, interface branchée sur ces routes et séparation relecteur/publieur appliquée par le serveur.
-4. ~~Routage sur les données publiées~~ — fait pour les courses directes déclarées (graphe dérivé, `/api/journeys`). Reste le moteur à correspondances, qui n'a de sens qu'avec des données réelles et un temps de correspondance déclaré, puis la recherche géographique de lieux.
+4. ~~Routage sur les données publiées~~ — fait pour les courses directes déclarées (graphe dérivé, `/api/journeys`). Le moteur à correspondances de *Trajet* admet aussi une édition datée de ce snapshot avec sens, quais et chemins revus. Reste à publier ces preuves pour les pôles de Dakar ; la seule publication du GTFS ne garantit pas une correspondance.
 5. Compléter les adaptateurs officiels autorisés/exhaustifs : la veille publique et le partage Direct rue ne les remplacent pas ; voir les accès trouvés et les limites de couverture.
 6. Compléter les tests d'intégration, E2E, sécurité, monitoring, sauvegardes et administration.

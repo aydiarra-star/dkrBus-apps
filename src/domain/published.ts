@@ -41,6 +41,7 @@ export interface PublishedDataset {
 }
 
 export interface PublishedNetwork {
+  passengerReview?: boolean
   available: boolean
   publicationStatus: PublicationStatus
   snapshot: PublishedSnapshot | null
@@ -53,6 +54,7 @@ export interface PublishedNetwork {
 }
 
 export interface PublishedStop {
+  snapshotId?: string
   stopId: string
   stopName: string
   lat: number | null
@@ -185,6 +187,7 @@ export function parseNetworkPayload(payload: unknown): ParseResult<PublishedNetw
   return {
     ok: true,
     value: {
+      ...(payload.passenger_review === true ? { passengerReview: true } : {}),
       available: payload.available,
       publicationStatus,
       snapshot,
@@ -221,7 +224,7 @@ export function parseStopsPayload(payload: unknown): ParseResult<PublishedStop[]
   for (const raw of payload.results) {
     const stop = parseStop(raw)
     if (!stop) return { ok: false, reason: 'Un arrêt publié est illisible.' }
-    stops.push(stop)
+    stops.push({ ...stop, ...(requiredString(payload.snapshot_id) && { snapshotId: String(payload.snapshot_id) }) })
   }
   return { ok: true, value: stops }
 }
@@ -263,6 +266,7 @@ export function parseStopDetailPayload(payload: unknown): ParseResult<PublishedS
     ok: true,
     value: {
       ...stop,
+      ...(requiredString(payload.snapshot_id) && { snapshotId: String(payload.snapshot_id) }),
       parentStationName: optionalString(payload.stop.parent_station_name),
       routes,
       scheduledWindow,

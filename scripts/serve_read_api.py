@@ -10,12 +10,14 @@ claim.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import sqlite3
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import parse_qs, unquote
 
 try:  # Works both as `python -m scripts.serve_read_api` and as a file script.
+    from .passenger_network import PackError, compile_day, sidecar
     from .network_graph import (
         GraphError,
         find_direct_journeys,
@@ -36,6 +38,7 @@ try:  # Works both as `python -m scripts.serve_read_api` and as a file script.
         stops_near,
     )
 except ImportError:  # pragma: no cover - exercised by the direct CLI entry point
+    from passenger_network import PackError, compile_day, sidecar
     from network_graph import (
         GraphError,
         find_direct_journeys,
@@ -66,6 +69,7 @@ PUBLIC_ROUTES = (
     "/api/stops/near",
     "/api/stops/<stop_id>",
     "/api/journeys",
+    "/api/passenger-network",
 )
 
 JOURNEY_LIMITATIONS = (
@@ -189,6 +193,8 @@ def network_payload(published_root: str | Path, *, now: datetime | None = None) 
         "data_policy": DATA_POLICY,
         "realtime": False,
     }
+    snap = active.get("snapshot") or {}
+    payload["passenger_review"] = bool(active["available"] and snap.get("validity_status") == "CURRENT" and sidecar(Path(published_root), snap["snapshot_id"]))
     if not active["available"]:
         payload["message"] = (
             "Aucun jeu de données n’est publié : la carte reste une carte de fond OpenStreetMap "
@@ -402,7 +408,8 @@ def _endpoint(graph: dict[str, Any], parameters: dict[str, list[str]], prefix: s
 def journeys_payload(published_root: str | Path, parameters: dict[str, list[str]], *, now: datetime | None = None) -> dict[str, Any]:
     """Direct journeys between two published places, at a stated time."""
     active = _active(published_root, now=now)
-    status = graph_status(published_root, now=now)
+    if parameters.get("snapshot") and parameters["snapshot"] != [active["snapshot"]["snapshot_id"]]:
+        raise ApiError(409, "SNAPSHOT_CHANGED", "Les arrêts demandés appartiennent à une autre publication.")
     try:
         graph = load_graph(published_root, now=now)
     except GraphError as error:
@@ -412,6 +419,10 @@ def journeys_payload(published_root: str | Path, parameters: dict[str, list[str]
             f"{error} Reconstruire le graphe avec « npm run publish:gtfs -- graph-rebuild ».",
         ) from error
 
+    # load_graph() independently resolves the active publication. Never return
+    # its courses under an earlier ID if the pointer moved between the reads.
+    if (graph.get("snapshot") or {}).get("snapshot_id") != active["snapshot"]["snapshot_id"]:
+        raise ApiError(409, "SNAPSHOT_CHANGED", "La publication a changé pendant la recherche.")
     origin = _endpoint(graph, parameters, "origin", "départ")
     destination = _endpoint(graph, parameters, "destination", "arrivée")
     at = _parse_at(parameters)
@@ -467,6 +478,29 @@ def journeys_payload(published_root: str | Path, parameters: dict[str, list[str]
     return payload
 
 
+def passenger_network_payload(root: str | Path, parameters: dict[str, list[str]], *, now: datetime | None = None) -> dict[str, Any]:
+    active = _active(root, now=now)
+    snap = active["snapshot"]
+    if _single_text(parameters, "snapshot") != snap["snapshot_id"] or snap["validity_status"] != "CURRENT":
+        raise ApiError(409, "SNAPSHOT_CHANGED", "Le snapshot demandé n’est plus courant.")
+    raw = _single_text(parameters, "date")
+    try:
+        day = date.fromisoformat(raw)
+        if raw != day.isoformat():
+            raise ValueError
+    except ValueError:
+        raise ApiError(400, "INVALID_QUERY", "Date de service attendue : AAAA-MM-JJ à Dakar.") from None
+    try:
+        pack = compile_day(Path(root), snap, day)
+        if parameters.get("known_revision") == [pack["revision"]]:
+            return {k: pack[k] for k in ("version", "snapshot_id", "date", "revision")} | {"unchanged": True}
+        return pack
+    except PackError as error:
+        raise ApiError(409, "NO_REVIEWED_NETWORK", str(error)) from error
+    except (AttributeError, KeyError, IndexError, TypeError, ValueError, OSError, sqlite3.DatabaseError) as error:
+        raise ApiError(409, "INVALID_NETWORK_REVIEW", "Revue du réseau inexploitable pour ce jour.") from error
+
+
 def resolve_public_route(path: str, query: str, published_root: str | Path) -> Callable[[], dict[str, Any]] | None:
     """Match one public route, or return None so the caller reports a 404."""
     parameters = parse_qs(query, keep_blank_values=True)
@@ -484,6 +518,8 @@ def resolve_public_route(path: str, query: str, published_root: str | Path) -> C
         return lambda: stop_payload(published_root, path[len("/api/stops/"):])
     if path.startswith("/api/routes/"):
         return lambda: route_payload(published_root, path[len("/api/routes/"):])
+    if path == "/api/passenger-network":
+        return lambda: passenger_network_payload(published_root, parameters)
     if path == "/api/journeys":
         return lambda: journeys_payload(published_root, parameters)
     return None

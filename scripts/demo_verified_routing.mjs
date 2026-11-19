@@ -13,7 +13,7 @@ try {
   for (const [origin, destination, expected] of [
     ['ter-dakar', 'ter-pikine', true], ['ter-colobane', 'ter-diamniadio', true],
     ['brt-prefecture-guediawaye', 'brt-petersen', true], ['brt-grand-medine', 'brt-liberte-6', true],
-    ['brt-petersen', 'brt-prefecture-guediawaye', false], ['ter-pikine', 'ter-dakar', false],
+    ['brt-petersen', 'brt-gueule-tapee', true], ['brt-petersen', 'brt-prefecture-guediawaye', false], ['ter-pikine', 'ter-dakar', false],
     ['brt-prefecture-guediawaye', 'ter-rufisque', false],
   ]) {
     const result = search(dakarNetwork, { origin, destination, departAt })

@@ -461,8 +461,8 @@ class AdminApiHandler(BaseHTTPRequestHandler):
         except (ValueError, OSError):  # pragma: no cover - unreadable store
             return "UNKNOWN"
 
-    def _send(self, status: int, payload: dict[str, Any], *, cookies: list[str] | None = None) -> None:
-        body = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
+    def _send(self, status: int, payload: dict[str, Any], *, cookies: list[str] | None = None, compact: bool = False) -> None:
+        body = json.dumps(payload, ensure_ascii=False, indent=None if compact else 2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -526,7 +526,7 @@ class AdminApiHandler(BaseHTTPRequestHandler):
         raw_path, _, query = self.path.partition("?")
         path = raw_path.rstrip("/") or "/"
         try:
-            self._send(200, self._resolve(path, query))
+            self._send(200, self._resolve(path, query), compact=path == "/api/passenger-network")
         except ApiError as error:
             self._send_refusal(error)
         except ValueError as error:

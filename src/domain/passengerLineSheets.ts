@@ -2,10 +2,10 @@ import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { ALL_CORRIDOR_STOPS } from './corridors'
 import type { EstimatedLineSchedule } from './estimatedSchedules'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
-import { BUS_LINES, normalizeMobility } from './mobilityKnowledge'
+import { BUS_LINES, TATA_BUS_LINES, normalizeMobility } from './mobilityKnowledge'
 
 interface TextDirection {
-  network: 'ddd' | 'aftu'
+  network: 'ddd' | 'aftu' | 'tata'
   line: string
   labels: readonly string[]
   source: string
@@ -34,6 +34,27 @@ for (const file of Object.values(files)) {
     if (!labels?.length || !url || !schedule || schedule.line !== file.code || url !== schedule.sourceUrl) continue
     directions.push({ network: 'aftu', line: file.code, labels, url, source: schedule.sourceLabel, schedule, officialLineUrl })
   }
+}
+
+// For the following official sheets the *body* gives the order, even where
+// the overview title lists the termini in the opposite order (e.g. 24).
+const checkedAftu = new Set(['3', '4', '24', '25', '29', '30', '33', '39', '74'])
+for (const r of BUS_LINES) {
+  if (r.network !== 'aftu' || !checkedAftu.has(r.code) || !r.waypoints.length || r.detailSourceUrl !== `https://aftu-senegal.org/map/dakar-urbain-ligne-${r.code}/`) continue
+  directions.push({ network: 'aftu', line: r.code, labels: r.waypoints, url: r.detailSourceUrl, source: 'AFTU · descriptif dans l’ordre publié' })
+}
+// Admit independent TATA reading material only where the directional URL,
+// both endpoints and the transcription agree. No historical tariff sheets.
+const slug = (s: string) => normalizeMobility(s).replace(/[^a-z0-9]+/g, '-')
+for (const r of TATA_BUS_LINES) {
+  const url = r.detailSourceUrl
+  if (!r.waypoints.length || !r.note?.includes('source indépendante non officielle') || url !== `https://www.covoiturage.sn/bus-tata-itineraire/ligne/${r.code}/${slug(r.origin)}/${slug(r.destination)}/`) continue
+  directions.push({ network: 'tata', line: r.code, labels: [r.origin, ...r.waypoints, r.destination], url, source: 'Covoiturage.sn · fiche TATA indépendante' })
+}
+// A published circuit is readable in order without wrapping it across the
+// terminus, splitting it into two lines or inventing the opposite direction.
+for (const r of DDD_PUBLISHED_ROUTES.filter(r => r.kind === 'published_circuit' && !r.sourceConflict)) {
+  directions.push({ network: 'ddd', line: r.line, labels: r.stops, url: r.sourceUrl, source: r.sourceLabel })
 }
 
 export const PASSENGER_LINE_SHEETS: readonly TextDirection[] = directions

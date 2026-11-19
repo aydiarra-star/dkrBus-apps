@@ -16,7 +16,7 @@ function plan(from: string, to: string, departAt = morning) { return planDakarJo
 
 it('uses only the 13 phase-one calls and 23 B1 calls and does not mutate or publish the wider reference', () => {
   expect(net.rejected).toEqual([])
-  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23]])
+  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23], ['19961993', 22]])
   expect(net.places.size).toBe(36); expect(net.walking.size).toBe(0)
   expect(net.places.has('ter-aibd')).toBe(false)
   expect(TER_STOPS).toHaveLength(14); expect(BRT_STOPS).toHaveLength(23)
@@ -87,28 +87,30 @@ it('gives actual next modeled slots at the boarding stop, never extending beyond
 
 it('checks all ordered pairs of the 36 actual calls: direction, source chainage, map vertices and time accounting', () => {
   let allowed = 0, refused = 0
-  const sequences = [TER_STOPS.filter(s => s.id !== 'ter-aibd'), [...BRT_STOPS].reverse()]
-  for (const [index, stops] of sequences.entries()) {
-    const pattern = net.patterns.find(p => p.network === (index ? 'brt' : 'ter'))!
-    const chainages = stops.map(s => projectStopToLine(s, pattern.shape.positions)!.chainageM)
-    for (const [i, from] of stops.entries()) for (const to of [...sequences[0], ...sequences[1]]) {
-      const j = stops.findIndex(s => s.id === to.id)
-      const r = plan(from.id, to.id)
-      if (j <= i) {
-        expect(r).toMatchObject({ ok: false, code: j === i ? 'SAME_PLACE' : 'NO_PATH' })
-        refused++; continue
-      }
-      if (!r.ok) throw Error(`${from.id} → ${to.id}: ${r.message}`)
-      allowed++
-      const t = r.options[0], leg = t.legs[0]
-      expect(r.options.length).toBe(1); expect(t.legs.length).toBe(1)
-      if (leg.kind !== 'ride') throw Error('Unexpected walk')
-      expect(leg.stops.map(s => s.id)).toEqual(stops.slice(i, j + 1).map(s => s.id))
-      expect(Math.abs(t.meters - (chainages[j] - chainages[i]))).toBeLessThan(0.1)
-      expect(t.walkSeconds).toBe(0); expect(t.totalSeconds).toBe(t.waitSeconds + t.rideSeconds)
-      expect(leg.start).toBe(t.start + leg.waitSeconds); expect(leg.end).toBe(leg.start + t.rideSeconds)
-      expect(mapItinerary(t).segments[0].positions).toEqual(leg.positions.map(p => [p.lat, p.lon]))
+  const ter = TER_STOPS.filter(s => s.id !== 'ter-aibd'), universe = [...ter, ...BRT_STOPS]
+  const scopes = [[ter, '13645077'], [[...BRT_STOPS].reverse(), '19961937'], [BRT_STOPS.slice(0, 22), '19961993']] as const
+  const expected = scopes.map(([stops, relation]) => {
+    const p = net.patterns.find(p => p.shape.sourceId === relation)!
+    return { stops, chainages: stops.map(s => projectStopToLine(s, p.shape.positions)!.chainageM) }
+  })
+  for (const from of universe) for (const to of universe) {
+    const r = plan(from.id, to.id)
+    const scope = expected.find(e => e.stops.indexOf(from) >= 0 && e.stops.indexOf(to) > e.stops.indexOf(from))
+    if (!scope) {
+      expect(r).toMatchObject({ ok: false, code: from === to ? 'SAME_PLACE' : 'NO_PATH' })
+      refused++; continue
     }
+    const { stops, chainages } = scope, i = stops.indexOf(from), j = stops.indexOf(to)
+    if (!r.ok) throw Error(`${from.id} → ${to.id}: ${r.message}`)
+    allowed++
+    const t = r.options[0], leg = t.legs[0]
+    expect(r.options.length).toBe(1); expect(t.legs.length).toBe(1)
+    if (leg.kind !== 'ride') throw Error('Unexpected walk')
+    expect(leg.stops.map(s => s.id)).toEqual(stops.slice(i, j + 1).map(s => s.id))
+    expect(Math.abs(t.meters - (chainages[j] - chainages[i]))).toBeLessThan(0.1)
+    expect(t.walkSeconds).toBe(0); expect(t.totalSeconds).toBe(t.waitSeconds + t.rideSeconds)
+    expect(leg.start).toBe(t.start + leg.waitSeconds); expect(leg.end).toBe(leg.start + t.rideSeconds)
+    expect(mapItinerary(t).segments[0].positions).toEqual(leg.positions.map(p => [p.lat, p.lon]))
   }
-  expect([allowed, refused]).toEqual([331, 965]) // 36²; includes 36 identical endpoints and 598 cross-network pairs
+  expect([allowed, refused]).toEqual([562, 734]) // 36²; includes 36 identical endpoints and 598 cross-network pairs
 })

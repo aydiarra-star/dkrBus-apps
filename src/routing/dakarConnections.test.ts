@@ -82,7 +82,7 @@ it('finds real B1 sections for a locality with no certified walk, but only betwe
   const late = planDakarJourney(from, to, { departAt: at('23:00') })
   expect(!late.ok && late.connections?.sections).toEqual([])
   const reversed = planDakarJourney(to, from, settings)
-  expect(!reversed.ok && reversed.connections?.sections).toEqual([])
+  expect(!reversed.ok && reversed.connections?.sections.map(s => [s.from.id, s.to.id])).toEqual([['brt-petersen', 'brt-gueule-tapee']])
   // Actually choosing the newly proposed endpoint starts a distinct question.
   expect(planDakarJourney(stop(first.from.id), to, settings)).toMatchObject({ ok: true, options: [{ walkMeters: 0, rideSeconds: 3163 }] })
 })
