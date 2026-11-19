@@ -17,6 +17,8 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      PBF_URL: https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,7 +47,7 @@ jobs:
           mkdir -p artifacts/pedestrian
           curl --fail --location --retry 3 --retry-delay 2 --retry-all-errors \
             --output artifacts/pedestrian/senegal-and-gambia.osm.pbf \
-            https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+            "$PBF_URL"
           test -s artifacts/pedestrian/senegal-and-gambia.osm.pbf
 
       - name: Extract Dakar public transport route relations
@@ -53,7 +55,7 @@ jobs:
         run: |
           python scripts/extract_dakar_bus_route_relations_from_pbf.py \
             artifacts/pedestrian/senegal-and-gambia.osm.pbf \
-            artifacts/pedestrian/dakar-bus-route-relations.json
+            artifacts/pedestrian/dakar-bus-route-relations.json --source-url "$PBF_URL"
 
       - name: Extract DDD ArcGIS route and stop layers
         timeout-minutes: 15

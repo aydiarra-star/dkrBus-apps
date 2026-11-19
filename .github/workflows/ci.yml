@@ -230,7 +230,7 @@ jobs:
           mkdir -p artifacts/bus-review
           node scripts/audit_bus_networks.mjs --output artifacts/bus-review/inventory.json
           python scripts/extract_dakar_bus_route_relations_from_pbf.py artifacts/pedestrian/senegal-and-gambia.osm.pbf artifacts/pedestrian/dakar-bus-route-relations.json --inventory artifacts/bus-review/inventory.json --source-url '${{ steps.pedestrian_geofabrik.outputs.source_url }}'
-          python -m scripts.audit_bus_osm_occurrences artifacts/bus-review/inventory.json artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/occurrences.json
+          python -m scripts.audit_bus_osm_occurrences artifacts/bus-review/inventory.json artifacts/pedestrian/dakar-bus-route-relations.json artifacts/bus-review/occurrences.json --ci-summary
 
       - name: Upload read-only bus occurrence and pinned member comparison
         if: steps.dakar_bus_routes.outcome == 'success'

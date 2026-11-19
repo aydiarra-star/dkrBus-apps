@@ -138,6 +138,7 @@ if __name__ == '__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ('inventory', 'pbf', 'output'):
         cli.add_argument(name, type=Path)
+    cli.add_argument('--ci-summary', action='store_true', help='Annotate the read-only check; drift needs a human review')
     args = cli.parse_args()
     report = compare(json.loads(args.inventory.read_text()), json.loads(args.pbf.read_text()))
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
@@ -146,3 +147,15 @@ if __name__ == '__main__':
     print('Pinned object discrepancies:', json.dumps(report['memberDrift']))
     for s in report['sections']:
         print(f"{s['section']}: {s['check']} {' '.join(s['problems'])}".rstrip())
+    if args.ci_summary:
+        # Make drift visible in Checks even if the short-lived JSON expires.
+        # Only include computed counts, numeric IDs and a local digest here.
+        count = sum(len(d) for d in report['memberDrift'].values())
+        recheck = sum(s['check'] == 'recheck' for s in report['sections'])
+        level = 'warning' if count or recheck else 'notice'
+        print(f"::{level} title=Revue OSM::PBF {report['sourceSha256']} ; "
+              f"{sum(len(r['relations']) for r in report['lines'])} relations attribuées, {len(report['otherRouteIds'])} non attribuées à ces codes ; "
+              f"{count} objets épinglés en écart ; {recheck}/{len(report['sections'])} portions à relire.")
+        if count:
+            print('::warning title=Objets OSM à relire::' + ' ; '.join(
+                f"{kind}: " + ', '.join(str(int(i)) for i in ids) for kind, ids in report['memberDrift'].items() if ids))
