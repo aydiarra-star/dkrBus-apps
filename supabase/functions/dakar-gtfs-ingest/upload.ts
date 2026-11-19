@@ -7,6 +7,10 @@ export const MAX_JSON_REQUEST_BYTES = MAX_MANIFEST_BYTES + 16 * 1024;
 export const SIGNED_UPLOAD_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
 export const TUS_UPLOAD_URL_TTL_MS = 24 * 60 * 60 * 1000;
 export const UPLOAD_CLEANUP_GRACE_MS = 15 * 60 * 1000;
+// The signed-token request and its post-issuance DB update are bounded by the
+// Edge Function wall-clock limit. Reserve ten extra minutes before the call so
+// a failed DB update can never leave a pre-issuance expiry earlier than a token.
+export const SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS = 10 * 60 * 1000;
 export const UPLOAD_SESSION_TTL_MS =
   SIGNED_UPLOAD_TOKEN_TTL_MS + TUS_UPLOAD_URL_TTL_MS + UPLOAD_CLEANUP_GRACE_MS;
 
