@@ -1,4 +1,4 @@
-import { isDakarBusSupabaseUrl } from "./project.ts";
+import { DAKAR_BUS_TUS_UPLOAD_ENDPOINT, isDakarBusSupabaseUrl } from "./project.ts";
 
 Deno.test("accepts only canonical Dakar Bus Supabase URL variants", () => {
   for (const value of [
@@ -10,6 +10,13 @@ Deno.test("accepts only canonical Dakar Bus Supabase URL variants", () => {
     if (!isDakarBusSupabaseUrl(value)) {
       throw new Error(`Canonical Dakar Bus project URL was rejected: ${value}`);
     }
+  }
+});
+
+Deno.test("pins resumable uploads to the dedicated Dakar Bus Storage hostname", () => {
+  if (DAKAR_BUS_TUS_UPLOAD_ENDPOINT !==
+      "https://mdmuxzaewzqzqutkqdylo.storage.supabase.co/storage/v1/upload/resumable") {
+    throw new Error("The TUS endpoint is not pinned to the Dakar Bus Storage host");
   }
 });
 
