@@ -7,7 +7,7 @@ Cette étape remplace la réception du ZIP dans le corps multipart de l'Edge Fun
 ## Parcours
 
 1. Un reviewer authentifié appelle `dakar-gtfs-ingest` avec `action: "create_upload"`, un `dataset_id` et le manifeste.
-2. L'Edge Function vérifie le JWT avec `auth.getUser`, la confirmation du compte et le rôle `reviewer` actif. Elle borne le flux JSON réel à 1 Mio + 16 Kio, valide le manifeste, puis calcule elle-même son SHA-256.
+2. L'Edge Function vérifie le JWT avec `auth.getUser`, la confirmation du compte et le rôle `reviewer` actif. Elle borne le flux JSON réel à 1 Mio + 16 Kio, valide le manifeste, recalcule l'heure d'ingestion et l'état de validité, puis calcule elle-même le SHA-256 du manifeste stocké. Le bloc `validation` et les `record_count` fournis par l'importateur sont supprimés : ils ne constituent jamais une preuve serveur.
 3. Elle crée une session privée à durée limitée et construit exclusivement le chemin `<dataset_id>/<sha256>/feed.zip`. Elle demande une URL signée Storage avec `upsert: false`.
 4. Le navigateur utilise `storage.from("dakar-gtfs-staging").uploadToSignedUrl(path, token, file, { contentType: "application/zip" })`. Le token Storage est valide deux heures. Le bucket privé limite chaque objet à 100 Mio et n'accepte que ZIP/JSON.
 5. Le reviewer appelle `dakar-gtfs-ingest` avec `action: "finalize_upload"` et l'identifiant de session. Le serveur revérifie l'identité et la propriété de la session, lit les métadonnées Storage réelles, exige la taille exacte annoncée et écrit lui-même le manifeste privé.
@@ -45,7 +45,7 @@ La finalisation est idempotente pour une ligne de staging qui référence exacte
 - L'identifiant de dataset est unique dans les sessions et dans le staging ; les chemins sont canoniques et uniques. L'upload signé n'autorise pas l'écrasement.
 - Les deux heures de validité Storage sont suivies d'une marge de 15 minutes avant expiration de session. Les sessions expirées ou échouées sont nettoyées lors d'un prochain appel d'intake : les références en base sont vérifiées avant toute suppression.
 - Après un résultat réseau ambigu, le serveur relit la ligne de staging. Si la base ne permet pas de savoir si l'objet est référencé, il le conserve et renvoie une erreur explicite plutôt que de risquer une référence cassée.
-- Un ZIP de taille correcte n'est pas déclaré valide : le contrôle complet ZIP/CSV/références/séquences reste exclusivement dans le worker Python. Les données de transport ne sont jamais modifiées par l'ingestion ou la validation.
+- Un ZIP de taille correcte n'est pas déclaré valide : le contrôle complet ZIP/CSV/références/séquences reste exclusivement dans le worker Python. Les erreurs d'intégrité non récupérables (taille, SHA-256, manifeste ou signature ZIP) restent en quarantaine avec `integrity_status=INVALID`; les erreurs réseau et d'exécution sont réessayées sans attestation. Les données de transport ne sont jamais modifiées par l'ingestion ou la validation.
 
 ## Vérifications attendues
 
