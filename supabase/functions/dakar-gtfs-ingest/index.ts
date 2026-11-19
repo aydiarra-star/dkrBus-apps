@@ -18,6 +18,7 @@ import {
   MAX_MANIFEST_BYTES,
   readJsonWithLimit,
   RequestBodyTooLargeError,
+  sanitizeManifest,
   sha256Hex,
   UPLOAD_SESSION_TTL_MS,
   validManifest,
@@ -253,9 +254,14 @@ async function createUpload(
     return reply(422, { error: "MANIFEST_SCHEMA_INVALID" }, cors);
   }
 
+  const inputManifest = body.manifest as Record<string, unknown>;
+  const serverValidityStatus = validityStatus(inputManifest.valid_from, inputManifest.valid_until);
+  const manifest = sanitizeManifest(inputManifest, serverValidityStatus);
   let manifestText: string;
   try {
-    manifestText = JSON.stringify(body.manifest);
+    const serialized = JSON.stringify(manifest);
+    if (typeof serialized !== "string") return reply(400, { error: "MANIFEST_SERIALIZATION_FAILED" }, cors);
+    manifestText = serialized;
   } catch {
     return reply(400, { error: "MANIFEST_SERIALIZATION_FAILED" }, cors);
   }
@@ -264,7 +270,6 @@ async function createUpload(
     return reply(413, { error: "MANIFEST_SIZE_OUT_OF_RANGE", max_bytes: MAX_MANIFEST_BYTES }, cors);
   }
   const manifestSha256 = await sha256Hex(manifestBytes);
-  const manifest = body.manifest as Record<string, unknown>;
   const archive = manifest.archive as Record<string, unknown>;
   const paths = canonicalObjectPaths(datasetId, String(archive.sha256));
 
@@ -303,7 +308,7 @@ async function createUpload(
     valid_until: manifest.valid_until,
     confidence: manifest.confidence,
     service_status: manifest.service_status,
-    validity_status: validityStatus(manifest.valid_from, manifest.valid_until),
+    validity_status: serverValidityStatus,
     archive_object_path: paths.archivePath,
     manifest_object_path: paths.manifestPath,
     archive_sha256: archive.sha256,
