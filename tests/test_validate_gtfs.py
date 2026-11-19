@@ -49,6 +49,9 @@ class GTFSValidatorTests(unittest.TestCase):
         self.assertLessEqual(len(issue["table"]), MAX_ISSUE_TABLE_CHARS)
         serialized = json.dumps(report.to_dict(), ensure_ascii=False).encode("utf-8")
         self.assertLess(len(serialized), 1024 * 1024)
+        limits = report.to_dict()["limits"]
+        self.assertEqual(limits["max_issue_message_chars"], MAX_ISSUE_MESSAGE_CHARS)
+        self.assertEqual(limits["max_issue_table_chars"], MAX_ISSUE_TABLE_CHARS)
 
     def make_archive(self, tables: dict[str, str], wrapper: str | None = None) -> Path:
         directory = tempfile.TemporaryDirectory()
