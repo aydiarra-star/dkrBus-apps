@@ -17,6 +17,7 @@ import {
   MAX_JSON_REQUEST_BYTES,
   MAX_MANIFEST_BYTES,
   isUploadSessionExpired,
+  uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
   SIGNED_UPLOAD_TOKEN_TTL_MS,
   RequestBodyTooLargeError,
@@ -307,8 +308,7 @@ async function createUpload(
   if (objectLookupError) return reply(503, { error: "STORAGE_PATH_LOOKUP_FAILED" }, cors);
   if (existingObjects?.length) return reply(409, { error: "CANONICAL_STORAGE_PATH_ALREADY_EXISTS" }, cors);
 
-  const now = Date.now();
-  const expiresAt = new Date(now + UPLOAD_SESSION_TTL_MS).toISOString();
+  const expiresAt = uploadSessionExpiryAfterTokenIssuedAt();
   const { data: session, error: insertError } = await admin.from(UPLOAD_TABLE).insert({
     dataset_id: datasetId,
     dataset_version: manifest.dataset_version,
@@ -341,14 +341,44 @@ async function createUpload(
     .from(BUCKET)
     .createSignedUploadUrl(paths.archivePath, { upsert: false });
   if (signedUploadError || !signedUpload?.token) {
-    const { error: deleteError } = await admin.from(UPLOAD_TABLE).delete().eq("upload_id", session.upload_id);
-    if (deleteError) {
-      await admin.from(UPLOAD_TABLE).update({
-        state: "FAILED",
-        expires_at: new Date().toISOString(),
-      }).eq("upload_id", session.upload_id);
-    }
-    return reply(503, { error: "SIGNED_UPLOAD_URL_CREATION_FAILED" }, cors);
+    // The Storage request may have succeeded even if its response was lost.
+    // Do not delete the session or shorten its expiry: an issued token cannot
+    // be revoked individually, and may still be usable for the full two hours.
+    const cleanupAfter = uploadSessionExpiryAfterTokenIssuedAt();
+    const { error: stateError } = await admin.from(UPLOAD_TABLE).update({
+      state: "FAILED",
+      finalized_at: null,
+      expires_at: cleanupAfter,
+    }).eq("upload_id", session.upload_id).eq("state", "UPLOAD_PENDING");
+    return reply(503, {
+      error: "SIGNED_UPLOAD_URL_CREATION_FAILED",
+      cleanup_after: cleanupAfter,
+      session_state_update_pending: Boolean(stateError),
+    }, cors);
+  }
+
+  // The signed token's two-hour lifetime starts when Storage issues it, not
+  // when the earlier database reservation was created. Anchor the cleanup
+  // grace to this later instant so cleanup can never race a still-live token.
+  const expiresAt = uploadSessionExpiryAfterTokenIssuedAt();
+  const { data: expiryUpdate, error: expiryUpdateError } = await admin.from(UPLOAD_TABLE)
+    .update({ expires_at: expiresAt })
+    .eq("upload_id", session.upload_id)
+    .eq("state", "UPLOAD_PENDING")
+    .select("upload_id")
+    .maybeSingle();
+  if (expiryUpdateError || !expiryUpdate) {
+    const cleanupAfter = uploadSessionExpiryAfterTokenIssuedAt();
+    const { error: stateError } = await admin.from(UPLOAD_TABLE).update({
+      state: "FAILED",
+      finalized_at: null,
+      expires_at: cleanupAfter,
+    }).eq("upload_id", session.upload_id).eq("state", "UPLOAD_PENDING");
+    return reply(503, {
+      error: "SIGNED_UPLOAD_SESSION_EXPIRY_UPDATE_FAILED",
+      cleanup_after: cleanupAfter,
+      session_state_update_pending: Boolean(stateError),
+    }, cors);
   }
 
   return reply(201, {
