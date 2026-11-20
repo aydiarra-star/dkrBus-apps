@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "scripts/lib/waymarkLines*"
+      - "scripts/lib/aftuIndex*"
       - "scripts/audit_aftu_road_fit.py"
       - "scripts/audit_aftu_map_calls.py"
       - "scripts/audit_gt54.py"
@@ -44,7 +45,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test scripts/lib/waymarkLines.node-test.mjs
+      - run: node --test scripts/lib/{waymarkLines,aftuIndex}.node-test.mjs
       - name: Retrieve official AFTU route pages
         run: AFTU_TEMP_MAPS="$RUNNER_TEMP/aftu-maps" node scripts/export_aftu_official_routes.mjs
       - name: Report overlay measurements (not passenger geometry)
@@ -55,6 +56,9 @@ jobs:
           // One compact receipt per batch, no redistribution of point arrays.
           console.log(`::notice title=Acquisition AFTU::${r.status} · ${r.summary.pagesFetched} pages · ${r.errors.length} erreurs`);
           console.log('::notice title=Pages AFTU non acquises::'+JSON.stringify(r.errors.map(e => [e.slug,e.error])).replaceAll('%','%25'));
+          // Do not reduce an index-only axis to a fetch outage, nor a 404 to an absent bus line.
+          const notes = r.errors.filter(e => e.slug).map(e => [e.slug,e.indexHeading,e.indexAxis,e.discovery,e.detailLinkInSitemap,e.status,e.httpStatus]);
+          console.log('::notice title=Index et sondes AFTU::'+JSON.stringify([Object.keys(r.indexHeadings ?? {}).length, r.sitemap ?? null, notes]).replaceAll('%','%25'));
           const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other,m.markerNames]);
           for (let i = 0; i < rows.length; i+=10) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+10)).replaceAll('%','%25'));
           JS

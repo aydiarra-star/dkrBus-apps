@@ -2,18 +2,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 import { inspectWaymark } from './lib/waymarkLines.mjs';
 
-const INDEX = "https://aftu-senegal.org/infos-pratiques/";
+import { INDEX, SITEMAP, probes, mapUrl, plain, readIndex, readSitemap, routeCandidates, errorKind } from './lib/aftuIndex.mjs';
 const OUTPUT = "artifacts/aftu/aftu-official-route-pages.json";
 const headers = { "User-Agent": "DakarBus-official-route-audit/1.0" };
-const ADDITIONAL_OFFICIAL_PAGES = [
-  { slug: "27", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-27/" },
-  { slug: "36", url: "https://aftu-senegal.org/map/dakar-urbain-ligne-36/" },
-  ...["84", "85", "86", "87", "88", "89", "90", "91"].map((slug) => ({
-    slug,
-    url: `https://aftu-senegal.org/map/dakar-urbain-ligne-${slug}/`,
-  })),
-];
-
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchText(url) {
@@ -23,6 +14,7 @@ async function fetchText(url) {
       const response = await fetch(url, { headers, signal: AbortSignal.timeout(25000) });
       if (!response.ok) {
         const error = new Error(`${url}: HTTP ${response.status}`);
+        error.status = response.status;
         if (response.status < 500 && response.status !== 429) throw error;
         lastError = error;
       } else {
@@ -41,21 +33,8 @@ async function fetchText(url) {
   }
   throw lastError ?? new Error(`Unable to retrieve ${url}`);
 }
-function decode(text) {
-  return text
-    .replace(/&nbsp;|&#160;/gi, " ")
-    .replace(/&amp;/gi, "&").replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
-}
-function plain(html) {
-  return decode(html.replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " "))
-    .replace(/[\t\r\n]+/g, " ").replace(/\s+/g, " ").trim();
-}
-async function extractRoute(slug, url, sourceIndexListed) {
+async function extractRoute(slug, page) {
+  const { url, ...discovery } = page;
   const html = await fetchText(url);
   const text = plain(html);
   const upperText = text.toUpperCase();
@@ -89,7 +68,7 @@ async function extractRoute(slug, url, sourceIndexListed) {
     itineraryText: itinerary,
     sourceUrl: url,
     sourceType: "official AFTU route page",
-    sourceIndexListed,
+    ...discovery,
     directionCoverage: "published corridor description; do not fabricate the reverse direction",
   };
 }
@@ -120,24 +99,19 @@ async function main() {
     return;
   }
 
-  const anchors = [...indexHtml.matchAll(/<a\b[^>]*href=["']([^"']*\/map\/dakar-urbain-ligne-[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
-  const pages = new Map();
-  for (const match of anchors) {
-    const url = new URL(decode(match[1]), INDEX).href.split("#")[0];
-    const slug = url.match(/dakar-urbain-ligne-([^/]+)/i)?.[1];
-    if (slug) pages.set(slug, { url, sourceIndexListed: true });
-  }
-  for (const page of ADDITIONAL_OFFICIAL_PAGES) {
-    if (!pages.has(page.slug)) pages.set(page.slug, { url: page.url, sourceIndexListed: false });
-  }
+  const index = readIndex(indexHtml);
+  let sitemap = null, sitemapError = null;
+  try { sitemap = readSitemap(await fetchText(SITEMAP)); }
+  catch (error) { sitemapError = error.message; }
+  const pages = routeCandidates(index, sitemap);
 
   const routes = [];
   const errors = [];
   for (const [slug, page] of pages) {
     try {
-      routes.push(await extractRoute(slug, page.url, page.sourceIndexListed));
+      routes.push(await extractRoute(slug, page));
     } catch (error) {
-      errors.push({ slug, url: page.url, error: error.message });
+      errors.push({ slug, ...page, status:errorKind(error), httpStatus:error.status ?? null, error:error.message });
     }
     await wait(250);
   }
@@ -147,9 +121,11 @@ async function main() {
   await saveReport({
     generatedAt: new Date().toISOString(),
     sourceIndex: INDEX,
-    additionalOfficialPages: ADDITIONAL_OFFICIAL_PAGES,
+    additionalOfficialPages: probes.map(slug => ({slug, url:mapUrl(slug)})),
+    sitemap: { url:SITEMAP, numberedPages:sitemap?.size ?? null, error:sitemapError },
+    indexHeadings: Object.fromEntries(index.headings),
     sourcePolicy: "Official AFTU route pages are transcribed as published. Street/corridor descriptions are not converted into individual stop sequences without stop-level evidence. No frequency is inferred from route descriptions.",
-    status: errors.length ? "PARTIAL_SOURCE_RESPONSE" : "SUCCESS",
+    status: errors.length || sitemapError ? "PARTIAL_SOURCE_RESPONSE" : "SUCCESS",
     summary: {
       linkedRoutePages,
       additionalOfficialRoutePages,
