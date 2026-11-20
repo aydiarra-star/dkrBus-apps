@@ -48,6 +48,7 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
         <div className="bus-occurrences-head"><strong>{d.pointKind === 'départ seul' ? 'Départ seul' : `${d.points.length} ${d.pointKind}`}</strong>
           <small>{basis}</small></div>
         {hours?.weekday && grid?.limit !== Infinity && grid?.known && <small>Début de grille uniquement</small>}
+        {hours?.friday && <small>Grilles distinctes : lundi à jeudi, vendredi, samedi et dimanche. Les derniers passages peuvent tomber après minuit.</small>}
         <BusSurveyNote name={name} d={d} />
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1

@@ -16,10 +16,12 @@ export interface SourceHours {
   // Sparse, literal headers of the hourly sheet where a historical local
   // label differs. An unnamed occurrence must remain unnamed on the timer.
   printedLabels?: Readonly<Record<number,string>>
-  weekday?: SourceGrid; saturday?: SourceGrid; sunday?: SourceGrid
+  // weekday means Mon–Fri unless the printed sheet has a separate Friday.
+  weekday?: SourceGrid; friday?: SourceGrid; saturday?: SourceGrid; sunday?: SourceGrid
   // Isolated columns / undated receipt. No continuity or service-day claim.
   samples?: readonly { label: string; ranks: readonly number[]; times: readonly string[] }[]
 }
+export const SOURCE_DAYS = ['weekday','friday','saturday','sunday'] as const
 const minute = (s: string) => s === '24:00' ? 1440 : clockMinutes(s)
 export const hhmm = (min: number) => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`
 const checkRanks = (ranks: readonly number[], n: number) => ranks.length > 0 && ranks[0] >= 1 && ranks.every((r,i) => Number.isSafeInteger(r) && r <= n && (!i || r > ranks[i-1]))
@@ -30,7 +32,8 @@ export function sourceIssue(hours: SourceHours, n: number): string | undefined {
   for (const [rank,label] of Object.entries(hours.printedLabels ?? {})) {
     if (!/^[1-9]\d*$/.test(rank) || Number(rank) > n || !label.trim()) return `Libellé horaire invalide au rang ${rank}`
   }
-  for (const [day,g] of Object.entries({weekday:hours.weekday,saturday:hours.saturday,sunday:hours.sunday})) {
+  for (const day of SOURCE_DAYS) {
+    const g = hours[day]
     if (!g) continue
     if (g.ranks[0] !== 1 || !checkRanks(g.ranks,n)) return `${day}: rang absent, dupliqué ou inversé`
     const origins = new Set<number>(), limit = g.nextUntranscribedOrigin === null ? Infinity : minute(g.nextUntranscribedOrigin)
@@ -60,6 +63,7 @@ export function sourceIssue(hours: SourceHours, n: number): string | undefined {
 export function gridAt(hours: SourceHours, day: number) {
   if (!hasSenegalPublicHolidayCalendar(day) || isSenegalPublicHoliday(day)) return undefined
   const d = new Date(day).getUTCDay()
+  if (d === 5 && hours.friday) return hours.friday
   return hours[d === 0 ? 'sunday' : d === 6 ? 'saturday' : 'weekday']
 }
 function compileDay(g: SourceGrid | undefined, day: number) {
@@ -72,7 +76,7 @@ function compileDay(g: SourceGrid | undefined, day: number) {
   return { calls, limit, known:g !== undefined }
 }
 export function sourceDay(hours: SourceHours | undefined, n: number, day: number) {
-  if (!hours || (!hours.weekday && !hours.saturday && !hours.sunday) || !Number.isSafeInteger(day) || midnight(day) !== day || sourceIssue(hours,n)) return null
+  if (!hours || !SOURCE_DAYS.some(k => hours[k]) || !Number.isSafeInteger(day) || midnight(day) !== day || sourceIssue(hours,n)) return null
   const today = compileDay(gridAt(hours,day),day), prior = compileDay(gridAt(hours,day-DAY_MS),day-DAY_MS)
   return { today, prior, count:n, first:today.calls.get(1)?.[0] ?? Infinity }
 }

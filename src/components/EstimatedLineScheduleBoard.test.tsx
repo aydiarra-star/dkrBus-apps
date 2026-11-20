@@ -46,7 +46,12 @@ describe('panneaux voyageurs des bus', () => {
       expect(container.querySelector('.bus-occurrences')!.textContent).not.toMatch(/Baye Ly Lac Rose|Terminus Fass Mbao/i)
     }
     const variants = buttons(container,'58').slice(2); expect(variants).toHaveLength(2)
-    for (const [i,b] of variants.entries()) { expect(value(b)).toMatch(approximate); fireEvent.click(b); expect(opened(container)).toHaveLength(i ? 43 : 39) }
+    for (const [i,b] of variants.entries()) {
+      expect(value(b)).toBe(i ? '15 min' : '2 min') // les prochaines origines imprimées à 07:40 sont 07:55 / 07:42
+      fireEvent.click(b); expect(opened(container)).toHaveLength(i ? 43 : 39)
+      expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(i ? 43 : 39)
+      expect(opened(container)[i ? 42 : 0].textContent).toContain('Libellé local')
+    }
   })
   it.each([['74',14,/Bargny.*Colobane.*Jaxaay.*Keur Massar.*COCEHAS/i],['80',17,/Diamalaye.*Keur Massar.*Darou Thioub/i]] as const)('modélise uniquement les repères publiés de la %s', (code,n,route) => {
     const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
@@ -186,7 +191,7 @@ it('présente les heures source par défaut, avec les colonnes non datées sans 
   fireEvent.click(buttons(container,'84')[1]); expect(opened(container)).toHaveLength(73)
   expect(opened(container)[0].textContent).toMatch(/Relevé non daté : 05:49/);expect(opened(container).at(-1)?.textContent).toContain('07:09')
   expect(container.querySelector('.bus-occurrences time')).toBeNull()
-  fireEvent.click(buttons(container,'42').at(-1)!);expect(opened(container)).toHaveLength(68);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(10)
+  fireEvent.click(buttons(container,'42').at(-1)!);expect(opened(container)).toHaveLength(68);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(68)
   fireEvent.click(buttons(container,'73')[0]);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(3)
   fireEvent.click(toggle);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(3)
   expect(container.querySelectorAll('.bus-estimate')).not.toHaveLength(0)

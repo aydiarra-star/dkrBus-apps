@@ -34,10 +34,12 @@ export function withNewSheetDirections(family: BusFamily, code: string, base: re
   }
   return result
 }
-interface RankedGrid { page:string; sequence:number; source:string; weekday:SourceGrid; weekend?:SourceGrid; family?:BusFamily; code?:string; side?:Sheet['side']; first?:string; last?:string; printedLabels?:SourceHours['printedLabels'] }
+interface RankedGrid { page:string; sequence:number; source:string; weekday:SourceGrid; friday?:SourceGrid; saturday?:SourceGrid; sunday?:SourceGrid; weekend?:SourceGrid; family?:BusFamily; code?:string; side?:Sheet['side']; first?:string; last?:string; printedLabels?:SourceHours['printedLabels'] }
 const grids = import.meta.glob<RankedGrid>('../data/weekly-cells/*.json',{eager:true,import:'default'})
 const ranks = (n: number) => Array.from({length:n},(_,i)=>i+1)
 const sample = (origin: string, elapsed: readonly number[], rr = ranks(elapsed.length)) => ({label:`Colonne ${origin}`,ranks:rr,times:elapsed.map(m=>hhmm(clockMinutes(origin)!+m))})
+// The original two samples remain visible even at ranks not yet in a grid.
+const malikaSamples = () => [0,1].map(i=>sample(i?'07:00':'00:00',DDD16B_CHECKPOINTS.map(c=>c[i?3:2]),DDD16B_CHECKPOINTS.map(c=>c[0])))
 export function existingSheetHours(family: BusFamily, code: string, d: BusBoardDirection): SourceHours | undefined {
   const m = d.clock
   if (!d.points.length || m?.kind === 'timetable') return
@@ -67,14 +69,15 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
     const samples: NonNullable<SourceHours['samples']>[number][] = []
     if (family === 'ddd' && code === '12' && idx && s.points === d.points) samples.push(sample('06:00',s.offsetMinutes),sample('07:08',s.peakMinutes))
     if (family === 'ddd' && code === '319') samples.push(sample(idx?'06:50':'06:55',DDD_319_PROFILES[idx]))
+    if (family === 'ddd' && code === '16B' && !idx) samples.push(...malikaSamples())
     const old = maristesSheets.find(t=>t.url===g.source)
     // Evening samples aren't a complete grid between morning and evening.
     for (const row of old?.rows ?? []) if (row[0] >= '18:00') samples.push({label:`Extrait semaine ${row[0]}`,ranks:old!.calls.map(c=>c.rank),times:row})
-    return {file:path.replace('../','src/'), source:g.source, printedLabels:g.printedLabels, weekday:g.weekday, saturday:g.weekend, sunday:g.weekend, samples}
+    return {file:path.replace('../','src/'), source:g.source, printedLabels:g.printedLabels, weekday:g.weekday, friday:g.friday, saturday:g.saturday ?? g.weekend, sunday:g.sunday ?? g.weekend, samples}
   }
   if (family !== 'ddd') return
   if (code === '319' && m?.originBasis === d.source) return {file:'src/data/busBoardCallSheets.ts',source:d.source,samples:[sample(idx?'06:50':'06:55',DDD_319_PROFILES[idx])]}
-  if (code === '16B' && m?.peakOffsetsMs && d.source.endsWith('18051473-1')) return {file:'src/data/dddSecondaryBoardSheets.ts',source:d.source.replace('line-','time-').replace(/-1$/,'-4256267-0'),samples:[0,1].map(i=>sample(i?'07:00':'00:00',DDD16B_CHECKPOINTS.map(c=>c[i?3:2]),DDD16B_CHECKPOINTS.map(c=>c[0])))}
+  if (code === '16B' && m?.peakOffsetsMs && d.source.endsWith('18051473-1')) return {file:'src/data/dddSecondaryBoardSheets.ts',source:d.source.replace('line-','time-').replace(/-1$/,'-4256267-0'),samples:malikaSamples()}
   if (code === '1' || code === 'TAF_TAF') {
     const w = DDD_PUBLISHED_DEPARTURE_WINDOWS.find(w=>w.service === (code==='1'?'Ligne 1':'TAF TAF') && w.origin===d.from && w.destination===d.to)
     if (w) return {file:'src/data/dddPublishedDepartureWindows.ts',source:w.sourceUrl,samples:[{label:'Premier départ publié',ranks:[1],times:[w.firstDeparture]},{label:'Dernier départ publié',ranks:[1],times:[w.lastDeparture]}]}

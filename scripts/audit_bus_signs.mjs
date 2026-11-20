@@ -13,7 +13,7 @@ import { busInventory } from './bus_inventory.mjs'
 const {values} = parseArgs({options:{dir:{type:'string'}}})
 const root=values.dir
 const DAY=86400000, MINUTE=60000, day=Date.parse('2026-11-19T00:00Z'), at19=day+19*60*MINUTE
-const kinds=['weekday','saturday','sunday'], days=[day,day+2*DAY,day+3*DAY]
+const kinds=['weekday','saturday','sunday','friday'], days=[day,day+2*DAY,day+3*DAY,day+DAY]
 const hm=t=>`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`
 const minutes=t=>Number(t.slice(0,2))*60+Number(t.slice(3))
 const field=v=>/[",\r\n]/.test(String(v)) ? '"'+String(v).replaceAll('"','""')+'"' : String(v ?? '')
@@ -31,7 +31,7 @@ function timeline(g,date) {
   const max=g.nextUntranscribedOrigin===null ? Infinity : date+minutes(g.nextUntranscribedOrigin)*MINUTE
   return new Map(g.ranks.map((r,i)=>[r,g.profiles.flatMap(p=>p.origins.map(t=>date+(minutes(t)+p.elapsed[i])*MINUTE)).filter(t=>t<=max).sort((a,b)=>a-b)]))
 }
-const blank=()=>({identities:0,sheets:0,empty:0,aliases:0,occurrences:0,stops:0,markers:0,origins:0,sourceStops:0,weeklyStops:0,active19:0,printed:[0,0,0],sampleCells:0,model:0,modelCells:0,optionalCells:0,onlySamples:0,missing:0,observed:0,dated:0,twoLists:[],twoWeekly:[],reasons:{}})
+const blank=()=>({identities:0,sheets:0,empty:0,aliases:0,occurrences:0,stops:0,markers:0,origins:0,sourceStops:0,weeklyStops:0,active19:0,printed:[0,0,0,0],sampleCells:0,model:0,modelCells:0,optionalCells:0,onlySamples:0,missing:0,observed:0,dated:0,twoLists:[],twoWeekly:[],reasons:{}})
 const app=await createServer({configFile:false,logLevel:'error',appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false,watch:null,ws:false}})
 try {
   const load=p=>app.ssrLoadModule(p), inventory=await busInventory(load)
@@ -93,7 +93,7 @@ try {
         for(const k of kinds) if(h?.[k]) {
           const columns=h[k].profiles.flatMap(p=>p.origins.map(origin=>({origin,elapsed:p.elapsed})))
           for(const {origin,elapsed} of columns.sort((a,b)=>minutes(a.origin)-minutes(b.origin)))
-            cells.push([id,'grille',k,origin,h[k].ranks.join(' '),elapsed.map(v=>hm(minutes(origin)+v)).join(' ')])
+            cells.push([id,'grille',k==='weekday' && h.friday?'monday-thursday':k,origin,h[k].ranks.join(' '),elapsed.map(v=>hm(minutes(origin)+v)).join(' ')])
         }
         for(const s of h?.samples??[]) cells.push([id,'référence sans continuité',s.label,s.ranks[0]===1?s.times[0]:'',s.ranks.join(' '),s.times.join(' ')])
         for(const [i,name] of d.points.entries()){
@@ -117,7 +117,7 @@ try {
           const chosen = signWithOption.at(r,at19), optional = chosen.kind==='model' ? modelRuns : 0
           if (chosen.kind!=='model') assert.deepEqual(chosen.passage,observed,loc)
           const state19={active:'décompte',upcoming:'pas encore ouvert',finished:'dernier passage atteint',calendar:'jour non confirmé',closed:'sans service annoncé',unknown:'inconnu'}[observed.state]
-          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts,src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional])
+          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts.slice(0,3),src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional])
           t.sampleCells+=src.length; counts.forEach((v,k)=>{t.printed[k]+=v}); printed+=counts[0]; estimated+=optional
           provided+=Number(seen);eligible+=Number(available);active+=Number(sec!=='');t.occurrences++;t.model+=Number(m?.kind==='model')
           if(d.pointKind==='arrêts'){t.stops++;t.sourceStops+=Number(seen);t.weeklyStops+=Number(available);t.onlySamples+=Number(!available&&seen);t.missing+=Number(!seen);if(!available)t.reasons[reason]=(t.reasons[reason]??0)+1}
@@ -137,7 +137,7 @@ try {
   if(root){
     await mkdir(root,{recursive:true}); const save=(file,text)=>writeFile(join(root,file),text)
     const md=['# Couverture des panneaux bus par occurrence','',
-      'Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, samedi 21 et dimanche 22. Elle porte sur le catalogue de l’application, **pas sur tous les arrêts physiques du Sénégal**. Pas d’édition opérateur datée chargée dans cette recette. Une minute de grille hebdomadaire est une heure **imprimée**, pas une observation du véhicule ni une course certifiée pour la date. Les observations CETUD par site ne sont pas attribuées aux lignes.','',
+      'Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grilles distinctes), samedi 21 et dimanche 22. Elle porte sur le catalogue de l’application, **pas sur tous les arrêts physiques du Sénégal**. Pas d’édition opérateur datée chargée dans cette recette. Une minute de grille hebdomadaire est une heure **imprimée**, pas une observation du véhicule ni une course certifiée pour la date. Les observations CETUD par site ne sont pas attribuées aux lignes.','',
       '| Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |','|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
     let all=0,ok=0
     for(const [f,t] of Object.entries(summary)){md.push(`| ${f.toUpperCase()} | ${[t.identities,t.sheets,t.empty,t.stops,t.sourceStops,t.weeklyStops,pct(t.weeklyStops,t.stops),t.active19,t.markers,t.origins].join(' | ')} |`);all+=t.stops;ok+=t.weeklyStops}
@@ -146,10 +146,10 @@ try {
       '**Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.','',
       'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations.','')
     md.push('### Cellules par type de source','',
-      '| Famille | Grille semaine | Samedi | Dimanche | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |',
-      '|---|---:|---:|---:|---:|---:|---:|---:|---:|')
+      '| Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |',
+      '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|')
     for (const [f,t] of Object.entries(summary)) md.push(`| ${f.toUpperCase()} | ${[...t.printed,t.sampleCells,t.observed,t.dated,t.modelCells,t.optionalCells].join(' | ')} |`)
-    md.push('','¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. Une case vide à 19 h n’est pas zéro minute.','',
+    md.push('','¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. ³ Uniquement les cellules d’une grille de vendredi explicitement distincte ; ailleurs la grille « semaine » inclut le vendredi. Dans `heures.csv`, `monday-thursday` ne vaut jamais pour `friday`. Les heures de service 24:xx et 25:xx tombent le lendemain civil. Une case vide à 19 h n’est pas zéro minute.','',
       'Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fournies utilisables ni des observations. Voir `src/data/aftu-86-directions.json` : départ inconnu et axe à confirmer. Aucune n’est affichée ou employée pour estimer un passage.', '',
       '[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires ne sont pas une liste actuelle des services. [19 codes DDD uniquement dans ces ZIP, terminus et rangs par variante, dont les deux groupes de la 323 sans appels joints](../../data/bus-review/exchange-call-comparison.json). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.','')
     for(const [f,t] of Object.entries(summary)){

@@ -1,12 +1,12 @@
 /** Source selection shared by the passenger component and its offline audit.
  * Compiling rows is a day operation; each tick only looks up the next cell. */
 import { boardDay, busPassage, type BusBoardDirection } from './busPassageBoard'
-import { sourceDay, sourcePassage } from './busSourceHours'
+import { SOURCE_DAYS, sourceDay, sourcePassage } from './busSourceHours'
 
 export function compileSign(d: BusBoardDirection, day: number, estimates = false) {
   const dated = d.clock?.kind === 'timetable'
   const reading = sourceDay(d.sourceHours,d.points.length,day)
-  const grids = [d.sourceHours?.weekday,d.sourceHours?.saturday,d.sourceHours?.sunday]
+  const grids = SOURCE_DAYS.map(k => d.sourceHours?.[k])
   const ranked = new Set(grids.flatMap(g => g?.ranks ?? []))
   const clock = dated || estimates ? boardDay(d,day) : null
   return { reading, at(rank: number, now: number) {

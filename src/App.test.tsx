@@ -1214,12 +1214,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(network.textContent).toContain('Voir les lignes'); expect(network.querySelector('.station-board-double-apostrophe')).toBeNull()
     fireEvent.click(network); const board = container.querySelector('[data-line-code="16B"]')!
     const row = [...board.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.includes('Retour · fiche détaillée · Gare Palais'))!
-    expect(row.querySelector('.station-board-passage strong')?.textContent).toBe('—') // retour modélisé, aucun tableau source
-    fireEvent.click(container.querySelector('.bus-model-option input')!)
-    expect(row.querySelector('.bus-estimate strong')?.textContent).toBe('Vers 23:30'); fireEvent.click(row)
+    expect(row.querySelector('time')?.dateTime).toBe('PT60S') // 23:30 depuis Gare Palais
+    fireEvent.click(container.querySelector('.bus-model-option input')!); fireEvent.click(row)
     expect(board.querySelectorAll('.bus-occurrences li')).toHaveLength(82)
-    expect(board.querySelector('.bus-occurrences li:last-child .bus-estimate strong')?.textContent).toBe('Vers 23:38')
-    expect(board.querySelector('time, [role=timer]')).toBeNull()
+    expect(board.querySelector<HTMLTimeElement>('.bus-occurrences li:last-child time')?.dateTime).toBe('PT540S') // 23:38 au rang 82
+    expect(board.querySelector('.bus-occurrences li:nth-child(15) time')).toBeNull() // modèle seul, sans compteur
     vi.useRealTimers()
   })
 

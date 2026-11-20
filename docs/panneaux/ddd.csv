@@ -888,77 +888,77 @@ ddd:16B/1,16B,Aller,25,Assemblée Nationale,repères,1,non,aucun,0,0,0,0,non,,ou
 ddd:16B/1,16B,Aller,26,Hôpital Le Dantec,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:16B/1,16B,Aller,27,Palais 1,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:16B/2,16B,Retour,1,Palais 1,départ seul,1,non,aucun,0,0,0,0,non,,oui,origine sans série de départs,inconnu,92
-ddd:16B/3,16B,Aller · fiche détaillée,1,Terminus Malika,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,2,Arrêt De Bus,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,3,Arrêt De Bus,arrêts,2,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,4,Arrêt De Bus,arrêts,3,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,5,Arrêt De Bus,arrêts,4,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,6,Cimetiére De Malika,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,7,Marché De Malika,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,8,Arrêt De Bus,arrêts,5,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,9,Arrêt De Bus,arrêts,6,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,10,Arrêt De Bus,arrêts,7,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,11,Arrêt De Bus,arrêts,8,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,12,Arrêt De Bus,arrêts,9,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,13,Route De Malika / Route De Mtoa,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,14,Arrêt De Bus,arrêts,10,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,15,Arrêt De Bus,arrêts,11,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,16,Arrêt De Bus,arrêts,12,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,17,Arrêt De Bus,arrêts,13,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,18,Arrêt De Bus,arrêts,14,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,19,Arrêt De Bus,arrêts,15,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,20,Arrêt De Bus,arrêts,16,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,21,Arrêt De Bus,arrêts,17,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,22,Arrêt De Bus,arrêts,18,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,23,Arrêt De Bus,arrêts,19,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,1,Terminus Malika,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,2,Arrêt De Bus,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,3,Arrêt De Bus,arrêts,2,oui,hebdomadaire,79,44,38,2,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,4,Arrêt De Bus,arrêts,3,oui,hebdomadaire,79,44,38,2,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,5,Arrêt De Bus,arrêts,4,oui,hebdomadaire,79,44,38,2,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,6,Cimetiére De Malika,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,7,Marché De Malika,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,8,Arrêt De Bus,arrêts,5,oui,hebdomadaire,79,44,38,0,oui,300,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,9,Arrêt De Bus,arrêts,6,oui,hebdomadaire,79,44,38,0,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,10,Arrêt De Bus,arrêts,7,oui,hebdomadaire,79,44,38,0,oui,480,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,11,Arrêt De Bus,arrêts,8,oui,hebdomadaire,79,44,38,0,oui,540,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,12,Arrêt De Bus,arrêts,9,oui,hebdomadaire,79,44,38,0,oui,540,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,13,Route De Malika / Route De Mtoa,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,600,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,14,Arrêt De Bus,arrêts,10,oui,hebdomadaire,79,44,38,0,oui,660,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,15,Arrêt De Bus,arrêts,11,oui,hebdomadaire,79,44,38,0,oui,720,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,16,Arrêt De Bus,arrêts,12,oui,hebdomadaire,79,44,38,0,oui,780,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,17,Arrêt De Bus,arrêts,13,oui,hebdomadaire,79,44,38,0,oui,840,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,18,Arrêt De Bus,arrêts,14,oui,hebdomadaire,79,44,38,0,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,19,Arrêt De Bus,arrêts,15,oui,hebdomadaire,79,44,38,0,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,20,Arrêt De Bus,arrêts,16,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,21,Arrêt De Bus,arrêts,17,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,22,Arrêt De Bus,arrêts,18,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,23,Arrêt De Bus,arrêts,19,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,24,École Boune,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,25,Arrêt De Bus,arrêts,20,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,26,Arrêt De Bus,arrêts,21,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,27,Arrêt De Bus,arrêts,22,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,28,Arrêt De Bus,arrêts,23,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,29,Arrêt De Bus,arrêts,24,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,30,Arrêt De Bus,arrêts,25,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,31,Arrêt De Bus,arrêts,26,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,32,Arrêt De Bus,arrêts,27,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,33,Arrêt De Bus,arrêts,28,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,34,Arrêt De Bus,arrêts,29,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,35,Arrêt De Bus,arrêts,30,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,36,Arrêt De Bus,arrêts,31,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,37,Arrêt De Bus,arrêts,32,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,38,Route De Malika / Av. Ndiaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,39,Arrêt De Bus,arrêts,33,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,40,Arrêt De Bus,arrêts,34,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,41,Arrêt De Bus,arrêts,35,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,42,Arrêt De Bus,arrêts,36,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,43,Route De Malika / Route De Niaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,44,Centre Commerciale De Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,45,École Camp Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,46,Cem Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,47,Arrêt De Bus,arrêts,37,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,48,Arrêt De Bus,arrêts,38,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,49,Sips,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,50,"N1, 2632",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,51,"Pikine Rue 10, 1858",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,52,"N1, 1798",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,53,Arrêt De Bus,arrêts,39,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,54,Arrêt De Bus,arrêts,40,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,55,Arrêt De Bus,arrêts,41,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,56,Arrêt De Bus,arrêts,42,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,57,Collège Mariama Niasse,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,58,"Cité Tp Som, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,59,Arrêt De Bus,arrêts,43,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,60,Arrêt De Bus,arrêts,44,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,61,"Route De Rufisque, 8",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,62,Cercle De L'Etrier,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,63,Arrêt De Bus,arrêts,45,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,64,Ecolé Marítime,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,65,Camp Lemonier,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,66,Gendarmerie Du Port,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,67,Grands Moulins,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,68,Camp Militaire,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,69,"Route De Rufisque, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,70,"Avenue Malick Sy, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,71,"Allees Papa Gueye Fall, 36005",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,25,Arrêt De Bus,arrêts,20,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,26,Arrêt De Bus,arrêts,21,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,27,Arrêt De Bus,arrêts,22,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,28,Arrêt De Bus,arrêts,23,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,29,Arrêt De Bus,arrêts,24,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,30,Arrêt De Bus,arrêts,25,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,31,Arrêt De Bus,arrêts,26,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,32,Arrêt De Bus,arrêts,27,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,33,Arrêt De Bus,arrêts,28,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,34,Arrêt De Bus,arrêts,29,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,35,Arrêt De Bus,arrêts,30,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,36,Arrêt De Bus,arrêts,31,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,37,Arrêt De Bus,arrêts,32,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,38,Route De Malika / Av. Ndiaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,39,Arrêt De Bus,arrêts,33,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,40,Arrêt De Bus,arrêts,34,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,41,Arrêt De Bus,arrêts,35,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,42,Arrêt De Bus,arrêts,36,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,43,Route De Malika / Route De Niaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,44,Centre Commerciale De Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,45,École Camp Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,46,Cem Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,47,Arrêt De Bus,arrêts,37,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,48,Arrêt De Bus,arrêts,38,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,49,Sips,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,50,"N1, 2632",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,51,"Pikine Rue 10, 1858",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,52,"N1, 1798",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,53,Arrêt De Bus,arrêts,39,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,54,Arrêt De Bus,arrêts,40,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,55,Arrêt De Bus,arrêts,41,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,56,Arrêt De Bus,arrêts,42,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,57,Collège Mariama Niasse,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,58,"Cité Tp Som, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,59,Arrêt De Bus,arrêts,43,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,60,Arrêt De Bus,arrêts,44,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,61,"Route De Rufisque, 8",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,62,Cercle De L'Etrier,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,63,Arrêt De Bus,arrêts,45,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,64,Ecolé Marítime,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,65,Camp Lemonier,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,66,Gendarmerie Du Port,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,67,Grands Moulins,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,68,Camp Militaire,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,69,"Route De Rufisque, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,70,"Avenue Malick Sy, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
+ddd:16B/3,16B,Aller · fiche détaillée,71,"Allees Papa Gueye Fall, 36005",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,72,"Avenue Faidherbe, 39",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,73,"Avenue Faidherbe, 7",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,74,"Boulevard El Hadj Djily Mbaye, 55",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
@@ -966,93 +966,93 @@ ddd:16B/3,16B,Aller · fiche détaillée,75,"Allees Delmas, 1",arrêts,1,oui,ré
 ddd:16B/3,16B,Aller · fiche détaillée,76,"Rue Malenfant, 17",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,77,Avenue Du Pr. L. Sedar Senghor 17,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
 ddd:16B/3,16B,Aller · fiche détaillée,78,"Avenue Du Pr. L. Sedar Senghor, 33",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,79,"Avenue Nelson Mandela, 12",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,80,"Avenue Pasteur, 16",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,81,"Avenue Pasteur, 32",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,82,"Avenue Pasteur, 43",arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/3,16B,Aller · fiche détaillée,83,Gare Palais,arrêts,1,oui,référence,0,0,0,2,non,,oui,heures isolées sans continuité,inconnu,79
-ddd:16B/4,16B,Retour · fiche détaillée,1,Gare Palais,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,2,Clinique Du Cap,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,3,Hôpital Le Dantec,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,4,"Avenue Pasteur, 16",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,5,"Avenue Nelson Mandela, 12",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,6,"Rue Victor Hugo, 5",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,7,"Rue Felix Faure, 7",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,8,Place De L' Independance,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,9,"Allees Delmas, 1",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,10,Gare De Dakar,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,11,"Avenue Faidherbe, 7",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,12,"Rue Du Liban, 34",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,13,"Allees Papa Gueye Fall, 36005",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,14,"Avenue Malick Sy, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,15,"Route De Rufisque, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,16,"Avenue Felix Eboue, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,17,Arrêt De Bus,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,18,"Route De Rufisque, 8",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,19,Camp Lemonier,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,20,Ecolé Marítime,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,21,Camp,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,22,Cercle De L'Etrier,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,23,"Route De Rufisque, 8",arrêts,2,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,24,Arrêt De Bus,arrêts,2,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,25,Arrêt De Bus,arrêts,3,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,26,"Cité Tp Som, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,27,Collège Mariama Niasse,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,28,Arrêt De Bus,arrêts,4,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,29,Arrêt De Bus,arrêts,5,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,30,Arrêt De Bus,arrêts,6,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,31,Arrêt De Bus,arrêts,7,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,32,"N1, 1696",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,33,École 11,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,34,"N1, 2632",arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,35,Sips,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,36,Arrêt De Bus,arrêts,8,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,37,Arrêt De Bus,arrêts,9,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,38,Cem Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,39,École Camp Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,40,Centre Commerciale De Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,41,Rute De Niaye / Route De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,42,Arrêt De Bus,arrêts,10,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,43,Arrêt De Bus,arrêts,11,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,44,Arrêt De Bus,arrêts,12,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,45,Arrêt De Bus,arrêts,13,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,46,Route De Malika / Av. Ndiaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,47,Arrêt De Bus,arrêts,14,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,48,Arrêt De Bus,arrêts,15,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,49,Arrêt De Bus,arrêts,16,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,50,Arrêt De Bus,arrêts,17,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,51,Arrêt De Bus,arrêts,18,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,52,Arrêt De Bus,arrêts,19,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,53,Arrêt De Bus,arrêts,20,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,54,Arrêt De Bus,arrêts,21,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,55,Arrêt De Bus,arrêts,22,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,56,Arrêt De Bus,arrêts,23,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,57,Arrêt De Bus,arrêts,24,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,58,Arrêt De Bus,arrêts,25,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,59,Arrêt De Bus,arrêts,26,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,60,École Boune,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,61,Arrêt De Bus,arrêts,27,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,62,Arrêt De Bus,arrêts,28,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,63,Arrêt De Bus,arrêts,29,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,64,Arrêt De Bus,arrêts,30,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,65,Arrêt De Bus,arrêts,31,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,66,Arrêt De Bus,arrêts,32,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,67,Arrêt De Bus,arrêts,33,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,68,Arrêt De Bus,arrêts,34,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,69,Arrêt De Bus,arrêts,35,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,70,Arrêt De Bus,arrêts,36,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,71,Arrêt De Bus,arrêts,37,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,72,Arrêt De Bus,arrêts,38,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,73,Arrêt De Bus,arrêts,39,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,74,Arrêt De Bus,arrêts,40,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,75,Arrêt De Bus,arrêts,41,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,76,Arrêt De Bus,arrêts,42,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,77,Marché De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,78,Cimetiére De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,79,Arrêt De Bus,arrêts,43,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,80,Arrêt De Bus,arrêts,44,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,81,Arrêt De Bus,arrêts,45,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
-ddd:16B/4,16B,Retour · fiche détaillée,82,Arrêt De Bus,arrêts,46,non,aucun,0,0,0,0,non,,oui,aucune heure source au rang,inconnu,75
+ddd:16B/3,16B,Aller · fiche détaillée,79,"Avenue Nelson Mandela, 12",arrêts,1,oui,hebdomadaire,79,44,38,2,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,80,"Avenue Pasteur, 16",arrêts,1,oui,hebdomadaire,79,44,38,2,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,81,"Avenue Pasteur, 32",arrêts,1,oui,hebdomadaire,79,44,38,2,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,82,"Avenue Pasteur, 43",arrêts,1,oui,hebdomadaire,79,44,38,2,oui,300,oui,grille des rangs saisis,décompte,0
+ddd:16B/3,16B,Aller · fiche détaillée,83,Gare Palais,arrêts,1,oui,hebdomadaire,79,44,38,2,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,1,Gare Palais,arrêts,1,oui,hebdomadaire,75,41,35,0,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,2,Clinique Du Cap,arrêts,1,oui,hebdomadaire,75,41,35,0,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,3,Hôpital Le Dantec,arrêts,1,oui,hebdomadaire,75,41,35,0,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,4,"Avenue Pasteur, 16",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,5,"Avenue Nelson Mandela, 12",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,6,"Rue Victor Hugo, 5",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,7,"Rue Felix Faure, 7",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,8,Place De L' Independance,arrêts,1,oui,hebdomadaire,75,41,35,0,oui,420,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,9,"Allees Delmas, 1",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,480,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,10,Gare De Dakar,arrêts,1,oui,hebdomadaire,75,41,35,0,oui,540,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,11,"Avenue Faidherbe, 7",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,600,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,12,"Rue Du Liban, 34",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,660,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,13,"Allees Papa Gueye Fall, 36005",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,720,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,14,"Avenue Malick Sy, 10",arrêts,1,oui,hebdomadaire,75,41,35,0,oui,840,oui,grille des rangs saisis,décompte,0
+ddd:16B/4,16B,Retour · fiche détaillée,15,"Route De Rufisque, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,16,"Avenue Felix Eboue, 2",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,17,Arrêt De Bus,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,18,"Route De Rufisque, 8",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,19,Camp Lemonier,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,20,Ecolé Marítime,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,21,Camp,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,22,Cercle De L'Etrier,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,23,"Route De Rufisque, 8",arrêts,2,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,24,Arrêt De Bus,arrêts,2,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,25,Arrêt De Bus,arrêts,3,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,26,"Cité Tp Som, 10",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,27,Collège Mariama Niasse,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,28,Arrêt De Bus,arrêts,4,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,29,Arrêt De Bus,arrêts,5,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,30,Arrêt De Bus,arrêts,6,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,31,Arrêt De Bus,arrêts,7,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,32,"N1, 1696",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,33,École 11,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,34,"N1, 2632",arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,35,Sips,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,36,Arrêt De Bus,arrêts,8,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,37,Arrêt De Bus,arrêts,9,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,38,Cem Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,39,École Camp Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,40,Centre Commerciale De Thiaroye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,41,Rute De Niaye / Route De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,42,Arrêt De Bus,arrêts,10,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,43,Arrêt De Bus,arrêts,11,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,44,Arrêt De Bus,arrêts,12,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,45,Arrêt De Bus,arrêts,13,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,46,Route De Malika / Av. Ndiaye,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,47,Arrêt De Bus,arrêts,14,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,48,Arrêt De Bus,arrêts,15,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,49,Arrêt De Bus,arrêts,16,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,50,Arrêt De Bus,arrêts,17,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,51,Arrêt De Bus,arrêts,18,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,52,Arrêt De Bus,arrêts,19,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,53,Arrêt De Bus,arrêts,20,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,54,Arrêt De Bus,arrêts,21,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,55,Arrêt De Bus,arrêts,22,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,56,Arrêt De Bus,arrêts,23,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,57,Arrêt De Bus,arrêts,24,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,58,Arrêt De Bus,arrêts,25,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,59,Arrêt De Bus,arrêts,26,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,60,École Boune,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,61,Arrêt De Bus,arrêts,27,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,62,Arrêt De Bus,arrêts,28,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,63,Arrêt De Bus,arrêts,29,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,64,Arrêt De Bus,arrêts,30,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,65,Arrêt De Bus,arrêts,31,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,66,Arrêt De Bus,arrêts,32,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,67,Arrêt De Bus,arrêts,33,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,68,Arrêt De Bus,arrêts,34,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,69,Arrêt De Bus,arrêts,35,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,70,Arrêt De Bus,arrêts,36,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,71,Arrêt De Bus,arrêts,37,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,72,Arrêt De Bus,arrêts,38,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,73,Arrêt De Bus,arrêts,39,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,74,Arrêt De Bus,arrêts,40,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,75,Arrêt De Bus,arrêts,41,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,76,Arrêt De Bus,arrêts,42,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,77,Marché De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,78,Cimetiére De Malika,arrêts,1,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,79,Arrêt De Bus,arrêts,43,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,80,Arrêt De Bus,arrêts,44,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,81,Arrêt De Bus,arrêts,45,non,aucun,0,0,0,0,non,,oui,rang non transcrit,inconnu,75
+ddd:16B/4,16B,Retour · fiche détaillée,82,Arrêt De Bus,arrêts,46,oui,hebdomadaire,75,41,35,0,oui,300,oui,grille des rangs saisis,décompte,0
 ddd:18/1,18,Circuit,1,Terminus Liberté 5 (Dieuppeul),repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:18/1,18,Circuit,2,Cité Derklé,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:18/1,18,Circuit,3,Rond Point Liberté 6,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92

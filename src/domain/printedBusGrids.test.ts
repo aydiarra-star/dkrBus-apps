@@ -77,3 +77,32 @@ describe('42, retour Ouakam → Guédiawaye : toutes les lignes du tableau',()=>
     expect(sign.at(68,date(day,'22:37')).passage).toEqual({state:'finished'})
   })
 })
+
+describe('16B : les colonnes de minuit appartiennent à la veille',()=>{
+  const [,,palais,malika]=BUS_BOARD_LINES.ddd.find(l=>l.code==='16B')!.directions
+  const friday='2026-11-20', sunday='2026-11-22', monday='2026-11-23'
+  it.each([[palais,83,thursday,79,24,'05:41','25:08'],[palais,83,friday,78,24,'05:41','24:53'],
+    [palais,83,saturday,44,24,'06:43','24:33'],[palais,83,sunday,38,24,'06:43','25:08'],
+    [malika,82,thursday,75,15,'06:13','24:38'],[malika,82,friday,75,15,'06:13','24:38'],
+    [malika,82,saturday,41,15,'07:17','23:48'],[malika,82,sunday,35,15,'07:17','24:08']] as const)(
+    'vérifie les colonnes terminales et le nombre de rangs transcrits', (d,r,day,n,ranks,first,last)=>{
+      const dayMs=date(day,'00:00'), sign=compileSign(d,dayMs,true), calls=sign.reading!.today.calls
+      expect(calls.size).toBe(ranks);for (const row of calls.values())expect(row).toHaveLength(n)
+      expect(calls.get(r)?.[0]).toBe(date(day,first));const [h,m]=last.split(':').map(Number)
+      expect(calls.get(r)?.at(-1)).toBe(dayMs+(h*60+m)*60000)
+      expect(compileSign(d,dayMs,false).at(30,date(day,'12:00'))).toEqual({kind:'none',passage:{state:'unknown'}})
+    })
+  it.each([[friday,'01:08','05:41'],[saturday,'00:53','06:43'],[sunday,'00:33','06:43'],[monday,'01:08','05:41']])(
+    'termine les courses de la veille avant le premier passage du %s',(day,last,first)=>{
+      const sign=compileSign(palais,date(day,'00:00'),true), end=date(day,last)
+      expect(sign.at(83,end-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:end}})
+      expect(sign.at(83,end)).toEqual({kind:'weekly',passage:{state:'upcoming',at:date(day,first)}})
+    })
+  it('distingue la première course du modèle de celle imprimée et garde les deux colonnes isolées',()=>{
+    const sign=compileSign(palais,date(thursday,'00:00')), calls=sign.reading!.today.calls
+    expect(calls.get(1)?.at(-1)).toBe(date(friday,'00:00'))
+    expect(compileSign(palais,date(friday,'00:00')).reading?.today.calls.get(1)?.at(-1)).toBe(date(friday,'23:45'))
+    expect(calls.get(83)?.slice(6,11)).toEqual('07:17 07:37 07:56 08:16 08:36'.split(' ').map(t=>date(thursday,t)))
+    expect(palais.sourceHours?.samples).toHaveLength(2); expect(calls.has(24)).toBe(false)
+  })
+})
