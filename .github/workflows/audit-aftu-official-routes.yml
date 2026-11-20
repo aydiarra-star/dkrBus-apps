@@ -10,6 +10,7 @@ on:
       - "scripts/audit_gt54.py"
       - "scripts/audit_patte_doie.py"
       - "scripts/audit_terminus_quays.py"
+      - "scripts/bus_change_candidates.py"
       - "scripts/audit_terminal_calls.py"
       - "scripts/ouakam_site.py"
       - "scripts/audit_thiaroye_site.py"

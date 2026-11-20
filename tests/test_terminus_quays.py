@@ -130,3 +130,12 @@ class TerminalReceiptTest(unittest.TestCase):
         for bad in (rows[:1], rows[1:], rows + rows[:1]):
             with self.assertRaises(ValueError):
                 ranked(bad, "Piste", 3)
+
+    def test_two_starts_or_only_two_close_symbols_cannot_make_an_aftu_pair(self):
+        from scripts.audit_terminus_quays import finish_to_start
+        point = lambda role, x, y: (role, role, [14.7, x], [14.7, y])
+        a = (point('start',-17.41,-17.41), point('finish',-17.4,-17.4))
+        b = (point('start',-17.4,-17.4), point('finish',-17.45,-17.45))
+        self.assertEqual(finish_to_start({'1':a,'2':b}), [['1','2','finish','start',0,0]])
+        self.assertEqual(finish_to_start({'1':a,'2':(point('start',-17.4,-17.43), b[1])}), [])
+        self.assertEqual(finish_to_start({'1':a,'2':a}), [])

@@ -79,3 +79,17 @@ class PhysicalReviewTests(unittest.TestCase):
             self.assertIsNone(result[missing])
         ps[way]["refs"] = [1001]  # A formerly pinned vertex disappeared.
         self.assertIsNone(survey_approaches(ps, graph)[1]["toCrossing"])
+
+    def test_within_a_bus_family_requires_two_numbered_lines_with_the_correct_adjacent_member(self):
+        from scripts.bus_change_candidates import same_family_candidates
+
+        def call(code, rank, **kw):
+            return dict({'family': 'ddd', 'ref': code, 'rank': rank, 'role': 'platform', 'from':'A', 'to':'B',
+                         'before': None if rank == 1 else 'n1', 'after': None if rank == 3 else 'n9'}, **kw)
+        a, b = call('7', 3), call('10', 1)
+        ps = {'n2': {'rankedBusCalls': [a, b, call('L7;L10', 2), call('8', 2, to=None)]},
+              'n3': {'rankedBusCalls': [call('L 7', 1), call('4', 2, role='platform_exit_only'), call('73', 2, family='aftu')]}}
+        result = same_family_candidates(ps, [['n2','n3',12]])
+        self.assertEqual(result['ddd']['sharedObjects']['n2'], [[a,b]])
+        self.assertEqual(result['ddd']['linkedObjects'], [])  # L 7 is 7, 4 cannot board here
+        self.assertEqual(result['aftu']['sharedObjects'], {})

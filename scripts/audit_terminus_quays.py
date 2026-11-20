@@ -11,7 +11,7 @@ import re
 import unicodedata
 from pathlib import Path
 
-from scripts.audit_bus_osm_occurrences import identity
+from scripts.bus_change_candidates import platform_members
 from scripts.audit_gt54 import nearest
 from scripts.audit_interchange_sites import distance, is_platform
 from scripts.audit_patte_doie import MARKERS
@@ -93,39 +93,6 @@ def poles_in(pbf):
     return rows
 
 
-def platform_members(relation, targets):
-    """Rank among signed platform members, not the number of road ways or a
-    timetable rank. Do not assign the AFTU line from the nearby symbol.
-    """
-    tags = relation.tags
-    if tags.get("type") != "route" or tags.get("route") not in ("bus", "train"):
-        return []
-    platforms = [
-        (f"{m.type}{m.ref}", m.role)
-        for m in relation.members
-        if m.role in ("platform", "platform_entry_only", "platform_exit_only")
-    ]
-    family, ref = identity(tags)
-    return [
-        {
-            "pole": pole,
-            "role": role,
-            "relation": relation.id,
-            "version": relation.version,
-            "family": family,
-            "ref": ref,
-            "from": tags.get("from"),
-            "to": tags.get("to"),
-            "rank": i + 1,
-            "platforms": len(platforms),
-            "before": platforms[i - 1][0] if i else None,
-            "after": platforms[i + 1][0] if i + 1 < len(platforms) else None,
-        }
-        for i, (pole, role) in enumerate(platforms)
-        if pole in targets
-    ]
-
-
 def route_memberships(pbf, targets):
     import osmium
 
@@ -151,6 +118,20 @@ def terminals(drawing):
     return result
 
 
+def finish_to_start(endpoints):
+    """Compare the actual finish of one AFTU drawing to another's start.
+    Check both symbols AND both line ends; two starts never make a change."""
+    rows = []
+    for a, (_, finish) in endpoints.items():
+        for b, (start, _) in endpoints.items():
+            if a == b:
+                continue
+            dp, de = distance(finish[2], start[2]), distance(finish[3], start[3])
+            if max(dp, de) <= LIMIT:
+                rows.append([a, b, finish[1], start[1], round(dp, 1), round(de, 1)])
+    return rows
+
+
 def screen(poles, drawings):
     network_poles = [(p, f) for p in poles if (f := families(p["tags"]))]
     out = {
@@ -169,10 +150,13 @@ def screen(poles, drawings):
             out["multipleLineReferences"].append(
                 {k: p[k] for k in ("id", "version", "tags")} | {"refs": refs}
             )
+    endpoints = {}
     for code, d in sorted(drawings.items()):
         ends = terminals(d)
         if not ends:
             out["withoutTwoDirectionalMarkers"].append(code)
+        else:
+            endpoints[code] = ends
         for role, name, pin, end in ends:
             out["examinedEnds"] += 1
             for p, f in network_poles:
@@ -193,6 +177,7 @@ def screen(poles, drawings):
                             "bothWithinLimit": max(dm, de) <= LIMIT,
                         }
                     )
+    out["finishToOtherStart"] = finish_to_start(endpoints)
     return out
 
 
@@ -286,6 +271,8 @@ def summary(r):
         note(f"Rangs des poteaux proches {i+1}", memberships[i : i + 20])
     note("60 AFTU et chemin de Patte d’Oie", r["patteDoie60"])
     note("Approche du terminus 67 à Ouakam", r["ouakam67"])
+    rows = r["finishToOtherStart"]
+    note("AFTU fin vers autre départ", {"count": len(rows), "sample": sorted(rows, key=lambda v: (max(v[4:]), v[:2]))[:12]})
 
 
 if __name__ == "__main__":

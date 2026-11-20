@@ -16,6 +16,7 @@ from pathlib import Path
 
 from scripts.extract_dakar_pedestrian_ways_from_pbf import inside_bounds, is_walkable
 from scripts.audit_bus_osm_occurrences import identity
+from scripts.bus_change_candidates import platform_members, same_family_candidates, same_family_summary
 
 # Windows for discovery, not transfer distances or passenger coordinates.
 SITES = {
@@ -182,6 +183,9 @@ def collect(pbf, regional=False):
                 ):
                     family = "ter"
                 routes[r.id] = family
+                if regional and t.get("route") == "bus" and family in ("ddd", "aftu"):
+                    for row in platform_members(r, platforms):
+                        platforms[row["pole"]].setdefault("rankedBusCalls", []).append(row)
             for m in r.members:
                 key = f"{m.type}{m.ref}"
                 if key in platforms:
@@ -338,6 +342,7 @@ def regional_candidates(platforms, graph, routes):
         "touching": sum(bool(p["touchingFootways"]) for p in ps),
         "directedPaths": paths,
         "labels": path_labels,
+        "withinBusFamily": same_family_candidates(platforms, paths),
         "sameObjectByRole": shared,
         "pathsBetweenRouteRoles": linked,
     }
@@ -387,6 +392,9 @@ if __name__ == "__main__":
 
     if args.regional:
         region = regional_candidates(ps, graph, routes)
+        if args.ci_summary:
+            for family, result in same_family_summary(region["withinBusFamily"]):
+                print(f"::notice title=Changements de ligne {family}::" + json.dumps(result, separators=(",", ":")))
         region.update(
             surveyApproaches=survey_approaches(ps, graph),
             extractSha256=digest,
