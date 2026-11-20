@@ -208,7 +208,7 @@ it('affiche les arrêts TATA cités par SETER en dehors des rangs et sans en dé
   fireEvent.click(view.getByRole('button',{name:/^TATA$/}))
   const note=container.querySelector('[data-line-code="54"] details')!
   expect(note.textContent).toContain('Librairie Clairafrique'); expect(note.closest('.bus-occurrences')).toBeNull()
-  expect(note.querySelectorAll('a')).toHaveLength(2); expect(note.querySelector('time,[role=timer]')).toBeNull()
+  expect(note.querySelectorAll('a')).toHaveLength(3); expect(note.textContent).toContain('Cite Sotrac → Fann'); expect(note.querySelector('time,[role=timer]')).toBeNull()
   fireEvent.change(query,{target:{value:'Rond-point Petersen'}})
   for (const c of ['40','41','55']) expect(container.querySelector(`[data-line-code="${c}"] summary`)?.textContent).toContain('Petersen')
 })

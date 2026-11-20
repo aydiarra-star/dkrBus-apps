@@ -83,10 +83,12 @@ export function EstimatedLineScheduleBoard(props: BoardProps) {
 // boarding call. Keep source and scope attached even when codes coincide.
 const mentionSources: Readonly<Record<string, { label: string; url: string }>> = tataStops.sources
 function TataStopMentions({code}: {code: string}) {
+  const axis = (tataStops.axes as Readonly<Record<string, { listed: string; note: string }>>)[code]
   return <>{tataStops.mentions.filter(m => m.lines.includes(code)).map(m =>
     <details key={m.stop} className="bus-survey-note"><summary>{m.title} : {m.stop}</summary>
       <p>{m.note ?? `La fiche de gare cite la ligne TATA ${code}. Le sens, le quai et les heures du bus ne sont pas précisés.`}</p>
       <p>{m.sources.map((id,i) => <Fragment key={id}>{i > 0 && ' · '}<a href={mentionSources[id].url} target="_blank" rel="noreferrer">{mentionSources[id].label}</a></Fragment>)}</p>
+      {axis && <p>Autre description de la ligne : {axis.listed} (<a href={tataStops.axisSource.url} target="_blank" rel="noreferrer">{tataStops.axisSource.label}</a>). {axis.note}</p>}
     </details>)}</>
 }
 
