@@ -218,6 +218,56 @@
           ]
         }
       ]
+    },
+    "AFTU_60": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_60_Colobane",
+          "trips": 92,
+          "callCount": 45,
+          "first": [
+            "A_1564",
+            "Colobane"
+          ],
+          "last": [
+            "A_2182",
+            "En Face Angle Baye Laye"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              1,
+              null,
+              "A_1402"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_60_bargny",
+          "trips": 91,
+          "callCount": 46,
+          "first": [
+            "A_372",
+            "Diouma Ndal Dalli"
+          ],
+          "last": [
+            "A_1564",
+            "Colobane"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              46,
+              "A_990",
+              null
+            ]
+          ]
+        }
+      ]
     }
   },
   "pointColumns": [
@@ -290,6 +340,11 @@
       14.72744688520738,
       -17.485204220483357,
       "Ecole 6 Ouakam"
+    ],
+    "A_1564": [
+      14.696746373714147,
+      -17.442754420066983,
+      "Colobane"
     ],
     "A_2028": [
       14.72736727676959,

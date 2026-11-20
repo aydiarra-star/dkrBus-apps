@@ -14,7 +14,8 @@ from scripts.audit_reference_archives import inspect
 from scripts.compare_bus_occurrences import DIGEST, patterns, tables
 
 CALLS = {'ddd': {'DDD_07': {'D_45', 'D_48', 'D_1258', 'D_128', 'D_122'}, 'DDD_01': {'D_128', 'D_122'},
-                 'DDD_18': {'D_700'}}, 'aftu': {'AFTU_42': {'A_12', 'A_13', 'A_17', 'A_2028'}}}
+                 'DDD_18': {'D_700'}}, 'aftu': {'AFTU_42': {'A_12', 'A_13', 'A_17', 'A_2028'},
+                          'AFTU_60': {'A_1564'}}}
 # Source coordinate pairs, not candidate bus doors. Keep lat/lon order explicit.
 DDD_TABLE = 'https://demdikk.sn/chatbot-arrets/'
 CARTOGRAPHY = {

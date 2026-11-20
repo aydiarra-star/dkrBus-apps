@@ -14,6 +14,8 @@ on:
       - "scripts/audit_terminal_calls.py"
       - "scripts/audit_reference_archives.py"
       - "scripts/audit_exchange_calls.py"
+      - "scripts/audit_hub_access.py"
+      - "tests/test_hub_access.py"
       - "data/bus-review/exchange-call-comparison.json"
       - "docs/panneaux/fiches.csv"
       - "data/bus-review/reported-218-73.json"
@@ -80,6 +82,14 @@ jobs:
             python -m scripts.audit_terminus_quays "$RUNNER_TEMP/senegal.osm.pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/terminus-quays.json --ci-summary
           else
             echo '::warning::Comparaison des terminus non exécutée (PBF ou dessins manquants).'
+          fi
+      - name: Read bus-station boundary, platform and crossing contacts at Colobane and Ponty
+        run: |
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          if test -s "$pbf"; then
+            python -m scripts.audit_hub_access "$pbf" artifacts/aftu/hub-access.json
+          else
+            echo '::warning::Accès de Colobane et Ponty non mesurés (PBF absent).'
           fi
       - name: Check historical call roles, terminal sites and independent approach phases at Médina
         run: |
