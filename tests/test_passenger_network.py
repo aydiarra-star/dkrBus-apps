@@ -151,6 +151,22 @@ class PassengerEditionTests(unittest.TestCase):
         with self.assertRaises(ApiError):
             self.get()
 
+    def test_measured_time_is_oriented_and_independent_of_path_geometry(self):
+        w = self.review['links']['footways'][0]
+        measured = w.pop('transferTiming')
+        self.path.write_text(json.dumps(self.review))
+        self.assertNotIn('transferTiming', self.get()['dataset']['footways'][0])
+        for bad in [None, dict(measured, seconds=True), dict(measured, seconds=0), dict(measured, seconds=86400),
+                    dict(measured, **{'from': w['to'], 'to': w['from']}), dict(measured, evidence=dict(measured['evidence'], status='candidate'))]:
+            with self.subTest(bad=bad), self.assertRaises(ApiError):
+                w['transferTiming'] = bad
+                self.path.write_text(json.dumps(self.review))
+                self.get()
+        w['transferTiming'] = measured
+        self.path.write_text(json.dumps(self.review))
+        out = self.get()['dataset']['footways'][0]
+        self.assertEqual(out['transferTiming'], dict(measured, **{'from': out['from'], 'to': out['to']}))
+
     def test_cartographic_landmark_cannot_be_published_as_an_entrance(self):
         self.review['links']['places'][0].update(id='landmark:bus-osm-4363242544', kind='entrance')
         self.path.write_text(json.dumps(self.review))

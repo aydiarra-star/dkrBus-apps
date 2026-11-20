@@ -59,6 +59,7 @@ def fixture():
                                      "direction": f"Vers essai {b}", "stop_ids": [a, b], "stepFree": "yes", "evidence": E, "platformBindings": bindings})
         if previous:
             review["links"]["footways"].append({"id": f"w{i}", "from": f"pB{i-1}", "to": f"p{a}", "name": f"Passage essai {i}", "kind": "crossing", "stepFree": "yes",
+                                              "transferTiming": {"from": f"pB{i-1}", "to": f"p{a}", "seconds": 55, "evidence": E},
                                               "access": "public", "crossingsAndBarriersChecked": True, "evidence": E,
                                               "positions": [previous, {"lat": 14.82012, "lon": x - .00025}, start]})
         previous = end

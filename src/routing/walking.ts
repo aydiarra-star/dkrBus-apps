@@ -52,3 +52,37 @@ export function walkingTree(net: Network, origin: string, budgetM: number, stepF
   }
   return { distances, pathTo }
 }
+
+/** Transfer only. A shorter crossing may take longer at a signal. Retain
+ * nondominated (metres, measured seconds) paths within the walking budget;
+ * do not let an unmeasured shortcut hide a measured route. Both costs are
+ * positive, so a cycle back to the same point is always dominated. */
+export function timedWalks(net: Network, start: string, budgetM: number, stepFree: boolean, speedMpm: number) {
+  interface Label { to: string; meters: number; seconds: number; via?: Footway; previous?: Label }
+  const seed: Label = { to: start, meters: 0, seconds: 0 }
+  const queue = [seed], frontier = new Map<string, Label[]>([[start, [seed]]])
+  // Multi-criterion walks can have exponentially many alternatives. Refuse
+  // this transfer search rather than freeze a phone or return a partial tree.
+  let budget = 150_000
+  for (let i = 0; i < queue.length; i++) {
+    const p = queue[i]
+    if (!frontier.get(p.to)?.includes(p)) continue
+    for (const w of net.walking.get(p.to) ?? []) {
+      if (w.onlyFor || !w.transferTiming || (stepFree && w.stepFree !== 'yes')) continue
+      const prev = frontier.get(w.to) ?? []
+      budget -= 1 + prev.length
+      if (budget < 0) return []
+      const meters = p.meters + w.meters
+      const seconds = p.seconds + Math.max(w.transferTiming.seconds, Math.ceil(w.meters * 60 / speedMpm))
+      if (meters > budgetM || prev.some(q => q.meters <= meters && q.seconds <= seconds)) continue
+      const q = { to: w.to, meters, seconds, previous: p, via: w }
+      frontier.set(w.to, [...prev.filter(x => x.meters < meters || x.seconds < seconds), q]); queue.push(q)
+    }
+  }
+  frontier.delete(start)
+  return [...frontier.values()].flat().filter(q => net.boarding.has(q.to)).map(q => {
+    const ways: Footway[] = []
+    for (let p = q; p.via && p.previous; p = p.previous) ways.push(p.via)
+    return { to: q.to, seconds: q.seconds, meters: q.meters, ways: ways.reverse() }
+  })
+}

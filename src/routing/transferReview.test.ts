@@ -13,7 +13,7 @@ describe('qualification hors graphe, direction par direction', () => {
     const expected = search(fixtureNetwork, fixtureQuery)
     if (!expected.ok) throw Error(expected.message)
     const walk = expected.options[0].legs.find(l => l.kind === 'walk')!
-    expect(r).toEqual({ status: 'qualified-for-review', findings: [], meters: walk.meters, walkStepFree: 'yes' })
+    expect(r).toEqual({ status: 'qualified-for-review', findings: [], measuredWalkSeconds:41, meters: walk.meters, walkStepFree: 'yes' })
     // A review is not a timetable: a qualified path cannot catch a missed departure.
     expect(search(fixtureNetwork, { ...fixtureQuery, modes: ['ter', 'brt'], transferBufferSeconds: 600 })).toMatchObject({ code: 'NO_SERVICE' })
     expect(assessTransfer(fixtureNetwork, { ...candidate, from: candidate.to, to: candidate.from }, proof).status).toBe('blocked')
@@ -115,4 +115,11 @@ it('reviews one staging envelope in one direction only, without changing the Dak
   expect(reviewDakarPacket({ ...packet, fromStopId: packet.toStopId, toStopId: packet.fromStopId }).from.mode).toBe('ddd')
   expect(() => reviewDakarPacket({ ...packet, fromStopId: 'ter-colobane' })).toThrow(/couple ordonné/)
   expect(dakarTransferReport(dakarNetwork)).toEqual(original)
+})
+
+it('demands oriented timing on each segment, not just a measured length or the reverse observation',()=>{
+  const w=fixtureData.footways[1],net=(t:typeof w.transferTiming)=>buildNetwork({...fixtureData,footways:fixtureData.footways.map(p=>p===w?{...w,transferTiming:t}:p)})
+  const r=assessTransfer(net(undefined),candidate,proof)
+  expect(r.status).toBe('blocked');expect(r.findings).toContainEqual({code:'WALK_TIME_EVIDENCE',action:expect.stringContaining(w.id)})
+  for(const t of [{...w.transferTiming!,seconds:0},{...w.transferTiming!,from:w.to,to:w.from},{...w.transferTiming!,evidence:{...w.evidence,status:'candidate' as const}}]) expect(net(t).rejected).toContain(`footway-timing:${w.id}`)
 })

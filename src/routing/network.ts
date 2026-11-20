@@ -111,7 +111,11 @@ export function buildNetwork(data: Dataset): Network {
   const duplicateWays = duplicates(data.footways.map(w => w.id))
   for (const w of data.footways) {
     const a = places.get(w.from), b = places.get(w.to)
-    const meters = shapeLength(w.positions, 250)
+    const meters = shapeLength(w.positions, 250), measured = w.transferTiming
+    if (measured !== undefined && (!measured || measured.from !== w.from || measured.to !== w.to ||
+        !Number.isSafeInteger(measured.seconds) || measured.seconds <= 0 || measured.seconds >= 86400 || !reviewed(measured.evidence))) {
+      rejected.push(`footway-timing:${w.id}`); continue
+    }
     // Match endpoints by explicit identity AND by the actual end vertices.
     // A station's service-call reference never doubles as a pedestrian access.
     if (!meters || !w.id || !w.name || duplicateWays.has(w.id) || w.from === w.to || !a || !b || a.kind === 'call' || b.kind === 'call' ||

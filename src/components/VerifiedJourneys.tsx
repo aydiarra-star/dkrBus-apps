@@ -54,7 +54,8 @@ function Step({ leg, preferences, now }: { leg: Leg; preferences: Preferences; n
       <p>{leg.from.name} → {leg.to.name} · {distance} · {minutes(leg.end - leg.start)}.</p>
       {leg.ways.some(w => w.onlyFor) && <p>Accès voyageurs uniquement. La marche commence et finit aux points indiqués ; aucun trajet depuis le trottoir voisin n’est inclus.</p>}
       <p>{leg.ways.map(w => w.name).join(' → ')}</p>
-      <details><summary>Sources du cheminement</summary>{leg.ways.map(w => <p key={w.id}>{w.name} · {w.evidence.reference} · {w.evidence.date}</p>)}</details>
+      <details><summary>Sources du cheminement</summary>{leg.ways.map(w => <p key={w.id}>{w.name} · {w.evidence.reference} · {w.evidence.date}
+        {leg.role === 'transfer' && w.transferTiming && <>. Temps relevé dans ce sens : {w.transferTiming.seconds} s · {w.transferTiming.evidence.reference} · {w.transferTiming.evidence.date}.</>}</p>)}</details>
     </>}
     {now !== undefined && <LegClock leg={leg} now={now} />}
     <small>{accessible[leg.stepFree]}</small>

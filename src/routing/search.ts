@@ -2,7 +2,7 @@ import { concatenate } from './geometry'
 import type { Criterion, Footway, Itinerary, Leg, Network, ObservedPlatform, OnwardBoarding, Outcome, Pattern, Place, Query, Walk } from './model'
 import { nondominated, rank, type Metrics } from './ranking'
 import { dayOf, followingPassages, nextRuns } from './serviceTime'
-import { walkingTree } from './walking'
+import { timedWalks, walkingTree } from './walking'
 
 type Action = { kind: 'walk'; ways: Footway[]; role: Walk['role']; meters: number }
   | { kind: 'ride'; pattern: Pattern; i: number; j: number; start: number; every: number | null; board?: ObservedPlatform; alight?: ObservedPlatform; change?: OnwardBoarding['proof']; changeBufferSeconds?: number }
@@ -61,6 +61,7 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
   const { departAt, maxChanges = 3, maxWalkPerLegM = 1200, walkSpeedMpm = 80, transferBufferSeconds = 180, stepFreeOnly = false } = query
   const day = dayOf(departAt)
   const trees = new Map<string, ReturnType<typeof walkingTree>>()
+  const transfers = new Map<string, ReturnType<typeof timedWalks>>()
   const seed: Label = { place: origin, at: departAt, boards: 0, walked: 0, cadence: 0 }
 
   return function scan(topologyOnly: boolean) {
@@ -81,6 +82,16 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
     function afterWalk(l: Label, next: Frontier, egressOnly = false) {
       if (!net.walking.has(l.place.id) || (pair && (l.boards !== 1 || pair.samePosition))) return
       const close = (role: Walk['role'], final: boolean) => {
+        if (role === 'transfer') {
+          let paths = transfers.get(l.place.id)
+          if (!paths) { paths = timedWalks(net, l.place.id, maxWalkPerLegM, stepFreeOnly, walkSpeedMpm); transfers.set(l.place.id,paths) }
+          for (const path of paths) {
+            if (!pair && targets.size === 1 && targets.has(path.to)) continue
+            insert(next, { ...l, place: net.places.get(path.to)!, walked: l.walked + path.meters, at: l.at + path.seconds,
+              back: { prev: l, action: { kind:'walk', role, ways: path.ways, meters: path.meters} } })
+          }
+          return
+        }
         // A path to catch a bus is not necessarily open to through pedestrians.
         // Filter *inside* Dijkstra: a longer general-use path might still exist.
         const key = JSON.stringify([l.place.id, role])

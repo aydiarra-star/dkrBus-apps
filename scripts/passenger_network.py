@@ -86,7 +86,15 @@ def _links(sid: str, raw: dict) -> dict:
                                  "evidence": _proof(p["evidence"]), **_coord(p["lat"], p["lon"])})
     for w in raw.get("footways", []):
         require("onlyFor" not in w or w["onlyFor"] in ("access", "egress"), "Usage du cheminement inconnu.")
-        result["footways"].append({**{k: w[k] for k in ("kind", "name", "access", "stepFree", "crossingsAndBarriersChecked")},
+        timing = {}
+        if "transferTiming" in w:
+            t = w["transferTiming"]
+            require(isinstance(t, dict) and set(t) == {"from", "to", "seconds", "evidence"}
+                    and (t["from"], t["to"]) == (w["from"], w["to"]) and type(t["seconds"]) is int
+                    and 0 < t["seconds"] < 86400, "Chronométrage de marche absent, invalide ou dans l’autre sens.")
+            timing["transferTiming"] = {"from": _physical(sid, t["from"]), "to": _physical(sid, t["to"]),
+                                        "seconds": t["seconds"], "evidence": _proof(t["evidence"])}
+        result["footways"].append({**timing, **{k: w[k] for k in ("kind", "name", "access", "stepFree", "crossingsAndBarriersChecked")},
                                   **({"onlyFor": w["onlyFor"]} if "onlyFor" in w else {}),
                                   "id": _physical(sid, w["id"]), "from": _physical(sid, w["from"]), "to": _physical(sid, w["to"]),
                                   "positions": [_coord(v["lat"], v["lon"]) for v in w["positions"]], "evidence": _proof(w["evidence"])})

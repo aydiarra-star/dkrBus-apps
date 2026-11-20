@@ -15,7 +15,7 @@ const entry = place('entry', 0, 0, 'entrance'), corner = place('corner', 0, 1, '
 const c = place('C', 12, 2), d = place('D', 25, 2), e = place('E', 25, 3), f = place('F', 35, 3), exit = place('exit', 36, 3, 'entrance')
 const addresses = [entry, corner, a, b, c, d, e, f, exit]
 function way(from: Place, to: Place): FootwayInput {
-  return { id: `${from.id}/${to.id}`, from: from.id, to: to.id, name: `Way ${from.id}/${to.id}`, kind: 'crossing', access: 'public', crossingsAndBarriersChecked: true, stepFree: 'yes', evidence: proof, positions: [from, to] }
+  return { id: `${from.id}/${to.id}`, from: from.id, to: to.id, name: `Way ${from.id}/${to.id}`, transferTiming:{from:from.id,to:to.id,seconds:24,evidence:proof}, kind: 'crossing', access: 'public', crossingsAndBarriersChecked: true, stepFree: 'yes', evidence: proof, positions: [from, to] }
 }
 function line(lineId: string, network: PatternInput['network'], from: Place, to: Place, when: number, duration: number): PatternInput {
   const direction = `${from.id} → ${to.id}`
@@ -193,4 +193,20 @@ it('an earlier modelled arrival can egress but cannot suppress or impersonate th
   expect(trip.legs.filter(l => l.kind === 'ride').map(l=>l.lineId)).toEqual(['train','rapid'])
   const egress = first(run({ patterns:[p] }, {origin:a.id,destination:c.id}))
   expect(egress.legs.map(l=>l.kind === 'walk' ? l.role : l.lineId)).toEqual(['early','egress'])
+})
+
+it('does not sell a connection on metres and generic walking speed without a timed directed crossing', () => {
+  const footways=paths.map(({...w})=>{delete w.transferTiming;return w})
+  expect(run({footways},{origin:a.id,destination:d.id}).ok).toBe(false)
+  expect(run({footways},{origin:a.id,destination:c.id}).ok).toBe(true) // egress is not a change
+})
+
+it('checks a longer timed alternative instead of assuming the geometrically shortest crossing is fastest',()=>{
+  const mid=place('signal',12.5,1.5,'path')
+  const slow={...paths[2],transferTiming:{...paths[2].transferTiming!,seconds:240}}
+  const via=[way(b,mid),way(mid,c)], q={origin:a.id,destination:d.id}
+  expect(run({footways:[slow]},q).ok).toBe(false)
+  const trip=first(run({footways:[slow,...via],places:[...addresses,mid]},q))
+  expect(trip.legs[1]).toMatchObject({role:'transfer',ways:via.map(w=>({id:w.id}))});expect(trip.walkSeconds).toBe(48)
+  expect(run({footways:via,places:[...addresses,mid]}, {...q,walkSpeedMpm:1}).ok).toBe(false)
 })

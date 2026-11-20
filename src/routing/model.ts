@@ -55,6 +55,9 @@ export interface FootwayInput {
   /** A station passage may be reviewed only for catching/leaving a service,
    * not as a public shortcut through the paid area. Absent = general use. */
   onlyFor?: 'access' | 'egress'
+  /** Separate, oriented evidence of elapsed time, including the crossing.
+   * Geometry alone suffices for a walking estimate, never for catching a connection. */
+  transferTiming?: { from: string; to: string; seconds: number; evidence: Evidence }
   stepFree: StepFree
   evidence: Evidence
   positions: readonly RoadPoint[]

@@ -38,6 +38,7 @@ export function transferWitness(net: Network, assessment: TransferAssessment, pr
     const scheduled = rides.every(ride => ride.timing === 'timetable' && ride.timeProfile === 'offsets')
     const atOnwardPlatform = rides[0].end + t.walkSeconds
     return { status: scheduled ? 'DATED_WITNESS' : 'MODELLED_ONLY', query,
+      measuredWalkSeconds: assessment.measuredWalkSeconds ?? null,
       initialWaitSeconds: rides[0].waitSeconds, walkMeters: t.walkMeters,
       atOnwardPlatform, minimumBufferSeconds: margin, readyAfterBuffer: atOnwardPlatform + margin,
       slackSeconds: rides[1].waitSeconds - margin, firstDeparture: rides[0].start, alightAt: rides[0].end, onwardDeparture: rides[1].start,

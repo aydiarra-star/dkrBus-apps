@@ -15,7 +15,7 @@ it('only credits two actual rides joined by the reviewed chain on the requested 
 
 it('rejects a departure one second short of the walking time plus the margin; equality is enough', () => {
   const at = fixtureQuery.departAt, path = assessTransfer(net, candidate, proof)
-  const walkSeconds = Math.ceil(path.meters! * 60 / 80), ready = at + 120 + walkSeconds + 180
+  const walkSeconds = 41, ready = at + 120 + walkSeconds + 180
   const data = { ...fixtureData, patterns: fixtureData.patterns.map((p, i) => i !== 1 ? p : {
     ...p, service: { kind: 'timetable' as const, source: 'fixture', departures: [ready - 1, ready, ready + 61] },
   }) }
@@ -46,7 +46,7 @@ it.each([['ddd','ddd'], ['aftu','aftu'], ['ddd','aftu'], ['aftu','ddd']] as cons
         service: i === 2 ? { kind: 'timetable' as const, source:'QA direct', departures:[at+1] } : p.service }
     })
     const platforms = fixtureData.places, from = platforms.find(p => p.id === proof.alight.platformId)!, to = platforms.find(p => p.id === proof.board.platformId)!
-    const shortcut = { ...fixtureData.footways[0], id:'qa-shortcut', from: from.id, to: to.id, positions:[from,to] }
+    const shortcut = { ...fixtureData.footways[0], id:'qa-shortcut', transferTiming:{from:from.id,to:to.id,seconds:10,evidence:from.evidence}, from: from.id, to: to.id, positions:[from,to] }
     const staged = buildNetwork({ ...fixtureData, patterns, footways: [...fixtureData.footways, shortcut] })
     const pair = { ...candidate, from: { ...candidate.from, mode: incoming }, to: { ...candidate.to, mode: outgoing } }
     const observed = { ...proof, alight: { ...proof.alight, mode: incoming }, board: { ...proof.board, mode: outgoing } }

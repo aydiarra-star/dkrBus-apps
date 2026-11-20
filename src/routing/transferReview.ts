@@ -21,13 +21,14 @@ export interface TransferProof {
   }
 }
 export type ReviewCode = 'ALIGHT_PLATFORM' | 'BOARD_PLATFORM' | 'ALIGHT_DIRECTION' | 'BOARD_DIRECTION'
-  | 'SAME_POSITION_RULE' | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES'
+  | 'SAME_POSITION_RULE' | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES' | 'WALK_TIME_EVIDENCE'
 export interface Finding { code: ReviewCode; action: string }
 export interface TransferAssessment {
   status: 'blocked' | 'qualified-for-review'
   findings: Finding[]
   meters: number | null
   walkStepFree: StepFree | null
+  measuredWalkSeconds?: number
   samePosition?: { minimumSeconds: number; evidence: Evidence; stepFree: StepFree }
 }
 
@@ -79,6 +80,8 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
     if (nodes.at(-1) !== to || edges.length !== path.wayIds.length) {
       report('DIRECTED_CHAIN', 'Vérifier chaque identifiant, extrémité et sens de parcours : la chaîne admise doit relier exactement les deux quais, sans saut ni boucle.')
     }
+    const untimed = edges.filter(w=>!w.transferTiming)
+    if (untimed.length) report('WALK_TIME_EVIDENCE', `Chronométrer la marche et les traversées dans ce sens pour : ${untimed.map(w=>w.id).join(', ')}.`)
     if (path.gates) {
       const [exit, entrance] = path.gates
       if (!Array.isArray(path.gates) || path.gates.length !== 2 || net.places.get(exit)?.kind !== 'entrance' || net.places.get(entrance)?.kind !== 'entrance' ||
@@ -89,6 +92,6 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
   }
   if ((candidate.betweenSites && path?.scope !== 'via-street') || ((candidate.betweenSites || path?.scope === 'via-street') && !path?.gates)) report('PUBLIC_GATES', 'Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.')
   if (findings.length) return { status: 'blocked', findings, meters: null, walkStepFree: null }
-  return { status: 'qualified-for-review', findings, meters: edges.reduce((n, e) => n + e.meters, 0),
+  return { status: 'qualified-for-review', findings, measuredWalkSeconds: edges.reduce((n,w)=>n+w.transferTiming!.seconds,0), meters: edges.reduce((n, e) => n + e.meters, 0),
     walkStepFree: edges.some(e => e.stepFree === 'no') ? 'no' : edges.every(e => e.stepFree === 'yes') ? 'yes' : 'unknown' }
 }
