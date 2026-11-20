@@ -61,7 +61,7 @@ try {
         totals.activeAt19 += active
         directions.push({ label: d.label, from: d.from, to: d.to, kind: d.pointKind, ranks, active, example, duration, terminalDurations, peakDuration: m?.peakOffsetsMs ? m.peakOffsetsMs.at(-1)/60000 : null, sequence: digest(d.points), clockSha256: digest(m), week: m?.week ?? null,
           originSlots: compiled ? [...new Set(compiled.profiles.flatMap(p => p.today))].sort((a,b)=>a-b) : [],
-          source: d.source, phase: m?.originBasis ?? null, profile: m?.offsetBasis ?? null, reason: d.reason ?? null })
+          source: d.source, phase: m?.originBasis ?? null, profile: m?.offsetBasis ?? null, reason: d.reason ?? (d.sourceHours && !m ? 'Grille transcrite (hors modèle)' : null) })
       }
       if (directions.some(d => d.profile)) totals.withModel++
       if (sides.size === 2) totals.twoListsIncludingLandmarks++

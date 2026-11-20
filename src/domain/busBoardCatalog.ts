@@ -3,6 +3,7 @@
 import { DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES as official, DDD_OFFICIAL_ROUTE_SOURCE } from '../data/dddOfficialPublishedRoutes'
 import { DDD_319_OUTBOUND, DDD_319_PROFILES } from '../data/busBoardCallSheets'
 import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
+import { existingSheetHours, newSheetDirections } from './busSheetCatalog'
 import { MINUTE } from './stopPassageCountdown'
 import mobility from '../data/mobility-lines.json'
 import tata from '../data/tata-lines.json'
@@ -227,12 +228,16 @@ function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {
   }
   return pair
 }
+function sheetsFor(family: BusFamily, r: PublicBusLineReference) {
+  const base = {ddd:dddDirections, aftu:aftuDirections, tata:tataDirections}[family](r)
+  return [...base.map(d => ({ ...d, sourceHours:existingSheetHours(family,r.line,d) })), ...newSheetDirections(family,r.line)]
+}
 const dddCodes = new Map(DDD_PUBLIC_LINE_CATALOG.map(r => [r.line, r]))
 for (const r of official) if (!dddCodes.has(r.line)) dddCodes.set(r.line, { network: 'ddd', line: r.line, origin: r.stops[0], destination: r.stops.at(-1)!, sourceUrl: DDD_OFFICIAL_ROUTE_SOURCE.url, sourceLabel: DDD_OFFICIAL_ROUTE_SOURCE.label })
 const tataCodes = new Map(TATA_PUBLIC_LINE_CATALOG.map(r => [r.line, r]))
 for (const r of tata) if (!tataCodes.has(r.code)) tataCodes.set(r.code, { network: 'tata', line: r.code, origin: r.origin, destination: r.destination, sourceUrl: r.sourceUrl, sourceLabel: 'Fiche TATA' })
 export const BUS_BOARD_LINES: Readonly<Record<BusFamily, readonly BusBoardLine[]>> = {
-  ddd: [...dddCodes.values()].sort((a,b) => a.line.localeCompare(b.line, 'fr', { numeric: true })).map(r => ({ key: `ddd:${r.line}`, family: 'ddd', code: r.line, ...(r.line === 'TAF_TAF_TO1' && { aliasOf:'TO1' }), directions: dddDirections(r) })),
-  aftu: AFTU_PUBLIC_LINE_CATALOG.map(r => ({ key: `aftu:${r.line}`, family: 'aftu', code: r.line, directions: aftuDirections(r) })),
-  tata: [...tataCodes.values()].sort((a,b) => Number(a.line) - Number(b.line)).map(r => ({ key: `tata:${r.line}`, family: 'tata', code: r.line, directions: tataDirections(r) })),
+  ddd: [...dddCodes.values()].sort((a,b) => a.line.localeCompare(b.line, 'fr', { numeric: true })).map(r => ({ key: `ddd:${r.line}`, family: 'ddd', code: r.line, ...(r.line === 'TAF_TAF_TO1' && { aliasOf:'TO1' }), directions: sheetsFor('ddd',r) })),
+  aftu: AFTU_PUBLIC_LINE_CATALOG.map(r => ({ key: `aftu:${r.line}`, family: 'aftu', code: r.line, directions: sheetsFor('aftu',r) })),
+  tata: [...tataCodes.values()].sort((a,b) => Number(a.line) - Number(b.line)).map(r => ({ key: `tata:${r.line}`, family: 'tata', code: r.line, directions: sheetsFor('tata',r) })),
 }

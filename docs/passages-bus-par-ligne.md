@@ -10,7 +10,7 @@ Modèle `dakar-bus-board/v1`. [Hypothèses, sources et reproduction](modeles-pas
 
 Une liste de repères peut décrire des rues ou des secteurs historiques, et non des arrêts de montée. « Deux listes » exige des rangs au-delà de l’origine dans chacun des deux sens documentaires. Ils peuvent relever d’éditions différentes ; cela ne certifie ni un aller-retour actuel ni l’identité physique des terminus. Une boucle n’est comptée qu’une fois. Un même numéro dans deux familles ne constitue pas deux services physiques.
 
-Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `d9270a8b6ebb8d980ebdece9d7a413e16e23e2849f901883daacaf05a8e11de7`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
+Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `e54aa6bfe3995b36b599050aafb1ddb1b9d8f8a111f2471ceb92992a00cd43d0`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
 
 ## DDD
 
@@ -30,6 +30,8 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 | 6 | [Retour · fiche détaillée · Gare Palais → Terminus 6 - 79](https://transitbycity.com/fr/senegal/dakar/operators/dakar-dem-dikk/routes/6/) | 71 arrêts | 04:30–21:25 · [Grille du sens](https://transitbycity.com/fr/senegal/dakar/operators/dakar-dem-dikk/routes/6/) | 59 min · Durée Moovit du sens · https://moovitapp.com/index/fr/transport_en_commun-line-6-Dakar-5996-1618037-18051421-0 · interpolation par rang | 1: 5 ; 36: 7 ; 71: 1 |
 | 7 | [Aller · Terminus Ouakam → Terminus Palais 2](https://demdikk.sn/reseau-urbain-dakar/) | 21 repères | 05:30–20:57 · DDD · modèle 8/13 | 62.8 min · longueur médiane de référence · vitesse modèle · rang | 1: 13 ; 11: 4 ; 21: 3 |
 | 7 | [Retour · Palais 2 → Ouakam](https://demdikk.sn/info-voyageurs/) | 1 départ seul | 05:30–20:57 · DDD · modèle 8/13 | origine seule | 1: 13 |
+| 7 | [Aller · fiche hebdomadaire · Ouakam → Gare Palais](https://moovitapp.com/index/fr/transport_en_commun-line-7-Dakar-5996-1618037-18051422-1) | — | — | Grille transcrite (hors modèle) | — |
+| 7 | [Retour · fiche hebdomadaire · Gare Palais → Ouakam](https://moovitapp.com/index/fr/transport_en_commun-line-7-Dakar-5996-1618037-18051422-0) | — | — | Grille transcrite (hors modèle) | — |
 | 8 | [Aller · Terminus Aéroport LSS → Terminus Palais 2](https://demdikk.sn/reseau-urbain-dakar/) | 28 repères | 05:30–20:57 · DDD · modèle 8/13 | 70.5 min · longueur du corridor · vitesse modèle · rang | 1: 13 ; 15: 1 ; 28: 3 |
 | 8 | [Retour · Palais 2 → Aéroport LSS](https://demdikk.sn/info-voyageurs/) | 1 départ seul | 05:30–20:57 · DDD · modèle 8/13 | origine seule | 1: 13 |
 | 9 | [Aller · Terminus Liberté 6 → Terminus Palais 2](https://demdikk.sn/reseau-urbain-dakar/) | 24 repères | 05:30–20:57 · DDD · modèle 8/13 | 62.8 min · longueur médiane de référence · vitesse modèle · rang | 1: 13 ; 13: 5 ; 24: 3 |
@@ -180,6 +182,8 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 | 41 | [Retour · Étage Madiale → Petersen](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
 | 42 | [Aller · Terminus Gadaye → Terminus Ouakam Baye](https://aftu-senegal.org/map/dakar-urbain-ligne-42/) | 14 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 79.1 min · longueur du corridor · vitesse modèle · rang | 1: 5 ; 8: 11 ; 14: 10 |
 | 42 | [Retour · Ouakam Baye → Gadaye (Guédiawaye)](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
+| 42 | [Aller · fiche hebdomadaire · Guédiawaye → Ouakam](https://moovitapp.com/index/fr/transport_en_commun-line-42-Dakar-5996-1618038-18051474-1) | — | — | Grille transcrite (hors modèle) | — |
+| 42 | [Retour · fiche hebdomadaire · Ouakam → Guédiawaye](https://moovitapp.com/index/fr/transport_en_commun-line-42-Dakar-5996-1618038-18051474-0) | — | — | Grille transcrite (hors modèle) | — |
 | 43 | [Aller · Terminus Ouakam → Terminus Thierno Ndiaye](https://aftu-senegal.org/map/dakar-urbain-ligne-43/) | 15 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 101 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 8: 6 ; 15: 6 |
 | 43 | [Retour · Thierno Ndiaye → Ouakam](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
 | 44 | [Aller · Terminus Grand Mbao → Terminus Ouakam](https://aftu-senegal.org/map/dakar-urbain-ligne-44/) | 13 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 101 min · longueur du corridor · vitesse modèle · rang | 1: 5 ; 7: 6 ; 13: 6 |

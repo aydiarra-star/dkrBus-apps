@@ -57,8 +57,18 @@ for (const theme of ['light','dark']) {
         assert.equal(await rows.locator('.is-undeclared time').count(),0)
       }
     }
-    await network('ddd').click(); await inspect('319',0,27,/Arrivée au terminus/,green); await inspect('319',1,26,/Arrivée au terminus/,green)
-    await network('aftu_tata').click(); await inspect('84',0,73,/Arrivée au terminus/,green); await inspect('84',1,73,/Jaxaay2 Route Du 84/,green)
+    const estimates = wrapper.getByRole('checkbox',{name:'Inclure les passages estimés'})
+    await network('ddd').click(); assert.equal(await estimates.isChecked(),false)
+    await inspect('7',2,27,/Gare Palais/,green); await inspect('7',3,29,/Rue Okm 60, 67/,green)
+    await estimates.check(); await inspect('319',0,27,/Arrivée au terminus/,green); await inspect('319',1,26,/Arrivée au terminus/,green)
+    await network('aftu_tata').click(); await estimates.uncheck(); await input.fill('42')
+    await wrapper.locator('.station-board-direction-toggle').last().click()
+    assert.equal(await wrapper.locator('.bus-occurrences li').count(),68)
+    assert.equal(await wrapper.locator('.bus-occurrences time').count(),10)
+    await tick(wrapper.locator('.bus-occurrences time').first(),green)
+    await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
+    assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)
+    await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,green); await inspect('84',1,73,/Jaxaay2 Route Du 84/,green)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await inspect('60',0,8,/Arrivée au terminus/,green); await inspect('60',1,8,/Dernier secteur/,green)
     await wrapper.getByRole('button',{name:'AFTU',exact:true}).click(); await input.fill('80'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     assert.equal(await wrapper.locator('.station-board-direction-toggle').nth(1).locator('time').count(),0); assert.equal(await wrapper.locator('.bus-occurrences li').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Retour non confirmé/)
@@ -101,7 +111,7 @@ for (const theme of ['light','dark']) {
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(), /Fin de service/)
     // A different, independently modelled Friday service can finish on
     // Saturday. No 73 or 218 origin is extrapolated through midnight.
-    await network('ddd').click(); await input.fill('16B'); await sides.nth(2).click()
+    await network('ddd').click(); await estimates.check(); await input.fill('16B'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-20T23:59:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'8:01'); await page.clock.runFor(1000); assert.equal(await clock.textContent(),'8:00')
     await page.clock.pauseAt(new Date('2026-11-21T00:52:58Z')); await page.clock.runFor(1000)

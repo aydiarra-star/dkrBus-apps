@@ -1,5 +1,6 @@
 /** The display model deliberately has no coordinates, platform IDs or graph
  * edges. An estimate cannot be admitted to the passenger router as a ride. */
+import type { SourceHours } from './busSourceHours'
 import type { Pattern } from '../routing/model'
 import { hasSenegalPublicHolidayCalendar, isSenegalPublicHoliday } from './senegalPublicHolidays'
 import { clockMinutes, DAY_MS, midnight, MINUTE, nextOccurrence, originSlots, validOffsets, type OriginWindow } from './stopPassageCountdown'
@@ -19,7 +20,7 @@ interface RunProfile { slots: readonly number[]; offsetsMs: readonly number[] }
 export interface ScheduledClock { kind: 'timetable'; profiles: readonly RunProfile[] }
 export interface BusBoardDirection {
   label: string; from: string; to: string; points: readonly string[]; pointKind: PointKind
-  clock: ModelClock | ScheduledClock | null; source: string; reason?: string
+  sourceHours?: SourceHours; clock: ModelClock | ScheduledClock | null; source: string; reason?: string
 }
 export interface BusBoardLine { key: string; code: string; family: BusFamily; aliasOf?: string; directions: readonly BusBoardDirection[] }
 export const BUS_BOARD_MODEL = 'dakar-bus-board/v1'

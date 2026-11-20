@@ -1215,6 +1215,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(network.textContent).toContain('Voir les lignes'); expect(network.querySelector('.station-board-double-apostrophe')).toBeNull()
     fireEvent.click(network); const board = container.querySelector('[data-line-code="16B"]')!
     const row = [...board.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.includes('Retour · fiche détaillée · Gare Palais'))!
+    expect(row.querySelector('[role=timer] strong')?.textContent).toBe('—') // retour modélisé, aucun tableau source
+    fireEvent.click(container.querySelector('.bus-model-option input')!)
     expect(row.querySelector('[role=timer] strong')?.textContent).toBe('1 min'); fireEvent.click(row)
     expect(board.querySelectorAll('.bus-occurrences li')).toHaveLength(82)
     expect(board.querySelector('.bus-occurrences li:last-child [role=timer] strong')?.textContent).toBe('9 min')
@@ -1488,7 +1490,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
       expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
       expect(rows.every((row) => /^([1-9]\d* min|—)$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
-      expect(board.querySelectorAll('[data-line-code="80"] .station-board-passage svg')).toHaveLength(1)
+      expect(board.querySelectorAll('[data-line-code="80"] .station-board-passage svg')).toHaveLength(0) // repères seuls, hors mode estimé
       fireEvent.click(rows[0])
       expect(rows[0].getAttribute('aria-expanded')).toBe('true')
       expect(rows[1].getAttribute('aria-expanded')).toBe('false')

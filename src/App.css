@@ -4290,3 +4290,5 @@ button:disabled { cursor: not-allowed; }
 .bus-occurrences .bus-rank { display: inline; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 
 .bus-board-filter { display: block; width: calc(100% - 24px); margin: 8px 12px; padding: 6px 9px; border-radius: .4rem; border: 1px solid var(--line); background: var(--surface-card); color: var(--text); font: inherit; }
+
+.bus-model-option { display: flex; align-items: center; gap: .5rem; font-size: .875rem; padding: .4rem 0; }

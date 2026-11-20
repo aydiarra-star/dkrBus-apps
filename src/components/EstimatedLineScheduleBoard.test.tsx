@@ -11,12 +11,17 @@ afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals() })
 const buttons = (c: HTMLElement, code: string) => [...c.querySelectorAll<HTMLButtonElement>(`[data-line-code="${code}"] .station-board-direction-toggle`)]
 const opened = (c: HTMLElement) => [...c.querySelectorAll<HTMLElement>('.bus-occurrences li')]
 const value = (r: Element) => r.querySelector('[role=timer] strong')!.textContent!
+function withEstimates(node: React.ReactElement) {
+  const r = render(node)
+  fireEvent.click(within(r.container).getByRole('checkbox',{name:'Inclure les passages estimés'}))
+  return r
+}
 const strictlyPositive = /^[1-9]\d* min$/
 
 describe('panneaux voyageurs des bus', () => {
   it('affiche une minute verte à chaque occurrence, se réveille sans clic, et distingue arrivée et départ', async () => {
     vi.setSystemTime(new Date('2026-11-19T05:50:00Z'))
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const [a,b] = buttons(container,'84'); fireEvent.click(b)
     const rows = opened(container); expect(rows).toHaveLength(73)
     expect(rows.map(r => r.querySelector('.bus-rank')!.textContent)).toEqual(Array.from({ length:73 },(_,i) => `${i+1}.`))
@@ -29,13 +34,13 @@ describe('panneaux voyageurs des bus', () => {
     expect(container.textContent).not.toMatch(/\b0 min|moins d.une minute|\bFCFA\b|temps réel/i)
   })
   it('conserve les deux listes CETUD (93/90), y compris les libellés répétés et le vrai terminus', () => {
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const [out,back] = buttons(container,'83'); fireEvent.click(out); expect(opened(container)).toHaveLength(93)
     const start = opened(container)[0].textContent; fireEvent.click(back); expect(opened(container)).toHaveLength(90)
     expect(opened(container)[0].textContent).not.toBe(start); expect(container.querySelectorAll('.bus-occurrences')).toHaveLength(1)
   })
   it('laisse Banoba sans minutes et maintient la grille de Fass Mbao sur sa propre variante, jamais sur Comico', () => {
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     for (const b of [...buttons(container,'85'), ...buttons(container,'58').slice(0,2)]) {
       expect(value(b)).toBe('—'); fireEvent.click(b); expect(opened(container)).toHaveLength(0)
       expect(container.querySelector('.bus-occurrences')!.textContent).not.toMatch(/Baye Ly Lac Rose|Terminus Fass Mbao/i)
@@ -44,14 +49,14 @@ describe('panneaux voyageurs des bus', () => {
     for (const [i,b] of variants.entries()) { expect(value(b)).toMatch(strictlyPositive); fireEvent.click(b); expect(opened(container)).toHaveLength(i ? 43 : 39) }
   })
   it.each([['74',14,/Bargny.*Colobane.*Jaxaay.*Keur Massar.*COCEHAS/i],['80',17,/Diamalaye.*Keur Massar.*Darou Thioub/i]] as const)('modélise uniquement les repères publiés de la %s', (code,n,route) => {
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const [out,back] = buttons(container,code); expect(value(out)).toMatch(strictlyPositive); expect(value(back)).toBe('—')
     fireEvent.click(out); expect(opened(container)).toHaveLength(n); expect(container.querySelector('.bus-occurrences')?.textContent).toMatch(route)
     expect(container.querySelector('.bus-occurrences-head')!.textContent).toContain(`${n} repères`)
     fireEvent.click(back); expect(opened(container)).toHaveLength(0); expect(container.querySelector('.bus-occurrences')!.textContent).toContain('Retour non confirmé')
   })
   it('filtre par numéro exact ou par arrêt, sépare TATA et AFTU et ne réutilise pas une grille homonyme', () => {
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const find = within(container).getByRole('searchbox'); expect(container.querySelectorAll('[data-family=aftu]')).toHaveLength(73)
     fireEvent.change(find,{target:{value:'84'}}); expect(container.querySelectorAll('[data-line-code]')).toHaveLength(1)
     expect(value(buttons(container,'84')[0])).toMatch(strictlyPositive)
@@ -62,7 +67,7 @@ describe('panneaux voyageurs des bus', () => {
     expect(opened(container)[0].textContent).toContain('Stade L.S.S'); expect(opened(container).at(-1)?.textContent).toContain('Mbarou Samba Dème')
   })
   it('ouvre TO1 pour son autre identifiant sans doubler les rangs ni emprunter le TAF TAF aéroport', () => {
-    const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="ddd" />)
     const box = within(container).getByRole('searchbox')
     for (const alias of ['TO1','DDD TAF_TAF_TO1','TAF TAF TO1']) {
       fireEvent.change(box,{ target:{ value:alias } }); expect(container.querySelectorAll('[data-line-code]')).toHaveLength(1)
@@ -73,14 +78,14 @@ describe('panneaux voyageurs des bus', () => {
     expect(container.textContent).toMatch(/AIBD/); expect(container.textContent).not.toMatch(/Palais 2/)
   })
   it('respecte la direction du texte quand le titre est dans l’autre sens et ne colle pas le texte sur une fiche en conflit', () => {
-    const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     fireEvent.click(buttons(container,'24')[1]); expect(opened(container)[0].textContent).toContain('Notaire'); expect(opened(container).at(-1)?.textContent).toContain('Université Cheikh Anta Diop')
     const [index,,body] = buttons(container,'1'); fireEvent.click(index); expect(opened(container)).toHaveLength(0)
     fireEvent.click(body); expect(opened(container).at(-1)?.textContent).toMatch(/HLM Grand Médine/)
   })
   it('met une borne avant l’ouverture, sans arc vert ni attente réseau; après fermeture, ne projette pas demain', () => {
     vi.setSystemTime(new Date('2026-11-19T05:20:00Z'))
-    const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
+    const { container } = withEstimates(<EstimatedLineScheduleBoard network="ddd" />)
     const [a,b] = buttons(container,'1'); expect(value(a)).toBe('Dès 05:30'); expect(value(b)).toBe('Dès 06:30')
     expect(a.querySelector('svg')).toBeNull()
     vi.setSystemTime(new Date('2026-11-19T22:30Z')); act(() => document.dispatchEvent(new Event('visibilitychange')))
@@ -102,7 +107,7 @@ describe('panneaux voyageurs des bus', () => {
 
 it('counts the seconds of both directions and stop occurrences; sleeps when hidden and resyncs to the actual wall clock', () => {
   vi.setSystemTime(new Date('2026-11-19T19:00:01Z'))
-  const { container, unmount } = render(<EstimatedLineScheduleBoard network="ddd" />)
+  const { container, unmount } = withEstimates(<EstimatedLineScheduleBoard network="ddd" />)
   const [a, b] = buttons(container, '1'); fireEvent.click(a)
   const time = (el: Element) => Number(el.querySelector('time')!.dateTime.match(/^PT(\d+)S$/)![1])
   const rows = [a, b, ...opened(container)], before = rows.map(time)
@@ -172,4 +177,17 @@ it('n’attribue à la 218 depuis Aéroport ni l’arrivée au dépôt ni un pas
   expect(note.querySelector('time, [role="timer"]')).toBeNull()
   expect(opened(container)).toHaveLength(1)
   fireEvent.click(buttons(container,'218')[2]); expect(container.querySelector('.bus-survey-note')).toBeNull()
+})
+
+it('présente les heures source par défaut, avec les colonnes non datées sans faux compteur', () => {
+  const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+  const toggle=within(container).getByRole('checkbox') as HTMLInputElement
+  expect(toggle.checked).toBe(false)
+  fireEvent.click(buttons(container,'84')[1]); expect(opened(container)).toHaveLength(73)
+  expect(opened(container)[0].textContent).toMatch(/Relevé non daté : 05:49/);expect(opened(container).at(-1)?.textContent).toContain('07:09')
+  expect(container.querySelector('.bus-occurrences time')).toBeNull()
+  fireEvent.click(buttons(container,'42').at(-1)!);expect(opened(container)).toHaveLength(68);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(10)
+  fireEvent.click(buttons(container,'73')[0]);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(3)
+  fireEvent.click(toggle);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(75)
+  fireEvent.click(toggle);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(3)
 })
