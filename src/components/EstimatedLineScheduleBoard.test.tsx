@@ -199,3 +199,16 @@ it('présente les heures source par défaut, avec les colonnes non datées sans 
   expect(opened(container)[51].querySelector('strong')?.textContent).toBe('École Boune')
   fireEvent.click(toggle);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(75)
 })
+
+it('affiche les arrêts TATA cités par SETER en dehors des rangs et sans en déduire le sens ou une heure', () => {
+  const {container} = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+  const view=within(container), query=view.getByRole('searchbox')
+  fireEvent.change(query,{target:{value:'Librairie Clairafrique'}})
+  expect(view.queryByText(/Arrêt cité par SETER/)).toBeNull()
+  fireEvent.click(view.getByRole('button',{name:'TATA', exact:true}))
+  const note=container.querySelector('[data-line-code="54"] details')!
+  expect(note.textContent).toContain('Librairie Clairafrique'); expect(note.closest('.bus-occurrences')).toBeNull()
+  expect(note.querySelectorAll('a')).toHaveLength(2); expect(note.querySelector('time,[role=timer]')).toBeNull()
+  fireEvent.change(query,{target:{value:'Rond-point Petersen'}})
+  for (const c of ['40','41','55']) expect(container.querySelector(`[data-line-code="${c}"] summary`)?.textContent).toContain('Petersen')
+})

@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
+import tataStops from '../data/tataNamedStops.json'
 import { BusSurveyNote } from './BusSurveyNote'
 import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { datedBusBoards, type BusBoardDirection, type BusFamily, type BusPassage } from '../domain/busPassageBoard'
@@ -78,6 +79,17 @@ export function EstimatedLineScheduleBoard(props: BoardProps) {
   return <BusLineScheduleBoard {...props} now={now} />
 }
 
+// SETER cites these stops by line, not by vehicle direction or stop rank.
+// Keep this information outside the two lists (and outside their clocks).
+function TataStopMentions({code}: {code: string}) {
+  const stops = tataStops.mentions.filter(m => m.lines.includes(code))
+  if (!stops.length) return null
+  return <details className="bus-survey-note"><summary>Arrêt cité par SETER : {stops.map(m => m.stop).join(', ')}</summary>
+    <p>La fiche de gare cite la ligne TATA {code}. Le sens, le quai et les heures du bus ne sont pas précisés.</p>
+    <p>{tataStops.sources.map((url,i) => <Fragment key={url}>{i > 0 && ' · '}<a href={url} target="_blank" rel="noreferrer">Colobane {i ? 'Sud' : 'Nord'}</a></Fragment>)}</p>
+  </details>
+}
+
 export function BusLineScheduleBoard({ network, published, now }: BoardProps & { now: number }) {
   const [source, setSource] = useState<'aftu' | 'tata'>('aftu')
   const [opened, setOpened] = useState('')
@@ -100,7 +112,7 @@ export function BusLineScheduleBoard({ network, published, now }: BoardProps & {
     const q = sheetCode ? fold(sheetCode) : requested
     const exactCode = sheetCode || groups.flat().some(l => code(l.code) === id) || /^\d+[ab]?$/.test(id)
     return groups.map(lines => lines.filter(l => !l.aliasOf && (!q || (exactCode ? code(l.code) === (sheetCode ? code(sheetCode) : id)
-      : fold(`${family} ${l.code}`).includes(q) || l.directions.some(d => [d.from, d.to, ...d.points].some(p => fold(p).includes(q)))))))
+      : fold(`${family} ${l.code}`).includes(q) || (family === 'tata' && lines === groups[1] && tataStops.mentions.some(m => m.lines.includes(l.code) && fold(m.stop).includes(q))) || l.directions.some(d => [d.from, d.to, ...d.points].some(p => fold(p).includes(q)))))))
   }, [groups, family, filter])
   const name = family.toUpperCase()
   return <section className="station-board bus-board" aria-label={`Affichage des lignes ${network === 'ddd' ? 'DDD' : 'AFTU / TATA'}`}>
@@ -119,6 +131,7 @@ export function BusLineScheduleBoard({ network, published, now }: BoardProps & {
           return <BusDirectionPanel key={key} d={d} sign={line.signs[i]} estimates={estimates} now={now} name={groupIndex === 0 ? line.code : `${name} ${line.code}`} open={opened === key}
             toggle={() => setOpened(opened === key ? '' : key)} id={`bus-${family}-${groupIndex}-${l}-${i}`} />
         })}
+        {groupIndex === 1 && family === 'tata' && <TataStopMentions code={line.code} />}
       </li>)}</ul>
     </Fragment> : null)}
   </section>

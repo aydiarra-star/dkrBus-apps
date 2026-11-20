@@ -62,6 +62,8 @@ jobs:
           cmp docs/passages-bus-par-ligne.md "$RUNNER_TEMP/bus-boards.md"
           node scripts/audit_bus_signs.mjs --dir "$RUNNER_TEMP/panneaux"
           diff -ru docs/panneaux "$RUNNER_TEMP/panneaux"
+          python -m scripts.audit_bus_gaps --boards "$RUNNER_TEMP/panneaux" --output "$RUNNER_TEMP/lacunes"
+          diff -ru docs/lacunes "$RUNNER_TEMP/lacunes"
           npm run audit:bus-screen
           node scripts/audit_passenger_transfers.mjs --at 2026-11-19T19:00 --markdown > "$RUNNER_TEMP/pieces.md"
           cmp docs/pieces-par-sens.md "$RUNNER_TEMP/pieces.md"
