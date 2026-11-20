@@ -187,6 +187,13 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(diamniadio.inbound?.headwayMinutes).toBe(8)
     expect(diamniadio.inboundAirport?.headwayMinutes).toBe(24)
     expect(diamniadio.inboundAirport).not.toBeNull()
+    // À 14:29 à Dakar, la mission partie d'AIBD à 14:23 atteint
+    // Diamniadio à 14:35 ; le départ suivant d'AIBD est à 14:47.
+    expect(diamniadio.inboundAirport!.clockLabel).toBe('14:35')
+    expect(diamniadio.inboundAirport!.minutes).toBe(6)
+    const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
+    expect(aibd.inbound!.clockLabel).toBe('14:47')
+    expect(aibd.inbound!.minutes).toBe(18)
     expect(Date.parse(diamniadio.inboundAirport!.nextDepartureAt))
       .toBeGreaterThan(Date.parse('2026-11-20T14:29:00.000Z'))
   })
