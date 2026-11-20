@@ -5,7 +5,7 @@ import { existingSheetHours } from './busSheetCatalog'
 
 const day = Date.parse('2026-11-19T00:00:00Z')
 const at = (time: string) => Date.parse(`2026-11-19T${time}Z`)
-describe('16A, grilles partielles du matin dans les deux sens', () => {
+describe('16A, tableaux par rang vers Palais et vers Malika', () => {
   const line = BUS_BOARD_LINES.ddd.find(l => l.code === '16A')!
   const [operator, origin, go, back] = line.directions
   it('ne relie ni le Palais 1, ni la 16B, ni une liste de même taille mais déplacée', () => {
@@ -19,7 +19,7 @@ describe('16A, grilles partielles du matin dans les deux sens', () => {
     for(const estimates of [true,false]) {
       const sign = compileSign(d,day,estimates)
       expect(sign.at(r,at(first)-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:at(first)}})
-      expect(sign.at(r,at(first)).passage.at).toBe(at(next))
+      expect(sign.at(r,at(first)).passage).toMatchObject({state:'active',at:at(next)})
       const limit = d.sourceHours!.weekday!.nextUntranscribedOrigin
       if(limit) expect(sign.at(r,at(limit))).toEqual({kind:'weekly',passage:{state:'unknown'}})
     }
@@ -50,15 +50,21 @@ it('57 : la grille AFTU ne passe pas à la ligne TATA de même numéro ni à un 
   }
 })
 
-it('57 vers Liberté 6 : à 19 h et jusqu’au dernier rang du week-end, sans prolonger après la fin', () => {
-  const go = BUS_BOARD_LINES.aftu.find(l => l.code === '57')!.directions[0]
-  const sat = Date.parse('2026-11-21T00:00Z')
-  for (const [date, hh, end] of [[day,'19:06','21:58'],[sat,'19:11','21:53']] as const) {
+// Last arrivals are independent readings of the terminal rows, not start + frequency.
+it.each([
+  ['ddd','16A',2,65,'19:04','22:57','19:09','22:47'],
+  ['ddd','16A',3,64,'19:03','22:55','19:20','22:57'],
+  ['aftu','57',0,56,'19:06','21:58','19:11','21:53'],
+  ['aftu','57',1,57,'19:07','21:51','19:05','21:59'],
+] as const)('%s %s variante %i : 19 h, dernière seconde et fin sans redémarrage', (family,code,side,rank,next,last,nextWE,lastWE) => {
+  const d = BUS_BOARD_LINES[family].find(l => l.code === code)!.directions[side]
+  for (const [date, hh, end] of [[day,next,last],[day + 2*86400000,nextWE,lastWE],[day + 3*86400000,nextWE,lastWE]] as const) {
     const instant = (t: string) => date + at(t) - day
-    const board = compileSign(go,date)
-    expect(board.at(56,instant('19:00')).passage.at).toBe(instant(hh))
-    expect(board.at(56,instant(end)-1000).passage.minutes).toBe(1)
-    expect(board.at(56,instant(end)).passage.state).toBe('finished')
+    const board = compileSign(d,date,true)
+    expect(board.at(rank,instant('19:00')).passage).toMatchObject({state:'active',at:instant(hh)})
+    expect(board.at(rank,instant(end)-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:instant(end)}})
+    expect(board.at(rank,instant(end))).toEqual({kind:'weekly',passage:{state:'finished'}})
+    expect(board.at(rank,instant('23:59')).passage.state).toBe('finished')
   }
 })
 
@@ -71,7 +77,7 @@ it.each([
     const grid = d.sourceHours!.weekday!
     expect(grid.ranks).toHaveLength(rank)
     const sign = compileSign(d,day,true)
-    expect(sign.at(rank,at(h)-1000).passage.at).toBe(at(h))
+    expect(sign.at(rank,at(h)-1000).passage).toMatchObject({state:'active',at:at(h)})
     if (grid.nextUntranscribedOrigin) expect(sign.at(rank,at('19:00')).passage.state).toBe('unknown')
   }
 })
@@ -80,6 +86,6 @@ it('30 depuis Colobane : deux rangs de même libellé ne sont pas la même minut
   const back = BUS_BOARD_LINES.aftu.find(l => l.code === '30')!.directions[1]
   expect(back.points.slice(10,12)).toEqual(['Allees Khalifa Ababacar Sy, 2750','Allees Khalifa Ababacar Sy, 2750'])
   const board = compileSign(back,day)
-  expect([11,12].map(r => board.at(r,at('07:13')).passage.at)).toEqual(['07:14','07:15'].map(at))
+  expect([11,12].map(r => board.at(r,at('07:13')).passage)).toMatchObject(['07:14','07:15'].map(t => ({state:'active',at:at(t)})))
   expect(board.at(74,at('22:32')).passage.state).toBe('finished')
 })

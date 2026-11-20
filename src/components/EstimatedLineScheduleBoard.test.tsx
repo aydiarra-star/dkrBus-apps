@@ -152,7 +152,7 @@ it('keeps the Patte d’Oie marker walk on the two nominated directions, without
 
 it('explains the departure and arrival at Thiaroye separately without a transfer countdown on either sheet', () => {
   const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
-  const note = () => container.querySelector('.bus-survey-note')
+  const note = () => container.querySelector('.bus-occurrences .bus-survey-note')
   fireEvent.click(buttons(container,'73')[0]); expect(note()?.textContent).toContain('après Cem Thiaroye')
   expect(note()?.querySelector('a')?.href).toMatch(/18051511-1$/)
   expect(within(note() as HTMLElement).getByRole('link', {name:'Grille de la 73 vers Thiaroye'}).getAttribute('href')).toMatch(/4256342-0$/)
@@ -205,7 +205,7 @@ it('affiche les arrêts TATA cités par SETER en dehors des rangs et sans en dé
   const view=within(container), query=view.getByRole('searchbox')
   fireEvent.change(query,{target:{value:'Librairie Clairafrique'}})
   expect(view.queryByText(/Arrêt cité par SETER/)).toBeNull()
-  fireEvent.click(view.getByRole('button',{name:'TATA', exact:true}))
+  fireEvent.click(view.getByRole('button',{name:/^TATA$/}))
   const note=container.querySelector('[data-line-code="54"] details')!
   expect(note.textContent).toContain('Librairie Clairafrique'); expect(note.closest('.bus-occurrences')).toBeNull()
   expect(note.querySelectorAll('a')).toHaveLength(2); expect(note.querySelector('time,[role=timer]')).toBeNull()

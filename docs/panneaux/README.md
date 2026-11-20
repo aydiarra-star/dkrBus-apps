@@ -4,8 +4,8 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 48 | 111 | 4 | 1322 | 752 | 690 | 52,19 % | 245 | 600 | 53 |
-| AFTU | 73 | 159 | 56 | 3584 | 1175 | 1102 | 30,75 % | 430 | 736 | 0 |
+| DDD | 48 | 111 | 4 | 1322 | 752 | 690 | 52,19 % | 374 | 600 | 53 |
+| AFTU | 73 | 159 | 56 | 3584 | 1175 | 1102 | 30,75 % | 487 | 736 | 0 |
 | TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
 **1792 / 4906 = 36,53 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
@@ -20,8 +20,8 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 16281 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
-| AFTU | 34895 | 14927 | 14927 | 0 | 91 | 0 | 0 | 253767 | 186981 |
+| DDD | 23507 | 11312 | 9608 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
+| AFTU | 38429 | 18404 | 18404 | 0 | 91 | 0 | 0 | 253767 | 186981 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. ³ Uniquement les cellules d’une grille de vendredi explicitement distincte ; ailleurs la grille « semaine » inclut le vendredi. Dans `heures.csv`, `monday-thursday` ne vaut jamais pour `friday`. Les heures de service 24:xx et 25:xx tombent le lendemain civil. Une case vide à 19 h n’est pas zéro minute.
