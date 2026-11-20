@@ -54,6 +54,7 @@ type UploadSession = Record<string, unknown> & {
   manifest_text?: string;
   imported_by: string;
   expires_at: string;
+  cleanup_lease_until?: string | null;
   state: string;
 };
 
@@ -111,13 +112,14 @@ async function markSession(
   let query = admin.from(UPLOAD_TABLE).update({
     state,
     finalized_at: state === "FINALIZED" ? now : null,
+    cleanup_lease_until: null,
   }).eq("upload_id", uploadId);
   // Never shorten the expiry of a failed session: the signed token may create
   // a TUS URL near the end of its two-hour lifetime, and that URL can remain
   // usable for up to 24 more hours. The session expiry includes both windows.
   query = state === "FAILED"
     ? query.eq("state", "UPLOAD_PENDING")
-    : query.in("state", ["UPLOAD_PENDING", "FAILED"]);
+    : query.in("state", ["UPLOAD_PENDING", "FAILED", "CLEANUP_PENDING"]);
   const { data: updated, error } = await query.select("upload_id").maybeSingle();
   if (error) return false;
   if (updated) return true;
@@ -146,21 +148,46 @@ async function cleanupSession(
   // the object/session before that final resumable URL window and grace period end.
   if (!isUploadSessionExpired(session.expires_at)) return false;
 
+  // Claim cleanup atomically in PostgreSQL before inspecting references or
+  // deleting Storage objects. This state transition serializes with the
+  // finalizer's expiry-extension RPC: whichever obtains the row first wins.
+  const { data: claimed, error: claimError } = await admin.rpc(
+    "claim_dakar_gtfs_upload_session_cleanup",
+    { p_upload_id: session.upload_id, p_lease_seconds: 600 },
+  );
+  if (claimError || claimed !== true) return false;
+
+  // Re-read the row after claiming it; never use a stale pre-claim snapshot
+  // to authorize deletion or to decide which object paths belong to the session.
+  const { data: currentSession, error: currentError } = await admin
+    .from(UPLOAD_TABLE)
+    .select("upload_id, dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256, expires_at, cleanup_lease_until, state")
+    .eq("upload_id", session.upload_id)
+    .eq("state", "CLEANUP_PENDING")
+    .maybeSingle();
+  if (currentError || !currentSession) return false;
+
+  const claimedSession = currentSession as UploadSession;
+  if (!isUploadSessionExpired(claimedSession.expires_at) ||
+      typeof claimedSession.cleanup_lease_until !== "string") {
+    return false;
+  }
+
   const { data: existing, error: lookupError } = await admin
     .from(STAGED_TABLE)
     .select("archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256")
-    .eq("dataset_id", session.dataset_id)
+    .eq("dataset_id", claimedSession.dataset_id)
     .maybeSingle();
   if (lookupError) return false;
 
   const references = classifyStagingObjectReferences(
     existing,
-    session.archive_object_path,
-    session.manifest_object_path,
+    claimedSession.archive_object_path,
+    claimedSession.manifest_object_path,
   );
   if (references === "BOTH") {
-    if (isMatchingStagedRow(existing as Record<string, unknown>, session)) {
-      return await markSession(admin, session.upload_id, "FINALIZED");
+    if (isMatchingStagedRow(existing as Record<string, unknown>, claimedSession)) {
+      return await markSession(admin, claimedSession.upload_id, "FINALIZED");
     }
     return false;
   }
@@ -168,22 +195,29 @@ async function cleanupSession(
 
   const cleaned = await cleanupUploadedObjects(
     (paths) => admin.storage.from(BUCKET).remove(paths),
-    [session.archive_object_path, session.manifest_object_path],
+    [claimedSession.archive_object_path, claimedSession.manifest_object_path],
   );
   if (!cleaned) return false;
 
-  const { error: deleteError } = await admin
+  // Match the cleanup lease as well as the state. If a slow cleanup attempt
+  // outlived its lease and another invocation reclaimed it, the older attempt
+  // must not delete the newer worker's session record.
+  const { data: deleted, error: deleteError } = await admin
     .from(UPLOAD_TABLE)
     .delete()
-    .eq("upload_id", session.upload_id);
-  return !deleteError;
+    .eq("upload_id", claimedSession.upload_id)
+    .eq("state", "CLEANUP_PENDING")
+    .eq("cleanup_lease_until", claimedSession.cleanup_lease_until)
+    .select("upload_id")
+    .maybeSingle();
+  return !deleteError && Boolean(deleted);
 }
 
 async function cleanupExpiredSessions(admin: AdminClient): Promise<void> {
   const { data: sessions, error } = await admin
     .from(UPLOAD_TABLE)
-    .select("upload_id, dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256, expires_at, state")
-    .in("state", ["UPLOAD_PENDING", "FAILED"])
+    .select("upload_id, dataset_id, archive_object_path, manifest_object_path, archive_sha256, archive_bytes, manifest_sha256, expires_at, cleanup_lease_until, state")
+    .in("state", ["UPLOAD_PENDING", "FAILED", "CLEANUP_PENDING"])
     .lt("expires_at", new Date().toISOString())
     .order("expires_at", { ascending: true })
     .limit(25);
