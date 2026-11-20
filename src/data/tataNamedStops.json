@@ -1,13 +1,13 @@
 {
-  "publisher": "SETER",
-  "context": "Arrêts de bus TATA cités dans les fiches voyageurs de Colobane",
-  "sources": [
-    "https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/",
-    "https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/"
-  ],
+  "sources": {
+    "north": { "label": "Colobane Nord", "url": "https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/" },
+    "south": { "label": "Colobane Sud", "url": "https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/" },
+    "report": { "label": "Le Soleil · 2 août 2026", "url": "https://lesoleil.sn/actualites/societe-fait-divers/dakar-vide-de-son-monde/" }
+  },
   "mentions": [
-    { "stop": "Gare de Colobane", "lines": ["60"] },
-    { "stop": "Rond-point Petersen", "lines": ["55", "41", "40"] },
-    { "stop": "Librairie Clairafrique", "lines": ["54"] }
+    { "stop": "Gare de Colobane", "lines": ["60"], "title": "Arrêt cité par SETER", "sources": ["north", "south"] },
+    { "stop": "Rond-point Petersen", "lines": ["55", "41", "40"], "title": "Arrêt cité par SETER", "sources": ["north", "south"] },
+    { "stop": "Librairie Clairafrique", "lines": ["54"], "title": "Arrêt cité par SETER", "sources": ["north", "south"] },
+    { "stop": "Devant l’immeuble EMG", "lines": ["67"], "title": "Attente rapportée", "destinationSought": "Ouakam", "sources": ["report"], "note": "Dans le reportage du Magal, deux voyageurs attendent la 67 pour Ouakam. L’attente décrite n’est ni un passage observé ni une fréquence ; le rang et la desserte actuelle ne sont pas confirmés." }
   ]
 }

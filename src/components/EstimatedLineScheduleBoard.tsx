@@ -79,15 +79,15 @@ export function EstimatedLineScheduleBoard(props: BoardProps) {
   return <BusLineScheduleBoard {...props} now={now} />
 }
 
-// SETER cites these stops by line, not by vehicle direction or stop rank.
-// Keep this information outside the two lists (and outside their clocks).
+// An interchange mention or a passenger waiting for a bus is not a ranked
+// boarding call. Keep source and scope attached even when codes coincide.
+const mentionSources: Readonly<Record<string, { label: string; url: string }>> = tataStops.sources
 function TataStopMentions({code}: {code: string}) {
-  const stops = tataStops.mentions.filter(m => m.lines.includes(code))
-  if (!stops.length) return null
-  return <details className="bus-survey-note"><summary>Arrêt cité par SETER : {stops.map(m => m.stop).join(', ')}</summary>
-    <p>La fiche de gare cite la ligne TATA {code}. Le sens, le quai et les heures du bus ne sont pas précisés.</p>
-    <p>{tataStops.sources.map((url,i) => <Fragment key={url}>{i > 0 && ' · '}<a href={url} target="_blank" rel="noreferrer">Colobane {i ? 'Sud' : 'Nord'}</a></Fragment>)}</p>
-  </details>
+  return <>{tataStops.mentions.filter(m => m.lines.includes(code)).map(m =>
+    <details key={m.stop} className="bus-survey-note"><summary>{m.title} : {m.stop}</summary>
+      <p>{m.note ?? `La fiche de gare cite la ligne TATA ${code}. Le sens, le quai et les heures du bus ne sont pas précisés.`}</p>
+      <p>{m.sources.map((id,i) => <Fragment key={id}>{i > 0 && ' · '}<a href={mentionSources[id].url} target="_blank" rel="noreferrer">{mentionSources[id].label}</a></Fragment>)}</p>
+    </details>)}</>
 }
 
 export function BusLineScheduleBoard({ network, published, now }: BoardProps & { now: number }) {

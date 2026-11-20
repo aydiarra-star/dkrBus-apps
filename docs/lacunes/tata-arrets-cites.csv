@@ -1,6 +1,7 @@
-famille,ligne,arrêt_cité,sens,rang,horaire,source_nord,source_sud
-tata,60,Gare de Colobane,non indiqué,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/,https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
-tata,55,Rond-point Petersen,non indiqué,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/,https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
-tata,41,Rond-point Petersen,non indiqué,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/,https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
-tata,40,Rond-point Petersen,non indiqué,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/,https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
-tata,54,Librairie Clairafrique,non indiqué,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/,https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+famille,ligne,arrêt_cité,type_de_mention,destination_recherchée,sens_du_bus,rang,horaire,sources
+tata,60,Gare de Colobane,Arrêt cité par SETER,,non établi,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/ | https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+tata,55,Rond-point Petersen,Arrêt cité par SETER,,non établi,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/ | https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+tata,41,Rond-point Petersen,Arrêt cité par SETER,,non établi,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/ | https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+tata,40,Rond-point Petersen,Arrêt cité par SETER,,non établi,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/ | https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+tata,54,Librairie Clairafrique,Arrêt cité par SETER,,non établi,non indiqué,aucune heure,https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/ | https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/
+tata,67,Devant l’immeuble EMG,Attente rapportée,Ouakam,non établi,non indiqué,aucune heure,https://lesoleil.sn/actualites/societe-fait-divers/dakar-vide-de-son-monde/

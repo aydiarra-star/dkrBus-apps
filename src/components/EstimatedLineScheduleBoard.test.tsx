@@ -212,3 +212,14 @@ it('affiche les arrêts TATA cités par SETER en dehors des rangs et sans en dé
   fireEvent.change(query,{target:{value:'Rond-point Petersen'}})
   for (const c of ['40','41','55']) expect(container.querySelector(`[data-line-code="${c}"] summary`)?.textContent).toContain('Petersen')
 })
+
+it('distingue une attente rapportée devant EMG d’un passage observé de la 67', () => {
+  const {container}=render(<EstimatedLineScheduleBoard network="aftu_tata" />), view=within(container)
+  fireEvent.click(view.getByRole('button',{name:/^TATA$/}))
+  fireEvent.change(view.getByRole('searchbox'),{target:{value:'immeuble EMG'}})
+  expect(container.querySelectorAll('[data-line-code]')).toHaveLength(1)
+  const note=container.querySelector('[data-line-code="67"] details')!
+  expect(note.querySelector('a')?.hostname).toBe('lesoleil.sn'); expect(note.textContent).toContain('pour Ouakam')
+  expect(note.textContent).toContain('ni un passage observé'); expect(note.querySelector('time,[role=timer]')).toBeNull()
+  expect(note.closest('.bus-occurrences')).toBeNull()
+})

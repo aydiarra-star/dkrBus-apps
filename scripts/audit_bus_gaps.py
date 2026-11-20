@@ -1,7 +1,8 @@
 """Make the work queue from the passenger sign census, NOT from route numbers.
 
 One row per variant, including blanks, and a separate list of TATA stop
-mentions for which no direction, rank or timetable has been established.
+mentions without ranked calls or timetables. A desired destination in a
+report is not the direction of an observed vehicle.
 """
 import argparse
 import csv
@@ -51,8 +52,11 @@ def generate(boards, output, evidence):
         for c in m['lines']:
             if c not in observed_codes:
                 raise ValueError(f'TATA {c}: mention sans ligne du catalogue')
-            refs.append(['tata',c,m['stop'],'non indiqué','non indiqué','aucune heure',*evidence['sources']])
-    write(output / 'tata-arrets-cites.csv',['famille','ligne','arrêt_cité','sens','rang','horaire','source_nord','source_sud'], refs)
+            urls = [evidence['sources'][k]['url'] for k in m['sources']]
+            refs.append(['tata', c, m['stop'], m['title'], m.get('destinationSought', ''), 'non établi',
+                         'non indiqué', 'aucune heure', ' | '.join(urls)])
+    write(output / 'tata-arrets-cites.csv', ['famille','ligne','arrêt_cité','type_de_mention','destination_recherchée',
+          'sens_du_bus','rang','horaire','sources'], refs)
     print(f'{len(queue)} fiches hors alias ; {len(refs)} mentions TATA non ventilées (aucune ajoutée au dénominateur).')
 
 
