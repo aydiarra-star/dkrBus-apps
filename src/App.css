@@ -2019,6 +2019,11 @@ button:disabled { cursor: not-allowed; }
 }
 .station-board-passage { min-width: 84px; }
 .station-board-passage > small { white-space: nowrap; }
+.station-board-passage-stack { display: grid; justify-items: end; gap: 5px; min-width: 0; }
+.station-board-mission { display: grid; justify-items: end; gap: 1px; }
+.station-board-mission-label { color: var(--muted); font-size: 8.5px; font-weight: 700; line-height: 1.25; text-align: right; white-space: nowrap; }
+.station-board-passage-stack > .station-board-passage,
+.station-board-mission > .station-board-passage { min-width: 84px; }
 .station-board-footnote {
   margin: 0;
   padding: 0 2px;
