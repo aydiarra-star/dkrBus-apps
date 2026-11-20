@@ -28,6 +28,7 @@ import {
   sanitizeManifest,
   sha256Hex,
   signedTusHeaders,
+  tusStorageSecurityConfirmed,
   validManifest,
 } from "./upload.ts";
 
@@ -656,6 +657,12 @@ Deno.serve(async (req: Request) => {
     return reply(503, { error: "DAKAR_BUS_PROJECT_CONFIGURATION_INVALID" }, cors);
   }
   if (!SERVICE_ROLE_KEY) return reply(503, { error: "SERVER_CONFIGURATION_MISSING" }, cors);
+  // GHSA-8rrf-w776-x75g affected signed TUS uploads through Storage 1.80.1.
+  // The project Storage version is not readable from the available metadata,
+  // so the protocol stays disabled unless an operator explicitly confirms 1.80.2+.
+  if (!tusStorageSecurityConfirmed(Deno.env.get("DAKAR_GTFS_TUS_STORAGE_SECURITY_CONFIRMED"))) {
+    return reply(503, { error: "SIGNED_TUS_STORAGE_VERSION_NOT_VERIFIED" }, cors);
+  }
 
   const contentType = req.headers.get("Content-Type") ?? "";
   if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {

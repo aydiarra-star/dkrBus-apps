@@ -19,6 +19,7 @@ import {
   sanitizeManifest,
   sha256Hex,
   signedTusHeaders,
+  tusStorageSecurityConfirmed,
   uploadSessionExpiryAfterTokenIssuedAt,
   validManifest,
 } from "./upload.ts";
@@ -273,6 +274,17 @@ Deno.test("reserves an issuance safety margin before requesting the signed token
   if (initialExpiry - requestStartedAt !==
       SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS + UPLOAD_SESSION_TTL_MS) {
     throw new Error("The pre-request session expiry must include the issuance safety margin");
+  }
+});
+
+Deno.test("keeps signed TUS disabled unless Storage 1.80.2+ is explicitly confirmed", () => {
+  for (const value of [undefined, "", "false", "TRUE", "1", " true"]) {
+    if (tusStorageSecurityConfirmed(value)) {
+      throw new Error(`An unconfirmed Storage version enabled signed TUS: ${String(value)}`);
+    }
+  }
+  if (!tusStorageSecurityConfirmed("true")) {
+    throw new Error("An explicit Storage security confirmation was not recognized");
   }
 });
 

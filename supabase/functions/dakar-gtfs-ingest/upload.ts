@@ -14,6 +14,11 @@ export const SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS = 10 * 60 * 1000;
 export const UPLOAD_SESSION_TTL_MS =
   SIGNED_UPLOAD_TOKEN_TTL_MS + TUS_UPLOAD_URL_TTL_MS + UPLOAD_CLEANUP_GRACE_MS;
 
+/** Fail closed until the hosted Storage service is confirmed patched for signed TUS uploads. */
+export function tusStorageSecurityConfirmed(value: string | undefined): boolean {
+  return value === "true";
+}
+
 export function signedTusHeaders(token: string): Record<string, string> {
   if (typeof token !== "string" || token.length === 0) {
     throw new RangeError("SIGNED_UPLOAD_TOKEN_REQUIRED");
