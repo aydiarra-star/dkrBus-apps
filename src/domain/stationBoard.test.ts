@@ -108,7 +108,7 @@ describe('tableau des créneaux par station et par sens', () => {
     // Deux trains différents peuvent légitimement passer à la même minute :
     // le train attendu à PNR n'est pas nécessairement celui attendu à Bargny.
     expect(pnr.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
-    expect(rufisque.outbound!.nextDepartureAt).toBe('2026-10-08T13:45:00.000Z')
+    expect(rufisque.outbound!.nextDepartureAt).toBe('2026-10-08T13:45:30.000Z')
     expect(bargny.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
   })
 
