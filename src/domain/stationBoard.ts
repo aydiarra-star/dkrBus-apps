@@ -160,7 +160,9 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
       stop,
       offsetFromOriginMin: fromOrigin,
       offsetFromDestinationMin: fromDestination,
-      outbound: index === stops.length - 1 ? null : outbound,
+      // À AIBD, conserver le passage aller : il représente l'arrivée
+      // du prochain train prolongé depuis Dakar (et non un départ local).
+      outbound: index === stops.length - 1 && line.network !== 'ter' ? null : outbound,
       inbound: index === 0 ? null : inbound,
       ...(index === terDiamniadioIndex ? { outboundAirport, inboundAirport } : {}),
     }
