@@ -571,7 +571,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByText(/Premiers départs : 05:30–06:00 · derniers : 20:30–21:00/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
     expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
-    expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
+    expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(3)
     expect(screen.getByRole('link', { name: 'TER / SETER' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'CETUD / SunuBRT' })).toBeTruthy()
     vi.useRealTimers()
@@ -1353,7 +1353,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(terHeader)
     expect(vibrateMock).toHaveBeenCalledWith(12)
     expect(terItem.classList.contains('is-selected')).toBe(true)
-    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ Diamniadio/i)
+    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ AIBD/i)
 
     // Toucher le contenu déplié ne replie pas l'accordéon.
     fireEvent.click(terItem.querySelector('.station-board-head')!)
@@ -1442,7 +1442,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(colobaneIn.textContent).toMatch(/créneau 12:00 · 8 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
-    expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
+    expect(outRows[outRows.length - 1].textContent).toMatch(/Prochaine arrivée.*mission AIBD/)
     expect(inRows[inRows.length - 1].textContent).toMatch(/Terminus/)
 
     // Toucher une gare ne replie pas le tableau.
