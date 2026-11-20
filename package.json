@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:routing": "vitest run src/routing",
     "audit:bus-boards": "node scripts/audit_bus_boards.mjs",
+    "audit:bus-screen": "node scripts/audit_bus_sign_dom.mjs",
     "audit:bus-signs": "node scripts/audit_bus_signs.mjs",
     "audit:bus-day": "node scripts/audit_bus_day.mjs",
     "audit:bus": "node scripts/audit_bus_networks.mjs",

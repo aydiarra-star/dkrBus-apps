@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { existingSheetHours } from './busSheetCatalog'
 import { BUS_BOARD_LINES } from './busBoardCatalog'
 import { gridAt, sourceDay, sourceIssue, sourcePassage, type SourceHours } from './busSourceHours'
 const day = Date.parse('2026-11-19T00:00Z'), at = (t:string) => Date.parse(`2026-11-19T${t}Z`)
@@ -33,6 +34,11 @@ describe('cellules de fiches, distinctes des modèles',()=>{
     expect(sourcePassage(toColobane,52,at('05:09:00'))).toMatchObject({at:at('05:16')})
     expect(sourcePassage(toColobane,52,at('05:35')).state).toBe('unknown')
     expect(sourcePassage(dirs('aftu','75')[1],15,at('19:00')).state).toBe('unknown')
+  })
+  it('les colonnes de la 65 sont indépendantes du modèle et protégées contre un décalage de rang',()=>{
+    const [d] = sheet('aftu','65')
+    expect(existingSheetHours('aftu','65',{...d,clock:null})?.weekday).toEqual(d.sourceHours?.weekday)
+    expect(existingSheetHours('aftu','65',{...d,points:[...d.points].reverse()})).toBeUndefined()
   })
   it('Colobane : deux lectures indépendantes du matin, pas un transfert calculé',()=>{
     const [toJaxaay,toColobane]=dirs('aftu','65'),fromColobane=dirs('aftu','75')[1]

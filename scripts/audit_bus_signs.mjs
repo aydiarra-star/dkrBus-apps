@@ -37,21 +37,43 @@ try {
   const load=p=>app.ssrLoadModule(p), inventory=await busInventory(load)
   const {BUS_BOARD_LINES}=await load('/src/domain/busBoardCatalog.ts'),{compileSign}=await load('/src/domain/busSignReading.ts'),{sourceIssue}=await load('/src/domain/busSourceHours.ts')
   const {datedBusBoards,boardDay}=await load('/src/domain/busPassageBoard.ts'), {dakarNetwork}=await load('/src/routing/dakar.ts')
+  const {TATA_2020_ADDITIONS}=await load('/src/data/tataBoardReview.ts')
   for (const [family,lines] of Object.entries(BUS_BOARD_LINES)) {
     const inv=inventory.lines.filter(l=>l.network===family), t=summary[family]=blank(), ranks=perFamily[family]=[head], desc=byFamily[family]=[]
     assert.deepEqual(lines.map(l=>l.code).sort(),inv.map(l=>l.code).sort(),`Inventaire divergent: ${family}`)
     // Static app on this date, not the user's unpublished edition, nor GTFS 2023.
     const dated=datedBusBoards(dakarNetwork.patterns,family,day)
     assert.equal(dated.length,0,'Nouvelle édition locale datée : comptabiliser ses identifiants propres, sans les projeter par numéro')
+    // Also check in the reverse direction: a directional file can otherwise
+    // disappear from the catalogue while every REMAINING panel still passes.
+    for (const entry of inv) for (const e of entry.evidence) {
+      if (!e.labels?.length || !['directional-sheet','owner-sequence'].includes(e.kind)) continue
+      const side = {outbound:'Aller',inbound:'Retour'}[e.side]
+      const matches = lines.find(l=>l.code===entry.code).directions.filter(d => (!side || d.label.startsWith(side) || d.label==='Circuit') && sha(d.points)===sha(e.labels))
+      assert(matches.length, `${family} ${entry.code} ${e.side}: liste ${e.source} non raccordée (ordre exact requis)`)
+      if(e.sourceTimes) assert(matches.some(d=>d.sourceHours?.samples?.some(s=>s.times.length===e.labels.length && sha(s.times)===sha(e.sourceTimes))), `${e.source}: heures présentes mais non raccordées`)
+    }
     for(const l of lines){
       t.identities++;const two=new Set(),twoWeekly=new Set()
       for(const [idx,d] of l.directions.entries()){
         const id=`${l.key}/${idx+1}`,h=d.sourceHours, m=d.clock, n=d.points.length, label=d.label, side=label.split(' · ')[0]
-        const hit=inv.find(r=>r.code===l.code).evidence.find(e=>e.labels && JSON.stringify(e.labels)===JSON.stringify(d.points))
+        const matching=inv.find(r=>r.code===l.code).evidence.filter(e=>e.labels && JSON.stringify(e.labels)===JSON.stringify(d.points))
+        const hit=matching.find(e=>e.source.endsWith('.json'))??matching[0]
         const fileFor = key => !key ? catalogueFile : key.includes('PUBLIC_LINE_CATALOG') ? 'src/domain/publicBusLineCatalog.ts'
           : ['passengerLineSheets','bidirectionalBusLines'].includes(key) ? `src/domain/${key}.ts` : `src/data/${key}${key.endsWith('.json')?'':'.ts'}`
-        const orderFile=h?.file.includes('/bus-sheets/')?h.file:d.label.includes('Maristes')?'src/data/ddd12DirectionSheets.ts'
-          :d.label.includes('RN 1')?'src/data/ddd311BoardSheets.ts':label.includes('2020')?'src/data/tataBoardReview.ts':fileFor(hit?.source)
+        const orderFile = (() => {
+          if (!n) return catalogueFile
+          if (h?.file.includes('/bus-sheets/')) return h.file
+          if (family==='tata') return d.pointKind==='secteurs' || TATA_2020_ADDITIONS[l.code] ? 'src/data/tataBoardReview.ts' : 'src/data/tata-lines.json'
+          if (family==='ddd') {
+            if (label.includes('Maristes')) return 'src/data/ddd12DirectionSheets.ts'
+            if (label.includes('RN 1')) return 'src/data/ddd311BoardSheets.ts'
+            if (l.code==='319') return idx===0 ? 'src/data/busBoardCallSheets.ts' : 'src/data/mobility-lines.json'
+            if (label.includes('fiche détaillée') || (l.code==='23' && label.includes('Gare Palais'))) return 'src/data/dddSecondaryBoardSheets.ts'
+            if (l.code==='501') return 'src/data/ddd501ProjectSequence.ts'
+          }
+          return fileFor(hit?.source)
+        })()
         const where=`${h?.file??orderFile} : ${id} ${label} (${d.from} → ${d.to})`
         assert(d.source?.trim() && d.from?.trim() && d.to?.trim(),`${where} : source ou axe absent`)
         await readFile(orderFile)
@@ -121,13 +143,14 @@ try {
     md.push('',`**${ok} / ${all} = ${pct(ok,all)}** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **${Object.values(summary).reduce((n,t)=>n+t.occurrences,0)}**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.`, '',
       '¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.','',
       '**Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.','',
-      'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés.','')
+      'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations.','')
     md.push('### Cellules par type de source','',
       '| Famille | Grille semaine | Samedi | Dimanche | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |',
       '|---|---:|---:|---:|---:|---:|---:|---:|---:|')
     for (const [f,t] of Object.entries(summary)) md.push(`| ${f.toUpperCase()} | ${[...t.printed,t.sampleCells,t.observed,t.dated,t.modelCells,t.optionalCells].join(' | ')} |`)
     md.push('','¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. Une case vide à 19 h n’est pas zéro minute.','',
-      '[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires [ne sont pas une liste actuelle des services](../bilan-bus-voyageurs.md). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.','')
+      'Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fournies utilisables ni des observations. Voir `src/data/aftu-86-directions.json` : départ inconnu et axe à confirmer. Aucune n’est affichée ou employée pour estimer un passage.', '',
+      '[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires ne sont pas une liste actuelle des services. [19 codes DDD uniquement dans ces ZIP, terminus et rangs par variante, dont les deux groupes de la 323 sans appels joints](../../data/bus-review/exchange-call-comparison.json). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.','')
     for(const [f,t] of Object.entries(summary)){
       md.push(`## ${f.toUpperCase()}`,'',`Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **${t.twoLists.join(', ')||'aucune'}**. Deux sens avec au moins un rang décomptable en semaine : **${t.twoWeekly.join(', ')||'aucun'}**.`, '', `Rangs d’arrêt exclus : ${Object.entries(t.reasons).map(([why,n])=>`${why} : ${n}`).join(' ; ')||'aucun rang classé arrêt'}.`, '', '| Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |','|---|---|---|---|---:|---:|---:|---|')
       for(const row of byFamily[f]) md.push('| '+row.map(c=>String(c).replaceAll('|','\\|')).join(' | ')+' |');md.push('');await save(f+'.csv',csv(perFamily[f]))

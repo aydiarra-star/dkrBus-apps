@@ -14,7 +14,7 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, samedi 21 et dimanc
 
 **Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.
 
-Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés.
+Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations.
 
 ### Cellules par type de source
 
@@ -26,7 +26,9 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. Une case vide à 19 h n’est pas zéro minute.
 
-[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires [ne sont pas une liste actuelle des services](../bilan-bus-voyageurs.md). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.
+Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fournies utilisables ni des observations. Voir `src/data/aftu-86-directions.json` : départ inconnu et axe à confirmer. Aucune n’est affichée ou employée pour estimer un passage.
+
+[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires ne sont pas une liste actuelle des services. [19 codes DDD uniquement dans ces ZIP, terminus et rangs par variante, dont les deux groupes de la 323 sans appels joints](../../data/bus-review/exchange-call-comparison.json). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.
 
 ## DDD
 

@@ -104,7 +104,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { estimatedFrequencyReference, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
+import { estimatedFrequencyReference, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { boardLinesForNetwork, buildStationBoard, type StationBoard } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
 import {
@@ -656,13 +656,8 @@ function App() {
     for (const entry of referencePassages) {
       if (entry.passage) deadlines.push(entry.passage.nextDepartureAt)
     }
-    // Les cartes DDD, AFTU et TATA utilisent le même compte à rebours visuel.
-    for (const id of ['ddd', 'aftu_tata'] as const) {
-      const passage = estimatedNextPassage(id, countdownNow)
-      if (passage) deadlines.push(passage.nextDepartureAt)
-    }
     return deadlines
-  }, [journey.search, referencePassages, countdownNow])
+  }, [journey.search, referencePassages])
 
   useEffect(() => {
     const delay = nextCountdownTickDelay(countdownDeadlines, countdownNow)
@@ -2305,7 +2300,7 @@ function ExploreMobilityCountdowns({
           const network = NETWORK_REFERENCE_DATA[id]
           const passage = id === 'ter' || id === 'brt'
             ? nextReferencePassage(network.officialFrequencies, now)
-            : estimatedNextPassage(id, now)
+            : null
           const isSelected = selectedNetwork === id
           return (
             <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
@@ -2316,14 +2311,15 @@ function ExploreMobilityCountdowns({
                 aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
-                <span className={`network-summary-dot is-referenced${passage && (!('status' in passage) || passage.status === 'RUNNING') ? ' is-counting' : ''}`} aria-hidden="true" />
+                <span className={`network-summary-dot is-referenced${passage?.status === 'RUNNING' ? ' is-counting' : ''}`} aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && id !== 'ddd' && network.label !== network.shortName && (
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
-                <ReferencePassage passage={passage} now={now} network={id} />
+                {id === 'ter' || id === 'brt' ? <ReferencePassage passage={passage} now={now} network={id} />
+                  : <span className="network-summary-passage is-undeclared"><strong>Par arrêt</strong><small>Voir les lignes</small></span>}
               </button>
               {isSelected && (
                 <div className="network-summary-detail">
@@ -2343,13 +2339,13 @@ function ExploreMobilityCountdowns({
 /** The origin's service window, not the calendar date of an offset at this
  * station, decides whether a late running slot is still on the sign. */
 function ReferencePassage({ passage, now, network, terminus }: {
-  passage: NextPassage | ReturnType<typeof estimatedNextPassage>; now: number; network?: NetworkId; terminus?: boolean
+  passage: NextPassage | null; now: number; network?: NetworkId; terminus?: boolean
 }) {
-  const status = passage && 'status' in passage ? passage.status : undefined
-  const active = passage && (!status || status === 'RUNNING')
+  const status = passage?.status
+  const active = passage && passage.status === 'RUNNING'
   const upcoming = status === 'BEFORE_SERVICE', clock = passage?.nextDepartureAt.slice(11,16)
-  const missing = network === 'ddd' || network === 'aftu_tata' ? 'Voir les lignes' : terminus ? 'Terminus' : 'Aucun créneau déclaré'
-  const caption = !passage ? missing : !status ? 'Modèle réseau' : active || upcoming ? `créneau ${clock} · ${passage.headwayMinutes} min`
+  const missing = terminus ? 'Terminus' : 'Aucun créneau déclaré'
+  const caption = !passage ? missing : active || upcoming ? `créneau ${clock} · ${passage.headwayMinutes} min`
     : `Prochain créneau : ${formatJourneyDate(passage.nextDepartureAt.slice(0,10))} à ${clock}`
   return <span className={`network-summary-passage${network ? '' : ' station-board-passage'}${active ? '' : !passage ? ' is-undeclared' : upcoming ? ' is-upcoming' : ' is-finished'}`} role="timer" aria-live="off">
     <strong>{active ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : !passage ? terminus ? 'Terminus' : '—' : upcoming ? `Dès ${clock}` : 'Fin de service'}</strong>
