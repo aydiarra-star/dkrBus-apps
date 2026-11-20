@@ -8,11 +8,12 @@
  * Diamniadio ↔ AIBD. Le BRT conserve son calcul de référence (distance à vol
  * d'oiseau / vitesse commerciale + arrêts). Les deux sens sont distincts.
  *
- * La phase exacte de la grille au départ de chaque terminus n'est pas
- * déclarée publiquement : les créneaux du sens retour projettent la même
- * grille depuis le terminus opposé, sans inventer de décalage. Ce que ce
- * module produit reste un horaire théorique issu d'une fréquence — jamais
- * une position de véhicule, jamais un retard constaté, jamais une promesse.
+ * Les grilles sont propagées depuis le terminus de chaque mission :
+ * Dakar pour l'aller du tronc commun, Diamniadio pour le retour tous trains,
+ * et AIBD pour les missions aéroport au retour. Les offsets cumulés TER
+ * proviennent des plages de parcours conservées dans terTravelTimes.ts.
+ * Ce module produit un horaire théorique issu d'une fréquence — jamais une
+ * position de véhicule, jamais un retard constaté, jamais une promesse.
  *
  * Les réseaux sans ligne publiée (DDD, AFTU, TATA) ne renvoient aucune
  * station : la structure est prête à les afficher dès que des lignes
