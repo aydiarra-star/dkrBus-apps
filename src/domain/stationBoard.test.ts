@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { BRT_STOPS, TER_STOPS } from './corridors'
 import { boardLinesForNetwork, buildStationBoard, stationShortName } from './stationBoard'
+import { nextReferencePassage } from './headways'
+import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
 
 /** Jeudi 8 octobre 2026, 12:00:00 UTC (heure de Dakar, UTC+00 toute l'année). */
 const NOW = Date.parse('2026-10-08T12:00:00.000Z')
