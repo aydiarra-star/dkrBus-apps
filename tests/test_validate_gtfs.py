@@ -10,7 +10,13 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.validate_gtfs import ValidationLimits, validate_gtfs_archive
+from scripts.validate_gtfs import (
+    MAX_ISSUE_MESSAGE_CHARS,
+    MAX_ISSUE_TABLE_CHARS,
+    Report,
+    ValidationLimits,
+    validate_gtfs_archive,
+)
 
 
 VALID_TABLES = {
@@ -35,6 +41,18 @@ VALID_TABLES = {
 
 
 class GTFSValidatorTests(unittest.TestCase):
+    def test_issue_details_are_bounded_for_untrusted_archive_values(self) -> None:
+        report = Report("feed.zip", ValidationLimits())
+        report.add("ERROR", "SYNTHETIC", "x" * 100_000, "untrusted-table-name" * 100, 2)
+        issue = report.to_dict()["issues"][0]
+        self.assertLessEqual(len(issue["message"]), MAX_ISSUE_MESSAGE_CHARS)
+        self.assertLessEqual(len(issue["table"]), MAX_ISSUE_TABLE_CHARS)
+        serialized = json.dumps(report.to_dict(), ensure_ascii=False).encode("utf-8")
+        self.assertLess(len(serialized), 1024 * 1024)
+        limits = report.to_dict()["limits"]
+        self.assertEqual(limits["max_issue_message_chars"], MAX_ISSUE_MESSAGE_CHARS)
+        self.assertEqual(limits["max_issue_table_chars"], MAX_ISSUE_TABLE_CHARS)
+
     def make_archive(self, tables: dict[str, str], wrapper: str | None = None) -> Path:
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
@@ -468,6 +486,21 @@ class GTFSValidatorTests(unittest.TestCase):
         report = validate_gtfs_archive(self.make_archive(tables))
         self.assertFalse(report["structure_valid"])
         self.assertIn("INCONSISTENT_EXACT_TIMES", self.issue_codes(report))
+
+    def test_zip_entry_names_with_nul_are_rejected_before_zipfile_truncates_them(self) -> None:
+        archive = self.make_archive(VALID_TABLES)
+        with zipfile.ZipFile(archive, "r") as zipped:
+            infos = zipped.infolist()
+
+        malicious = zipfile.ZipInfo("ignored.txt\x00/../../outside.txt")
+        self.assertEqual(malicious.filename, "ignored.txt")
+        self.assertIn("\x00", malicious.orig_filename)
+
+        with patch.object(zipfile.ZipFile, "infolist", return_value=infos + [malicious]):
+            report = validate_gtfs_archive(archive)
+
+        self.assertFalse(report["structure_valid"])
+        self.assertIn("UNSAFE_ARCHIVE_PATH", self.issue_codes(report))
 
     def test_symlink_archive_entries_are_rejected(self) -> None:
         archive = self.make_archive(VALID_TABLES)

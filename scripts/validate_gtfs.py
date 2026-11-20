@@ -77,6 +77,10 @@ VALIDATED_COLUMNS = {
 
 TIME_RE = re.compile(r"^(\d{1,3}):(\d{2}):(\d{2})$")
 
+MAX_ISSUE_MESSAGE_CHARS = 512
+MAX_ISSUE_TABLE_CHARS = 64
+
+
 
 def _valid_http_url(value: str) -> bool:
     """Return true only for an absolute HTTP(S) URL with a valid authority."""
@@ -127,9 +131,12 @@ class Report:
         else:
             self.warnings += 1
         if len(self.issues) < self.limits.max_issue_details:
-            issue: dict[str, object] = {"severity": severity, "code": code, "message": message}
+            bounded_message = message
+            if len(bounded_message) > MAX_ISSUE_MESSAGE_CHARS:
+                bounded_message = bounded_message[:MAX_ISSUE_MESSAGE_CHARS - 1] + "…"
+            issue: dict[str, object] = {"severity": severity, "code": code, "message": bounded_message}
             if table:
-                issue["table"] = table
+                issue["table"] = table[:MAX_ISSUE_TABLE_CHARS]
             if row is not None:
                 issue["row"] = row
             self.issues.append(issue)
@@ -156,6 +163,8 @@ class Report:
                 "max_total_uncompressed_bytes": self.limits.max_total_uncompressed_bytes,
                 "max_rows_per_table": self.limits.max_rows_per_table,
                 "max_issue_details": self.limits.max_issue_details,
+                "max_issue_message_chars": MAX_ISSUE_MESSAGE_CHARS,
+                "max_issue_table_chars": MAX_ISSUE_TABLE_CHARS,
             },
         }
 
@@ -280,19 +289,30 @@ class GTFSValidator:
         seen_names: set[str] = set()
         valid_infos: list[zipfile.ZipInfo] = []
         for info in infos:
-            if info.filename in seen_names:
-                self.report.add("ERROR", "DUPLICATE_ARCHIVE_ENTRY", f"L’entrée ZIP « {info.filename} » apparaît plusieurs fois.")
+            # ZipInfo.filename is truncated at the first NUL by Python's zipfile
+            # reader. orig_filename retains the decoded central-directory name;
+            # reject any mismatch before using a potentially sanitized path.
+            raw_filename = getattr(info, "orig_filename", info.filename)
+            if not isinstance(raw_filename, str) or raw_filename != info.filename or "\x00" in raw_filename:
+                self.report.add(
+                    "ERROR",
+                    "UNSAFE_ARCHIVE_PATH",
+                    "Une entrée ZIP contient un nom brut tronqué ou un octet NUL.",
+                )
                 continue
-            seen_names.add(info.filename)
 
-            member_path = PurePosixPath(info.filename)
+            if raw_filename in seen_names:
+                self.report.add("ERROR", "DUPLICATE_ARCHIVE_ENTRY", f"L’entrée ZIP « {raw_filename} » apparaît plusieurs fois.")
+                continue
+            seen_names.add(raw_filename)
+
+            member_path = PurePosixPath(raw_filename)
             unix_mode = info.external_attr >> 16
             if (
                 member_path.is_absolute()
                 or ".." in member_path.parts
-                or "\\" in info.filename
-                or re.match(r"^[A-Za-z]:", info.filename) is not None
-                or "\x00" in info.filename
+                or "\\" in raw_filename
+                or re.match(r"^[A-Za-z]:", raw_filename) is not None
                 or stat.S_ISLNK(unix_mode)
             ):
                 self.report.add("ERROR", "UNSAFE_ARCHIVE_PATH", f"Chemin ZIP refusé : « {info.filename} ».")

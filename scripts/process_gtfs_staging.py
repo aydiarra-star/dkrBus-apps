@@ -31,8 +31,9 @@ VALIDATOR = ROOT / "scripts" / "validate_gtfs.py"
 MAX_ARCHIVE_BYTES = 100 * 1024 * 1024
 MAX_MANIFEST_BYTES = 1 * 1024 * 1024
 MAX_JSON_RESPONSE_BYTES = 1 * 1024 * 1024
+MAX_VALIDATION_REPORT_BYTES = 1 * 1024 * 1024
 LEASE_SECONDS = 900
-VALIDATOR_VERSION = "dakar-gtfs-validator-v5"
+VALIDATOR_VERSION = "dakar-gtfs-validator-v7"
 SUPABASE_PROJECT_REF = "mdmuxzaewqzqutkqdylo"
 SUPABASE_HOST = f"{SUPABASE_PROJECT_REF}.supabase.co"
 STAGING_BUCKET = "dakar-gtfs-staging"
@@ -49,6 +50,8 @@ EXPECTED_VALIDATOR_LIMITS = {
     "max_total_uncompressed_bytes": 500 * 1024 * 1024,
     "max_rows_per_table": 2_000_000,
     "max_issue_details": 200,
+    "max_issue_message_chars": 512,
+    "max_issue_table_chars": 64,
 }
 
 
@@ -210,6 +213,12 @@ def validate_claimed_job(job: Any) -> int:
 def validate_report(report: Any, expected_sha256: str, expected_bytes: int) -> dict[str, Any]:
     if not isinstance(report, dict):
         raise WorkerError("VALIDATOR_REPORT_NOT_OBJECT")
+    try:
+        serialized_bytes = len(json.dumps(report, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    except (TypeError, ValueError, UnicodeEncodeError) as error:
+        raise WorkerError("VALIDATOR_REPORT_SERIALIZATION_INVALID") from error
+    if serialized_bytes > MAX_VALIDATION_REPORT_BYTES:
+        raise WorkerError("VALIDATOR_REPORT_TOO_LARGE")
     if report.get("schema_version") != "1.0":
         raise WorkerError("VALIDATOR_REPORT_SCHEMA_UNSUPPORTED")
 
