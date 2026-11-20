@@ -46,7 +46,7 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(76)
+  expect(report).toHaveLength(86)
   expect(report.filter(d=>['gt54-18-39','maristes-12-75'].includes(d.dossier))).toHaveLength(4)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
@@ -92,7 +92,7 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
 })
 
 
-it.each(['thiaroye-218-73', 'thiaroye-218-73-niague', 'ponty-ddd-1-7', 'colobane-aftu-75-65', 'ouakam-7-42', 'ouakam-67-7', 'guediawaye-26-5'])('uses four directional roles in dossier %s, never the forward calls in reverse', dossier => {
+it.each(['thiaroye-218-73', 'thiaroye-218-73-niague', 'ponty-ddd-1-7', 'colobane-aftu-75-65', 'ouakam-7-42', 'ouakam-67-7', 'guediawaye-26-5', 'pikine-16a-65', 'dakar-ddd-16a-23'])('uses four directional roles in dossier %s, never the forward calls in reverse', dossier => {
   const at = Date.parse('2026-11-19T19:00Z') / 1000
   const [a, b] = dakarTransferReport(dakarNetwork, at).filter(r => r.dossier === dossier)
   expect(new Set([a.from.stopId, a.to.stopId, b.from.stopId, b.to.stopId]).size).toBe(4)
@@ -103,6 +103,18 @@ it.each(['thiaroye-218-73', 'thiaroye-218-73-niague', 'ponty-ddd-1-7', 'colobane
   for (const r of [a,b]) {
     expect(r.timed).toEqual({ status: 'BLOCKED_BEFORE_TIMETABLE' }); expect(r.meters).toBeNull()
     expect(reviewDakarPacket({ ...packet, fromStopId: r.from.stopId, toStopId: r.to.stopId }, at).timed).toEqual(r.timed)
+  }
+})
+
+it('ne confond pas les deux fiches Gare De Rufisque, ni un rang de la 30 avec un côté de quai', () => {
+  const report = dakarTransferReport(dakarNetwork,Date.parse('2026-11-20T05:43Z') / 1000)
+  const [a,b] = report.filter(r => r.dossier === 'rufisque-66-ter')
+  expect(a.from.name).toContain('44/77'); expect(b.to.name).toContain('34/77')
+  expect(a.observation).toContain('r41 à 05:40'); expect(b.observation).toContain('05:20')
+  const [to30, from30] = report.filter(r => r.dossier === 'colobane-ter-aftu')
+  expect(to30.to.name).toContain('1/74'); expect(from30.from.name).toContain('77/77')
+  for (const r of [a,b,to30,from30]) {
+    expect(r.timed).toEqual({status:'BLOCKED_BEFORE_TIMETABLE'}); expect(r.meters).toBeNull()
   }
 })
 

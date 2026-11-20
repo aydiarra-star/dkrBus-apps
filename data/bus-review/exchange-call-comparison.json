@@ -157,6 +157,99 @@
         }
       ]
     },
+    "DDD_23": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_23_PALAIS-2",
+          "trips": 90,
+          "callCount": 56,
+          "first": [
+            "D_709",
+            "Terminus Palais 1"
+          ],
+          "last": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "occurrences": [
+            [
+              "D_803",
+              10,
+              "D_822",
+              "D_150"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_23_PARCELLE-ASSAINIES",
+          "trips": 106,
+          "callCount": 57,
+          "first": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "last": [
+            "D_708",
+            "Terminus Palais 2"
+          ],
+          "occurrences": []
+        }
+      ]
+    },
+    "AFTU_30": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_30_Gadaye",
+          "trips": 71,
+          "callCount": 67,
+          "first": [
+            "A_453",
+            "Terminus 30 49"
+          ],
+          "last": [
+            "A_1564",
+            "Colobane"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              67,
+              "A_1869",
+              null
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_30_Colobane",
+          "trips": 64,
+          "callCount": 68,
+          "first": [
+            "A_1564",
+            "Colobane"
+          ],
+          "last": [
+            "A_453",
+            "Terminus 30 49"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              1,
+              null,
+              "A_1394"
+            ]
+          ]
+        }
+      ]
+    },
     "AFTU_42": {
       "lastRegularDate": "20231231",
       "lastException": null,
@@ -306,6 +399,21 @@
       -17.4881306,
       "Boutique Diallo En Face Station Shell"
     ],
+    "D_90": [
+      14.676235489671035,
+      -17.433171311853084,
+      "Gare Ter En Face Dakarnave"
+    ],
+    "D_99": [
+      14.6757033,
+      -17.43323,
+      "Gare Ter De Dakar En Face Du Portail De Dakarnave"
+    ],
+    "D_105": [
+      14.675786909146566,
+      -17.43303143880757,
+      "Gare Ter En Face Dakarnave"
+    ],
     "D_122": [
       14.669515178932798,
       -17.433442192379697,
@@ -320,6 +428,11 @@
       14.697649796249971,
       -17.446442998001256,
       "Terrain Colobane"
+    ],
+    "D_803": [
+      14.676268292849793,
+      -17.446953241996244,
+      "Credit Mutuel Du SéNéGal"
     ],
     "D_1258": [
       14.727454771776891,
@@ -345,6 +458,11 @@
       14.696746373714147,
       -17.442754420066983,
       "Colobane"
+    ],
+    "A_1911": [
+      14.698716340462711,
+      -17.442689448706695,
+      "Gare Routiére De Colobane"
     ],
     "A_2028": [
       14.72736727676959,

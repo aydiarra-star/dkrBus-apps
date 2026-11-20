@@ -27,11 +27,11 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **15** · Terminus Rufisque → Palais 1 | Non · 18 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **15A** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **15B** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
-| **16A** · Terminus Malika → Palais 1 | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
+| **16A** · Terminus Malika → Palais 1 | Non · 19 noms | Non | Non établi | Non établi | 6 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
 | **16B** · Terminus Malika → Palais 1 | Non · 27 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
 | **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
 | **20** · Terminus Dieuppeul → Terminus Dieuppeul | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · circuit non ventilé |
-| **23** · Terminus des Parcelles → Terminus Palais 2 | Non · 40 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
+| **23** · Terminus des Parcelles → Terminus Palais 2 | Non · 40 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **121** · Terminus Scat Urbam → Terminus Leclerc | Non · 25 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
 | **208** · Gorom 01 → Rufisque | Non · 7 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **213** · Gare de Rufisque → Terminus Dieuppeul | Non · 17 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
@@ -126,8 +126,8 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **62** · Terminus 62 → Bvar. Tapée / Rue 59 | Non · 72 noms | Non · 68 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **63** · TERMINUS DIOR PARCELLES → TERMINUS CAMP MARCHAND RUFISQUE | Non | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **64** · Arrêt De Bus → Espi | Non · 61 noms | Non · 61 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **65** · Gare De Colobane → Terminus Jaxaay | Non · 2/57 noms | Non · 56 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **66** · Terminus → Gorom | Non · 77 noms | Non · 77 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **65** · Gare De Colobane → Terminus Jaxaay | Non · 2/57 noms | Non · 56 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **66** · Terminus → Gorom | Non · 77 noms | Non · 77 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **67** · Espi → Poste De Sante | Non · 71 noms | Non · 71 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **68** · Terminus 68 → Complexe Islamique | Non · 50 noms | Non · 50 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **69** · Terminus Diamalaye → Terminus Namora | Non · 15 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/1 suites historiques sur le dessin à 20 m |
@@ -263,7 +263,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **52** · Église Bountou Pikine → Keur Massar | Non · 10 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (8 noms) à rattacher au sens |
 | **53** · Keur Massar → Sébikhotane | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (14 noms) à rattacher au sens |
 | **54** · Terminus Keur Massar (Cité MTOA) → Université Cheikh Anta Diop | Non · 12 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (10 noms) à rattacher au sens |
-| **55** · Terminus Rufisque SONADIS → Petersen | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
+| **55** · Terminus Rufisque SONADIS → Petersen | Non · 13 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **56** · Jaxaay 2 → Petersen | Non · 12 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (10 noms) à rattacher au sens |
 | **57** · Terminus Rufisque Gouye Mouride → Giratoire Liberté 6 | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **58** · Fass Mbao → SHAM | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (7 noms) à rattacher au sens |

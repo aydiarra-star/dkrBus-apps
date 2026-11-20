@@ -1,6 +1,6 @@
 # Correspondances : pièces par sens
 
-Calculateur local au 2026-11-19 à 19:00 (Dakar), sans édition opérateur : **38 dossiers, 76 sens, 78 évaluations, 78 bloquées avant horaire**. Une même gare peut avoir plusieurs directions de service. Les entrées/sorties seules (4 arcs) ne sont pas des chemins de correspondance.
+Calculateur local au 2026-11-19 à 19:00 (Dakar), sans édition opérateur : **43 dossiers, 86 sens, 88 évaluations, 88 bloquées avant horaire**. Une même gare peut avoir plusieurs directions de service. Les entrées/sorties seules (4 arcs) ne sont pas des chemins de correspondance.
 
 Chaque rubrique sépare descente, montée et droit de passage. Si les portes sont effectivement au même endroit dans le même site, fournir à la place du chemin une autorisation **pour ces deux appels orientés** et un délai minimal. Sinon mesurer chaque segment, traversée et contrôle dans le sens indiqué. Lorsque l’examen s’arrête avant l’horaire, il reste aussi à fournir les deux courses de la même date, heures aux appels et temps pour les joindre. Un blocage dans le calculateur ne prouve pas que le voyage est impossible sur place.
 
@@ -62,7 +62,7 @@ Sources : [1](../docs/releve-218-73.md) · [2](../data/bus-review/reported-218-7
 
 ### Descendre : Ponty · descente de la 1 vers Leclerc → monter : Ponty · montée dans la 7 vers Palais 1
 
-Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 1. L’ancien appel D_128 (Cbao Ponty) était commun, mais la fiche DDD nomme Palais 2. CBAO rang 44/47 dans le tableau opérateur de la 1 ; aucune occurrence nommée Ponty sur la 7 de Gare Palais. Identifier les portes et deux appels datés avant de proposer de rester sur place.
+Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 1. L’ancien appel D_128 (Cbao Ponty) était commun, mais la fiche DDD nomme Palais 2. CBAO rang 44/47 de la 1, entre Plaza et Place de l’indépendance ; aucune occurrence nommée Ponty sur la 7 de Gare Palais. Identifier les portes et deux appels datés avant de proposer de rester sur place.
 
 - **DDD → DDD** · `survey:ponty:1:leclerc` → `survey:ponty:7:palais` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:ponty:1:leclerc, pour la ligne et le sens concernés.
@@ -73,7 +73,7 @@ Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 
 
 ### Descendre : Ponty · descente de la 7 vers Ouakam → monter : Ponty · montée dans la 1 vers les Parcelles
 
-Dans ce sens, les deux anciennes lignes appelaient D_122 (Poste Ponty), pas D_128. Poste (Avenue Ponty), rang 4/43 de l’extrait DDD, est à 305,2 m du symbole OSM 711879280 sans relation et à 305,3 m de D_122. Écart entre coordonnées de sources, pas un chemin : ne pas placer la porte à cet ancien ID.
+Dans ce sens, les deux anciennes lignes appelaient D_122 (Poste Ponty), pas D_128. Poste (Avenue Ponty), rang 4/43 de l’extrait DDD, est à 305,2 m du symbole OSM 711879280 sans relation et à 305,3 m de D_122. Cercle Mess des Officiers et Imm Yoro Lam Ponty encadrent ce rang, sans heure de passage. Écart entre coordonnées de sources, pas un chemin : ne pas placer la porte à cet ancien ID.
 
 - **DDD → DDD** · `survey:ponty:7:ouakam` → `survey:ponty:1:parcelles` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:ponty:7:ouakam, pour la ligne et le sens concernés.
@@ -88,7 +88,7 @@ Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exch
 
 ### Descendre : Colobane · descente de la 75 depuis Malika → monter : Colobane · montée dans la 65 vers Jaxaay 2
 
-Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1,4 m. L’ancienne 65 depuis A_1564 allait vers Kounoune École Mbaba. 75 r52/52 à 04:33, 65 r1/57 à 04:42 : 9 min entre cellules de semaine, pas le temps pour passer d’une porte à l’autre.
+Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1,4 m. L’ancienne 65 depuis A_1564 allait vers Kounoune École Mbaba. 75 r52/52 à 04:33, 65 r1/57 à 04:42 : 9 min entre cellules de semaine, pas le temps pour passer d’une porte à l’autre. La fiche d’arrêt 37702002 associe ces deux minutes, pas les deux portes.
 
 - **AFTU → AFTU** · `survey:colobane:75:arrivee` → `survey:colobane:65:depart` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:colobane:75:arrivee, pour la ligne et le sens concernés.
@@ -99,7 +99,7 @@ Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1
 
 ### Descendre : Colobane · descente de la 65 depuis Jaxaay 2 → monter : Colobane · montée dans la 75 vers Malika
 
-Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. 65 r56/56 à 05:11 et 75 r1/51 à 05:16 : 5 min entre cellules de semaine. La fiche nomme Yeumbeul ; confirmer la variante de Malika, les quais et la permission de monter.
+Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. 65 r56/56 à 05:11 et 75 r1/51 à 05:16 : 5 min entre cellules de semaine. La fiche d’arrêt 37702003 associe 05:11 et 05:16 et nomme Yeumbeul ; confirmer la variante de Malika, les quais et la permission de monter.
 
 - **AFTU → AFTU** · `survey:colobane:65:arrivee` → `survey:colobane:75:depart` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:colobane:65:arrivee, pour la ligne et le sens concernés.
@@ -108,7 +108,7 @@ Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la
   - Valider une desserte orientée permettant la montée à survey:colobane:75:depart.
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
 
-Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](../docs/releve-218-73.md) · [4](../data/bus-review/within-bus-families.json) · [5](../data/bus-review/reference-archives.json) · [6](https://aftu-senegal.org/map/dakar-urbain-ligne-75/) · [7](https://aftu-senegal.org/map/dakar-urbain-ligne-65/).
+Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](../docs/releve-218-73.md) · [4](../data/bus-review/within-bus-families.json) · [5](../data/bus-review/reference-archives.json) · [6](../data/bus-review/friday-stop-excerpts.json) · [7](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Colobane-Dakar-stop_37702002-5996) · [8](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Colobane-Dakar-stop_37702003-5996) · [9](https://aftu-senegal.org/map/dakar-urbain-ligne-75/) · [10](https://aftu-senegal.org/map/dakar-urbain-ligne-65/).
 
 ## colobane-aftu-75-60
 
@@ -239,6 +239,137 @@ Semaine : 7 depuis Palais à 05:23, r29 à 05:53 ; 42 depuis Stade Municipal à 
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
 
 Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](https://aftu-senegal.org/map/dakar-urbain-ligne-42/) · [4](../src/data/bus-sheets/aftu-42-outbound.json) · [5](../src/data/bus-sheets/aftu-42-inbound.json) · [6](../src/data/bus-sheets/ddd-7-outbound.json) · [7](../src/data/bus-sheets/ddd-7-inbound.json).
+
+## dakar-ddd-16a-23
+
+### Descendre : Gare De Dakar · 16A vers Malika, rang 10/64 → monter : Gare De Dakar · 23 vers les Parcelles, rang 10/56
+
+Les deux services depuis Gare Palais citent Allees Delmas, 1 → Gare De Dakar → Avenue Faidherbe, 7. La fiche 37701983 du vendredi donne 16A à 05:22 puis 23 à 05:27. Même fiche, cinq minutes : ni attente autorisée au même point ni délai entre deux portes établis.
+
+- **DDD → DDD** · `survey:dakar:16a:alight-malika` → `survey:dakar:23:board-parcelles` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:dakar:16a:alight-malika, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:dakar:16a:alight-malika.
+  - Identifier et sourcer le quai de montée de survey:dakar:23:board-parcelles, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:dakar:23:board-parcelles.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+### Descendre : Gare De Dakar · descente de la 23 vers les Parcelles → monter : Gare De Dakar · montée dans la 16A vers Malika
+
+Pour changer de la 23 de 05:37 à la 16A de 05:39, vérifier le temps de descente et la position de la porte de montée. Cet ordre de changement utilise encore les deux bus sortant de Palais. Les deux grilles vers Palais ne nomment pas Gare De Dakar. Dans le ZIP de 2023 le r10/56 de la 23 était D_803, Crédit Mutuel, pas une preuve de quai à la gare.
+
+- **DDD → DDD** · `survey:dakar:23:alight-parcelles` → `survey:dakar:16a:board-malika` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:dakar:23:alight-parcelles, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:dakar:23:alight-parcelles.
+  - Identifier et sourcer le quai de montée de survey:dakar:16a:board-malika, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:dakar:16a:board-malika.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+Sources : [1](../data/bus-review/friday-stop-excerpts.json) · [2](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Dakar-Dakar-stop_37701983-5996) · [3](../data/bus-review/exchange-call-comparison.json) · [4](../src/data/weekly-cells/ddd-23-inbound.json) · [5](../src/data/weekly-cells/ddd-16A-inbound.json).
+
+## dakar-ter-16a
+
+### Descendre : Dakar → monter : Gare De Dakar · 16A vers Malika, rang 10/64
+
+La grille donne 05:22 en semaine et 05:47 le week-end au premier bus. SETER indique une ouverture de la gare à 06:00 le week-end ; le 05:47 ne peut servir de départ après cette ouverture. Localiser la sortie du quai, la traversée du parvis et la montée du bus. Le hall n’est pas le point d’arrêt Allées Delmas.
+
+- **TER → DDD** · `ter-dakar` → `survey:dakar:16a:board-malika` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de ter-dakar, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à ter-dakar.
+  - Identifier et sourcer le quai de montée de survey:dakar:16a:board-malika, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:dakar:16a:board-malika.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Dépose de la 16A depuis Malika près du TER à identifier → monter : Dakar
+
+Le tableau des 65 appels vers Palais ne nomme pas Gare De Dakar. Ne pas lui attribuer l’arrêt 37701983 ni retourner le rang 10. Mesurer le chemin de la véritable dépose à la porte, au contrôle puis au quai de départ pour une course TER datée.
+
+- **DDD → TER** · `survey:dakar:16a:alight-palais` → `ter-dakar` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:dakar:16a:alight-palais, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:dakar:16a:alight-palais.
+  - Identifier et sourcer le quai de montée de ter-dakar, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](https://www.terdakar.sn/gare-de-dakar-tout-ce-qu-il-faut-savoir/) · [2](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Dakar-Dakar-stop_37701983-5996) · [3](../src/data/weekly-cells/ddd-16A-outbound.json) · [4](../src/data/weekly-cells/ddd-16A-inbound.json).
+
+## pikine-16a-65
+
+### Descendre : Route De Rufisque, 7432 · 16A vers Palais, rang 33/65 → monter : Route De Rufisque, 7432 · 65 vers Colobane, rang 38/56
+
+Après Sips, la fiche 37702867 du vendredi donne 16A 05:28, 65 05:32. Quatre minutes entre cellules. Confirmer que les deux portes ouvrent du même côté et au même point, les droits de descendre puis monter et le délai minimal ; aucune course datée admise.
+
+- **DDD → AFTU** · `survey:pikine:16a:palais` → `survey:pikine:65:colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:pikine:16a:palais, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:pikine:16a:palais.
+  - Identifier et sourcer le quai de montée de survey:pikine:65:colobane, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:pikine:65:colobane.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+### Descendre : Route De Rufisque, 7432 · 65 vers Jaxaay, rang 18/57 → monter : Route De Rufisque, 7432 · 16A vers Malika, rang 34/64
+
+Avant Sips cette fois : à 05:45 pour la 65 issue de 05:27, à 05:48 pour la 16A issue de 05:15. Ne pas réutiliser la fiche d’arrêt du sens vers Colobane. Relever le côté et la position des portes ou une traversée autorisée dans ce sens, et son temps.
+
+- **AFTU → DDD** · `survey:pikine:65:jaxaay` → `survey:pikine:16a:malika` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:pikine:65:jaxaay, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:pikine:65:jaxaay.
+  - Identifier et sourcer le quai de montée de survey:pikine:16a:malika, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:pikine:16a:malika.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+Sources : [1](../data/bus-review/friday-stop-excerpts.json) · [2](https://moovitapp.com/index/fr/transport_en_commun-Route_De_Rufisque_7432-Dakar-stop_37702867-5996) · [3](../src/data/weekly-cells/ddd-16A-outbound.json) · [4](../src/data/weekly-cells/ddd-16A-inbound.json) · [5](../src/data/weekly-cells/aftu-65-colobane.json) · [6](../src/data/weekly-cells/aftu-65-jaxaay.json).
+
+## rufisque-66-ter
+
+### Descendre : Gare De Rufisque · 66 vers Gorom, rang 44/77 → monter : Rufisque
+
+La 66 de 04:50 passe à Gare Routiere De Rufisque r41 à 05:40 puis à Gare De Rufisque r44 à 05:43. La fiche 37703748 cite la 66 vers Gorom, pas une arrivée sur le quai du train. Identifier trottoir de dépose, accès ferroviaire, traversées autorisées et contrôle.
+
+- **AFTU → TER** · `survey:rufisque:66:gorom` → `ter-rufisque` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:rufisque:66:gorom, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:rufisque:66:gorom.
+  - Identifier et sourcer le quai de montée de ter-rufisque, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Rufisque → monter : Gare De Rufisque · 66 vers Yoff, rang 34/77
+
+La 66 de 04:45 passe à 05:20 au r34. La fiche 37703749 vers Yoff renvoie à un autre arrêt homonyme, 37703748. Les 17 mètres annoncés entre points ne sont pas le trajet du quai TER à la porte du bus. Ni PNR, ni gare maritime, ni centre de la gare routière ne remplace ces portes.
+
+- **TER → AFTU** · `ter-rufisque` → `survey:rufisque:66:yoff` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de ter-rufisque, pour la ligne et le sens concernés.
+  - Identifier et sourcer le quai de montée de survey:rufisque:66:yoff, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:rufisque:66:yoff.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](../docs/audit-geographique-rufisque-bargny-keur-massar-sangalkam-2026-11-16.md) · [2](../data/bus-review/friday-stop-excerpts.json) · [3](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703748-5996) · [4](https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703749-5996) · [5](../src/data/weekly-cells/aftu-66-outbound.json) · [6](../src/data/weekly-cells/aftu-66-inbound.json).
+
+## petersen-tata-55-brt
+
+### Descendre : Petersen · dépose TATA 55 depuis Rufisque SONADIS → monter : Petersen – Papa Gueye Fall
+
+Rond-point Petersen est cité par SETER pour la 55. Les Allées Papa Gueye Fall précèdent Petersen dans la description depuis SONADIS. Ni cette suite ni le mot « rond-point » ne localisent la dépose pour rejoindre le valideur et le départ du B1. Relever la porte et une course TATA datée.
+
+- **TATA → BRT** · `survey:petersen:55:alight` → `brt-petersen` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:petersen:55:alight, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:petersen:55:alight.
+  - Identifier et sourcer le quai de montée de brt-petersen, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Petersen – Papa Gueye Fall → monter : Petersen · montée TATA 55 vers Rufisque à identifier
+
+Depuis le quai B1 d’arrivée, relever sortie, traversées et file TATA vers Rufisque, puis la durée de cette marche. SETER ne donne ni sens, ni minute de départ ni temps de marche pour la 55. Ne pas réutiliser le chemin de la R01A, ni un arrêt AFTU 55.
+
+- **BRT → TATA** · `brt-petersen` → `survey:petersen:55:board` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Déjà identifié (descente) : brt-petersen-quai-arrivee, Préfecture de Guédiawaye → Petersen · © OpenStreetMap · B1 19961937 v4 · stop 13376764678 / platform 13376766987.
+  - Identifier et sourcer le quai de montée de survey:petersen:55:board, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:petersen:55:board.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](../docs/audit-pole-petersen-acces-correspondances-2026-11-16.md) · [2](../data/bus-sections/acces-scat-urbam.md) · [3](https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/) · [4](https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/) · [5](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [6](../src/data/tataNamedStops.json) · [7](https://www.covoiturage.sn/bus-tata-itineraire/ligne/55/terminus-rufisque-sonadis/petersen/).
 
 ## dakar-12-ter
 
@@ -601,29 +732,29 @@ Sources : [1](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [2](http
 
 ## colobane-ter-aftu
 
-### Descendre : Colobane → monter : Colobane
+### Descendre : Colobane → monter : Gare De Colobane · 30 vers Guédiawaye, rang 1/74
 
-Les fiches 30 et 33 confirment le terminus, pas les quais ni les accès. Ne pas confondre Colobane et Colobane Rufisque.
+La 30 part à 05:20 puis 05:35, avant Rue Hlm 225, 23. Confirmer la sortie du train, le contrôle et la file de montée pour Gadaye. A_1564 → A_1394 appartient à une ancienne liste de 68 appels ; les 6 minutes de SETER pour le rond-point DDD ne concernent pas ce départ.
 
-- **TER → AFTU** · `ter-colobane` → `aftu-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+- **TER → AFTU** · `ter-colobane` → `survey:colobane:30:depart` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de ter-colobane, pour la ligne et le sens concernés.
-  - Identifier et sourcer le quai de montée de aftu-colobane, pour la ligne et le sens concernés.
-  - Valider une desserte orientée permettant la montée à aftu-colobane.
+  - Identifier et sourcer le quai de montée de survey:colobane:30:depart, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:30:depart.
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
   - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
 
-### Descendre : Colobane → monter : Colobane
+### Descendre : Gare De Colobane · 30 depuis Guédiawaye, rang 77/77 → monter : Colobane
 
-Les fiches 30 et 33 confirment le terminus, pas les quais ni les accès. Ne pas confondre Colobane et Colobane Rufisque.
+05:15 → 06:01, après Av. Mbacké / Rue 231. A_1869 → A_1564 terminait une ancienne liste de 67 appels. Aucune correspondance établie entre la dépose et une porte TER Nord ou Sud. Les fiches 30 et 33 confirment le terminus, pas les quais ni les accès ; ne pas attribuer les heures de la 30 à la 33.
 
-- **AFTU → TER** · `aftu-colobane` → `ter-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
-  - Identifier et sourcer le quai de descente de aftu-colobane, pour la ligne et le sens concernés.
-  - Valider une desserte orientée permettant la descente à aftu-colobane.
+- **AFTU → TER** · `survey:colobane:30:arrivee` → `ter-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:30:arrivee, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:30:arrivee.
   - Identifier et sourcer le quai de montée de ter-colobane, pour la ligne et le sens concernés.
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
   - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
 
-Sources : [1](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [2](https://www.openstreetmap.org/node/10245681535) · [3](https://aftu-senegal.org/map/dakar-urbain-ligne-30/) · [4](https://aftu-senegal.org/map/dakar-urbain-ligne-33/).
+Sources : [1](https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/) · [2](https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/) · [3](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [4](https://www.openstreetmap.org/node/10245681535) · [5](../data/bus-review/exchange-call-comparison.json) · [6](../src/data/weekly-cells/aftu-30-outbound.json) · [7](../src/data/weekly-cells/aftu-30-inbound.json) · [8](https://aftu-senegal.org/map/dakar-urbain-ligne-30/) · [9](https://aftu-senegal.org/map/dakar-urbain-ligne-33/).
 
 ## scat-brt-121
 

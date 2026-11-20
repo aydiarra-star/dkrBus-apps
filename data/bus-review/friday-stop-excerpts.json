@@ -1,0 +1,190 @@
+{
+  "scope": "DOCUMENTARY_ONLY_NOT_SERVICE_BINDINGS",
+  "publisher": "Moovit",
+  "displayedDay": "vendredi",
+  "pageUpdateLabel": "2026-11-16",
+  "sheets": [
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Colobane-Dakar-stop_37702002-5996",
+      "label": "Gare De Colobane",
+      "rows": [
+        {
+          "panel": "aftu:75/1",
+          "rank": 52,
+          "direction": "Colobane",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-75-Dakar-5996-1618038-18051476-4256273-0",
+          "firstTimes": [
+            "04:33",
+            "04:40",
+            "04:47",
+            "04:54",
+            "05:01",
+            "05:09",
+            "05:16",
+            "05:24",
+            "05:31",
+            "05:39"
+          ]
+        },
+        {
+          "panel": "aftu:65/1",
+          "rank": 1,
+          "direction": "Jaaxay",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-65-Dakar-5996-1618038-18051436-4256193-0",
+          "firstTimes": [
+            "04:12",
+            "04:27",
+            "04:42",
+            "04:57",
+            "05:12",
+            "05:27"
+          ]
+        }
+      ]
+    },
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Colobane-Dakar-stop_37702003-5996",
+      "label": "Gare De Colobane",
+      "rows": [
+        {
+          "panel": "aftu:65/2",
+          "rank": 56,
+          "direction": "Colobane",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-65-Dakar-5996-1618038-18051436-4256192-0",
+          "firstTimes": [
+            "05:11",
+            "05:24",
+            "05:37",
+            "05:50",
+            "06:02"
+          ]
+        },
+        {
+          "panel": "aftu:75/2",
+          "rank": 1,
+          "direction": "Yeumbeul",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-75-Dakar-5996-1618038-18051476-4256272-0",
+          "firstTimes": [
+            "03:55",
+            "04:04",
+            "04:13",
+            "04:22",
+            "04:31",
+            "04:40",
+            "04:49",
+            "04:58",
+            "05:07",
+            "05:16",
+            "05:25",
+            "05:34",
+            "05:43",
+            "05:52",
+            "06:01"
+          ]
+        }
+      ]
+    },
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Dakar-Dakar-stop_37701983-5996",
+      "label": "Gare De Dakar",
+      "rows": [
+        {
+          "panel": "ddd:23/4",
+          "rank": 10,
+          "direction": "Parcelles Assainies",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-23-Dakar-5996-1618037-18051449-4256219-0",
+          "firstTimes": [
+            "04:07",
+            "04:17",
+            "04:27",
+            "04:37",
+            "04:47",
+            "04:57",
+            "05:07",
+            "05:17",
+            "05:27",
+            "05:37"
+          ]
+        },
+        {
+          "panel": "ddd:16A/4",
+          "rank": 10,
+          "direction": "Malika",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-16a-Dakar-5996-1618037-18051456-4256233-0",
+          "firstTimes": [
+            "05:22",
+            "05:39"
+          ]
+        }
+      ]
+    },
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Route_De_Rufisque_7432-Dakar-stop_37702867-5996",
+      "label": "Route De Rufisque, 7432",
+      "rows": [
+        {
+          "panel": "ddd:16A/3",
+          "rank": 33,
+          "direction": "Palais",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-16a-Dakar-5996-1618037-18051456-4256232-0",
+          "firstTimes": [
+            "05:28",
+            "05:43",
+            "05:58"
+          ]
+        },
+        {
+          "panel": "aftu:65/2",
+          "rank": 38,
+          "direction": "Colobane",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-65-Dakar-5996-1618038-18051436-4256192-0",
+          "firstTimes": [
+            "04:53",
+            "05:06",
+            "05:19",
+            "05:32",
+            "05:44",
+            "05:56"
+          ]
+        }
+      ]
+    },
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703748-5996",
+      "label": "Gare De Rufisque",
+      "rows": [
+        {
+          "panel": "aftu:66/1",
+          "rank": 44,
+          "direction": "Gorom",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-66-Dakar-5996-1618038-18051499-4256319-0",
+          "firstTimes": [
+            "05:43",
+            "06:04",
+            "06:24",
+            "06:44",
+            "07:06"
+          ]
+        }
+      ]
+    },
+    {
+      "url": "https://moovitapp.com/index/fr/transport_en_commun-Gare_De_Rufisque-Dakar-stop_37703749-5996",
+      "label": "Gare De Rufisque",
+      "rows": [
+        {
+          "panel": "aftu:66/2",
+          "rank": 34,
+          "direction": "Yoff",
+          "timetable": "https://moovitapp.com/index/fr/transport_en_commun-time-66-Dakar-5996-1618038-18051499-4256318-0",
+          "firstTimes": [
+            "05:20",
+            "05:37",
+            "05:53",
+            "06:09"
+          ]
+        }
+      ]
+    }
+  ]
+}
