@@ -68,6 +68,14 @@ describe('tableau des créneaux par station et par sens', () => {
     const outboundPhaseGap = (Date.parse(diamniadio.outboundAirport!.nextDepartureAt) - Date.parse(diamniadio.outbound!.nextDepartureAt)) / 60_000
     expect([0, 8, 16]).toContain(outboundPhaseGap)
     expect(aibd.inbound!.headwayMinutes).toBe(24)
+    expect(aibd.outbound!.headwayMinutes).toBe(24)
+    expect(aibd.outbound!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
+        Date.parse('2026-10-08T13:44:00.000Z'),
+        56.5,
+      )!.nextDepartureAt,
+    )
   })
 
 
