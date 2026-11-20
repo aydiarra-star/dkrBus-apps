@@ -28,7 +28,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **15A** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **15B** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **16A** · Terminus Malika → Palais 1 | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
-| **16B** · Terminus Malika → Palais 1 | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
+| **16B** · Terminus Malika → Palais 1 | Non · 27 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
 | **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
 | **20** · Terminus Dieuppeul → Terminus Dieuppeul | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · circuit non ventilé |
 | **23** · Terminus des Parcelles → Terminus Palais 2 | Non · 40 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
@@ -121,7 +121,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **57** · Terminus 57 → Route Des Niayes / Av. Abdel Aziz | Non · 56 noms | Non · 57 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/1 suites historiques sur le dessin à 20 m |
 | **58** · Terminus Fass Mbao → Terminus Bvar. Tapée / Rue 18 | Non · 39 noms | Non · 43 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **59** · TERMINUS DIAMALAYE → TERMINUS CITE GENDARMERIE | Non · 15 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **60** · Gare De Colobane → Terminus 60 | Non · 50 noms | Non · 48 noms | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **60** · Gare De Colobane → Terminus 60 | Non · 50 noms | Non · 48 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **61** · TERMINUS KEUR MASSAR → TERMINUS ALMADIES | Non · 10 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **62** · Terminus 62 → Bvar. Tapée / Rue 59 | Non · 72 noms | Non · 68 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **63** · TERMINUS DIOR PARCELLES → TERMINUS CAMP MARCHAND RUFISQUE | Non | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
@@ -136,7 +136,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **72** · Terminus 38 - 72 → Terminus 72 | Non · 78 noms | Non · 78 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **73** · Terminus 73 → Dépot Thiaroye | Non · 75 noms | Non · 75 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **74** · Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | Non · 14 noms | Non · inversion écartée | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · autre grille écartée | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | 6 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **76** · TERMINUS SIPRES → TERMINUS CITE ASSURANCE | Non · 12 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **77** · Terminus Rufisque Cité Tacco → Terminus Liberté 5 | Non · 14 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **78** · Terminus Diamaguène → Terminus Liberté 5 | Non · 12 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
@@ -268,7 +268,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **57** · Terminus Rufisque Gouye Mouride → Giratoire Liberté 6 | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **58** · Fass Mbao → SHAM | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (7 noms) à rattacher au sens |
 | **59** · Stade L.S.S → Mbarou Samba Dème (Mbeubeuss) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (12 noms) à rattacher au sens |
-| **60** · Colobane → Bargny | Non · 8 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · ordre publié (6 noms) à rattacher au sens |
+| **60** · Colobane → Bargny | Non · 8 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · ordre publié (6 noms) à rattacher au sens |
 | **61** · Keur Massar → Almadies | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (9 noms) à rattacher au sens |
 | **62** · Arrêt Chérif (Rufisque) → Penc Mi (Gueule Tapée) | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (17 noms) à rattacher au sens |
 | **63** · Stade LSS → Camp Marchand Rufisque | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (16 noms) à rattacher au sens |

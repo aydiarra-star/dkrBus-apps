@@ -1,6 +1,6 @@
 # Correspondances : pièces par sens
 
-Calculateur local au 2026-11-19 à 19:00 (Dakar), sans édition opérateur : **34 dossiers, 68 sens, 70 évaluations, 70 bloquées avant horaire**. Une même gare peut avoir plusieurs directions de service. Les entrées/sorties seules (4 arcs) ne sont pas des chemins de correspondance.
+Calculateur local au 2026-11-19 à 19:00 (Dakar), sans édition opérateur : **38 dossiers, 76 sens, 78 évaluations, 78 bloquées avant horaire**. Une même gare peut avoir plusieurs directions de service. Les entrées/sorties seules (4 arcs) ne sont pas des chemins de correspondance.
 
 Chaque rubrique sépare descente, montée et droit de passage. Si les portes sont effectivement au même endroit dans le même site, fournir à la place du chemin une autorisation **pour ces deux appels orientés** et un délai minimal. Sinon mesurer chaque segment, traversée et contrôle dans le sens indiqué. Lorsque l’examen s’arrête avant l’horaire, il reste aussi à fournir les deux courses de la même date, heures aux appels et temps pour les joindre. Un blocage dans le calculateur ne prouve pas que le voyage est impossible sur place.
 
@@ -109,6 +109,110 @@ Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
 
 Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](../docs/releve-218-73.md) · [4](../data/bus-review/within-bus-families.json) · [5](../data/bus-review/reference-archives.json) · [6](https://aftu-senegal.org/map/dakar-urbain-ligne-75/) · [7](https://aftu-senegal.org/map/dakar-urbain-ligne-65/).
+
+## colobane-aftu-75-60
+
+### Descendre : Gare De Colobane · 75 depuis Yeumbeul, rang 52/52 → monter : Gare De Colobane · 60 vers Bargny, rang 1/50
+
+75 depuis 03:50, arrivée 04:33 après Av. Mbacké / Rue 231 ; 60 à 04:40 avant deux occurrences Rue Gib 71, 18. Sept minutes entre cellules, pas un délai de marche. Fin 75 / début 60 : 0,5 m entre symboles, 1,6 m entre bouts des traits. La carte nomme Malika, la grille Yeumbeul : confirmer la variante, la dépose et la file pour Bargny.
+
+- **AFTU → AFTU** · `survey:colobane:75:yeumbeul:arrivee` → `survey:colobane:60:depart` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:75:yeumbeul:arrivee, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:75:yeumbeul:arrivee.
+  - Identifier et sourcer le quai de montée de survey:colobane:60:depart, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:60:depart.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+### Descendre : Gare De Colobane · 60 depuis Bargny, rang 48/48 → monter : Gare De Colobane · 75 vers Yeumbeul, rang 1/51
+
+60 depuis 04:20, arrivée 05:17 après Hlm V. La 75 à 05:16 est déjà partie sur la grille ; prochaine origine imprimée 05:25, huit minutes après 05:17. Aucune des deux cartes sortantes ne décrit ces portes dans le sens inverse. Dans l’archive 2023, A_990 → A_1564 pour la 60 et A_1564 → A_1868 pour la 75. Aucun droit d’attendre au même quai.
+
+- **AFTU → AFTU** · `survey:colobane:60:arrivee` → `survey:colobane:75:yeumbeul:depart` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:60:arrivee, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:60:arrivee.
+  - Identifier et sourcer le quai de montée de survey:colobane:75:yeumbeul:depart, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:75:yeumbeul:depart.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+
+Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](https://aftu-senegal.org/map/dakar-urbain-ligne-60/) · [4](../src/data/bus-sheets/aftu-60-outbound.json) · [5](../src/data/bus-sheets/aftu-60-inbound.json) · [6](../data/bus-review/within-bus-families.json) · [7](../data/bus-review/reference-archives.json) · [8](https://aftu-senegal.org/map/dakar-urbain-ligne-75/) · [9](../src/data/weekly-cells/aftu-75-colobane.json) · [10](../src/data/weekly-cells/aftu-75-yeumbeul.json).
+
+## colobane-aftu-60-ter
+
+### Descendre : Gare De Colobane · 60 depuis Bargny, rang 48/48 → monter : Colobane
+
+La première arrivée imprimée est 05:17 (04:20 de Bargny) ; ce n’est ni l’ouverture de la gare ni un départ de train. Identifier le quai de dépose, la sortie de la gare routière, le contrôle Nord ou Sud et la voie du TER dans le sens voulu. La fin historique A_1564 r46/46 n’est pas une porte.
+
+- **AFTU → TER** · `survey:colobane:60:arrivee` → `ter-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:60:arrivee, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:60:arrivee.
+  - Identifier et sourcer le quai de montée de ter-colobane, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Colobane → monter : Gare De Colobane · 60 vers Bargny, rang 1/50
+
+04:40 est le premier départ de la grille de bus, pas l’arrivée du TER. La carte AFTU ne dessine que le départ vers Bargny ; relever la sortie du train et le passage public vers la bonne file. Ne pas utiliser les deux minutes de la DDD 18 ni la cadence TER pour dater cette paire.
+
+- **TER → AFTU** · `ter-colobane` → `survey:colobane:60:depart` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de ter-colobane, pour la ligne et le sens concernés.
+  - Identifier et sourcer le quai de montée de survey:colobane:60:depart, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:60:depart.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](../docs/enquete-correspondances.md) · [2](../data/bus-review/exchange-call-comparison.json) · [3](https://aftu-senegal.org/map/dakar-urbain-ligne-60/) · [4](../src/data/bus-sheets/aftu-60-outbound.json) · [5](../src/data/bus-sheets/aftu-60-inbound.json) · [6](https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/) · [7](https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/) · [8](../docs/colobane-walking-transfer-audit-2026-11-16.md).
+
+## colobane-tata-60-ter
+
+### Descendre : Colobane · TATA 60 depuis Bargny → monter : Colobane
+
+SETER nomme « Bus TATA : Gare de Colobane : 60 » au Nord et au Sud ; MoMove Dakar nomme Bargny → Colobane. Le dernier secteur après Patte d’Oie ne situe pas la dépose. Identifier côté, accès de gare et horaire du bus par appel ; pas de durée de marche fournie pour la 60.
+
+- **TATA → TER** · `survey:colobane:tata60:arrivee` → `ter-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:tata60:arrivee, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:tata60:arrivee.
+  - Identifier et sourcer le quai de montée de ter-colobane, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Colobane → monter : Colobane · TATA 60 vers Bargny
+
+Colobane → Autoroute → Route Nationale est un ordre de repères. Le sens sortant du bus ne précise pas où monter après la sortie du train. Relever porte, traversées, contrôle, durée dans ce sens et les deux courses datées. Les 50/48 rangs de la provenance AFTU ne sont pas une grille TATA.
+
+- **TER → TATA** · `ter-colobane` → `survey:colobane:tata60:depart` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de ter-colobane, pour la ligne et le sens concernés.
+  - Identifier et sourcer le quai de montée de survey:colobane:tata60:depart, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:tata60:depart.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/) · [2](https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/) · [3](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [4](https://momove.app/guide) · [5](https://www.covoiturage.sn/bus-tata-itineraire/ligne/60/colobane/bargny/) · [6](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/).
+
+## colobane-16b-ter
+
+### Descendre : SCOA / Police Bel Air · 16B vers Palais 1 → monter : Colobane
+
+DDD ordonne Place Bakou → SCOA → Police Bel Air → Bel Air (r11 à r14/27 de repères). SETER indique ESCOA / Police Bel-Air à six minutes à pied. Identifier la dépose précise de la 16B et la porte TER : aucune de ces deux appellations ne désigne une colonne de la grille à 83 appels vers Gare Palais.
+
+- **DDD → TER** · `survey:colobane:16b:vers-palais` → `ter-colobane` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de survey:colobane:16b:vers-palais, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la descente à survey:colobane:16b:vers-palais.
+  - Identifier et sourcer le quai de montée de ter-colobane, pour la ligne et le sens concernés.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+### Descendre : Colobane → monter : ESCOA / Police Bel-Air · montée 16B vers Malika à localiser
+
+La liste à 82 appels depuis Gare Palais ne nomme pas Police Bel Air. Ne pas retourner les r12/r13 de l’autre variante ni choisir un Arrêt De Bus anonyme. Confirmer le quai de descente du train, le côté de montée vers Malika, les traversées, le contrôle et la durée porte à porte.
+
+- **TER → DDD** · `ter-colobane` → `survey:colobane:16b:vers-malika` · `BLOCKED_BEFORE_TIMETABLE`.
+  - Identifier et sourcer le quai de descente de ter-colobane, pour la ligne et le sens concernés.
+  - Identifier et sourcer le quai de montée de survey:colobane:16b:vers-malika, pour la ligne et le sens concernés.
+  - Valider une desserte orientée permettant la montée à survey:colobane:16b:vers-malika.
+  - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
+  - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
+
+Sources : [1](https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/) · [2](https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/) · [3](../docs/colobane-walking-transfer-audit-2026-11-16.md) · [4](https://demdikk.sn/reseau-urbain-dakar/) · [5](../src/data/weekly-cells/ddd-16B-outbound.json) · [6](../src/data/weekly-cells/ddd-16B-inbound.json).
 
 ## ouakam-7-42
 

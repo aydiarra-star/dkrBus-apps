@@ -54,8 +54,11 @@ const reportedReview = 'docs/releve-218-73.md'
 const exchangeReview = 'docs/enquete-correspondances.md'
 const exchangeArchive = 'data/bus-review/exchange-call-comparison.json'
 const gare = (site: string) => `https://www.terdakar.sn/gare-de-${site}-tout-ce-qu-il-faut-savoir/`
+const colobaneStations = [gare('colobane-nord'), gare('colobane-sud'), colobane]
+const colobane60 = [exchangeReview, exchangeArchive, 'https://aftu-senegal.org/map/dakar-urbain-ligne-60/',
+  'src/data/bus-sheets/aftu-60-outbound.json', 'src/data/bus-sheets/aftu-60-inbound.json']
 const familyReview = [exchangeReview, exchangeArchive, reportedReview, 'data/bus-review/within-bus-families.json', 'data/bus-review/reference-archives.json']
-const survey = (mode: 'ddd' | 'aftu', key: string, documentaryName: string): SurveyEnd => ({ mode, stopId: `survey:${key}`, documentaryName })
+const survey = (mode: 'ddd' | 'aftu' | 'tata', key: string, documentaryName: string): SurveyEnd => ({ mode, stopId: `survey:${key}`, documentaryName })
 export const dakarTransferDossiers: readonly Dossier[] = [
   { id: 'thiaroye-218-73', busSources: ['ddd:218', 'aftu:73'], betweenSites: false,
     ends: [survey('ddd', 'thiaroye:218:arrivee', 'Dépôt Thiaroye · descente de la 218 depuis Aéroport LSS'),
@@ -89,6 +92,34 @@ export const dakarTransferDossiers: readonly Dossier[] = [
       survey('aftu', 'colobane:75:depart', 'Colobane · montée dans la 75 vers Malika')],
       observation: 'Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. 65 r56/56 à 05:11 et 75 r1/51 à 05:16 : 5 min entre cellules de semaine. La fiche nomme Yeumbeul ; confirmer la variante de Malika, les quais et la permission de monter.' },
     sources: [...familyReview, 'https://aftu-senegal.org/map/dakar-urbain-ligne-75/', 'https://aftu-senegal.org/map/dakar-urbain-ligne-65/'] },
+  { id: 'colobane-aftu-75-60', busSources: ['aftu:75','aftu:60'], betweenSites: false,
+    ends: [survey('aftu','colobane:75:yeumbeul:arrivee','Gare De Colobane · 75 depuis Yeumbeul, rang 52/52'),
+      survey('aftu','colobane:60:depart','Gare De Colobane · 60 vers Bargny, rang 1/50')],
+    observation: '75 depuis 03:50, arrivée 04:33 après Av. Mbacké / Rue 231 ; 60 à 04:40 avant deux occurrences Rue Gib 71, 18. Sept minutes entre cellules, pas un délai de marche. Fin 75 / début 60 : 0,5 m entre symboles, 1,6 m entre bouts des traits. La carte nomme Malika, la grille Yeumbeul : confirmer la variante, la dépose et la file pour Bargny.',
+    reverse: { ends: [survey('aftu','colobane:60:arrivee','Gare De Colobane · 60 depuis Bargny, rang 48/48'),
+      survey('aftu','colobane:75:yeumbeul:depart','Gare De Colobane · 75 vers Yeumbeul, rang 1/51')],
+      observation: '60 depuis 04:20, arrivée 05:17 après Hlm V. La 75 à 05:16 est déjà partie sur la grille ; prochaine origine imprimée 05:25, huit minutes après 05:17. Aucune des deux cartes sortantes ne décrit ces portes dans le sens inverse. Dans l’archive 2023, A_990 → A_1564 pour la 60 et A_1564 → A_1868 pour la 75. Aucun droit d’attendre au même quai.' },
+    sources: [...colobane60,'data/bus-review/within-bus-families.json','data/bus-review/reference-archives.json',
+      'https://aftu-senegal.org/map/dakar-urbain-ligne-75/','src/data/weekly-cells/aftu-75-colobane.json','src/data/weekly-cells/aftu-75-yeumbeul.json'] },
+  { id: 'colobane-aftu-60-ter', busSources: ['aftu:60'], betweenSites: true,
+    ends: [survey('aftu','colobane:60:arrivee','Gare De Colobane · 60 depuis Bargny, rang 48/48'),ter('ter-colobane')],
+    observation: 'La première arrivée imprimée est 05:17 (04:20 de Bargny) ; ce n’est ni l’ouverture de la gare ni un départ de train. Identifier le quai de dépose, la sortie de la gare routière, le contrôle Nord ou Sud et la voie du TER dans le sens voulu. La fin historique A_1564 r46/46 n’est pas une porte.',
+    reverse: { ends: [ter('ter-colobane'),survey('aftu','colobane:60:depart','Gare De Colobane · 60 vers Bargny, rang 1/50')],
+      observation: '04:40 est le premier départ de la grille de bus, pas l’arrivée du TER. La carte AFTU ne dessine que le départ vers Bargny ; relever la sortie du train et le passage public vers la bonne file. Ne pas utiliser les deux minutes de la DDD 18 ni la cadence TER pour dater cette paire.' },
+    sources: [...colobane60,...colobaneStations] },
+  { id: 'colobane-tata-60-ter', busSources: ['tata:60'], betweenSites: true,
+    ends: [survey('tata','colobane:tata60:arrivee','Colobane · TATA 60 depuis Bargny'),ter('ter-colobane')],
+    observation: 'SETER nomme « Bus TATA : Gare de Colobane : 60 » au Nord et au Sud ; MoMove Dakar nomme Bargny → Colobane. Le dernier secteur après Patte d’Oie ne situe pas la dépose. Identifier côté, accès de gare et horaire du bus par appel ; pas de durée de marche fournie pour la 60.',
+    reverse: { ends: [ter('ter-colobane'),survey('tata','colobane:tata60:depart','Colobane · TATA 60 vers Bargny')],
+      observation: 'Colobane → Autoroute → Route Nationale est un ordre de repères. Le sens sortant du bus ne précise pas où monter après la sortie du train. Relever porte, traversées, contrôle, durée dans ce sens et les deux courses datées. Les 50/48 rangs de la provenance AFTU ne sont pas une grille TATA.' },
+    sources: [...colobaneStations, 'https://momove.app/guide', 'https://www.covoiturage.sn/bus-tata-itineraire/ligne/60/colobane/bargny/',
+      'https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/'] },
+  { id: 'colobane-16b-ter', busSources: ['ddd:16B'], betweenSites: true,
+    ends: [survey('ddd','colobane:16b:vers-palais','SCOA / Police Bel Air · 16B vers Palais 1'),ter('ter-colobane')],
+    observation: 'DDD ordonne Place Bakou → SCOA → Police Bel Air → Bel Air (r11 à r14/27 de repères). SETER indique ESCOA / Police Bel-Air à six minutes à pied. Identifier la dépose précise de la 16B et la porte TER : aucune de ces deux appellations ne désigne une colonne de la grille à 83 appels vers Gare Palais.',
+    reverse: { ends: [ter('ter-colobane'),survey('ddd','colobane:16b:vers-malika','ESCOA / Police Bel-Air · montée 16B vers Malika à localiser')],
+      observation: 'La liste à 82 appels depuis Gare Palais ne nomme pas Police Bel Air. Ne pas retourner les r12/r13 de l’autre variante ni choisir un Arrêt De Bus anonyme. Confirmer le quai de descente du train, le côté de montée vers Malika, les traversées, le contrôle et la durée porte à porte.' },
+    sources: [...colobaneStations,urbanPage,'src/data/weekly-cells/ddd-16B-outbound.json','src/data/weekly-cells/ddd-16B-inbound.json'] },
   { id: 'ouakam-7-42', busSources: ['ddd:7','aftu:42'], betweenSites: false,
     ends: [survey('ddd','okm:7:fin','Rue Okm 60, 67 · 7 depuis Palais, rang 29/29'),
       survey('aftu','okm:42:vers-gadaye','Rue Okm 60, 67 · 42 depuis Ouakam, rang 3/68')],

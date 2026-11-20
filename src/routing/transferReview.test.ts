@@ -46,7 +46,7 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(68)
+  expect(report).toHaveLength(76)
   expect(report.filter(d=>['gt54-18-39','maristes-12-75'].includes(d.dossier))).toHaveLength(4)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
@@ -58,6 +58,15 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
     expect(r.sources.filter(s => !s.startsWith('https://')).every(s => existsSync(s))).toBe(true)
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
   }
+  for (const [id,family] of [['colobane-tata-60-ter','tata'],['colobane-aftu-60-ter','aftu'],['colobane-16b-ter','ddd']] as const) {
+    const [go,back]=report.filter(r=>r.dossier===id)
+    expect([go.from.mode,go.to.mode,back.from.mode,back.to.mode]).toEqual([family,'ter','ter',family])
+    expect(go.from.stopId).not.toBe(back.to.stopId); expect(go.from.referenceCall).toBeNull()
+    expect(go.busSources).toEqual([family==='ddd'?'ddd:16B':`${family}:60`])
+  }
+  const [to60,from60]=report.filter(r=>r.dossier==='colobane-aftu-75-60')
+  expect(to60.observation).toContain('04:33');expect(to60.observation).toContain('04:40')
+  expect(from60.observation).toContain('05:16 est déjà partie');expect(from60.observation).toContain('05:25')
   const patte = report.filter(r => r.dossier === 'patte-doie-ddd-tata')
   expect(patte.map(r => [r.from.mode, r.to.mode])).toEqual([['ddd','tata'], ['tata','ddd']])
   for (const r of patte) {
