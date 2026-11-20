@@ -61,6 +61,47 @@ create index if not exists dakar_admin_gtfs_upload_sessions_expiry_idx
   on public.dakar_admin_gtfs_upload_sessions (expires_at)
   where state in ('UPLOAD_PENDING','FAILED');
 
+-- Atomically reserve a short finalization window before the Edge Function reads
+-- Storage metadata or writes the canonical manifest. The database clock and
+-- expires_at predicate serialize this with cleanup's expired-session selection.
+create or replace function public.protect_dakar_gtfs_upload_session_for_finalize(
+  p_upload_id uuid,
+  p_guard_seconds integer default 600
+)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = pg_catalog, public
+as $
+declare
+  protected_until timestamptz;
+begin
+  if coalesce(auth.role(), '') <> 'service_role' then
+    raise exception 'Dakar Bus intake service role required';
+  end if;
+  if p_guard_seconds is null or p_guard_seconds < 60 or p_guard_seconds > 3600 then
+    raise exception 'finalization guard duration out of range';
+  end if;
+
+  update public.dakar_admin_gtfs_upload_sessions
+     set expires_at = greatest(expires_at, now() + make_interval(secs => p_guard_seconds))
+   where upload_id = p_upload_id
+     and state = 'UPLOAD_PENDING'
+     and expires_at > now()
+   returning expires_at into protected_until;
+
+  return protected_until;
+end;
+$;
+
+revoke all on function public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)
+  from public, anon, authenticated, service_role;
+grant execute on function public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)
+  to service_role;
+
+comment on function public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer) is
+  'Intake service_role only. Atomically extends a still-live upload session while finalization runs, preventing expired-session cleanup from racing Storage/DB registration.';
+
 alter table public.dakar_admin_gtfs_upload_sessions enable row level security;
 revoke all on table public.dakar_admin_gtfs_upload_sessions from public, anon, authenticated, service_role;
 grant select, insert, update, delete

@@ -35,25 +35,7 @@ export function isUploadSessionExpired(expiresAt: unknown, now = Date.now()): bo
   return Number.isFinite(expiry) && expiry <= now;
 }
 
-/**
- * Extend a still-live upload session while finalization performs its Storage
- * and database checks. The caller must persist this value with a conditional
- * UPDATE that also requires expires_at > now; that CAS prevents cleanup from
- * deleting an object while finalization is in flight.
- */
-export function protectedFinalizationExpiry(
-  expiresAt: unknown,
-  now = Date.now(),
-  guardMs = SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS,
-): string | null {
-  if (typeof expiresAt !== "string" || !Number.isSafeInteger(now) ||
-      !Number.isSafeInteger(guardMs) || guardMs <= 0) return null;
-  const currentExpiry = Date.parse(expiresAt);
-  if (!Number.isFinite(currentExpiry) || currentExpiry <= now) return null;
-  const protectedExpiry = Math.max(currentExpiry, now + guardMs);
-  if (!Number.isSafeInteger(protectedExpiry)) return null;
-  return new Date(protectedExpiry).toISOString();
-}
+
 
 export function isExactBoundedObjectSize(
   actualValue: unknown,

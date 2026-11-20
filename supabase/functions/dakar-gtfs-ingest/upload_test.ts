@@ -304,24 +304,6 @@ Deno.test("anchors failed-session cleanup grace to the signed-token issuance tim
   }
 });
 
-Deno.test("protects a live upload session during finalization but never revives an expired one", () => {
-  const now = Date.parse("2026-11-20T12:00:00.000Z");
-  const nearExpiry = new Date(now + 1_000).toISOString();
-  const farExpiry = new Date(now + 60 * 60 * 1000).toISOString();
-  const protectedNear = protectedFinalizationExpiry(nearExpiry, now);
-  const protectedFar = protectedFinalizationExpiry(farExpiry, now);
-  if (protectedNear !== new Date(now + SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS).toISOString()) {
-    throw new Error("A near-expiry finalization did not reserve the safety window");
-  }
-  if (protectedFar !== farExpiry) {
-    throw new Error("A long-lived session expiry was shortened or changed unnecessarily");
-  }
-  if (protectedFinalizationExpiry(new Date(now).toISOString(), now) !== null ||
-      protectedFinalizationExpiry("not-a-timestamp", now) !== null) {
-    throw new Error("An expired or malformed session was revived for finalization");
-  }
-});
-
 Deno.test("does not permit failed-session cleanup before the signed token expires", () => {
   const createdAt = Date.parse("2026-11-19T12:00:00.000Z");
   const signedTokenExpiresAt = createdAt + SIGNED_UPLOAD_TOKEN_TTL_MS;

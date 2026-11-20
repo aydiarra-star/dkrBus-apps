@@ -28,6 +28,12 @@ begin
      or has_table_privilege('service_role', 'public.dakar_admin_gtfs_upload_sessions', 'TRUNCATE') then
     raise exception 'The intake service role does not have the intended bounded session privileges';
   end if;
+
+  if has_function_privilege('anon', 'public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)', 'EXECUTE')
+     or not has_function_privilege('service_role', 'public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)', 'EXECUTE') then
+    raise exception 'The finalization expiry guard is not restricted to the intake service role';
+  end if;
 end;
 $upload_session_schema_test$;
 
@@ -63,10 +69,58 @@ insert into public.dakar_admin_gtfs_upload_sessions (
   now() + interval '26 hours 25 minutes'
 );
 
+-- Near-expiry and expired synthetic sessions exercise the database-clock guard.
+insert into public.dakar_admin_gtfs_upload_sessions (
+  upload_id, dataset_id, dataset_version, operator, source, source_type, date_source,
+  verified_at, valid_from, valid_until, confidence, service_status, validity_status,
+  archive_object_path, manifest_object_path, archive_sha256, archive_bytes,
+  manifest_sha256, manifest_text, imported_by, expires_at, created_at
+) values (
+  '00000000-0000-4000-8000-000000000201',
+  'synthetic-finalize-guard',
+  'synthetic-v1', 'Synthetic', 'CI', 'UNKNOWN', 'CI',
+  now(), now() - interval '1 day', now() + interval '1 day', 0.5, 'UNKNOWN', 'CURRENT',
+  'synthetic-finalize-guard/' || repeat('e', 64) || '/feed.zip',
+  'synthetic-finalize-guard/' || repeat('e', 64) || '/manifest.json',
+  repeat('e', 64), 128, repeat('f', 64),
+  '{"schema_version":"1.0","dataset_id":"synthetic-finalize-guard"}',
+  null, now() + interval '1 minute', now() - interval '26 hours 14 minutes'
+);
+insert into public.dakar_admin_gtfs_upload_sessions (
+  upload_id, dataset_id, dataset_version, operator, source, source_type, date_source,
+  verified_at, valid_from, valid_until, confidence, service_status, validity_status,
+  archive_object_path, manifest_object_path, archive_sha256, archive_bytes,
+  manifest_sha256, manifest_text, imported_by, expires_at, created_at
+) values (
+  '00000000-0000-4000-8000-000000000202',
+  'synthetic-finalize-expired',
+  'synthetic-v1', 'Synthetic', 'CI', 'UNKNOWN', 'CI',
+  now(), now() - interval '1 day', now() + interval '1 day', 0.5, 'UNKNOWN', 'CURRENT',
+  'synthetic-finalize-expired/' || repeat('9', 64) || '/feed.zip',
+  'synthetic-finalize-expired/' || repeat('9', 64) || '/manifest.json',
+  repeat('9', 64), 128, repeat('8', 64),
+  '{"schema_version":"1.0","dataset_id":"synthetic-finalize-expired"}',
+  null, now() - interval '1 hour', now() - interval '30 hours'
+);
+
 do $upload_session_constraint_test$
 declare
   rejected boolean;
+  protected_until timestamptz;
 begin
+  select public.protect_dakar_gtfs_upload_session_for_finalize(
+    '00000000-0000-4000-8000-000000000201', 600
+  ) into protected_until;
+  if protected_until is null or protected_until < now() + interval '9 minutes' then
+    raise exception 'A live finalization session was not extended with database time';
+  end if;
+
+  select public.protect_dakar_gtfs_upload_session_for_finalize(
+    '00000000-0000-4000-8000-000000000202', 600
+  ) into protected_until;
+  if protected_until is not null then
+    raise exception 'An expired session was revived by the finalization guard';
+  end if;
   if not exists (
     select 1 from public.dakar_admin_gtfs_upload_sessions
      where dataset_id = 'synthetic-upload-session'
@@ -152,3 +206,5 @@ $upload_session_constraint_test$;
 reset role;
 delete from public.dakar_admin_gtfs_upload_sessions
  where dataset_id = 'synthetic-upload-session';
+delete from public.dakar_admin_gtfs_upload_sessions
+ where dataset_id in ('synthetic-finalize-guard','synthetic-finalize-expired');

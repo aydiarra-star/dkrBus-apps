@@ -17,7 +17,6 @@ import {
   MAX_JSON_REQUEST_BYTES,
   MAX_MANIFEST_BYTES,
   isUploadSessionExpired,
-  protectedFinalizationExpiry,
   isExactBoundedObjectSize,
   uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
@@ -476,28 +475,20 @@ async function finalizeUpload(
     }, cors);
   }
 
-  // Protect the archive from the opportunistic expiry cleaner while this
-  // finalization is in flight. The conditional UPDATE is the concurrency
-  // boundary: if cleanup has already made the session eligible, no object or
-  // manifest work is attempted; if this update wins, cleanup sees the extended
-  // expiry and must leave both objects alone.
-  const finalizationStartedAt = new Date().toISOString();
-  const protectedExpiry = protectedFinalizationExpiry(session.expires_at);
-  if (!protectedExpiry) {
-    return reply(410, { error: "UPLOAD_SESSION_EXPIRED" }, cors);
-  }
-  const { data: protectedSession, error: protectExpiryError } = await admin
-    .from(UPLOAD_TABLE)
-    .update({ expires_at: protectedExpiry })
-    .eq("upload_id", session.upload_id)
-    .eq("state", "UPLOAD_PENDING")
-    .gt("expires_at", finalizationStartedAt)
-    .select("upload_id")
-    .maybeSingle();
+  // Ask PostgreSQL to extend a still-live session using database time. This
+  // is an atomic compare-and-set against expires_at > now(), so the opportunistic
+  // cleaner and finalizer cannot both win the expiry boundary on different clocks.
+  const { data: protectedExpiry, error: protectExpiryError } = await admin.rpc(
+    "protect_dakar_gtfs_upload_session_for_finalize",
+    {
+      p_upload_id: session.upload_id,
+      p_guard_seconds: SIGNED_UPLOAD_ISSUANCE_SAFETY_MARGIN_MS / 1000,
+    },
+  );
   if (protectExpiryError) {
     return reply(503, { error: "UPLOAD_SESSION_FINALIZATION_GUARD_FAILED" }, cors);
   }
-  if (!protectedSession) {
+  if (typeof protectedExpiry !== "string" || !Number.isFinite(Date.parse(protectedExpiry))) {
     return reply(409, { error: "UPLOAD_SESSION_EXPIRED_OR_FINALIZED" }, cors);
   }
   session.expires_at = protectedExpiry;
