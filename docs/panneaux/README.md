@@ -5,16 +5,28 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, samedi 21 et dimanc
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 48 | 111 | 4 | 1322 | 344 | 216 | 16,34 % | 153 | 600 | 53 |
-| AFTU | 73 | 158 | 57 | 3486 | 211 | 138 | 3,96 % | 16 | 736 | 0 |
+| AFTU | 73 | 158 | 57 | 3486 | 375 | 302 | 8,66 % | 16 | 736 | 0 |
 | TATA | 65 | 133 | 10 | 0 | 0 | 0 | non défini | 0 | 1336 | 0 |
 
-**354 / 4808 = 7,36 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**518 / 4808 = 10,77 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
 **Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.
 
 Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés.
+
+### Cellules par type de source
+
+| Famille | Grille semaine | Samedi | Dimanche | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| DDD | 6592 | 1470 | 0 | 250 | 0 | 0 | 145608 | 138210 |
+| AFTU | 3672 | 171 | 171 | 91 | 0 | 0 | 253767 | 228826 |
+| TATA | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
+
+¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. Une case vide à 19 h n’est pas zéro minute.
+
+[Inventaire de toutes les sources, y compris hors attribution](../couverture-sources-bus.md) : notamment 26 noms opérateur à la fin du tableau de la 1, et 89 / 95 rangs d’une variante 85 non appariée. Les archives PassBi (calendrier régulier terminé en 2023) et les index secondaires [ne sont pas une liste actuelle des services](../bilan-bus-voyageurs.md). Les libellés génériques sont comptés au rang imprimé, pas comme des quais localisés.
 
 ## DDD
 
@@ -139,9 +151,9 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 
 ## AFTU
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 73**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 65, 73, 75**.
 
-Rangs d’arrêt exclus : aucune heure source au rang : 2802 ; rang non transcrit : 202 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
+Rangs d’arrêt exclus : aucune heure source au rang : 2638 ; rang non transcrit : 202 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -248,8 +260,8 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2802 ; rang non transcri
 | aftu:63/2 | Retour | Stade LSS → Camp Marchand Rufisque | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:64/1 | Aller | Guédiawaye → Rufisque | 61 arrêts | 0 | 0 | 61 | liste de la fiche |
 | aftu:64/2 | Retour | Rufisque → Guédiawaye | 61 arrêts | 0 | 0 | 61 | liste de la fiche |
-| aftu:65/1 | Aller | Colobane → Jaxaay | 57 arrêts | 0 | 0 | 57 | liste de la fiche |
-| aftu:65/2 | Retour | Jaxaay → Colobane | 56 arrêts | 0 | 0 | 56 | liste de la fiche |
+| aftu:65/1 | Aller | Colobane → Jaxaay | 57 arrêts | 57 | 57 | 57 | liste de la fiche |
+| aftu:65/2 | Retour | Jaxaay → Colobane | 56 arrêts | 56 | 56 | 56 | liste de la fiche |
 | aftu:66/1 | Aller | Yoff → Gorom | 77 arrêts | 0 | 0 | 77 | liste de la fiche |
 | aftu:66/2 | Retour | Gorom → Yoff | 77 arrêts | 0 | 0 | 77 | liste de la fiche |
 | aftu:67/1 | Aller | Rufisque → Ouakam | 71 arrêts | 0 | 0 | 71 | liste de la fiche |
@@ -270,7 +282,7 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2802 ; rang non transcri
 | aftu:74/1 | Aller | Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | 14 repères | 0 | 0 | 14 | repères / secteurs |
 | aftu:74/2 | Retour | Terminus Cité COCEHAS → Terminus Bargny (Gare ferroviaire) | 0 arrêts | 0 | 0 | 0 | sans liste · Retour non confirmé |
 | aftu:75/1 | Aller | Yeumbeul → Gare de Colobane | 52 arrêts | 52 | 52 | 52 | liste de la fiche |
-| aftu:75/2 | Retour | Gare de Colobane → Yeumbeul | 51 arrêts | 0 | 0 | 51 | liste de la fiche |
+| aftu:75/2 | Retour | Gare de Colobane → Yeumbeul | 51 arrêts | 51 | 51 | 51 | liste de la fiche |
 | aftu:76/1 | Aller | Terminus Sipres → Terminus Cité Assurance | 12 repères | 0 | 0 | 12 | repères / secteurs |
 | aftu:76/2 | Retour | Cité Assurance → Sipres | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:77/1 | Aller | Terminus Rufisque Cité Tacco → Terminus Liberté 5 | 14 repères | 0 | 0 | 14 | repères / secteurs |

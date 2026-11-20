@@ -2,9 +2,9 @@
 import type { BusBoardDirection, BusFamily } from './busPassageBoard'
 import type { SourceGrid, SourceHours } from './busSourceHours'
 import { hhmm } from './busSourceHours'
-import { clockMinutes, MINUTE, originSlots } from './stopPassageCountdown'
+import { clockMinutes } from './stopPassageCountdown'
 import { AFTU73_SHEETS } from '../data/aftu73Checkpoints'
-import { DDD311_SHEETS } from '../data/ddd311BoardSheets'
+import { DDD311_PRINTED } from '../data/ddd311BoardSheets'
 import { DDD12_SHEETS } from '../data/ddd12DirectionSheets'
 import { DDD16B_CHECKPOINTS } from '../data/dddSecondaryBoardSheets'
 import { DDD_319_PROFILES } from '../data/busBoardCallSheets'
@@ -36,20 +36,16 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
     return {file:'src/data/aftu73Checkpoints.ts',source:s.grid,weekday:make(s.weekday),saturday:make(s.weekend),sunday:make(s.weekend)}
   }
   if (family === 'ddd' && code === '311') {
-    const s = DDD311_SHEETS.find(s=>s.timetable === m.originBasis && s.points === d.points)
-    if (!s) return
-    const make = (key:'weekday'|'saturday'|'sunday'): SourceGrid => ({ranks:ranks(s.points.length), nextUntranscribedOrigin:null,
-      profiles: s.week[key].flatMap(w=>originSlots(w,0)).map(t=>{
-        const origin=hhmm(t/MINUTE),hour=Math.floor(t/MINUTE/60)
-        return {origins:[origin], elapsed:(s.byOrigin as Record<string, readonly number[]>)[origin] ?? ((hour>=7 && hour<10 || hour>=15 && hour<20)?s.busy:s.quiet)}
-      })})
-    return {file:'src/data/ddd311BoardSheets.ts',source:s.timetable,weekday:make('weekday'),saturday:make('saturday'),sunday:make('sunday')}
+    const table = DDD311_PRINTED.find(({sheet}) => sheet.timetable === m.originBasis && sheet.source === d.source && sheet.points === d.points)
+    if (!table) return
+    const make = (profiles: SourceGrid['profiles']): SourceGrid => ({ranks:ranks(d.points.length),nextUntranscribedOrigin:null,profiles})
+    return {file:'src/data/ddd311BoardSheets.ts',source:table.sheet.timetable,weekday:make(table.weekday),saturday:make(table.saturday),sunday:make([])}
   }
   if (family === 'aftu' && code === '84' && d.points === aftu84.directions.inbound.waypoints) {
     return {file:'src/data/aftu-84-directions.json',source:aftu84.sourceLabel,samples:[{label:'Relevé non daté',ranks:ranks(d.points.length),times:aftu84.directions.inbound.times}]}
   }
   const idx = d.label.startsWith('Retour') ? 1 : 0
-  if ((family === 'aftu' && code === '75') || (family === 'ddd' && code === '12')) {
+  if ((family === 'aftu' && ['65','75'].includes(code)) || (family === 'ddd' && code === '12')) {
     const match = Object.entries(grids).find(([,g])=>g.page===d.source && sequenceCheck(d.points)===g.sequence)
     if (!match) return
     const [path,g] = match, s = DDD12_SHEETS[idx]

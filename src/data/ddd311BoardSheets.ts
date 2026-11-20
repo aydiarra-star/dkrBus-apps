@@ -43,3 +43,21 @@ export const DDD311_SHEETS = [
     },
   },
 ] as const
+
+// Column membership on the two printed tables (weekday and Saturday); no
+// cadence expansion or default peak-hour rule is evidence of a source cell.
+// Compress only columns whose 42 printed elapsed minutes are identical.
+const [rn1, lac] = DDD311_SHEETS
+const col = (origins: string, elapsed: readonly number[]) => ({ origins: origins.split(' '), elapsed })
+const regularPeaks = '07:00 07:30 08:00 08:30 09:00 15:00 15:30 16:00 16:30 17:00 17:30 18:00 18:30 19:00'
+const middle = '10:00 10:30 11:00 11:30 12:00 12:30 13:00 13:30 14:00'
+export const DDD311_PRINTED = [
+  { sheet: rn1, weekday: [col('06:30',rn1First), col(regularPeaks,rn1Peak), col('09:30',rn1.byOrigin['09:30']), col(middle,rn1Quiet),
+      col('14:30',rn1.byOrigin['14:30']), col('19:30',rn1.byOrigin['19:30']), col('20:00',rn1.byOrigin['20:00'])],
+    saturday: [col('07:00 07:45 08:30 15:15 16:00 16:45 17:30 18:15 19:00',rn1Peak), col('09:15',rn1.byOrigin['09:15']),
+      col('10:00 10:45 11:30 12:15 13:00 13:45',rn1Quiet), col('14:30',rn1.byOrigin['14:30']), col('19:45',rn1.byOrigin['19:45'])] },
+  { sheet: lac, weekday: [col(regularPeaks,lacPeak), col('09:30',lac.byOrigin['09:30']), col(middle,lacQuiet),
+      col('14:30',lac.byOrigin['14:30']), col('19:30',lac.byOrigin['19:30']), col('20:00',lac.byOrigin['20:00'])],
+    saturday: [col('07:30 08:15 09:00 15:00 15:45 16:30 17:15 18:00 18:45',lacPeak), col('09:45',lac.byOrigin['09:45']),
+      col('10:30 11:15 12:00 12:45 13:30 14:15',lacQuiet), col('19:30',lac.byOrigin['19:30'])] },
+] as const

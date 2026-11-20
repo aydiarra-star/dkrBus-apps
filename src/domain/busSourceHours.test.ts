@@ -32,7 +32,27 @@ describe('cellules de fiches, distinctes des modèles',()=>{
     expect(sourcePassage(toColobane,52,at('04:32:59'))).toMatchObject({at:at('04:33')})
     expect(sourcePassage(toColobane,52,at('05:09:00'))).toMatchObject({at:at('05:16')})
     expect(sourcePassage(toColobane,52,at('05:35')).state).toBe('unknown')
-    expect(sheet('aftu','75')).toHaveLength(1)
+    expect(sourcePassage(dirs('aftu','75')[1],15,at('19:00')).state).toBe('unknown')
+  })
+  it('Colobane : deux lectures indépendantes du matin, pas un transfert calculé',()=>{
+    const [toJaxaay,toColobane]=dirs('aftu','65'),fromColobane=dirs('aftu','75')[1]
+    expect(sourcePassage(toJaxaay,1,at('04:33'))).toMatchObject({at:at('04:42')})
+    expect(sourcePassage(toJaxaay,2,at('04:42'))).toMatchObject({at:at('04:43')})
+    expect(sourcePassage(toColobane,56,at('05:10:59'))).toMatchObject({at:at('05:11')})
+    expect(sourcePassage(fromColobane,1,at('05:11'))).toMatchObject({at:at('05:16')})
+    for(const [d,n,last] of [[toJaxaay,57,'06:12'],[toColobane,56,'06:08'],[fromColobane,51,'06:10']] as const)
+      expect(sourcePassage(d,n,at(last))).toEqual({state:'unknown'})
+  })
+  it('311 : uniquement les colonnes imprimées, dont les changements de profil à cheval sur deux périodes',()=>{
+    const [rn,lac]=sheet('ddd','311'), saturday=day+2*86400000
+    for(const [d,count,ends] of [[rn,28,['07:10','10:16','15:13','20:15','20:38']],[lac,27,['07:49','10:16','15:13','20:15','20:38']]] as const){
+      const calls=sourceDay(d.sourceHours,42,day)!.today.calls
+      expect(calls.get(1)).toHaveLength(count);expect(calls.get(42)).toEqual(expect.arrayContaining(ends.map(at)))
+    }
+    const saturdayRow=(d:typeof rn,rank:number)=>sourceDay(d.sourceHours,42,saturday)!.today.calls.get(rank)!.map(t=>new Date(t).toISOString().slice(11,16))
+    expect(saturdayRow(rn,42)).toEqual('07:49 08:34 09:19 10:03 10:41 11:26 12:11 12:56 13:41 14:26 15:13 16:04 16:49 17:34 18:19 19:04 19:49 20:26'.split(' '))
+    expect(saturdayRow(lac,42)).toEqual('08:19 09:04 09:49 10:28 11:11 11:56 12:41 13:26 14:11 14:56 15:49 16:34 17:19 18:04 18:49 19:34 20:15'.split(' '))
+    expect(saturdayRow(rn,33).at(-1)).toBe('20:19');expect(saturdayRow(lac,17)[3]).toBe('10:03')
   })
   it('ne transporte que les passages imprimés après minuit, sans répliquer de calendrier',()=>{
     const fri=day+86400000, sat=fri+86400000, d=sourceDay(data,3,sat)
