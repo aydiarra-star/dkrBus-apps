@@ -2374,6 +2374,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
                 <span className="station-board-passage-stack">
                   {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains · 8 min</small>}
+                  {network === 'ter' && row.stop.id === 'ter-aibd' && <small className="station-board-mission-label">Prochaine arrivée · mission AIBD</small>}
                   <ReferencePassage passage={row.outbound} now={now} terminus={row.stop.id === board.destinationStop.id} />
                   {network === 'ter' && row.stop.id === 'ter-diamniadio' && row.outboundAirport && (
                     <span className="station-board-mission">
