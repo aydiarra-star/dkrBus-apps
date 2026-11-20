@@ -45,7 +45,7 @@ export type PassageStatus =
 
 export interface NextPassage {
   status: PassageStatus
-  /** Instant du prochain créneau de la grille (ISO 8601, UTC = heure de Dakar). */
+  /** Instant de passage à cette station (ISO 8601, UTC = heure de Dakar). */
   nextDepartureAt: string
   /** Minutes entières restantes, arrondies à l'entier supérieur (jamais 0). */
   minutes: number
