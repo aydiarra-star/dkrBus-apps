@@ -67,8 +67,6 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
     const outboundPhaseGap = (Date.parse(diamniadio.outboundAirport!.nextDepartureAt) - Date.parse(diamniadio.outbound!.nextDepartureAt)) / 60_000
     expect([0, 8, 16]).toContain(outboundPhaseGap)
-    const inboundPhaseGap = (Date.parse(diamniadio.inboundAirport!.nextDepartureAt) - Date.parse(diamniadio.inbound!.nextDepartureAt)) / 60_000
-    expect([0, 8, 16]).toContain(inboundPhaseGap)
     expect(aibd.inbound!.headwayMinutes).toBe(24)
   })
 
@@ -97,6 +95,30 @@ describe('tableau des créneaux par station et par sens', () => {
         0,
       )!.nextDepartureAt,
     )
+  })
+
+  it('ancre le retour tous trains à Diamniadio et propage vers Dakar', () => {
+    const now = Date.parse('2026-10-08T13:44:00.000Z')
+    const board = buildStationBoard(boardLinesForNetwork('ter')[0], now)!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+    const pnr = board.rows.find((row) => row.stop.id === 'ter-pnr')!
+    expect(diamniadio.inbound!.headwayMinutes).toBe(8)
+    expect(diamniadio.inbound!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DAKAR_DIAMNIADIO'),
+        now,
+        0,
+      )!.nextDepartureAt,
+    )
+    expect(pnr.inbound!.headwayMinutes).toBe(8)
+    expect(pnr.inbound!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DAKAR_DIAMNIADIO'),
+        now,
+        12.5,
+      )!.nextDepartureAt,
+    )
+    expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
   })
 
   it('calcule le compte à rebours de chaque gare à partir du départ de mission propagé', () => {
