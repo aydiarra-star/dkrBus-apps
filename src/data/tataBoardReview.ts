@@ -68,3 +68,13 @@ export const TATA_RETURN_SECTORS: Readonly<Record<string, string>> = {
   '81':'Gare des Baux Maraîchers|Poste Thiaroye|Fass Mbao|Tournal Yeumbeul|Malika|Station Keur Massar|Croisement Tivaouane Peulh|Tivaouane Peulh|Tawfeex',
   '82':'Lat Dior|Poste Médine|Centenaire|Poste Thiaroye|SICAP Mbao|Arrêt 58|Comico',
 }
+
+// Independent columns, transcribed in print order. These are fare-stage names,
+// not stop calls. The duplicate « SECTION 6 » on the 83 is not a duplicate place.
+export const TATA_UNTIMED_STAGES: Readonly<Record<string, readonly { side: 'outbound' | 'inbound'; points: string[] }[]>> = {
+  '83': [{ side: 'inbound', points: ['ZONE DE CAPTAGE', 'CASE BA', 'ROND-POINT MALIBU', 'MALIKA PLAGE', 'STATION KEUR MASSAR', 'SIPRES', 'DIOUTIBA', 'JAXAAY'] }],
+  '84': [
+    { side: 'outbound', points: ['JAXAAY', 'CITE ASSURANCE', 'KEUR MBAYE FALL', 'FASS MBAO', 'POSTE THIAROYE', 'BOUNTOU PIKINE', 'NABIL CHOUCAIR', 'CICES', 'DIRECTION SONATEL', 'UCAD'] },
+    { side: 'inbound', points: ['UCAD', 'DIRECTION SONATEL', 'CICES', 'NABIL CHOUCAIR', 'BOUNTOU PIKINE', 'POSTE THIAROYE', 'FASS MBAO', 'KEUR MBAYE FALL', 'CITE ASSURANCE', 'JAXAAY'] },
+  ],
+}

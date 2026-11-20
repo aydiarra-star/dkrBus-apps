@@ -10,7 +10,7 @@ Modèle `dakar-bus-board/v1`. [Hypothèses, sources et reproduction](modeles-pas
 
 Une liste de repères peut décrire des rues ou des secteurs historiques, et non des arrêts de montée. « Deux listes » exige des rangs au-delà de l’origine dans chacun des deux sens documentaires. Ils peuvent relever d’éditions différentes ; cela ne certifie ni un aller-retour actuel ni l’identité physique des terminus. Une boucle n’est comptée qu’une fois. Un même numéro dans deux familles ne constitue pas deux services physiques.
 
-Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `0c61790d64ffd2a633cf81a5a5bad490f9e094de3a81ad916af392394561fee7`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
+Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `d9270a8b6ebb8d980ebdece9d7a413e16e23e2849f901883daacaf05a8e11de7`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
 
 ## DDD
 
@@ -418,5 +418,8 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 | 82 | [Retour · secteurs 2020 · Lat Dior → Comico](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | 7 secteurs | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 107.7 min · secteurs du retour 2020 · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 4: 9 ; 7: 1 |
 | 83 | [Aller · tracé 2020 · Rufisque Arafat → Zone de Captage](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | 14 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 107.7 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 8: 1 ; 14: 1 |
 | 83 | [Retour · Zone de Captage → Rufisque Arafat](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sens non documenté | — |
+| 83 | [Retour · sections 2020 · ZONE DE CAPTAGE → JAXAAY](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sections tarifaires de 2020 · aucun horaire | — |
 | 84 | [Aller · Jaxaay → UCAD](https://momove.app/guide) | — | — | Sens non documenté | — |
 | 84 | [Retour · UCAD → Jaxaay](https://momove.app/guide) | — | — | Sens non documenté | — |
+| 84 | [Aller · sections 2020 · JAXAAY → UCAD](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sections tarifaires de 2020 · aucun horaire | — |
+| 84 | [Retour · sections 2020 · UCAD → JAXAAY](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sections tarifaires de 2020 · aucun horaire | — |

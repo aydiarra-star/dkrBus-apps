@@ -2,7 +2,7 @@
  * its own stops AND grid. Never match a timetable to another array by number. */
 import { DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES as official, DDD_OFFICIAL_ROUTE_SOURCE } from '../data/dddOfficialPublishedRoutes'
 import { DDD_319_OUTBOUND, DDD_319_PROFILES } from '../data/busBoardCallSheets'
-import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_2020_SOURCE } from '../data/tataBoardReview'
+import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
 import { MINUTE } from './stopPassageCountdown'
 import mobility from '../data/mobility-lines.json'
 import tata from '../data/tata-lines.json'
@@ -123,11 +123,15 @@ function returnSectors(c: string, source: string): BusBoardDirection {
 function tataDirections(r: PublicBusLineReference): BusBoardDirection[] {
   const c = r.line, s = tata.find(f => f.network === 'tata' && f.code === c), pair = emptyPair(r)
   const source = s?.detailSourceUrl ?? s?.sourceUrl ?? TATA_2020_SOURCE
+  const stages: BusBoardDirection[] = (TATA_UNTIMED_STAGES[c] ?? []).map(({ side, points }) => ({
+    label: `${label(side)} · sections 2020`, from: points[0], to: points.at(-1)!, points, pointKind: 'secteurs',
+    source: TATA_2020_SOURCE, clock: null, reason: 'Sections tarifaires de 2020 · aucun horaire',
+  }))
   const older = source === TATA_2020_SOURCE
   // Only the independently recrossed 2020 textual itineraries. Not a current
   // stop list. 63 and 74 here have their OWN historical end points.
   // 84 only has tariff stages. 83's return table ends at Jaxaay, NOT Arafat.
-  if (older && !TATA_2020_ADDITIONS[c] && !['61','62','63','65','66','67','68','71','73','74','75','76','77','78','80','81','82','83'].includes(c)) return pair
+  if (older && !TATA_2020_ADDITIONS[c] && !['61','62','63','65','66','67','68','71','73','74','75','76','77','78','80','81','82','83'].includes(c)) return [...pair, ...stages]
   const extra = TATA_2020_ADDITIONS[c]
   if (!s && !extra) return pair
   const pts = extra ? extra.split('|') : stripReturnNotes(s!.waypoints)
@@ -138,7 +142,7 @@ function tataDirections(r: PublicBusLineReference): BusBoardDirection[] {
   }
   pair[0] = { ...direction('tata', c, 'outbound', pts, 'repères', source), label: older ? 'Aller · tracé 2020' : 'Aller' }
   pair[1] = TATA_RETURN_SECTORS[c] ? returnSectors(c, source) : missing('inbound', pts.at(-1)!, pts[0], source)
-  return pair
+  return [...pair, ...stages]
 }
 function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {
   const c = r.line, pair = emptyPair(r)
