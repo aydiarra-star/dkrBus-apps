@@ -23,6 +23,7 @@ const checkRanks = (ranks: readonly number[], n: number) => ranks.length > 0 && 
 /** Invalid data fails the offline audit with a source/rank; never sort bad
  * times to make them look plausible. Duplicate stop NAMES remain legal. */
 export function sourceIssue(hours: SourceHours, n: number): string | undefined {
+  if (!hours.file.trim() || !hours.source.trim()) return 'Provenance de fiche manquante'
   for (const [day,g] of Object.entries({weekday:hours.weekday,saturday:hours.saturday,sunday:hours.sunday})) {
     if (!g) continue
     if (g.ranks[0] !== 1 || !checkRanks(g.ranks,n)) return `${day}: rang absent, dupliqué ou inversé`
@@ -31,10 +32,11 @@ export function sourceIssue(hours: SourceHours, n: number): string | undefined {
     for (const p of g.profiles) {
       if (!p.origins.length || p.elapsed.length !== g.ranks.length || p.elapsed[0] !== 0) return `${day}: colonne incomplète`
       for (const [i,v] of p.elapsed.entries()) if (!Number.isSafeInteger(v) || v < 0 || v >= 1440 || (i && v < p.elapsed[i-1])) return `${day}: heure décroissante/invalide au rang ${g.ranks[i]}`
+      let previous = -1
       for (const t of p.origins) {
         const m = minute(t)
-        if (m === null || origins.has(m) || m >= limit) return `${day}: origine ${t} invalide, répétée ou hors transcription`
-        origins.add(m)
+        if (m === null || m <= previous || origins.has(m) || m >= limit) return `${day}: origine ${t} invalide, répétée, décroissante ou hors transcription`
+        origins.add(m); previous = m
       }
     }
   }

@@ -4,6 +4,8 @@ Dans **Explorer → Prochains passages**, ouvrir DDD ou AFTU / TATA, rechercher 
 
 **Mode estimé uniquement, à la date de recette, jeudi 19 novembre 2026 à 19 h à Dakar :** 181 des 186 identités de catalogue ont un modèle propre pour au moins un sens. Les **6 950** décomptes actifs comprennent **4 253 occurrences d’arrêt**, **2 644 repères de parcours ou secteurs** et **53 origines seules**. Il y a deux listes d’arrêts pour **8 codes DDD, 23 AFTU et aucun code TATA**. Ce ne sont ni 6 950 quais uniques ni 181 lignes complètes dans les deux sens. [Tableau des 186 codes, sens, variantes, bornes, durées, refus et exemples](passages-bus-par-ligne.md).
 
+La [matrice exhaustive des rangs et des heures fournies](panneaux/README.md) distingue le dénominateur des arrêts, les repères, les origines seules et les sens sans liste.
+
 ## Une édition datée, une grille de référence et un modèle ne disent pas la même chose
 
 - **Horaires du jour.** Si une édition revue pour **ce jour et cette révision** est disponible, Explorer affiche en premier ses lignes, leurs propres identifiants et leurs appels ordonnés. Il utilise les départs et décalages de *chaque* profil, pas seulement ceux de la première course. L’heure au terminus est l’arrivée, pas le départ après stationnement. Pas de rapprochement d’une autre fiche par numéro. Une course programmée n’est pas une arrivée constatée. Aucune édition bus d’exploitation n’est incluse dans le jeu de recette local.

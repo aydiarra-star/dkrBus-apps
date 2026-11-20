@@ -60,6 +60,8 @@ jobs:
           done
           node scripts/audit_bus_boards.mjs --markdown "$RUNNER_TEMP/bus-boards.md"
           cmp docs/passages-bus-par-ligne.md "$RUNNER_TEMP/bus-boards.md"
+          node scripts/audit_bus_signs.mjs --dir "$RUNNER_TEMP/panneaux"
+          diff -ru docs/panneaux "$RUNNER_TEMP/panneaux"
 
       - name: Check AFTU/TATA source coverage audit
         run: node --check scripts/audit_aftu_tata_directional_coverage.mjs
