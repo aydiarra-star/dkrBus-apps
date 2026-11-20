@@ -10,6 +10,8 @@ on:
       - "scripts/audit_gt54.py"
       - "scripts/audit_patte_doie.py"
       - "scripts/audit_terminus_quays.py"
+      - "scripts/audit_terminal_calls.py"
+      - "data/bus-review/terminal-occurrences.json"
       - "data/bus-review/patte-doie-occurrences.json"
       - "scripts/medina_phase.py"
       - "data/bus-sections/gt54-pins.json"
@@ -68,7 +70,7 @@ jobs:
           else
             echo '::warning::Comparaison des terminus non exécutée (PBF ou dessins manquants).'
           fi
-      - name: Check historical call roles at GT-54 and Patte d’Oie and independent approach phases at Médina
+      - name: Check historical call roles, terminal sites and independent approach phases at Médina
         run: |
           base='https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder'
           ref=7a2b99824699cb10daf69852c8fbecb746200d77
@@ -80,6 +82,8 @@ jobs:
           cmp data/bus-review/gt54-occurrences.json artifacts/aftu/gt54.json
           python -m scripts.audit_patte_doie "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/patte-doie.json
           cmp data/bus-review/patte-doie-occurrences.json artifacts/aftu/patte-doie.json
+          python -m scripts.audit_terminal_calls "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/terminal-calls.json
+          cmp data/bus-review/terminal-occurrences.json artifacts/aftu/terminal-calls.json
           test "$(python -m scripts.medina_phase "$ddd")" = '119 2097 3518 4645'
           test "$(python -m scripts.medina_phase "$ddd" --direction inbound)" = '89 631 1066 1355'
       - name: Compare every archived call sequence with the one marked map direction

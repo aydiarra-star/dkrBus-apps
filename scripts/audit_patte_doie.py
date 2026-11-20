@@ -64,6 +64,27 @@ def event_rank(rows, expected):
     return i + 1
 
 
+def calendar_bounds(z, services):
+    validity = {
+        r["service_id"]: r["end_date"]
+        for r in tables(z, "calendar")
+        if r["service_id"] in services
+    }
+    if validity.keys() != services:
+        raise ValueError("Calendrier incomplet")
+    # These two PINNED archives use semicolons in this header only.
+    with z.open("calendar_dates.txt") as raw, io.TextIOWrapper(
+        raw, encoding="utf-8-sig", newline=""
+    ) as stream:
+        if stream.readline().strip() != "service_id;date;exception_type":
+            raise ValueError("En-tête des exceptions différent")
+        last_exception = max(
+            (date for service, date, _ in csv.reader(stream) if service in services),
+            default=None,
+        )
+    return max(validity.values()), last_exception
+
+
 def archive(family, path):
     route, westbound, expected = SAMPLES[family]
     if hashlib.sha256(path.read_bytes()).hexdigest() != DIGEST[family]:
@@ -72,28 +93,9 @@ def archive(family, path):
         trips = {r["trip_id"]: r for r in tables(z, "trips") if r["route_id"] == route}
         if not trips:
             raise ValueError("Ligne absente")
-        services = {t["service_id"] for t in trips.values()}
-        validity = {
-            r["service_id"]: r["end_date"]
-            for r in tables(z, "calendar")
-            if r["service_id"] in services
-        }
-        if validity.keys() != services:
-            raise ValueError("Calendrier incomplet")
-        # These two PINNED archives use semicolons in this header only.
-        with z.open("calendar_dates.txt") as raw, io.TextIOWrapper(
-            raw, encoding="utf-8-sig", newline=""
-        ) as stream:
-            if stream.readline().strip() != "service_id;date;exception_type":
-                raise ValueError("En-tête des exceptions différent")
-            last_exception = max(
-                (
-                    date
-                    for service, date, _ in csv.reader(stream)
-                    if service in services
-                ),
-                default=None,
-            )
+        last_calendar, last_exception = calendar_bounds(
+            z, {t["service_id"] for t in trips.values()}
+        )
         rows = defaultdict(list)
         for r in tables(z, "stop_times"):
             if r["trip_id"] in trips:
@@ -113,7 +115,7 @@ def archive(family, path):
     return {
         "route": route,
         "archiveSha256": DIGEST[family],
-        "lastCalendarDate": max(validity.values()),
+        "lastCalendarDate": last_calendar,
         "lastExceptionForTheseServices": last_exception,
         "window": expected,
         **offsets(point),

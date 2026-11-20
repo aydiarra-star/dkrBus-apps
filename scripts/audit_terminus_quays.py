@@ -11,6 +11,7 @@ import re
 import unicodedata
 from pathlib import Path
 
+from scripts.audit_bus_osm_occurrences import identity
 from scripts.audit_gt54 import nearest
 from scripts.audit_interchange_sites import distance, is_platform
 from scripts.audit_patte_doie import MARKERS
@@ -18,7 +19,8 @@ from scripts.extract_dakar_pedestrian_ways_from_pbf import inside_bounds
 
 # Discovery tolerance in metres, NOT a platform identity/access threshold.
 LIMIT = 20
-FIELDS = ("name", "name:fr", "operator", "network", "route_ref")
+OWNER_FIELDS = ("name", "name:fr", "operator", "network")
+FIELDS = (*OWNER_FIELDS, "route_ref", "ref")
 
 
 def normalize(s):
@@ -30,7 +32,7 @@ def normalize(s):
 
 
 def families(tags):
-    text = " ".join(normalize(tags.get(k, "")) for k in FIELDS[:-1])
+    text = " ".join(normalize(tags.get(k, "")) for k in OWNER_FIELDS)
     return [
         family
         for family, regex in (
@@ -45,17 +47,23 @@ def families(tags):
 def multiple_refs(tags):
     # A street number, a platform ref, or a hyphenated address is not a line.
     # Preserve the literal context: two refs need not mean different operators.
-    code = r"\d{1,3}[a-z]?"
-    listing = rf"{code}(?:\s*(?:[;/,&+]|\bet\b)\s*{code})+"
-    for field in ("route_ref", "name", "name:fr"):
+    code = r"[0-9]{1,3}[a-z]?"
+    sep = r"\s*(?:[;/,&+]|\bet\b)\s*"
+    # Interpret a hyphen as a list separator only after explicit bus/line
+    # wording, not in a bare address. A generic ref needs an L on EVERY item.
+    prefix = r"^(?:(?:arret\s+(?:de\s+)?)?(?:(?:mini\s*|auto)?bus)(?:\s+ddd)?|terminus|lignes?)\s+"
+    for field in ("route_ref", "name", "name:fr", "ref"):
         text = normalize(tags.get(field, "")).strip()
-        if field != "route_ref":
-            text = re.sub(
-                r"^(?:(?:arret\s+(?:de\s+)?)?(?:auto)?bus|terminus|lignes?)\s+",
-                "",
-                text,
-            )
-        if re.fullmatch(listing, text):
+        token, delimiter = code, sep
+        if field == "ref":
+            token = "l" + code
+        elif field in ("name", "name:fr"):
+            text, removed = re.subn(prefix, "", text, count=1)
+            if removed:
+                delimiter = rf"(?:{sep}|\s*-\s*)"
+                if text.startswith("(") and text.endswith(")"):
+                    text = text[1:-1].strip()
+        if re.fullmatch(rf"{token}(?:{delimiter}{token})+", text):
             codes = list(dict.fromkeys(re.findall(code, text)))
             if len(codes) > 1:
                 return [s.upper() for s in codes]
@@ -82,6 +90,49 @@ def poles_in(pbf):
                 }
             )
     return rows
+
+
+def platform_members(relation, targets):
+    """Rank among signed platform members, not the number of road ways or a
+    timetable rank. Do not assign the AFTU line from the nearby symbol.
+    """
+    tags = relation.tags
+    if tags.get("type") != "route" or tags.get("route") not in ("bus", "train"):
+        return []
+    platforms = [
+        (f"{m.type}{m.ref}", m.role)
+        for m in relation.members
+        if m.role in ("platform", "platform_entry_only", "platform_exit_only")
+    ]
+    family, ref = identity(tags)
+    return [
+        {
+            "pole": pole,
+            "role": role,
+            "relation": relation.id,
+            "version": relation.version,
+            "family": family,
+            "ref": ref,
+            "from": tags.get("from"),
+            "to": tags.get("to"),
+            "rank": i + 1,
+            "platforms": len(platforms),
+            "before": platforms[i - 1][0] if i else None,
+            "after": platforms[i + 1][0] if i + 1 < len(platforms) else None,
+        }
+        for i, (pole, role) in enumerate(platforms)
+        if pole in targets
+    ]
+
+
+def route_memberships(pbf, targets):
+    import osmium
+
+    return [
+        row
+        for r in osmium.FileProcessor(str(pbf), osmium.osm.RELATION)
+        for row in platform_members(r, targets)
+    ]
 
 
 def terminals(drawing):
@@ -193,6 +244,7 @@ def summary(r):
             "nearby": len(r["nearby"]),
             "both": sum(x["bothWithinLimit"] for x in r["nearby"]),
             "multi": len(r["multipleLineReferences"]),
+            "platformMemberships": len(r["nearbyRouteOccurrences"]),
         },
     )
     # Short annotations for transport over the Checks API (4 KiB limit).
@@ -212,6 +264,25 @@ def summary(r):
     refs = [[p["id"], p["refs"]] for p in r["multipleLineReferences"]]
     for i in range(0, min(len(refs), 120), 40):
         note(f"Numéros sur poteaux {i+1}", refs[i : i + 40])
+    memberships = [
+        [
+            p[k]
+            for k in (
+                "pole",
+                "relation",
+                "version",
+                "ref",
+                "role",
+                "rank",
+                "platforms",
+                "before",
+                "after",
+            )
+        ]
+        for p in r["nearbyRouteOccurrences"]
+    ]
+    for i in range(0, min(len(memberships), 40), 20):
+        note(f"Rangs des poteaux proches {i+1}", memberships[i : i + 20])
     note("60 AFTU et chemin de Patte d’Oie", r["patteDoie60"])
 
 
@@ -226,6 +297,9 @@ if __name__ == "__main__":
     if not maps:
         cli.error("Aucun dessin acquis")
     report = screen(poles_in(a.pbf), maps)
+    report["nearbyRouteOccurrences"] = route_memberships(
+        a.pbf, {p["pole"] for p in report["nearby"]}
+    )
     with a.pbf.open("rb") as f:
         report.update(
             pbfSha256=hashlib.file_digest(f, "sha256").hexdigest(),

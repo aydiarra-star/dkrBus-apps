@@ -1,6 +1,13 @@
 import unittest
+from types import SimpleNamespace
 
-from scripts.audit_terminus_quays import families, multiple_refs, screen, patte_doie
+from scripts.audit_terminus_quays import (
+    families,
+    multiple_refs,
+    platform_members,
+    screen,
+    patte_doie,
+)
 
 
 class TerminusSurveyTest(unittest.TestCase):
@@ -15,6 +22,62 @@ class TerminusSurveyTest(unittest.TestCase):
         self.assertEqual(
             families({"network": "Dakar Dem Dikk", "name": "Arrêt bus AFTU"}), ["ddd"]
         )
+
+    def test_tag_grammar_requires_context(self):
+        self.assertEqual(multiple_refs({"ref": "L5;L12"}), ["5", "12"])
+        self.assertEqual(
+            multiple_refs({"name": "Arret Mini Bus 24-33-46-70-27-41"}),
+            ["24", "33", "46", "70", "27", "41"],
+        )
+        self.assertEqual(
+            multiple_refs({"name": "Arrêt bus DDD (220, 12, 5, 6)"}),
+            ["220", "12", "5", "6"],
+        )
+        for tags in (
+            {"ref": "L5;12"},
+            {"name": "Rue 5-12"},
+            {"name": "5-12"},
+            {"name": "Arrêt bus (5)-12"},
+            {"ref": "L5;L5"},
+        ):
+            self.assertEqual(multiple_refs(tags), [])
+
+    def test_literal_members_separate_stop_areas_way_ids_and_entry_only(self):
+        r = SimpleNamespace(
+            id=42,
+            version=3,
+            tags={"type": "route", "route": "bus", "operator": "DDD", "ref": "7"},
+            members=[
+                SimpleNamespace(type=t, ref=i, role=role)
+                for t, i, role in [
+                    ("n", 8, "stop"),
+                    ("w", 8, ""),
+                    ("w", 8, "platform"),
+                    ("n", 8, "platform_entry_only"),
+                    ("n", 9, "platform_exit_only"),
+                ]
+            ],
+        )
+        rows = platform_members(r, {"n8", "n9"})
+        self.assertEqual(
+            [
+                (
+                    v["pole"],
+                    v["role"],
+                    v["rank"],
+                    v["platforms"],
+                    v["before"],
+                    v["after"],
+                )
+                for v in rows
+            ],
+            [
+                ("n8", "platform_entry_only", 2, 3, "w8", "n9"),
+                ("n9", "platform_exit_only", 3, 3, "n8", None),
+            ],
+        )
+        r.tags["type"] = "public_transport"
+        self.assertEqual(platform_members(r, {"n8"}), [])
 
     def test_start_and_finish_are_symbols_not_just_vertices(self):
         pole = {
