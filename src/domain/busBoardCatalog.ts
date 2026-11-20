@@ -4,7 +4,7 @@ import { DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES as official, DDD_OFFICIAL_ROUTE_
 import { DDD1_TABLE, DDD1_TO_LECLERC, DDD1_TOWARD_PARCELLES } from '../data/ddd1OperatorStops'
 import { DDD_319_OUTBOUND, DDD_319_PROFILES } from '../data/busBoardCallSheets'
 import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
-import { existingSheetHours, newSheetDirections } from './busSheetCatalog'
+import { existingSheetHours, withNewSheetDirections } from './busSheetCatalog'
 import { MINUTE } from './stopPassageCountdown'
 import mobility from '../data/mobility-lines.json'
 import tata from '../data/tata-lines.json'
@@ -236,7 +236,7 @@ function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {
 }
 function sheetsFor(family: BusFamily, r: PublicBusLineReference) {
   const base = {ddd:dddDirections, aftu:aftuDirections, tata:tataDirections}[family](r)
-  return [...base.map(d => ({ ...d, sourceHours:existingSheetHours(family,r.line,d) })), ...newSheetDirections(family,r.line)]
+  return withNewSheetDirections(family,r.line,base.map(d => ({ ...d, sourceHours:existingSheetHours(family,r.line,d) })))
 }
 const dddCodes = new Map(DDD_PUBLIC_LINE_CATALOG.map(r => [r.line, r]))
 for (const r of official) if (!dddCodes.has(r.line)) dddCodes.set(r.line, { network: 'ddd', line: r.line, origin: r.stops[0], destination: r.stops.at(-1)!, sourceUrl: DDD_OFFICIAL_ROUTE_SOURCE.url, sourceLabel: DDD_OFFICIAL_ROUTE_SOURCE.label })

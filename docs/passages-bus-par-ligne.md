@@ -10,7 +10,7 @@ Modèle `dakar-bus-board/v1`. [Hypothèses, sources et reproduction](modeles-pas
 
 Une liste de repères peut décrire des rues ou des secteurs historiques, et non des arrêts de montée. « Deux listes » exige des rangs au-delà de l’origine dans chacun des deux sens documentaires. Ils peuvent relever d’éditions différentes ; cela ne certifie ni un aller-retour actuel ni l’identité physique des terminus. Une boucle n’est comptée qu’une fois. Un même numéro dans deux familles ne constitue pas deux services physiques.
 
-Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `c211eee8d4ad05709d244cf1f5d963062b39a73ea7585bba7a7c75dfa8aae449`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
+Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `4233d1b338992705bdcf6c8bd8f28b174a475892bc20e2b77b1586224b6eef34`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
 
 ## DDD
 
@@ -227,7 +227,8 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 | 59 | [Aller · Terminus Diamalaye → Terminus Cité Gendarmerie](https://aftu-senegal.org/map/dakar-urbain-ligne-59/) | 15 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 101 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 8: 6 ; 15: 6 |
 | 59 | [Retour · Cité Gendarmerie (Jaxaay) → Diamalaye](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
 | 60 | [Aller · Terminus Colobane → Terminus Bargny](https://aftu-senegal.org/map/dakar-urbain-ligne-60/) | 11 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 101 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 6: 6 ; 11: 6 |
-| 60 | [Retour · Bargny → Colobane](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
+| 60 | [Retour · fiche hebdomadaire · Bargny → Colobane](https://moovitapp.com/index/fr/transport_en_commun-line-60-Dakar-5996-1618038-18051498-1) | — | — | Grille transcrite (hors modèle) | — |
+| 60 | [Aller · fiche hebdomadaire · Colobane → Bargny](https://moovitapp.com/index/fr/transport_en_commun-line-60-Dakar-5996-1618038-18051498-0) | — | — | Grille transcrite (hors modèle) | — |
 | 61 | [Aller · Almadies → Keur Massar](https://aftu-senegal.org/infos-pratiques/) | — | — | Sens non documenté | — |
 | 61 | [Retour · Terminus Keur Massar → Terminus Almadies](https://aftu-senegal.org/map/dakar-urbain-ligne-61/) | 10 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 101 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 6: 12 ; 10: 6 |
 | 62 | [Aller · Rufisque → Penc Mi](https://moovitapp.com/index/fr/transport_en_commun-line-62-Dakar-5996-1618038-18051432-1) | 72 arrêts | 04:00–22:00 · [Grille du sens](https://moovitapp.com/index/fr/transport_en_commun-line-62-Dakar-5996-1618038-18051432-1) | 78.9 min · rang · calibration 84 (80/72) | 1: 10 ; 37: 10 ; 72: 9 |

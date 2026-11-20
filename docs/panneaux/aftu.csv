@@ -1107,6 +1107,104 @@ aftu:60/1,60,Aller,8,Dioutyba (Rufisque),repères,1,non,aucun,0,0,0,0,non,,oui,r
 aftu:60/1,60,Aller,9,Sonadis,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:60/1,60,Aller,10,Sococim,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:60/1,60,Aller,11,Terminus Bargny,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+aftu:60/2,60,Retour · fiche hebdomadaire,1,Terminus 60,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,2,Arrêt De Bus,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,3,Marché Central De Bargny,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,4,Arrêt De Bus,arrêts,2,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,5,Arrêt De Bus,arrêts,3,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,6,Arrêt De Bus,arrêts,4,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,7,Arrêt De Bus,arrêts,5,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,8,Ccbm Industrie,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,9,Espi,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,10,Arrêt De Bus,arrêts,6,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,11,Arrêt De Bus,arrêts,7,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,12,Arrêt De Bus,arrêts,8,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,13,Arrêt De Bus,arrêts,9,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,14,Commissariat De Police,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,15,Jardín Public,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,16,Arrêt De Bus,arrêts,10,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,17,Arrêt De Bus,arrêts,11,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,18,"N1, 289",arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,19,Arrêt De Bus,arrêts,12,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,20,Arrêt De Bus,arrêts,13,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,21,Hotel Castel,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,22,Zac Mbao,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,23,Arrêt De Bus,arrêts,14,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,24,Mairie De Grand Mbao,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,25,Keur Mbaye Mosquée,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,26,Keur Mbaye Centre,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,27,Carrefour Keur Massar,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,28,Arrêt De Bus,arrêts,15,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,29,Carrefour Mbao,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,30,Brigade De Gendarmerie,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,31,Centre De Santé,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,32,École Alioune Gaye,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,33,Poste De Santé Gueye,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,34,Arrêt De Bus,arrêts,16,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,35,Arrêt De Bus,arrêts,17,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,36,Arrêt De Bus,arrêts,18,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,37,Arrêt De Bus,arrêts,19,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,38,Sips,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,39,"N1, 2632",arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,40,"Pikine Rue 10, 1858",arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,41,"N1, 1798",arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,42,Arrêt De Bus,arrêts,20,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,43,Arrêt De Bus,arrêts,21,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,44,Arrêt De Bus,arrêts,22,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,45,Arrêt De Bus,arrêts,23,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,46,Collège Mariama Niasse,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,47,Hlm V,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/2,60,Retour · fiche hebdomadaire,48,Gare De Colobane,arrêts,1,oui,hebdomadaire,17,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,1,Gare De Colobane,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,2,"Rue Gib 71, 18",arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,3,"Rue Gib 71, 18",arrêts,2,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,4,Hlm V,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,5,Collège Mariama Niasse,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,6,Arrêt De Bus,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,7,Arrêt De Bus,arrêts,2,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,8,Arrêt De Bus,arrêts,3,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,9,Arrêt De Bus,arrêts,4,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,10,"N1, 1696",arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,11,École 11,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,12,"N1, 2632",arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,13,Sips,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,14,Arrêt De Bus,arrêts,5,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,15,Arrêt De Bus,arrêts,6,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,16,Arrêt De Bus,arrêts,7,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,17,Arrêt De Bus,arrêts,8,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,18,Poste De Santé Gueye,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,19,École Alioune Gaye,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,20,Centre De Santé,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,21,Brigade De Gendarmerie,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,22,Carrefour Mbao,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,23,Centre Equestre,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,24,Carrefour Keur Massar,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,25,Keur Mbaye Centre,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,26,Keur Mbaye Mosquée,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,27,Carrefour Grand Mbao,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,28,Arrêt De Bus,arrêts,9,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,29,Zac Mbao,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,30,Hotel Castel,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,31,Arrêt De Bus,arrêts,10,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,32,Arrêt De Bus,arrêts,11,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,33,Gare Routiere De Rufisque,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,34,Arrêt De Bus,arrêts,12,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,35,Arrêt De Bus,arrêts,13,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,36,Jardín Public,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,37,Commissariat De Police,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,38,Arrêt De Bus,arrêts,14,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,39,Arrêt De Bus,arrêts,15,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,40,Arrêt De Bus,arrêts,16,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,41,Arrêt De Bus,arrêts,17,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,42,Espi,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,43,Ccbm Industrie,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,44,Arrêt De Bus,arrêts,18,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,45,Arrêt De Bus,arrêts,19,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,46,Arrêt De Bus,arrêts,20,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,47,Arrêt De Bus,arrêts,21,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,48,Marché Central De Bargny,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,49,Arrêt De Bus,arrêts,22,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
+aftu:60/3,60,Aller · fiche hebdomadaire,50,Terminus 60,arrêts,1,oui,hebdomadaire,16,0,0,0,oui,,non,début de grille,inconnu,0
 aftu:61/2,61,Retour,1,Terminus Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:61/2,61,Retour,2,Route nationale 1,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:61/2,61,Retour,3,Fass Mbao,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50

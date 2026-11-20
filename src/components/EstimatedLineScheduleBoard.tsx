@@ -64,6 +64,7 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
           </li>
         })}</ol>
       </> : <span className="station-board-itinerary-pending">{d.reason}</span>}
+      {d.indexSource && <a className="station-board-itinerary-source" href={d.indexSource} target="_blank" rel="noreferrer">Index de la ligne</a>}
       {hours?.source.startsWith('https://') && hours.source !== d.source && <a className="station-board-itinerary-source" href={hours.source} target="_blank" rel="noreferrer">Tableau horaire du sens</a>}
       {/^https:\/\//.test(d.source) && <a className="station-board-itinerary-source" href={d.source} target="_blank" rel="noreferrer">Fiche du parcours</a>}
     </div>}
