@@ -48,9 +48,15 @@ describe('références officielles de fréquence', () => {
     expect(weekdayTrunk.status).toBe('SCHEDULED')
     expect(weekdayTrunk.source).toMatchObject({
       authority: 'TER_DAKAR',
-      sourceUrl: 'https://www.senersa.sn',
-      verifiedAt: null,
-      verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
+      sourceUrl: 'https://aps.sn/train-express-regional-la-phase-diamniadio-aibd-inauguree-un-investissement-de-plus-de-300-milliards-fcfa/',
+      publishedAt: '2026-09-28',
+      verifiedAt: '2026-11-20',
+      verificationStatus: 'VERIFIED_OFFICIAL',
+    })
+    expect(NETWORK_REFERENCE_DATA.ter).toMatchObject({
+      coverage: 'Dakar ↔ AIBD via Diamniadio',
+      stationCount: 14,
+      frequencyLabel: '8 min Dakar–Diamniadio · 24 min Diamniadio–AIBD',
     })
   })
 
@@ -103,12 +109,18 @@ describe('références officielles de fréquence', () => {
   it('uses only source URLs already recorded in the repository', () => {
     expect(FREQUENCY_SOURCES.brt.sourceUrl).toBe('https://www.sunubrt.sn')
     expect(FREQUENCY_SOURCES.ter.sourceUrl).toBe('https://www.senersa.sn')
+    expect(FREQUENCY_SOURCES.terPhase2.sourceUrl).toContain('aps.sn/train-express-regional')
     expect(FREQUENCY_SOURCES.cetud.sourceUrl).toBe('https://cetud.sn')
-    for (const source of Object.values(FREQUENCY_SOURCES)) {
+    for (const source of [FREQUENCY_SOURCES.brt, FREQUENCY_SOURCES.ter, FREQUENCY_SOURCES.cetud]) {
       expect(source.sourceUrl).toMatch(/^https:\/\//)
       expect(source.verifiedAt).toBeNull()
       expect(source.verificationStatus).toBe('UNVERIFIED_IN_REPOSITORY')
     }
+    expect(FREQUENCY_SOURCES.terPhase2).toMatchObject({
+      publishedAt: '2026-09-28',
+      verifiedAt: '2026-11-20',
+      verificationStatus: 'VERIFIED_OFFICIAL',
+    })
   })
 
   it('can store an exceptional TER variant without replacing the permanent reference', () => {
