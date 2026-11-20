@@ -152,14 +152,15 @@ Deno.test("accepts the server-sanitized manifest at finalization without trustin
   if (Object.hasOwn(sanitized, "record_count")) {
     throw new Error("Importer-provided row counts must not survive server sanitization");
   }
+  const malformedSanitized = { ...sanitized, record_count: [] };
+  if (validManifest(malformedSanitized, "synthetic-feed", true)) {
+    throw new Error("Malformed row counts were accepted in a sanitized manifest");
+  }
   if (validManifest(sanitized, "synthetic-feed")) {
     throw new Error("The intake schema must still require record_count");
   }
   if (!validManifest(sanitized, "synthetic-feed", true)) {
     throw new Error("The finalization schema rejected the server-sanitized manifest");
-  }
-  if (validManifest({ ...sanitized, record_count: [] }, "synthetic-feed", true)) {
-    throw new Error("Malformed row counts were accepted in a sanitized manifest");
   }
 });
 
