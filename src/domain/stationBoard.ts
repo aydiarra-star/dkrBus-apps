@@ -46,7 +46,7 @@ export interface StationRow {
   offsetFromOriginMin: number
   /** Temps de parcours de référence depuis le terminus opposé (minutes). */
   offsetFromDestinationMin: number
-  /** Sens aller (départ du terminus d'origine) : nul au terminus opposé. */
+  /** Sens aller : départs en ligne et, au terminus AIBD du TER, prochaine arrivée. */
   outbound: NextPassage | null
   /** Sens retour (départ du terminus opposé) : nul au terminus d'origine. */
   inbound: NextPassage | null
