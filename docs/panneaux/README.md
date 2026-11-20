@@ -4,11 +4,11 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 48 | 111 | 4 | 1322 | 499 | 437 | 33,06 % | 245 | 600 | 53 |
+| DDD | 48 | 111 | 4 | 1322 | 752 | 690 | 52,19 % | 245 | 600 | 53 |
 | AFTU | 73 | 159 | 56 | 3584 | 757 | 684 | 19,08 % | 300 | 736 | 0 |
 | TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
-**1121 / 4906 = 22,85 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**1374 / 4906 = 28,01 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -20,7 +20,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 13412 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 124164 |
+| DDD | 16281 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
 | AFTU | 21188 | 11343 | 11343 | 0 | 91 | 0 | 0 | 253767 | 216696 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
@@ -32,9 +32,9 @@ Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fourn
 
 ## DDD
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **7, 12, 16A, 16B, 311, 319**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **6, 7, 12, 16A, 16B, 23, 311, 319**.
 
-Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; aucune heure source au rang : 615 ; heures isolées sans continuité : 62 ; rang non transcrit : 118.
+Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; heures isolées sans continuité : 62 ; rang non transcrit : 118 ; aucune heure source au rang : 362.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -50,8 +50,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:5/2 | Retour | Palais 1 → Guédiawaye | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:6/1 | Aller | Cambérène 2 → Palais 2 | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:6/2 | Retour | Palais 2 → Cambérène 2 | 1 départ seul | 0 | 0 | 1 | origine seule |
-| ddd:6/3 | Aller · fiche détaillée | Terminus 6 - 79 → Gare Palais | 69 arrêts | 0 | 0 | 69 | liste de la fiche |
-| ddd:6/4 | Retour · fiche détaillée | Gare Palais → Terminus 6 - 79 | 71 arrêts | 0 | 0 | 71 | liste de la fiche |
+| ddd:6/3 | Aller · fiche détaillée | Terminus 6 - 79 → Gare Palais | 69 arrêts | 69 | 69 | 69 | liste de la fiche |
+| ddd:6/4 | Retour · fiche détaillée | Gare Palais → Terminus 6 - 79 | 71 arrêts | 71 | 71 | 71 | liste de la fiche |
 | ddd:7/1 | Aller | Terminus Ouakam → Terminus Palais 2 | 21 repères | 0 | 0 | 21 | repères / secteurs |
 | ddd:7/2 | Retour | Palais 2 → Ouakam | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:7/3 | Aller · fiche hebdomadaire | Ouakam → Gare Palais | 27 arrêts | 27 | 27 | 0 | liste de la fiche |
@@ -88,8 +88,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:20/1 | Circuit | Terminus Dieuppeul → Terminus Dieuppeul | 42 repères | 0 | 0 | 42 | repères / secteurs |
 | ddd:23/1 | Aller | Parcelles Assainies → Palais 1 | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:23/2 | Retour | Palais 1 → Parcelles Assainies | 1 départ seul | 0 | 0 | 1 | origine seule |
-| ddd:23/3 | Aller · Gare Palais | Terminus Parcelles - Assainies → Gare Palais | 57 arrêts | 0 | 0 | 57 | liste de la fiche |
-| ddd:23/4 | Retour · Gare Palais | Gare Palais → Terminus Parcelles - Assainies | 56 arrêts | 0 | 0 | 56 | liste de la fiche |
+| ddd:23/3 | Aller · Gare Palais | Terminus Parcelles - Assainies → Gare Palais | 57 arrêts | 57 | 57 | 57 | liste de la fiche |
+| ddd:23/4 | Retour · Gare Palais | Gare Palais → Terminus Parcelles - Assainies | 56 arrêts | 56 | 56 | 56 | liste de la fiche |
 | ddd:121/1 | Aller | Terminus Scat Urbam → Terminus Leclerc | 25 repères | 0 | 0 | 25 | repères / secteurs |
 | ddd:121/2 | Retour | Leclerc → Scat Urbam | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:208/1 | Aller | Bayakh → Rufisque | 1 départ seul | 0 | 0 | 1 | origine seule |

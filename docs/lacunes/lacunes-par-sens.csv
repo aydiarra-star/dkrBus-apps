@@ -11,8 +11,8 @@ ddd:5/1,ddd,5,Aller,Terminus Guédiawaye,Palais 1,repères,repères / secteurs,1
 ddd:5/2,ddd,5,Retour,Palais 1,Guédiawaye,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
 ddd:6/1,ddd,6,Aller,Cambérène 2,Palais 2,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
 ddd:6/2,ddd,6,Retour,Palais 2,Cambérène 2,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
-ddd:6/3,ddd,6,Aller · fiche détaillée,Terminus 6 - 79,Gare Palais,arrêts,liste de la fiche,69,69,0,0,0,0,0,,aucune heure source au rang,https://moovitapp.com/index/fr/transport_en_commun-line-6-Dakar-5996-1618037-18051421-1,
-ddd:6/4,ddd,6,Retour · fiche détaillée,Gare Palais,Terminus 6 - 79,arrêts,liste de la fiche,71,71,0,0,0,0,0,,aucune heure source au rang,https://transitbycity.com/fr/senegal/dakar/operators/dakar-dem-dikk/routes/6/,
+ddd:6/3,ddd,6,Aller · fiche détaillée,Terminus 6 - 79,Gare Palais,arrêts,liste de la fiche,69,69,69,69,69,0,0,04:50,,https://moovitapp.com/index/fr/transport_en_commun-line-6-Dakar-5996-1618037-18051421-1,https://moovitapp.com/index/fr/transport_en_commun-time-6-Dakar-5996-1618037-18051421-4256164-0
+ddd:6/4,ddd,6,Retour · fiche détaillée,Gare Palais,Terminus 6 - 79,arrêts,liste de la fiche,71,71,71,71,71,0,0,05:40,,https://transitbycity.com/fr/senegal/dakar/operators/dakar-dem-dikk/routes/6/,https://moovitapp.com/index/fr/transport_en_commun-time-6-Dakar-5996-1618037-18051421-4256165-0
 ddd:7/1,ddd,7,Aller,Terminus Ouakam,Terminus Palais 2,repères,repères / secteurs,21,0,0,0,0,0,0,,repère sans heure de passage,https://demdikk.sn/reseau-urbain-dakar/,
 ddd:7/2,ddd,7,Retour,Palais 2,Ouakam,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
 ddd:7/3,ddd,7,Aller · fiche hebdomadaire,Ouakam,Gare Palais,arrêts,liste de la fiche,27,27,27,27,27,0,0,journée des rangs saisis,,https://moovitapp.com/index/fr/transport_en_commun-line-7-Dakar-5996-1618037-18051422-1,https://moovitapp.com/index/fr/transport_en_commun-time-7-Dakar-5996-1618037-18051422-4256167-0
@@ -49,8 +49,8 @@ ddd:18/1,ddd,18,Circuit,Terminus Liberté 5 (Dieuppeul),Terminus Liberté 5 (Die
 ddd:20/1,ddd,20,Circuit,Terminus Dieuppeul,Terminus Dieuppeul,repères,repères / secteurs,42,0,0,0,0,0,0,,repère sans heure de passage,https://demdikk.sn/reseau-urbain-dakar/,
 ddd:23/1,ddd,23,Aller,Parcelles Assainies,Palais 1,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
 ddd:23/2,ddd,23,Retour,Palais 1,Parcelles Assainies,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
-ddd:23/3,ddd,23,Aller · Gare Palais,Terminus Parcelles - Assainies,Gare Palais,arrêts,liste de la fiche,57,57,0,0,0,0,0,,aucune heure source au rang,https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-0,
-ddd:23/4,ddd,23,Retour · Gare Palais,Gare Palais,Terminus Parcelles - Assainies,arrêts,liste de la fiche,56,56,0,0,0,0,0,,aucune heure source au rang,https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-1,
+ddd:23/3,ddd,23,Aller · Gare Palais,Terminus Parcelles - Assainies,Gare Palais,arrêts,liste de la fiche,57,57,57,57,57,0,0,06:05,,https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-0,https://moovitapp.com/index/fr/transport_en_commun-time-23-Dakar-5996-1618037-18051449-4256218-0
+ddd:23/4,ddd,23,Retour · Gare Palais,Gare Palais,Terminus Parcelles - Assainies,arrêts,liste de la fiche,56,56,56,56,56,0,0,06:10,,https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-1,https://moovitapp.com/index/fr/transport_en_commun-time-23-Dakar-5996-1618037-18051449-4256219-0
 ddd:121/1,ddd,121,Aller,Terminus Scat Urbam,Terminus Leclerc,repères,repères / secteurs,25,0,0,0,0,0,0,,repère sans heure de passage,https://demdikk.sn/reseau-urbain-dakar/,
 ddd:121/2,ddd,121,Retour,Leclerc,Scat Urbam,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,
 ddd:208/1,ddd,208,Aller,Bayakh,Rufisque,départ seul,origine seule,1,0,0,0,0,0,0,,origine sans série de départs,https://demdikk.sn/info-voyageurs/,

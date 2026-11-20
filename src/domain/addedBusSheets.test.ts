@@ -25,3 +25,17 @@ describe('16A, grilles partielles du matin dans les deux sens', () => {
     }
   })
 })
+
+it.each([
+  ['6',69,71,'04:47','05:18'],
+  ['23',57,56,'04:33','04:38'],
+] as const)('%s : arrivée du premier départ dans les deux sens détaillés, pas du créneau modèle', (code,n,m,out,ret) => {
+  const ds = BUS_BOARD_LINES.ddd.find(l => l.code === code)!.directions
+  expect(ds.slice(0,2).map(d => d.sourceHours)).toEqual([undefined,undefined])
+  for(const [d,count,end] of [[ds[2],n,out],[ds[3],m,ret]] as const){
+    expect(d.sourceHours!.weekday!.ranks).toHaveLength(count)
+    const sign=compileSign(d,day,true)
+    expect(sign.at(count,at(end)-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:at(end)}})
+    if(d.sourceHours!.weekday!.nextUntranscribedOrigin) expect(sign.at(count,at('19:00'))).toEqual({kind:'weekly',passage:{state:'unknown'}})
+  }
+})
