@@ -67,7 +67,7 @@ for (const theme of ['light','dark']) {
     const estimates = wrapper.getByRole('checkbox',{name:'Inclure les passages estimés'})
     await network('ddd').click(); assert.equal(await estimates.isChecked(),false)
     await inspect('7',2,27,/Gare Palais/,green); await inspect('7',3,29,/Rue Okm 60, 67/,green)
-    await estimates.check(); await inspect('319',0,27,/Arrivée au terminus/,null); await inspect('319',1,26,/Arrivée au terminus/,null)
+    await inspect('319',0,27,/Arrivée au terminus/,green); await estimates.check(); await inspect('319',1,26,/Arrivée au terminus/,green)
     await network('aftu_tata').click(); await estimates.uncheck(); await input.fill('42')
     await wrapper.locator('.station-board-direction-toggle').last().click()
     assert.equal(await wrapper.locator('.bus-occurrences li').count(),68)

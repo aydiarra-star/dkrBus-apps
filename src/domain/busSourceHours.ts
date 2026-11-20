@@ -13,6 +13,9 @@ export interface SourceGrid {
 }
 export interface SourceHours {
   file: string; source: string
+  // Sparse, literal headers of the hourly sheet where a historical local
+  // label differs. An unnamed occurrence must remain unnamed on the timer.
+  printedLabels?: Readonly<Record<number,string>>
   weekday?: SourceGrid; saturday?: SourceGrid; sunday?: SourceGrid
   // Isolated columns / undated receipt. No continuity or service-day claim.
   samples?: readonly { label: string; ranks: readonly number[]; times: readonly string[] }[]
@@ -24,6 +27,9 @@ const checkRanks = (ranks: readonly number[], n: number) => ranks.length > 0 && 
  * times to make them look plausible. Duplicate stop NAMES remain legal. */
 export function sourceIssue(hours: SourceHours, n: number): string | undefined {
   if (!hours.file.trim() || !hours.source.trim()) return 'Provenance de fiche manquante'
+  for (const [rank,label] of Object.entries(hours.printedLabels ?? {})) {
+    if (!/^[1-9]\d*$/.test(rank) || Number(rank) > n || !label.trim()) return `Libellé horaire invalide au rang ${rank}`
+  }
   for (const [day,g] of Object.entries({weekday:hours.weekday,saturday:hours.saturday,sunday:hours.sunday})) {
     if (!g) continue
     if (g.ranks[0] !== 1 || !checkRanks(g.ranks,n)) return `${day}: rang absent, dupliqué ou inversé`

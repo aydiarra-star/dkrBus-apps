@@ -112,11 +112,12 @@ try {
           const seen=counts.some(Boolean)||!!src.length, available=reachable[0], observed=signs[0].at(r,at19).passage, sec=observed.state==='active'?(observed.at-at19)/1000:''
           assert.equal(observed.at,(tables[0].get(r)??[]).find(t=>t>at19),`${loc} : minute de 19 h non fournie`)
           const reason=available?(h.weekday.nextUntranscribedOrigin?'début de grille':'grille des rangs saisis'):counts[0]?'pas de prochaine cellule sûre':src.length?'heures isolées sans continuité':h?.weekday?'rang non transcrit':d.reason??(d.pointKind==='secteurs'?'secteur non horodaté':d.pointKind==='repères'?'repère sans heure de passage':d.pointKind==='départ seul'?'origine sans série de départs':'aucune heure source au rang')
-          repeats.set(name,(repeats.get(name)??0)+1)
+          const shown=h?.printedLabels?.[r]??name
+          repeats.set(shown,(repeats.get(shown)??0)+1)
           const chosen = signWithOption.at(r,at19), optional = chosen.kind==='model' ? modelRuns : 0
           if (chosen.kind!=='model') assert.deepEqual(chosen.passage,observed,loc)
           const state19={active:'décompte',upcoming:'pas encore ouvert',finished:'dernier passage atteint',calendar:'jour non confirmé',closed:'sans service annoncé',unknown:'inconnu'}[observed.state]
-          ranks.push([id,l.code,label,r,name,d.pointKind,repeats.get(name),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts,src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason,state19,optional])
+          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts,src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional])
           t.sampleCells+=src.length; counts.forEach((v,k)=>{t.printed[k]+=v}); printed+=counts[0]; estimated+=optional
           provided+=Number(seen);eligible+=Number(available);active+=Number(sec!=='');t.occurrences++;t.model+=Number(m?.kind==='model')
           if(d.pointKind==='arrêts'){t.stops++;t.sourceStops+=Number(seen);t.weeklyStops+=Number(available);t.onlySamples+=Number(!available&&seen);t.missing+=Number(!seen);if(!available)t.reasons[reason]=(t.reasons[reason]??0)+1}

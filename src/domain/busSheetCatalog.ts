@@ -21,7 +21,7 @@ export function newSheetDirections(family: BusFamily, code: string): BusBoardDir
     sourceHours:{ file:path.replace('../','src/'), source:s.timetable, weekday:s.weekdays },
   }))
 }
-interface RankedGrid { page:string; sequence:number; source:string; weekday:SourceGrid; weekend?:SourceGrid; family?:BusFamily; code?:string; side?:Sheet['side']; first?:string; last?:string }
+interface RankedGrid { page:string; sequence:number; source:string; weekday:SourceGrid; weekend?:SourceGrid; family?:BusFamily; code?:string; side?:Sheet['side']; first?:string; last?:string; printedLabels?:SourceHours['printedLabels'] }
 const grids = import.meta.glob<RankedGrid>('../data/weekly-cells/*.json',{eager:true,import:'default'})
 const ranks = (n: number) => Array.from({length:n},(_,i)=>i+1)
 const sample = (origin: string, elapsed: readonly number[], rr = ranks(elapsed.length)) => ({label:`Colonne ${origin}`,ranks:rr,times:elapsed.map(m=>hhmm(clockMinutes(origin)!+m))})
@@ -57,7 +57,7 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
     const old = maristesSheets.find(t=>t.url===g.source)
     // Evening samples aren't a complete grid between morning and evening.
     for (const row of old?.rows ?? []) if (row[0] >= '18:00') samples.push({label:`Extrait semaine ${row[0]}`,ranks:old!.calls.map(c=>c.rank),times:row})
-    return {file:path.replace('../','src/'), source:g.source, weekday:g.weekday, saturday:g.weekend, sunday:g.weekend, samples}
+    return {file:path.replace('../','src/'), source:g.source, printedLabels:g.printedLabels, weekday:g.weekday, saturday:g.weekend, sunday:g.weekend, samples}
   }
   if (family !== 'ddd') return
   if (code === '319' && m?.originBasis === d.source) return {file:'src/data/busBoardCallSheets.ts',source:d.source,samples:[sample(idx?'06:50':'06:55',DDD_319_PROFILES[idx])]}

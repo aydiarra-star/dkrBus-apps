@@ -30,3 +30,21 @@ describe('horaires imprimés de la 319 : Liberté 6 ↔ Ouakam', () => {
     ])
   })
 })
+
+describe('58 : rangs imprimés Mbao ↔ Gueule Tapée, pas la 58 de Comico',()=>{
+  const [comico,sahm,go,back]=BUS_BOARD_LINES.aftu.find(l=>l.code==='58')!.directions
+  it('n’attache ces cellules ni à Comico ni à un autre sens du même numéro',()=>{
+    expect([comico,sahm].map(d=>[d.points.length,d.sourceHours])).toEqual([[0,undefined],[0,undefined]])
+    expect(existingSheetHours('aftu','58',{...go,source:back.source})).toBeUndefined()
+    expect(existingSheetHours('tata','58',go)).toBeUndefined()
+    expect(go.sourceHours!.printedLabels).toMatchObject({1:'Arrêt De Bus',2:'Arrêt De Bus',39:'Bvar. Tapée / Rue 18'})
+    expect(back.sourceHours!.printedLabels).toMatchObject({1:'Bvar. Tapée / Av. Diop',43:'Arrêt De Bus'})
+  })
+  it.each([[go,39,'05:10:59','05:11'],[back,43,'05:22:59','05:23']] as const)('lit le terminus puis ne franchit pas une lacune', (d,r,now,end)=>{
+    for(const estimates of [false,true]){
+      const sign=compileSign(d,date(thursday,'00:00'),estimates)
+      expect(sign.at(r,date(thursday,now))).toMatchObject({kind:'weekly',passage:{minutes:1,at:date(thursday,end)}})
+      expect(sign.at(r,date(thursday,'19:00'))).toEqual({kind:'weekly',passage:{state:'unknown'}})
+    }
+  })
+})

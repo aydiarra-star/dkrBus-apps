@@ -5,10 +5,10 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, samedi 21 et dimanc
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 48 | 111 | 4 | 1322 | 344 | 269 | 20,35 % | 206 | 600 | 53 |
-| AFTU | 73 | 158 | 57 | 3486 | 375 | 302 | 8,66 % | 16 | 736 | 0 |
+| AFTU | 73 | 158 | 57 | 3486 | 457 | 384 | 11,02 % | 16 | 736 | 0 |
 | TATA | 65 | 133 | 10 | 0 | 0 | 0 | non défini | 0 | 1336 | 0 |
 
-**571 / 4808 = 11,88 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**653 / 4808 = 13,58 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -21,7 +21,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 | Famille | Grille semaine | Samedi | Dimanche | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 9292 | 3191 | 1721 | 250 | 0 | 0 | 145608 | 135510 |
-| AFTU | 3672 | 171 | 171 | 91 | 0 | 0 | 253767 | 228826 |
+| AFTU | 5265 | 171 | 171 | 91 | 0 | 0 | 253767 | 222384 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. Une case vide à 19 h n’est pas zéro minute.
@@ -153,9 +153,9 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 
 ## AFTU
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 65, 73, 75**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 58, 65, 73, 75**.
 
-Rangs d’arrêt exclus : aucune heure source au rang : 2638 ; rang non transcrit : 202 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
+Rangs d’arrêt exclus : aucune heure source au rang : 2556 ; rang non transcrit : 202 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -248,8 +248,8 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2638 ; rang non transcri
 | aftu:57/2 | Retour | Liberté 6 → Rufisque | 57 arrêts | 0 | 0 | 57 | liste de la fiche |
 | aftu:58/1 | Aller | Sahm → Comico | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:58/2 | Retour | Comico → Sahm | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
-| aftu:58/3 | Aller | Fass Mbao → Gueule Tapée | 39 arrêts | 0 | 0 | 39 | liste de la fiche |
-| aftu:58/4 | Retour | Gueule Tapée → Fass Mbao | 43 arrêts | 0 | 0 | 43 | liste de la fiche |
+| aftu:58/3 | Aller | Fass Mbao → Gueule Tapée | 39 arrêts | 39 | 39 | 39 | liste de la fiche |
+| aftu:58/4 | Retour | Gueule Tapée → Fass Mbao | 43 arrêts | 43 | 43 | 43 | liste de la fiche |
 | aftu:59/1 | Aller | Terminus Diamalaye → Terminus Cité Gendarmerie | 15 repères | 0 | 0 | 15 | repères / secteurs |
 | aftu:59/2 | Retour | Cité Gendarmerie (Jaxaay) → Diamalaye | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:60/1 | Aller | Terminus Colobane → Terminus Bargny | 11 repères | 0 | 0 | 11 | repères / secteurs |

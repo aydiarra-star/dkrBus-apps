@@ -36,7 +36,8 @@ try {
         const toggle=doc.querySelector('.station-board-direction-toggle');assert.equal(toggle.getAttribute('aria-controls'),id);check(toggle,1)
         assert.equal(rows.length,d.points.length,id);panels++
         for (const [i,el] of rows.entries()) {
-          assert.equal(el.querySelector('.bus-rank').textContent,`${i+1}.`,id);assert.equal(el.querySelector('.station-board-stop strong').textContent,d.points[i],id)
+          assert.equal(el.querySelector('.bus-rank').textContent,`${i+1}.`,id);assert.equal(el.querySelector('.station-board-stop strong').textContent,d.sourceHours?.printedLabels?.[i+1]??d.points[i],id)
+          if(d.sourceHours?.printedLabels?.[i+1]) assert(el.textContent.includes('Libellé local : '+d.points[i]),id)
           const r=check(el,i+1);occurrences++;timers+=Number(r.active);projections+=Number(r.estimate)
         }
       }

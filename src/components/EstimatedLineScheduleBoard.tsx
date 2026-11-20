@@ -52,8 +52,10 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1
           const row = sign.at(index+1,now)
+          const printed = hours?.printedLabels?.[index+1]
           return <li className="station-board-row station-board-row-static" key={index}>
-            <span className="station-board-stop"><small className="bus-rank">{index + 1}.</small> <strong>{point}</strong>
+            <span className="station-board-stop"><small className="bus-rank">{index + 1}.</small> <strong>{printed ?? point}</strong>
+              {printed && <small>Libellé local : {point} · non repris sur la fiche horaire</small>}
               {hours?.samples?.map(s => {
                 const i = s.ranks.indexOf(index+1)
                 return i >= 0 && <small key={s.label}>{s.label} : {s.times[i]}</small>
