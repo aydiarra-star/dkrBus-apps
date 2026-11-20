@@ -2,7 +2,7 @@
  * ride in from the preceding call and out to the following call on this date.
  * A competing, faster path is not a witness for the path under review. */
 import type { Network, Pattern, Place, Ride } from '../routing/model'
-import { search } from '../routing/search'
+import { searchReviewedPair } from '../routing/search'
 import type { PlatformObservation, TransferAssessment, TransferProof } from '../routing/transferReview'
 
 export function transferWitness(net: Network, assessment: TransferAssessment, proof: TransferProof, departAt: number) {
@@ -11,16 +11,19 @@ export function transferWitness(net: Network, assessment: TransferAssessment, pr
   const incoming = proof.alight, outgoing = proof.board
   const sameService = (p: Pattern | Ride, e: PlatformObservation) => p.mode === e.mode && p.lineId === e.lineId && p.direction === e.direction
   const isCall = (call: Place | undefined, end: PlatformObservation) => call?.id === end.stopId || (call?.kind === 'platform' && call.id === end.platformId)
-  const adjacent = (end: PlatformObservation, step: number) => {
-    const p = net.patterns.find(p => sameService(p,end))
-    if (!p) return
-    const index = p.calls.findIndex(c => isCall(c,end))
-    return index >= 0 ? p.calls[index+step] : undefined
+  const section = (end: PlatformObservation, inbound: boolean) => {
+    const pattern = net.patterns.find(p => sameService(p,end))
+    if (!pattern) return
+    const index = pattern.calls.findIndex(c => isCall(c,end))
+    if (index < 0) return
+    const fromIndex = inbound ? index - 1 : index, toIndex = inbound ? index : index + 1
+    if (pattern.calls[fromIndex] && pattern.calls[toIndex]) return { pattern, fromIndex, toIndex }
   }
-  const a = adjacent(incoming,-1), b = adjacent(outgoing,1)
+  const a = section(incoming,true), b = section(outgoing,false)
   if (!a || !b) return { status: 'NO_ADJACENT_CALL' } as const
-  const query = { origin: a.id, destination: b.id, departAt, modes: [incoming.mode,outgoing.mode], maxChanges: 1 }
-  const r = search(net,query)
+  const query = { origin: a.pattern.stops[a.fromIndex], destination: b.pattern.stops[b.toIndex], departAt, modes: [incoming.mode,outgoing.mode], maxChanges: 1 }
+  if (a.pattern === b.pattern) return { status: 'NO_DATED_WITNESS', query, reason: 'SAME_SERVICE_DIRECTION' } as const
+  const r = searchReviewedPair(net,query,{ rides:[a,b], alightPlatform:incoming.platformId, samePosition:proof.samePosition === true },proof.path?.wayIds ?? [])
   if (!r.ok) return { status: 'NO_DATED_WITNESS', query, reason: r.code } as const
   for (const t of r.options) {
     const rides = t.legs.filter(v => v.kind === 'ride'), walks = t.legs.filter(v => v.kind === 'walk')

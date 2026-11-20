@@ -103,3 +103,14 @@ describe('CurrentBusRouteAuditPanel', () => {
   })
 
 })
+
+it('shows the undated summary only as a review, without a synthetic countdown', () => {
+  render(<CurrentBusRouteAuditPanel />)
+  const sheet = screen.getByText('Relevé communiqué · DDD 218 et AFTU 73 vers Niague').closest('details')!
+  fireEvent.click(sheet.querySelector('summary')!)
+  expect(screen.getAllByText('Départ de référence : 05:28')).toHaveLength(2)
+  expect(screen.getAllByText('Départ de référence : 05:31')).toHaveLength(2)
+  expect(screen.getAllByText('Tableau des arrêts non reçu.')).toHaveLength(4)
+  expect(sheet.querySelector('time, [role="timer"]')).toBeNull()
+  expect(sheet.textContent).toContain('Le texte mentionne aussi 05:30')
+})

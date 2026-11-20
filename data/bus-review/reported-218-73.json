@@ -1,0 +1,31 @@
+{
+  "scope": "REPORTED_REFERENCES_ONLY",
+  "summaryUrl": "https://github.com/aydiarra-star/dkrBus-apps/pull/275#issuecomment-7031395979",
+  "primaryDocument": null,
+  "serviceDate": null,
+  "dayType": null,
+  "validityPeriod": null,
+  "officialStatus": null,
+  "lines": [
+    {
+      "family": "ddd",
+      "code": "218",
+      "announcedHeadwayMinutes": 16,
+      "otherStartMention": null,
+      "directions": [
+        { "from": "Poste Thiaroye", "to": "terminus 7218/219", "referenceDeparture": "05:28", "calls": null },
+        { "from": "terminus 7218/219", "to": "Poste Thiaroye", "referenceDeparture": "05:28", "calls": null }
+      ]
+    },
+    {
+      "family": "aftu",
+      "code": "73",
+      "announcedHeadwayMinutes": 10,
+      "otherStartMention": "05:30",
+      "directions": [
+        { "from": "Station Ciel Oil/Thiaroye", "to": "terminus de la ligne 73 à Niague", "referenceDeparture": "05:31", "calls": null },
+        { "from": "terminus de la ligne 73 à Niague", "to": "Station Ciel Oil/Thiaroye", "referenceDeparture": "05:31", "calls": null }
+      ]
+    }
+  ]
+}

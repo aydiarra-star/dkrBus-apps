@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest'
+import { search } from '../routing/search'
 import { transferWitness } from './transferWitness'
 import { buildNetwork } from '../routing/network'
 import { assessTransfer } from '../routing/transferReview'
@@ -35,3 +36,26 @@ it.each(['frequency', 'running time'] as const)('does not certify a dated connec
     status: 'MODELLED_ONLY', minimumBufferSeconds: 180,
   })
 })
+
+it.each([['ddd','ddd'], ['aftu','aftu'], ['ddd','aftu'], ['aftu','ddd']] as const)(
+  'checks this %s → %s pair and this crossing even if neither wins the passenger ranking', (incoming, outgoing) => {
+    const modes = [incoming, outgoing, incoming], at = fixtureQuery.departAt
+    const patterns = fixtureData.patterns.map((p, i) => {
+      const network = modes[i] === 'aftu' ? 'aftu_tata' as const : 'ddd' as const
+      return { ...p, network, busFamily: network === 'aftu_tata' ? 'aftu' as const : undefined, shape:{ ...p.shape, network },
+        service: i === 2 ? { kind: 'timetable' as const, source:'QA direct', departures:[at+1] } : p.service }
+    })
+    const platforms = fixtureData.places, from = platforms.find(p => p.id === proof.alight.platformId)!, to = platforms.find(p => p.id === proof.board.platformId)!
+    const shortcut = { ...fixtureData.footways[0], id:'qa-shortcut', from: from.id, to: to.id, positions:[from,to] }
+    const staged = buildNetwork({ ...fixtureData, patterns, footways: [...fixtureData.footways, shortcut] })
+    const pair = { ...candidate, from: { ...candidate.from, mode: incoming }, to: { ...candidate.to, mode: outgoing } }
+    const observed = { ...proof, alight: { ...proof.alight, mode: incoming }, board: { ...proof.board, mode: outgoing } }
+    expect(staged.rejected).toEqual([])
+    const passenger = search(staged, fixtureQuery)
+    expect(passenger.ok && passenger.options.map(t => t.changes)).toEqual([0])
+    const review = assessTransfer(staged, pair, observed)
+    expect(transferWitness(staged, review, observed, at)).toMatchObject({ status:'DATED_WITNESS', walkMeters:review.meters,
+      firstDeparture:at+10, alightAt:at+120, onwardDeparture:at+600, arriveAt:at+721 })
+    expect(transferWitness(staged, review, observed, at+11).status).toBe('NO_DATED_WITNESS')
+    expect(transferWitness(staged, assessTransfer(staged, { ...pair, from:pair.to, to:pair.from }, observed), observed, at).status).toBe('BLOCKED_BEFORE_TIMETABLE')
+  })

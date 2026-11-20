@@ -12,12 +12,12 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 
 | Code · sens de lecture A | Quais A | Quais R | Tracé entier A | Tracé entier R | Changement | Départs du jour | Calcul |
 |---|---|---|---|---|---|---|---|
-| **1** · Terminus Parcelles Assainies → Terminus Leclerc | 8/8 sur portion | 2/2 sur portion | Portion seulement | Portion seulement | Aucun dossier ciblé | fréquence modélisée / fréquence modélisée | 28 couple(s) · ref:ddd-1-medina-4666430960 → ref:ddd-1-medina-4666430958 ; 1 couple(s) · ref:ddd-1-medina-retour-4666430956 → ref:ddd-1-medina-retour-4666430957 |
+| **1** · Terminus Parcelles Assainies → Terminus Leclerc | 8/8 sur portion | 2/2 sur portion | Portion seulement | Portion seulement | 2 sens étudiés · aucun témoin | fréquence modélisée / fréquence modélisée | 28 couple(s) · ref:ddd-1-medina-4666430960 → ref:ddd-1-medina-4666430958 ; 1 couple(s) · ref:ddd-1-medina-retour-4666430956 → ref:ddd-1-medina-retour-4666430957 |
 | **2** · Terminus Daroukhane → Terminus Leclerc | Non · 35 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **4** · Terminus Liberté 5 (Dieuppeul) → Terminus Leclerc | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **5** · Terminus Guédiawaye → Palais 1 | Non · 15 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **6** · Terminus Cambérène 2 → Palais 2 | Non · 24 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 1 relation(s) sans desserte entière validée |
-| **7** · Terminus Ouakam → Terminus Palais 2 | Non · 21 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · 2 relation(s) sans desserte entière validée |
+| **7** · Terminus Ouakam → Terminus Palais 2 | Non · 21 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **8** · Terminus Aéroport LSS → Terminus Palais 2 | Non · 28 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **9** · Terminus Liberté 6 → Terminus Palais 2 | Non · 24 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **10** · Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | Non · 29 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
@@ -36,7 +36,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **208** · Gorom 01 → Rufisque | Non · 7 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **213** · Gare de Rufisque → Terminus Dieuppeul | Non · 17 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **217** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
-| **218** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
+| **218** · Dépôt Thiaroye → Terminus Aéroport LSS | Non · 15 noms | Non | Non établi | Non établi | 6 sens étudiés · aucun témoin | 0 · indicatif seul | Non · libellés sans quais validés |
 | **219** · Daroukhane → Terminus Ouakam | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
 | **220** · Terminus Rufisque → Terminus Guédiawaye | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **221** · Terminus Gadaye (Filaos) → Terminus Almadies | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
@@ -126,7 +126,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **62** · Terminus 62 → Bvar. Tapée / Rue 59 | Non · 72 noms | Non · 68 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **63** · TERMINUS DIOR PARCELLES → TERMINUS CAMP MARCHAND RUFISQUE | Non | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **64** · Arrêt De Bus → Espi | Non · 61 noms | Non · 61 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **65** · Gare De Colobane → Terminus Jaxaay | Non · 2/57 noms | Non · 56 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **65** · Gare De Colobane → Terminus Jaxaay | Non · 2/57 noms | Non · 56 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **66** · Terminus → Gorom | Non · 77 noms | Non · 77 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **67** · Espi → Poste De Sante | Non · 71 noms | Non · 71 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **68** · Terminus 68 → Complexe Islamique | Non · 50 noms | Non · 50 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
@@ -134,9 +134,9 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **70** · Arrêt De Bus → Terminus Jaxaay | Non · 58 noms | Non · 57 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **71** · Terminus 71 → Bvard. Canal 4 / Rue Fn-32 | Non · 54 noms | Non · 55 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **72** · Terminus 38 - 72 → Terminus 72 | Non · 78 noms | Non · 78 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **73** · Terminus 73 → Dépot Thiaroye | Non · 75 noms | Non · 75 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **73** · Terminus 73 → Dépot Thiaroye | Non · 75 noms | Non · 75 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **74** · Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | Non · 14 noms | Non · inversion écartée | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · autre grille écartée | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **75** · Marché → Gare De Colobane | Non · 52 noms | Non · 51 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **76** · TERMINUS SIPRES → TERMINUS CITE ASSURANCE | Non · 12 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **77** · Terminus Rufisque Cité Tacco → Terminus Liberté 5 | Non · 14 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **78** · Terminus Diamaguène → Terminus Liberté 5 | Non · 12 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |

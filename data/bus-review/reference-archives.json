@@ -1,0 +1,376 @@
+{
+  "scope": "HISTORICAL_COMPARISON_ONLY",
+  "reportedSummary": "https://github.com/aydiarra-star/dkrBus-apps/pull/275#issuecomment-7031395979",
+  "archiveSha256": {
+    "aftu": "7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428",
+    "ddd": "578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159"
+  },
+  "occurrenceColumns": [
+    "stopId",
+    "rank",
+    "previousStopId",
+    "nextStopId"
+  ],
+  "routes": {
+    "DDD_01": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_01_LECLERC",
+          "trips": 89,
+          "callCount": 43,
+          "first": [
+            "D_140",
+            "Terminus Leclerc"
+          ],
+          "last": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "occurrences": [
+            [
+              "D_122",
+              4,
+              "D_131",
+              "D_119"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_01_PARCELLES-ASSAINIES",
+          "trips": 119,
+          "callCount": 42,
+          "first": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "last": [
+            "D_140",
+            "Terminus Leclerc"
+          ],
+          "occurrences": [
+            [
+              "D_128",
+              37,
+              "D_114",
+              "D_418"
+            ]
+          ]
+        }
+      ]
+    },
+    "DDD_07": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_07_PALAIS-02",
+          "trips": 138,
+          "callCount": 36,
+          "first": [
+            "D_708",
+            "Terminus Palais 2"
+          ],
+          "last": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "occurrences": [
+            [
+              "D_122",
+              7,
+              "D_133",
+              "D_119"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_07_OUAKAM",
+          "trips": 160,
+          "callCount": 36,
+          "first": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "last": [
+            "D_708",
+            "Terminus Palais 2"
+          ],
+          "occurrences": [
+            [
+              "D_128",
+              30,
+              "D_114",
+              "D_418"
+            ]
+          ]
+        }
+      ]
+    },
+    "DDD_218": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_218_AEROPORT-LSS",
+          "trips": 66,
+          "callCount": 35,
+          "first": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "last": [
+            "D_686",
+            "Terminus Poste Thiaroye"
+          ],
+          "occurrences": [
+            [
+              "D_23",
+              1,
+              null,
+              "D_27"
+            ],
+            [
+              "D_686",
+              35,
+              "D_529",
+              null
+            ]
+          ],
+          "originsInReportedMinutes": {
+            "05:28": 0
+          },
+          "archivedDurationSeconds": [
+            2128,
+            3768
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_218_THIAROYE",
+          "trips": 87,
+          "callCount": 34,
+          "first": [
+            "D_686",
+            "Terminus Poste Thiaroye"
+          ],
+          "last": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "occurrences": [
+            [
+              "D_686",
+              1,
+              null,
+              "D_545"
+            ],
+            [
+              "D_23",
+              34,
+              "D_1231",
+              null
+            ]
+          ],
+          "originsInReportedMinutes": {
+            "05:28": 0
+          },
+          "archivedDurationSeconds": [
+            2311,
+            3872
+          ]
+        }
+      ]
+    },
+    "AFTU_65": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_65_kounoune",
+          "trips": 79,
+          "callCount": 62,
+          "first": [
+            "A_245",
+            "Kounoune École Mbaba"
+          ],
+          "last": [
+            "A_1564",
+            "Colobane"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              62,
+              "A_1400",
+              null
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_65_Colobane",
+          "trips": 62,
+          "callCount": 66,
+          "first": [
+            "A_1564",
+            "Colobane"
+          ],
+          "last": [
+            "A_245",
+            "Kounoune École Mbaba"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              1,
+              null,
+              "A_1401"
+            ]
+          ]
+        }
+      ]
+    },
+    "AFTU_73": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_73_POSTE THIAROYE",
+          "trips": 119,
+          "callCount": 78,
+          "first": [
+            "A_586",
+            "Station Ciel Oil"
+          ],
+          "last": [
+            "A_559",
+            "Terminus De La Ligne 73"
+          ],
+          "occurrences": [
+            [
+              "A_586",
+              1,
+              null,
+              "A_585"
+            ],
+            [
+              "A_559",
+              78,
+              "A_510",
+              null
+            ]
+          ],
+          "originsInReportedMinutes": {
+            "05:30": 0,
+            "05:31": 0
+          },
+          "archivedDurationSeconds": [
+            4512,
+            6509
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_73_Lac Rose",
+          "trips": 111,
+          "callCount": 79,
+          "first": [
+            "A_559",
+            "Terminus De La Ligne 73"
+          ],
+          "last": [
+            "A_266",
+            "Station Ciel Oil"
+          ],
+          "occurrences": [
+            [
+              "A_559",
+              1,
+              null,
+              "A_2266"
+            ],
+            [
+              "A_586",
+              78,
+              "A_265",
+              "A_266"
+            ],
+            [
+              "A_266",
+              79,
+              "A_586",
+              null
+            ]
+          ],
+          "originsInReportedMinutes": {
+            "05:30": 0,
+            "05:31": 0
+          },
+          "archivedDurationSeconds": [
+            7904,
+            8705
+          ]
+        }
+      ]
+    },
+    "AFTU_75": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_75_MALIKA",
+          "trips": 74,
+          "callCount": 76,
+          "first": [
+            "A_1661",
+            "Terminus 75 Malika"
+          ],
+          "last": [
+            "A_1564",
+            "Colobane"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              76,
+              "A_1869",
+              null
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_75_Colobane",
+          "trips": 60,
+          "callCount": 78,
+          "first": [
+            "A_1564",
+            "Colobane"
+          ],
+          "last": [
+            "A_1661",
+            "Terminus 75 Malika"
+          ],
+          "occurrences": [
+            [
+              "A_1564",
+              1,
+              null,
+              "A_1868"
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}

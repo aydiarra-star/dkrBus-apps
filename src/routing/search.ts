@@ -54,7 +54,10 @@ function validQuery(query: Settings) {
   return Number.isSafeInteger(departAt) && Number.isFinite(new Date(departAt * 1000).getTime()) && Number.isInteger(maxChanges) && maxChanges >= 0 && maxChanges <= 5 &&
     Number.isFinite(walkSpeedMpm) && walkSpeedMpm > 0 && Number.isFinite(maxWalkPerLegM) && maxWalkPerLegM >= 0 && Number.isSafeInteger(transferBufferSeconds) && transferBufferSeconds >= 0
 }
-function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, query: Settings) {
+interface RequiredRide { pattern: Pattern; fromIndex: number; toIndex: number }
+/** Private to a review query; limits existing permissions, never adds one. */
+interface ReviewedPair { rides: readonly [RequiredRide, RequiredRide]; alightPlatform: string; samePosition: boolean }
+function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, query: Settings, pair?: ReviewedPair) {
   const { departAt, maxChanges = 3, maxWalkPerLegM = 1200, walkSpeedMpm = 80, transferBufferSeconds = 180, stepFreeOnly = false } = query
   const day = dayOf(departAt)
   const trees = new Map<string, ReturnType<typeof walkingTree>>()
@@ -62,6 +65,9 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
 
   return function scan(topologyOnly: boolean) {
     let ready: Frontier = new Map()
+    // Only a diagnostic scan may join modelled times. Single rides and their
+    // access/egress walks stay available with their original timing labels.
+    const datedChangesOnly = !topologyOnly && !pair
     // Kept apart from the generic walking frontier: only THIS outgoing
     // boarding is permitted. Earlier alightings from other lines cannot
     // dominate it or acquire its permission, even at the same place.
@@ -72,8 +78,8 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
     }
     const complete: Frontier = new Map()
     const finish = (l: Label) => insert(complete, l.boards ? l : { ...l, cadence: Infinity })
-    function afterWalk(l: Label, next: Frontier) {
-      if (!net.walking.has(l.place.id)) return
+    function afterWalk(l: Label, next: Frontier, egressOnly = false) {
+      if (!net.walking.has(l.place.id) || (pair && (l.boards !== 1 || pair.samePosition))) return
       const close = (role: Walk['role'], final: boolean) => {
         // A path to catch a bus is not necessarily open to through pedestrians.
         // Filter *inside* Dijkstra: a longer general-use path might still exist.
@@ -81,22 +87,28 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
         let tree = trees.get(key)
         if (!tree) { tree = walkingTree(net, l.place.id, maxWalkPerLegM, stepFreeOnly, role); trees.set(key, tree) }
         for (const [id, meters] of tree.distances) {
-          if (!meters || (final ? !targets.has(id) : !net.boarding.has(id) || (targets.size === 1 && targets.has(id)))) continue
+          if (!meters || (final ? !targets.has(id) : !net.boarding.has(id) || (!pair && targets.size === 1 && targets.has(id)))) continue
           const arrival: Label = { ...l, place: net.places.get(id)!, walked: l.walked + meters,
             at: l.at + Math.ceil(meters * 60 / walkSpeedMpm), back: { prev: l, action: { kind: 'walk', ways: tree.pathTo(id), meters, role } } }
           if (final) finish(arrival)
           else insert(next, arrival)
         }
       }
-      close(l.boards ? 'egress' : 'direct', true)
-      close(l.boards ? 'transfer' : 'access', false)
+      if (!pair) close(l.boards ? 'egress' : 'direct', true)
+      if (!egressOnly) close(l.boards ? 'transfer' : 'access', false)
     }
     insert(ready, seed); afterWalk(seed, ready)
     for (let boards = 1; (ready.size || shared.size) && boards <= maxChanges + 1; boards++) {
-      const alighted: Frontier = new Map()
+      // Keep the two frontiers separate: an earlier modelled alighting may
+      // walk to the destination but must not displace a dated transfer label.
+      const alighted: Frontier = new Map(), exitOnly: Frontier = new Map()
       const nextShared = new Map<OnwardBoarding, Label[]>()
+      const required = pair?.rides[boards - 1]
       for (const { labels, pattern: p, index: i, change } of boardings()) {
+        if (pair && (p !== required?.pattern || i !== required.fromIndex || (boards === 2 && Boolean(change) !== pair.samePosition))) continue
         if ((query.modes && !query.modes.includes(p.network) && !query.modes.includes(p.mode)) || (stepFreeOnly && p.stepFree !== 'yes')) continue
+        const dated = p.service.kind === 'timetable' && p.times.kind === 'offsets'
+        if (datedChangesOnly && boards > 1 && !dated) continue
         const platforms = net.platforms.get(p)
         const board = platforms?.board.get(i)
         if (stepFreeOnly && board && board.stepFree !== 'yes') continue
@@ -106,15 +118,17 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
           const offset = p.departures[i]
           const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }] : nextRuns(p.service, day, canBoardAt, offset)
           for (const { originAt, every } of runs) for (let j = i + 1; j < p.calls.length; j++) {
+            if (required && j !== required.toIndex) continue
             const arrive = (place: Place, alight?: ObservedPlatform) => {
+              if (pair && boards === 1 && place.id !== pair.alightPlatform) return
               const arrival: Label = { place, at: originAt + p.arrivals[j], boards, walked: l.walked,
                 cadence: Math.max(l.cadence, every ?? Infinity), back: { prev: l, action: { kind: 'ride', pattern: p, i, j, start: originAt + offset, every, board, alight, change, changeBufferSeconds } } }
-              if (targets.has(place.id)) finish(arrival)
+              if ((!pair || boards === 2) && targets.has(place.id)) finish(arrival)
               if (place.kind === 'platform' && boards <= maxChanges) for (const b of net.samePlatform.get(p)?.get(j) ?? []) {
                 if (b.proof.platformId !== place.id || (stepFreeOnly && b.proof.stepFree !== 'yes')) continue
                 const list = nextShared.get(b) ?? []; nondominated(list, arrival); nextShared.set(b, list)
               }
-              if (net.walking.has(place.id) && (!targets.has(place.id) || targets.size > 1)) insert(alighted, arrival)
+              if (net.walking.has(place.id) && (pair || !targets.has(place.id) || targets.size > 1)) insert(datedChangesOnly && !dated ? exitOnly : alighted, arrival)
             }
             const alight = platforms?.alight.get(j)
             if (stepFreeOnly && alight && alight.stepFree !== 'yes') continue
@@ -127,18 +141,31 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
       shared = nextShared
       ready = new Map()
       for (const labels of alighted.values()) for (const l of labels) afterWalk(l, ready)
+      for (const labels of exitOnly.values()) for (const l of labels) afterWalk(l, ready, true)
       if (topologyOnly && complete.size) break
     }
     return complete
   }
 }
 
-export function search(net: Network, query: Query): Outcome {
+/** A faster direct line or an unrelated shortcut may hide a valid change in
+ * the public Pareto ranking. The reviewer asks a different, constrained
+ * question using the same scanner, admitted service, doors, timing and margin. */
+export function searchReviewedPair(net: Network, query: Query, pair: ReviewedPair, wayIds: readonly string[]): Outcome {
+  const allowed = new Set(wayIds), walking = new Map<string, Footway[]>()
+  for (const [id, edges] of net.walking) {
+    const kept = edges.filter(w => allowed.has(w.id))
+    if (kept.length) walking.set(id, kept)
+  }
+  return runSearch({ ...net, walking }, { ...query, maxChanges: 1 }, pair)
+}
+export function search(net: Network, query: Query): Outcome { return runSearch(net, query) }
+function runSearch(net: Network, query: Query, pair?: ReviewedPair): Outcome {
   if (!validQuery(query)) return { ok: false, code: 'INVALID_QUERY', message: 'Date, heure de Dakar ou paramètres de trajet invalides.' }
   const origin = net.places.get(query.origin), dest = net.places.get(query.destination)
   if (!origin || !dest) return { ok: false, code: 'UNVERIFIED_ACCESS', message: 'Le départ ou la destination ne dispose pas d’un point de desserte ou d’accès vérifié. Aucun raccordement par proximité.' }
   if (origin.id === dest.id) return { ok: false, code: 'SAME_PLACE', message: 'Le départ et la destination sont identiques.' }
-  const scan = scanner(net, origin, new Set([dest.id]), query)
+  const scan = scanner(net, origin, new Set([dest.id]), query, pair)
   const labels = scan(false).get(dest.id) ?? []
   if (!labels.length) {
     // This second scan diagnoses a calendar failure; its hypothetical times

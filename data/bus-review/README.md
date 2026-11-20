@@ -22,6 +22,8 @@ Ces fichiers servent à la revue hors ligne. Aucun n’est chargé comme réseau
 
 - [Dépôt de Thiaroye](thiaroye-site.json) : offsets à la voirie pour sept appels archivés, le poteau et deux points ArcGIS ; comparaison des **deux dessins sortants**, sans positions de portes ni coordonnées des tracés. Les dix fenêtres de recherche piétonne sont rapportées séparément (objets de quai / en contact / paires orientées). Les empreintes du PBF national et de l’extrait Dakar ne sont pas interchangeables. [Lecture et reproduction du reçu](../../docs/depot-thiaroye.md).
 
+- [Références 218 / 73 vers Niague](reported-218-73.json) : quatre départs non datés et deux fréquences annoncées, **sans tableau d’appels ni service du jour**. [Comparaison distincte avec les archives](reference-archives.json) et [reçu des pistes DDD → DDD et AFTU → AFTU](within-bus-families.json) : les exemples ne sont ni des points de montée autorisés ni des chemins voyageurs. [Lecture par sens et reproduction](../../docs/releve-218-73.md).
+
 **Droits et périmètre.** Voirie et relations : [© les contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Les positions des polylignes Waymark acquises dans la CI restent temporaires. Aucune liste de coordonnées ou grille de départ de l’archive historique AFTU n’est redistribuée. Les géométries locales effectivement réutilisées pour les **portions** ont [leur propre registre de sources](../bus-sections/README.md).
 
 ### Reproduction

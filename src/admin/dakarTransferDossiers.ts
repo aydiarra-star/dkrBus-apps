@@ -50,6 +50,8 @@ const feeders: readonly [string, string, string, string][] = [
   ['504B','diamniadio','Sébikotane','Ni le quai de la 504B ni le parcours jusqu’à la voie du train ne se déduisent de l’intitulé de gare.'],
 ]
 const terminalReview = ['docs/terminus-correspondances.md', 'data/bus-review/terminal-occurrences.json', 'data/bus-review/terminus-quays-2026-11-19.json']
+const reportedReview = 'docs/releve-218-73.md'
+const familyReview = [reportedReview, 'data/bus-review/within-bus-families.json', 'data/bus-review/reference-archives.json']
 const survey = (mode: 'ddd' | 'aftu', key: string, documentaryName: string): SurveyEnd => ({ mode, stopId: `survey:${key}`, documentaryName })
 export const dakarTransferDossiers: readonly Dossier[] = [
   { id: 'thiaroye-218-73', busSources: ['ddd:218', 'aftu:73'], betweenSites: false,
@@ -60,6 +62,30 @@ export const dakarTransferDossiers: readonly Dossier[] = [
       survey('ddd', 'thiaroye:218:depart', 'Dépôt Thiaroye · montée dans la 218 vers Aéroport LSS')],
       observation: 'Depuis Lac Rose, A_586 était l’avant-dernier appel ; le terminus A_266 était à 99,9 m du poteau. Près de cet ancien terminus, une autre voie de service et une chaussée à sens unique. La 218 est dessinée depuis le point 539 à 29,7 m du poteau. Ni marche autorisée ni départ daté au dépôt établis.' },
     sources: [...terminalReview, 'docs/depot-thiaroye.md', 'data/bus-review/thiaroye-site.json', 'https://www.openstreetmap.org/node/4419421889', 'https://aftu-senegal.org/map/dakar-urbain-ligne-73/', urbanPage, 'https://x.com/dakardemdikk1/status/1937979929007702515'] },
+  { id: 'thiaroye-218-73-niague', busSources: ['ddd:218', 'aftu:73'], betweenSites: false,
+    ends: [survey('ddd', 'nouveau:218:arrivee-poste', 'Poste Thiaroye · descente de la 218 depuis terminus 7218/219'),
+      survey('aftu', 'nouveau:73:depart-ciel-oil', 'Station Ciel Oil/Thiaroye · départ de la 73 vers Niague')],
+    observation: '05:28 est un départ de la 218, pas son arrivée à Poste Thiaroye. La 73 est signalée à 05:31 à son origine. La différence de trois minutes ne mesure pas une correspondance.',
+    reverse: { ends: [survey('aftu', 'nouveau:73:arrivee-ciel-oil', 'Station Ciel Oil/Thiaroye · arrivée de la 73 depuis Niague'),
+      survey('ddd', 'nouveau:218:depart-poste', 'Poste Thiaroye · départ de la 218 vers terminus 7218/219')],
+      observation: 'Pas d’arrivée fournie pour la 73 depuis Niague. Ne pas y reporter 06:54 depuis Lac Rose, ni générer des 218 toutes les 16 minutes.' },
+    sources: [reportedReview, 'data/bus-review/reported-218-73.json', 'docs/depot-thiaroye.md'] },
+  { id: 'ponty-ddd-1-7', busSources: ['ddd:1', 'ddd:7'], betweenSites: false,
+    ends: [survey('ddd', 'ponty:1:leclerc', 'Ponty · descente de la 1 vers Leclerc'),
+      survey('ddd', 'ponty:7:palais', 'Ponty · montée dans la 7 vers Palais 1')],
+    observation: 'Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 1. L’ancien appel D_128 (Cbao Ponty) était commun, mais la fiche DDD nomme Palais 2. Ni permission de rester au même point ni deux courses datées.',
+    reverse: { ends: [survey('ddd', 'ponty:7:ouakam', 'Ponty · descente de la 7 vers Ouakam'),
+      survey('ddd', 'ponty:1:parcelles', 'Ponty · montée dans la 1 vers les Parcelles')],
+      observation: 'Dans ce sens, les deux anciennes lignes appelaient D_122 (Poste Ponty), pas D_128. Le poteau 711879280 près de Poste Ponty n’a pas d’appartenance de ligne. Les deux portes du retour restent à identifier.' },
+    sources: [...familyReview, 'https://www.openstreetmap.org/node/4666430941/history/3', 'https://api.openstreetmap.org/api/0.6/node/4666430941/relations.json', urbanPage] },
+  { id: 'colobane-aftu-75-65', busSources: ['aftu:75', 'aftu:65'], betweenSites: false,
+    ends: [survey('aftu', 'colobane:75:arrivee', 'Colobane · descente de la 75 depuis Malika'),
+      survey('aftu', 'colobane:65:depart', 'Colobane · montée dans la 65 vers Jaxaay 2')],
+    observation: 'Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1,4 m. L’ancienne 65 depuis A_1564 allait vers Kounoune École Mbaba. Aucune marche ni montée datée démontrée.',
+    reverse: { ends: [survey('aftu', 'colobane:65:arrivee', 'Colobane · descente de la 65 depuis Jaxaay 2'),
+      survey('aftu', 'colobane:75:depart', 'Colobane · montée dans la 75 vers Malika')],
+      observation: 'Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. Les listes retour à Gare De Colobane ne localisent pas les portes.' },
+    sources: [...familyReview, 'https://aftu-senegal.org/map/dakar-urbain-ligne-75/', 'https://aftu-senegal.org/map/dakar-urbain-ligne-65/'] },
   { id: 'ouakam-67-7', busSources: ['aftu:67', 'ddd:7'], betweenSites: false,
     ends: [survey('aftu', 'ouakam:67:arrivee', 'Boutique Diallo · descente de la 67 depuis Thiawlène'),
       survey('ddd', 'ouakam:7:palais', 'Arrêt Pharmacie · montée dans la 7 vers Palais')],

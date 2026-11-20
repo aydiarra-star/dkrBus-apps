@@ -68,6 +68,13 @@ for (const theme of ['light','dark']) {
     assert.match(await note.innerText(),/ne confirment pas cette correspondance/)
     assert.equal(await note.locator('time').count(),0)
     await wrapper.getByRole('button',{name:'AFTU',exact:true}).click(); await input.fill('73')
+    // The undated summary is not a service-day board. Its two possible
+    // starts must not replace the independent Lac Rose weekly sheet.
+    await page.clock.pauseAt(new Date('2026-11-20T05:30:59Z')); await page.clock.runFor(1000)
+    const sides = wrapper.locator('.station-board-direction-toggle')
+    assert.equal(await sides.count(),2)
+    assert.match(await sides.nth(0).innerText(),/Dès 05:55/); assert.match(await sides.nth(1).innerText(),/Dès 05:50/)
+    assert.equal(await sides.locator('time').count(),0)
     await page.clock.pauseAt(new Date('2026-11-20T06:51:59Z')); await page.clock.runFor(1000)
     for (const [side, wording] of [/après Cem Thiaroye/, /Le même quai n’est pas confirmé/].entries()) {
       await wrapper.locator('.station-board-direction-toggle').nth(side).click(); await note.locator('summary').click()
@@ -82,6 +89,24 @@ for (const theme of ['light','dark']) {
     await network('ddd').click(); await input.fill('218'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     await note.locator('summary').click(); assert.match(await note.innerText(),/pas son arrivée au dépôt/)
     assert.equal(await wrapper.locator('.bus-occurrences li').count(),1); assert.equal(await note.locator('time').count(),0)
-    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, minutes et secondes vertes, fin et retour absent OK`)
+    assert.equal(await sides.count(),3); assert.doesNotMatch((await sides.allTextContents()).join(' '),/7218|05:28/)
+    await network('aftu_tata').click(); await input.fill('73')
+    await sides.nth(0).click()
+    const terminal = wrapper.locator('.bus-occurrences li').last(), clock = terminal.locator('time.passage-remaining')
+    await page.clock.pauseAt(new Date('2026-11-20T23:37:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'0:01'); assert.match(await terminal.innerText(),/1 min/)
+    await page.clock.runFor(1000); assert.equal(await clock.count(),0); assert.match(await terminal.innerText(), /Fin de service/)
+    await sides.nth(1).click()
+    await page.clock.pauseAt(new Date('2026-11-20T23:49:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(), /Fin de service/)
+    // A different, independently modelled Friday service can finish on
+    // Saturday. No 73 or 218 origin is extrapolated through midnight.
+    await network('ddd').click(); await input.fill('16B'); await sides.nth(2).click()
+    await page.clock.pauseAt(new Date('2026-11-20T23:59:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'8:01'); await page.clock.runFor(1000); assert.equal(await clock.textContent(),'8:00')
+    await page.clock.pauseAt(new Date('2026-11-21T00:52:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
+    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Dès 06:38/)
+    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, minutes et secondes vertes, fin de la 73 dans les deux sens, minuit et retour absent OK`)
   } finally { await browser.close() }
 }

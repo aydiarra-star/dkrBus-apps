@@ -46,7 +46,7 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(56)
+  expect(report).toHaveLength(62)
   expect(report.filter(d=>['gt54-18-39','maristes-12-75'].includes(d.dossier))).toHaveLength(4)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
@@ -83,7 +83,7 @@ it('keeps the actual Dakar dossiers documentary, including co-located labels, wi
 })
 
 
-it.each(['thiaroye-218-73', 'ouakam-67-7', 'guediawaye-26-5'])('uses four terminal roles in dossier %s, never the forward calls in reverse', dossier => {
+it.each(['thiaroye-218-73', 'thiaroye-218-73-niague', 'ponty-ddd-1-7', 'colobane-aftu-75-65', 'ouakam-67-7', 'guediawaye-26-5'])('uses four directional roles in dossier %s, never the forward calls in reverse', dossier => {
   const at = Date.parse('2026-11-19T19:00Z') / 1000
   const [a, b] = dakarTransferReport(dakarNetwork, at).filter(r => r.dossier === dossier)
   expect(new Set([a.from.stopId, a.to.stopId, b.from.stopId, b.to.stopId]).size).toBe(4)

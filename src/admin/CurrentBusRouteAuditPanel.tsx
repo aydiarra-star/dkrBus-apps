@@ -7,6 +7,7 @@ import type { AftuPublishedRouteCandidate } from '../data/aftuPublishedRouteCand
 import type { TataPublishedRouteCandidate } from '../data/tataPublishedRouteCandidates'
 import type { DddPublishedDepartureWindow } from '../data/dddPublishedDepartureWindows'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
+import { ReportedBusRunsPanel } from './ReportedBusRunsPanel'
 import './CurrentBusRouteAuditPanel.css'
 
 type Filter = 'all' | 'missing' | 'unverified' | 'invalid'
@@ -89,6 +90,8 @@ export function CurrentBusRouteAuditPanel() {
         <ShieldCheck size={15} />
         <span>L’IA recherche et recoupe les sources pour qualifier les lignes. Aucune correction des arrêts ni publication dans le catalogue voyageurs n’est automatique.</span>
       </div>
+
+      <ReportedBusRunsPanel />
 
       <details className="bus-route-audit-sources">
         <summary>Fréquences observées par site · CETUD · {frequencyObservations.length || 'chargement…'} relevés</summary>

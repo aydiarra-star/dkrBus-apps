@@ -2,6 +2,8 @@
 
 **La carte situe le départ de la 73 vers Lac Rose, mais pas le quai de descente de la 218 depuis Aéroport LSS.** Les deux dessins disponibles montrent des bus qui **quittent** le site. Aucun ne montre où la 218 entrante ouvre ses portes. Le calculateur ne propose donc ni marche, ni changement à zéro mètre, ni heure de correspondance. Sur place, demander au régulateur où attendre la 73 ; ne pas suivre un tracé de véhicule à pied dans le dépôt.
 
+**Autre relevé, non daté :** [DDD 218 à 05:28 et AFTU 73 vers Niague à 05:31](releve-218-73.md). Les quatre départs de référence n’écrasent pas les grilles Lac Rose ci-dessous.
+
 ## Ce que changent les horaires dans Explorer
 
 Dans **Explorer → Prochains passages → AFTU / TATA → AFTU → 73**, choisir le sens par sa destination. Les deux listes de 75 arrêts étaient déjà dans le bon sens. C’est la durée uniforme de **69 ou 68 min**, et non l’ordre des arrêts, qui décalait le compteur à l’arrivée.
