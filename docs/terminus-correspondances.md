@@ -2,7 +2,7 @@
 
 **Premier relevé à faire : 218 depuis Aéroport LSS → 73 vers Lac Rose, au dépôt de Thiaroye.** La carte officielle de la 73 place son **départ** à 1,7 m d’un poteau nommé « Terminus 217 et 218 ». Elle ne place pas la porte d’arrivée de la 218. Pour le jeudi d’essai, le **19 novembre 2026**, on ne peut confirmer ni la marche nécessaire, ni la prochaine montée réalisable. Le calculateur ne propose donc pas cette correspondance, pas même à 0 m.
 
-Dans **Explorer → AFTU → 73**, ouvrir une direction : la note depuis Thiaroye indique où demander la montée ; celle depuis Lac Rose distingue la descente et le départ de la 218. Ces notes ne s’appliquent pas à la fiche TATA portant le même numéro. Les minutes du panneau ne chronomètrent pas le changement.
+Dans **Explorer → AFTU → 73**, ouvrir une direction : la note depuis Thiaroye indique où demander la montée ; celle depuis Lac Rose distingue la descente et le départ de la 218. Ces notes ne s’appliquent pas à la fiche TATA portant le même numéro. Les minutes du panneau ne chronomètrent pas le changement. [Examen du dépôt : deux sorties de véhicules, grille corrigée de la 73 et demande prête à transmettre](depot-thiaroye.md).
 
 ## Les deux sens ne sont pas symétriques
 

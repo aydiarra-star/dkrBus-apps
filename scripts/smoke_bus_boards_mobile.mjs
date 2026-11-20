@@ -68,12 +68,20 @@ for (const theme of ['light','dark']) {
     assert.match(await note.innerText(),/ne confirment pas cette correspondance/)
     assert.equal(await note.locator('time').count(),0)
     await wrapper.getByRole('button',{name:'AFTU',exact:true}).click(); await input.fill('73')
+    await page.clock.pauseAt(new Date('2026-11-20T06:51:59Z')); await page.clock.runFor(1000)
     for (const [side, wording] of [/après Cem Thiaroye/, /Le même quai n’est pas confirmé/].entries()) {
       await wrapper.locator('.station-board-direction-toggle').nth(side).click(); await note.locator('summary').click()
       assert.match(await note.innerText(), wording); assert.equal(await note.locator('time, [role=timer]').count(),0)
-      assert.equal(await wrapper.locator('.bus-occurrences li').count(),75)
+      assert.match(await note.getByRole('link', {name:/Grille de la 73 vers/}).getAttribute('href'),side ? /4256343-0$/ : /4256342-0$/)
+      const rows=wrapper.locator('.bus-occurrences li'); assert.equal(await rows.count(),75)
+      const remaining = i => rows.nth(i).locator('time.passage-remaining').textContent()
+      if (side === 0) { assert.equal(await remaining(73),'1:00'); assert.equal(await remaining(74),'2:00') }
+      else { assert.equal(await remaining(0),'13:00'); assert.equal(await remaining(1),'14:00') }
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
     }
+    await network('ddd').click(); await input.fill('218'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
+    await note.locator('summary').click(); assert.match(await note.innerText(),/pas son arrivée au dépôt/)
+    assert.equal(await wrapper.locator('.bus-occurrences li').count(),1); assert.equal(await note.locator('time').count(),0)
     assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, minutes et secondes vertes, fin et retour absent OK`)
   } finally { await browser.close() }
 }

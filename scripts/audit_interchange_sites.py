@@ -350,7 +350,7 @@ def summary(sites):
     for name, site in sites.items():
         ps = site["platforms"]
         rows[name] = [len(ps), sum(bool(p["touchingFootways"]) for p in ps), len(site["candidatePaths"])]
-    print("::notice title=Quais par site (total, contact, chemins)::" + json.dumps(rows, ensure_ascii=False))
+    print("::notice title=Quais par site::" + json.dumps(rows, ensure_ascii=False))
 
 
 if __name__ == "__main__":

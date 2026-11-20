@@ -10,6 +10,7 @@ import { DDD_PUBLISHED_ROUTES } from '../data/dddPublishedRoutes'
 import { DDD_501_PROJECT_SEQUENCE } from '../data/ddd501ProjectSequence'
 import { DDD_PUBLISHED_DEPARTURE_WINDOWS } from '../data/dddPublishedDepartureWindows'
 import { DDD23_DIRECTIONS, DDD_NUMBERED_VARIANTS, DDD_PALAIS_PAIRS, DDD16B_CHECKPOINTS } from '../data/dddSecondaryBoardSheets'
+import { thiaroyeCheckpoints } from './thiaroyeCheckpoints'
 import { DDD311_SHEETS } from '../data/ddd311BoardSheets'
 import { DDD12_SHEETS } from '../data/ddd12DirectionSheets'
 import { AFTU_CETUD_SCHEDULE_SETTINGS as cetud } from '../data/aftuScheduleSettings'
@@ -84,8 +85,9 @@ function aftuDirections(r: PublicBusLineReference): BusBoardDirection[] {
       const origin = i === 0 ? s.outboundOrigin ?? from : s.inboundOrigin ?? to
       const destination = i === 0 ? s.outboundDestination ?? to : s.inboundDestination ?? from
       if (!grid || grid.line !== c || !pts?.length || grid.sourceUrl !== source || !origin || !destination) return pair[i]
-      return { ...direction('aftu', c, side, pts, 'arrêts', source, { week: sheetWeek(grid), originBasis: source, duration: i === 0 ? s.outboundDurationMinutes : s.inboundDurationMinutes }),
+      const d = { ...direction('aftu', c, side, pts, 'arrêts', source, { week: sheetWeek(grid), originBasis: source, duration: i === 0 ? s.outboundDurationMinutes : s.inboundDurationMinutes }),
         from: origin, to: destination }
+      return c === '73' ? thiaroyeCheckpoints(d) : d
     })
     return c === '58' ? [...pair, ...dirs] : dirs
   }

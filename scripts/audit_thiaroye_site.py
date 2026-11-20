@@ -21,6 +21,7 @@ from scripts.ouakam_site import before_end
 # Includes both carriageways by Ciel Oil, the depot outlets, RN1, and ALL
 # seven calls before/at/after the termini in terminal-occurrences.json.
 BBOX = (-17.382, 14.7435, -17.3745, 14.7525)  # W,S,E,N
+SAMPLE_METRES = (0, 25, 75, 100, 150, 200, 300)
 POLE = 4419421889
 AOI_CONTROLS = (POLE, 6046692545, 6046692541, 3956188298, 6039744390, 1247815427)
 STOP_IDS = {"ddd": {"D_529", "D_686", "D_545"}, "aftu": {"A_265", "A_586", "A_266", "A_585"}}
@@ -109,7 +110,7 @@ def samples(line, ways):
     # Sample actual line length, not straight chords between the calls.
     reverse = line[::-1]
     return {str(m): probe(p, ways)["roadsWithin12m"] if (p := before_end(reverse, m)) is not None else None
-            for m in (0, 25, 75, 100, 150, 200, 300)}
+            for m in SAMPLE_METRES}
 
 
 def review(pbf, ddd, aftu, drawing, layer):
@@ -140,6 +141,14 @@ def review(pbf, ddd, aftu, drawing, layer):
     }
 
 
+def measured_ways(r):
+    used = {i for row in r["probes"].values() for i, _ in row["roadsWithin12m"]}
+    used.update(row["nearestFootway"][0] for row in r["probes"].values() if row["nearestFootway"])
+    used.update(i for ids in r["controlNodeHighwayContacts"].values() for i in ids)
+    used.update(i for d in r["outboundDrawings"].values() for sample in d["fromStartM"].values() for i, _ in sample or [])
+    return used
+
+
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     for name in ("pbf", "ddd", "aftu", "drawing", "layer", "output"):
@@ -150,8 +159,4 @@ if __name__ == "__main__":
     # Compact, individually readable receipts; no geometry in the annotations.
     for k in ("pbfSha256", "controlNodeHighwayContacts", "probes", "outboundDrawings", "unmeasuredDrawings"):
         print(f"::notice title=Thiaroye {k}::" + json.dumps(r[k], separators=(",", ":")))
-    used = {i for row in r["probes"].values() for i, _ in row["roadsWithin12m"]}
-    used.update(row["nearestFootway"][0] for row in r["probes"].values() if row["nearestFootway"])
-    used.update(i for ids in r["controlNodeHighwayContacts"].values() for i in ids)
-    used.update(i for d in r["outboundDrawings"].values() for sample in d["fromStartM"].values() for i, _ in sample or [])
-    print("::notice title=Thiaroye ways::" + json.dumps({i: r["ways"][i] for i in sorted(used)}, separators=(",", ":")))
+    print("::notice title=Thiaroye ways::" + json.dumps({i: r["ways"][i] for i in sorted(measured_ways(r))}, separators=(",", ":")))

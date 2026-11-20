@@ -124,7 +124,7 @@ it('counts the seconds of both directions and stop occurrences; sleeps when hidd
 
 it('keeps the Patte d’Oie marker walk on the two nominated directions, without assigning either bus to a marker', () => {
   const { container, rerender } = render(<EstimatedLineScheduleBoard network="ddd" />)
-  const note = () => container.querySelector('.bus-survey-note')
+  const note = () => Array.from(container.querySelectorAll('.bus-survey-note')).find(n => n.querySelector('summary')?.textContent === 'Changer à Patte d’Oie ?')
   const inspect = (code: string, side: number, qualifies: boolean) => {
     fireEvent.click(buttons(container, code)[side]); expect(Boolean(note())).toBe(qualifies)
     if (qualifies) {
@@ -145,9 +145,11 @@ it('explains the departure and arrival at Thiaroye separately without a transfer
   const note = () => container.querySelector('.bus-survey-note')
   fireEvent.click(buttons(container,'73')[0]); expect(note()?.textContent).toContain('après Cem Thiaroye')
   expect(note()?.querySelector('a')?.href).toMatch(/18051511-1$/)
+  expect(within(note() as HTMLElement).getByRole('link', {name:'Grille de la 73 vers Thiaroye'}).getAttribute('href')).toMatch(/4256342-0$/)
   expect(note()?.querySelector('time, [role="timer"]')).toBeNull()
   fireEvent.click(buttons(container,'73')[1]); expect(note()?.textContent).toContain('Le même quai n’est pas confirmé')
   expect(note()?.querySelector('a')?.href).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-73/')
+  expect(within(note() as HTMLElement).getByRole('link', {name:'Grille de la 73 vers Lac Rose'}).getAttribute('href')).toMatch(/4256343-0$/)
   expect(note()?.querySelector('time, [role="timer"]')).toBeNull()
   fireEvent.click(within(container).getByRole('button',{name:'TATA'}))
   for (const b of buttons(container,'73')) { fireEvent.click(b); expect(note()).toBeNull() }
@@ -160,4 +162,14 @@ it('ne prête pas la note du dépôt à une autre source ni à une autre occurre
     const { container, unmount } = render(<BusSurveyNote name="AFTU 73" d={other} />)
     expect(container.firstChild).toBeNull(); unmount()
   }
+})
+
+
+it('n’attribue à la 218 depuis Aéroport ni l’arrivée au dépôt ni un passage de la 73', () => {
+  const { container } = render(<EstimatedLineScheduleBoard network="ddd" />)
+  fireEvent.click(buttons(container,'218')[1]); const note = container.querySelector('.bus-survey-note')!
+  expect(note.textContent).toContain('pas son arrivée au dépôt')
+  expect(note.querySelector('time, [role="timer"]')).toBeNull()
+  expect(opened(container)).toHaveLength(1)
+  fireEvent.click(buttons(container,'218')[2]); expect(container.querySelector('.bus-survey-note')).toBeNull()
 })

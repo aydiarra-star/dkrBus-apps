@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BUS_BOARD_LINES } from './busBoardCatalog'
+import { thiaroyeCheckpoints } from './thiaroyeCheckpoints'
 import { checkpointProfiles, modelClock } from './busBoardModel'
 import { boardDay, busPassage, datedBusBoards, everyDay, transcribedOffsets, type BusBoardDirection, type BusFamily } from './busPassageBoard'
 import { midnight, MINUTE, originSlots } from './stopPassageCountdown'
@@ -102,6 +103,35 @@ describe('time on a bus sign, not a trip planner', () => {
     const [out,back] = dirs('aftu','84'); expect(back.points[0]).toMatch(/Delafosse/); expect(out.points.at(-1)).not.toBe(back.points[0])
     expect([2,3].map(i => get(back,i,'05:50'))).toEqual(Array(2).fill({ state:'active', minutes:1, at:at('05:51') }))
     expect(get(back,72,'07:08:59')).toMatchObject({ minutes:1 }); expect(get(back,72,'07:09')).toMatchObject({ minutes:14 })
+  })
+  it('suit la colonne de la 73 jusqu’au CEM et au terminus, semaine et week-end séparés', () => {
+    const [depot, lac] = dirs('aftu','73'), fri = '2026-11-20', sat = '2026-11-21', sun = '2026-11-22'
+    for (const [dir, weekday, weekend] of [[depot,37,27],[lac,42,30]] as const) {
+      for (const [date, count] of [[fri,weekday],[sat,weekend],[sun,weekend]] as const) {
+        expect(boardDay(dir,at('00:00',date))!.profiles.flatMap(p => p.today)).toHaveLength(count)
+      }
+      expect(get(dir,74,'12:00','2026-12-25')).toEqual({ state:'calendar' })
+    }
+    expect(get(depot,73,'06:52:59',fri)).toMatchObject({ minutes:1, at:at('06:53',fri) })
+    expect(get(depot,74,'06:54',fri)).toMatchObject({ at:at('07:29',fri) }) // not 06:54 plus a headway
+    expect(get(depot,74,'06:54',sat)).toMatchObject({ at:at('07:05',sat) })
+    expect(get(lac,1,'07:05',fri)).toMatchObject({ minutes:1, at:at('07:06',fri) })
+    expect(get(lac,74,'08:21:59',fri)).toMatchObject({ minutes:1, at:at('08:22',fri) })
+    expect(get(lac,74,'23:50',sun)).toEqual({ state:'finished' })
+    expect(get(depot,74,'23:37:59',fri)).toMatchObject({ minutes:1 }); expect(get(depot,74,'23:38',fri).state).toBe('finished')
+    expect(get(depot,74,'23:28',sat).state).toBe('finished')
+  })
+  it('ne transpose pas les trois repères de Thiaroye en cas de changement de liste, de source ou de créneaux', () => {
+    const ready = dirs('aftu','73')[0]
+    const clock = modelClock('aftu','73','outbound',ready.points,'arrêts', { week:clockOf(ready).week, originBasis:ready.source, duration:69 })
+    const d = { ...ready, clock }
+    expect(thiaroyeCheckpoints(d)).toEqual(ready)
+    for (const other of [{ ...d, clock:{ ...clock, originBasis:'autre grille' } }, { ...d, source:'autre fiche' }, { ...d, to:d.from }, { ...d, clock:null },
+      { ...d, points:d.points.map((v,i) => i === 10 ? v+' bis' : v) }, { ...d, clock: { ...clock, week: { ...clock.week, sunday:null } } },
+      { ...d, clock:{ ...clock, week:{ ...clock.week, weekday:[{start:'05:56',end:'22:44',every:28}] } } }]) {
+      expect(thiaroyeCheckpoints(other)).toBe(other)
+    }
+    expect(dirs('tata','73').every(other => !clockOf(other).byOrigin)).toBe(true)
   })
   it('requires the fingerprint of the consumed full ordered list, not the same family, code and count', () => {
     const d = dirs('aftu','89')[0], c = clockOf(d)

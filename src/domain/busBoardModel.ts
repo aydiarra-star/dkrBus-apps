@@ -34,20 +34,24 @@ export const fixedModelWeek = (start: string, end: string, every: number) => eve
 
 /** Timed checkpoints must match this exact occurrence (including duplicates).
  * Fill only the intervals bracketed by two published samples. */
-export function checkpointProfiles(points: readonly string[], samples: readonly [number,string,number,number][]): [number[],number[]] | null {
-  if (samples[0]?.[0] !== 1 || samples.at(-1)?.[0] !== points.length || samples[0][2] !== 0 || samples[0][3] !== 0) return null
-  const result: [number[],number[]] = [[0],[0]]
-  for (const [j, [rank,name,quiet,busy]] of samples.entries()) {
-    if (points[rank-1] !== name || !Number.isInteger(rank) || ![quiet,busy].every(x=>Number.isFinite(x) && x>=0)) return null
+export function checkpointOffsets(points: readonly string[], samples: readonly (readonly [number,string,number])[]): number[] | null {
+  if (samples[0]?.[0] !== 1 || samples.at(-1)?.[0] !== points.length || samples[0][2] !== 0) return null
+  const result = [0]
+  for (const [j, [rank, name, minutes]] of samples.entries()) {
+    if (points[rank-1] !== name || !Number.isInteger(rank) || !Number.isFinite(minutes) || minutes < 0) return null
     if (!j) continue
-    const [before,,a,b] = samples[j-1]
-    if (rank <= before || quiet < a || busy < b) return null
-    for (let i=before+1; i<=rank; i++) {
-      const k = (i-before)/(rank-before)
-      result[0].push(Math.round((a+k*(quiet-a))*MINUTE)); result[1].push(Math.round((b+k*(busy-b))*MINUTE))
+    const [before,, start] = samples[j-1]
+    if (rank <= before || minutes < start) return null
+    for (let i = before+1; i <= rank; i++) {
+      result.push(Math.round((start + ((i-before)/(rank-before)) * (minutes-start)) * MINUTE))
     }
   }
   return result
+}
+export function checkpointProfiles(points: readonly string[], samples: readonly [number,string,number,number][]): [number[],number[]] | null {
+  const quiet = checkpointOffsets(points, samples.map(([r,n,q]) => [r,n,q]))
+  const busy = checkpointOffsets(points, samples.map(([r,n,,b]) => [r,n,b]))
+  return quiet && busy ? [quiet,busy] : null
 }
 
 // Whole-corridor lengths, not stop coordinates. Only for the reviewed order
@@ -57,7 +61,7 @@ const historical: Readonly<Record<string, { count: number; perMille: number[]; m
 // Coarse fallbacks are for an entire itinerary, not one fabricated bus stop
 // per street. The calibration and its small sample are explicit in the report.
 const median = (a: number[]) => { const b = [...a].sort((x,y) => x-y); return (b[(b.length-1) >> 1] + b[b.length >> 1]) / 2 }
-function sequenceCheck(points: readonly string[]) {
+export function sequenceCheck(points: readonly string[]) {
   let h = 2166136261
   for (const b of new TextEncoder().encode(JSON.stringify(points))) h = Math.imul(h ^ b, 16777619)
   return h >>> 0

@@ -14,7 +14,7 @@ Dans **Trajet → Sur la carte**, choisissez un départ, une destination et une 
 
 **Changer à Patte d’Oie ?** La carte relie deux poteaux par **23,7 m**. Elle ne dit pas si la 218 depuis Thiaroye y dépose les voyageurs, ni si la 60 vers Colobane y prend des voyageurs ce jour-là. Dans *Explorer*, les deux sens étudiés donnent accès à ce constat, pas à un trajet combiné. [Carte, variantes contradictoires et relevé nécessaire](docs/patte-doie.md).
 
-**Passer de la 218 à la 73 au dépôt de Thiaroye ?** Dans *Explorer → AFTU → 73*, choisir le sens. La carte place le **départ** à 1,7 m du poteau DDD ; elle ne situe pas la descente dans l’autre sens. [Quais, horaires et relevé à faire à Thiaroye, Ouakam et Guédiawaye](docs/terminus-correspondances.md).
+**Passer de la 218 à la 73 au dépôt de Thiaroye ?** Dans *Explorer → AFTU → 73*, la grille de semaine indique **05:55** à Lac Rose, **06:53** au CEM et **06:54** au dépôt. Dans *DDD → 218 depuis Aéroport LSS*, le panneau estime le départ, pas l’arrivée. Les cartes montrent deux **sorties de bus**, pas un passage entre les portes. [Vérification des deux sens et pièce à demander à l’exploitation](docs/depot-thiaroye.md).
 
 **Un exemple avec marche.** Sélectionnez **Scat Urbam · îlot du passage piéton nord** et la station BRT **Petersen – Papa Gueye Fall**, le 18/11/2026 à 19 h. Le calcul inclut 61 m à pied jusqu’au quai central et B1 jusqu’au quai de descente, arrivée estimée 19 h 28. Il ne commence pas sur le trottoir et n’inclut aucune traversée de rue. Les [deux accès à Scat Urbam et la limite à Petersen](data/bus-sections/acces-scat-urbam.md) sont vérifiés par sens ; leur accessibilité sans marches est inconnue.
 

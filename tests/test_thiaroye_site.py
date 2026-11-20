@@ -23,3 +23,31 @@ class ThiaroyeSurveyTest(unittest.TestCase):
         for source in (response([path[::-1]]), response([path, path]), response([path], 8), response([path], sr=32628), {}):
             with self.subTest(source=source), self.assertRaises(ValueError):
                 arcgis_line(source)
+
+
+class SiteReceiptTest(unittest.TestCase):
+    def test_incomplete_jobs_cannot_silently_erase_a_probe_or_a_drawing(self):
+        import json
+        from pathlib import Path
+        from scripts.freeze_thiaroye_site import freeze_site
+
+        receipt = json.loads((Path(__file__).resolve().parents[1] / 'data/bus-review/thiaroye-site.json').read_text())
+        def notice(title, value):
+            return {'title': title, 'message': value}
+        pbf = receipt['pbfSha256']
+        a = [notice('Voirie Sénégal', pbf), notice('Thiaroye unmeasuredDrawings', '[]')]
+        for key in ('pbfSha256', 'controlNodeHighwayContacts', 'probes', 'outboundDrawings', 'ways'):
+            a.append(notice('Thiaroye ' + key, json.dumps(receipt[key])))
+        r = [notice('Quais par site', json.dumps(receipt['siteWindows'])), notice('Empreinte continuité', pbf),
+             notice('Topologie régionale quais', json.dumps(receipt['region']))]
+        def freeze():
+            return freeze_site(a, r, receipt['sourceRevision'], receipt['aftuJob'], receipt['regionalJob'])
+        self.assertEqual(json.loads(json.dumps(freeze())), receipt)
+        for seq, title, value in ((a, 'Thiaroye unmeasuredDrawings', '["ddd218"]'), (a, 'Thiaroye probes', '{}'),
+                                  (r, 'Empreinte continuité', '0'*64), (r, 'Quais par site', '{}'), (a, 'Thiaroye ways', '{}')):
+            with self.subTest(title=title):
+                row = next(n for n in seq if n['title'] == title)
+                old, row['message'] = row['message'], value
+                with self.assertRaises(ValueError):
+                    freeze()
+                row['message'] = old
