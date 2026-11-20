@@ -82,7 +82,7 @@ describe('PassageArcs', () => {
         expect(strong.querySelector('svg.station-board-double-apostrophe')?.outerHTML).toBe(expectedSvgHtml)
       }
       if (network === 'aftu_tata') {
-        fireEvent.click(within(board).getByRole('button', {name:'TATA', exact:true}))
+        fireEvent.click(within(board).getByRole('button', {name:'TATA'}))
         expect(board.querySelectorAll('.station-board-double-apostrophe')).toHaveLength(0)
         fireEvent.click(within(board).getByRole('checkbox', {name:'Inclure les passages estimés'}))
         expect(board.textContent).toMatch(/Vers \d{2}:\d{2}/)
