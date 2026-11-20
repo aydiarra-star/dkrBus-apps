@@ -11,6 +11,8 @@ on:
       - "scripts/audit_patte_doie.py"
       - "scripts/audit_terminus_quays.py"
       - "scripts/audit_terminal_calls.py"
+      - "scripts/ouakam_site.py"
+      - "data/bus-review/ouakam-road.json"
       - "data/bus-review/terminal-occurrences.json"
       - "data/bus-review/patte-doie-occurrences.json"
       - "scripts/medina_phase.py"
@@ -72,10 +74,13 @@ jobs:
           fi
       - name: Check historical call roles, terminal sites and independent approach phases at Médina
         run: |
-          base='https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder'
+          # One immutable public source archive; no unauthenticated API rate
+          # quota. Each analysis also verifies the SHA-256 of both inner ZIPs.
           ref=7a2b99824699cb10daf69852c8fbecb746200d77
+          tarball="$RUNNER_TEMP/passbi.tar.gz"
+          curl -fLsS --retry 3 "https://codeload.github.com/impactsolutionsas/passbi_core/tar.gz/$ref" -o "$tarball"
           for file in AFTU Dem_Dikk; do
-            curl -fLsS --retry 2 -H 'Accept: application/vnd.github.raw+json' "$base/gtfs_$file.zip?ref=$ref" -o "$RUNNER_TEMP/$file.zip"
+            tar -xOzf "$tarball" "passbi_core-$ref/gtfs_folder/gtfs_$file.zip" > "$RUNNER_TEMP/$file.zip"
           done
           ddd="$RUNNER_TEMP/Dem_Dikk.zip"
           python -m scripts.audit_gt54 "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/gt54.json

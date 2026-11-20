@@ -15,6 +15,7 @@ from scripts.audit_bus_osm_occurrences import identity
 from scripts.audit_gt54 import nearest
 from scripts.audit_interchange_sites import distance, is_platform
 from scripts.audit_patte_doie import MARKERS
+from scripts.ouakam_site import drawing_frame
 from scripts.extract_dakar_pedestrian_ways_from_pbf import inside_bounds
 
 # Discovery tolerance in metres, NOT a platform identity/access threshold.
@@ -284,6 +285,7 @@ def summary(r):
     for i in range(0, min(len(memberships), 40), 20):
         note(f"Rangs des poteaux proches {i+1}", memberships[i : i + 20])
     note("60 AFTU et chemin de Patte d’Oie", r["patteDoie60"])
+    note("Approche du terminus 67 à Ouakam", r["ouakam67"])
 
 
 if __name__ == "__main__":
@@ -305,6 +307,7 @@ if __name__ == "__main__":
             pbfSha256=hashlib.file_digest(f, "sha256").hexdigest(),
             attribution="© OpenStreetMap contributors · ODbL 1.0",
             patteDoie60=patte_doie(maps.get("60")),
+            ouakam67=drawing_frame(maps.get("67"), terminals(maps.get("67", {}))),
         )
     a.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
     if a.ci_summary:

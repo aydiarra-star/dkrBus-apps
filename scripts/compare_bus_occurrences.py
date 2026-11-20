@@ -43,6 +43,30 @@ def tables(z, table):
         yield from csv.DictReader(stream)
 
 
+def calendar_bounds(z, services):
+    """Latest regular end and latest exception date for these services ONLY.
+    Neither is read as a current timetable or an affirmative operating day.
+    """
+    validity = {
+        r["service_id"]: r["end_date"]
+        for r in tables(z, "calendar")
+        if r["service_id"] in services
+    }
+    if validity.keys() != services:
+        raise ValueError("Calendrier incomplet")
+    # These two PINNED archives use semicolons in this header only.
+    with z.open("calendar_dates.txt") as raw, io.TextIOWrapper(
+        raw, encoding="utf-8-sig", newline=""
+    ) as stream:
+        if stream.readline().strip() != "service_id;date;exception_type":
+            raise ValueError("En-tête des exceptions différent")
+        last_exception = max(
+            (date for service, date, _ in csv.reader(stream) if service in services),
+            default=None,
+        )
+    return max(validity.values()), last_exception
+
+
 # File-order occurrence ranks (1-based) in the two pinned archives. Seeds
 # live in separate agency namespaces. None of these IDs is a current platform.
 SHARED_SEEDS = {

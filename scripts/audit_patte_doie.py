@@ -6,9 +6,7 @@ platform binding. There are no current departure times in this report.
 """
 
 import argparse
-import csv
 import hashlib
-import io
 import json
 import zipfile
 from collections import defaultdict
@@ -16,7 +14,7 @@ from pathlib import Path
 
 from scripts.audit_gt54 import locate
 from scripts.audit_interchange_sites import distance
-from scripts.compare_bus_occurrences import DIGEST, tables
+from scripts.compare_bus_occurrences import DIGEST, calendar_bounds, tables
 
 # © OpenStreetMap contributors, ODbL. Both platform nodes v3 and the local
 # section of the one-way trunk w108891328 v13, IN node order, heading west.
@@ -62,27 +60,6 @@ def event_rank(rows, expected):
     ):
         raise ValueError("Appel ambigu, ordre ou rôles historiques incompatibles")
     return i + 1
-
-
-def calendar_bounds(z, services):
-    validity = {
-        r["service_id"]: r["end_date"]
-        for r in tables(z, "calendar")
-        if r["service_id"] in services
-    }
-    if validity.keys() != services:
-        raise ValueError("Calendrier incomplet")
-    # These two PINNED archives use semicolons in this header only.
-    with z.open("calendar_dates.txt") as raw, io.TextIOWrapper(
-        raw, encoding="utf-8-sig", newline=""
-    ) as stream:
-        if stream.readline().strip() != "service_id;date;exception_type":
-            raise ValueError("En-tête des exceptions différent")
-        last_exception = max(
-            (date for service, date, _ in csv.reader(stream) if service in services),
-            default=None,
-        )
-    return max(validity.values()), last_exception
 
 
 def archive(family, path):

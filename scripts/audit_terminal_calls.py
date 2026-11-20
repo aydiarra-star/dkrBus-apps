@@ -11,8 +11,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from scripts.audit_interchange_sites import distance
-from scripts.audit_patte_doie import calendar_bounds
-from scripts.compare_bus_occurrences import DIGEST, tables
+from scripts.ouakam_site import site, on_road
+from scripts.compare_bus_occurrences import DIGEST, calendar_bounds, tables
 
 # Two identically named AFTU poles must remain separate. The stop before/after
 # each occurrence, including the absence of a previous/next stop, matters.
@@ -22,7 +22,7 @@ SEEDS = {
         "DDD_217": {"D_686"},
         "DDD_402": {"D_686"},
         "DDD_315": {"D_1210"},
-        "DDD_07": {"D_60"},
+        "DDD_07": {"D_58", "D_60", "D_62"},
         "DDD_05": {"D_406", "D_1082"},
         "DDD_12": {"D_406", "D_1082"},
     },
@@ -34,10 +34,14 @@ SEEDS = {
     },
 }
 POSTE = (14.7471089, -17.3780703)  # © OSM, node 4419421889 v2
-OUAKAM = (14.7256037, -17.4827764)  # node 4363242525 v3
 GUEDIAWAYE = (14.7731189, -17.3887409)  # node 5038866775 v3
 OID453 = (14.773042655518, -17.3888199835433)
-OID343 = (14.7255978303131, -17.4827847179303)
+OUAKAM_LAYER = {
+    "arcgis342": (14.727080505848733, -17.483167976200225),
+    "arcgis343": (14.725597830313138, -17.482784717930297),
+    "arcgis344": (14.724152498416746, -17.4833135547686),
+}
+OID576 = (14.747011501350862, -17.378319114610644)
 OID539 = (14.7469791502968, -17.3778287197142)  # updated DDD layer 0 / ligne_218
 
 
@@ -136,6 +140,9 @@ def report(ddd, aftu):
         routes.update(rows)
         points.update(pos)
 
+    road, markers = site()
+    ouakam = markers["n4363242525"]
+
     def gap(a, b):
         return round(distance(a, b), 1)
 
@@ -148,15 +155,23 @@ def report(ddd, aftu):
             "toThiaroyeNode4419421889": {
                 k: gap(points[k], POSTE) for k in ("D_686", "A_586", "A_266")
             }
-            | {"arcgis539": gap(OID539, POSTE)},
+            | {"arcgis539": gap(OID539, POSTE), "arcgis576": gap(OID576, POSTE)},
             "toGuediawayeNode5038866775": {
                 k: gap(points[k], GUEDIAWAYE) for k in ("D_406", "D_1082", "A_586")
             }
             | {"arcgis453": gap(OID453, GUEDIAWAYE)},
             "toOuakamNode4363242525": {
-                k: gap(points[k], OUAKAM) for k in ("D_60", "A_26", "A_25", "A_378")
+                k: gap(points[k], ouakam) for k in ("D_60", "A_26", "A_25", "A_378")
             }
-            | {"arcgis343": gap(OID343, OUAKAM)},
+            | {"arcgis343": gap(OUAKAM_LAYER["arcgis343"], ouakam)},
+            "ouakamOnRoadTowardsPalais": {
+                k: on_road(p, road)
+                for k, p in (
+                    markers
+                    | OUAKAM_LAYER
+                    | {k: points[k] for k in ("D_58", "D_60", "D_62", "A_25", "A_26")}
+                ).items()
+            },
             "betweenSebikotaneArchiveTermini": gap(points["D_1210"], points["A_1572"]),
         },
     }

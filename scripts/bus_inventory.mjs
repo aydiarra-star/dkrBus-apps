@@ -115,6 +115,7 @@ export async function busInventory(load) {
   const { BUS_SECTION_MARKERS } = await data('busSectionReview')
   const { medinaRoutePin } = await load('/src/routing/medinaService.ts')
   const gt54 = JSON.parse(await readFile(new URL('../data/bus-sections/gt54-pins.json', import.meta.url), 'utf8'))
+  const ouakam = JSON.parse(await readFile(new URL('../data/bus-review/ouakam-road.json', import.meta.url), 'utf8'))
   const { BUS_SECTION_WAYS } = await data('busSectionWays')
   const { busScopes } = await load('/src/routing/busGeography.ts')
   const { dakarNetwork } = await load('/src/routing/dakar.ts')
@@ -128,8 +129,8 @@ export async function busInventory(load) {
     // PBF drift checks must detect moved interior nodes even if the way
     // retained its version. Keep the literal bounded subchain in storage order.
     pinnedOsm: { attribution: '© OpenStreetMap contributors · ODbL 1.0',
-      markers: [...Object.entries(BUS_SECTION_MARKERS).map(([id,[version,lat,lon]]) => [Number(id),version,lat,lon]), ...station.markers, ...gt54.markers],
-      ways: [...Object.entries(BUS_SECTION_WAYS).map(([id,w]) => [Number(id),w.version,w.vertices,w.oneWay]), ...station.ways, ...gt54.ways], relations: [...station.relations, medinaRoutePin, ...gt54.relations] },
+      markers: [...Object.entries(BUS_SECTION_MARKERS).map(([id,[version,lat,lon]]) => [Number(id),version,lat,lon]), ...station.markers, ...gt54.markers, ...ouakam.markers],
+      ways: [...Object.entries(BUS_SECTION_WAYS).map(([id,w]) => [Number(id),w.version,w.vertices,w.oneWay]), ...station.ways, ...gt54.ways, ...ouakam.ways], relations: [...station.relations, medinaRoutePin, ...gt54.relations, ...ouakam.relations] },
     context: { aftuNetworkSettings: networkSettings, siteObservations: (await data('cetudFrequencyObservations')).CETUD_FREQUENCY_OBSERVATIONS,
       officialPageAudit: (await data('aftuOfficialPageAudit')).AFTU_OFFICIAL_PAGE_AUDIT },
     staticRouting: {

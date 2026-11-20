@@ -1,6 +1,7 @@
 import unittest
 
 from scripts.audit_terminal_calls import occurrences
+from scripts.ouakam_site import site, on_road, before_end, drawing_frame
 
 
 def call(i, stop, pickup="0", drop="0"):
@@ -32,3 +33,31 @@ class HistoricalTerminalTest(unittest.TestCase):
         self.assertEqual(
             occurrences([call(1, "a"), call(1, "b")], {"a"}), ("TIED_RANKS", ())
         )
+
+
+class OuakamFrameTest(unittest.TestCase):
+    def test_side_and_progress_on_the_reviewed_bounded_parts(self):
+        road, poles = site()
+        positions = [on_road(p, road) for p in poles.values()]
+        self.assertEqual(
+            [p["alongM"] for p in positions], sorted(p["alongM"] for p in positions)
+        )
+        self.assertTrue(all(p["leftM"] < 0 for p in positions))
+        self.assertIsNone(on_road((road[0][1], road[0][2]), road))
+
+    def test_drawing_end_is_oriented_and_samples_short_lines_honestly(self):
+        self.assertIsNone(before_end([(14.7, -17.3)] * 2, 25))
+        self.assertEqual(drawing_frame(None, []), {"status": "NO_DIRECTIONAL_DRAWING"})
+        road, poles = site()
+        point = poles["n4363242525"]
+        xy = [point[1], point[0]]
+        d = {
+            "positions": [xy, [xy[0], xy[1] - 0.0002]],
+            "orientation": "start-last",
+            "overlayHash": "fixture",
+        }
+        out = drawing_frame(
+            d, [("start", "a", None, None), ("finish", "b", point, point)]
+        )
+        self.assertEqual(out["metersBeforeFinish"]["0"], out["finishMarker"])
+        self.assertIsNone(out["metersBeforeFinish"]["25"])

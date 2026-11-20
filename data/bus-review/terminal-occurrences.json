@@ -186,10 +186,26 @@
           "trips": 160,
           "occurrences": [
             {
+              "stop": "D_58",
+              "rank": 7,
+              "before": "D_56",
+              "after": "D_60",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
               "stop": "D_60",
               "rank": 8,
               "before": "D_58",
               "after": "D_62",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "D_62",
+              "rank": 9,
+              "before": "D_60",
+              "after": "D_873",
               "pickup": "0",
               "dropOff": "0"
             }
@@ -482,7 +498,8 @@
       "D_686": 3.7,
       "A_586": 0.4,
       "A_266": 99.9,
-      "arcgis539": 29.7
+      "arcgis539": 29.7,
+      "arcgis576": 28.9
     },
     "toGuediawayeNode5038866775": {
       "D_406": 6.7,
@@ -496,6 +513,52 @@
       "A_25": 14.7,
       "A_378": 565.2,
       "arcgis343": 1.1
+    },
+    "ouakamOnRoadTowardsPalais": {
+      "n4323807979": {
+        "alongM": 34.7,
+        "leftM": -2.6
+      },
+      "n4363242525": {
+        "alongM": 232.5,
+        "leftM": -5.9
+      },
+      "n4363242516": {
+        "alongM": 422.5,
+        "leftM": -5.9
+      },
+      "arcgis342": {
+        "alongM": 34.6,
+        "leftM": -5.3
+      },
+      "arcgis343": {
+        "alongM": 233.2,
+        "leftM": -6.7
+      },
+      "arcgis344": {
+        "alongM": 421.6,
+        "leftM": -5.4
+      },
+      "D_58": {
+        "alongM": 20.8,
+        "leftM": -6.8
+      },
+      "D_60": {
+        "alongM": 224.1,
+        "leftM": -1.7
+      },
+      "D_62": {
+        "alongM": 412.8,
+        "leftM": -6.6
+      },
+      "A_25": {
+        "alongM": 237.6,
+        "leftM": 7.9
+      },
+      "A_26": {
+        "alongM": 233.2,
+        "leftM": -1.6
+      }
     },
     "betweenSebikotaneArchiveTermini": 1996.2
   }
