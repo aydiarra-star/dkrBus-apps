@@ -139,7 +139,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 18 / 20 | — | — | catalogue, descriptif | 903 m vers HLM Grand Yoff (fiche TATA) |
+| 1 | 18 / 20 | — | 12 | catalogue, sections 2020 (pas des arrêts), descriptif | 903 m vers HLM Grand Yoff (fiche TATA) |
 | 2 | 16 / 18 | — | — | catalogue, descriptif | — |
 | 3 | 13 / 15 | — | — | catalogue | 2064 m vers Petersen |
 | 4 | 8 / 10 | — | — | catalogue | 2064 m vers Petersen |
@@ -156,8 +156,8 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 33 | 16 / 18 | — | — | catalogue | — |
 | 34 | 7 / 9 | — | — | catalogue | — |
 | 35 | 8 / 10 | — | — | catalogue | — |
-| 36 | 14 / 16 | — | — | catalogue | — |
-| 37 | 27 / 29 | — | — | catalogue | — |
+| 36 | 14 / 16 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
+| 37 | 27 / 29 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 | 38 | 11 / 13 | — | — | catalogue | — |
 | 39 | 11 / 13 | — | — | catalogue | — |
 | 40 | 9 / 11 | — | — | catalogue | — |
@@ -170,10 +170,10 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 47 | 13 / 15 | — | — | — | — |
 | 48 | 9 / 11 | — | — | catalogue | — |
 | 49 | 19 / 21 | — | — | catalogue | — |
-| 50 | 17 / 19 | — | — | catalogue | — |
+| 50 | 17 / 19 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 | 51 | 7 / 9 | — | — | catalogue | — |
-| 52 | 8 / 10 | — | — | catalogue | — |
-| 53 | 14 / 16 | — | — | catalogue | — |
+| 52 | 8 / 10 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
+| 53 | 14 / 16 | 10 | — | catalogue | — |
 | 54 | 10 / 12 | — | — | catalogue | — |
 | 55 | 11 / 13 | — | — | catalogue | — |
 | 56 | 10 / 12 | — | — | catalogue | — |
@@ -183,7 +183,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 60 | 6 / 8 | — | — | catalogue | — |
 | 61 | 9 | — | — | catalogue | — |
 | 62 | 17 | — | — | catalogue | — |
-| 63 | 16 | — | — | catalogue | — |
+| 63 | 16 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 | 65 | 10 | — | — | catalogue | — |
 | 66 | 21 | — | — | catalogue | — |
 | 67 | 20 | — | — | catalogue | — |
@@ -197,13 +197,13 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 75 | 13 | — | — | catalogue | — |
 | 76 | 10 | — | — | catalogue | — |
 | 77 | 12 | — | — | catalogue | — |
-| 78 | 10 | — | — | catalogue | — |
+| 78 | 10 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 | 79 | 4 | — | — | catalogue | — |
 | 80 | 15 | — | — | catalogue | — |
 | 81 | 14 | — | — | catalogue | — |
 | 82 | 12 | — | — | catalogue | — |
-| 83 | 12 | — | — | — | — |
-| 84 | 8 | — | — | catalogue | — |
+| 83 | 12 | — | — | sections 2020 (pas des arrêts) | — |
+| 84 | 8 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 
 Hors attribution :
 - ddd1OperatorStops (1) : unspecified, 26 occurrences.

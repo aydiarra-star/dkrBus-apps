@@ -3,7 +3,7 @@
 import { DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES as official, DDD_OFFICIAL_ROUTE_SOURCE } from '../data/dddOfficialPublishedRoutes'
 import { DDD1_TABLE, DDD1_TO_LECLERC, DDD1_TOWARD_PARCELLES } from '../data/ddd1OperatorStops'
 import { DDD_319_OUTBOUND, DDD_319_PROFILES } from '../data/busBoardCallSheets'
-import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
+import { TATA_DESCRIPTIONS, TATA_DOCUMENT_SOURCE, TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
 import { existingSheetHours, withNewSheetDirections } from './busSheetCatalog'
 import { MINUTE } from './stopPassageCountdown'
 import mobility from '../data/mobility-lines.json'
@@ -144,6 +144,16 @@ function tataDirections(r: PublicBusLineReference): BusBoardDirection[] {
   }
   pair[0] = { ...direction('tata', c, 'outbound', pts, 'repères', source), label: older ? 'Aller · tracé 2020' : 'Aller' }
   pair[1] = TATA_RETURN_SECTORS[c] ? returnSectors(c, source) : missing('inbound', pts.at(-1)!, pts[0], source)
+  const described = TATA_DESCRIPTIONS[c]
+  if (described) {
+    const { side, points } = described
+    const sheet: BusBoardDirection = { label: `${label(side)} · itinéraire documentaire`, from: points[0], to: points.at(-1)!,
+      pointKind: 'repères', points, clock: null, source: TATA_DOCUMENT_SOURCE, reason: 'Repères du document · validité et heures non indiquées' }
+    // Only the HLM Grand Yoff → Lat-Dior slot: the landmarks are documented
+    // in this order. The 53 from Lac Rose is NOT the one from Keur Massar.
+    if (c === '1' && side === 'inbound' && pair[1].from === 'HLM Grand Yoff' && pair[1].to === 'Lat-Dior' && !pair[1].points.length && !pair[1].clock) pair[1] = sheet
+    else pair.push(sheet)
+  }
   return [...pair, ...stages]
 }
 function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {

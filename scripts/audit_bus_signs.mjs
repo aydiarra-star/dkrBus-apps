@@ -64,7 +64,7 @@ try {
         const orderFile = (() => {
           if (!n) return catalogueFile
           if (h?.file.includes('/bus-sheets/')) return h.file
-          if (family==='tata') return d.pointKind==='secteurs' || TATA_2020_ADDITIONS[l.code] ? 'src/data/tataBoardReview.ts' : 'src/data/tata-lines.json'
+          if (family==='tata') return d.pointKind==='secteurs' || hit?.source==='tataBoardReview' || TATA_2020_ADDITIONS[l.code] ? 'src/data/tataBoardReview.ts' : 'src/data/tata-lines.json'
           if (family==='ddd') {
             if (label.includes('Maristes')) return 'src/data/ddd12DirectionSheets.ts'
             if (label.includes('RN 1')) return 'src/data/ddd311BoardSheets.ts'

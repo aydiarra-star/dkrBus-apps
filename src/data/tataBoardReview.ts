@@ -71,10 +71,35 @@ export const TATA_RETURN_SECTORS: Readonly<Record<string, string>> = {
 
 // Independent columns, transcribed in print order. These are fare-stage names,
 // not stop calls. The duplicate « SECTION 6 » on the 83 is not a duplicate place.
+const stages = (side: 'outbound' | 'inbound', places: string) => ({ side, points: places.split('|') })
 export const TATA_UNTIMED_STAGES: Readonly<Record<string, readonly { side: 'outbound' | 'inbound'; points: string[] }[]>> = {
-  '83': [{ side: 'inbound', points: ['ZONE DE CAPTAGE', 'CASE BA', 'ROND-POINT MALIBU', 'MALIKA PLAGE', 'STATION KEUR MASSAR', 'SIPRES', 'DIOUTIBA', 'JAXAAY'] }],
+  // Different termini from the main description. Do not use these to fill
+  // a missing return of that description (e.g. Liberté VI is not Liberté 5).
+  '1': [stages('outbound','LAT DIOR|SHAM|LIBERTE VI|GOUYE – GA'), stages('inbound','GOUYE – GA|Liberté VI|SHAM|LAT DIOR')],
+  '36': [stages('outbound','SERIGNE ASSANE|PHARMACIE GOLF|CASE BA|BCAO|YOFF – AEROPORT|NGOR VILLAGE'),
+    stages('inbound','NGOR VILLAGE|AEROPORT|BCAO|CASE BA|PHARMACIE GOLF|SERIGNE ASSANE')],
+  '37': [stages('outbound','APIX|CITE SOTRAC|STATION KEUR MASSAR|MALIKA PLAGE|ROND-POINT GADAYE|POLICE GUEDIAWAYE|PIKINE RUE 10|PONT HANN|LYCEE KENNEDY|CLAUDEL'),
+    stages('inbound','UCAD CLAUDEL|COLOBANE LYCÉE KENNEDY|PONT HANN|PIKINE RUE 10|POLICE GUEDIAWAYE|ROND-POINT GADAYE|MALIKA PLAGE|STATION KEUR MASSAR|CITE SOTRAC|APIX')],
+  '50': [stages('outbound','PETERSEN|COLOBANE|CROISEMENT CAMBERENE|BOUNTOU PIKINE|CROISEMENT TALLY DIALLO|TALLY BOUKHONK|MALIKA'),
+    stages('inbound','MALIKA|TALLY BOUKHONK|CROISEMENT TALLY DIALLO|BOUNTOU PIKINE|CROISEMENT CAMBERENE|COLOBANE|PETERSEN')],
+  '52': [stages('outbound','BAUX-MARAICHERS|TALLY BOUMACK|STATION TOTAL YEUMBEUL|KAW MONTAGNE|SHELL KEUR MASSAR|JAXAAY 2'),
+    stages('inbound','JAXAAY 2|STATION KEUR MASSAR|TALLY BOU KHONK|TOURNAL TALLY DIALLO|TALLY BOUMACK|BAUX-MARAICHERS')],
+  '63': [stages('outbound','STADE AMITIE|CASE BI|CITE LOBATT FALL|POSTE THIAROYE|CROISEMENT K. MASSAR|DJOUTI BI|RUFISQUE ARAFAT'),
+    stages('inbound','RUFISQUE ARAFAT|DJOUTI BI|CROISEMENT K. MASSAR|POSTE THIAROYE|CITE LOBATT FALL|CASE BI|STADE AMITIE')],
+  '78': [stages('outbound','DIAMAGUENE|POLICE THIAROYE|PHARMARCIE NOUVELLE|PHARMACIE GOLF|PONT SENEGAL 92|LIBERTE VI'),
+    stages('inbound','LIBERTE VI|PONT SENEGAL 92|PHARMACIE GOLF|PHARMARCIE NOUVELLE|POLICE THIAROYE|DIAMAGUENE')],
+  '83': [{ side: 'inbound', points: ['ZONE DE CAPTAGE', 'CASE BA', 'ROND-POINT MALIBU', 'MALIKA PLAGE', 'STATION KEUR MASSAR', 'SIPRES', 'DIOUTIBA', 'JAXAAY'] },
+    stages('outbound','ARAFAT|DIOUTIBA|SIPRES|STATION KEUR MASSAR|MALIKA PLAGE|ROND-POINT MALIBU|CASE BA|ZONE DE CAPTAGE')],
   '84': [
     { side: 'outbound', points: ['JAXAAY', 'CITE ASSURANCE', 'KEUR MBAYE FALL', 'FASS MBAO', 'POSTE THIAROYE', 'BOUNTOU PIKINE', 'NABIL CHOUCAIR', 'CICES', 'DIRECTION SONATEL', 'UCAD'] },
     { side: 'inbound', points: ['UCAD', 'DIRECTION SONATEL', 'CICES', 'NABIL CHOUCAIR', 'BOUNTOU PIKINE', 'POSTE THIAROYE', 'FASS MBAO', 'KEUR MBAYE FALL', 'CITE ASSURANCE', 'JAXAAY'] },
   ],
+}
+
+/** Only two entries in this secondary document give a sequence of places.
+ * No calendar, travel time or certainty about continuity with today's service. */
+export const TATA_DOCUMENT_SOURCE = 'https://fr.scribd.com/document/840812776/ligne-tata'
+export const TATA_DESCRIPTIONS: Readonly<Record<string, ReturnType<typeof stages>>> = {
+  '1': stages('inbound', 'Terminus HLM Grand Yoff (Face Autoroute)|Scat Urbam|Liberté 6|Derklé|Liberté 4|Rond Point Jet d’eau|Bourguiba|Grand Dakar|Fass Médina|Sham|Avenue Blaise Diagne|Terminus Lat Dior'),
+  '53': stages('outbound', 'Lac Rose|Croisement Niaye|Ndiakhirate|Route Des Niayes|Sonadis Rufisque|Route Nationale 1 (RN1)|Bargny|Diamniadio|Hôpital Des Enfants Diamniadio|Sébikotane'),
 }

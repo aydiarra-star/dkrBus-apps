@@ -6,9 +6,9 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 48 | 111 | 4 | 1322 | 370 | 308 | 23,30 % | 245 | 600 | 53 |
 | AFTU | 73 | 159 | 56 | 3584 | 613 | 540 | 15,07 % | 156 | 736 | 0 |
-| TATA | 65 | 133 | 10 | 0 | 0 | 0 | non défini | 0 | 1336 | 0 |
+| TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
-**848 / 4906 = 17,28 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7631**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**848 / 4906 = 17,28 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -328,7 +328,9 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
 | tata:1/1 | Aller | Lat-Dior → HLM Grand Yoff | 20 repères | 0 | 0 | 20 | repères / secteurs |
-| tata:1/2 | Retour | HLM Grand Yoff → Lat-Dior | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:1/2 | Retour · itinéraire documentaire | Terminus HLM Grand Yoff (Face Autoroute) → Terminus Lat Dior | 12 repères | 0 | 0 | 0 | repères / secteurs · Repères du document · validité et heures non indiquées |
+| tata:1/3 | Aller · sections 2020 | LAT DIOR → GOUYE – GA | 4 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:1/4 | Retour · sections 2020 | GOUYE – GA → LAT DIOR | 4 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:2/1 | Aller | Route Principale des Parcelles Assainies → Gare Petersen | 18 repères | 0 | 0 | 18 | repères / secteurs |
 | tata:2/2 | Retour · secteurs 2020 | Petersen → Gare Parcelles | 5 secteurs | 0 | 0 | 5 | repères / secteurs |
 | tata:3/1 | Aller | Yoff-Village → Petersen | 15 repères | 0 | 0 | 15 | repères / secteurs |
@@ -363,8 +365,12 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | tata:35/2 | Retour · secteurs 2020 | Ngor → Station Icotaf | 6 secteurs | 0 | 0 | 6 | repères / secteurs |
 | tata:36/1 | Aller | Marché Ndiarème → Ngor | 16 repères | 0 | 0 | 16 | repères / secteurs |
 | tata:36/2 | Retour | Ngor → Marché Ndiarème | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:36/3 | Aller · sections 2020 | SERIGNE ASSANE → NGOR VILLAGE | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:36/4 | Retour · sections 2020 | NGOR VILLAGE → SERIGNE ASSANE | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:37/1 | Aller | Diamalaye → Claudel | 29 repères | 0 | 0 | 29 | repères / secteurs |
 | tata:37/2 | Retour | Claudel → Diamalaye | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:37/3 | Aller · sections 2020 | APIX → CLAUDEL | 10 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:37/4 | Retour · sections 2020 | UCAD CLAUDEL → APIX | 10 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:38/1 | Aller | Cité Enseignants → SHAM | 13 repères | 0 | 0 | 13 | repères / secteurs |
 | tata:38/2 | Retour · secteurs 2020 | SHAM → Cité des Enseignants | 5 secteurs | 0 | 0 | 5 | repères / secteurs |
 | tata:39/1 | Aller | Lat-Dior → Diamalaye | 13 repères | 0 | 0 | 13 | repères / secteurs |
@@ -391,12 +397,17 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | tata:49/2 | Retour · secteurs 2020 | Ngor → Gadaye | 7 secteurs | 0 | 0 | 7 | repères / secteurs |
 | tata:50/1 | Aller | Petersen → Malika Cimetière | 19 repères | 0 | 0 | 19 | repères / secteurs |
 | tata:50/2 | Retour | Malika Cimetière → Petersen | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:50/3 | Aller · sections 2020 | PETERSEN → MALIKA | 7 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:50/4 | Retour · sections 2020 | MALIKA → PETERSEN | 7 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:51/1 | Aller | Jaxaay → Gare des Baux Maraîchers | 9 repères | 0 | 0 | 9 | repères / secteurs |
 | tata:51/2 | Retour · secteurs 2020 | Gare Baux Maraîchers → Jaxaay | 6 secteurs | 0 | 0 | 6 | repères / secteurs |
 | tata:52/1 | Aller | Église Bountou Pikine → Keur Massar | 10 repères | 0 | 0 | 10 | repères / secteurs |
 | tata:52/2 | Retour | Keur Massar → Église Bountou Pikine | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:52/3 | Aller · sections 2020 | BAUX-MARAICHERS → JAXAAY 2 | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:52/4 | Retour · sections 2020 | JAXAAY 2 → BAUX-MARAICHERS | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:53/1 | Aller | Keur Massar → Sébikhotane | 16 repères | 0 | 0 | 16 | repères / secteurs |
 | tata:53/2 | Retour · secteurs 2020 | Sébikhotane → Keur Massar | 9 secteurs | 0 | 0 | 9 | repères / secteurs |
+| tata:53/3 | Aller · itinéraire documentaire | Lac Rose → Sébikotane | 10 repères | 0 | 0 | 0 | repères / secteurs · Repères du document · validité et heures non indiquées |
 | tata:54/1 | Aller | Terminus Keur Massar (Cité MTOA) → Université Cheikh Anta Diop | 12 repères | 0 | 0 | 12 | repères / secteurs |
 | tata:54/2 | Retour · secteurs 2020 | UCAD → Keur Massar MTOA | 6 secteurs | 0 | 0 | 6 | repères / secteurs |
 | tata:55/1 | Aller | Terminus Rufisque SONADIS → Petersen | 13 repères | 0 | 0 | 13 | repères / secteurs |
@@ -417,6 +428,8 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | tata:62/2 | Retour · secteurs 2020 | Penc Mi → Arrêt Chérif | 8 secteurs | 0 | 0 | 8 | repères / secteurs |
 | tata:63/1 | Aller · tracé 2020 | Stade LSS → Camp Marchand Rufisque | 18 repères | 0 | 0 | 18 | repères / secteurs |
 | tata:63/2 | Retour | Camp Marchand Rufisque → Stade LSS | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:63/3 | Aller · sections 2020 | STADE AMITIE → RUFISQUE ARAFAT | 7 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:63/4 | Retour · sections 2020 | RUFISQUE ARAFAT → STADE AMITIE | 7 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:65/1 | Aller · tracé 2020 | Gare routière de Colobane → Jaxaay 2 | 12 repères | 0 | 0 | 12 | repères / secteurs |
 | tata:65/2 | Retour · secteurs 2020 | Jaxaay → Colobane | 7 secteurs | 0 | 0 | 7 | repères / secteurs |
 | tata:66/1 | Aller · tracé 2020 | Yoff → Gorom 1 | 23 repères | 0 | 0 | 23 | repères / secteurs |
@@ -445,6 +458,8 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | tata:77/2 | Retour · secteurs 2020 | Liberté V → Tacco | 7 secteurs | 0 | 0 | 7 | repères / secteurs |
 | tata:78/1 | Aller · tracé 2020 | Diamaguène → Liberté 5 | 12 repères | 0 | 0 | 12 | repères / secteurs |
 | tata:78/2 | Retour | Liberté 5 → Diamaguène | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
+| tata:78/3 | Aller · sections 2020 | DIAMAGUENE → LIBERTE VI | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:78/4 | Retour · sections 2020 | LIBERTE VI → DIAMAGUENE | 6 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:79/1 | Aller · tracé 2020 | Sangalkam → Cambérène | 15 repères | 0 | 0 | 15 | repères / secteurs |
 | tata:79/2 | Retour · secteurs 2020 | Cambérène → Sangalkam | 8 secteurs | 0 | 0 | 8 | repères / secteurs |
 | tata:80/1 | Aller · tracé 2020 | Diamalaye → Darou Thioub | 17 repères | 0 | 0 | 17 | repères / secteurs |
@@ -456,6 +471,7 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | tata:83/1 | Aller · tracé 2020 | Rufisque Arafat → Zone de Captage | 14 repères | 0 | 0 | 14 | repères / secteurs |
 | tata:83/2 | Retour | Zone de Captage → Rufisque Arafat | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | tata:83/3 | Retour · sections 2020 | ZONE DE CAPTAGE → JAXAAY | 8 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
+| tata:83/4 | Aller · sections 2020 | ARAFAT → ZONE DE CAPTAGE | 8 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:84/1 | Aller | Jaxaay → UCAD | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | tata:84/2 | Retour | UCAD → Jaxaay | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | tata:84/3 | Aller · sections 2020 | JAXAAY → UCAD | 10 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |

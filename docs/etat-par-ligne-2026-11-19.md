@@ -227,7 +227,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 
 | Code · sens de lecture A | Quais A | Quais R | Tracé entier A | Tracé entier R | Changement | Départs du jour | Calcul |
 |---|---|---|---|---|---|---|---|
-| **1** · Lat-Dior → HLM Grand Yoff | Non · 20 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
+| **1** · Lat-Dior → HLM Grand Yoff | Non · 20 noms | Non · 12 noms | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **2** · Route Principale des Parcelles Assainies → Gare Petersen | Non · 18 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (16 noms) à rattacher au sens |
 | **3** · Yoff-Village → Petersen | Non · 15 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **4** · Yoff-Village → Petersen | Non · 10 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
@@ -261,7 +261,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **50** · Petersen → Malika Cimetière | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (17 noms) à rattacher au sens |
 | **51** · Jaxaay → Gare des Baux Maraîchers | Non · 9 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (7 noms) à rattacher au sens |
 | **52** · Église Bountou Pikine → Keur Massar | Non · 10 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (8 noms) à rattacher au sens |
-| **53** · Keur Massar → Sébikhotane | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (14 noms) à rattacher au sens |
+| **53** · Keur Massar → Sébikhotane | Non · 10/16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (14 noms) à rattacher au sens |
 | **54** · Terminus Keur Massar (Cité MTOA) → Université Cheikh Anta Diop | Non · 12 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (10 noms) à rattacher au sens |
 | **55** · Terminus Rufisque SONADIS → Petersen | Non · 13 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (11 noms) à rattacher au sens |
 | **56** · Jaxaay 2 → Petersen | Non · 12 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · ordre publié (10 noms) à rattacher au sens |

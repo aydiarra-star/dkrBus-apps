@@ -19,6 +19,26 @@ tata:1/1,1,Aller,17,2 voies de Liberté VI,repères,1,non,aucun,0,0,0,0,non,,oui
 tata:1/1,1,Aller,18,VDN,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:1/1,1,Aller,19,Route Corniche de HLM Grand Médine,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:1/1,1,Aller,20,HLM Grand Yoff,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:1/2,1,Retour · itinéraire documentaire,1,Terminus HLM Grand Yoff (Face Autoroute),repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,2,Scat Urbam,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,3,Liberté 6,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,4,Derklé,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,5,Liberté 4,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,6,Rond Point Jet d’eau,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,7,Bourguiba,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,8,Grand Dakar,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,9,Fass Médina,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,10,Sham,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,11,Avenue Blaise Diagne,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/2,1,Retour · itinéraire documentaire,12,Terminus Lat Dior,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:1/3,1,Aller · sections 2020,1,LAT DIOR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/3,1,Aller · sections 2020,2,SHAM,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/3,1,Aller · sections 2020,3,LIBERTE VI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/3,1,Aller · sections 2020,4,GOUYE – GA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/4,1,Retour · sections 2020,1,GOUYE – GA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/4,1,Retour · sections 2020,2,Liberté VI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/4,1,Retour · sections 2020,3,SHAM,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:1/4,1,Retour · sections 2020,4,LAT DIOR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:2/1,2,Aller,1,Route Principale des Parcelles Assainies,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:2/1,2,Aller,2,Croisement Dior,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:2/1,2,Aller,3,Route HLM Grand Médine,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -325,6 +345,18 @@ tata:36/1,36,Aller,13,Yoff-Village,repères,1,non,aucun,0,0,0,0,non,,oui,repère
 tata:36/1,36,Aller,14,Centre Aéré de la BCEAO,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:36/1,36,Aller,15,Aéroport,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:36/1,36,Aller,16,Ngor,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:36/3,36,Aller · sections 2020,1,SERIGNE ASSANE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/3,36,Aller · sections 2020,2,PHARMACIE GOLF,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/3,36,Aller · sections 2020,3,CASE BA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/3,36,Aller · sections 2020,4,BCAO,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/3,36,Aller · sections 2020,5,YOFF – AEROPORT,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/3,36,Aller · sections 2020,6,NGOR VILLAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,1,NGOR VILLAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,2,AEROPORT,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,3,BCAO,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,4,CASE BA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,5,PHARMACIE GOLF,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:36/4,36,Retour · sections 2020,6,SERIGNE ASSANE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:37/1,37,Aller,1,Diamalaye,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:37/1,37,Aller,2,Dior par Corniche,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:37/1,37,Aller,3,Unité 15 Mosquée,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -354,6 +386,26 @@ tata:37/1,37,Aller,26,Gueule-Tapée,repères,1,non,aucun,0,0,0,0,non,,oui,repèr
 tata:37/1,37,Aller,27,Hôpital Abass Ndao,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:37/1,37,Aller,28,Rond-point Fann,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:37/1,37,Aller,29,Claudel,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:37/3,37,Aller · sections 2020,1,APIX,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,2,CITE SOTRAC,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,3,STATION KEUR MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,4,MALIKA PLAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,5,ROND-POINT GADAYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,6,POLICE GUEDIAWAYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,7,PIKINE RUE 10,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,8,PONT HANN,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,9,LYCEE KENNEDY,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/3,37,Aller · sections 2020,10,CLAUDEL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,1,UCAD CLAUDEL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,2,COLOBANE LYCÉE KENNEDY,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,3,PONT HANN,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,4,PIKINE RUE 10,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,5,POLICE GUEDIAWAYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,6,ROND-POINT GADAYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,7,MALIKA PLAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,8,STATION KEUR MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,9,CITE SOTRAC,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:37/4,37,Retour · sections 2020,10,APIX,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:38/1,38,Aller,1,Cité Enseignants,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:38/1,38,Aller,2,PAI,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:38/1,38,Aller,3,Golf,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -646,6 +698,20 @@ tata:50/1,50,Aller,16,Tally Diallo,repères,1,non,aucun,0,0,0,0,non,,oui,repère
 tata:50/1,50,Aller,17,Route de Yeumbeul,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:50/1,50,Aller,18,Bène Baraque,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:50/1,50,Aller,19,Malika Cimetière,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:50/3,50,Aller · sections 2020,1,PETERSEN,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,2,COLOBANE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,3,CROISEMENT CAMBERENE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,4,BOUNTOU PIKINE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,5,CROISEMENT TALLY DIALLO,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,6,TALLY BOUKHONK,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/3,50,Aller · sections 2020,7,MALIKA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,1,MALIKA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,2,TALLY BOUKHONK,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,3,CROISEMENT TALLY DIALLO,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,4,BOUNTOU PIKINE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,5,CROISEMENT CAMBERENE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,6,COLOBANE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:50/4,50,Retour · sections 2020,7,PETERSEN,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:51/1,51,Aller,1,Jaxaay,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:51/1,51,Aller,2,Station Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:51/1,51,Aller,3,Hôpital Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -671,6 +737,18 @@ tata:52/1,52,Aller,7,Yeumbeul,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans
 tata:52/1,52,Aller,8,Bène Baraque,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:52/1,52,Aller,9,Malika,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:52/1,52,Aller,10,Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:52/3,52,Aller · sections 2020,1,BAUX-MARAICHERS,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/3,52,Aller · sections 2020,2,TALLY BOUMACK,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/3,52,Aller · sections 2020,3,STATION TOTAL YEUMBEUL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/3,52,Aller · sections 2020,4,KAW MONTAGNE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/3,52,Aller · sections 2020,5,SHELL KEUR MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/3,52,Aller · sections 2020,6,JAXAAY 2,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,1,JAXAAY 2,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,2,STATION KEUR MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,3,TALLY BOU KHONK,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,4,TOURNAL TALLY DIALLO,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,5,TALLY BOUMACK,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:52/4,52,Retour · sections 2020,6,BAUX-MARAICHERS,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:53/1,53,Aller,1,Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:53/1,53,Aller,2,Terminus P11,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:53/1,53,Aller,3,Croisement Tivaouane Peulh,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -696,6 +774,16 @@ tata:53/2,53,Retour · secteurs 2020,6,Cité Doudou Basse,secteurs,1,non,aucun,0
 tata:53/2,53,Retour · secteurs 2020,7,Niagues,secteurs,1,non,aucun,0,0,0,0,non,,oui,secteur non horodaté,inconnu,50
 tata:53/2,53,Retour · secteurs 2020,8,Cité SAFCO,secteurs,1,non,aucun,0,0,0,0,non,,oui,secteur non horodaté,inconnu,50
 tata:53/2,53,Retour · secteurs 2020,9,Keur Massar,secteurs,1,non,aucun,0,0,0,0,non,,oui,secteur non horodaté,inconnu,50
+tata:53/3,53,Aller · itinéraire documentaire,1,Lac Rose,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,2,Croisement Niaye,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,3,Ndiakhirate,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,4,Route Des Niayes,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,5,Sonadis Rufisque,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,6,Route Nationale 1 (RN1),repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,7,Bargny,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,8,Diamniadio,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,9,Hôpital Des Enfants Diamniadio,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
+tata:53/3,53,Aller · itinéraire documentaire,10,Sébikotane,repères,1,non,aucun,0,0,0,0,non,,non,Repères du document · validité et heures non indiquées,inconnu,0
 tata:54/1,54,Aller,1,Terminus Keur Massar (Cité MTOA),repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:54/1,54,Aller,2,Route de Boune,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:54/1,54,Aller,3,Mbedou Fass,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -886,6 +974,20 @@ tata:63/1,63,Aller · tracé 2020,15,Passage à niveau,repères,1,non,aucun,0,0,
 tata:63/1,63,Aller · tracé 2020,16,Rond-point Arafat,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:63/1,63,Aller · tracé 2020,17,Marché Mardi,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:63/1,63,Aller · tracé 2020,18,Camp Marchand Rufisque,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:63/3,63,Aller · sections 2020,1,STADE AMITIE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,2,CASE BI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,3,CITE LOBATT FALL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,4,POSTE THIAROYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,5,CROISEMENT K. MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,6,DJOUTI BI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/3,63,Aller · sections 2020,7,RUFISQUE ARAFAT,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,1,RUFISQUE ARAFAT,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,2,DJOUTI BI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,3,CROISEMENT K. MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,4,POSTE THIAROYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,5,CITE LOBATT FALL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,6,CASE BI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:63/4,63,Retour · sections 2020,7,STADE AMITIE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:65/1,65,Aller · tracé 2020,1,Gare routière de Colobane,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:65/1,65,Aller · tracé 2020,2,Rocade Fann–Bel-Air,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:65/1,65,Aller · tracé 2020,3,Place Bakou,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -1198,6 +1300,18 @@ tata:78/1,78,Aller · tracé 2020,9,Police Parcelles,repères,1,non,aucun,0,0,0,
 tata:78/1,78,Aller · tracé 2020,10,Pont de l’Émergence,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:78/1,78,Aller · tracé 2020,11,Rond-point Liberté 6,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:78/1,78,Aller · tracé 2020,12,Liberté 5,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
+tata:78/3,78,Aller · sections 2020,1,DIAMAGUENE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/3,78,Aller · sections 2020,2,POLICE THIAROYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/3,78,Aller · sections 2020,3,PHARMARCIE NOUVELLE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/3,78,Aller · sections 2020,4,PHARMACIE GOLF,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/3,78,Aller · sections 2020,5,PONT SENEGAL 92,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/3,78,Aller · sections 2020,6,LIBERTE VI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,1,LIBERTE VI,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,2,PONT SENEGAL 92,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,3,PHARMACIE GOLF,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,4,PHARMARCIE NOUVELLE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,5,POLICE THIAROYE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:78/4,78,Retour · sections 2020,6,DIAMAGUENE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:79/1,79,Aller · tracé 2020,1,Sangalkam,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:79/1,79,Aller · tracé 2020,2,Ndiakhirate,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 tata:79/1,79,Aller · tracé 2020,3,Croisement Niagues,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
@@ -1315,6 +1429,14 @@ tata:83/3,83,Retour · sections 2020,5,STATION KEUR MASSAR,secteurs,1,non,aucun,
 tata:83/3,83,Retour · sections 2020,6,SIPRES,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:83/3,83,Retour · sections 2020,7,DIOUTIBA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:83/3,83,Retour · sections 2020,8,JAXAAY,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,1,ARAFAT,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,2,DIOUTIBA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,3,SIPRES,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,4,STATION KEUR MASSAR,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,5,MALIKA PLAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,6,ROND-POINT MALIBU,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,7,CASE BA,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
+tata:83/4,83,Aller · sections 2020,8,ZONE DE CAPTAGE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:84/3,84,Aller · sections 2020,1,JAXAAY,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:84/3,84,Aller · sections 2020,2,CITE ASSURANCE,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0
 tata:84/3,84,Aller · sections 2020,3,KEUR MBAYE FALL,secteurs,1,non,aucun,0,0,0,0,non,,non,Sections tarifaires de 2020 · aucun horaire,inconnu,0

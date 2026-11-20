@@ -153,6 +153,22 @@ describe('time on a bus sign, not a trip planner', () => {
     expect(get(late,1,'00:06',holiday)).toEqual({ state:'calendar' })
     expect(get(late,0,'23:54')).toEqual({ state:'finished' }); expect(get(late,0,'12:00','2027-11-19').state).toBe('calendar')
   })
+  it('garde les repères TATA sans horloge et ne remplit pas les retours avec un autre terminus tarifaire', () => {
+    const [go, back] = dirs('tata','1')
+    expect(go.from).toBe('Lat-Dior'); expect(back.points).toHaveLength(12)
+    expect(back.points.slice(1,5)).toEqual(['Scat Urbam','Liberté 6','Derklé','Liberté 4'])
+    expect(back).toMatchObject({pointKind:'repères', clock:null, to:'Terminus Lat Dior'})
+    const alt = dirs('tata','53').find(d=>d.from==='Lac Rose')!
+    expect(alt.points).toHaveLength(10);expect(alt.clock).toBeNull();expect(alt.to).toBe('Sébikotane')
+    for (const code of ['36','37','50','52','63','78','83']) {
+      const ds = dirs('tata',code);expect(ds[1].points).toEqual([])
+      const stages = ds.filter(d=>d.label.endsWith('sections 2020')); expect(stages).toHaveLength(2)
+      expect(stages.every(d=>d.pointKind==='secteurs' && !d.clock && !d.sourceHours)).toBe(true)
+    }
+    expect(dirs('tata','52')[2].points.slice(2,4)).toEqual(['STATION TOTAL YEUMBEUL','KAW MONTAGNE'])
+    expect(dirs('tata','52')[3].points.slice(2,4)).toEqual(['TALLY BOU KHONK','TOURNAL TALLY DIALLO'])
+    expect(dirs('aftu','1').some(d=>d.source === back.source)).toBe(false)
+  })
   it('respects per-family registrations, repeated landmarks, and unavailable directions', () => {
     expect(dirs('tata','59')[0]).toMatchObject({ from:'Stade L.S.S', to:'Mbarou Samba Dème (Mbeubeuss)',pointKind:'repères' })
     expect(dirs('tata','60')[0]).toMatchObject({ from:'Colobane',to:'Bargny' })

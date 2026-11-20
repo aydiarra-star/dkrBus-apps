@@ -34,6 +34,11 @@ export async function busInventory(load) {
     add(r.family,r.code,record(src,'directional-sheet',r.side,r.points,{termini:[r.from,r.to],url:r.source,
       timetable:r.timetable,weekdayRanks:r.weekdays.ranks,nextUntranscribedOrigin:r.weekdays.nextUntranscribedOrigin}))
   }
+  const tataReview = await data('tataBoardReview')
+  for (const [code,{side,points}] of Object.entries(tataReview.TATA_DESCRIPTIONS))
+    add('tata', code, record('tataBoardReview', 'reader-sheet', side, points, { url: tataReview.TATA_DOCUMENT_SOURCE, nature: 'repères', dated: false }))
+  for (const [code,lists] of Object.entries(tataReview.TATA_UNTIMED_STAGES)) for (const {side,points} of lists)
+    add('tata', code, record('tataBoardReview', 'fare-stages', side, points, { url: tataReview.TATA_2020_SOURCE, year: 2020 }))
   const op = await data('ddd1OperatorStops')
   for (const [i,labels] of [op.DDD1_TO_LECLERC,op.DDD1_TOWARD_PARCELLES].entries())
     add('ddd','1',record('ddd1OperatorStops','directional-sheet',sides[i],labels,{url:op.DDD1_TABLE,partialList:Boolean(i)}))
@@ -162,7 +167,7 @@ export function coverageTable(inventory) {
     for (const r of rows) {
       const e = r.evidence, has = kind => e.some(v => v.kind === kind)
       const counts = side => [...new Set(e.filter(v => textKinds.has(v.kind) && (side === 'published' ? v.side === 'as-published' : v.side === side)).map(v => v.labels?.length).filter(Boolean))].sort((a,b) => a-b).join(' / ') || '—'
-      const refs = [has('catalogue') && 'catalogue', has('circuit') && 'circuit', has('description') && 'descriptif', has('historical-layer') && 'ArcGIS',
+      const refs = [has('catalogue') && 'catalogue', has('fare-stages') && 'sections 2020 (pas des arrêts)', has('circuit') && 'circuit', has('description') && 'descriptif', has('historical-layer') && 'ArcGIS',
         (has('area-marker') || has('reference-poles') || has('map-landmarks')) && 'repères', (e.some(v => v.kind === 'service-reference' && !v.scope) || has('terminal-window')) && 'horaires de référence', e.some(v => v.scope === 'other-corridor') && 'grilles d’un autre parcours', has('unconfirmed-return') && 'retour non attesté', has('operating-profile') && 'profil indicatif', e.some(v => v.sourceTimeCount) && 'heures aux repères', has('crosscheck') && 'revue de sources'].filter(Boolean)
       const parts = e.filter(v => v.kind === 'cartographic-section').map(v => `${v.meters} m vers ${v.side}${v.sourceSlice ? ` (fiche ${v.sourceSlice.side === 'inbound' ? 'retour' : 'aller'}, rangs ${v.sourceSlice.first}–${v.sourceSlice.last})` : ''}`)
       out.push(`| ${r.code} | ${counts('published')} | ${counts('outbound')} | ${counts('inbound')} | ${refs.join(', ') || '—'} | ${parts.join(' ; ') || '—'} |`)
