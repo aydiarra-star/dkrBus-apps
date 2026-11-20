@@ -4,11 +4,11 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 48 | 111 | 4 | 1322 | 370 | 308 | 23,30 % | 245 | 600 | 53 |
+| DDD | 48 | 111 | 4 | 1322 | 499 | 437 | 33,06 % | 245 | 600 | 53 |
 | AFTU | 73 | 159 | 56 | 3584 | 757 | 684 | 19,08 % | 300 | 736 | 0 |
 | TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
-**992 / 4906 = 20,22 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**1121 / 4906 = 22,85 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -20,7 +20,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 12313 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 132489 |
+| DDD | 13412 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 124164 |
 | AFTU | 21188 | 11343 | 11343 | 0 | 91 | 0 | 0 | 253767 | 216696 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
@@ -32,9 +32,9 @@ Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fourn
 
 ## DDD
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **7, 12, 16B, 311, 319**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **7, 12, 16A, 16B, 311, 319**.
 
-Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; aucune heure source au rang : 744 ; heures isolées sans continuité : 62 ; rang non transcrit : 118.
+Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; aucune heure source au rang : 615 ; heures isolées sans continuité : 62 ; rang non transcrit : 118.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -78,8 +78,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:15B/2 | Retour | Palais 1 → Rufisque | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:16A/1 | Aller | Terminus Malika → Palais 1 | 19 repères | 0 | 0 | 19 | repères / secteurs |
 | ddd:16A/2 | Retour | Palais 1 → Malika | 1 départ seul | 0 | 0 | 1 | origine seule |
-| ddd:16A/3 | Aller · fiche détaillée | Terminus Malika → Gare Palais | 65 arrêts | 0 | 0 | 65 | liste de la fiche |
-| ddd:16A/4 | Retour · fiche détaillée | Gare Palais → Terminus Malika | 64 arrêts | 0 | 0 | 64 | liste de la fiche |
+| ddd:16A/3 | Aller · fiche détaillée | Terminus Malika → Gare Palais | 65 arrêts | 65 | 65 | 65 | liste de la fiche |
+| ddd:16A/4 | Retour · fiche détaillée | Gare Palais → Terminus Malika | 64 arrêts | 64 | 64 | 64 | liste de la fiche |
 | ddd:16B/1 | Aller | Terminus Malika → Palais 1 | 27 repères | 0 | 0 | 27 | repères / secteurs |
 | ddd:16B/2 | Retour | Palais 1 → Malika | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:16B/3 | Aller · fiche détaillée | Terminus Malika → Gare Palais | 83 arrêts | 32 | 24 | 83 | liste de la fiche |
