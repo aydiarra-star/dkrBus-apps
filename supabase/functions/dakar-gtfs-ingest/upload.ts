@@ -90,7 +90,11 @@ function isInstant(value: unknown): value is string {
     /(?:Z|[+-]\d{2}:\d{2})$/.test(value);
 }
 
-export function validManifest(value: unknown, datasetId: string): value is Record<string, unknown> {
+export function validManifest(
+  value: unknown,
+  datasetId: string,
+  allowSanitized = false,
+): value is Record<string, unknown> {
   if (!isRecord(value)) return false;
   const archive = value.archive;
   if (value.schema_version !== "1.0" || value.dataset_id !== datasetId) return false;
@@ -102,9 +106,15 @@ export function validManifest(value: unknown, datasetId: string): value is Recor
       Date.parse(verifiedAt) > Date.now() + 5 * 60 * 1000 ||
       Date.parse(verifiedAt) > Date.parse(ingestedAt)) return false;
 
-  if (!isRecord(value.record_count)) return false;
-  for (const count of Object.values(value.record_count)) {
-    if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return false;
+  // The intake manifest must include importer counts so its input schema is
+  // complete. The server-sanitized manifest deliberately removes those
+  // untrusted counts before persisting it; finalization validates that distinct
+  // server-owned shape with allowSanitized=true.
+  if (!allowSanitized || Object.hasOwn(value, "record_count")) {
+    if (!isRecord(value.record_count)) return false;
+    for (const count of Object.values(value.record_count)) {
+      if (typeof count !== "number" || !Number.isSafeInteger(count) || count < 0) return false;
+    }
   }
 
   for (const key of ["dataset_version", "operator", "source"] as const) {

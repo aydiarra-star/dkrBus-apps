@@ -503,7 +503,7 @@ async function finalizeUpload(
     await markSession(admin, session.upload_id, "FAILED");
     return reply(500, { error: "STORED_MANIFEST_JSON_INVALID" }, cors);
   }
-  if (!validManifest(manifest, session.dataset_id) ||
+  if (!validManifest(manifest, session.dataset_id, true) ||
       !sessionManifestMatches(session, manifest as Record<string, unknown>)) {
     await markSession(admin, session.upload_id, "FAILED");
     return reply(500, { error: "STORED_MANIFEST_SESSION_MISMATCH" }, cors);

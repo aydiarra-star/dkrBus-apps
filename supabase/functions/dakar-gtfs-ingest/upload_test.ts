@@ -143,6 +143,26 @@ Deno.test("removes importer-supplied validation reports and row counts", () => {
 
 });
 
+Deno.test("accepts the server-sanitized manifest at finalization without trusting importer counts", () => {
+  const sanitized = sanitizeManifest(
+    syntheticManifest(),
+    "CURRENT",
+    "2026-11-19T12:00:00.000Z",
+  );
+  if (Object.hasOwn(sanitized, "record_count")) {
+    throw new Error("Importer-provided row counts must not survive server sanitization");
+  }
+  if (validManifest(sanitized, "synthetic-feed")) {
+    throw new Error("The intake schema must still require record_count");
+  }
+  if (!validManifest(sanitized, "synthetic-feed", true)) {
+    throw new Error("The finalization schema rejected the server-sanitized manifest");
+  }
+  if (validManifest({ ...sanitized, record_count: [] }, "synthetic-feed", true)) {
+    throw new Error("Malformed row counts were accepted in a sanitized manifest");
+  }
+});
+
 Deno.test("uses only canonical server-generated object paths", () => {
   const paths = canonicalObjectPaths("synthetic-feed", "a".repeat(64));
   if (paths.archivePath !== `synthetic-feed/${"a".repeat(64)}/feed.zip` ||
