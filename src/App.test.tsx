@@ -1288,7 +1288,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     fireEvent.click(terHeader)
     expect(vibrateMock).toHaveBeenCalledWith(12)
     expect(terItem.classList.contains('is-selected')).toBe(true)
-    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ Diamniadio/i)
+    expect(terItem.querySelector('.network-summary-detail')?.textContent).toMatch(/Dakar ↔ AIBD/i)
 
     // Toucher le contenu déplié ne replie pas l'accordéon.
     fireEvent.click(terItem.querySelector('.station-board-head')!)
@@ -1376,7 +1376,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(colobaneIn.textContent).toMatch(/créneau 12:00 · 8 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
-    expect(outRows[outRows.length - 1].textContent).toMatch(/Terminus/)
+    expect(outRows[outRows.length - 1].textContent).toMatch(/Prochaine arrivée.*mission AIBD/)
     expect(inRows[inRows.length - 1].textContent).toMatch(/Terminus/)
 
     // Toucher une gare ne replie pas le tableau.

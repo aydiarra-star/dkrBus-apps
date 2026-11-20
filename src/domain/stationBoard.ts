@@ -8,11 +8,12 @@
  * Diamniadio ↔ AIBD. Le BRT conserve son calcul de référence (distance à vol
  * d'oiseau / vitesse commerciale + arrêts). Les deux sens sont distincts.
  *
- * La phase exacte de la grille au départ de chaque terminus n'est pas
- * déclarée publiquement : les créneaux du sens retour projettent la même
- * grille depuis le terminus opposé, sans inventer de décalage. Ce que ce
- * module produit reste un horaire théorique issu d'une fréquence — jamais
- * une position de véhicule, jamais un retard constaté, jamais une promesse.
+ * Les grilles sont propagées depuis le terminus de chaque mission :
+ * Dakar pour l'aller du tronc commun, Diamniadio pour le retour tous trains,
+ * et AIBD pour les missions aéroport au retour. Les offsets cumulés TER
+ * proviennent des plages de parcours conservées dans terTravelTimes.ts.
+ * Ce module produit un horaire théorique issu d'une fréquence — jamais une
+ * position de véhicule, jamais un retard constaté, jamais une promesse.
  *
  * Les réseaux sans ligne publiée (DDD, AFTU, TATA) ne renvoient aucune
  * station : la structure est prête à les afficher dès que des lignes
@@ -45,10 +46,14 @@ export interface StationRow {
   offsetFromOriginMin: number
   /** Temps de parcours de référence depuis le terminus opposé (minutes). */
   offsetFromDestinationMin: number
-  /** Sens aller (départ du terminus d'origine) : nul au terminus opposé. */
+  /** Sens aller : départs en ligne et, au terminus AIBD du TER, prochaine arrivée. */
   outbound: NextPassage | null
   /** Sens retour (départ du terminus opposé) : nul au terminus d'origine. */
   inbound: NextPassage | null
+  /** À Diamniadio seulement : prochain train aller qui poursuit jusqu'à AIBD. */
+  outboundAirport?: NextPassage | null
+  /** À Diamniadio seulement : prochain train retour en provenance d'AIBD. */
+  inboundAirport?: NextPassage | null
 }
 
 export interface StationBoard {
@@ -87,46 +92,79 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
   const terDiamniadioOffset = line.network === 'ter' ? terTravelTimeMidpointMinutes('ter-diamniadio') : 0
   const terTotalOffset = line.network === 'ter' ? terTravelTimeMidpointMinutes(destinationStop.id) : 0
 
+  const terDakarDiamniadio = line.network === 'ter'
+    ? line.officialFrequencies.filter((frequency) => frequency.routeSegment === 'DAKAR_DIAMNIADIO')
+    : []
+  const terDiamniadioAibd = line.network === 'ter'
+    ? line.officialFrequencies.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD')
+    : []
+
   const rows: StationRow[] = stops.map((stop, index) => {
-    // TER : plages cumulées observées par gare ; leur milieu sert uniquement
-    // à projeter un créneau sur l'horloge. Les valeurs min/max restent intactes
-    // dans terTravelTimes.ts. Le retour est calculé depuis AIBD, avec les mêmes
-    // durées par tronçon que l'aller.
     let fromOrigin = 0
     let fromDestination = 0
     if (line.network === 'ter') {
+      // Les heures sont propagées depuis le terminus de la mission :
+      // départ Dakar + offset cumulé, ou départ AIBD + offset retour.
       fromOrigin = terTravelTimeMidpointMinutes(stop.id)
       fromDestination = Math.max(0, terTotalOffset - fromOrigin)
     } else {
-      // Les autres réseaux gardent leur calcul historique.
       for (let i = 0; i < index; i += 1) fromOrigin += segmentMinutes(line, i)
       fromOrigin += Math.max(0, index - 1) * dwell
       for (let i = index; i < stops.length - 1; i += 1) fromDestination += segmentMinutes(line, i)
       fromDestination += Math.max(0, stops.length - 2 - index) * dwell
     }
 
-    // Le TER est exploité en deux segments : les trains Dakar–Diamniadio
-    // circulent à leur propre cadence ; seul un train sur trois poursuit vers
-    // AIBD. Au retour, la grille repart du terminus réel du segment concerné.
-    const terOutboundFrequencies = line.network === 'ter'
-      ? line.officialFrequencies.filter((frequency) => frequency.routeSegment === (index < terDiamniadioIndex ? 'DAKAR_DIAMNIADIO' : 'DIAMNIADIO_AIBD'))
-      : line.officialFrequencies
-    const terInboundFrequencies = line.network === 'ter'
-      ? line.officialFrequencies.filter((frequency) => frequency.routeSegment === (index <= terDiamniadioIndex ? 'DAKAR_DIAMNIADIO' : 'DIAMNIADIO_AIBD'))
-      : line.officialFrequencies
-    const outboundOffset = line.network === 'ter' && index >= terDiamniadioIndex
-      ? Math.max(0, fromOrigin - terDiamniadioOffset)
-      : fromOrigin
-    const inboundOffset = line.network === 'ter' && index <= terDiamniadioIndex
-      ? Math.max(0, terDiamniadioOffset - fromOrigin)
-      : fromDestination
+    let outbound: NextPassage | null
+    let inbound: NextPassage | null
+    let outboundAirport: NextPassage | null = null
+    let inboundAirport: NextPassage | null = null
+
+    if (line.network === 'ter') {
+      if (index < terDiamniadioIndex) {
+        // Dakar → Bargny : tous les trains, cadence commune de 8 minutes.
+        outbound = nextReferencePassage(terDakarDiamniadio, now, fromOrigin)
+        // Tous les trains qui repartent de Diamniadio vers Dakar : 8 minutes.
+        inbound = nextReferencePassage(
+          terDakarDiamniadio,
+          now,
+          Math.max(0, terDiamniadioOffset - fromOrigin),
+        )
+      } else if (index === terDiamniadioIndex) {
+        // Gare charnière : elle est desservie toutes les 8 minutes dans les
+        // deux sens, mais seuls un train sur trois poursuit vers / vient d'AIBD.
+        outbound = nextReferencePassage(terDakarDiamniadio, now, fromOrigin)
+        // Le tronc commun retour est ancré à Diamniadio (offset zéro).
+        // Les missions venant d'AIBD sont affichées séparément ci-dessous.
+        inbound = nextReferencePassage(terDakarDiamniadio, now, 0)
+        outboundAirport = nextReferencePassage(terDiamniadioAibd, now, fromOrigin)
+        inboundAirport = nextReferencePassage(
+          terDiamniadioAibd,
+          now,
+          Math.max(0, terTotalOffset - terDiamniadioOffset),
+        )
+      } else {
+        // Après Diamniadio : uniquement les missions prolongées jusqu'à AIBD.
+        outbound = nextReferencePassage(terDiamniadioAibd, now, fromOrigin)
+        inbound = nextReferencePassage(terDiamniadioAibd, now, fromDestination)
+      }
+    } else {
+      outbound = index === stops.length - 1
+        ? null
+        : nextReferencePassage(line.officialFrequencies, now, fromOrigin)
+      inbound = index === 0
+        ? null
+        : nextReferencePassage(line.officialFrequencies, now, fromDestination)
+    }
 
     return {
       stop,
       offsetFromOriginMin: fromOrigin,
       offsetFromDestinationMin: fromDestination,
-      outbound: index === stops.length - 1 ? null : nextReferencePassage(terOutboundFrequencies, now, outboundOffset),
-      inbound: index === 0 ? null : nextReferencePassage(terInboundFrequencies, now, inboundOffset),
+      // À AIBD, conserver le passage aller : il représente l'arrivée
+      // du prochain train prolongé depuis Dakar (et non un départ local).
+      outbound: index === stops.length - 1 && line.network !== 'ter' ? null : outbound,
+      inbound: index === 0 ? null : inbound,
+      ...(index === terDiamniadioIndex ? { outboundAirport, inboundAirport } : {}),
     }
   })
 
