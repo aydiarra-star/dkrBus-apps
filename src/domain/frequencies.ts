@@ -80,7 +80,7 @@ const NO_VERIFIED_DATE = null
 const NO_CALENDAR_VALIDITY: FrequencyValidityPeriod = { validFrom: null, validUntil: null }
 
 /** URLs racines déjà référencées par le générateur GTFS et l'interface du dépôt. */
-export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud', FrequencySource>> = {
+export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'terPhase2' | 'cetud', FrequencySource>> = {
   brt: {
     authority: 'CETUD',
     sourceUrl: 'https://www.sunubrt.sn',
@@ -92,6 +92,13 @@ export const FREQUENCY_SOURCES: Readonly<Record<'brt' | 'ter' | 'cetud', Frequen
     sourceUrl: 'https://www.senersa.sn',
     verifiedAt: NO_VERIFIED_DATE,
     verificationStatus: 'UNVERIFIED_IN_REPOSITORY',
+  },
+  terPhase2: {
+    authority: 'TER_DAKAR',
+    sourceUrl: 'https://aps.sn/train-express-regional-la-phase-diamniadio-aibd-inauguree-un-investissement-de-plus-de-300-milliards-fcfa/',
+    publishedAt: '2026-09-28',
+    verifiedAt: '2026-11-20',
+    verificationStatus: 'VERIFIED_OFFICIAL',
   },
   cetud: {
     authority: 'CETUD',
@@ -129,7 +136,7 @@ export const OFFICIAL_REFERENCE_FREQUENCIES: Readonly<Record<'brt' | 'ter', read
       serviceEnd: '22:00',
       days: WEEKDAYS_AND_SATURDAY,
       excludesPublicHolidays: true,
-      source: FREQUENCY_SOURCES.ter,
+      source: FREQUENCY_SOURCES.terPhase2,
       operator: 'TER / SETER',
       scope: 'Dakar ↔ Diamniadio · sens Dakar et sens Diamniadio',
       label: 'Toutes les 8 minutes',
@@ -143,7 +150,7 @@ export const OFFICIAL_REFERENCE_FREQUENCIES: Readonly<Record<'brt' | 'ter', read
       serviceEnd: '22:00',
       days: WEEKDAYS_AND_SATURDAY,
       excludesPublicHolidays: true,
-      source: FREQUENCY_SOURCES.ter,
+      source: FREQUENCY_SOURCES.terPhase2,
       operator: 'TER / SETER',
       scope: 'Diamniadio ↔ AIBD · un train sur trois',
       label: 'Toutes les 24 minutes',
@@ -213,19 +220,19 @@ export const NETWORK_REFERENCE_DATA: Readonly<Record<ReferenceNetworkId, Network
     label: 'TER',
     shortName: 'TER',
     operator: 'TER / SETER',
-    coverage: 'Dakar ↔ Diamniadio',
+    coverage: 'Dakar ↔ AIBD via Diamniadio',
     lineCount: null,
-    stationCount: 13,
+    stationCount: 14,
     vehicleCount: null,
     gieCount: null,
     serviceStart: '05:30',
     serviceEnd: '22:00',
     serviceWindow: '05:30–22:00 selon le jour et la période',
     frequencyStatus: 'OFFICIAL_REFERENCE',
-    frequencyLabel: '10 min en journée · 20 min selon la période',
+    frequencyLabel: '8 min Dakar–Diamniadio · 24 min Diamniadio–AIBD',
     officialFrequencies: OFFICIAL_REFERENCE_FREQUENCIES.ter,
     sourceAuthority: 'TER_DAKAR',
-    source: FREQUENCY_SOURCES.ter,
+    source: FREQUENCY_SOURCES.terPhase2,
     validityPeriod: NO_CALENDAR_VALIDITY,
   },
   ddd: {

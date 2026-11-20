@@ -529,7 +529,7 @@ describe('structure en quatre piliers', () => {
     expect(screen.getByText(/Premiers départs : 05:30–06:00 · derniers : 20:30–21:00/)).toBeTruthy()
     expect(screen.getByText(/38 lignes · 400 bus/)).toBeTruthy()
     expect(screen.getByText(/72 lignes · 2\s?300 bus · 14 GIE/)).toBeTruthy()
-    expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(4)
+    expect(screen.getAllByText(/vérification en ligne non documentée/).length).toBeGreaterThanOrEqual(3)
     expect(screen.getByRole('link', { name: 'TER / SETER' })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'CETUD / SunuBRT' })).toBeTruthy()
     vi.useRealTimers()
