@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { BRT_STOPS, TER_STOPS } from './corridors'
 import { boardLinesForNetwork, buildStationBoard, stationShortName } from './stationBoard'
+import { nextReferencePassage } from './headways'
+import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
+
+function nextAirportBoundSlot(_allTrainAtDiamniadio: string): string {
+  const airportFrequency = OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD')
+  return nextReferencePassage(airportFrequency, NOW, 44.5)!.nextDepartureAt
+}
 
 /** Jeudi 8 octobre 2026, 12:00:00 UTC (heure de Dakar, UTC+00 toute l'année). */
 const NOW = Date.parse('2026-10-08T12:00:00.000Z')
@@ -59,9 +66,54 @@ describe('tableau des créneaux par station et par sens', () => {
     const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
     expect(colobane.outbound!.headwayMinutes).toBe(8)
     expect(colobane.inbound!.headwayMinutes).toBe(8)
-    expect(diamniadio.outbound!.headwayMinutes).toBe(24)
+    expect(diamniadio.outbound!.headwayMinutes).toBe(8)
     expect(diamniadio.inbound!.headwayMinutes).toBe(8)
+    expect(diamniadio.outboundAirport!.headwayMinutes).toBe(24)
+    expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
+    expect(diamniadio.outboundAirport!.nextDepartureAt).toBe(
+      nextAirportBoundSlot(diamniadio.outbound!.nextDepartureAt),
+    )
     expect(aibd.inbound!.headwayMinutes).toBe(24)
+  })
+
+
+  it('propage les missions depuis leur terminus et conserve la phase 1 train sur 3 à Diamniadio', () => {
+    const board = buildStationBoard(
+      boardLinesForNetwork('ter')[0],
+      Date.parse('2026-10-08T13:44:00.000Z'),
+    )!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+    const aibd = board.rows.find((row) => row.stop.id === 'ter-aibd')!
+    expect(diamniadio.outbound!.headwayMinutes).toBe(8)
+    expect(diamniadio.outboundAirport!.headwayMinutes).toBe(24)
+    expect(diamniadio.outboundAirport!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
+        Date.parse('2026-10-08T13:44:00.000Z'),
+        44.5,
+      )!.nextDepartureAt,
+    )
+    expect(aibd.inbound!.headwayMinutes).toBe(24)
+    expect(aibd.inbound!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
+        Date.parse('2026-10-08T13:44:00.000Z'),
+        0,
+      )!.nextDepartureAt,
+    )
+  })
+
+  it('calcule le compte à rebours de chaque gare à partir du départ de mission propagé', () => {
+    const now = Date.parse('2026-10-08T13:44:00.000Z')
+    const board = buildStationBoard(boardLinesForNetwork('ter')[0], now)!
+    const pnr = board.rows.find((row) => row.stop.id === 'ter-pnr')!
+    const rufisque = board.rows.find((row) => row.stop.id === 'ter-rufisque')!
+    const bargny = board.rows.find((row) => row.stop.id === 'ter-bargny')!
+    // Deux trains différents peuvent légitimement passer à la même minute :
+    // le train attendu à PNR n'est pas nécessairement celui attendu à Bargny.
+    expect(pnr.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
+    expect(rufisque.outbound!.nextDepartureAt).toBe('2026-10-08T13:45:00.000Z')
+    expect(bargny.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
   })
 
   it('ne fait embarquer personne dans le sens impossible au terminus', () => {
