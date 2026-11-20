@@ -42,7 +42,8 @@ export function inspectWaymark(html, onLine) {
     else if (g?.type === 'Point' && xy(g.coordinates)) markers.push({ role: String(p?.type ?? ''), position: g.coordinates, name: String(p?.title ?? '').slice(0,100) })
     else other.push(g?.type ?? 'missing') // do not stitch MultiLineStrings
   }
-  return { status: 'MAP_READ', sha256: hash(fc), other, markers: markers.map(m => m.role), markerNames: markers.map(m => m.name), lines: lines.map(line => {
+  const overlayHash = hash(fc)
+  return { status: 'MAP_READ', sha256: overlayHash, other, markers: markers.map(m => m.role), markerNames: markers.map(m => m.name), lines: lines.map(line => {
     if (!Array.isArray(line) || line.length < 2 || !line.every(xy)) return { status: 'INVALID_LINE' }
     const steps = line.slice(1).map((p, i) => meters(p, line[i]))
     const ends = [line[0], line.at(-1)]
@@ -53,7 +54,7 @@ export function inspectWaymark(html, onLine) {
     }
     const orientation = uniqueEnd('start',0) && uniqueEnd('finish',1) ? 'start-first' : uniqueEnd('start',1) && uniqueEnd('finish',0) ? 'start-last' : null
     const shapeHash = hash(line)
-    if (lines.length === 1 && !other.length) onLine?.({ positions: line, shapeHash, orientation })
+    if (lines.length === 1 && !other.length) onLine?.({ positions: line, shapeHash, orientation, overlayHash, markers })
     return { orientation, vertices: line.length, meters: Math.round(steps.reduce((a,b) => a+b, 0)), maxStepM: Math.round(steps.reduce((n,d) => Math.max(n,d), 0)),
       // 1-based segment ranks. A long chord isn't necessarily a missing road;
       // it does need independent street-level evidence before vehicle use.

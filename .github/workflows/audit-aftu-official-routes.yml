@@ -9,6 +9,7 @@ on:
       - "scripts/audit_aftu_map_calls.py"
       - "scripts/audit_gt54.py"
       - "scripts/audit_patte_doie.py"
+      - "scripts/audit_terminus_quays.py"
       - "data/bus-review/patte-doie-occurrences.json"
       - "scripts/medina_phase.py"
       - "data/bus-sections/gt54-pins.json"
@@ -60,6 +61,13 @@ jobs:
             curl -fLsS --retry 2 "$source" -o "$pbf"
           fi
           python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json --source-url "$source"
+      - name: Compare actual directional AFTU terminal markers with named OSM platform nodes across Dakar
+        run: |
+          if test -s "$RUNNER_TEMP/senegal.osm.pbf" && test -d "$RUNNER_TEMP/aftu-maps"; then
+            python -m scripts.audit_terminus_quays "$RUNNER_TEMP/senegal.osm.pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/terminus-quays.json --ci-summary
+          else
+            echo '::warning::Comparaison des terminus non exécutée (PBF ou dessins manquants).'
+          fi
       - name: Check historical call roles at GT-54 and Patte d’Oie and independent approach phases at Médina
         run: |
           base='https://api.github.com/repos/impactsolutionsas/passbi_core/contents/gtfs_folder'

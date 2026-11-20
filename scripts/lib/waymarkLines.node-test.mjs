@@ -22,6 +22,8 @@ test('only hands a single valid drawing to the road check; reads Start at either
   const start = { properties: {type: 'start'}, geometry: {type: 'Point',coordinates: line.geometry.coordinates.at(-1)} }
   const seen = []
   inspectWaymark(html([line,start,marker]), v => seen.push(v))
+  assert.deepEqual(seen[0].markers[1], { role:'Finish', name:'fin ); du tracé', position:line.geometry.coordinates[0] });
+  assert.equal(seen[0].overlayHash, inspectWaymark(html([line,start,marker])).sha256)
   assert.equal(seen[0].orientation,'start-last'); assert.deepEqual(seen[0].positions,line.geometry.coordinates)
   inspectWaymark(html([line,start,start,marker]), v => seen.push(v)); assert.equal(seen[1].orientation,null)
   for (const h of [html([line,marker])+html([], () => 'invalid()'),html([line,null]),html([line,line]),html([{geometry:{type:'MultiLineString'}}])]) inspectWaymark(h, v => seen.push(v))
