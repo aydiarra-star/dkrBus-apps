@@ -142,6 +142,55 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(bargny.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
   })
 
+  it('couvre les 14 gares TER dans les deux sens avec des offsets strictement cohérents', () => {
+    const board = buildStationBoard(
+      boardLinesForNetwork('ter')[0],
+      Date.parse('2026-11-20T14:29:00.000Z'),
+    )!
+
+    expect(board.rows.map((row) => row.stop.id)).toEqual(TER_STOPS.map((stop) => stop.id))
+    expect(board.rows).toHaveLength(14)
+
+    // Les temps cumulés doivent progresser sans inversion de gare, dans les
+    // deux sens. Les prochains créneaux peuvent toutefois appartenir à des
+    // trains différents : on vérifie les offsets, pas l'ordre des minutes.
+    for (let index = 1; index < board.rows.length; index += 1) {
+      expect(board.rows[index].offsetFromOriginMin)
+        .toBeGreaterThan(board.rows[index - 1].offsetFromOriginMin)
+      expect(board.rows[index].offsetFromDestinationMin)
+        .toBeLessThan(board.rows[index - 1].offsetFromDestinationMin)
+    }
+
+    // Tronc commun : 8 min dans les deux sens jusqu'à Diamniadio.
+    for (const row of board.rows.slice(1, 12)) {
+      expect(row.outbound?.headwayMinutes).toBe(8)
+      expect(row.inbound?.headwayMinutes).toBe(8)
+    }
+
+    // L'extension aéroport reste séparée : 24 min à Diamniadio et au-delà.
+    const diamniadio = board.rows[12]
+    expect(diamniadio.outboundAirport?.headwayMinutes).toBe(24)
+    expect(diamniadio.inboundAirport?.headwayMinutes).toBe(24)
+    for (const row of board.rows.slice(13)) {
+      expect(row.outbound?.headwayMinutes).toBe(24)
+      expect(row.inbound?.headwayMinutes).toBe(24)
+    }
+  })
+
+  it('conserve à Diamniadio les deux prochains passages retour distincts (tronc et mission AIBD)', () => {
+    const board = buildStationBoard(
+      boardLinesForNetwork('ter')[0],
+      Date.parse('2026-11-20T14:29:00.000Z'),
+    )!
+    const diamniadio = board.rows.find((row) => row.stop.id === 'ter-diamniadio')!
+
+    expect(diamniadio.inbound?.headwayMinutes).toBe(8)
+    expect(diamniadio.inboundAirport?.headwayMinutes).toBe(24)
+    expect(diamniadio.inboundAirport).not.toBeNull()
+    expect(Date.parse(diamniadio.inboundAirport!.nextDepartureAt))
+      .toBeGreaterThan(Date.parse('2026-11-20T14:29:00.000Z'))
+  })
+
   it('ne fait embarquer personne dans le sens impossible au terminus', () => {
     const board = buildStationBoard(boardLinesForNetwork('brt')[0], NOW)!
     // Au terminus d'origine : pas de départ « retour » (on n'y va pas déjà).
