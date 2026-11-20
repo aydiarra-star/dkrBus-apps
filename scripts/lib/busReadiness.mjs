@@ -33,7 +33,8 @@ export function busReadiness(inventory, observations, dossiers, replay, at, link
   if (links.length !== assigned.size || replay.rideWitnesses.some(w => bus(w.mode) && !assigned.has(key(w)))) throw Error('Desserte absente de cette édition ou témoin non attribué.')
   const rows = inventory.lines.map(({network, code, evidence: e}) => {
     const id = `${network}:${code}`, active = byLine.get(id) ?? []
-    const text = e.filter(v => textKinds.has(v.kind) && v.labels?.length)
+    const text = e.filter(v => textKinds.has(v.kind) && v.scope !== 'other-axis' && v.labels?.length)
+    const otherAxes = e.filter(v => v.scope === 'other-axis' && v.labels?.length).map(v => ({from:v.labels[0], to:v.labels.at(-1), count:v.labels.length, side:v.side, url:v.url}))
     const map = network === 'aftu' ? observations.drawings[code] : undefined // never lend the AFTU drawing to TATA
     const relations = observations.relations.filter(r => r.identity[0] === network && r.identity[1] === code)
     const axisSource = ['owner-sequence','directional-sheet','source-order'].map(kind => text.find(v => v.side === 'outbound' && v.kind === kind)).find(Boolean)
@@ -65,7 +66,7 @@ export function busReadiness(inventory, observations, dossiers, replay, at, link
       assessments: [d,...d.otherServiceDirections].map(v => ({ status: v.status, timed: v.timed, missing: v.findings.map(f => f.code) })) }))
     const runs = active.map(p => ({ side: p.side, kind: p.service, atOriginOnDay: p.originDepartures, nextOrigin: p.nextOrigin }))
     return { network, code, axis: axis ?? null, axisSource: axisSource?.source ?? (useMap ? 'AFTU Start/Finish' : firstPublished?.source ?? 'catalogue'), direction,
-      mapSide, map: map ?? null, relations, unassignedText: unique(text.filter(v => v.side === 'as-published' && !sideOf(endpoints(v))).map(v => v.labels.length)),
+      mapSide, map: map ?? null, relations, otherAxes, unassignedText: unique(text.filter(v => v.side === 'as-published' && !sideOf(endpoints(v))).map(v => v.labels.length)),
       circuit: text.some(v => v.kind === 'circuit'), pieces: pieces.map(p => ({ id: p.id, toward: p.side, meters: p.meters })),
       transfers: contacts, runs, active, sources: unique(e.flatMap(v => v.url ? [v.url] : [])), conflicts: e.filter(v => v.conflict || v.kind === 'crosscheck').map(v => v.conflict || v.note),
       serviceNotes: { timeCount: Math.max(0,...e.map(v => v.sourceTimeCount ?? 0)), otherCorridor: e.some(v => v.scope === 'other-corridor'),
@@ -108,6 +109,8 @@ export function readinessTable(r) {
       out.push(`| **${l.code}**${l.axis ? ` · ${compact(l.axis.join(' → '))}` : ' · sens non établi'} | ${q('outbound')} | ${q('inbound')} | ${g('outbound')} | ${g('inbound')} | ${transfers} | ${timing} | ${compact(calc)} |`)
     }
     out.push('')
+    for (const l of rows) for (const a of l.otherAxes)
+      out.push(`- **${family.toUpperCase()} ${l.code} — autre axe non compté sous l’axe du tableau :** [${compact(a.from)} → ${compact(a.to)}](${a.url}), ${a.count} repères documentaires sans horaires.`, '')
     if (family === 'tata') continue
     out.push('**Pièces avec leur orientation propre.** Pas de rapprochement sur le seul numéro : un terminus différent peut désigner une variante. Les écarts portent sur le dessin dans son sens marqué ; aucune archive n’est utilisée comme service du jour.', '')
     for (const l of rows.filter(l => l.map || l.relations.length)) {

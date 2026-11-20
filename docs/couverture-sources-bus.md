@@ -173,7 +173,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 50 | 17 / 19 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
 | 51 | 7 / 9 | — | — | catalogue | — |
 | 52 | 8 / 10 | — | — | catalogue, sections 2020 (pas des arrêts) | — |
-| 53 | 14 / 16 | 10 | — | catalogue | — |
+| 53 | 14 / 16 | — | — | autre axe : Lac Rose → Sébikotane (10 repères), catalogue | — |
 | 54 | 10 / 12 | — | — | catalogue | — |
 | 55 | 11 / 13 | — | — | catalogue | — |
 | 56 | 10 / 12 | — | — | catalogue | — |

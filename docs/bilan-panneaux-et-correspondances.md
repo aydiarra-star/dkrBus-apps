@@ -1,6 +1,6 @@
 # Panneaux bus et correspondances : résultat de la revue
 
-**À Dakar, au moins un passage de semaine peut être décompté sur 992 des 4 906 rangs d’arrêt du catalogue (20,22 %). À 19 h le jeudi d’essai, 545 de ces rangs indiquent un prochain passage. Aucune nouvelle correspondance n’est démontrée.** Ces deux résultats ne portent pas sur le même objet : une cellule d’une fiche hebdomadaire suffit à renseigner le panneau, mais pas à engager un voyageur sur une deuxième course.
+**À Dakar, au moins un passage de semaine peut être décompté sur 992 des 4 906 rangs d’arrêt du catalogue (20,22 %). À 19 h le jeudi d’essai, 545 de ces rangs indiquent un prochain passage. Aucune nouvelle correspondance n’est démontrée.** Ces deux résultats ne portent pas sur le même objet : une suite d’heures hebdomadaires peut alimenter un panneau, mais ne prouve ni le quai ni la deuxième course à la date du voyage.
 
 ## Où trouver le détail
 

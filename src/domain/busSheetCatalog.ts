@@ -43,10 +43,10 @@ const malikaSamples = () => [0,1].map(i=>sample(i?'07:00':'00:00',DDD16B_CHECKPO
 export function existingSheetHours(family: BusFamily, code: string, d: BusBoardDirection): SourceHours | undefined {
   const m = d.clock
   if (!d.points.length || m?.kind === 'timetable') return
-  // Lac Rose is not the reported Niague service. The three original
-  // checkpoints also identify the timetable used by this direction's model.
+  // A printed sheet is independent of the optional former rank model.
+  // Match this particular axis, list and timetable URL; never a number alone.
   const is73 = family === 'aftu' && code === '73'
-  const lacRose = is73 && AFTU73_SHEETS.find(s => s.page === d.source && s.grid === m?.originBasis &&
+  const lacRose = is73 && d.pointKind === 'arrêts' && AFTU73_SHEETS.find(s => s.page === d.source &&
     s.from === d.from && s.to === d.to && s.sequence === sequenceCheck(d.points))
   if (is73 && !lacRose) return
   if (family === 'ddd' && code === '311') {

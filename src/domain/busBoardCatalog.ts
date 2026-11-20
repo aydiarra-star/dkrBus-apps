@@ -151,7 +151,7 @@ function tataDirections(r: PublicBusLineReference): BusBoardDirection[] {
       pointKind: 'repères', points, clock: null, source: TATA_DOCUMENT_SOURCE, reason: 'Repères du document · validité et heures non indiquées' }
     // Only the HLM Grand Yoff → Lat-Dior slot: the landmarks are documented
     // in this order. The 53 from Lac Rose is NOT the one from Keur Massar.
-    if (c === '1' && side === 'inbound' && pair[1].from === 'HLM Grand Yoff' && pair[1].to === 'Lat-Dior' && !pair[1].points.length && !pair[1].clock) pair[1] = sheet
+    if (c === '1' && side === 'inbound' && pair[1].from === 'HLM Grand Yoff' && pair[1].to === 'Lat-Dior' && !pair[1].points.length && !pair[1].clock) pair[1] = {...sheet, indexSource:pair[1].source}
     else pair.push(sheet)
   }
   return [...pair, ...stages]

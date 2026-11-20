@@ -99,7 +99,7 @@ export const TATA_UNTIMED_STAGES: Readonly<Record<string, readonly { side: 'outb
 /** Only two entries in this secondary document give a sequence of places.
  * No calendar, travel time or certainty about continuity with today's service. */
 export const TATA_DOCUMENT_SOURCE = 'https://fr.scribd.com/document/840812776/ligne-tata'
-export const TATA_DESCRIPTIONS: Readonly<Record<string, ReturnType<typeof stages>>> = {
+export const TATA_DESCRIPTIONS: Readonly<Record<string, ReturnType<typeof stages> & { scope?: 'other-axis' }>> = {
   '1': stages('inbound', 'Terminus HLM Grand Yof (Face Autoroute)|Scat Urbam|Liberté 6|Derklé|Liberté 4|Rond Point Jet d’eau|Bourguiba|Grand Dakar|Fass Médina|Sham|Avenue Blaise Diagne|Terminus Lat Dior'),
-  '53': stages('outbound', 'Lac Rose|Croisement Niaye|Ndiakhirate|Route Des Niayes|Sonadis Rufisque|Route Nationale 1 (RN1)|Bargny|Diamniadio|Hôpital Des Enfants Diamniadio|Sébikotane'),
+  '53': { scope: 'other-axis', ...stages('outbound', 'Lac Rose|Croisement Niaye|Ndiakhirate|Route Des Niayes|Sonadis Rufisque|Route Nationale 1 (RN1)|Bargny|Diamniadio|Hôpital Des Enfants Diamniadio|Sébikotane') },
 }

@@ -156,6 +156,7 @@ describe('time on a bus sign, not a trip planner', () => {
   it('garde les repères TATA sans horloge et ne remplit pas les retours avec un autre terminus tarifaire', () => {
     const [go, back] = dirs('tata','1')
     expect(go.from).toBe('Lat-Dior'); expect(back.points).toHaveLength(12)
+    expect(back.indexSource).toBeTruthy(); expect(back.indexSource).not.toBe(back.source)
     expect(back.points.slice(1,5)).toEqual(['Scat Urbam','Liberté 6','Derklé','Liberté 4'])
     expect(back).toMatchObject({pointKind:'repères', clock:null, to:'Terminus Lat Dior'})
     const alt = dirs('tata','53').find(d=>d.from==='Lac Rose')!

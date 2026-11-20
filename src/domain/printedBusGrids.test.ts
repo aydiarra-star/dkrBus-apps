@@ -138,6 +138,8 @@ describe('73 : les lieux nommés de la fiche Lac Rose ne sont pas le relevé de 
         expect([1,old.cemRank,75].map(rank=>cells[g.ranks.indexOf(rank)])).toEqual([0,typeof ref.cem==='number'?ref.cem:ref.cem[j],end])
       }
     }
+    expect(existingSheetHours('aftu','73',{...d,clock:null})?.weekday).toBe(h.weekday)
+    expect(existingSheetHours('aftu','73',{...d,pointKind:'repères'})).toBeUndefined()
     expect(existingSheetHours('aftu','73',{...d,from:'Station Ciel Oil/Thiaroye'})).toBeUndefined()
     expect(existingSheetHours('tata','73',d)).toBeUndefined()
   })
