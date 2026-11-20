@@ -4,11 +4,11 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, samedi 21 et dimanc
 
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 48 | 111 | 4 | 1322 | 344 | 216 | 16,34 % | 153 | 600 | 53 |
+| DDD | 48 | 111 | 4 | 1322 | 344 | 269 | 20,35 % | 206 | 600 | 53 |
 | AFTU | 73 | 158 | 57 | 3486 | 375 | 302 | 8,66 % | 16 | 736 | 0 |
 | TATA | 65 | 133 | 10 | 0 | 0 | 0 | non défini | 0 | 1336 | 0 |
 
-**518 / 4808 = 10,77 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**571 / 4808 = 11,88 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7533**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -20,7 +20,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 | Famille | Grille semaine | Samedi | Dimanche | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 6592 | 1470 | 0 | 250 | 0 | 0 | 145608 | 138210 |
+| DDD | 9292 | 3191 | 1721 | 250 | 0 | 0 | 145608 | 135510 |
 | AFTU | 3672 | 171 | 171 | 91 | 0 | 0 | 253767 | 228826 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
@@ -32,9 +32,9 @@ Les 68 heures de la transcription invalidée AFTU 86 ne sont ni des heures fourn
 
 ## DDD
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **7, 12, 311**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **1, 6, 7, 12, 16A, 16B, 23, 311, 319, 501**. Deux sens avec au moins un rang décomptable en semaine : **7, 12, 311, 319**.
 
-Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; aucune heure source au rang : 888 ; heures isolées sans continuité : 128.
+Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 47 ; Extrait après Leclerc · terminus et heures non renseignés : 43 ; aucune heure source au rang : 888 ; heures isolées sans continuité : 75.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -123,8 +123,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:311/1 | Aller | Lac Rose / Croisement Niague → Croisement Keur Massar | 0 arrêts | 0 | 0 | 0 | sans liste · Circuit incomplet |
 | ddd:311/2 | Aller · fiche RN 1 | Lac Rose → RN 1 | 42 arrêts | 42 | 42 | 42 | liste de la fiche |
 | ddd:311/3 | Retour · fiche RN 1 | RN 1 → Lac Rose | 42 arrêts | 42 | 42 | 42 | liste de la fiche |
-| ddd:319/1 | Aller | Liberté 6 → Ouakam | 27 arrêts | 27 | 0 | 27 | liste de la fiche |
-| ddd:319/2 | Retour | Ouakam → Liberté 6 | 26 arrêts | 26 | 0 | 26 | liste de la fiche |
+| ddd:319/1 | Aller | Liberté 6 → Ouakam | 27 arrêts | 27 | 27 | 27 | liste de la fiche |
+| ddd:319/2 | Retour | Ouakam → Liberté 6 | 26 arrêts | 26 | 26 | 26 | liste de la fiche |
 | ddd:327/1 | Aller | Terminus Keur Massar → Terminus Parcelles | 11 repères | 0 | 0 | 11 | repères / secteurs |
 | ddd:327/2 | Retour | Terminus Parcelles → Terminus Keur Massar | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | ddd:501/1 | Aller | Port De Dakar → Terminus Palais 2 | 9 arrêts | 0 | 0 | 9 | liste de la fiche |

@@ -1851,59 +1851,59 @@ ddd:311/3,311,Retour · fiche RN 1,39,École Elémentaire Niaga,arrêts,1,oui,he
 ddd:311/3,311,Retour · fiche RN 1,40,Arrêt De Bus,arrêts,31,oui,hebdomadaire,27,17,0,0,oui,960,oui,grille des rangs saisis,décompte,0
 ddd:311/3,311,Retour · fiche RN 1,41,Arrêt De Bus,arrêts,32,oui,hebdomadaire,27,17,0,0,oui,1080,oui,grille des rangs saisis,décompte,0
 ddd:311/3,311,Retour · fiche RN 1,42,Arrêt De Bus,arrêts,33,oui,hebdomadaire,27,17,0,0,oui,1140,oui,grille des rangs saisis,décompte,0
-ddd:319/1,319,Aller,1,Route Des Niayes / Av. Abdel Aziz,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,2,Arrêt De Bus,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,3,"Rue Lib 160, 5405",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,4,"Rue Lib 160, 5424",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,5,"Rue Sc 61, 9973",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,6,"Rue Sc 89, 9747",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,7,Arrêt De Bus,arrêts,2,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,8,"Rue Mz 55, 17",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,9,"Les Voies De I'Alternance, 155",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,10,"Rue Mz 198, 918",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,11,Hopital Militaire,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,12,Lycée Mermoz,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,13,Rue Okm 195,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,14,École Des Officiers,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,15,Arrêt De Bus,arrêts,3,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,16,Arrêt De Bus,arrêts,4,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,17,"Rue Okm 237, 168",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,18,"Rue Okm 60, 67",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,19,Poste De Sante,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,20,"Rue Okm 282, 222",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,21,"Rue Okm 282, 222",arrêts,2,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,22,"Rue Okm 272, 226",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,23,Arrêt De Bus,arrêts,5,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,24,Arrêt De Bus,arrêts,6,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,25,Arrêt De Bus,arrêts,7,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,26,Arrêt De Bus,arrêts,8,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/1,319,Aller,27,Arrêt De Bus,arrêts,9,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,48
-ddd:319/2,319,Retour,1,Arrêt De Bus,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,2,Arrêt De Bus,arrêts,2,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,3,Arrêt De Bus,arrêts,3,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,4,"Rue Okm 272, 160",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,5,"Rue Okm 272, 152",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,6,"Rue Okm 282, 222",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,7,Stade Municipal,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,8,École 6,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,9,"Rue Okm 60, 67",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,10,"Rue Okm 237, 168",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,11,Arrêt De Bus,arrêts,4,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,12,Arrêt De Bus,arrêts,5,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,13,École De Officiers,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,14,"Rue Okm 195, 9156",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,15,"Avenue Cheikh Anta Diop, 48",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,16,Quartier Geille,arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,17,"Rue Mz 198, 918",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,18,"Les Voies De I'Alternance, 155",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,19,"Rue Mz 55, 17",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,20,"Rue Sc 95, 10570",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,21,"Rue Sc 89, 9747",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,22,Arrêt De Bus,arrêts,6,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,23,"Rue Lib 160, 5424",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,24,"Rue Dd 44, 5467",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,25,"Rue Dd 20, 5482",arrêts,1,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
-ddd:319/2,319,Retour,26,Arrêt De Bus,arrêts,7,oui,référence,0,0,0,1,non,,oui,heures isolées sans continuité,inconnu,54
+ddd:319/1,319,Aller,1,Route Des Niayes / Av. Abdel Aziz,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,960,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,2,Arrêt De Bus,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,960,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,3,"Rue Lib 160, 5405",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,1080,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,4,"Rue Lib 160, 5424",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,1140,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,5,"Rue Sc 61, 9973",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,6,"Rue Sc 89, 9747",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,7,Arrêt De Bus,arrêts,2,oui,hebdomadaire,48,31,31,1,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,8,"Rue Mz 55, 17",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,300,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,9,"Les Voies De I'Alternance, 155",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,10,"Rue Mz 198, 918",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,480,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,11,Hopital Militaire,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,540,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,12,Lycée Mermoz,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,660,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,13,Rue Okm 195,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,720,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,14,École Des Officiers,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,780,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,15,Arrêt De Bus,arrêts,3,oui,hebdomadaire,48,31,31,1,oui,840,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,16,Arrêt De Bus,arrêts,4,oui,hebdomadaire,48,31,31,1,oui,840,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,17,"Rue Okm 237, 168",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,900,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,18,"Rue Okm 60, 67",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,960,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,19,Poste De Sante,arrêts,1,oui,hebdomadaire,48,31,31,1,oui,1020,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,20,"Rue Okm 282, 222",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,1080,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,21,"Rue Okm 282, 222",arrêts,2,oui,hebdomadaire,48,31,31,1,oui,1140,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,22,"Rue Okm 272, 226",arrêts,1,oui,hebdomadaire,48,31,31,1,oui,1140,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,23,Arrêt De Bus,arrêts,5,oui,hebdomadaire,48,31,31,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,24,Arrêt De Bus,arrêts,6,oui,hebdomadaire,48,31,31,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,25,Arrêt De Bus,arrêts,7,oui,hebdomadaire,48,31,31,1,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,26,Arrêt De Bus,arrêts,8,oui,hebdomadaire,48,31,31,1,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:319/1,319,Aller,27,Arrêt De Bus,arrêts,9,oui,hebdomadaire,48,31,31,1,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,1,Arrêt De Bus,arrêts,1,oui,hebdomadaire,54,34,34,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,2,Arrêt De Bus,arrêts,2,oui,hebdomadaire,54,34,34,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,3,Arrêt De Bus,arrêts,3,oui,hebdomadaire,54,34,34,1,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,4,"Rue Okm 272, 160",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,120,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,5,"Rue Okm 272, 152",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,6,"Rue Okm 282, 222",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,7,Stade Municipal,arrêts,1,oui,hebdomadaire,54,34,34,1,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,8,École 6,arrêts,1,oui,hebdomadaire,54,34,34,1,oui,300,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,9,"Rue Okm 60, 67",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,10,"Rue Okm 237, 168",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,420,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,11,Arrêt De Bus,arrêts,4,oui,hebdomadaire,54,34,34,1,oui,480,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,12,Arrêt De Bus,arrêts,5,oui,hebdomadaire,54,34,34,1,oui,480,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,13,École De Officiers,arrêts,1,oui,hebdomadaire,54,34,34,1,oui,600,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,14,"Rue Okm 195, 9156",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,600,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,15,"Avenue Cheikh Anta Diop, 48",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,660,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,16,Quartier Geille,arrêts,1,oui,hebdomadaire,54,34,34,1,oui,720,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,17,"Rue Mz 198, 918",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,840,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,18,"Les Voies De I'Alternance, 155",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,960,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,19,"Rue Mz 55, 17",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,1020,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,20,"Rue Sc 95, 10570",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,60,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,21,"Rue Sc 89, 9747",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,180,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,22,Arrêt De Bus,arrêts,6,oui,hebdomadaire,54,34,34,1,oui,240,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,23,"Rue Lib 160, 5424",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,300,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,24,"Rue Dd 44, 5467",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,360,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,25,"Rue Dd 20, 5482",arrêts,1,oui,hebdomadaire,54,34,34,1,oui,420,oui,grille des rangs saisis,décompte,0
+ddd:319/2,319,Retour,26,Arrêt De Bus,arrêts,7,oui,hebdomadaire,54,34,34,1,oui,480,oui,grille des rangs saisis,décompte,0
 ddd:327/1,327,Aller,1,Terminus Keur Massar,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:327/1,327,Aller,2,Tolou Abdoulaye Wade,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
 ddd:327/1,327,Aller,3,Croisement Tivaouane Peulh,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,92
