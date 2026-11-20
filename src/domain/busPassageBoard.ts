@@ -20,7 +20,7 @@ interface RunProfile { slots: readonly number[]; offsetsMs: readonly number[] }
 export interface ScheduledClock { kind: 'timetable'; profiles: readonly RunProfile[] }
 export interface BusBoardDirection {
   label: string; from: string; to: string; points: readonly string[]; pointKind: PointKind
-  sourceHours?: SourceHours; clock: ModelClock | ScheduledClock | null; source: string; reason?: string
+  partialList?: boolean; sourceHours?: SourceHours; clock: ModelClock | ScheduledClock | null; source: string; reason?: string
 }
 export interface BusBoardLine { key: string; code: string; family: BusFamily; aliasOf?: string; directions: readonly BusBoardDirection[] }
 export const BUS_BOARD_MODEL = 'dakar-bus-board/v1'

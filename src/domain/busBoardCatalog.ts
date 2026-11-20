@@ -1,6 +1,7 @@
 /** Reconciles source sheets for the display, not for routing. A sheet carries
  * its own stops AND grid. Never match a timetable to another array by number. */
 import { DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES as official, DDD_OFFICIAL_ROUTE_SOURCE } from '../data/dddOfficialPublishedRoutes'
+import { DDD1_TABLE, DDD1_TO_LECLERC, DDD1_TOWARD_PARCELLES } from '../data/ddd1OperatorStops'
 import { DDD_319_OUTBOUND, DDD_319_PROFILES } from '../data/busBoardCallSheets'
 import { TATA_2020_ADDITIONS, TATA_RETURN_SECTORS, TATA_UNTIMED_STAGES, TATA_2020_SOURCE } from '../data/tataBoardReview'
 import { existingSheetHours, newSheetDirections } from './busSheetCatalog'
@@ -213,6 +214,11 @@ function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {
     const d = direction('ddd', c, sides[i], i ? [w.origin] : pub.stops, i ? 'départ seul' : 'repères', pub.sourceUrl, {
       week: publishedBounds(w.firstDeparture, w.lastDeparture), originBasis: `${w.sourceUrl} · bornes du terminus + cadence modèle`, dddPublished: !i })
     pair[i] = { ...d, from: w.origin, to: w.destination }
+  }
+  if (c === '1') for (const [i, points] of [DDD1_TO_LECLERC,DDD1_TOWARD_PARCELLES].entries()) {
+    pair.push({ label: i ? 'Retour · extrait opérateur' : 'Aller · arrêts opérateur', from: points[0], to: points.at(-1)!,
+      points, pointKind:'arrêts', source:DDD1_TABLE, clock:null, partialList:Boolean(i),
+      reason: i ? 'Extrait après Leclerc · terminus et heures non renseignés' : 'Liste de l’opérateur · aucune heure par arrêt' })
   }
   if (c === '319') {
     const ref = mobility.find(f => f.network === 'ddd' && f.code === '319')!, go = DDD_ESTIMATED_LINE_SCHEDULES.find(f => f.line === c)!, back = ref.inboundSchedule!

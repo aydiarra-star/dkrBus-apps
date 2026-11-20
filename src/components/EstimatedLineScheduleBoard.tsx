@@ -51,7 +51,7 @@ function Direction({ d, sign, estimates, now, name, open, toggle, id }: {
                 const i = s.ranks.indexOf(index+1)
                 return i >= 0 && <small key={s.label}>{s.label} : {s.times[i]}</small>
               })}</span>
-            <Passage now={now} passage={row.passage} caption={row.kind === 'model' && !terminal ? 'Estimé' : terminal ? d.pointKind === 'secteurs' ? 'Dernier secteur' : row.kind === 'model' ? 'Arrivée au terminus · estimée' : 'Arrivée au terminus' : undefined} />
+            <Passage now={now} passage={row.passage} caption={d.partialList && terminal ? 'Dernier arrêt documenté' : row.kind === 'model' && !terminal ? 'Estimé' : terminal ? d.pointKind === 'secteurs' ? 'Dernier secteur' : row.kind === 'model' ? 'Arrivée au terminus · estimée' : 'Arrivée au terminus' : undefined} />
           </li>
         })}</ol>
       </> : <span className="station-board-itinerary-pending">{d.reason}</span>}

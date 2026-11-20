@@ -10,7 +10,7 @@ Modèle `dakar-bus-board/v1`. [Hypothèses, sources et reproduction](modeles-pas
 
 Une liste de repères peut décrire des rues ou des secteurs historiques, et non des arrêts de montée. « Deux listes » exige des rangs au-delà de l’origine dans chacun des deux sens documentaires. Ils peuvent relever d’éditions différentes ; cela ne certifie ni un aller-retour actuel ni l’identité physique des terminus. Une boucle n’est comptée qu’une fois. Un même numéro dans deux familles ne constitue pas deux services physiques.
 
-Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `e54aa6bfe3995b36b599050aafb1ddb1b9d8f8a111f2471ceb92992a00cd43d0`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
+Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `c211eee8d4ad05709d244cf1f5d963062b39a73ea7585bba7a7c75dfa8aae449`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
 
 ## DDD
 
@@ -18,6 +18,8 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 |---|---|---|---|---|---|
 | 1 | [Aller · Parcelles Assainies → Place Leclerc](https://demdikk.sn/reseau-urbain-dakar/) | 22 repères | 05:30–20:30 · [Grille du sens](https://demdikk.sn/) · bornes du terminus + cadence modèle | 59.6 min · longueur du corridor · vitesse modèle · rang | 1: 13 ; 12: 4 ; 22: 8 |
 | 1 | [Retour · Place Leclerc → Parcelles Assainies](https://demdikk.sn/reseau-urbain-dakar/) | 1 départ seul | 06:30–21:00 · [Grille du sens](https://demdikk.sn/) · bornes du terminus + cadence modèle | origine seule | 1: 13 |
+| 1 | [Aller · arrêts opérateur · T. Parcelles Assainies → T. Leclerc](https://demdikk.sn/chatbot-arrets/) | — | — | Liste de l’opérateur · aucune heure par arrêt | — |
+| 1 | [Retour · extrait opérateur · mole 1 → Sapeur Pompier PA](https://demdikk.sn/chatbot-arrets/) | — | — | Extrait après Leclerc · terminus et heures non renseignés | — |
 | 2 | [Aller · Terminus Daroukhane → Terminus Leclerc](https://demdikk.sn/reseau-urbain-dakar/) | 35 repères | 05:30–20:57 · DDD · modèle 8/13 | 62.8 min · longueur médiane de référence · vitesse modèle · rang | 1: 13 ; 18: 4 ; 35: 3 |
 | 2 | [Retour · Place Leclerc → Daroukhane](https://demdikk.sn/info-voyageurs/) | 1 départ seul | 05:30–20:57 · DDD · modèle 8/13 | origine seule | 1: 13 |
 | 4 | [Aller · Terminus Liberté 5 (Dieuppeul) → Terminus Leclerc](https://demdikk.sn/reseau-urbain-dakar/) | 27 repères | 05:30–20:57 · DDD · modèle 8/13 | 40.7 min · longueur du corridor · vitesse modèle · rang | 1: 13 ; 14: 1 ; 27: 5 |

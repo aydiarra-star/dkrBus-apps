@@ -8,12 +8,12 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 
 | Code | Ordre publié | Aller | Retour | Autres pièces | Portions de carte |
 |---|---|---|---|---|---|
-| 1 | 22 | 22 | — | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 2705 m vers Leclerc ; 3934 m vers Leclerc ; 911 m vers Sahm (depuis Leclerc) |
+| 1 | 22 | 22 / 47 | 43 | catalogue, ArcGIS, repères, horaires de référence, revue de sources | 2705 m vers Leclerc ; 3934 m vers Leclerc ; 911 m vers Sahm (depuis Leclerc) |
 | 2 | 35 | 35 | — | catalogue, ArcGIS | — |
 | 4 | 26 / 27 | 27 | — | catalogue, ArcGIS, repères, revue de sources | 787 m vers Leclerc ; 1790 m vers Liberté 5 |
 | 5 | 15 | 15 | — | catalogue, ArcGIS | — |
 | 6 | 24 / 25 | 24 | — | catalogue, ArcGIS, horaires de référence, revue de sources | — |
-| 7 | 21 | 21 | — | catalogue, ArcGIS, revue de sources | 2334 m vers Palais (portion UCAD–Stade) ; 2422 m vers Ouakam |
+| 7 | 21 | 21 / 27 | 29 | catalogue, ArcGIS, revue de sources | 2334 m vers Palais (portion UCAD–Stade) ; 2422 m vers Ouakam |
 | 8 | 28 | 28 | — | catalogue, ArcGIS | 2064 m vers Palais 2 |
 | 9 | 24 | 24 | — | catalogue, ArcGIS, revue de sources | — |
 | 10 | 29 | 29 | — | catalogue, ArcGIS, revue de sources | — |
@@ -84,7 +84,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 39 | 15 | — | — | catalogue, descriptif, horaires de référence | — |
 | 40 | 11 | — | — | catalogue, descriptif | 938 m vers Petersen ; 941 m vers Mbao |
 | 41 | 21 | — | — | catalogue, descriptif, horaires de référence | — |
-| 42 | 14 | — | — | catalogue, descriptif, repères, horaires de référence | — |
+| 42 | 14 | 70 | 68 | catalogue, descriptif, repères, horaires de référence | — |
 | 43 | 15 | — | — | catalogue, descriptif, horaires de référence | — |
 | 44 | 13 | — | — | catalogue, descriptif | — |
 | 45 | 34 | — | — | catalogue, descriptif | 1179 m vers Keur Massar |
@@ -206,6 +206,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 84 | 8 | — | — | catalogue | — |
 
 Hors attribution :
+- ddd1OperatorStops (1) : unspecified, 26 occurrences.
 - aftu-85-directions.json (85-unverified) : outbound, 89 occurrences.
 - aftu-85-directions.json (85-unverified) : inbound, 95 occurrences.
 - corridors : as-published, 4 occurrences.

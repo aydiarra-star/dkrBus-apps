@@ -34,6 +34,12 @@ describe('time on a bus sign, not a trip planner', () => {
     expect(get(out,out.points.length-1,'20:30').state).toBe('active')
     expect(get(back,1,'06:35').state).toBe('unknown')
   })
+  it('preserves the operator table after Leclerc as a partial list, not a made-up timed return', () => {
+    const [, ,go,back]=dirs('ddd','1'); expect([go.points.length,back.points.length]).toEqual([47,43])
+    expect([go.points[43],back.points[3]]).toEqual(['CBAO (Avenue Ponty)','Poste (Avenue Ponty)'])
+    expect(back.partialList).toBe(true); expect(back.points.at(-1)).toBe('Sapeur Pompier PA'); expect(back.points).not.toContain('Ront point case ba')
+    for(const d of [go,back]) expect(get(d,0,'19:00')).toEqual({state:'unknown'})
+  })
   it('keeps variable Maristes running profiles attached to the origin run and preserves the Fann variant', () => {
     const [fann, , out, back] = dirs('ddd','12'); expect(fann.points).toHaveLength(20)
     expect(fann.points.join(' ')).toMatch(/Hôpital Fann/); expect(clockOf(fann).peakOffsetsMs).toBeUndefined()

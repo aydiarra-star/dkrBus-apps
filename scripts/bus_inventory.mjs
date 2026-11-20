@@ -29,6 +29,15 @@ export async function busInventory(load) {
     }
     if (r.inboundWaypoints?.length) add(r.network, r.code, record(file, 'directional-sheet', 'inbound', r.inboundWaypoints, { url: r.inboundDetailSourceUrl, note: r.note }))
   }
+  for (const file of (await readdir(new URL('../src/data/bus-sheets/',import.meta.url))).filter(f=>f.endsWith('.json')).sort()) {
+    const src = 'bus-sheets/'+file, r=await json(src)
+    add(r.family,r.code,record(src,'directional-sheet',r.side,r.points,{termini:[r.from,r.to],url:r.source,
+      timetable:r.timetable,weekdayRanks:r.weekdays.ranks,nextUntranscribedOrigin:r.weekdays.nextUntranscribedOrigin}))
+  }
+  const op = await data('ddd1OperatorStops')
+  for (const [i,labels] of [op.DDD1_TO_LECLERC,op.DDD1_TOWARD_PARCELLES].entries())
+    add('ddd','1',record('ddd1OperatorStops','directional-sheet',sides[i],labels,{url:op.DDD1_TABLE,partialList:Boolean(i)}))
+  unassigned.push({network:'ddd',sourceCode:'1', ...record('ddd1OperatorStops','source-order','unspecified',op.DDD1_UNASSIGNED,{url:op.DDD1_TABLE,reason:'Branche et sens de la fin du tableau non attribués'})})
   const publishedDdd = (await data('dddPublishedRoutes')).DDD_PUBLISHED_ROUTES
   const circuits = new Set(publishedDdd.filter(r => r.kind === 'published_circuit').map(r => r.line))
   for (const r of publishedDdd)
