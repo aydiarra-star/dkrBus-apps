@@ -49,3 +49,15 @@ it('57 : la grille AFTU ne passe pas à la ligne TATA de même numéro ni à un 
     expect(compileSign(d,day).at(n,at(t)-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:at(t)}})
   }
 })
+
+it('57 vers Liberté 6 : à 19 h et jusqu’au dernier rang du week-end, sans prolonger après la fin', () => {
+  const go = BUS_BOARD_LINES.aftu.find(l => l.code === '57')!.directions[0]
+  const sat = Date.parse('2026-11-21T00:00Z')
+  for (const [date, hh, end] of [[day,'19:06','21:58'],[sat,'19:11','21:53']] as const) {
+    const instant = (t: string) => date + at(t) - day
+    const board = compileSign(go,date)
+    expect(board.at(56,instant('19:00')).passage.at).toBe(instant(hh))
+    expect(board.at(56,instant(end)-1000).passage.minutes).toBe(1)
+    expect(board.at(56,instant(end)).passage.state).toBe('finished')
+  }
+})
