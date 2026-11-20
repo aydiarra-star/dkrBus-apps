@@ -72,7 +72,7 @@ returns timestamptz
 language plpgsql
 security definer
 set search_path = pg_catalog, public
-as $
+as $$
 declare
   protected_until timestamptz;
 begin
@@ -92,7 +92,7 @@ begin
 
   return protected_until;
 end;
-$;
+$$;
 
 revoke all on function public.protect_dakar_gtfs_upload_session_for_finalize(uuid, integer)
   from public, anon, authenticated, service_role;
