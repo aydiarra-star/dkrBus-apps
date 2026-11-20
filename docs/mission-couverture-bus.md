@@ -8,18 +8,20 @@
 
 Reproduire : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `python -m scripts.audit_bus_gaps --boards /tmp/panneaux --output /tmp/lacunes`. Pas de recherche de « meilleur candidat » sur le seul numéro. Les 1 458 repères/secteurs TATA restent consultables dans [tata.csv](panneaux/tata.csv), sans les promouvoir en arrêts de montée.
 
+**Mission 3 : [règles de réutilisation et décisions par source](reutilisation-sources-bus.md).** Les bornes ci-dessous localisent les lacunes ; ce ne sont pas des consignes de collecte chez un agrégateur.
+
 ## Résultat sur le même catalogue
 
 **1 792 / 4 906 rangs décomptables en semaine (36,53 %), contre 992 (+800).** À 19 h le jeudi : 374 en DDD, 487 en AFTU, aucun en TATA, soit 861 au lieu de 545. Le seuil est dépassé ; les journées ne sont pas toutes renseignées. Une minute sur une fiche secondaire n’est pas un passage de véhicule observé.
 
-| Fiche (sens dans l’ordre du tableau) | Rangs | Colonnes de semaine | Colonnes samedi / dimanche | Ce qui reste à transcrire |
+| Fiche (sens dans l’ordre du tableau) | Rangs | Colonnes de semaine | Colonnes samedi / dimanche | Limite de la pièce locale |
 |---|---:|---:|---|---|
 | DDD 16A Malika → Gare Palais / inverse | 65 / 64 | 69 / 60 | 50 / 50 dans chaque sens | Les deux tableaux de chaque sens sont saisis, pas ceux d’une autre variante « Palais 1 ». |
-| DDD 6 vers Gare Palais / vers Terminus 6 - 79 | 69 / 71 | 10 / 10 | non saisi | Reprendre aux origines 04:50 / 05:40 ; lire séparément samedi et dimanche. |
-| DDD 23 vers Gare Palais / vers les Parcelles | 57 / 56 | 13 / 13 | non saisi | Reprendre à 06:05 / 06:10, puis les tableaux de fin de semaine. |
+| DDD 6 vers Gare Palais / vers Terminus 6 - 79 | 69 / 71 | 10 / 10 | non saisi | Lacune dès les origines 04:50 / 05:40 ; calendriers du week-end manquants. |
+| DDD 23 vers Gare Palais / vers les Parcelles | 57 / 56 | 13 / 13 | non saisi | Lacune dès 06:05 / 06:10 ; pas de tableau de fin de semaine. |
 | AFTU 57 vers Liberté 6 / vers Rufisque | 56 / 57 | 99 / 75 | 64 / 61 dans chacun des deux jours | Les deux tableaux de chaque sens sont saisis. Aucun report sur la TATA 57. |
-| AFTU 30 vers Colobane / depuis Colobane | 77 / 74 | 9 / 67 | non saisi vers Colobane ; 37 depuis Colobane | Vers Colobane, reprendre à 07:03. **Depuis Colobane**, les deux tableaux sont saisis. Le samedi, la colonne de 07:13 passe à 07:22 et 07:23 aux deux rangs `Allees Khalifa Ababacar Sy, 2750` ; dernier appel à 22:19. « Terminus Guédiawaye » est le rang 56, **pas** le dernier de cette fiche. |
-| AFTU 66 vers Gorom / vers Yoff | 77 / 77 | 10 / 13 | non saisi | Reprendre à 08:10 / 08:13 ; ne pas confondre les deux fiches d’arrêt Gare De Rufisque. |
+| AFTU 30 vers Colobane / depuis Colobane | 77 / 74 | 9 / 67 | non saisi vers Colobane ; 37 depuis Colobane | Vers Colobane, lacune dès 07:03. **Depuis Colobane**, les deux tableaux sont saisis. Le samedi, la colonne de 07:13 passe à 07:22 et 07:23 aux deux rangs `Allees Khalifa Ababacar Sy, 2750` ; dernier appel à 22:19. « Terminus Guédiawaye » est le rang 56, **pas** le dernier de cette fiche. |
+| AFTU 66 vers Gorom / vers Yoff | 77 / 77 | 10 / 13 | non saisi | Lacune dès 08:10 / 08:13 ; ne pas confondre les deux fiches d’arrêt Gare De Rufisque. |
 
 Les quatre colonnes `portée_*` du [CSV des lacunes](lacunes/lacunes-par-sens.csv) donnent, pour **chaque variante**, les rangs et colonnes saisis et l’origine où s’interrompt une transcription. « Grille non renseignée » ne signifie pas « sans service sur la fiche » (exemple : DDD 6 le dimanche, contre DDD 311). En comptant les deux sens uniquement quand **chaque rang et chaque colonne de chaque jour de service** sont saisis, on trouve DDD **16A, 311, 319** et AFTU **57, 58, 73 Lac Rose**, dans les variantes indiquées par les sources. Cela ne certifie ni l’exhaustivité de l’offre réelle ni le service à une date donnée. Les autres séries utilisables sont souvent partielles en heures ou en rangs.
 

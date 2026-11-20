@@ -36,6 +36,11 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
   const origin = sign.at(1,now), hours = d.sourceHours
   const basis = scheduled ? 'Horaire du jour' : hours?.weekday ? 'Fiche hebdomadaire' : model ? 'Passages estimés' : hours?.samples ? 'Heures de référence · jour non confirmé' : d.reason ?? 'Heures non renseignées'
   const grid = sign.reading?.today
+  // Use only a timetable already matched to this sequence, or the exact
+  // directional page from its source file. Never construct URLs by number.
+  const external = !scheduled && d.pointKind === 'arrêts' && d.points.length
+    ? (hours?.weekday ? hours.source : d.directionPage) : undefined
+  const readingUrl = external && external.startsWith('https://') ? external : undefined
   const heading = `${d.label} · ${d.from} → ${d.to}`
   return <div className="station-board-direction-detail">
     <button type="button" className={`station-board-row station-board-direction-row station-board-direction-toggle${open ? ' is-expanded' : ''}`}
@@ -50,10 +55,12 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
           <small>{basis}</small></div>
         {hours?.weekday && grid?.limit !== Infinity && grid?.known && <small>Début de grille uniquement</small>}
         {hours?.friday && <small>Grilles distinctes : lundi à jeudi, vendredi, samedi et dimanche. Les derniers passages peuvent tomber après minuit.</small>}
+        {!scheduled && !readingUrl && <small className="station-board-itinerary-pending">Pas de fiche horaire externe vérifiée pour ce sens.</small>}
         <BusSurveyNote name={name} d={d} />
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1
           const row = sign.at(index+1,now)
+          const missing = row.kind === 'model' || row.passage.state === 'unknown' || row.passage.state === 'calendar'
           const printed = hours?.printedLabels?.[index+1]
           return <li className="station-board-row station-board-row-static" key={index}>
             <span className="station-board-stop"><small className="bus-rank">{index + 1}.</small> <strong>{printed ?? point}</strong>
@@ -61,13 +68,16 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
               {hours?.samples?.map(s => {
                 const i = s.ranks.indexOf(index+1)
                 return i >= 0 && <small key={s.label}>{s.label} : {s.times[i]}</small>
-              })}</span>
+              })}
+              {missing && readingUrl && <small>Heure non renseignée ici · <a href={readingUrl} target="_blank" rel="noreferrer"
+                aria-label={`Consulter la fiche externe de ${name} vers ${d.to}, rang ${index+1} (nouvel onglet)`}>Voir la fiche du sens</a></small>}
+            </span>
             <Passage now={now} passage={row.passage} model={row.kind === 'model'} caption={d.partialList && terminal ? 'Dernier arrêt documenté' : terminal ? d.pointKind === 'secteurs' ? (row.kind === 'model' ? 'Dernier secteur · estimé' : 'Dernier secteur') : row.kind === 'model' ? 'Arrivée au terminus · estimée' : 'Arrivée au terminus' : undefined} />
           </li>
         })}</ol>
-      </> : <span className="station-board-itinerary-pending">{d.reason}</span>}
+      </> : <span className="station-board-itinerary-pending">{d.reason}. Pas de fiche horaire externe vérifiée pour ce sens.</span>}
       {d.indexSource && <a className="station-board-itinerary-source" href={d.indexSource} target="_blank" rel="noreferrer">Index de la ligne</a>}
-      {hours?.source.startsWith('https://') && hours.source !== d.source && <a className="station-board-itinerary-source" href={hours.source} target="_blank" rel="noreferrer">Tableau horaire du sens</a>}
+      {hours?.source.startsWith('https://') && hours.source !== d.source && <a className="station-board-itinerary-source" href={hours.source} target="_blank" rel="noreferrer">{hours.weekday ? 'Tableau horaire du sens' : 'Source des heures de référence'}</a>}
       {/^https:\/\//.test(d.source) && <a className="station-board-itinerary-source" href={d.source} target="_blank" rel="noreferrer">Fiche du parcours</a>}
     </div>}
   </div>

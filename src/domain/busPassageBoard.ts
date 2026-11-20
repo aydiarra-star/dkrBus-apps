@@ -20,6 +20,8 @@ interface RunProfile { slots: readonly number[]; offsetsMs: readonly number[] }
 export interface ScheduledClock { kind: 'timetable'; profiles: readonly RunProfile[] }
 export interface BusBoardDirection {
   label: string; from: string; to: string; points: readonly string[]; pointKind: PointKind
+  /** Reviewed page for this ordered direction (not a line index or a data feed). */
+  directionPage?: string
   indexSource?: string
   partialList?: boolean; sourceHours?: SourceHours; clock: ModelClock | ScheduledClock | null; source: string; reason?: string
 }

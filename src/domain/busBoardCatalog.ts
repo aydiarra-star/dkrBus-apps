@@ -88,7 +88,7 @@ function aftuDirections(r: PublicBusLineReference): BusBoardDirection[] {
       const destination = i === 0 ? s.outboundDestination ?? to : s.inboundDestination ?? from
       if (!grid || grid.line !== c || !pts?.length || grid.sourceUrl !== source || !origin || !destination) return pair[i]
       const d = { ...direction('aftu', c, side, pts, 'arrêts', source, { week: sheetWeek(grid), originBasis: source, duration: i === 0 ? s.outboundDurationMinutes : s.inboundDurationMinutes }),
-        from: origin, to: destination }
+        from: origin, to: destination, directionPage: source }
       return c === '73' ? thiaroyeCheckpoints(d) : d
     })
     return c === '58' ? [...pair, ...dirs] : dirs
@@ -211,7 +211,7 @@ function dddDirections(r: PublicBusLineReference): BusBoardDirection[] {
       week: c === '218' ? { ...week, sunday: [] } : week, originBasis: g.sourceUrl,
       ...(sheet && { duration: sheet.durationFromPalais, offsetBasis:`Durée Moovit du sens · ${moovit}-0 · interpolation par rang` }),
     })
-    pair.push({ ...d, label: `${d.label} · fiche détaillée` })
+    pair.push({ ...d, directionPage:g.sourceUrl, label: `${d.label} · fiche détaillée` })
   }
   if (c === '23') for (const [i,g] of DDD23_DIRECTIONS.entries()) {
     const source = `https://moovitapp.com/index/fr/transport_en_commun-line-23-Dakar-5996-1618037-18051449-${i}`
