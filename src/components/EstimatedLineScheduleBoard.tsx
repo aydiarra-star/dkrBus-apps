@@ -1,5 +1,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import tataStops from '../data/tataNamedStops.json'
+import { DDD_TERMINUS_NOTICES } from '../data/dddTerminusNotices'
+import { DddVariantNote, AftuReferenceNote } from './BusTerminusNotes'
 import { BusSurveyNote } from './BusSurveyNote'
 import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { datedBusBoards, type BusBoardDirection, type BusFamily, type BusPassage } from '../domain/busPassageBoard'
@@ -57,6 +59,7 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
         {hours?.friday && <small>Grilles distinctes : lundi à jeudi, vendredi, samedi et dimanche. Les derniers passages peuvent tomber après minuit.</small>}
         {!scheduled && !readingUrl && <small className="station-board-itinerary-pending">Pas de fiche horaire externe vérifiée pour ce sens.</small>}
         <BusSurveyNote name={name} d={d} />
+        <AftuReferenceNote name={name} d={d} />
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1
           const row = sign.at(index+1,now)
@@ -124,7 +127,7 @@ export function BusLineScheduleBoard({ network, published, now }: BoardProps & {
     const q = sheetCode ? fold(sheetCode) : requested
     const exactCode = sheetCode || groups.flat().some(l => code(l.code) === id) || /^\d+[ab]?$/.test(id)
     return groups.map(lines => lines.filter(l => !l.aliasOf && (!q || (exactCode ? code(l.code) === (sheetCode ? code(sheetCode) : id)
-      : fold(`${family} ${l.code}`).includes(q) || (family === 'tata' && lines === groups[1] && tataStops.mentions.some(m => m.lines.includes(l.code) && fold(m.stop).includes(q))) || l.directions.some(d => [d.from, d.to, ...d.points].some(p => fold(p).includes(q)))))))
+      : fold(`${family} ${l.code}`).includes(q) || (family === 'ddd' && lines === groups[1] && DDD_TERMINUS_NOTICES.some(n => n.code === l.code && n.separateVariant && fold(n.separateVariant.name).includes(q))) || (family === 'tata' && lines === groups[1] && tataStops.mentions.some(m => m.lines.includes(l.code) && fold(m.stop).includes(q))) || l.directions.some(d => [d.from, d.to, ...d.points].some(p => fold(p).includes(q)))))))
   }, [groups, family, filter])
   const name = family.toUpperCase()
   return <section className="station-board bus-board" aria-label={`Affichage des lignes ${network === 'ddd' ? 'DDD' : 'AFTU / TATA'}`}>
@@ -143,6 +146,7 @@ export function BusLineScheduleBoard({ network, published, now }: BoardProps & {
           return <BusDirectionPanel key={key} d={d} sign={line.signs[i]} estimates={estimates} now={now} name={groupIndex === 0 ? line.code : `${name} ${line.code}`} open={opened === key}
             toggle={() => setOpened(opened === key ? '' : key)} id={`bus-${family}-${groupIndex}-${l}-${i}`} />
         })}
+        {groupIndex === 1 && family === 'ddd' && <DddVariantNote code={line.code} />}
         {groupIndex === 1 && family === 'tata' && <TataStopMentions code={line.code} />}
       </li>)}</ul>
     </Fragment> : null)}

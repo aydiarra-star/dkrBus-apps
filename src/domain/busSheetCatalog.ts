@@ -8,6 +8,7 @@ import { DDD311_PRINTED } from '../data/ddd311BoardSheets'
 import { DDD12_SHEETS } from '../data/ddd12DirectionSheets'
 import { DDD16B_CHECKPOINTS } from '../data/dddSecondaryBoardSheets'
 import { DDD_319_PROFILES } from '../data/busBoardCallSheets'
+import { DDD_TERMINUS_NOTICES } from '../data/dddTerminusNotices'
 import { DDD_PUBLISHED_DEPARTURE_WINDOWS } from '../data/dddPublishedDepartureWindows'
 import { maristesSheets } from '../data/maristesTimetables'
 import { sequenceCheck } from './busBoardModel'
@@ -77,6 +78,21 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
   if (family !== 'ddd') return
   if (code === '319' && m?.originBasis === d.source) return {file:'src/data/busBoardCallSheets.ts',source:d.source,samples:[sample(idx?'06:50':'06:55',DDD_319_PROFILES[idx])]}
   if (code === '16B' && m?.peakOffsetsMs && d.source.endsWith('18051473-1')) return {file:'src/data/dddSecondaryBoardSheets.ts',source:d.source.replace('line-','time-').replace(/-1$/,'-4256267-0'),samples:malikaSamples()}
+  // Only the origin of the nominated operator panel. The secondary 218
+  // from Rufisque and the 227 to École Keur Massar are different sheets.
+  const outboundOrigin = d.label === 'Aller' && d.pointKind === 'repères' &&
+    d.source === 'https://demdikk.sn/reseau-urbain-dakar/' && d.points.at(-1) === d.to
+  const inboundOrigin = d.label === 'Retour' && d.pointKind === 'départ seul' &&
+    d.source === 'https://demdikk.sn/info-voyageurs/' && d.points.length === 1
+  if ((outboundOrigin || inboundOrigin) && d.points[0] === d.from) {
+    const notice = DDD_TERMINUS_NOTICES.find(n => n.code === code && !n.separateVariant)
+    const fact = notice?.facts.find(f => f.from === d.from && f.to === d.to)
+    if (notice && fact) {
+      const labels = notice.kind === 'bounds' ? ['Premier départ annoncé','Dernier départ annoncé'] : ['Départ du matin annoncé','Départ du soir annoncé']
+      return {file:'src/data/dddTerminusNotices.ts', source:notice.url, samples:[fact.morning, fact.evening].map((time,i) =>
+        ({label:`${labels[i]} (${notice.source}, ${notice.publication})`, ranks:[1], times:[time]}))}
+    }
+  }
   if (code === '1' || code === 'TAF_TAF') {
     const w = DDD_PUBLISHED_DEPARTURE_WINDOWS.find(w=>w.service === (code==='1'?'Ligne 1':'TAF TAF') && w.origin===d.from && w.destination===d.to)
     if (w) return {file:'src/data/dddPublishedDepartureWindows.ts',source:w.sourceUrl,samples:[{label:'Premier départ publié',ranks:[1],times:[w.firstDeparture]},{label:'Dernier départ publié',ranks:[1],times:[w.lastDeparture]}]}

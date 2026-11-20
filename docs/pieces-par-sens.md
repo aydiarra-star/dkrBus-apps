@@ -10,7 +10,7 @@ Chaque rubrique sépare descente, montée et droit de passage. Si les portes son
 
 ### Descendre : Dépôt Thiaroye · descente de la 218 depuis Aéroport LSS → monter : Poste Thiaroye · montée dans la 73 vers Lac Rose
 
-Départ marqué de la 73 à 1,7 m du poteau 217/218. Les deux dessins quittent le dépôt. Ni la descente datée de la 218 depuis Aéroport LSS, ni le passage jusqu’à la 73 ne sont confirmés.
+Départ marqué de la 73 à 1,7 m du poteau 217/218. Les deux dessins quittent le dépôt. Les bornes de départ à Aéroport LSS (07:00 / 20:30, annonce DDD du 25 juin 2025) ne donnent pas l’arrivée à Thiaroye. Ni la descente datée de la 218 depuis Aéroport LSS, ni le passage jusqu’à la 73 ne sont confirmés.
 
 - **DDD → AFTU** · `survey:thiaroye:218:arrivee` → `survey:thiaroye:73:depart` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:thiaroye:218:arrivee, pour la ligne et le sens concernés.
@@ -21,7 +21,7 @@ Départ marqué de la 73 à 1,7 m du poteau 217/218. Les deux dessins quittent l
 
 ### Descendre : Dépôt Thiaroye · descente de la 73 depuis Lac Rose → monter : Dépôt Thiaroye · montée dans la 218 vers Aéroport LSS
 
-Depuis Lac Rose, A_586 était l’avant-dernier appel ; le terminus A_266 était à 99,9 m du poteau. Près de cet ancien terminus, une autre voie de service et une chaussée à sens unique. La 218 est dessinée depuis le point 539 à 29,7 m du poteau. Ni marche autorisée ni départ daté au dépôt établis.
+Depuis Lac Rose, A_586 était l’avant-dernier appel ; le terminus A_266 était à 99,9 m du poteau. Près de cet ancien terminus, une autre voie de service et une chaussée à sens unique. La 218 est dessinée depuis le point 539 à 29,7 m du poteau. 05:30 et 19:30 sont des bornes annoncées à Thiaroye en 2025, pas une course datée après la descente de la 73. Ni marche autorisée ni départ daté au dépôt établis.
 
 - **AFTU → DDD** · `survey:thiaroye:73:arrivee` → `survey:thiaroye:218:depart` · `BLOCKED_BEFORE_TIMETABLE`.
   - Identifier et sourcer le quai de descente de survey:thiaroye:73:arrivee, pour la ligne et le sens concernés.
@@ -30,7 +30,7 @@ Depuis Lac Rose, A_586 était l’avant-dernier appel ; le terminus A_266 était
   - Valider une desserte orientée permettant la montée à survey:thiaroye:218:depart.
   - Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.
 
-Sources : [1](../docs/terminus-correspondances.md) · [2](../data/bus-review/terminal-occurrences.json) · [3](../data/bus-review/terminus-quays-2026-11-19.json) · [4](../docs/depot-thiaroye.md) · [5](../data/bus-review/thiaroye-site.json) · [6](https://www.openstreetmap.org/node/4419421889) · [7](https://aftu-senegal.org/map/dakar-urbain-ligne-73/) · [8](https://demdikk.sn/reseau-urbain-dakar/) · [9](https://x.com/dakardemdikk1/status/1937979929007702515).
+Sources : [1](../docs/terminus-correspondances.md) · [2](../data/bus-review/terminal-occurrences.json) · [3](../data/bus-review/terminus-quays-2026-11-19.json) · [4](../docs/depot-thiaroye.md) · [5](../data/bus-review/thiaroye-site.json) · [6](https://www.openstreetmap.org/node/4419421889) · [7](https://aftu-senegal.org/map/dakar-urbain-ligne-73/) · [8](https://demdikk.sn/reseau-urbain-dakar/) · [9](https://x.com/dakardemdikk1/status/1937979929007702515) · [10](https://x.com/dakardemdikk1/status/1937979936272162819).
 
 ## thiaroye-218-73-niague
 

@@ -20,7 +20,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| DDD | 23507 | 11312 | 9608 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
+| DDD | 23507 | 11312 | 9608 | 1872 | 262 | 0 | 0 | 145608 | 86508 |
 | AFTU | 38429 | 21142 | 21142 | 0 | 91 | 0 | 0 | 253767 | 186981 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
@@ -56,8 +56,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:7/2 | Retour | Palais 2 → Ouakam | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:7/3 | Aller · fiche hebdomadaire | Ouakam → Gare Palais | 27 arrêts | 27 | 27 | 0 | liste de la fiche |
 | ddd:7/4 | Retour · fiche hebdomadaire | Gare Palais → Ouakam | 29 arrêts | 29 | 29 | 0 | liste de la fiche |
-| ddd:8/1 | Aller | Terminus Aéroport LSS → Terminus Palais 2 | 28 repères | 0 | 0 | 28 | repères / secteurs |
-| ddd:8/2 | Retour | Palais 2 → Aéroport LSS | 1 départ seul | 0 | 0 | 1 | origine seule |
+| ddd:8/1 | Aller | Terminus Aéroport LSS → Terminus Palais 2 | 28 repères | 1 | 0 | 28 | repères / secteurs |
+| ddd:8/2 | Retour | Palais 2 → Aéroport LSS | 1 départ seul | 1 | 0 | 1 | origine seule |
 | ddd:9/1 | Aller | Terminus Liberté 6 → Terminus Palais 2 | 24 repères | 0 | 0 | 24 | repères / secteurs |
 | ddd:9/2 | Retour | Palais 2 → Liberté 6 | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:10/1 | Aller | Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | 29 repères | 0 | 0 | 29 | repères / secteurs |
@@ -99,8 +99,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:217/1 | Aller | Thiaroye → Ouakam | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:217/2 | Retour | Ouakam → Thiaroye | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:217/3 | Aller · fiche détaillée | Terminus Rufisque → Stade Municipal | 126 arrêts | 0 | 0 | 126 | liste de la fiche |
-| ddd:218/1 | Aller | Dépôt Thiaroye → Terminus Aéroport LSS | 15 repères | 0 | 0 | 15 | repères / secteurs |
-| ddd:218/2 | Retour | Aéroport LSS → Thiaroye | 1 départ seul | 0 | 0 | 1 | origine seule |
+| ddd:218/1 | Aller | Dépôt Thiaroye → Terminus Aéroport LSS | 15 repères | 1 | 0 | 15 | repères / secteurs |
+| ddd:218/2 | Retour | Aéroport LSS → Thiaroye | 1 départ seul | 1 | 0 | 1 | origine seule |
 | ddd:218/3 | Aller · fiche détaillée | Terminus Rufisque → Aeroport | 69 arrêts | 0 | 0 | 69 | liste de la fiche |
 | ddd:219/1 | Aller | Daroukhane → Terminus Ouakam | 19 repères | 0 | 0 | 19 | repères / secteurs |
 | ddd:219/2 | Retour | Ouakam → Daroukhane | 1 départ seul | 0 | 0 | 1 | origine seule |
@@ -109,8 +109,8 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 | ddd:220/2 | Retour | Guédiawaye → Rufisque | 1 départ seul | 0 | 0 | 1 | origine seule |
 | ddd:221/1 | Aller | Terminus Gadaye (Filaos) → Terminus Almadies | 15 repères | 0 | 0 | 15 | repères / secteurs |
 | ddd:221/2 | Retour | Almadies → Gadaye | 1 départ seul | 0 | 0 | 1 | origine seule |
-| ddd:227/1 | Aller | Terminus Keur Massar → Terminus Parcelles | 16 repères | 0 | 0 | 16 | repères / secteurs |
-| ddd:227/2 | Retour | Parcelles Assainies → Keur Massar | 1 départ seul | 0 | 0 | 1 | origine seule |
+| ddd:227/1 | Aller | Terminus Keur Massar → Terminus Parcelles | 16 repères | 1 | 0 | 16 | repères / secteurs |
+| ddd:227/2 | Retour | Parcelles Assainies → Keur Massar | 1 départ seul | 1 | 0 | 1 | origine seule |
 | ddd:227/3 | Retour · fiche détaillée | Terminus Parcelles - Assainies → École Keur Massar | 69 arrêts | 0 | 0 | 69 | liste de la fiche |
 | ddd:228/1 | Aller | Terminus Rufisque → Diamniadio Yenne | 4 repères | 0 | 0 | 4 | repères / secteurs |
 | ddd:228/2 | Retour | Yenne → Rufisque | 1 départ seul | 0 | 0 | 1 | origine seule |
