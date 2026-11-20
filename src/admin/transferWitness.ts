@@ -5,8 +5,14 @@ import type { Network, Pattern, Place, Ride } from '../routing/model'
 import { searchReviewedPair } from '../routing/search'
 import type { PlatformObservation, TransferAssessment, TransferProof } from '../routing/transferReview'
 
-export function transferWitness(net: Network, assessment: TransferAssessment, proof: TransferProof, departAt: number) {
+/** Epoch seconds at the first call of each exact directional running profile. */
+export type RunOrigins = readonly [incoming: number, onward: number]
+export function validRunOrigins(input: unknown): input is RunOrigins {
+  return Array.isArray(input) && input.length === 2 && [input[0], input[1]].every(t => Number.isSafeInteger(t) && t >= 0)
+}
+export function transferWitness(net: Network, assessment: TransferAssessment, proof: TransferProof, departAt: number, runOrigins?: RunOrigins) {
   if (!Number.isSafeInteger(departAt)) throw Error('Heure de départ invalide.')
+  if (runOrigins !== undefined && !validRunOrigins(runOrigins)) throw Error('Deux départs datés aux origines des courses sont requis.')
   if (assessment.status !== 'qualified-for-review' || !proof.alight || !proof.board) return { status: 'BLOCKED_BEFORE_TIMETABLE' } as const
   const incoming = proof.alight, outgoing = proof.board
   const sameService = (p: Pattern | Ride, e: PlatformObservation) => p.mode === e.mode && p.lineId === e.lineId && p.direction === e.direction
@@ -23,7 +29,7 @@ export function transferWitness(net: Network, assessment: TransferAssessment, pr
   if (!a || !b) return { status: 'NO_ADJACENT_CALL' } as const
   const query = { origin: a.pattern.stops[a.fromIndex], destination: b.pattern.stops[b.toIndex], departAt, modes: [incoming.mode,outgoing.mode], maxChanges: 1 }
   if (a.pattern === b.pattern) return { status: 'NO_DATED_WITNESS', query, reason: 'SAME_SERVICE_DIRECTION' } as const
-  const r = searchReviewedPair(net,query,{ rides:[a,b], alightPlatform:incoming.platformId, samePosition:proof.samePosition === true },proof.path?.wayIds ?? [])
+  const r = searchReviewedPair(net,query,{ rides:[{ ...a, requiredOrigin: runOrigins?.[0] }, { ...b, requiredOrigin: runOrigins?.[1] }], alightPlatform:incoming.platformId, samePosition:proof.samePosition === true },proof.path?.wayIds ?? [])
   if (!r.ok) return { status: 'NO_DATED_WITNESS', query, reason: r.code } as const
   for (const t of r.options) {
     const rides = t.legs.filter(v => v.kind === 'ride'), walks = t.legs.filter(v => v.kind === 'walk')
@@ -38,6 +44,7 @@ export function transferWitness(net: Network, assessment: TransferAssessment, pr
     const scheduled = rides.every(ride => ride.timing === 'timetable' && ride.timeProfile === 'offsets')
     const atOnwardPlatform = rides[0].end + t.walkSeconds
     return { status: scheduled ? 'DATED_WITNESS' : 'MODELLED_ONLY', query,
+      runOrigins: [rides[0].start - a.pattern.departures[a.fromIndex], rides[1].start - b.pattern.departures[b.fromIndex]],
       measuredWalkSeconds: assessment.measuredWalkSeconds ?? null,
       initialWaitSeconds: rides[0].waitSeconds, walkMeters: t.walkMeters,
       atOnwardPlatform, minimumBufferSeconds: margin, readyAfterBuffer: atOnwardPlatform + margin,

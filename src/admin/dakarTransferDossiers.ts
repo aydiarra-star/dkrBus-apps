@@ -1,6 +1,6 @@
 /** Survey/review inventory, NOT an input to dakarNetwork. Each direction has
  * its own proof slot. A reverse review request never reverses a way. */
-import { transferWitness } from './transferWitness'
+import { transferWitness, validRunOrigins, type RunOrigins } from './transferWitness'
 import { ALL_CORRIDOR_STOPS } from '../domain/corridors'
 import { assessTransfer, type TransferEnd, type TransferProof } from '../routing/transferReview'
 import { buildNetwork } from '../routing/network'
@@ -199,7 +199,7 @@ export function dakarTransferReport(net: Network, departAt?: number) {
  * Select an exact ordered pair, not an approximate stop name. */
 export interface ReviewPacket {
   dossier: string; fromStopId: string; toStopId: string
-  dataset: Dataset; proof: TransferProof
+  dataset: Dataset; proof: TransferProof; runOrigins?: RunOrigins
 }
 export function reviewDakarPacket(packet: ReviewPacket, departAt?: number) {
   const d = directions.find(d => d.dossier === packet.dossier && d.from.stopId === packet.fromStopId && d.to.stopId === packet.toStopId)
@@ -208,7 +208,10 @@ export function reviewDakarPacket(packet: ReviewPacket, departAt?: number) {
       !packet.dataset || ![packet.dataset.places, packet.dataset.patterns, packet.dataset.footways].every(Array.isArray)) {
     throw Error('Le paquet doit fournir proof et un dataset de revue (places, patterns, footways).')
   }
+  if (packet.runOrigins !== undefined && (departAt === undefined || !validRunOrigins(packet.runOrigins))) {
+    throw Error('runOrigins nécessite deux départs aux origines (secondes Unix) et une date de recherche --at.')
+  }
   const net = buildNetwork(packet.dataset)
   const assessment = assessTransfer(net, d, packet.proof)
-  return { ...d, ...assessment, ...(departAt !== undefined && { timed: transferWitness(net, assessment, packet.proof, departAt) }), rejected: net.rejected }
+  return { ...d, ...assessment, ...(departAt !== undefined && { timed: transferWitness(net, assessment, packet.proof, departAt, packet.runOrigins) }), rejected: net.rejected }
 }

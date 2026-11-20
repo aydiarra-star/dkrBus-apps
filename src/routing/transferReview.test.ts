@@ -110,6 +110,8 @@ it('retains actual TER observations in a staging network without lending the pla
 it('reviews one staging envelope in one direction only, without changing the Dakar inventory', () => {
   const packet = { dossier: 'petersen-brt-ddd', fromStopId: 'brt-petersen', toStopId: 'ddd-petersen',
     dataset: { places: [], patterns: [], footways: [] }, proof: {} }
+  expect(() => reviewDakarPacket({ ...packet, runOrigins: [1,2] })).toThrow(/--at/)
+  expect(() => reviewDakarPacket({ ...packet, runOrigins: [1,NaN] }, fixtureQuery.departAt)).toThrow(/runOrigins/)
   const original = dakarTransferReport(dakarNetwork)
   expect(reviewDakarPacket(packet)).toMatchObject({ dossier: packet.dossier, status: 'blocked', meters: null, rejected: [] })
   expect(reviewDakarPacket({ ...packet, fromStopId: packet.toStopId, toStopId: packet.fromStopId }).from.mode).toBe('ddd')

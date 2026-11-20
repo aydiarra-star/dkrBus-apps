@@ -59,3 +59,18 @@ it.each([['ddd','ddd'], ['aftu','aftu'], ['ddd','aftu'], ['aftu','ddd']] as cons
     expect(transferWitness(staged, review, observed, at+11).status).toBe('NO_DATED_WITNESS')
     expect(transferWitness(staged, assessTransfer(staged, { ...pair, from:pair.to, to:pair.from }, observed), observed, at).status).toBe('BLOCKED_BEFORE_TIMETABLE')
   })
+
+it('checks the requested pair of run origins, not the first or next compatible run of the same line', () => {
+  const at = fixtureQuery.departAt
+  const departures = [[at+10, at+50], [at+300, at+600, at+900], [at+1]]
+  const staged = buildNetwork({ ...fixtureData, patterns: fixtureData.patterns.map((p,i) => ({ ...p,
+    service: { kind: 'timetable', source: 'Synthetic multi-run timetable', departures: departures[i] },
+  })) })
+  const qualified = assessTransfer(staged, candidate, proof)
+  const check = (first: number, second: number, start = at) => transferWitness(staged, qualified, proof, start, [first, second])
+  expect(check(at+50,at+900)).toMatchObject({ status:'DATED_WITNESS', firstDeparture:at+50, onwardDeparture:at+900 })
+  expect(check(at+50,at+300).status).toBe('NO_DATED_WITNESS') // cannot substitute +600
+  expect(check(at+10,at+900,at+11).status).toBe('NO_DATED_WITNESS') // cannot substitute +50
+  expect(check(at+49,at+900).status).toBe('NO_DATED_WITNESS')
+  expect(check(at+50,at+900+86400).status).toBe('NO_DATED_WITNESS')
+})

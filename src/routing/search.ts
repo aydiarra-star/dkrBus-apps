@@ -54,7 +54,7 @@ function validQuery(query: Settings) {
   return Number.isSafeInteger(departAt) && Number.isFinite(new Date(departAt * 1000).getTime()) && Number.isInteger(maxChanges) && maxChanges >= 0 && maxChanges <= 5 &&
     Number.isFinite(walkSpeedMpm) && walkSpeedMpm > 0 && Number.isFinite(maxWalkPerLegM) && maxWalkPerLegM >= 0 && Number.isSafeInteger(transferBufferSeconds) && transferBufferSeconds >= 0
 }
-interface RequiredRide { pattern: Pattern; fromIndex: number; toIndex: number }
+interface RequiredRide { pattern: Pattern; fromIndex: number; toIndex: number; requiredOrigin?: number }
 /** Private to a review query; limits existing permissions, never adds one. */
 interface ReviewedPair { rides: readonly [RequiredRide, RequiredRide]; alightPlatform: string; samePosition: boolean }
 function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, query: Settings, pair?: ReviewedPair) {
@@ -127,7 +127,13 @@ function scanner(net: Network, origin: Place, targets: ReadonlySet<string>, quer
           const changeBufferSeconds = boards > 1 ? Math.max(transferBufferSeconds, change?.minimumSeconds ?? 0) : undefined
           const canBoardAt = l.at + (changeBufferSeconds ?? 0)
           const offset = p.departures[i]
-          const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }] : nextRuns(p.service, day, canBoardAt, offset)
+          const pinned = required?.requiredOrigin
+          // Restrict the normal dated lookup; never manufacture the selected
+          // origin or substitute the next run after a missed connection.
+          const readyAt = pinned === undefined ? canBoardAt : Math.max(canBoardAt, pinned + offset)
+          const runs = topologyOnly ? [{ originAt: canBoardAt - offset, every: null }]
+            : pinned === undefined ? nextRuns(p.service, day, readyAt, offset)
+            : dated ? nextRuns(p.service, day, readyAt, offset).filter(r => r.originAt === pinned) : []
           for (const { originAt, every } of runs) for (let j = i + 1; j < p.calls.length; j++) {
             if (required && j !== required.toIndex) continue
             const arrive = (place: Place, alight?: ObservedPlatform) => {
