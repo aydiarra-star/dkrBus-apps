@@ -901,4 +901,3 @@ Le repère de la 89 près de la gare ne désigne ni le terminus de la 74 ni le q
   - Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.
 
 Sources : [1](../src/data/aftu-89-directions.json) · [2](../docs/audit-geographique-rufisque-bargny-keur-massar-sangalkam-2026-11-16.md) · [3](../docs/revue-bus-2026-11-19.md).
-

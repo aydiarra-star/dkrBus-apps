@@ -43,7 +43,7 @@ try {
       }
       out.push('Sources : '+rows[0].sources.map((s,i)=>`[${i+1}](${s.startsWith('https://')?s:'../'+s})`).join(' · ')+'.','')
     }
-    console.log(out.join('\n'))
+    process.stdout.write(out.join('\n'))
   } else if (values.json) {
     console.log(JSON.stringify(report, null, 2))
   } else {
