@@ -5,23 +5,23 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 48 | 111 | 4 | 1322 | 370 | 308 | 23,30 % | 245 | 600 | 53 |
-| AFTU | 73 | 159 | 56 | 3584 | 613 | 540 | 15,07 % | 156 | 736 | 0 |
+| AFTU | 73 | 159 | 56 | 3584 | 757 | 684 | 19,08 % | 300 | 736 | 0 |
 | TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
-**848 / 4906 = 17,28 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**992 / 4906 = 20,22 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
 **Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.
 
-Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations.
+Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations. Le CSV distingue le nombre de cellules du vendredi effectivement applicable du total des grilles distinctes. Quand le libellé horaire diffère de la liste locale, les deux libellés, les rangs concernés et les deux empreintes d’ordre restent consultables.
 
 ### Cellules par type de source
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 12313 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 132489 |
-| AFTU | 15500 | 7239 | 7239 | 0 | 91 | 0 | 0 | 253767 | 222384 |
+| AFTU | 21188 | 11343 | 11343 | 0 | 91 | 0 | 0 | 253767 | 216696 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. ³ Uniquement les cellules d’une grille de vendredi explicitement distincte ; ailleurs la grille « semaine » inclut le vendredi. Dans `heures.csv`, `monday-thursday` ne vaut jamais pour `friday`. Les heures de service 24:xx et 25:xx tombent le lendemain civil. Une case vide à 19 h n’est pas zéro minute.
@@ -155,7 +155,7 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 
 Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 60, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 58, 60, 65, 73, 75**.
 
-Rangs d’arrêt exclus : aucune heure source au rang : 2556 ; rang non transcrit : 144 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
+Rangs d’arrêt exclus : aucune heure source au rang : 2556 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -280,8 +280,8 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2556 ; rang non transcri
 | aftu:71/2 | Retour | Fann Hock / Claudel → Keur Massar | 55 arrêts | 0 | 0 | 55 | liste de la fiche |
 | aftu:72/1 | Aller | Guédiawaye → Kounoune | 78 arrêts | 0 | 0 | 78 | liste de la fiche |
 | aftu:72/2 | Retour | Kounoune → Guédiawaye | 78 arrêts | 0 | 0 | 78 | liste de la fiche |
-| aftu:73/1 | Aller | Lac Rose → Thiaroye | 75 arrêts | 3 | 3 | 75 | liste de la fiche |
-| aftu:73/2 | Retour | Thiaroye → Lac Rose | 75 arrêts | 3 | 3 | 75 | liste de la fiche |
+| aftu:73/1 | Aller | Lac Rose → Thiaroye | 75 arrêts | 75 | 75 | 75 | liste de la fiche |
+| aftu:73/2 | Retour | Thiaroye → Lac Rose | 75 arrêts | 75 | 75 | 75 | liste de la fiche |
 | aftu:74/1 | Aller | Terminus Bargny (Gare ferroviaire) → Terminus Cité COCEHAS | 14 repères | 0 | 0 | 14 | repères / secteurs |
 | aftu:74/2 | Retour | Terminus Cité COCEHAS → Terminus Bargny (Gare ferroviaire) | 0 arrêts | 0 | 0 | 0 | sans liste · Retour non confirmé |
 | aftu:75/1 | Aller | Yeumbeul → Gare de Colobane | 52 arrêts | 52 | 52 | 52 | liste de la fiche |
@@ -328,7 +328,7 @@ Rangs d’arrêt exclus : aucun rang classé arrêt.
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
 | tata:1/1 | Aller | Lat-Dior → HLM Grand Yoff | 20 repères | 0 | 0 | 20 | repères / secteurs |
-| tata:1/2 | Retour · itinéraire documentaire | Terminus HLM Grand Yoff (Face Autoroute) → Terminus Lat Dior | 12 repères | 0 | 0 | 0 | repères / secteurs · Repères du document · validité et heures non indiquées |
+| tata:1/2 | Retour · itinéraire documentaire | Terminus HLM Grand Yof (Face Autoroute) → Terminus Lat Dior | 12 repères | 0 | 0 | 0 | repères / secteurs · Repères du document · validité et heures non indiquées |
 | tata:1/3 | Aller · sections 2020 | LAT DIOR → GOUYE – GA | 4 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:1/4 | Retour · sections 2020 | GOUYE – GA → LAT DIOR | 4 secteurs | 0 | 0 | 0 | repères / secteurs · Sections tarifaires de 2020 · aucun horaire |
 | tata:2/1 | Aller | Route Principale des Parcelles Assainies → Gare Petersen | 18 repères | 0 | 0 | 18 | repères / secteurs |

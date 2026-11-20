@@ -21,9 +21,9 @@ const csv=rows=>rows.map(row=>row.map(field).join(',')).join('\n')+'\n'
 const pct=(yes,n)=>n?(100*yes/n).toFixed(2).replace('.',',')+' %':'non défini'
 const sha=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex')
 const catalogueFile='src/domain/busBoardCatalog.ts'
-const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi']],
+const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi','ordre_affiché_sha256','rangs_aux_libellés_différents']],
   cells=[['fiche','type','jour_ou_échantillon','origine','rangs_dans_l_ordre','heures_source_dans_le_même_ordre']], attachments=new Set(), byFamily={}
-const head=['fiche','ligne','sens_variante','rang','libellé_original','nature','même_libellé_n°','heures_fournies','type_horaire','cellules_semaine','cellules_samedi','cellules_dimanche','repères_horaires_isolés','minutes_source_semaine','secondes_source_à_19h','modèle_existant','raison_ou_limite','état_à_19h','estimations_jeudi_si_option_activée']
+const head=['fiche','ligne','sens_variante','rang','libellé_original','nature','même_libellé_n°','heures_fournies','type_horaire','cellules_semaine','cellules_samedi','cellules_dimanche','repères_horaires_isolés','minutes_source_semaine','secondes_source_à_19h','modèle_existant','raison_ou_limite','état_à_19h','estimations_jeudi_si_option_activée','cellules_vendredi','grille_du_vendredi','libellé_local_si_différent']
 // Do not mistake the earliest REMAINING transcribed course for the next
 // service after a hole. First/last are the bounds of this transcription only.
 function timeline(g,date) {
@@ -47,10 +47,12 @@ try {
     // Also check in the reverse direction: a directional file can otherwise
     // disappear from the catalogue while every REMAINING panel still passes.
     for (const entry of inv) for (const e of entry.evidence) {
-      if (!e.labels?.length || !['directional-sheet','owner-sequence'].includes(e.kind)) continue
+      const documented = e.source === 'tataBoardReview' && ['reader-sheet','fare-stages'].includes(e.kind)
+      if (!e.labels?.length || (!documented && !['directional-sheet','owner-sequence'].includes(e.kind))) continue
       const side = {outbound:'Aller',inbound:'Retour'}[e.side]
       const matches = lines.find(l=>l.code===entry.code).directions.filter(d => (!side || d.label.startsWith(side) || d.label==='Circuit') && sha(d.points)===sha(e.labels))
       assert(matches.length, `${family} ${entry.code} ${e.side}: liste ${e.source} non raccordée (ordre exact requis)`)
+      if(documented) assert(matches.some(d=>d.source===e.url && !d.clock && !d.sourceHours && d.pointKind===(e.kind==='fare-stages'?'secteurs':'repères')),`${e.source} ${entry.code} ${e.side}: provenance ou type documentaire perdu`)
       if(e.sourceTimes) assert(matches.some(d=>d.sourceHours?.samples?.some(s=>s.times.length===e.labels.length && sha(s.times)===sha(e.sourceTimes))), `${e.source}: heures présentes mais non raccordées`)
     }
     for(const l of lines){
@@ -117,7 +119,7 @@ try {
           const chosen = signWithOption.at(r,at19), optional = chosen.kind==='model' ? modelRuns : 0
           if (chosen.kind!=='model') assert.deepEqual(chosen.passage,observed,loc)
           const state19={active:'décompte',upcoming:'pas encore ouvert',finished:'dernier passage atteint',calendar:'jour non confirmé',closed:'sans service annoncé',unknown:'inconnu'}[observed.state]
-          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts.slice(0,3),src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional])
+          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts.slice(0,3),src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional,h?.friday ? counts[3] : counts[0],h?.friday ? 'distincte' : h?.weekday ? 'semaine' : 'inconnue',shown===name?'':name])
           t.sampleCells+=src.length; counts.forEach((v,k)=>{t.printed[k]+=v}); printed+=counts[0]; estimated+=optional
           provided+=Number(seen);eligible+=Number(available);active+=Number(sec!=='');t.occurrences++;t.model+=Number(m?.kind==='model')
           if(d.pointKind==='arrêts'){t.stops++;t.sourceStops+=Number(seen);t.weeklyStops+=Number(available);t.onlySamples+=Number(!available&&seen);t.missing+=Number(!seen);if(!available)t.reasons[reason]=(t.reasons[reason]??0)+1}
@@ -125,7 +127,7 @@ try {
         }
         if(eligible && n>1 && d.pointKind==='arrêts' && ['Aller','Retour'].includes(side))twoWeekly.add(side)
         t.modelCells+=modelRuns*n; t.optionalCells+=estimated
-        sheets.at(-1).push(printed,modelRuns*n,estimated,provided,eligible)
+        sheets.at(-1).push(printed,modelRuns*n,estimated,provided,eligible,sha(d.points.map((name,i)=>h?.printedLabels?.[i+1]??name)),Object.keys(h?.printedLabels??{}).join(' '))
         t.active19+=active
         desc.push([id,label,`${d.from} → ${d.to}`,`${n} ${d.pointKind}`,provided,eligible,m?n:0,extent+(d.reason?' · '+d.reason:'')])
       }
@@ -144,7 +146,7 @@ try {
     md.push('',`**${ok} / ${all} = ${pct(ok,all)}** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **${Object.values(summary).reduce((n,t)=>n+t.occurrences,0)}**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.`, '',
       '¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.','',
       '**Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.','',
-      'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations.','')
+      'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations. Le CSV distingue le nombre de cellules du vendredi effectivement applicable du total des grilles distinctes. Quand le libellé horaire diffère de la liste locale, les deux libellés, les rangs concernés et les deux empreintes d’ordre restent consultables.','')
     md.push('### Cellules par type de source','',
       '| Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |',
       '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|')

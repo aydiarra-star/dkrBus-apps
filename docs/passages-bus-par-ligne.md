@@ -10,7 +10,7 @@ Modèle `dakar-bus-board/v1`. [Hypothèses, sources et reproduction](modeles-pas
 
 Une liste de repères peut décrire des rues ou des secteurs historiques, et non des arrêts de montée. « Deux listes » exige des rangs au-delà de l’origine dans chacun des deux sens documentaires. Ils peuvent relever d’éditions différentes ; cela ne certifie ni un aller-retour actuel ni l’identité physique des terminus. Une boucle n’est comptée qu’une fois. Un même numéro dans deux familles ne constitue pas deux services physiques.
 
-Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `392d8af03b6761848468f96e4840a9aab4946f05905b3e07dddf4f30def5364b`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
+Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, profils et refus) : `d692e899475f078d9a1f055075095fbc3757de465253cf0537724e0ccc678a9f`. Les bornes du tableau sont le premier et le dernier **créneau calculé à l’origine** le jeudi testé, pas des départs constatés.
 
 ## DDD
 
@@ -298,7 +298,7 @@ Empreinte de toutes les directions (ordre des appels, grilles hebdomadaires, pro
 | Ligne | Sens et terminus de la fiche | Rangs modélisés | Créneaux à l’origine · base | Durée et profil | Exemples à 19 h (rang : min) |
 |---|---|---|---|---|---|
 | 1 | [Aller · Lat-Dior → HLM Grand Yoff](https://www.covoiturage.sn/bus-tata-itineraire/ligne/1/lat-dior/hlm-grand-yoff/) | 20 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 107.7 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 11: 12 ; 20: 1 |
-| 1 | [Retour · itinéraire documentaire · Terminus HLM Grand Yoff (Face Autoroute) → Terminus Lat Dior](https://fr.scribd.com/document/840812776/ligne-tata) | — | — | Repères du document · validité et heures non indiquées | — |
+| 1 | [Retour · itinéraire documentaire · Terminus HLM Grand Yof (Face Autoroute) → Terminus Lat Dior](https://fr.scribd.com/document/840812776/ligne-tata) | — | — | Repères du document · validité et heures non indiquées | — |
 | 1 | [Aller · sections 2020 · LAT DIOR → GOUYE – GA](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sections tarifaires de 2020 · aucun horaire | — |
 | 1 | [Retour · sections 2020 · GOUYE – GA → LAT DIOR](https://www.xibaaru.sn/bus-tata-voici-les-nouveaux-tarifs-document/) | — | — | Sections tarifaires de 2020 · aucun horaire | — |
 | 2 | [Aller · Route Principale des Parcelles Assainies → Gare Petersen](https://www.covoiturage.sn/bus-tata-itineraire/ligne/2/route-principale-des-parcelles-assainies/gare-petersen/) | 18 repères | 05:30–21:37 · CETUD · modèle réseau AFTU/TATA | 107.7 min · longueur médiane de référence · vitesse modèle · rang | 1: 5 ; 10: 13 ; 18: 1 |

@@ -78,6 +78,15 @@ for (const theme of ['light','dark']) {
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)
     await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,null); await inspect('84',1,73,/Jaxaay2 Route Du 84/,null)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await inspect('60',0,8,/Arrivée au terminus/,null); await inspect('60',1,8,/Dernier secteur/,null)
+    // The other axis of the 53 and the return description of the 1 are
+    // documents: no frequency or green clock, even with estimates enabled.
+    for (const [code,n,last] of [['1',12,'Terminus Lat Dior'],['53',10,'Sébikotane']]) {
+      await input.fill(code); await wrapper.locator('.station-board-direction-toggle').filter({hasText:'itinéraire documentaire'}).click()
+      const rows=wrapper.locator('.bus-occurrences li'); assert.equal(await rows.count(),n)
+      assert.equal(await rows.last().locator('.station-board-stop strong').textContent(),last)
+      assert.equal(await rows.locator('time, [role=timer], .bus-estimate').count(),0)
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
+    }
     await wrapper.getByRole('button',{name:'AFTU',exact:true}).click(); await input.fill('80'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     assert.equal(await wrapper.locator('.station-board-direction-toggle').nth(1).locator('time').count(),0); assert.equal(await wrapper.locator('.bus-occurrences li').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Retour non confirmé/)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await input.fill('60'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
@@ -116,6 +125,8 @@ for (const theme of ['light','dark']) {
       assert.match(await note.getByRole('link', {name:/Grille de la 73 vers/}).getAttribute('href'),side ? /4256343-0$/ : /4256342-0$/)
       const rows=wrapper.locator('.bus-occurrences li'); assert.equal(await rows.count(),75)
       const remaining = i => rows.nth(i).locator('time.passage-remaining').textContent()
+      assert.equal(await rows.locator('time.passage-remaining').count(),75)
+      assert.equal(await remaining(side ? 68 : 6), side ? '18:00' : '5:00') // Marché De Niaga at r69 / r7; 07:10 / 06:57, not a terminus
       if (side === 0) { assert.equal(await remaining(73),'1:00'); assert.equal(await remaining(74),'2:00') }
       else { assert.equal(await remaining(0),'13:00'); assert.equal(await remaining(1),'14:00') }
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
@@ -144,6 +155,6 @@ for (const theme of ['light','dark']) {
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
     await sides.nth(1).click(); assert.equal(await clock.textContent(),'11:00'); await tick(clock,green)
-    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, secondes vertes sur fiche, modèles sans timer, 65/75 matin, fins 73 et 311 samedi, minuit et retour absent OK`)
+    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, secondes vertes sur fiche, modèles sans timer, 58 en soirée, 60/65/75 matin, 73 Lac Rose 75 rangs par sens, documents TATA 1/53 sans heure, fins 73 et 311 samedi, 16B à minuit et retour absent OK`)
   } finally { await browser.close() }
 }

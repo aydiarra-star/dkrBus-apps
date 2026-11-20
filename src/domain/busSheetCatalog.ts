@@ -43,13 +43,12 @@ const malikaSamples = () => [0,1].map(i=>sample(i?'07:00':'00:00',DDD16B_CHECKPO
 export function existingSheetHours(family: BusFamily, code: string, d: BusBoardDirection): SourceHours | undefined {
   const m = d.clock
   if (!d.points.length || m?.kind === 'timetable') return
-  if (family === 'aftu' && code === '73') {
-    // The model already verified the exact page, sequence and all column counts.
-    const s = AFTU73_SHEETS.find(s=>s.grid === m?.originBasis && s.page === d.source)
-    if (!s) return
-    const make = (c: typeof s.weekday): SourceGrid => ({ ranks:[1,s.cemRank,75], nextUntranscribedOrigin:null, profiles:c.arrival.map((v,i)=>({origins:[hhmm(clockMinutes(c.start)!+i*c.every)],elapsed:[0,typeof c.cem==='number'?c.cem:c.cem[i],v]})) })
-    return {file:'src/data/aftu73Checkpoints.ts',source:s.grid,weekday:make(s.weekday),saturday:make(s.weekend),sunday:make(s.weekend)}
-  }
+  // Lac Rose is not the reported Niague service. The three original
+  // checkpoints also identify the timetable used by this direction's model.
+  const is73 = family === 'aftu' && code === '73'
+  const lacRose = is73 && AFTU73_SHEETS.find(s => s.page === d.source && s.grid === m?.originBasis &&
+    s.from === d.from && s.to === d.to && s.sequence === sequenceCheck(d.points))
+  if (is73 && !lacRose) return
   if (family === 'ddd' && code === '311') {
     const table = DDD311_PRINTED.find(({sheet}) => sheet.source === d.source && sheet.points === d.points)
     if (!table) return
@@ -61,7 +60,7 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
   }
   const idx = d.label.startsWith('Retour') ? 1 : 0
   const matches = Object.entries(grids).filter(([path,g]) =>
-    path.split('/').at(-1)?.startsWith(`${family}-${code}-`) && g.page === d.source &&
+    path.split('/').at(-1)?.startsWith(`${family}-${code}-`) && g.page === d.source && (!lacRose || g.source === lacRose.grid) &&
     (g.family === undefined || (g.family === family && g.code === code && g.side === (idx ? 'inbound' : 'outbound') &&
       g.first === d.points[0] && g.last === d.points.at(-1))) && sequenceCheck(d.points) === g.sequence)
   if (matches.length === 1) {

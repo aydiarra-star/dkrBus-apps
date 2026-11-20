@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { AFTU73_SHEETS } from '../data/aftu73Checkpoints'
+import { hhmm } from './busSourceHours'
+import { clockMinutes } from './stopPassageCountdown'
 import { BUS_BOARD_LINES } from './busBoardCatalog'
 import { compileSign } from './busSignReading'
 import { existingSheetHours, withNewSheetDirections } from './busSheetCatalog'
@@ -116,5 +119,37 @@ describe('16B : les colonnes de minuit appartiennent à la veille',()=>{
     expect(compileSign(palais,date(friday,'00:00')).reading?.today.calls.get(1)?.at(-1)).toBe(date(friday,'23:45'))
     expect(calls.get(83)?.slice(6,11)).toEqual('07:17 07:37 07:56 08:16 08:36'.split(' ').map(t=>date(thursday,t)))
     expect(palais.sourceHours?.samples).toHaveLength(2); expect(calls.has(24)).toBe(false)
+  })
+})
+
+// Literal cells, not the intermediate offsets interpolated by the old model.
+// Lock *every* original departure, CEM and terminal in both calendars.
+describe('73 : les lieux nommés de la fiche Lac Rose ne sont pas le relevé de Niague', () => {
+  const dirs = BUS_BOARD_LINES.aftu.find(l=>l.code==='73')!.directions
+  it.each([0,1])('préserve les colonnes précédentes au rang et au départ, sens %i', i => {
+    const d=dirs[i], old=AFTU73_SHEETS[i], h=d.sourceHours!
+    expect(h.source).toBe(old.grid);expect(d.points).toHaveLength(75)
+    for (const day of ['weekday','saturday','sunday'] as const) {
+      const g=h[day]!, ref=day==='weekday'?old.weekday:old.weekend
+      const materialized = new Map(g.profiles.flatMap(p=>p.origins.map(o=>[o,p.elapsed] as const)))
+      expect(materialized.size).toBe(ref.arrival.length);expect(g.ranks).toEqual(Array.from({length:75},(_,j)=>j+1))
+      for(const [j,end] of ref.arrival.entries()) {
+        const cells=materialized.get(hhmm(clockMinutes(ref.start)!+j*ref.every))!
+        expect([1,old.cemRank,75].map(rank=>cells[g.ranks.indexOf(rank)])).toEqual([0,typeof ref.cem==='number'?ref.cem:ref.cem[j],end])
+      }
+    }
+    expect(existingSheetHours('aftu','73',{...d,from:'Station Ciel Oil/Thiaroye'})).toBeUndefined()
+    expect(existingSheetHours('tata','73',d)).toBeUndefined()
+  })
+  it('ne reporte pas les heures du marché au terminus ni entre deux occurrences anonymes', () => {
+    const [go,back] = dirs.map(d=>compileSign(d,date(thursday,'00:00')))
+    const at=(s: string)=>date(thursday,s)
+    expect(go.at(7,at('06:00:59')).passage).toMatchObject({at:at('06:01'),minutes:1})
+    expect(back.at(69,at('06:42:59')).passage).toMatchObject({at:at('06:43'),minutes:1})
+    expect([5,6].map(r=>go.at(r,at('07:24:59')).passage)).toEqual([{state:'active',at:at('07:25'),minutes:1},{state:'active',at:at('07:26'),minutes:2}])
+    expect(dirs[0].points[50]).toBe('École Boune'); expect(dirs[0].sourceHours?.printedLabels).toMatchObject({51:'Arrêt De Bus',52:'École Boune'})
+    expect(go.at(51,at('06:35:59')).passage).toMatchObject({at:at('06:36')});expect(go.at(52,at('06:35:59')).passage).toMatchObject({at:at('06:37')})
+    expect(back.at(74,at('23:48:59')).passage).toMatchObject({at:at('23:49')})
+    expect(back.at(74,at('23:49')).passage.state).toBe('finished')
   })
 })

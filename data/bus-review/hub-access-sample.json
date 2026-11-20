@@ -1,0 +1,179 @@
+{
+  "scope": "SURVEY_ONLY_NOT_PASSENGER_PATHS",
+  "sourceRevision": "ca52f762754e0867dcb0bef012598f18145f002f",
+  "aftuJob": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44703537177/job/136177408776",
+  "attribution": "© OpenStreetMap contributors · ODbL 1.0",
+  "pbfSha256": "b68aa2f1a5745c471320e6afd6a7d624e70372da160b036df665308b66f70d58",
+  "boundsWSEN": {
+    "colobane": [
+      -17.446,
+      14.694,
+      -17.438,
+      14.704
+    ],
+    "ponty": [
+      -17.438,
+      14.6665,
+      -17.4305,
+      14.672
+    ]
+  },
+  "limitMeters": 700,
+  "sites": {
+    "colobane": {
+      "anchors": {
+        "w599927187": {
+          "kind": "bus-station-boundary",
+          "version": 4,
+          "tags": {
+            "name": "Gare Routière de Colobane",
+            "public_transport": "station",
+            "bus": "yes",
+            "amenity": "bus_station"
+          },
+          "routeCalls": [],
+          "contacts": []
+        },
+        "n10245681535": {
+          "kind": "station-reference-not-door",
+          "version": 1,
+          "tags": {
+            "name": "Colobane",
+            "railway": "station",
+            "public_transport": "station",
+            "train": "yes"
+          },
+          "routeCalls": [],
+          "contacts": []
+        },
+        "n9373889212": {
+          "kind": "station-reference-not-door",
+          "version": 2,
+          "tags": {
+            "name": "Colobane",
+            "railway": "stop",
+            "public_transport": "stop_position",
+            "train": "yes"
+          },
+          "routeCalls": [],
+          "contacts": []
+        },
+        "n560521498": {
+          "kind": "station-reference-not-door",
+          "version": 3,
+          "tags": {
+            "name": "Gare Routière de Colobane",
+            "public_transport": "station",
+            "bus": "yes",
+            "amenity": "bus_station"
+          },
+          "routeCalls": [],
+          "contacts": []
+        }
+      },
+      "kinds": {
+        "bus-station-boundary": 1,
+        "crossing": 4,
+        "entrance-or-control": 2,
+        "rail-platform": 2,
+        "station-reference-not-door": 3
+      },
+      "railPlatforms": {
+        "w1016285869": [
+          [
+            10245681530,
+            [
+              1120219684,
+              1120219686
+            ]
+          ]
+        ],
+        "w1016285870": []
+      },
+      "counts": {
+        "dedicatedWays": 31,
+        "paths": 0
+      },
+      "firstPathsByLength": []
+    },
+    "ponty": {
+      "anchors": {
+        "n4666430941": {
+          "kind": "ponty-pole",
+          "version": 3,
+          "tags": {
+            "highway": "bus_stop",
+            "public_transport": "platform",
+            "bus": "yes"
+          },
+          "routeCalls": [
+            {
+              "pole": "n4666430941",
+              "role": "platform",
+              "relation": 6951328,
+              "version": 28,
+              "family": "ddd",
+              "ref": "1",
+              "from": "Parcelles assainies",
+              "to": "Terminus Leclerc",
+              "rank": 36,
+              "platforms": 38,
+              "before": "n4666430943",
+              "after": "n4666430939"
+            },
+            {
+              "pole": "n4666430941",
+              "role": "platform",
+              "relation": 7487218,
+              "version": 24,
+              "family": "ddd",
+              "ref": "9",
+              "from": "Termibus Liberté 6",
+              "to": "Palais1",
+              "rank": 26,
+              "platforms": 29,
+              "before": "n4666430943",
+              "after": "n4754571946"
+            },
+            {
+              "pole": "n4666430941",
+              "role": "platform",
+              "relation": 7500475,
+              "version": 14,
+              "family": "ddd",
+              "ref": "7",
+              "from": "Terminus Ouakam",
+              "to": "Terminus Palais 1",
+              "rank": 30,
+              "platforms": 34,
+              "before": "n4666430943",
+              "after": "n4754571946"
+            }
+          ],
+          "contacts": []
+        },
+        "n711879280": {
+          "kind": "ponty-pole",
+          "version": 2,
+          "tags": {
+            "highway": "bus_stop",
+            "public_transport": "platform",
+            "bus": "yes"
+          },
+          "routeCalls": [],
+          "contacts": []
+        }
+      },
+      "kinds": {
+        "crossing": 8,
+        "ponty-pole": 2
+      },
+      "railPlatforms": {},
+      "counts": {
+        "dedicatedWays": 17,
+        "paths": 0
+      },
+      "firstPathsByLength": []
+    }
+  }
+}
