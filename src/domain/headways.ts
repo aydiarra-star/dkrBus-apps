@@ -47,8 +47,6 @@ export interface NextPassage {
   status: PassageStatus
   /** Instant de passage à cette station (ISO 8601, UTC = heure de Dakar). */
   nextDepartureAt: string
-  /** Départ réel de la grille au terminus d'origine, avant propagation de l'offset. */
-  originDepartureAt: string
   /** Minutes entières restantes, arrondies à l'entier supérieur (jamais 0). */
   minutes: number
   /** Intervalle déclaré de la période retenue (minutes). */
@@ -200,7 +198,6 @@ export function nextReferencePassage(
     return {
       status,
       nextDepartureAt: new Date(best.at).toISOString(),
-      originDepartureAt: new Date(best.slot).toISOString(),
       minutes: Math.max(1, Math.ceil((best.at - now) / MINUTE_MS)),
       headwayMinutes: best.frequency.headwayMinutes,
       periodLabel: formatFrequencyPeriod(best.frequency),
