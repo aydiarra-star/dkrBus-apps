@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from 'react'
-import { TATA_2020_SOURCE } from '../data/tataBoardReview'
+import { BusSurveyNote } from './BusSurveyNote'
 import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { boardDay, busPassage, datedBusBoards, type BusBoardDirection, type BusFamily, type BusPassage } from '../domain/busPassageBoard'
 import { midnight } from '../domain/stopPassageCountdown'
@@ -20,20 +20,6 @@ function Passage({ passage, now, caption }: { passage: BusPassage; now: number; 
   </span>
 }
 
-/** Only these two reading sheets name the sector in the candidate travel
- * direction. Do not attach a marker to an occurrence or inherit this note on
- * the homonymous AFTU 60, the 218 from Rufisque, or a published edition. */
-function PatteDoieNote({ name, d }: { name: string; d: BusBoardDirection }) {
-  const westbound = (name === 'DDD 218' && d.source === 'https://demdikk.sn/reseau-urbain-dakar/' &&
-    d.from === 'Dépôt Thiaroye' && d.to === 'Terminus Aéroport LSS' && d.points[3] === 'Patte d’Oie') ||
-    (name === 'TATA 60' && d.source === TATA_2020_SOURCE && d.from === 'Bargny' && d.to === 'Colobane' && d.points[6] === 'Patte d’Oie')
-  if (!westbound || d.clock?.kind !== 'model') return null
-  return <details className="bus-survey-note"><summary>Changer à Patte d’Oie ?</summary>
-    <p>Un <a href="https://www.openstreetmap.org/way/639363334" target="_blank" rel="noreferrer">chemin de 23,7 m entre deux poteaux</a> figure sur la carte. La carte les nomme DDD et TATA sans indiquer les lignes desservies.</p>
-    <p>Demandez si la 218 vers Aéroport LSS et la 60 vers Colobane s’y arrêtent et à quelles heures. Les minutes du panneau ne confirment pas cette correspondance.</p>
-  </details>
-}
-
 function Direction({ d, day, now, name, open, toggle, id }: {
   d: BusBoardDirection; day: ReturnType<typeof boardDay>; now: number; name: string; open: boolean; toggle: () => void; id: string
 }) {
@@ -50,7 +36,7 @@ function Direction({ d, day, now, name, open, toggle, id }: {
       {d.points.length ? <>
         <div className="bus-occurrences-head"><strong>{d.pointKind === 'départ seul' ? 'Départ seul' : `${d.points.length} ${d.pointKind}`}</strong>
           <small>{d.clock ? scheduled ? 'Horaire du jour' : 'Passages estimés' : d.reason}</small></div>
-        <PatteDoieNote name={name} d={d} />
+        <BusSurveyNote name={name} d={d} />
         <ol className="station-board-itinerary-list bus-occurrences-list">{d.points.map((point, index) => {
           const terminal = d.points.length > 1 && index === d.points.length - 1
           return <li className="station-board-row station-board-row-static" key={index}>

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { BusSurveyNote } from './BusSurveyNote'
+import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { fixtureNetwork } from '../test/passengerTransferFixture'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
 
@@ -136,4 +138,26 @@ it('keeps the Patte d’Oie marker walk on the two nominated directions, without
   inspect('60', 0, false); inspect('60', 1, false)
   fireEvent.click(within(container).getByRole('button', {name:'TATA'}))
   inspect('60', 1, true); inspect('60', 0, false)
+})
+
+it('explains the departure and arrival at Thiaroye separately without a transfer countdown on either sheet', () => {
+  const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
+  const note = () => container.querySelector('.bus-survey-note')
+  fireEvent.click(buttons(container,'73')[0]); expect(note()?.textContent).toContain('après Cem Thiaroye')
+  expect(note()?.querySelector('a')?.href).toMatch(/18051511-1$/)
+  expect(note()?.querySelector('time, [role="timer"]')).toBeNull()
+  fireEvent.click(buttons(container,'73')[1]); expect(note()?.textContent).toContain('Le même quai n’est pas confirmé')
+  expect(note()?.querySelector('a')?.href).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-73/')
+  expect(note()?.querySelector('time, [role="timer"]')).toBeNull()
+  fireEvent.click(within(container).getByRole('button',{name:'TATA'}))
+  for (const b of buttons(container,'73')) { fireEvent.click(b); expect(note()).toBeNull() }
+})
+
+it('ne prête pas la note du dépôt à une autre source ni à une autre occurrence', () => {
+  const [d] = BUS_BOARD_LINES.aftu.find(l => l.code === '73')!.directions
+  for (const other of [{ ...d, source: 'autre variante' }, { ...d, clock: null },
+    { ...d, points: [...d.points.slice(0,-2), 'Cem Thiaroye bis', d.points.at(-1)!] }]) {
+    const { container, unmount } = render(<BusSurveyNote name="AFTU 73" d={other} />)
+    expect(container.firstChild).toBeNull(); unmount()
+  }
 })

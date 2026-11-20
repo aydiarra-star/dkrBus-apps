@@ -54,7 +54,7 @@ Le [contrôle des huit sites](https://github.com/aydiarra-star/dkrBus-apps/actio
 | Rufisque | 8 | 0 | 0 | Deux quais ferroviaires, plusieurs poteaux dont un ancien terminus 63. Aucun parcours quai à quai établi. |
 | Diamniadio | 5 | 1 | 0 | Un quai TER touche une voie. L’archive « Gare TER Diamniadio » (`D_1267`, 504 sans lettre) est à 363 m du repère TER à vol d’oiseau : ni une marche ni un rôle de la 504A/B. Les mesures du [guide des JOJ](https://www.vie-publique.sn/docs/7ec17f81-341f-48d4-a0b1-c18ea09c3603/guide-mobilite-dakar-joj-2026.pdf) ont pris fin le 14/11. |
 
-Les [dossiers de correspondance](../src/admin/dakarTransferDossiers.ts) incluent les deux ordres des lignes 18/39, 12/75 et 218/60. **25 dossiers, 50 sens, 52 évaluations bloquées avant l’horaire**. Aucun `survey:` dans le formulaire ou le graphe. Les quatre arcs existants de Scat Urbam servent uniquement à entrer ou sortir du BRT. Il n’y a ni arc piéton de changement ni exception de même quai sur la base locale.
+Les [dossiers de correspondance](../src/admin/dakarTransferDossiers.ts) incluent les deux ordres des lignes 18/39, 12/75, 218/60 et des [terminus 218/73, 67/7 et 26/5](terminus-correspondances.md). **28 dossiers, 56 sens, 58 évaluations bloquées avant l’horaire**. Aucun `survey:` dans le formulaire ou le graphe. Les quatre arcs existants de Scat Urbam servent uniquement à entrer ou sortir du BRT. Il n’y a ni arc piéton de changement ni exception de même quai sur la base locale.
 
 ### Rejeu à sélection constante et sur le formulaire actuel
 

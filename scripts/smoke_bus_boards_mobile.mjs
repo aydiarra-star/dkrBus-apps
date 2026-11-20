@@ -67,6 +67,13 @@ for (const theme of ['light','dark']) {
     assert.equal(await note.getByRole('link').getAttribute('href'),'https://www.openstreetmap.org/way/639363334')
     assert.match(await note.innerText(),/ne confirment pas cette correspondance/)
     assert.equal(await note.locator('time').count(),0)
+    await wrapper.getByRole('button',{name:'AFTU',exact:true}).click(); await input.fill('73')
+    for (const [side, wording] of [/après Cem Thiaroye/, /Le même quai n’est pas confirmé/].entries()) {
+      await wrapper.locator('.station-board-direction-toggle').nth(side).click(); await note.locator('summary').click()
+      assert.match(await note.innerText(), wording); assert.equal(await note.locator('time, [role=timer]').count(),0)
+      assert.equal(await wrapper.locator('.bus-occurrences li').count(),75)
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
+    }
     assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, minutes et secondes vertes, fin et retour absent OK`)
   } finally { await browser.close() }
 }

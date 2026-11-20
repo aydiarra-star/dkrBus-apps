@@ -7,9 +7,13 @@ import { buildNetwork } from '../routing/network'
 import type { Dataset, Network } from '../routing/model'
 
 type SurveyEnd = TransferEnd & { documentaryName?: string }
+type SurveyPair = readonly [alight: SurveyEnd, board: SurveyEnd]
 interface Dossier {
   id: string
-  ends: readonly [SurveyEnd, SurveyEnd]
+  ends: SurveyPair
+  /** At terminals the return transfer needs other service calls, not a swap
+   * that would alight at an origin and board at the final stop. */
+  reverse?: { ends: SurveyPair; observation: string }
   /** Which documentary line dossiers nominate this site, NOT a platform assignment. */
   busSources?: readonly string[]
   betweenSites: boolean
@@ -45,7 +49,33 @@ const feeders: readonly [string, string, string, string][] = [
   ['504A','diamniadio','Sphère ministérielle','Terminus publiés, mais ni l’ordre intermédiaire ni le quai du bus par sens ne sont établis.'],
   ['504B','diamniadio','Sébikotane','Ni le quai de la 504B ni le parcours jusqu’à la voie du train ne se déduisent de l’intitulé de gare.'],
 ]
+const terminalReview = ['docs/terminus-correspondances.md', 'data/bus-review/terminal-occurrences.json', 'data/bus-review/terminus-quays-2026-11-19.json']
+const survey = (mode: 'ddd' | 'aftu', key: string, documentaryName: string): SurveyEnd => ({ mode, stopId: `survey:${key}`, documentaryName })
 export const dakarTransferDossiers: readonly Dossier[] = [
+  { id: 'thiaroye-218-73', busSources: ['ddd:218', 'aftu:73'], betweenSites: false,
+    ends: [survey('ddd', 'thiaroye:218:arrivee', 'Dépôt Thiaroye · descente de la 218 depuis Aéroport LSS'),
+      survey('aftu', 'thiaroye:73:depart', 'Poste Thiaroye · montée dans la 73 vers Lac Rose')],
+    observation: 'Départ marqué de la 73 à 1,7 m du poteau 217/218. D_686 était la fin de la 218 ; A_586 le début de la 73. Ni porte commune ni arrivée datée de la 218 au dépôt établies.',
+    reverse: { ends: [survey('aftu', 'thiaroye:73:arrivee', 'Dépôt Thiaroye · descente de la 73 depuis Lac Rose'),
+      survey('ddd', 'thiaroye:218:depart', 'Dépôt Thiaroye · montée dans la 218 vers Aéroport LSS')],
+      observation: 'Depuis Lac Rose, A_586 était l’avant-dernier appel ; le terminus A_266 était à 99,9 m du poteau. Le symbole de départ AFTU ne localise pas cette descente. La grille depuis Rufisque ne donne pas les départs de la 218 au dépôt.' },
+    sources: [...terminalReview, 'https://www.openstreetmap.org/node/4419421889', 'https://aftu-senegal.org/map/dakar-urbain-ligne-73/', urbanPage, 'https://x.com/dakardemdikk1/status/1937979929007702515'] },
+  { id: 'ouakam-67-7', busSources: ['aftu:67', 'ddd:7'], betweenSites: false,
+    ends: [survey('aftu', 'ouakam:67:arrivee', 'Boutique Diallo · descente de la 67 depuis Thiawlène'),
+      survey('ddd', 'ouakam:7:palais', 'Arrêt Pharmacie · montée dans la 7 vers Palais')],
+    observation: 'Le poteau 4363242525 est le huitième quai de la relation 7500475 vers Palais 1. La 67 approche en sens opposé et sa fin marquée est à 1,7 m du poteau. Ni le dessin ni la grille Espi → Poste de Santé ne prouvent une descente au même point.',
+    reverse: { ends: [survey('ddd', 'ouakam:7:ouakam', 'Ouakam · descente de la 7 depuis Palais'),
+      survey('aftu', 'ouakam:67:depart', 'Ouakam · montée dans la 67 vers Thiawlène')],
+      observation: 'Le rôle de la 7 vers Palais ne vaut pas pour la 7 depuis Palais. Le retour de la 67 n’est pas dessiné ; ne pas retourner le marqueur de fin ni la marche.' },
+    sources: [...terminalReview, 'https://www.openstreetmap.org/relation/7500475', 'https://aftu-senegal.org/map/dakar-urbain-ligne-67/', urbanPage] },
+  { id: 'guediawaye-26-5', busSources: ['aftu:26', 'ddd:5'], betweenSites: false,
+    ends: [survey('aftu', 'guediawaye:26:arrivee', 'Guédiawaye · descente de la 26 depuis les Parcelles'),
+      survey('ddd', 'guediawaye:5:depart', 'Guédiawaye · montée dans la 5 vers Palais')],
+    observation: 'Fin marquée de la 26 à 2,5 m du poteau L5;L12. L’ancien D_406 était le troisième appel de la 5 depuis Guédiawaye, pas le terminus. La grille de la 26 finit à Thiaroye.',
+    reverse: { ends: [survey('ddd', 'guediawaye:5:arrivee', 'Guédiawaye · descente de la 5 depuis Palais'),
+      survey('aftu', 'guediawaye:26:depart', 'Guédiawaye · départ à vérifier de la 26 vers les Parcelles')],
+      observation: 'Le dessin de la 26 ne montre pas ce départ ; sa grille depuis Thiaroye ne le situe pas à Guédiawaye. Identifier séparément la descente de la 5 depuis Palais.' },
+    sources: [...terminalReview, 'https://www.openstreetmap.org/node/5038866775', 'https://aftu-senegal.org/map/dakar-urbain-ligne-26/', urbanPage] },
   { id: 'patte-doie-ddd-tata', busSources: ['ddd:218', 'tata:60'], betweenSites: false,
     ends: [{ ...ddd('survey:patte-doie:218:lss'), documentaryName: 'Patte d’Oie · 218 depuis Thiaroye vers Aéroport LSS, à confirmer' },
       { ...tata('survey:patte-doie:60:colobane'), documentaryName: 'Patte d’Oie · 60 depuis Bargny vers Colobane, à confirmer' }],
@@ -109,8 +139,9 @@ function reference(end: SurveyEnd) {
     } : null }
 }
 function direction(s: Dossier, reverse: boolean) {
-  return { dossier: s.id, from: reference(s.ends[reverse ? 1 : 0]), to: reference(s.ends[reverse ? 0 : 1]),
-    busSources: s.busSources ?? [], betweenSites: s.betweenSites, observation: s.observation, sources: s.sources }
+  const [from, to] = reverse ? (s.reverse?.ends ?? [s.ends[1], s.ends[0]]) : s.ends
+  return { dossier: s.id, from: reference(from), to: reference(to), busSources: s.busSources ?? [],
+    betweenSites: s.betweenSites, observation: (reverse && s.reverse ? s.reverse.observation : s.observation), sources: s.sources }
 }
 const directions = dakarTransferDossiers.flatMap(s => [direction(s, false), direction(s, true)])
 export function dakarTransferReport(net: Network, departAt?: number) {

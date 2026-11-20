@@ -18,6 +18,8 @@ Ces fichiers servent à la revue hors ligne. Aucun n’est chargé comme réseau
 
 - [`interchange-region-2026-11-19.json`](interchange-region-2026-11-19.json) : chiffres du balayage régional, rôles, **les deux chemins de Patte d’Oie seulement** et trois approches partielles de quais BRT ; ce n’est pas l’artefact intégral des 52 parcours dirigés. [`patte-doie-occurrences.json`](patte-doie-occurrences.json) vérifie séparément toutes les courses 218/60 des deux archives épinglées, pas l’affectation actuelle d’un poteau. [Lecture, sources et commandes](../../docs/patte-doie.md).
 
+- [Terminus AFTU et poteaux](terminus-quays-2026-11-19.json) : mesures du job cité, sans les tracés. [Appels aux terminus](terminal-occurrences.json) : contrôle intégral de 11 lignes dans les deux archives ; jamais une autorisation de montée ou un horaire actuel. [Reproduction, sens et limites](../../docs/terminus-correspondances.md).
+
 **Droits et périmètre.** Voirie et relations : [© les contributeurs OpenStreetMap](https://www.openstreetmap.org/copyright), [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Les positions des polylignes Waymark acquises dans la CI restent temporaires. Aucune liste de coordonnées ou grille de départ de l’archive historique AFTU n’est redistribuée. Les géométries locales effectivement réutilisées pour les **portions** ont [leur propre registre de sources](../bus-sections/README.md).
 
 ### Reproduction

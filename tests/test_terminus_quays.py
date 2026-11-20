@@ -114,3 +114,19 @@ class TerminusSurveyTest(unittest.TestCase):
 
     def test_missing_map_is_not_zero_distance(self):
         self.assertEqual(patte_doie(None), {"status": "NO_DIRECTIONAL_DRAWING"})
+
+
+class TerminalReceiptTest(unittest.TestCase):
+    def test_ranked_notices_ignore_delivery_order_but_reject_gaps_duplicates_and_truncation(
+        self,
+    ):
+        from scripts.freeze_terminus_checks import ranked
+
+        rows = [
+            {"title": "Piste 2", "message": "[2,3]"},
+            {"title": "Piste 1", "message": "[1]"},
+        ]
+        self.assertEqual(ranked(rows, "Piste", 3), [1, 2, 3])
+        for bad in (rows[:1], rows[1:], rows + rows[:1]):
+            with self.assertRaises(ValueError):
+                ranked(bad, "Piste", 3)
