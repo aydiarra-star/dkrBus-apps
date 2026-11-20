@@ -19,13 +19,13 @@ export interface SourceHours {
 }
 const minute = (s: string) => s === '24:00' ? 1440 : clockMinutes(s)
 export const hhmm = (min: number) => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`
-const checkRanks = (ranks: readonly number[], n: number) => ranks[0] === 1 && ranks.every((r,i) => Number.isSafeInteger(r) && r <= n && (!i || r > ranks[i-1]))
+const checkRanks = (ranks: readonly number[], n: number) => ranks.length > 0 && ranks[0] >= 1 && ranks.every((r,i) => Number.isSafeInteger(r) && r <= n && (!i || r > ranks[i-1]))
 /** Invalid data fails the offline audit with a source/rank; never sort bad
  * times to make them look plausible. Duplicate stop NAMES remain legal. */
 export function sourceIssue(hours: SourceHours, n: number): string | undefined {
   for (const [day,g] of Object.entries({weekday:hours.weekday,saturday:hours.saturday,sunday:hours.sunday})) {
     if (!g) continue
-    if (!checkRanks(g.ranks,n)) return `${day}: rang absent, dupliqué ou inversé`
+    if (g.ranks[0] !== 1 || !checkRanks(g.ranks,n)) return `${day}: rang absent, dupliqué ou inversé`
     const origins = new Set<number>(), limit = g.nextUntranscribedOrigin === null ? Infinity : minute(g.nextUntranscribedOrigin)
     if (limit === null) return `${day}: borne de transcription invalide`
     for (const p of g.profiles) {

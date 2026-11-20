@@ -9,6 +9,8 @@ import { DDD12_SHEETS } from '../data/ddd12DirectionSheets'
 import { DDD16B_CHECKPOINTS } from '../data/dddSecondaryBoardSheets'
 import { DDD_319_PROFILES } from '../data/busBoardCallSheets'
 import { DDD_PUBLISHED_DEPARTURE_WINDOWS } from '../data/dddPublishedDepartureWindows'
+import { maristesSheets } from '../data/maristesTimetables'
+import { sequenceCheck } from './busBoardModel'
 import aftu84 from '../data/aftu-84-directions.json'
 
 interface Sheet { family: BusFamily; code: string; side: 'outbound'|'inbound'; from: string; to: string; points: string[]; source: string; timetable: string; weekdays: SourceGrid }
@@ -19,6 +21,8 @@ export function newSheetDirections(family: BusFamily, code: string): BusBoardDir
     sourceHours:{ file:path.replace('../','src/'), source:s.timetable, weekday:s.weekdays },
   }))
 }
+interface RankedGrid { page:string; sequence:number; source:string; weekday:SourceGrid }
+const grids = import.meta.glob<RankedGrid>('../data/weekly-cells/*.json',{eager:true,import:'default'})
 const ranks = (n: number) => Array.from({length:n},(_,i)=>i+1)
 const sample = (origin: string, elapsed: readonly number[], rr = ranks(elapsed.length)) => ({label:`Colonne ${origin}`,ranks:rr,times:elapsed.map(m=>hhmm(clockMinutes(origin)!+m))})
 export function existingSheetHours(family: BusFamily, code: string, d: BusBoardDirection): SourceHours | undefined {
@@ -44,9 +48,19 @@ export function existingSheetHours(family: BusFamily, code: string, d: BusBoardD
   if (family === 'aftu' && code === '84' && d.points === aftu84.directions.inbound.waypoints) {
     return {file:'src/data/aftu-84-directions.json',source:aftu84.sourceLabel,samples:[{label:'Relevé non daté',ranks:ranks(d.points.length),times:aftu84.directions.inbound.times}]}
   }
+  const idx = d.label.startsWith('Retour') ? 1 : 0
+  if ((family === 'aftu' && code === '75') || (family === 'ddd' && code === '12')) {
+    const match = Object.entries(grids).find(([,g])=>g.page===d.source && sequenceCheck(d.points)===g.sequence)
+    if (!match) return
+    const [path,g] = match, s = DDD12_SHEETS[idx]
+    const samples: NonNullable<SourceHours['samples']>[number][] = []
+    if (family === 'ddd' && idx && s.points === d.points) samples.push(sample('06:00',s.offsetMinutes),sample('07:08',s.peakMinutes))
+    const old = maristesSheets.find(t=>t.url===g.source)
+    // Evening samples aren't a complete grid between morning and evening.
+    for (const row of old?.rows ?? []) if (row[0] >= '18:00') samples.push({label:`Extrait semaine ${row[0]}`,ranks:old!.calls.map(c=>c.rank),times:row})
+    return {file:path.replace('../','src/'), source:g.source, weekday:g.weekday, samples}
+  }
   if (family !== 'ddd') return
-  const idx = d.label.startsWith('Retour') ? 1 : 0, s = DDD12_SHEETS[idx]
-  if (code === '12' && d.points === s.points) return {file:'src/data/ddd12DirectionSheets.ts',source:d.source,samples:[sample(idx?'06:00':'05:00',s.offsetMinutes),sample(idx?'07:08':'07:00',s.peakMinutes)]}
   if (code === '319') return {file:'src/data/busBoardCallSheets.ts',source:d.source,samples:[sample(idx?'06:50':'06:55',DDD_319_PROFILES[idx])]}
   if (code === '16B' && m.peakOffsetsMs && d.source.endsWith('18051473-1')) return {file:'src/data/dddSecondaryBoardSheets.ts',source:d.source.replace('line-','time-').replace(/-1$/,'-4256267-0'),samples:[0,1].map(i=>sample(i?'07:00':'00:00',DDD16B_CHECKPOINTS.map(c=>c[i?3:2]),DDD16B_CHECKPOINTS.map(c=>c[0])))}
   if (code === '1' || code === 'TAF_TAF') {

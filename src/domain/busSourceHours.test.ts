@@ -23,6 +23,17 @@ describe('cellules de fiches, distinctes des modèles',()=>{
     expect(sourcePassage(go,68,at('06:19:59'))).toMatchObject({at:at('06:20')});expect(sourcePassage(go,70,at('06:21:59'))).toMatchObject({at:at('06:22'),minutes:1});expect(sourcePassage(go,70,at('06:22'))).toEqual({state:'unknown'})
     expect(sourcePassage(back,5,at('10:07'))).toMatchObject({at:at('10:22')});expect(sourcePassage(back,6,at('10:07'))).toMatchObject({at:at('10:08')});expect(sourcePassage(back,6,at('10:22'))).toMatchObject({at:at('10:23')});expect(sourcePassage(back,68,at('19:00'))).toEqual({state:'unknown'})
   })
+  it('ne prolonge pas les transcriptions du matin de la 12 et de la 75 jusqu’aux échantillons du soir',()=>{
+    const [go,back]=dirs('ddd','12'), [toColobane]=dirs('aftu','75')
+    expect(sourcePassage(go,63,at('07:06:59'))).toMatchObject({at:at('07:08')})
+    expect(sourcePassage(go,37,at('19:00')).state).toBe('unknown')
+    expect(sourcePassage(back,10,at('20:00:59'))).toMatchObject({at:at('20:01')})
+    expect(sourcePassage(back,14,at('07:08')).state).toBe('unknown')
+    expect(sourcePassage(toColobane,52,at('04:32:59'))).toMatchObject({at:at('04:33')})
+    expect(sourcePassage(toColobane,52,at('05:09:00'))).toMatchObject({at:at('05:16')})
+    expect(sourcePassage(toColobane,52,at('05:35')).state).toBe('unknown')
+    expect(sheet('aftu','75')).toHaveLength(1)
+  })
   it('ne transporte que les passages imprimés après minuit, sans répliquer de calendrier',()=>{
     const fri=day+86400000, sat=fri+86400000, d=sourceDay(data,3,sat)
     expect(sourcePassage(d,3,sat+239000)).toMatchObject({minutes:1,at:sat+240000});expect(sourcePassage(d,3,sat+240000)).toEqual({state:'calendar'})
