@@ -126,13 +126,17 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
         inbound = nextReferencePassage(
           terDakarDiamniadio,
           now,
-          Math.max(0, terDiamniadioOffset - fromOrigin),
+          Math.max(0, terTotalOffset - fromOrigin),
         )
       } else if (index === terDiamniadioIndex) {
         // Gare charnière : elle est desservie toutes les 8 minutes dans les
         // deux sens, mais seuls un train sur trois poursuit vers / vient d'AIBD.
         outbound = nextReferencePassage(terDakarDiamniadio, now, fromOrigin)
-        inbound = nextReferencePassage(terDakarDiamniadio, now, 0)
+        inbound = nextReferencePassage(
+          terDakarDiamniadio,
+          now,
+          Math.max(0, terTotalOffset - terDiamniadioOffset),
+        )
         outboundAirport = nextReferencePassage(terDiamniadioAibd, now, fromOrigin)
         inboundAirport = nextReferencePassage(
           terDiamniadioAibd,
