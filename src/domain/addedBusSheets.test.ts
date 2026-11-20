@@ -39,3 +39,13 @@ it.each([
     if(d.sourceHours!.weekday!.nextUntranscribedOrigin) expect(sign.at(count,at('19:00'))).toEqual({kind:'weekly',passage:{state:'unknown'}})
   }
 })
+
+it('57 : la grille AFTU ne passe pas à la ligne TATA de même numéro ni à un rang inversé', () => {
+  const [go,back] = BUS_BOARD_LINES.aftu.find(l => l.code === '57')!.directions
+  expect([go,back].map(d => d.sourceHours?.weekday?.ranks.length)).toEqual([56,57])
+  for(const [d,n,t] of [[go,56,'05:36'],[back,57,'05:48']] as const){
+    expect(existingSheetHours('tata','57',d)).toBeUndefined()
+    expect(existingSheetHours('aftu','57',{...d,points:[...d.points].reverse()})).toBeUndefined()
+    expect(compileSign(d,day).at(n,at(t)-1000)).toEqual({kind:'weekly',passage:{state:'active',minutes:1,at:at(t)}})
+  }
+})

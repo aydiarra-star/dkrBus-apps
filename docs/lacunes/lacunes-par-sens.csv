@@ -195,8 +195,8 @@ aftu:55/2,aftu,55,Retour,Petersen,Rufisque Sonadis,arrêts,sans liste,0,0,0,0,0,
 aftu:56/1,aftu,56,Aller,Jaxaay 2,Petersen,arrêts,sans liste,0,0,0,0,0,0,0,,Sens non documenté,https://aftu-senegal.org/infos-pratiques/,
 aftu:56/2,aftu,56,Retour,Petersen,Jaxaay 2,arrêts,sans liste,0,0,0,0,0,0,0,,Sens non documenté,https://aftu-senegal.org/infos-pratiques/,
 aftu:56/3,aftu,56,Aller · fiche détaillée,Terminus Jaxaay 1,Terminus Petersen,repères,repères / secteurs,12,0,0,0,0,0,0,,repère sans heure de passage,https://aftu-senegal.org/map/dakar-urbain-ligne-56/,
-aftu:57/1,aftu,57,Aller,Rufisque,Liberté 6,arrêts,liste de la fiche,56,56,0,0,0,0,0,,aucune heure source au rang,https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-0,
-aftu:57/2,aftu,57,Retour,Liberté 6,Rufisque,arrêts,liste de la fiche,57,57,0,0,0,0,0,,aucune heure source au rang,https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-1,
+aftu:57/1,aftu,57,Aller,Rufisque,Liberté 6,arrêts,liste de la fiche,56,56,56,56,56,0,0,07:00,,https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-0,https://moovitapp.com/index/fr/transport_en_commun-time-57-Dakar-5996-1618038-18051459-4256239-0
+aftu:57/2,aftu,57,Retour,Liberté 6,Rufisque,arrêts,liste de la fiche,57,57,57,57,57,0,0,07:39,,https://moovitapp.com/index/fr/transport_en_commun-line-57-Dakar-5996-1618038-18051459-1,https://moovitapp.com/index/fr/transport_en_commun-time-57-Dakar-5996-1618038-18051459-4256238-0
 aftu:58/1,aftu,58,Aller,Sahm,Comico,arrêts,sans liste,0,0,0,0,0,0,0,,Sens non documenté,https://aftu-senegal.org/infos-pratiques/,
 aftu:58/2,aftu,58,Retour,Comico,Sahm,arrêts,sans liste,0,0,0,0,0,0,0,,Sens non documenté,https://aftu-senegal.org/infos-pratiques/,
 aftu:58/3,aftu,58,Aller,Fass Mbao,Gueule Tapée,arrêts,liste de la fiche,39,39,39,39,39,39,39,journée des rangs saisis,,https://moovitapp.com/index/fr/transport_en_commun-line-58-Dakar-5996-1618038-18051519-0,https://moovitapp.com/index/fr/transport_en_commun-time-58-Dakar-5996-1618038-18051519-4256358-0
