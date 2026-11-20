@@ -13,7 +13,7 @@ try {
   const { BusDirectionPanel } = await app.ssrLoadModule('/src/components/EstimatedLineScheduleBoard.tsx')
   const { BUS_BOARD_LINES } = await app.ssrLoadModule('/src/domain/busBoardCatalog.ts')
   const { compileSign } = await app.ssrLoadModule('/src/domain/busSignReading.ts')
-  for (const iso of ['2026-11-19T05:10:59Z','2026-11-19T19:00:00Z']) for (const estimates of [false,true]) {
+  for (const iso of ['2026-11-19T05:10:59Z','2026-11-19T19:00:00Z','2026-11-20T23:59:59Z','2026-11-21T00:52:59Z','2026-11-22T19:00:00Z']) for (const estimates of [false,true]) {
     const now = Date.parse(iso), day = Date.parse(iso.slice(0,10)+'T00:00Z')
     let panels=0, occurrences=0, timers=0, projections=0
     for (const [family, lines] of Object.entries(BUS_BOARD_LINES)) for (const line of lines) if (!line.aliasOf) {

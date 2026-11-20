@@ -159,6 +159,15 @@ for (const theme of ['light','dark']) {
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
     await sides.nth(1).click(); assert.equal(await clock.textContent(),'11:00'); await tick(clock,green)
-    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, secondes vertes sur fiche, modèles sans timer, 16A et 57 dans les deux sens à 19 h, mention SETER hors rang, 58 en soirée, 60/65/75 matin, 73 Lac Rose 75 rangs par sens, documents TATA 1/53 sans heure, fins 73 et 311 samedi, 16B à minuit et retour absent OK`)
+    await network('aftu_tata').click(); await input.fill('30'); await sides.nth(1).click()
+    await page.clock.pauseAt(new Date('2026-11-21T22:18:58Z')); await page.clock.runFor(1000)
+    assert.equal(await wrapper.locator('.bus-occurrences li').count(),74); assert.equal(await clock.textContent(),'0:01')
+    await page.clock.runFor(1000); assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
+    await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await input.fill('immeuble EMG')
+    const report = wrapper.locator('details').filter({has:page.locator('summary',{hasText:'Attente rapportée'})})
+    await report.locator('summary').click(); assert.match(await report.innerText(),/pour Ouakam/)
+    assert.equal(await report.locator('time,[role=timer]').count(),0)
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
+    assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, secondes vertes sur fiche, modèles sans timer, 16A et 57 dans les deux sens à 19 h, mentions SETER et EMG hors rang, fin de la 30 samedi, 58 en soirée, 60/65/75 matin, 73 Lac Rose 75 rangs par sens, documents TATA 1/53 sans heure, fins 73 et 311 samedi, 16B à minuit et retour absent OK`)
   } finally { await browser.close() }
 }

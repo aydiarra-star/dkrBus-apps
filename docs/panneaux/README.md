@@ -21,7 +21,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 23507 | 11312 | 9608 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
-| AFTU | 38429 | 18404 | 18404 | 0 | 91 | 0 | 0 | 253767 | 186981 |
+| AFTU | 38429 | 21142 | 21142 | 0 | 91 | 0 | 0 | 253767 | 186981 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. ³ Uniquement les cellules d’une grille de vendredi explicitement distincte ; ailleurs la grille « semaine » inclut le vendredi. Dans `heures.csv`, `monday-thursday` ne vaut jamais pour `friday`. Les heures de service 24:xx et 25:xx tombent le lendemain civil. Une case vide à 19 h n’est pas zéro minute.

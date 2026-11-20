@@ -28,6 +28,7 @@ def generate(boards, output, evidence):
     for family in ('ddd', 'aftu', 'tata'):
         for row in read(boards / f'{family}.csv'):
             groups[row['fiche']].append(row)
+    calendars = ['portée_lun_jeu', 'portée_vendredi', 'portée_samedi', 'portée_dimanche']
     queue = []
     for s in sheets:
         if s['étendue'] == 'alias':
@@ -42,10 +43,10 @@ def generate(boards, output, evidence):
         if not rr:
             causes.append(s['absence'] or 'Liste directionnelle absente')
         queue.append([s['fiche'], s['famille'], s['ligne'], s['variante'], s['depuis'], s['vers'], s['nature'], s['étendue'], len(rr), n, eligible, *grids,
-                      s['limite_semaine'], ' ; '.join(causes), s['source_ordre'], s['source_heures']])
+                      s['limite_semaine'], ' ; '.join(causes), s['source_ordre'], s['source_heures'], *(s[k] for k in calendars)])
     output.mkdir(parents=True, exist_ok=True)
     write(output / 'lacunes-par-sens.csv', ['fiche','famille','ligne','variante','depuis','vers','nature','portée','rangs','rangs_arrêt','décomptables_semaine',
-          'rangs_avec_cellule_semaine','vendredi','samedi','dimanche','portée_temporelle_semaine','raisons_sans_décompte','source_ordre','source_heures'], queue)
+          'rangs_avec_cellule_semaine','vendredi','samedi','dimanche','portée_temporelle_semaine','raisons_sans_décompte','source_ordre','source_heures',*calendars], queue)
     observed_codes = {s['ligne'] for s in sheets if s['famille']=='tata'}
     refs = []
     for m in evidence['mentions']:

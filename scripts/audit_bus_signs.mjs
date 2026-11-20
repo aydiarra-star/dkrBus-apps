@@ -21,7 +21,7 @@ const csv=rows=>rows.map(row=>row.map(field).join(',')).join('\n')+'\n'
 const pct=(yes,n)=>n?(100*yes/n).toFixed(2).replace('.',',')+' %':'non défini'
 const sha=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex')
 const catalogueFile='src/domain/busBoardCatalog.ts'
-const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi','ordre_affiché_sha256','rangs_aux_libellés_différents','source_index_si_distincte']],
+const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi','ordre_affiché_sha256','rangs_aux_libellés_différents','source_index_si_distincte','portée_lun_jeu','portée_vendredi','portée_samedi','portée_dimanche']],
   cells=[['fiche','type','jour_ou_échantillon','origine','rangs_dans_l_ordre','heures_source_dans_le_même_ordre']], attachments=new Set(), byFamily={}
 const head=['fiche','ligne','sens_variante','rang','libellé_original','nature','même_libellé_n°','heures_fournies','type_horaire','cellules_semaine','cellules_samedi','cellules_dimanche','repères_horaires_isolés','minutes_source_semaine','secondes_source_à_19h','modèle_existant','raison_ou_limite','état_à_19h','estimations_jeudi_si_option_activée','cellules_vendredi','grille_du_vendredi','libellé_local_si_différent']
 // Do not mistake the earliest REMAINING transcribed course for the next
@@ -30,6 +30,15 @@ function timeline(g,date) {
   if (!g) return new Map()
   const max=g.nextUntranscribedOrigin===null ? Infinity : date+minutes(g.nextUntranscribedOrigin)*MINUTE
   return new Map(g.ranks.map((r,i)=>[r,g.profiles.flatMap(p=>p.origins.map(t=>date+(minutes(t)+p.elapsed[i])*MINUTE)).filter(t=>t<=max).sort((a,b)=>a-b)]))
+}
+// Assess *this transcription*. An explicit day without service, a missing
+// day, a partial set of ranks, and a morning-only table are different gaps.
+function scope(g, n) {
+  if (!g) return 'grille non renseignée'
+  const count=g.profiles.reduce((total,p) => total+p.origins.length,0)
+  if (!count && g.nextUntranscribedOrigin===null) return 'sans service sur la fiche'
+  const until=g.nextUntranscribedOrigin ? `avant origine ${g.nextUntranscribedOrigin}` : 'journée des rangs saisis'
+  return `${g.ranks.length}/${n} rangs · ${count} colonnes · ${until}`
 }
 const blank=()=>({identities:0,sheets:0,empty:0,aliases:0,occurrences:0,stops:0,markers:0,origins:0,sourceStops:0,weeklyStops:0,active19:0,printed:[0,0,0,0],sampleCells:0,model:0,modelCells:0,optionalCells:0,onlySamples:0,missing:0,observed:0,dated:0,twoLists:[],twoWeekly:[],reasons:{}})
 const app=await createServer({configFile:false,logLevel:'error',appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false,watch:null,ws:false}})
@@ -127,7 +136,8 @@ try {
         }
         if(eligible && n>1 && d.pointKind==='arrêts' && ['Aller','Retour'].includes(side))twoWeekly.add(side)
         t.modelCells+=modelRuns*n; t.optionalCells+=estimated
-        sheets.at(-1).push(printed,modelRuns*n,estimated,provided,eligible,sha(d.points.map((name,i)=>h?.printedLabels?.[i+1]??name)),Object.keys(h?.printedLabels??{}).join(' '),d.indexSource)
+        sheets.at(-1).push(printed,modelRuns*n,estimated,provided,eligible,sha(d.points.map((name,i)=>h?.printedLabels?.[i+1]??name)),Object.keys(h?.printedLabels??{}).join(' '),d.indexSource,
+          ...[h?.weekday,h?.friday??h?.weekday,h?.saturday,h?.sunday].map(g=>scope(g,n)))
         t.active19+=active
         desc.push([id,label,`${d.from} → ${d.to}`,`${n} ${d.pointKind}`,provided,eligible,m?n:0,extent+(d.reason?' · '+d.reason:'')])
       }

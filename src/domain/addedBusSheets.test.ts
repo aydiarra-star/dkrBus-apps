@@ -56,6 +56,7 @@ it.each([
   ['ddd','16A',3,64,'19:03','22:55','19:20','22:57'],
   ['aftu','57',0,56,'19:06','21:58','19:11','21:53'],
   ['aftu','57',1,57,'19:07','21:51','19:05','21:59'],
+  ['aftu','30',1,74,'19:02','22:32','19:25','22:19'],
 ] as const)('%s %s variante %i : 19 h, dernière seconde et fin sans redémarrage', (family,code,side,rank,next,last,nextWE,lastWE) => {
   const d = BUS_BOARD_LINES[family].find(l => l.code === code)!.directions[side]
   for (const [date, hh, end] of [[day,next,last],[day + 2*86400000,nextWE,lastWE],[day + 3*86400000,nextWE,lastWE]] as const) {
@@ -88,4 +89,16 @@ it('30 depuis Colobane : deux rangs de même libellé ne sont pas la même minut
   const board = compileSign(back,day)
   expect([11,12].map(r => board.at(r,at('07:13')).passage)).toMatchObject(['07:14','07:15'].map(t => ({state:'active',at:at(t)})))
   expect(board.at(74,at('22:32')).passage.state).toBe('finished')
+})
+
+it('30 le samedi : Colobane → Guédiawaye garde 37 colonnes et ne prête rien à l’autre sens', () => {
+  const [go, back] = BUS_BOARD_LINES.aftu.find(l => l.code === '30')!.directions
+  const saturday = day + 2*86400000, when = saturday + at('07:22') - day
+  const g = back.sourceHours!.saturday!
+  expect(g.profiles.flatMap(p => p.origins)).toHaveLength(37); expect(g.ranks).toHaveLength(74)
+  expect(go.sourceHours?.saturday).toBeUndefined()
+  expect(compileSign(go,saturday,true).at(77,when).passage.state).toBe('calendar')
+  const sign = compileSign(back,saturday)
+  expect(sign.at(11,when-1000).passage).toMatchObject({state:'active',at:when})
+  expect(sign.at(12,when).passage).toMatchObject({state:'active',at:when+60000})
 })
