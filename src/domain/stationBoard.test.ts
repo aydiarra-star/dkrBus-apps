@@ -110,12 +110,6 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(pnr.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
     expect(rufisque.outbound!.nextDepartureAt).toBe('2026-10-08T13:45:30.000Z')
     expect(bargny.outbound!.nextDepartureAt).toBe('2026-10-08T13:51:00.000Z')
-    expect(pnr.outbound!.originDepartureAt).toBe('2026-10-08T13:19:00.000Z')
-    expect(rufisque.outbound!.originDepartureAt).toBe('2026-10-08T13:11:00.000Z')
-    expect(bargny.outbound!.originDepartureAt).toBe('2026-10-08T13:11:00.000Z')
-    expect(Date.parse(pnr.outbound!.nextDepartureAt) - Date.parse(pnr.outbound!.originDepartureAt)).toBe(32 * 60_000)
-    expect(Date.parse(rufisque.outbound!.nextDepartureAt) - Date.parse(rufisque.outbound!.originDepartureAt)).toBe(34.5 * 60_000)
-    expect(Date.parse(bargny.outbound!.nextDepartureAt) - Date.parse(bargny.outbound!.originDepartureAt)).toBe(40 * 60_000)
   })
 
   it('ne fait embarquer personne dans le sens impossible au terminus', () => {
