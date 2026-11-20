@@ -17,6 +17,7 @@ import {
   MAX_JSON_REQUEST_BYTES,
   MAX_MANIFEST_BYTES,
   isUploadSessionExpired,
+  protectedFinalizationExpiry,
   isExactBoundedObjectSize,
   uploadSessionExpiryAfterTokenIssuedAt,
   readJsonWithLimit,
@@ -474,6 +475,32 @@ async function finalizeUpload(
       error: cleaned ? "UPLOAD_SESSION_EXPIRED" : "UPLOAD_SESSION_EXPIRED_CLEANUP_PENDING",
     }, cors);
   }
+
+  // Protect the archive from the opportunistic expiry cleaner while this
+  // finalization is in flight. The conditional UPDATE is the concurrency
+  // boundary: if cleanup has already made the session eligible, no object or
+  // manifest work is attempted; if this update wins, cleanup sees the extended
+  // expiry and must leave both objects alone.
+  const finalizationStartedAt = new Date().toISOString();
+  const protectedExpiry = protectedFinalizationExpiry(session.expires_at);
+  if (!protectedExpiry) {
+    return reply(410, { error: "UPLOAD_SESSION_EXPIRED" }, cors);
+  }
+  const { data: protectedSession, error: protectExpiryError } = await admin
+    .from(UPLOAD_TABLE)
+    .update({ expires_at: protectedExpiry })
+    .eq("upload_id", session.upload_id)
+    .eq("state", "UPLOAD_PENDING")
+    .gt("expires_at", finalizationStartedAt)
+    .select("upload_id")
+    .maybeSingle();
+  if (protectExpiryError) {
+    return reply(503, { error: "UPLOAD_SESSION_FINALIZATION_GUARD_FAILED" }, cors);
+  }
+  if (!protectedSession) {
+    return reply(409, { error: "UPLOAD_SESSION_EXPIRED_OR_FINALIZED" }, cors);
+  }
+  session.expires_at = protectedExpiry;
 
   const paths = canonicalObjectPaths(session.dataset_id, session.archive_sha256);
   if (session.archive_object_path !== paths.archivePath ||
