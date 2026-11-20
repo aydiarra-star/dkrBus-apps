@@ -5,10 +5,10 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 | Famille | Identités | Fiches hors alias (vides incluses) | Sans liste | Rangs d’arrêt | Avec heure fournie¹ | Décomptables en semaine² | % des rangs d’arrêt | Actifs à 19 h | Repères / secteurs exclus | Origines seules exclues |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 48 | 111 | 4 | 1322 | 752 | 690 | 52,19 % | 245 | 600 | 53 |
-| AFTU | 73 | 159 | 56 | 3584 | 870 | 797 | 22,24 % | 356 | 736 | 0 |
+| AFTU | 73 | 159 | 56 | 3584 | 1175 | 1102 | 30,75 % | 430 | 736 | 0 |
 | TATA | 65 | 149 | 9 | 0 | 0 | 0 | non défini | 0 | 1458 | 0 |
 
-**1487 / 4906 = 30,31 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
+**1792 / 4906 = 36,53 %** des occurrences classées « arrêts » ont au moins un décompte de semaine vérifiable. Tous types de rangs affichables inclus, le dénominateur est **7753**. Un même nom ou un même arrêt dans deux fiches conserve ses rangs. Les listes inconnues ne sont pas des arrêts de dénominateur zéro : les sens sans liste figurent ci-dessous. Un alias n’est pas une deuxième fiche. Une liste partielle n’est pas un trajet complet.
 
 ¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.
 
@@ -21,7 +21,7 @@ Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux`
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | DDD | 16281 | 4862 | 3158 | 1872 | 250 | 0 | 0 | 145608 | 86508 |
-| AFTU | 27473 | 14927 | 14927 | 0 | 91 | 0 | 0 | 253767 | 206877 |
+| AFTU | 34895 | 14927 | 14927 | 0 | 91 | 0 | 0 | 253767 | 186981 |
 | TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 65400 | 65400 |
 
 ¹ Échantillons et bornes : ils peuvent recouper une colonne de la grille. Ne pas additionner ces catégories pour annoncer des passages uniques. ² Nombre de créneaux × nombre d’occurrences dans chaque variante, y compris les repères. Le choix « estimés » ne remplace jamais une grille épuisée ; le CSV par fiche distingue le modèle brut des estimations effectivement proposées. ³ Uniquement les cellules d’une grille de vendredi explicitement distincte ; ailleurs la grille « semaine » inclut le vendredi. Dans `heures.csv`, `monday-thursday` ne vaut jamais pour `friday`. Les heures de service 24:xx et 25:xx tombent le lendemain civil. Une case vide à 19 h n’est pas zéro minute.
@@ -153,9 +153,9 @@ Rangs d’arrêt exclus : Liste de l’opérateur · aucune heure par arrêt : 4
 
 ## AFTU
 
-Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 60, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **42, 57, 58, 60, 65, 73, 75**.
+Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **30, 42, 57, 58, 60, 62, 64, 65, 66, 67, 68, 70, 71, 72, 73, 75, 79, 81, 82, 83, 84, 90, 86, 87, 88, 89, 91**. Deux sens avec au moins un rang décomptable en semaine : **30, 42, 57, 58, 60, 65, 66, 73, 75**.
 
-Rangs d’arrêt exclus : aucune heure source au rang : 2443 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
+Rangs d’arrêt exclus : aucune heure source au rang : 2138 ; heures isolées sans continuité : 73 ; Variante à confirmer : 271.
 
 | Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |
 |---|---|---|---|---:|---:|---:|---|
@@ -183,8 +183,8 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2443 ; heures isolées s
 | aftu:28/2 | Retour | Petersen → Hamo V/VI | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:29/1 | Aller | Terminus Cité Nations Unies (Cambérène) → Terminus Gare Petersen | 16 repères | 0 | 0 | 16 | repères / secteurs |
 | aftu:29/2 | Retour | Petersen → Cité Nations Unies (Cambérène) | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
-| aftu:30/1 | Aller | Guédiawaye → Gare de Colobane | 77 arrêts | 0 | 0 | 77 | liste de la fiche |
-| aftu:30/2 | Retour | Gare de Colobane → Guédiawaye | 74 arrêts | 0 | 0 | 74 | liste de la fiche |
+| aftu:30/1 | Aller | Guédiawaye → Gare de Colobane | 77 arrêts | 77 | 77 | 77 | liste de la fiche |
+| aftu:30/2 | Retour | Gare de Colobane → Guédiawaye | 74 arrêts | 74 | 74 | 74 | liste de la fiche |
 | aftu:31/1 | Aller | Terminus Tally Icotaf × Route des Niayes (Pikine) → Terminus Hôpital Abass Ndao | 15 repères | 0 | 0 | 15 | repères / secteurs |
 | aftu:31/2 | Retour | Hôpital Abass Ndao → Tally Icotaf × Route des Niayes | 0 arrêts | 0 | 0 | 0 | sans liste · Sens non documenté |
 | aftu:32/1 | Aller | Terminus Sahm → Terminus Serigne Assane | 13 repères | 0 | 0 | 13 | repères / secteurs |
@@ -265,8 +265,8 @@ Rangs d’arrêt exclus : aucune heure source au rang : 2443 ; heures isolées s
 | aftu:64/2 | Retour | Rufisque → Guédiawaye | 61 arrêts | 0 | 0 | 61 | liste de la fiche |
 | aftu:65/1 | Aller | Colobane → Jaxaay | 57 arrêts | 57 | 57 | 57 | liste de la fiche |
 | aftu:65/2 | Retour | Jaxaay → Colobane | 56 arrêts | 56 | 56 | 56 | liste de la fiche |
-| aftu:66/1 | Aller | Yoff → Gorom | 77 arrêts | 0 | 0 | 77 | liste de la fiche |
-| aftu:66/2 | Retour | Gorom → Yoff | 77 arrêts | 0 | 0 | 77 | liste de la fiche |
+| aftu:66/1 | Aller | Yoff → Gorom | 77 arrêts | 77 | 77 | 77 | liste de la fiche |
+| aftu:66/2 | Retour | Gorom → Yoff | 77 arrêts | 77 | 77 | 77 | liste de la fiche |
 | aftu:67/1 | Aller | Rufisque → Ouakam | 71 arrêts | 0 | 0 | 71 | liste de la fiche |
 | aftu:67/2 | Retour | Ouakam → Rufisque | 71 arrêts | 0 | 0 | 71 | liste de la fiche |
 | aftu:68/1 | Aller | Bargny → Yeumbeul | 50 arrêts | 0 | 0 | 50 | liste de la fiche |

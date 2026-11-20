@@ -61,3 +61,25 @@ it('57 vers Liberté 6 : à 19 h et jusqu’au dernier rang du week-end, sans pr
     expect(board.at(56,instant(end)).passage.state).toBe('finished')
   }
 })
+
+it.each([
+  ['30',77,74,'06:01','06:04'],
+  ['66',77,77,'06:20','06:14'],
+] as const)('AFTU %s : chaque terminus reçoit sa propre colonne, jamais celle du retour', (code,n,m,a,b) => {
+  const [go,back] = BUS_BOARD_LINES.aftu.find(l => l.code === code)!.directions
+  for (const [d,rank,h] of [[go,n,a],[back,m,b]] as const) {
+    const grid = d.sourceHours!.weekday!
+    expect(grid.ranks).toHaveLength(rank)
+    const sign = compileSign(d,day,true)
+    expect(sign.at(rank,at(h)-1000).passage.at).toBe(at(h))
+    if (grid.nextUntranscribedOrigin) expect(sign.at(rank,at('19:00')).passage.state).toBe('unknown')
+  }
+})
+
+it('30 depuis Colobane : deux rangs de même libellé ne sont pas la même minute', () => {
+  const back = BUS_BOARD_LINES.aftu.find(l => l.code === '30')!.directions[1]
+  expect(back.points.slice(10,12)).toEqual(['Allees Khalifa Ababacar Sy, 2750','Allees Khalifa Ababacar Sy, 2750'])
+  const board = compileSign(back,day)
+  expect([11,12].map(r => board.at(r,at('07:13')).passage.at)).toEqual(['07:14','07:15'].map(at))
+  expect(board.at(74,at('22:32')).passage.state).toBe('finished')
+})
