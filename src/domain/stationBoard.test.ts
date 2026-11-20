@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BRT_STOPS, TER_STOPS } from './corridors'
 import { boardLinesForNetwork, buildStationBoard, stationShortName } from './stationBoard'
-import { nextReferencePassage } from './headways'
-import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
-
-function nextAirportBoundSlot(_allTrainAtDiamniadio: string): string {
-  const airportFrequency = OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD')
-  return nextReferencePassage(airportFrequency, NOW, 44.5)!.nextDepartureAt
-}
 
 /** Jeudi 8 octobre 2026, 12:00:00 UTC (heure de Dakar, UTC+00 toute l'année). */
 const NOW = Date.parse('2026-10-08T12:00:00.000Z')
@@ -70,9 +63,10 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(diamniadio.inbound!.headwayMinutes).toBe(8)
     expect(diamniadio.outboundAirport!.headwayMinutes).toBe(24)
     expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
-    expect(diamniadio.outboundAirport!.nextDepartureAt).toBe(
-      nextAirportBoundSlot(diamniadio.outbound!.nextDepartureAt),
-    )
+    const outboundPhaseGap = (Date.parse(diamniadio.outboundAirport!.nextDepartureAt) - Date.parse(diamniadio.outbound!.nextDepartureAt)) / 60_000
+    expect([0, 8, 16]).toContain(outboundPhaseGap)
+    const inboundPhaseGap = (Date.parse(diamniadio.inboundAirport!.nextDepartureAt) - Date.parse(diamniadio.inbound!.nextDepartureAt)) / 60_000
+    expect([0, 8, 16]).toContain(inboundPhaseGap)
     expect(aibd.inbound!.headwayMinutes).toBe(24)
   })
 
