@@ -1,0 +1,794 @@
+{
+  "scope": "DOCUMENTARY_ONLY_NOT_DOOR_DISTANCES",
+  "archiveSha256": {
+    "aftu": "7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428",
+    "ddd": "578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159"
+  },
+  "occurrenceColumns": [
+    "stopId",
+    "rank",
+    "previousStopId",
+    "nextStopId"
+  ],
+  "routes": {
+    "DDD_01": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_01_LECLERC",
+          "trips": 89,
+          "callCount": 43,
+          "first": [
+            "D_140",
+            "Terminus Leclerc"
+          ],
+          "last": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "occurrences": [
+            [
+              "D_122",
+              4,
+              "D_131",
+              "D_119"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_01_PARCELLES-ASSAINIES",
+          "trips": 119,
+          "callCount": 42,
+          "first": [
+            "D_805",
+            "Terminus Parcelles Assaines"
+          ],
+          "last": [
+            "D_140",
+            "Terminus Leclerc"
+          ],
+          "occurrences": [
+            [
+              "D_128",
+              37,
+              "D_114",
+              "D_418"
+            ]
+          ]
+        }
+      ]
+    },
+    "DDD_07": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "DDD_07_PALAIS-02",
+          "trips": 138,
+          "callCount": 36,
+          "first": [
+            "D_708",
+            "Terminus Palais 2"
+          ],
+          "last": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "occurrences": [
+            [
+              "D_122",
+              7,
+              "D_133",
+              "D_119"
+            ],
+            [
+              "D_1258",
+              32,
+              "D_59",
+              "D_45"
+            ],
+            [
+              "D_45",
+              33,
+              "D_1258",
+              "D_35"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "DDD_07_OUAKAM",
+          "trips": 160,
+          "callCount": 36,
+          "first": [
+            "D_23",
+            "Terminus 7218 219"
+          ],
+          "last": [
+            "D_708",
+            "Terminus Palais 2"
+          ],
+          "occurrences": [
+            [
+              "D_48",
+              5,
+              "D_1230",
+              "D_56"
+            ],
+            [
+              "D_128",
+              30,
+              "D_114",
+              "D_418"
+            ]
+          ]
+        }
+      ]
+    },
+    "DDD_18": {
+      "lastRegularDate": "20231231",
+      "lastException": "20231225",
+      "variants": [
+        {
+          "directionId": "1",
+          "shape": "DDD_18_DIEUPEUL",
+          "trips": 39,
+          "callCount": 43,
+          "first": [
+            "D_713",
+            "Terminus Liberté 5"
+          ],
+          "last": [
+            "D_583",
+            "Lonase Dieuppeul"
+          ],
+          "occurrences": [
+            [
+              "D_700",
+              14,
+              "D_697",
+              "D_702"
+            ]
+          ]
+        }
+      ]
+    },
+    "AFTU_42": {
+      "lastRegularDate": "20231231",
+      "lastException": null,
+      "variants": [
+        {
+          "directionId": "0",
+          "shape": "AFTU_42_Ouakam",
+          "trips": 75,
+          "callCount": 66,
+          "first": [
+            "A_1746",
+            "Devant Terminus 42 Et 44 Marché Jeudi"
+          ],
+          "last": [
+            "A_453",
+            "Terminus 30 49"
+          ],
+          "occurrences": [
+            [
+              "A_13",
+              2,
+              "A_1746",
+              "A_2028"
+            ],
+            [
+              "A_2028",
+              3,
+              "A_13",
+              "A_708"
+            ]
+          ]
+        },
+        {
+          "directionId": "1",
+          "shape": "AFTU_42_Gadaye",
+          "trips": 86,
+          "callCount": 67,
+          "first": [
+            "A_453",
+            "Terminus 30 49"
+          ],
+          "last": [
+            "A_1746",
+            "Devant Terminus 42 Et 44 Marché Jeudi"
+          ],
+          "occurrences": [
+            [
+              "A_17",
+              64,
+              "A_24",
+              "A_378"
+            ],
+            [
+              "A_12",
+              66,
+              "A_378",
+              "A_1746"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "pointColumns": [
+    "latitude",
+    "longitude",
+    "archiveLabelOrSource"
+  ],
+  "points": {
+    "cbaoTable": [
+      14.6694867,
+      -17.4330333,
+      "https://demdikk.sn/chatbot-arrets/"
+    ],
+    "posteTable": [
+      14.669285,
+      -17.43627,
+      "https://demdikk.sn/chatbot-arrets/"
+    ],
+    "osmCbao": [
+      14.6694418,
+      -17.4330474,
+      "https://www.openstreetmap.org/node/4666430941/history/3"
+    ],
+    "osmPosteCandidate": [
+      14.6695598,
+      -17.4334469,
+      "https://www.openstreetmap.org/node/711879280/history/2"
+    ],
+    "D_45": [
+      14.727827348683782,
+      -17.48799238150611,
+      "Boutique Diallo Devant La Station Shell"
+    ],
+    "D_48": [
+      14.727737,
+      -17.4881306,
+      "Boutique Diallo En Face Station Shell"
+    ],
+    "D_122": [
+      14.669515178932798,
+      -17.433442192379697,
+      "Poste Ponty"
+    ],
+    "D_128": [
+      14.66942939031693,
+      -17.433021317552843,
+      "Cbao Ponty"
+    ],
+    "D_700": [
+      14.697649796249971,
+      -17.446442998001256,
+      "Terrain Colobane"
+    ],
+    "D_1258": [
+      14.727454771776891,
+      -17.485203749520508,
+      "Ecole 6 Ouakam"
+    ],
+    "A_12": [
+      14.727949772777263,
+      -17.487942881349554,
+      "Boutique Diallo Devant Station Shell"
+    ],
+    "A_13": [
+      14.727711473344252,
+      -17.488129801610977,
+      "Boutique Diallo En Face Station Shell"
+    ],
+    "A_17": [
+      14.72744688520738,
+      -17.485204220483357,
+      "Ecole 6 Ouakam"
+    ],
+    "A_2028": [
+      14.72736727676959,
+      -17.485292020716493,
+      "Ecole 6 Ouakam"
+    ]
+  },
+  "markerSeparationsMeters": [
+    [
+      "cbaoTable",
+      "osmCbao",
+      5.2
+    ],
+    [
+      "cbaoTable",
+      "D_128",
+      6.5
+    ],
+    [
+      "posteTable",
+      "osmPosteCandidate",
+      305.2
+    ],
+    [
+      "posteTable",
+      "D_122",
+      305.3
+    ],
+    [
+      "D_45",
+      "A_13",
+      19.6
+    ],
+    [
+      "A_12",
+      "D_48",
+      31.1
+    ],
+    [
+      "D_45",
+      "A_12",
+      14.6
+    ],
+    [
+      "A_13",
+      "D_48",
+      2.8
+    ]
+  ],
+  "onlyInArchivesNotProofOfClosure": {
+    "ddd:102": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_102_COLOBANE",
+          "trips": 108,
+          "calls": 37,
+          "first": "Terrain Colobane",
+          "last": "Terminus Canberene 2",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_102_CAMBERENE",
+          "trips": 117,
+          "calls": 34,
+          "first": "Terminus Canberene 2",
+          "last": "Terrain Colobane",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:103": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_103_COLOBANE",
+          "trips": 108,
+          "calls": 32,
+          "first": "Terrain Colobane",
+          "last": "AéRoport LéOpold SéDar Senghor",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_103_AEROPORT",
+          "trips": 117,
+          "calls": 35,
+          "first": "AéRoport LéOpold SéDar Senghor",
+          "last": "Terrain Colobane",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:105": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_105_PETERSEN",
+          "trips": 108,
+          "calls": 25,
+          "first": "Ecole Papa Gueye Fall",
+          "last": "Terminus Canberene 2",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_105_CAMBERENE",
+          "trips": 117,
+          "calls": 28,
+          "first": "Terminus Canberene 2",
+          "last": "Grande Mosquée De Dakar",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:111": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_111_LECLERC",
+          "trips": 108,
+          "calls": 29,
+          "first": "Terminus Leclerc",
+          "last": "Terminus Diamalaye",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_111_YOFF",
+          "trips": 117,
+          "calls": 31,
+          "first": "Terminus Diamalaye",
+          "last": "Terminus Leclerc",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:16": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_16_PALAIS1",
+          "trips": 92,
+          "calls": 45,
+          "first": "Terminus Palais 2",
+          "last": "Terminus Malika",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_16_MALIKA",
+          "trips": 112,
+          "calls": 42,
+          "first": "Terminus Malika",
+          "last": "Terminus Palais 2",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:210": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_210_BAUX-MARAICHERS",
+          "trips": 76,
+          "calls": 36,
+          "first": "Gare Des Baux MaraichéRs",
+          "last": "Tivaouane Peulh",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_210_TIVAOUNE-PEULH",
+          "trips": 85,
+          "calls": 33,
+          "first": "Tivaouane Peulh",
+          "last": "Gare Des Baux MaraichéRs",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:223": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_223_PETERSEN",
+          "trips": 59,
+          "calls": 24,
+          "first": "Petersen",
+          "last": "Terminus Daroukhane",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_223_DAROUKHANE",
+          "trips": 70,
+          "calls": 27,
+          "first": "Terminus Daroukhane",
+          "last": "Petersen",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:231": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_231_BAUX-MARAICHERS",
+          "trips": 76,
+          "calls": 38,
+          "first": "Gare Des Baux MaraichéRs",
+          "last": "Terminus La LinguèRe",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_231_JAXAAY",
+          "trips": 85,
+          "calls": 35,
+          "first": "Terminus La LinguèRe",
+          "last": "Gare Des Baux MaraichéRs",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:301": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_301_MEDINA",
+          "trips": 144,
+          "calls": 27,
+          "first": "Sham",
+          "last": "Terminus Parcelles Assaines",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_301_PARCELLES",
+          "trips": 144,
+          "calls": 24,
+          "first": "Terminus Parcelles Assaines",
+          "last": "Sham",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:305": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_305_YOFF",
+          "trips": 144,
+          "calls": 24,
+          "first": "Aéroport Léopold Sédar Senghor",
+          "last": "Terminus Palais 2",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_305_PALAIS-2",
+          "trips": 144,
+          "calls": 21,
+          "first": "Terminus Palais 2",
+          "last": "Aéroport Léopold Sédar Senghor",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:308": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_308_PATTE-D'OIE",
+          "trips": 144,
+          "calls": 21,
+          "first": "Terrain Basket Hôpital Nabil Choucair",
+          "last": "Mamelles",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_308_OUAKAM",
+          "trips": 144,
+          "calls": 23,
+          "first": "Mamelles",
+          "last": "Jardin Patte D'Oie",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:315": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_315_YENNE",
+          "trips": 144,
+          "calls": 23,
+          "first": "Terminus SéBikhotane",
+          "last": "Gare De Rufisque",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_315_RUFISQUE",
+          "trips": 144,
+          "calls": 22,
+          "first": "Gare De Rufisque",
+          "last": "Terminus SéBikhotane",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:323": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [],
+      "tripsWithoutCalls": [
+        {
+          "code": "323",
+          "directionId": "0",
+          "shapeId": "DDD_323_PARCELLE-ASSAINIE",
+          "trips": 144
+        },
+        {
+          "code": "323",
+          "directionId": "1",
+          "shapeId": "DDD_323_GUEULE-TAPEE",
+          "trips": 144
+        }
+      ]
+    },
+    "ddd:401": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_401_AIBD",
+          "trips": 31,
+          "calls": 30,
+          "first": "Terminus Diamniadio",
+          "last": "Terminus 7218 219",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_401_OUAKAM",
+          "trips": 27,
+          "calls": 24,
+          "first": "Terminus 7218 219",
+          "last": "Terminus Diamniadio",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:402": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_402_AIBD",
+          "trips": 84,
+          "calls": 26,
+          "first": "Terminus Diamniadio",
+          "last": "Terminus Poste Thiaroye",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_402_THIAROYE",
+          "trips": 63,
+          "calls": 28,
+          "first": "Terminus Poste Thiaroye",
+          "last": "Terminus Diamniadio",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:403": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_403_AIBD",
+          "trips": 33,
+          "calls": 29,
+          "first": "Terminus Diamniadio",
+          "last": "Terminus Parcelles Assaines",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_403_PARCELLES-ASSAINIES",
+          "trips": 36,
+          "calls": 30,
+          "first": "Terminus Parcelles Assaines",
+          "last": "Terminus Diamniadio",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:404": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_404_AIBD",
+          "trips": 44,
+          "calls": 6,
+          "first": "Aibd",
+          "last": "Terminus Leclerc",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_404_LECLERC",
+          "trips": 44,
+          "calls": 4,
+          "first": "Terminus Leclerc",
+          "last": "Aibd",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:405": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_405_AIBD",
+          "trips": 47,
+          "calls": 19,
+          "first": "Terminus Diamniadio",
+          "last": "Terminus Liberté 5",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_405_DIEUPPEUL",
+          "trips": 43,
+          "calls": 16,
+          "first": "Terminus Liberté 5",
+          "last": "Terminus Diamniadio",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    },
+    "ddd:504": {
+      "lastRegularDateInArchive": "20231231",
+      "variants": [
+        {
+          "id": "0",
+          "shape": "DDD_504_GARE-DE-DIAMNIADIO",
+          "trips": 153,
+          "calls": 6,
+          "first": "Gare Ter De Diamniadio",
+          "last": "Institut De Recherche En Santé",
+          "issues": []
+        },
+        {
+          "id": "1",
+          "shape": "DDD_504_SPHERE MINISTERIELLE",
+          "trips": 147,
+          "calls": 4,
+          "first": "Institut De Recherche En Santé",
+          "last": "Gare Ter De Diamniadio",
+          "issues": []
+        }
+      ],
+      "tripsWithoutCalls": []
+    }
+  }
+}

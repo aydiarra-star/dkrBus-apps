@@ -25,8 +25,9 @@ def seconds(value):
     return h * 3600 + m * 60 + s
 
 
-def inspect(z, family, minutes):
-    specs = TARGETS[family]
+def inspect(z, family, minutes, specs=None):
+    if specs is None:
+        specs = TARGETS[family]
     labels = {r['stop_id']: r['stop_name'] for r in tables(z, 'stops')}
     trips = {t['trip_id']: t for t in tables(z, 'trips') if t['route_id'] in specs}
     by_trip = defaultdict(list)

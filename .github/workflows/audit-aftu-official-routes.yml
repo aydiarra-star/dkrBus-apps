@@ -13,6 +13,9 @@ on:
       - "scripts/bus_change_candidates.py"
       - "scripts/audit_terminal_calls.py"
       - "scripts/audit_reference_archives.py"
+      - "scripts/audit_exchange_calls.py"
+      - "data/bus-review/exchange-call-comparison.json"
+      - "docs/panneaux/fiches.csv"
       - "data/bus-review/reported-218-73.json"
       - "data/bus-review/reference-archives.json"
       - "scripts/ouakam_site.py"
@@ -97,6 +100,8 @@ jobs:
           cmp data/bus-review/terminal-occurrences.json artifacts/aftu/terminal-calls.json
           python -m scripts.audit_reference_archives "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/reference-archives.json
           cmp data/bus-review/reference-archives.json artifacts/aftu/reference-archives.json
+          python -m scripts.audit_exchange_calls "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/exchange-calls.json
+          cmp data/bus-review/exchange-call-comparison.json artifacts/aftu/exchange-calls.json
           test "$(python -m scripts.medina_phase "$ddd")" = '119 2097 3518 4645'
           test "$(python -m scripts.medina_phase "$ddd" --direction inbound)" = '89 631 1066 1355'
       - name: Inspect depot exits, archived calls and the two outward drawings at Thiaroye (no walking links)

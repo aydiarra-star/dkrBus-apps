@@ -17,19 +17,19 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **4** · Terminus Liberté 5 (Dieuppeul) → Terminus Leclerc | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **5** · Terminus Guédiawaye → Palais 1 | Non · 15 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **6** · Terminus Cambérène 2 → Palais 2 | Non · 24 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 1 relation(s) sans desserte entière validée |
-| **7** · Rue Okm 60, 67 → Gare Palais | Non · 21/27 noms | Non · 29 noms | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 2 relation(s) sans desserte entière validée |
+| **7** · Rue Okm 60, 67 → Gare Palais | Non · 21/27 noms | Non · 29 noms | Non établi | Non établi | 6 sens étudiés · aucun témoin | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **8** · Terminus Aéroport LSS → Terminus Palais 2 | Non · 28 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 1 portion(s) seulement |
 | **9** · Terminus Liberté 6 → Terminus Palais 2 | Non · 24 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **10** · Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | Non · 29 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 2 relation(s) sans desserte entière validée |
 | **11** · Terminus Keur Massar → Terminus Lat Dior | Non · 16 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
-| **12** · Terminus Guédiawaye → Palais 1 | Non · 20 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 1 portion(s) seulement |
+| **12** · Terminus Guédiawaye → Palais 1 | Non · 20 noms | Non | Non établi | Non établi | 6 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 1 portion(s) seulement |
 | **13** · Terminus Liberté 5 (Dieuppeul) → Terminus Palais 2 | Non · 24 noms | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · libellés sans quais validés |
 | **15** · Terminus Rufisque → Palais 1 | Non · 18 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **15A** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **15B** · Rufisque → Palais 1 | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · pas de séquence physique attribuée |
 | **16A** · Terminus Malika → Palais 1 | Non · 19 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
 | **16B** · Terminus Malika → Palais 1 | Non · 27 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · libellés sans quais validés |
-| **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
+| **18** · Terminus Liberté 5 (Dieuppeul) → Terminus Liberté 5 (Dieuppeul) | Non | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
 | **20** · Terminus Dieuppeul → Terminus Dieuppeul | Non | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · circuit non ventilé |
 | **23** · Terminus des Parcelles → Terminus Palais 2 | Non · 40 noms | Non | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · libellés sans quais validés |
 | **121** · Terminus Scat Urbam → Terminus Leclerc | Non · 25 noms | Non | Non établi | Non établi | 4 sens étudiés · aucun témoin | 0 | Non · 1 relation(s) sans desserte entière validée |
@@ -103,7 +103,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **39** · TERMINUS LAT - DIOR → TERMINUS DIAMALAYE | Non | Non | Carte · écarts de voirie | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **40** · TERMINUS GRAND MBAO → TERMINUS PETERSEN | Non · 11 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **41** · TERMINUS PETERSEN → TERMINUS ETAGE MADIALE | Non · 21 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/1 suites historiques sur le dessin à 20 m |
-| **42** · Arrêt De Bus → Rue Okm 282, 222 | Non · 70 noms | Non · 68 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **42** · Arrêt De Bus → Rue Okm 282, 222 | Non · 70 noms | Non · 68 noms | Non établi | Non établi | 2 sens étudiés · aucun témoin | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **43** · TERMINUS OUAKAME → TERMINUS THIERNO | Non | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **44** · Terminus Grand Mbao → Terminus Ouakam | Non · 13 noms | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **45** · TERMINUS KOUNOUNE NGALAM → TERMINUS PARCELLES ASSAINIES | Non | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |

@@ -51,7 +51,10 @@ const feeders: readonly [string, string, string, string][] = [
 ]
 const terminalReview = ['docs/terminus-correspondances.md', 'data/bus-review/terminal-occurrences.json', 'data/bus-review/terminus-quays-2026-11-19.json']
 const reportedReview = 'docs/releve-218-73.md'
-const familyReview = [reportedReview, 'data/bus-review/within-bus-families.json', 'data/bus-review/reference-archives.json']
+const exchangeReview = 'docs/enquete-correspondances.md'
+const exchangeArchive = 'data/bus-review/exchange-call-comparison.json'
+const gare = (site: string) => `https://www.terdakar.sn/gare-de-${site}-tout-ce-qu-il-faut-savoir/`
+const familyReview = [exchangeReview, exchangeArchive, reportedReview, 'data/bus-review/within-bus-families.json', 'data/bus-review/reference-archives.json']
 const survey = (mode: 'ddd' | 'aftu', key: string, documentaryName: string): SurveyEnd => ({ mode, stopId: `survey:${key}`, documentaryName })
 export const dakarTransferDossiers: readonly Dossier[] = [
   { id: 'thiaroye-218-73', busSources: ['ddd:218', 'aftu:73'], betweenSites: false,
@@ -73,19 +76,39 @@ export const dakarTransferDossiers: readonly Dossier[] = [
   { id: 'ponty-ddd-1-7', busSources: ['ddd:1', 'ddd:7'], betweenSites: false,
     ends: [survey('ddd', 'ponty:1:leclerc', 'Ponty · descente de la 1 vers Leclerc'),
       survey('ddd', 'ponty:7:palais', 'Ponty · montée dans la 7 vers Palais 1')],
-    observation: 'Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 1. L’ancien appel D_128 (Cbao Ponty) était commun, mais la fiche DDD nomme Palais 2. Ni permission de rester au même point ni deux courses datées.',
+    observation: 'Même objet OSM 4666430941, rang 36/38 dans la 1 et 30/34 dans la 7 vers Palais 1. L’ancien appel D_128 (Cbao Ponty) était commun, mais la fiche DDD nomme Palais 2. CBAO rang 44/47 dans le tableau opérateur de la 1 ; aucune occurrence nommée Ponty sur la 7 de Gare Palais. Identifier les portes et deux appels datés avant de proposer de rester sur place.',
     reverse: { ends: [survey('ddd', 'ponty:7:ouakam', 'Ponty · descente de la 7 vers Ouakam'),
       survey('ddd', 'ponty:1:parcelles', 'Ponty · montée dans la 1 vers les Parcelles')],
-      observation: 'Dans ce sens, les deux anciennes lignes appelaient D_122 (Poste Ponty), pas D_128. Le poteau 711879280 près de Poste Ponty n’a pas d’appartenance de ligne. Les deux portes du retour restent à identifier.' },
-    sources: [...familyReview, 'https://www.openstreetmap.org/node/4666430941/history/3', 'https://api.openstreetmap.org/api/0.6/node/4666430941/relations.json', urbanPage] },
+      observation: 'Dans ce sens, les deux anciennes lignes appelaient D_122 (Poste Ponty), pas D_128. Poste (Avenue Ponty), rang 4/43 de l’extrait DDD, est à 305,2 m du symbole OSM 711879280 sans relation et à 305,3 m de D_122. Écart entre coordonnées de sources, pas un chemin : ne pas placer la porte à cet ancien ID.' },
+    sources: [...familyReview, 'https://www.openstreetmap.org/node/4666430941/history/3', 'https://api.openstreetmap.org/api/0.6/node/4666430941/relations.json', 'https://demdikk.sn/chatbot-arrets/', urbanPage] },
   { id: 'colobane-aftu-75-65', busSources: ['aftu:75', 'aftu:65'], betweenSites: false,
     ends: [survey('aftu', 'colobane:75:arrivee', 'Colobane · descente de la 75 depuis Malika'),
       survey('aftu', 'colobane:65:depart', 'Colobane · montée dans la 65 vers Jaxaay 2')],
-    observation: 'Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1,4 m. L’ancienne 65 depuis A_1564 allait vers Kounoune École Mbaba. Aucune marche ni montée datée démontrée.',
+    observation: 'Les symboles fin 75 / début 65 sont à 0,4 m ; les extrémités des traits à 1,4 m. L’ancienne 65 depuis A_1564 allait vers Kounoune École Mbaba. 75 r52/52 à 04:33, 65 r1/57 à 04:42 : 9 min entre cellules de semaine, pas le temps pour passer d’une porte à l’autre.',
     reverse: { ends: [survey('aftu', 'colobane:65:arrivee', 'Colobane · descente de la 65 depuis Jaxaay 2'),
       survey('aftu', 'colobane:75:depart', 'Colobane · montée dans la 75 vers Malika')],
-      observation: 'Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. Les listes retour à Gare De Colobane ne localisent pas les portes.' },
+      observation: 'Les dessins mesurés ne montrent pas cette arrivée de la 65 ni ce départ de la 75. 65 r56/56 à 05:11 et 75 r1/51 à 05:16 : 5 min entre cellules de semaine. La fiche nomme Yeumbeul ; confirmer la variante de Malika, les quais et la permission de monter.' },
     sources: [...familyReview, 'https://aftu-senegal.org/map/dakar-urbain-ligne-75/', 'https://aftu-senegal.org/map/dakar-urbain-ligne-65/'] },
+  { id: 'ouakam-7-42', busSources: ['ddd:7','aftu:42'], betweenSites: false,
+    ends: [survey('ddd','okm:7:fin','Rue Okm 60, 67 · 7 depuis Palais, rang 29/29'),
+      survey('aftu','okm:42:vers-gadaye','Rue Okm 60, 67 · 42 depuis Ouakam, rang 3/68')],
+    observation: 'Semaine : 7 depuis Palais à 05:23, r29 à 05:53 ; 42 depuis Stade Municipal à 06:05, r3 à 06:06. Ni côté de rue ni quai commun établis. Dans les archives, Boutique Diallo devant Shell (D_45) et en face (A_13) sont deux repères différents.',
+    reverse: { ends: [survey('aftu','okm:42:vers-ouakam','Rue Okm 60, 67 · 42 vers Ouakam, rang 68/70'),
+      survey('ddd','okm:7:vers-palais','Rue Okm 60, 67 · 7 vers Gare Palais, rang 1/27')],
+      observation: '42 depuis 05:30, r68 à 06:20 ; la 7 commence aussi à 06:20. Même minute imprimée, pas une marge, ni une permission de rester. A_12 et D_48 sont des repères historiques de côtés différents. Relever séparément ce sens.' },
+    sources: [exchangeReview, exchangeArchive, 'https://aftu-senegal.org/map/dakar-urbain-ligne-42/', 'src/data/bus-sheets/aftu-42-outbound.json','src/data/bus-sheets/aftu-42-inbound.json','src/data/bus-sheets/ddd-7-outbound.json','src/data/bus-sheets/ddd-7-inbound.json'] },
+  { id: 'dakar-12-ter', busSources: ['ddd:12'], betweenSites: true,
+    ends: [survey('ddd','gare:12:depuis-palais','Gare De Dakar · 12 depuis Gare Palais, rang 10/67'),ter('ter-dakar')],
+    observation: '19:53 à Gare Palais, 20:01 à la cellule Gare De Dakar. Le hall et le guichet place du Tirailleur ne localisent ni la descente du bus ni la montée dans le train. Relever porte, traversée du parvis, contrôle des titres, voie et délai.',
+    reverse: { ends: [ter('ter-dakar'),survey('ddd','gare:12:vers-palais','Gare de Dakar · montée à localiser, 12 vers Palais')],
+      observation: 'La feuille des 63 appels vers Palais ne nomme pas Gare De Dakar. Ne pas inverser le rang 10/67, ni utiliser Avenue Faidherbe comme porte. Il manque la descente du train dans ce sens, sa sortie et le vrai point de montée de la 12.' },
+    sources: [exchangeReview,gare('dakar'),'src/data/ddd12DirectionSheets.ts','src/data/weekly-cells/ddd-12-guediawaye.json'] },
+  { id: 'colobane-18-ter', busSources: ['ddd:18'], betweenSites: true,
+    ends: [survey('ddd','colobane:18:descente','Colobane après CSS · descente sur le circuit 18'),ter('ter-colobane')],
+    observation: 'Les deux fiches TER Nord et Sud disent « en face de la gare (2 minutes à pied) : 18 ». Elles ne distinguent pas la porte desservie, le sens de marche, le contrôle ni la voie. Aucun chrono porte bus → quai train.',
+    reverse: { ends: [ter('ter-colobane'),survey('ddd','colobane:18:montee','Colobane avant Service des mines · montée sur le circuit 18')],
+      observation: 'Localiser la sortie du quai TER et le côté à rejoindre pour monter vers Service des mines, sans retourner le circuit Dieuppeul. D_700 Terrain Colobane r14/43 dans l’archive ne désigne pas la porte. Les deux fiches de gare donnent le même texte.' },
+    sources: [exchangeReview,exchangeArchive,gare('colobane-nord'),gare('colobane-sud'),urbanPage] },
   { id: 'ouakam-67-7', busSources: ['aftu:67', 'ddd:7'], betweenSites: false,
     ends: [survey('aftu', 'ouakam:67:arrivee', 'Boutique Diallo · descente de la 67 depuis Thiawlène'),
       survey('ddd', 'ouakam:7:palais', 'Arrêt Pharmacie · montée dans la 7 vers Palais')],
@@ -121,7 +144,8 @@ export const dakarTransferDossiers: readonly Dossier[] = [
     observation: 'Le quai B1 de descente est identifié. Le quai de montée vers Guédiawaye est distinct et hors du seuil du point de référence. Les 1 km historiques ne décrivent pas un chemin entre gares.', sources: [legacy, petersen, b1] },
   { id: 'colobane-place-nation', ends: [ter('ter-colobane'), brt('brt-place-nation')], betweenSites: true,
     observation: 'Les 1,4 km historiques ne constituent pas une mesure sur des voies piétonnes identifiées.', sources: [legacy, railSite] },
-  { id: 'petersen-brt-ddd', busSources: ['ddd:13', 'ddd:121'], ends: [brt('brt-petersen'), ddd('ddd-petersen')], betweenSites: false,
+  { id: 'petersen-brt-ddd', busSources: ['ddd:13', 'ddd:121'], ends: [brt('brt-petersen'), ddd('ddd-petersen')], betweenSites: true,
+    reverse: { ends: [ddd('ddd-petersen'),brt('brt-petersen')], observation: 'Confirmer la dépose de la R01A depuis le centre-ville et sa sortie. Le zébra ne désigne pas la porte de dépose. Relever le chemin autorisé jusqu’au valideur et au quai de départ B1 vers Guédiawaye ; le quai B1 d’arrivée ne prouve pas ce rôle.' },
     observation: 'SunuBRT indique la R01A au pôle en face pour le centre-ville. Le chemin 1458575519 atteint un passage zébré, pas un point de montée R01A. Relever les portes, le quai et le départ de ce sens. Ne pas lui attribuer la desserte des 13 ou 121.', sources: [petersen, b1, pepp, urbanPage, 'https://www.sunubrt.sn/', 'https://www.openstreetmap.org/way/1458575519'] },
   { id: 'petersen-brt-aftu', busSources: ['aftu:4', 'aftu:25', 'aftu:29'], ends: [brt('brt-petersen'), aftu('aftu-petersen')], betweenSites: false,
     observation: 'AFTU 4, 25, 29 notamment : vérifier le quai de la ligne et du sens retenus, puis suivre la marche interne jusqu’au BRT.', sources: [petersen, b1, pepp, 'https://aftu-senegal.org/infos-pratiques/'] },

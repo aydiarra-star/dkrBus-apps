@@ -110,3 +110,5 @@ python -m scripts.audit_gt54 /chemin/Dem_Dikk.zip /chemin/AFTU.zip | cmp data/bu
 ```
 
 **Sources et réutilisation.** [© les contributeurs OpenStreetMap · ODbL 1.0](https://www.openstreetmap.org/copyright) pour les positions et la voirie réutilisées. [Pins de GT-54](../data/bus-sections/gt54-pins.json) et [registre des portions](../data/bus-sections/README.md). Les identités d’arrêt, heures et observations ponctuelles citées ne constituent pas une base opérateur. Aucun ZIP, tableau horaire complet, géométrie Waymark ou coordonnée de Moovit n’est distribué. Les filtres stricts du calculateur (en particulier [même quai, sens et deux services datés](../src/routing/samePlatformChanges.ts)) restent applicables.
+
+[État par sens et par rôle](pieces-par-sens.md) après l’enquête Ponty, Colobane, Ouakam, gare de Dakar et Petersen. Les comptes ci-dessus décrivent leurs étapes respectives ; aucun de ces contrôles n’est une visite sur place.
