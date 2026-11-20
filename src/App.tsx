@@ -2361,7 +2361,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
 
   return (
     <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
-      <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ Diamniadio' : 'Petersen ↔ Guédiawaye'}</p>
+      <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ AIBD · heure de Dakar (UTC+0)' : 'Petersen ↔ Guédiawaye'}</p>
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
@@ -2372,7 +2372,16 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
             {board.rows.map((row) => (
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
-                <ReferencePassage passage={row.outbound} now={now} terminus={row.stop.id === board.destinationStop.id} />
+                <span className="station-board-passage-stack">
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains · 8 min</small>}
+                  <ReferencePassage passage={row.outbound} now={now} terminus={row.stop.id === board.destinationStop.id} />
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && row.outboundAirport && (
+                    <span className="station-board-mission">
+                      <small className="station-board-mission-label">Direction AIBD · 1 train sur 3</small>
+                      <ReferencePassage passage={row.outboundAirport} now={now} />
+                    </span>
+                  )}
+                </span>
               </button>
             ))}
           </div>
@@ -2384,7 +2393,16 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
             {[...board.rows].reverse().map((row) => (
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
-                <ReferencePassage passage={row.inbound} now={now} terminus={row.stop.id === board.originStop.id} />
+                <span className="station-board-passage-stack">
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains · 8 min</small>}
+                  <ReferencePassage passage={row.inbound} now={now} terminus={row.stop.id === board.originStop.id} />
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && row.inboundAirport && (
+                    <span className="station-board-mission">
+                      <small className="station-board-mission-label">En provenance d'AIBD · 24 min</small>
+                      <ReferencePassage passage={row.inboundAirport} now={now} />
+                    </span>
+                  )}
+                </span>
               </button>
             ))}
           </div>
