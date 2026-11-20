@@ -27,6 +27,8 @@ SITES = {
     "Pikine": (14.7498644, -17.3916937, 700),
     "Rufisque": (14.7159649, -17.2699985, 850),
     "Diamniadio": (14.7160641, -17.1984512, 850),
+    "Thiaroye dépôt": (14.7471089, -17.3780703, 600),
+    "Ouakam Boutique Diallo": (14.7256037, -17.4827764, 650),
 }
 KEEP = (
     "name",
@@ -342,36 +344,13 @@ def regional_candidates(platforms, graph, routes):
 
 
 def summary(sites):
-    for name, s in sites.items():
-        ps = s["platforms"]
-        brief = [
-            [
-                p["id"],
-                p["tags"].get("name"),
-                p["tags"].get("network"),
-                p["tags"].get("route_ref"),
-                p["touchingFootways"],
-            ]
-            for p in ps
-        ]
-        # Limit annotations; the artifact retains every identified candidate.
-        print(
-            f"::notice title=Quais {name}::"
-            + json.dumps(
-                {
-                    "count": len(ps),
-                    "connected": sum(bool(p["touchingFootways"]) for p in ps),
-                    "paths": len(s["candidatePaths"]),
-                    "sample": brief[:30],
-                },
-                ensure_ascii=False,
-            ).replace("%", "%25")
-        )
-        if s["candidatePaths"]:
-            print(
-                f"::notice title=Jonctions {name}::"
-                + json.dumps(s["candidatePaths"][:24])
-            )
+    # Report all windows in one receipt: there can be more sites than
+    # GitHub's ten annotations/step. Full features and paths stay in the file.
+    rows = {}
+    for name, site in sites.items():
+        ps = site["platforms"]
+        rows[name] = [len(ps), sum(bool(p["touchingFootways"]) for p in ps), len(site["candidatePaths"])]
+    print("::notice title=Quais par site (total, contact, chemins)::" + json.dumps(rows, ensure_ascii=False))
 
 
 if __name__ == "__main__":
@@ -382,7 +361,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--regional",
         type=Path,
-        help="Also inspect exact shared objects and directed footpaths in the entire Dakar extract, not just the eight windows",
+        help="Also inspect exact shared objects and directed footpaths in the entire Dakar extract, not just the named sites",
     )
     args = parser.parse_args()
     ps, graph, routes = collect(args.pbf, bool(args.regional))

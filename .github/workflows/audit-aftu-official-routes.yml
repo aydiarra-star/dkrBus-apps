@@ -12,6 +12,8 @@ on:
       - "scripts/audit_terminus_quays.py"
       - "scripts/audit_terminal_calls.py"
       - "scripts/ouakam_site.py"
+      - "scripts/audit_thiaroye_site.py"
+      - "tests/test_thiaroye_site.py"
       - "data/bus-review/ouakam-road.json"
       - "data/bus-review/terminal-occurrences.json"
       - "data/bus-review/patte-doie-occurrences.json"
@@ -91,6 +93,23 @@ jobs:
           cmp data/bus-review/terminal-occurrences.json artifacts/aftu/terminal-calls.json
           test "$(python -m scripts.medina_phase "$ddd")" = '119 2097 3518 4645'
           test "$(python -m scripts.medina_phase "$ddd" --direction inbound)" = '89 631 1066 1355'
+      - name: Inspect depot exits, archived calls and the two outward drawings at Thiaroye (no walking links)
+        run: |
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          if ! test -s "$pbf"; then
+            echo '::warning::Contrôle du site de Thiaroye non exécuté : PBF absent.'
+            exit 0
+          fi
+          layer="$RUNNER_TEMP/thiaroye-218.json"
+          url='https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/1/query'
+          # A missing layer is not a negative spatial result. Never leave a
+          # partial HTTP response at the filename of an acquired input.
+          if curl -fLsS --max-time 60 --retry 2 -G "$url" --data 'objectIds=7' --data 'outFields=OBJECTID_12,Nom_Ligne' --data 'outSR=4326' --data 'geometryPrecision=7' --data 'f=json' -o "$layer.part" && jq -e '.features | length == 1' "$layer.part" >/dev/null; then
+            mv "$layer.part" "$layer"
+          else
+            echo '::warning::Dessin ArcGIS de la 218 non acquis.'
+          fi
+          python -m scripts.audit_thiaroye_site "$pbf" "$RUNNER_TEMP/Dem_Dikk.zip" "$RUNNER_TEMP/AFTU.zip" "$RUNNER_TEMP/aftu-maps/73.json" "$layer" artifacts/aftu/thiaroye-site.json
       - name: Compare every archived call sequence with the one marked map direction
         run: |
           if test -d "$RUNNER_TEMP/aftu-maps"; then
