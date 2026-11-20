@@ -40,13 +40,25 @@ describe('58 : rangs imprimés Mbao ↔ Gueule Tapée, pas la 58 de Comico',()=>
     expect(go.sourceHours!.printedLabels).toMatchObject({1:'Arrêt De Bus',2:'Arrêt De Bus',39:'Bvar. Tapée / Rue 18'})
     expect(back.sourceHours!.printedLabels).toMatchObject({1:'Bvar. Tapée / Av. Diop',43:'Arrêt De Bus'})
   })
-  it.each([[go,39,'05:10:59','05:11'],[back,43,'05:22:59','05:23']] as const)('lit le terminus puis ne franchit pas une lacune', (d,r,now,end)=>{
+  it.each([[go,39,'05:10:59','05:11','19:03','22:35'],[back,43,'05:22:59','05:23','19:08','22:36']] as const)('lit le terminus en semaine, de la première à la dernière course', (d,r,now,end,pm,last)=>{
     for(const estimates of [false,true]){
       const sign=compileSign(d,date(thursday,'00:00'),estimates)
       expect(sign.at(r,date(thursday,now))).toMatchObject({kind:'weekly',passage:{minutes:1,at:date(thursday,end)}})
-      expect(sign.at(r,date(thursday,'19:00'))).toEqual({kind:'weekly',passage:{state:'unknown'}})
+      expect(sign.at(r,date(thursday,'19:00'))).toMatchObject({kind:'weekly',passage:{at:date(thursday,pm)}})
+      expect(sign.at(r,date(thursday,last)-1000).passage).toMatchObject({minutes:1,at:date(thursday,last)})
+      expect(sign.at(r,date(thursday,last)).passage).toEqual({state:'finished'})
     }
   })
+  it.each([[go,39,88,57,'22:29','09:54','10:42','19:24','20:16'],[back,43,70,51,'22:32','14:25','15:15','19:30','20:21']] as const)(
+    'garde les colonnes de transition et le dernier passage du week-end',(d,n,wk,we,last,origin,terminal,originWE,terminalWE)=>{
+      for(const [day,count,o,v] of [[thursday,wk,origin,terminal],[saturday,we,originWE,terminalWE],['2026-11-22',we,originWE,terminalWE]] as const){
+        const sign=compileSign(d,date(day,'00:00')), rows=sign.reading!.today.calls
+        expect(rows.size).toBe(n); for (const row of rows.values())expect(row).toHaveLength(count)
+        const column=rows.get(1)!.indexOf(date(day,o));expect(column).toBeGreaterThanOrEqual(0)
+        expect(rows.get(n)![column]).toBe(date(day,v))
+        if(day!==thursday) expect(rows.get(n)?.at(-1)).toBe(date(day,last))
+      }
+    })
 })
 
 describe('60 : grille AFTU Bargny ↔ Colobane',()=>{

@@ -73,6 +73,7 @@ for (const theme of ['light','dark']) {
     assert.equal(await wrapper.locator('.bus-occurrences li').count(),68)
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),68)
     await tick(wrapper.locator('.bus-occurrences time').first(),green)
+    await inspect('58',2,39,/Bvar\. Tapée \/ Rue 18/,green); await inspect('58',3,43,/Arrêt De Bus/,green)
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)
     await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,null); await inspect('84',1,73,/Jaxaay2 Route Du 84/,null)
@@ -91,6 +92,15 @@ for (const theme of ['light','dark']) {
     assert.equal(await rankTime(56).textContent(),'0:01'); await page.clock.runFor(1000); assert.equal(await rankTime(56).textContent(),'13:00')
     await input.fill('75'); await wrapper.locator('.station-board-direction-toggle').last().click()
     assert.equal(await rankTime(1).textContent(),'5:00'); await tick(rankTime(1),green)
+    await input.fill('60')
+    const sixties=wrapper.locator('.station-board-direction-toggle')
+    for (const [idx,n] of [[2,50],[1,48]]) {
+      await sixties.nth(idx).click(); const rows=wrapper.locator('.bus-occurrences li')
+      assert.equal(await rows.count(),n); assert.equal(await rows.locator('time').count(),n)
+      assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Début de grille uniquement/)
+      assert.equal(await wrapper.getByRole('link',{name:'Index de la ligne'}).count(),idx===1?1:0)
+      await tick(rows.last().locator('time'),green)
+    }
     await input.fill('73')
     // The undated summary is not a service-day board. Its two possible
     // starts must not replace the independent Lac Rose weekly sheet.
