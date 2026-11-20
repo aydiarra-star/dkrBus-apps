@@ -575,9 +575,9 @@ function App() {
   function handleSelectCorridorStop(stop: CorridorStop) {
     triggerHaptic(8)
     setRecenterTo({ lat: stop.lat, lng: stop.lon })
-    const lines = linesServingStop(stop.id)
+    const lines = linesServingStop(stop.id).filter(line => !(stop.id.startsWith('tata-') && line.shortName === 'AFTU'))
     announce(
-      `${stop.name} — ${networkLabelOf(stop.id)} (réseau de référence)` +
+      `${stop.name} — ${stop.id.startsWith('tata-') ? 'TATA' : networkLabelOf(stop.id)} (réseau de référence)` +
         (lines.length > 0 ? ` · ligne${lines.length > 1 ? 's' : ''} ${lines.map((line) => line.shortName).join(', ')}` : ''),
     )
   }
@@ -1612,6 +1612,7 @@ function App() {
           showCoverage={showCoverage}
           onSelectStop={stableOpenStop}
           initialBounds={DAKAR_REGION_BOUNDS}
+          layers={networkLayers}
           corridorLines={visibleCorridorLines}
           corridorStops={visibleCorridorStops}
           highlightedRouteSegments={overlay.segments}
@@ -1635,6 +1636,7 @@ function App() {
             className={`map-tool-button${layersOpen ? ' is-open' : ''}`}
             type="button"
             aria-expanded={layersOpen}
+            aria-label="Couches"
             aria-controls="map-layers"
             onClick={() => setLayersOpen((open) => !open)}
           >
@@ -1648,7 +1650,7 @@ function App() {
                 <div><span className="eyebrow">AFFICHAGE</span><strong>Couches du réseau</strong></div>
                 <button type="button" className="icon-button popover-close" aria-label="Fermer les couches" onClick={() => setLayersOpen(false)}><X size={17} /></button>
               </div>
-              <p className="popover-note">Activez uniquement les couches que vous souhaitez voir sur la carte.</p>
+              <p className="popover-note">Un nombre sur un marqueur indique plusieurs points. Touchez-le pour choisir un arrêt ou un repère.</p>
               <div className="layer-options">
                 {NETWORK_SOURCES.map((network) => (
                   <label className={`layer-option${isMobilityId(network.id) ? ` mobility-${network.id}` : ''}`} key={network.id}>
@@ -1691,9 +1693,9 @@ function App() {
                   type="button"
                   className="map-legend-badge-button"
                   onClick={() => { triggerHaptic(10); handleSelectExploreNetwork(id) }}
-                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU' : id.toUpperCase()}`}
+                  aria-label={`Voir le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : id.toUpperCase()}`}
                 >
-                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : undefined}</MobilityBadge>
+                  <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU / TATA' : undefined}</MobilityBadge>
                 </button>
               ))}
             </div>

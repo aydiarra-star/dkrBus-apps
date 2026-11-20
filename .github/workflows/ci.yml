@@ -315,6 +315,13 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Check map hit targets, layer filters and all 37 TER/BRT stations in Chromium
+        env:
+          BROWSER_TOOLS: ${{ runner.temp }}/map-browser
+        run: |
+          npm install --prefix "$BROWSER_TOOLS" --no-save --ignore-scripts playwright-core@1.65.1
+          CHROMIUM_PATH="$(command -v google-chrome)" node scripts/smoke_map_points.mjs
+
       - name: Run frontend and local data tests (no GTFS feed required)
         run: npm run test:all
 

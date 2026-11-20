@@ -145,3 +145,13 @@ export const DDD_URBAN_ARCGIS_AUDIT_TOTALS = {
   missingNameStopFeatures: DDD_URBAN_ARCGIS_STOP_LAYERS.reduce((sum, layer) => sum + layer.featureCount - layer.namedFeatureCount, 0),
   geolocatedStopFeatures: DDD_URBAN_ARCGIS_STOP_LAYERS.reduce((sum, layer) => sum + layer.geolocatedFeatureCount, 0),
 } as const
+
+/** Read-only geometry endpoints used by the map (also the production CSP allowlist).
+ * No other ArcGIS tenant, write operation or third-party origin is needed. */
+export const DDD_ARCGIS_MAP_TRACKS = [
+  ...DDD_BANLIEUE_ARCGIS_LAYERS.map(l => ({ line: l.line, url: l.layerUrl })),
+  ...DDD_URBAN_ARCGIS_ROUTE_LAYERS.map(l => ({ line: l.line, url: `${urbanServiceUrl}/${l.layerId}` })),
+]
+export const DDD_ARCGIS_MAP_QUERIES = [
+  ...DDD_ARCGIS_MAP_TRACKS.map(l => l.url), ...DDD_URBAN_ARCGIS_STOP_LAYERS.map(l => l.layerUrl), DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL,
+].map(url => `${url}/query`)

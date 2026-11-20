@@ -2,6 +2,7 @@
 // Staging-only: a temporary Python publication intercepted by the browser.
 // Check the two actual dated runs of ONE itinerary, not synthetic Dakar data.
 import assert from 'node:assert/strict'
+import { journeyMapRows } from './lib/mapPointSmoke.mjs'
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
@@ -49,12 +50,13 @@ for (const same of [false,true]) {
       assert.match(await onward.innerText(),same?/Temps restant après cette marge : 0 s/:/Temps restant après cette marge : 65 s/)
       if (!same) assert.match(await steps.nth(1).textContent(),/Temps relevé dans ce sens : 55 s/)
       if (!same) assert.match(await onward.innerText(), /08:25:55[^]*08:28:55[^]*08:30:00/)
-      const board=page.locator('.leaflet-marker-icon[title^="Montée ·"]'), walk=page.locator('path[stroke-dasharray="4 6"]')
-      await board.first().waitFor(); assert.equal(await board.count(),2); assert.equal(await walk.count(),same?0:1)
+      const mapRows=await journeyMapRows(page), walk=page.locator('path[stroke-dasharray="4 6"]')
+      assert.equal(mapRows.filter(p=>p.kind.startsWith('Montée · ')).length,2);
+      assert.equal(mapRows.filter(p=>p.kind==='Correspondance du trajet sélectionné').length,same?1:2); assert.equal(await walk.count(),same?0:1)
       await page.clock.fastForward(659000); assert.equal(await clocks.count(),1); assert.match(await onward.innerText(),/Montée passée/); assert.equal(await clocks.last().textContent(),'5:00')
       await page.clock.fastForward(300000); assert.equal(await clocks.count(),0)
       await date.fill('2026-11-18T08:21'); await plan.getByRole('heading',{name:'Votre trajet'}).waitFor({state:'detached'})
-      assert.equal(await board.count(),0); assert.equal(await walk.count(),0); assert.deepEqual(errors,[])
+      assert.equal((await journeyMapRows(page)).filter(p=>p.kind.startsWith('Montée · ')).length,0); assert.equal(await walk.count(),0); assert.deepEqual(errors,[])
       console.log(`Fixture · ${theme} · DDD 08:20 → AFTU 08:30 → arrivée 08:35 · ${same?'même point, minimum 300 s':'marche dirigée, marge 180 s'} : secondes, échéance et départ manqué OK`)
     } finally { await browser.close() }
   }

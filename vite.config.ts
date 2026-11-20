@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { DDD_ARCGIS_MAP_QUERIES } from './src/data/dddBanlieueArcgisRegistry.ts'
 
 /**
  * Politique de sécurité de contenu, injectée uniquement au build de production.
@@ -12,7 +13,7 @@ const PRODUCTION_CSP = [
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
-  "connect-src 'self'",
+  `connect-src 'self' ${DDD_ARCGIS_MAP_QUERIES.join(' ')}`,
   "font-src 'self' data:",
   "manifest-src 'self'",
   "worker-src 'self'",

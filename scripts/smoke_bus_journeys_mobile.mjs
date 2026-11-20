@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Run against the built SPA. Use an external browser as for smoke_bus_boards_mobile.
 import assert from 'node:assert/strict'
+import { journeyMapRows } from './lib/mapPointSmoke.mjs'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
@@ -29,9 +30,9 @@ for (const theme of ['light','dark']) {
     }
     await choose('Départ','École Manguiers'); await choose('Destination','Stade Iba Mar Diop')
     const geo=page.getByRole('region',{name:'Itinéraires sur tracés vérifiés'}), ride=geo.getByRole('heading',{name:'Votre trajet'})
-    const boards=page.locator('.leaflet-marker-icon[title^="Montée ·"]')
-    await page.getByRole('button',{name:'Rechercher mon itinéraire'}).click(); await ride.waitFor(); await boards.first().waitFor()
-    assert.equal(await boards.count(),1); assert.match(await geo.innerText(),/Passage modélisé[^]*35 à 77 min/)
+    const boards=async ()=>(await journeyMapRows(page)).filter(p=>p.kind.startsWith('Montée · '))
+    await page.getByRole('button',{name:'Rechercher mon itinéraire'}).click(); await ride.waitFor()
+    assert.equal((await boards()).length,1); assert.match(await geo.innerText(),/Passage modélisé[^]*35 à 77 min/)
     assert.match(await geo.innerText(),/19:06/); assert.match(await geo.innerText(),/19:14/)
     const clock=geo.locator('.is-selected .leg-clock time').first(), sent=apiTrips.length
     assert.equal(await clock.textContent(),'6:38'); assert.equal(await clock.evaluate(e=>getComputedStyle(e).color),theme==='dark'?'rgb(0, 177, 64)':'rgb(0, 122, 45)')
@@ -45,7 +46,7 @@ for (const theme of ['light','dark']) {
     const swap=page.getByRole('button',{name:'Inverser départ et destination'}); await swap.click(); await ride.waitFor({state:'detached'}); await swap.click(); await ride.waitFor()
     await page.getByRole('button',{name:'Utiliser ma position comme départ'}).click(); await ride.waitFor({state:'detached'}); await geo.getByText(/Accès à pied non vérifié entre/).first().waitFor()
     const mode=page.getByRole('group',{name:'Type de calcul'}); await mode.getByRole('button',{name:'Sur horaires · Maristes'}).click()
-    await page.getByRole('region',{name:'Carte de Dakar'}).waitFor({state:'detached'}); assert.equal(await boards.count(),0)
+    await page.getByRole('region',{name:'Carte de Dakar'}).waitFor({state:'detached'}); assert.equal((await boards()).length,0)
     const tripsAtStart=apiTrips.length, hours=page.getByRole('region',{name:'Trajet sur horaires publiés'}), result=hours.getByRole('heading',{name:'Changement possible sur horaires'})
     await date.fill('2026-11-19T05:00'); await hours.getByRole('button',{name:'Comparer les horaires'}).click(); await result.waitFor()
     assert.match(await hours.innerText(),/05:26[^]*05:34[^]*05:46[^]*8 min entre les deux passages/)
@@ -61,7 +62,7 @@ for (const theme of ['light','dark']) {
     const clear=page.getByRole('button',{name:'Effacer le trajet'}), submit=page.getByRole('button',{name:'Rechercher mon itinéraire'})
     await date.fill('2026-11-19T19:00'); await clear.click()
     await choose('Départ','École Manguiers'); await choose('Destination','El Malick Sandaga'); await submit.click(); await ride.waitFor()
-    assert.match(await geo.innerText(),/19:19/); await boards.first().waitFor(); assert.match(await boards.first().getAttribute('title'),/Manguiers/)
+    assert.match(await geo.innerText(),/19:19/); assert.match((await boards())[0].name,/Manguiers/)
     await clear.click(); await choose('Départ','PMI Médina'); await choose('Destination','Rue 37 × Blaise Diagne'); await submit.click(); await ride.waitFor()
     assert.match(await geo.innerText(),/19:05[^]*19:06/); assert.match(await geo.innerText(),/290 m/)
     // Deliver a GPS callback only AFTER switching to schedules. On returning
