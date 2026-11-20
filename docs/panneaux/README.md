@@ -16,6 +16,19 @@ Recette hors ligne, heure de Dakar : jeudi 19 novembre 2026, vendredi 20 (grille
 
 Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations. Le CSV distingue le nombre de cellules du vendredi effectivement applicable du total des grilles distinctes. Quand le libellé horaire diffère de la liste locale, les deux libellés, les rangs concernés et les deux empreintes d’ordre restent consultables.
 
+### Couverture horaire : trois catégories exclusives
+
+| Réseau | Rangs d’arrêt | Couverts | Partiels | Non documentés | Décomptables lun–jeu | Ven | Sam | Dim |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| DDD | 1322 | 305 | 447 | 570 | 690 | 690 | 305 | 221 |
+| AFTU | 3584 | 487 | 688 | 2409 | 1102 | 1102 | 487 | 487 |
+| TATA | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| **Total** | 4906 | 792 | 1135 | 2979 | 1792 | 1792 | 792 | 708 |
+
+**Couvert** : au moins une cellule au rang et toutes les colonnes de ses jours réguliers présentes, y compris un vendredi distinct si publié. Un jour explicitement sans service est connu, pas manquant. **Partiel** : au moins une heure fournie, sans cette continuité sur toute la semaine type (extrait, jour absent, référence isolée). **Non documenté** : aucune heure fournie au rang. Les trois catégories totalisent les rangs d’arrêt, sans compter les secteurs, origines isolées, bornes théoriques ni liens de consultation. « Décomptable » est une autre mesure : une série courte peut suffire pendant quelques minutes, une date n’est pas garantie.
+
+[Détail par jour et sens](jours.csv) : premières et dernières **origines lues**, colonnes du matin, de l’après-midi et du soir, cellule terminale de la dernière colonne si connue, borne de la lacune. Une dernière colonne lue avant une lacune n’est pas le dernier bus. Les colonnes de fin de semaine ne sont pas reconstruites par fréquence. [Périmètre et droits des sources](../reutilisation-sources-bus.md).
+
 ### Cellules par type de source
 
 | Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |

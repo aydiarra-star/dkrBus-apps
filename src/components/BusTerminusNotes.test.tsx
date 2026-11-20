@@ -38,7 +38,7 @@ it('leaves both 86 origin times unknown', () => {
 it.each([['6','Palais 1','07:15'],['Espace BRT','AIBD','02:30 le lendemain']])('finds the separate DDD notice by %s without adding ranks or clock', (query,to,time) => {
   const {container} = render(<BusLineScheduleBoard network="ddd" now={now} />)
   fireEvent.change(within(container).getByRole('searchbox'),{target:{value:query}})
-  const note = container.querySelector('details')!
+  const note = container.querySelector('[data-line-code] details')!
   expect(note.querySelector('summary')?.textContent).toContain(to); expect(note.textContent).toContain(time)
   expect(note.querySelector('li,time,[role=timer]')).toBeNull(); expect(note.closest('.bus-occurrences')).toBeNull()
   expect(container.querySelector('.station-board-direction-toggle')?.textContent).not.toContain(time)

@@ -48,3 +48,11 @@ node scripts/smoke_bus_boards_mobile.mjs && node scripts/smoke_bus_journeys_mobi
 ```
 
 Dates des comparaisons : jeudi 19 et vendredi 20 novembre 2026, heure de Dakar. Les 144 sélections historiques, le lot de 150 puis les 154 points du formulaire courant sont comparés séparément ; aucune donnée de service TER/BRT modifiée. La [PR #275](https://github.com/aydiarra-star/dkrBus-apps/pull/275) rassemble le SHA, le diff de livraison et les résultats des contrôles à cette révision.
+
+## Mission 3 — ce qui est couvert, et ce qui ne l’est pas
+
+Sur les **4 906** rangs d’arrêt, **792 couverts** (tous les jours habituels de service de la fiche au rang), **1 135 partiels** et **2 979 sans aucune heure**. Parmi les partiels, **1 000** ont au moins un décompte de semaine et **135** une ou plusieurs cellules sans série de semaine utilisable. C’est pourquoi le numérateur de l’objectif reste **1 792** et non 792 ou 1 927. Pour atteindre 50 %, il manque **661** rangs décomptables. L’application publie ces distinctions et propose, sur les cellules manquantes, un lien du bon sens si la fiche est identifiée. Un lien, une borne au terminus ou un départ théorique ne change pas le taux.
+
+[Répartition par réseau et type de jour](panneaux/README.md#couverture-horaire--trois-catégories-exclusives) · [colonnes des 419 fiches par jour](panneaux/jours.csv) · [preuves et restrictions par source](reutilisation-sources-bus.md). Les 12 références ajoutées au départ des DDD 8/218/227 sont visibles **à six origines, hors rangs d’arrêt**. Les autres axes de la 6 et de la navette aéroport ainsi que les deux départs théoriques AFTU 87 sont indiqués à part, sans horloge.
+
+Dans les [419 fiches](panneaux/fiches.csv), **58 liens directionnels distincts** (20 DDD, 38 AFTU) desservent des listes totalisant 3 627 rangs ; 1 773 de ces rangs n’ont aucune cellule locale. À 19 h le jeudi d’essai, 2 766 rangs proposent l’ouverture d’une fiche externe (inclut les transcriptions partielles déjà épuisées). Aucun lien de ce type sur une TATA homonyme ni sur l’index dont une carte manque.

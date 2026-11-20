@@ -39,14 +39,17 @@ def generate(boards, output, evidence):
         n = len(rr) if s['nature'] == 'arrêts' else 0
         grids = [sum(int(r[f'cellules_{d}']) > 0 for r in rr) for d in ('semaine', 'vendredi', 'samedi', 'dimanche')]
         eligible = sum(r['minutes_source_semaine'] == 'oui' for r in rr)
+        classes = [sum(r['couverture_des_jours_de_service'] == k for r in rr) for k in ('couvert', 'partiel', 'non documenté')]
+        if sum(classes) != n:
+            raise ValueError(f"{s['fiche']}: classification des rangs incomplète")
         causes = sorted({r['raison_ou_limite'] for r in rr if r['minutes_source_semaine'] != 'oui'})
         if not rr:
             causes.append(s['absence'] or 'Liste directionnelle absente')
         queue.append([s['fiche'], s['famille'], s['ligne'], s['variante'], s['depuis'], s['vers'], s['nature'], s['étendue'], len(rr), n, eligible, *grids,
-                      s['limite_semaine'], ' ; '.join(causes), s['source_ordre'], s['source_heures'], *(s[k] for k in calendars)])
+                      s['limite_semaine'], ' ; '.join(causes), s['source_ordre'], s['source_heures'], *(s[k] for k in calendars), *classes, s['consultation_externe_du_sens']])
     output.mkdir(parents=True, exist_ok=True)
     write(output / 'lacunes-par-sens.csv', ['fiche','famille','ligne','variante','depuis','vers','nature','portée','rangs','rangs_arrêt','décomptables_semaine',
-          'rangs_avec_cellule_semaine','vendredi','samedi','dimanche','portée_temporelle_semaine','raisons_sans_décompte','source_ordre','source_heures',*calendars], queue)
+          'rangs_avec_cellule_semaine','vendredi','samedi','dimanche','portée_temporelle_semaine','raisons_sans_décompte','source_ordre','source_heures',*calendars,'rangs_couverts','rangs_partiels','rangs_sans_heure','consultation_externe_du_sens'], queue)
     observed_codes = {s['ligne'] for s in sheets if s['famille']=='tata'}
     refs = []
     for m in evidence['mentions']:

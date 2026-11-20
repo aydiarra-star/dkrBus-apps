@@ -5,6 +5,9 @@ import { DddVariantNote, AftuReferenceNote } from './BusTerminusNotes'
 import { BusSurveyNote } from './BusSurveyNote'
 import { BUS_BOARD_LINES } from '../domain/busBoardCatalog'
 import { datedBusBoards, type BusBoardDirection, type BusFamily, type BusPassage } from '../domain/busPassageBoard'
+import { BusGridExtent } from './BusGridExtent'
+import { BusCoverageNote } from './BusCoverageNote'
+import { consultationPage } from '../domain/busReadingCoverage'
 import { compileSign } from '../domain/busSignReading'
 import { midnight } from '../domain/stopPassageCountdown'
 import type { Network } from '../routing/model'
@@ -37,12 +40,7 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
   const scheduled = d.clock?.kind === 'timetable', model = estimates && d.clock?.kind === 'model'
   const origin = sign.at(1,now), hours = d.sourceHours
   const basis = scheduled ? 'Horaire du jour' : hours?.weekday ? 'Fiche hebdomadaire' : model ? 'Passages estimés' : hours?.samples ? 'Heures de référence · jour non confirmé' : d.reason ?? 'Heures non renseignées'
-  const grid = sign.reading?.today
-  // Use only a timetable already matched to this sequence, or the exact
-  // directional page from its source file. Never construct URLs by number.
-  const external = !scheduled && d.pointKind === 'arrêts' && d.points.length
-    ? (hours?.weekday ? hours.source : d.directionPage) : undefined
-  const readingUrl = external && external.startsWith('https://') ? external : undefined
+  const readingUrl = consultationPage(d)
   const heading = `${d.label} · ${d.from} → ${d.to}`
   return <div className="station-board-direction-detail">
     <button type="button" className={`station-board-row station-board-direction-row station-board-direction-toggle${open ? ' is-expanded' : ''}`}
@@ -55,7 +53,7 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
       {d.points.length ? <>
         <div className="bus-occurrences-head"><strong>{d.pointKind === 'départ seul' ? 'Départ seul' : `${d.points.length} ${d.pointKind}`}</strong>
           <small>{basis}</small></div>
-        {hours?.weekday && grid?.limit !== Infinity && grid?.known && <small>Début de grille uniquement</small>}
+        {hours && sign.reading && <BusGridExtent hours={hours} day={midnight(now)} ranks={d.points.length} />}
         {hours?.friday && <small>Grilles distinctes : lundi à jeudi, vendredi, samedi et dimanche. Les derniers passages peuvent tomber après minuit.</small>}
         {!scheduled && !readingUrl && <small className="station-board-itinerary-pending">Pas de fiche horaire externe vérifiée pour ce sens.</small>}
         <BusSurveyNote name={name} d={d} />
@@ -136,6 +134,7 @@ export function BusLineScheduleBoard({ network, published, now }: BoardProps & {
         <button type="button" key={f} aria-pressed={family === f} onClick={() => { setSource(f); setOpened('') }}>{f.toUpperCase()}</button>)}</div>}
     </header>
     <label className="bus-model-option"><input type="checkbox" checked={estimates} onChange={e=>setEstimates(e.target.checked)} /> Inclure les passages estimés</label>
+    <BusCoverageNote family={family} />
     <input className="bus-board-filter" type="search" aria-label="Rechercher une ligne ou un arrêt" placeholder="Ligne ou arrêt" value={filter} onChange={e => setFilter(e.target.value)} />
     {visible.every(lines => !lines.length) && <p className="bus-board-section-title">Aucun résultat</p>}
     {visible.map((lines, groupIndex) => lines.length ? <Fragment key={groupIndex}>

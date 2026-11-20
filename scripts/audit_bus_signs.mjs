@@ -21,9 +21,10 @@ const csv=rows=>rows.map(row=>row.map(field).join(',')).join('\n')+'\n'
 const pct=(yes,n)=>n?(100*yes/n).toFixed(2).replace('.',',')+' %':'non défini'
 const sha=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex')
 const catalogueFile='src/domain/busBoardCatalog.ts'
-const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi','ordre_affiché_sha256','rangs_aux_libellés_différents','source_index_si_distincte','portée_lun_jeu','portée_vendredi','portée_samedi','portée_dimanche']],
-  cells=[['fiche','type','jour_ou_échantillon','origine','rangs_dans_l_ordre','heures_source_dans_le_même_ordre']], attachments=new Set(), byFamily={}
-const head=['fiche','ligne','sens_variante','rang','libellé_original','nature','même_libellé_n°','heures_fournies','type_horaire','cellules_semaine','cellules_samedi','cellules_dimanche','repères_horaires_isolés','minutes_source_semaine','secondes_source_à_19h','modèle_existant','raison_ou_limite','état_à_19h','estimations_jeudi_si_option_activée','cellules_vendredi','grille_du_vendredi','libellé_local_si_différent']
+const summary={}, perFamily={}, sheets=[['fiche','famille','ligne','variante','depuis','vers','premier_libellé','dernier_libellé','nature','étendue','rangs','ordre_sha256','libellés_répétés_en_excès','autre_sens','fichier_ordre','source_ordre','fichier_heures','source_heures','phase_du_modèle','profil_du_modèle','limite_semaine','absence','cellules_source_semaine','cellules_modélisées_jeudi_avant_sélection','cellules_estimées_si_option_activée','rangs_avec_heure','rangs_décomptables_jeudi','ordre_affiché_sha256','rangs_aux_libellés_différents','source_index_si_distincte','portée_lun_jeu','portée_vendredi','portée_samedi','portée_dimanche','consultation_externe_du_sens']],
+  serviceDays=[['fiche','jour','portée','colonnes_lues','rangs_avec_cellule','origines_avant_12h','origines_12h_avant_18h','origines_dès_18h','première_origine_lue','dernière_origine_lue','cellule_terminale_de_cette_dernière_colonne','prochaine_origine_non_transcrite']],
+  cells=[['fiche','type','jour_ou_échantillon','origine','rangs_dans_l_ordre','heures_source_dans_le_même_ordre']], attachments=new Set(), consultationOwners=new Map(), byFamily={}
+const head=['fiche','ligne','sens_variante','rang','libellé_original','nature','même_libellé_n°','heures_fournies','type_horaire','cellules_semaine','cellules_samedi','cellules_dimanche','repères_horaires_isolés','minutes_source_semaine','secondes_source_à_19h','modèle_existant','raison_ou_limite','état_à_19h','estimations_jeudi_si_option_activée','cellules_vendredi','grille_du_vendredi','libellé_local_si_différent','couverture_des_jours_de_service','décompte_vendredi','décompte_samedi','décompte_dimanche']
 // Do not mistake the earliest REMAINING transcribed course for the next
 // service after a hole. First/last are the bounds of this transcription only.
 function timeline(g,date) {
@@ -40,12 +41,13 @@ function scope(g, n) {
   const until=g.nextUntranscribedOrigin ? `avant origine ${g.nextUntranscribedOrigin}` : 'journée des rangs saisis'
   return `${g.ranks.length}/${n} rangs · ${count} colonnes · ${until}`
 }
-const blank=()=>({identities:0,sheets:0,empty:0,aliases:0,occurrences:0,stops:0,markers:0,origins:0,sourceStops:0,weeklyStops:0,active19:0,printed:[0,0,0,0],sampleCells:0,model:0,modelCells:0,optionalCells:0,onlySamples:0,missing:0,observed:0,dated:0,twoLists:[],twoWeekly:[],reasons:{}})
+const blank=()=>({identities:0,sheets:0,empty:0,aliases:0,occurrences:0,stops:0,markers:0,origins:0,sourceStops:0,weeklyStops:0,active19:0,printed:[0,0,0,0],sampleCells:0,model:0,modelCells:0,optionalCells:0,onlySamples:0,missing:0,coverage:{couvert:0,partiel:0,'non documenté':0},eligibleByDay:[0,0,0,0],observed:0,dated:0,twoLists:[],twoWeekly:[],reasons:{}})
 const app=await createServer({configFile:false,logLevel:'error',appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false,watch:null,ws:false}})
 try {
   const load=p=>app.ssrLoadModule(p), inventory=await busInventory(load)
   const {BUS_BOARD_LINES}=await load('/src/domain/busBoardCatalog.ts'),{compileSign}=await load('/src/domain/busSignReading.ts'),{sourceIssue}=await load('/src/domain/busSourceHours.ts')
   const {datedBusBoards,boardDay}=await load('/src/domain/busPassageBoard.ts'), {dakarNetwork}=await load('/src/routing/dakar.ts')
+  const {rankCoverage,linesCoverage,consultationPage}=await load('/src/domain/busReadingCoverage.ts')
   const {TATA_2020_ADDITIONS}=await load('/src/data/tataBoardReview.ts')
   for (const [family,lines] of Object.entries(BUS_BOARD_LINES)) {
     const inv=inventory.lines.filter(l=>l.network===family), t=summary[family]=blank(), ranks=perFamily[family]=[head], desc=byFamily[family]=[]
@@ -85,6 +87,11 @@ try {
           }
           return fileFor(hit?.source)
         })()
+        const external = consultationPage(d)
+        if (external) {
+          assert(!l.aliasOf && !consultationOwners.has(external), `${id}: fiche de consultation déjà attribuée à ${consultationOwners.get(external)}`)
+          consultationOwners.set(external,id)
+        }
         const where=`${h?.file??orderFile} : ${id} ${label} (${d.from} → ${d.to})`
         assert(d.source?.trim() && d.from?.trim() && d.to?.trim(),`${where} : source ou axe absent`)
         await readFile(orderFile)
@@ -96,6 +103,13 @@ try {
         if(n>1 && d.pointKind==='arrêts' && ['Aller','Retour'].includes(side)) two.add(side)
         if(l.aliasOf) t.aliases++; else {t.sheets++; if(!n)t.empty++}
         sheets.push([id,family,l.code,label,d.from,d.to,d.points[0],d.points.at(-1),d.pointKind,extent,n,sha(d.points),n-new Set(d.points).size,order,orderFile,d.source,h?.file,h?.source,m?.originBasis,m?.offsetBasis,h?.weekday ? h.weekday.nextUntranscribedOrigin??'journée des rangs saisis' : '',d.reason??''])
+        if (!l.aliasOf) for (const [j,g] of [h?.weekday,h?.friday??h?.weekday,h?.saturday,h?.sunday].entries()) {
+          const cols = g?.profiles.flatMap(p=>p.origins.map(o=>({m:minutes(o),elapsed:p.elapsed}))).sort((a,b)=>a.m-b.m)
+          const last=cols?.at(-1), first=cols?.[0], end=g?.ranks.indexOf(n)??-1
+          serviceDays.push([id,['lun–jeu','vendredi','samedi','dimanche'][j],scope(g,n),cols?.length,g && (cols?.length ? g.ranks.length : 0),
+            cols?.filter(c=>c.m<720).length,cols?.filter(c=>c.m>=720 && c.m<1080).length,cols?.filter(c=>c.m>=1080).length,
+            first && hm(first.m),last && hm(last.m),last && end!==-1 && !d.partialList && n>1 ? hm(last.m+last.elapsed[end]) : '',g?.nextUntranscribedOrigin])
+        }
         const signs=days.map(v=>compileSign(d,v)), tables=kinds.map((k,i)=>timeline(h?.[k],days[i])), repeats=new Map()
         const model = m?.kind === 'model' ? boardDay(d,day) : null
         const modelRuns = model?.profiles.reduce((n,p)=>n+(p.today?.length??0),0)??0
@@ -128,23 +142,27 @@ try {
           const chosen = signWithOption.at(r,at19), optional = chosen.kind==='model' ? modelRuns : 0
           if (chosen.kind!=='model') assert.deepEqual(chosen.passage,observed,loc)
           const state19={active:'décompte',upcoming:'pas encore ouvert',finished:'dernier passage atteint',calendar:'jour non confirmé',closed:'sans service annoncé',unknown:'inconnu'}[observed.state]
-          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts.slice(0,3),src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional,h?.friday ? counts[3] : counts[0],h?.friday ? 'distincte' : h?.weekday ? 'semaine' : 'inconnue',shown===name?'':name])
+          const coverage = d.pointKind==='arrêts' ? rankCoverage(h,r) : 'hors dénominateur'
+          const effectiveDays=[available,h?.friday ? reachable[3] : available,reachable[1],reachable[2]]
+          ranks.push([id,l.code,label,r,shown,d.pointKind,repeats.get(shown),seen?'oui':'non',counts.some(Boolean)?'hebdomadaire':src.length?'référence':'aucun',...counts.slice(0,3),src.length,available?'oui':'non',sec,m?.kind==='model'?'oui':'non',reason+(shown===name?'':` · libellé local non repris : ${name}`),state19,optional,h?.friday ? counts[3] : counts[0],h?.friday ? 'distincte' : h?.weekday ? 'semaine' : 'inconnue',shown===name?'':name,coverage,...effectiveDays.slice(1).map(v=>v?'oui':'non')])
           t.sampleCells+=src.length; counts.forEach((v,k)=>{t.printed[k]+=v}); printed+=counts[0]; estimated+=optional
           provided+=Number(seen);eligible+=Number(available);active+=Number(sec!=='');t.occurrences++;t.model+=Number(m?.kind==='model')
-          if(d.pointKind==='arrêts'){t.stops++;t.sourceStops+=Number(seen);t.weeklyStops+=Number(available);t.onlySamples+=Number(!available&&seen);t.missing+=Number(!seen);if(!available)t.reasons[reason]=(t.reasons[reason]??0)+1}
+          if(d.pointKind==='arrêts'){t.coverage[coverage]++; effectiveDays.forEach((v,i)=>t.eligibleByDay[i]+=Number(v));t.stops++;t.sourceStops+=Number(seen);t.weeklyStops+=Number(available);t.onlySamples+=Number(!available&&seen);t.missing+=Number(!seen);if(!available)t.reasons[reason]=(t.reasons[reason]??0)+1}
           else if(d.pointKind==='départ seul') t.origins++;else t.markers++
         }
         if(eligible && n>1 && d.pointKind==='arrêts' && ['Aller','Retour'].includes(side))twoWeekly.add(side)
         t.modelCells+=modelRuns*n; t.optionalCells+=estimated
         sheets.at(-1).push(printed,modelRuns*n,estimated,provided,eligible,sha(d.points.map((name,i)=>h?.printedLabels?.[i+1]??name)),Object.keys(h?.printedLabels??{}).join(' '),d.indexSource,
-          ...[h?.weekday,h?.friday??h?.weekday,h?.saturday,h?.sunday].map(g=>scope(g,n)))
+          ...[h?.weekday,h?.friday??h?.weekday,h?.saturday,h?.sunday].map(g=>scope(g,n)),external)
         t.active19+=active
         desc.push([id,label,`${d.from} → ${d.to}`,`${n} ${d.pointKind}`,provided,eligible,m?n:0,extent+(d.reason?' · '+d.reason:'')])
       }
       if(two.size===2)t.twoLists.push(l.code);if(twoWeekly.size===2)t.twoWeekly.push(l.code)
     }
+    assert.deepEqual(t.coverage,linesCoverage(lines));assert.equal(t.coverage.couvert+t.coverage.partiel,t.sourceStops);assert.equal(t.coverage['non documenté'],t.missing)
     assert.equal(t.stops,t.weeklyStops+t.onlySamples+t.missing);assert.equal(t.occurrences,t.stops+t.markers+t.origins)
   }
+  assert.equal(Object.values(summary).reduce((n,t)=>n+t.stops,0),4906,'Le catalogue M3 compte 4 906 rangs : ne pas modifier le dénominateur pour atteindre la cible')
   for(const folder of ['src/data/weekly-cells','src/data/bus-sheets']) for(const file of await readdir(folder)) if(file.endsWith('.json'))assert(attachments.has(`${folder}/${file}`),`${folder}/${file} : fichier sans raccordement de panneau`)
   if(root){
     await mkdir(root,{recursive:true}); const save=(file,text)=>writeFile(join(root,file),text)
@@ -157,6 +175,14 @@ try {
       '¹ Au moins une cellule sur fiche, y compris un échantillon non récurrent. ² Au moins un instant après ouverture auquel le panneau peut compter jusqu’à une cellule du rang sans franchir de lacune. Ce n’est pas une couverture de toute la journée. À 19 h, la colonne compte uniquement les temporisations actives par défaut. Une cadence ou le temps interpolé d’un rang ne satisfont pas ce critère. Pour TATA le pourcentage sur les seuls arrêts est indéfini, pas 100 %.','',
       '**Lire la matrice** : [DDD](ddd.csv), [AFTU](aftu.csv), [TATA](tata.csv). Chaque ligne donne le nom original, le rang, la variante, la provenance horaire, le nombre de cellules par jour, les secondes actives à 19 h et la raison du tiret. Par la clé `fiche`, consulter [les deux terminus, sources, portée et anomalies d’ordre](fiches.csv), puis [toutes les heures fournies, rangs et courses compris](heures.csv). La borne de transcription est la prochaine origine non recopiée : aucune promesse de dernier bus. Les 6 950 rangs des anciens modèles restent inventoriés [à part](../passages-bus-par-ligne.md). Les [quatre références 218/73](../releve-218-73.md), sans jour confirmé, restent hors voyageurs.','',
       'Reproduire sans réseau : `node scripts/audit_bus_signs.mjs --dir /tmp/panneaux` puis `diff -ru docs/panneaux /tmp/panneaux`. Le contrôle sonde chaque cellule utilisable à −1 s et à l’instant du passage, toutes les occurrences à 19 h et les fichiers non raccordés. `npm run audit:bus-screen` ouvre le composant React de chaque fiche en rendu HTML et vérifie les libellés ordonnés, les minutes et secondes de chaque rang, sans et avec les estimations. Le CSV distingue le nombre de cellules du vendredi effectivement applicable du total des grilles distinctes. Quand le libellé horaire diffère de la liste locale, les deux libellés, les rangs concernés et les deux empreintes d’ordre restent consultables.','')
+    const entries=Object.entries(summary), metrics=t=>[t.stops,t.coverage.couvert,t.coverage.partiel,t.coverage['non documenté'],...t.eligibleByDay]
+    md.push('### Couverture horaire : trois catégories exclusives', '',
+      '| Réseau | Rangs d’arrêt | Couverts | Partiels | Non documentés | Décomptables lun–jeu | Ven | Sam | Dim |',
+      '|---|---:|---:|---:|---:|---:|---:|---:|---:|')
+    for(const [f,t] of entries) md.push(`| ${f.toUpperCase()} | ${metrics(t).join(' | ')} |`)
+    md.push(`| **Total** | ${metrics(entries[0][1]).map((_,i)=>entries.reduce((n,[,t])=>n+metrics(t)[i],0)).join(' | ')} |`, '',
+      '**Couvert** : au moins une cellule au rang et toutes les colonnes de ses jours réguliers présentes, y compris un vendredi distinct si publié. Un jour explicitement sans service est connu, pas manquant. **Partiel** : au moins une heure fournie, sans cette continuité sur toute la semaine type (extrait, jour absent, référence isolée). **Non documenté** : aucune heure fournie au rang. Les trois catégories totalisent les rangs d’arrêt, sans compter les secteurs, origines isolées, bornes théoriques ni liens de consultation. « Décomptable » est une autre mesure : une série courte peut suffire pendant quelques minutes, une date n’est pas garantie.', '',
+      '[Détail par jour et sens](jours.csv) : premières et dernières **origines lues**, colonnes du matin, de l’après-midi et du soir, cellule terminale de la dernière colonne si connue, borne de la lacune. Une dernière colonne lue avant une lacune n’est pas le dernier bus. Les colonnes de fin de semaine ne sont pas reconstruites par fréquence. [Périmètre et droits des sources](../reutilisation-sources-bus.md).','')
     md.push('### Cellules par type de source','',
       '| Famille | Grille semaine | Samedi | Dimanche | Vendredi distinct³ | Références isolées¹ | Observations véhicule | Courses datées | Cellules du modèle jeudi² | Dont proposées avec l’option |',
       '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|')
@@ -168,7 +194,7 @@ try {
       md.push(`## ${f.toUpperCase()}`,'',`Deux listes avec au moins deux appels (inclut variantes et listes partielles) : **${t.twoLists.join(', ')||'aucune'}**. Deux sens avec au moins un rang décomptable en semaine : **${t.twoWeekly.join(', ')||'aucun'}**.`, '', `Rangs d’arrêt exclus : ${Object.entries(t.reasons).map(([why,n])=>`${why} : ${n}`).join(' ; ')||'aucun rang classé arrêt'}.`, '', '| Fiche | Sens / variante | De → vers | Rangs | Avec heure | Décompte semaine | Modèle séparé | Portée / manque |','|---|---|---|---|---:|---:|---:|---|')
       for(const row of byFamily[f]) md.push('| '+row.map(c=>String(c).replaceAll('|','\\|')).join(' | ')+' |');md.push('');await save(f+'.csv',csv(perFamily[f]))
     }
-    await Promise.all([save('README.md',md.join('\n')),save('fiches.csv',csv(sheets)),save('heures.csv',csv(cells))])
+    await Promise.all([save('README.md',md.join('\n')),save('fiches.csv',csv(sheets)),save('jours.csv',csv(serviceDays)),save('heures.csv',csv(cells))])
   }
   console.log(JSON.stringify(summary,null,2))
 }finally{await app.close()}

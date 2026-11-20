@@ -6,7 +6,7 @@ import type { BusBoardDirection } from '../domain/busPassageBoard'
 export function DddVariantNote({code}: {code: string}) {
   const notice = DDD_TERMINUS_NOTICES.find(n => n.code === code && n.separateVariant)
   if (!notice?.separateVariant) return null
-  return <details className="bus-survey-note"><summary>Autre desserte annoncée : {notice.separateVariant.name}</summary>
+  return <details className="bus-variant-note"><summary>Autre desserte annoncée : {notice.separateVariant.name}</summary>
     {notice.facts.map(f => <p key={f.from}><strong>{f.from} → {f.to}</strong> : départs annoncés de {f.morning} à {f.evening}{f.nextDay && ' le lendemain'}.</p>)}
     <p>{notice.separateVariant.caveat} Jours et passages aux arrêts non précisés.</p>
     <p><a href={notice.url} target="_blank" rel="noreferrer">Annonce du {notice.publication} · {notice.source}</a></p>

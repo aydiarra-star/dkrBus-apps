@@ -4279,9 +4279,9 @@ button:disabled { cursor: not-allowed; }
 .bus-board-switch button[aria-pressed=true] { color: var(--text); background: var(--surface-sunken); font-weight: 750; }
 .bus-board-section-title, .bus-occurrences-head { color: var(--muted); padding: 6px 12px; font-size: 10px; }
 .bus-occurrences { padding: 0; }
-.bus-survey-note { margin: 4px 12px 8px; color: var(--muted); font-size: 12px; line-height: 1.4; }
-.bus-survey-note summary { cursor: pointer; }
-.bus-survey-note p { margin: 4px 0; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) { margin: 4px 12px 8px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) summary { cursor: pointer; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) p { margin: 4px 0; }
 .bus-occurrences .bus-occurrences-list { list-style: none; padding: 0; gap: 0; }
 .bus-occurrences .bus-occurrences-list > li { padding: 6px 14px; }
 .bus-board .station-board-stop { min-width: 0; overflow-wrap: anywhere; }

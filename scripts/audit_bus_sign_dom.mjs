@@ -13,9 +13,10 @@ try {
   const { BusDirectionPanel } = await app.ssrLoadModule('/src/components/EstimatedLineScheduleBoard.tsx')
   const { BUS_BOARD_LINES } = await app.ssrLoadModule('/src/domain/busBoardCatalog.ts')
   const { compileSign } = await app.ssrLoadModule('/src/domain/busSignReading.ts')
-  for (const iso of ['2026-11-19T05:10:59Z','2026-11-19T19:00:00Z','2026-11-20T23:59:59Z','2026-11-21T00:52:59Z','2026-11-22T19:00:00Z']) for (const estimates of [false,true]) {
+  for (const iso of ['2026-11-19T05:10:59Z','2026-11-19T14:00:00Z','2026-11-19T19:00:00Z','2026-11-20T23:59:59Z','2026-11-21T00:52:59Z','2026-11-21T14:00:00Z','2026-11-22T19:00:00Z']) for (const estimates of [false,true]) {
     const now = Date.parse(iso), day = Date.parse(iso.slice(0,10)+'T00:00Z')
-    let panels=0, occurrences=0, timers=0, projections=0
+    let panels=0, occurrences=0, timers=0, projections=0, readingLinks=0
+    const timersByFamily={ddd:0,aftu:0,tata:0}
     for (const [family, lines] of Object.entries(BUS_BOARD_LINES)) for (const line of lines) if (!line.aliasOf) {
       for (const [idx,d] of line.directions.entries()) {
         const sign=compileSign(d,day,estimates), id=line.key+'/'+(idx+1), name=family.toUpperCase()+' '+line.code
@@ -38,10 +39,16 @@ try {
         for (const [i,el] of rows.entries()) {
           assert.equal(el.querySelector('.bus-rank').textContent,`${i+1}.`,id);assert.equal(el.querySelector('.station-board-stop strong').textContent,d.sourceHours?.printedLabels?.[i+1]??d.points[i],id)
           if(d.sourceHours?.printedLabels?.[i+1]) assert(el.textContent.includes('Libellé local : '+d.points[i]),id)
-          const r=check(el,i+1);occurrences++;timers+=Number(r.active);projections+=Number(r.estimate)
+          const r=check(el,i+1);occurrences++;timers+=Number(r.active);projections+=Number(r.estimate);timersByFamily[family]+=Number(r.active)
+          // An external page is a way out of an unknown cell, never a
+          // replacement countdown. The browser must open the existing href.
+          const {kind,passage}=sign.at(i+1,now), absent=kind==='model' || ['calendar','unknown'].includes(passage.state)
+          const url = d.pointKind==='arrêts' && (d.sourceHours?.weekday ? d.sourceHours.source : d.directionPage)
+          const link=el.querySelector('a');assert.equal(!!link,!!url && absent,id)
+          if(link){assert.equal(link.href,url,id);assert.equal(link.target,'_blank',id);assert(!r.active,id);readingLinks++}
         }
       }
     }
-    console.log(JSON.stringify({iso,estimates,panels,occurrences,timers,projections}))
+    console.log(JSON.stringify({iso,estimates,panels,occurrences,timers,timersByFamily,projections,readingLinks}))
   }
 } finally { await app.close() }
