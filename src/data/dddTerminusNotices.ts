@@ -27,7 +27,7 @@ export const DDD_TERMINUS_NOTICES: readonly Notice[] = [
       {from:'Palais 1', to:'Guédiawaye', morning:'07:15', evening:'21:30'}] },
   { code:'220', publication:'15/07/2026', source:'Senego', kind:'bounds',
     url:'https://senego.com/navette-dem-dikk-guediawaye-aibd-toutes-les-2h-6-000-fcfa_1983793.html',
-    separateVariant:{name:'Navette Guédiawaye (Espace BRT) ↔ AIBD', caveat:'Un intervalle de deux heures est annoncé. Ce n’est pas la ligne urbaine de Rufisque ni une correspondance garantie avec le BRT.'},
+    separateVariant:{name:'Navette Guédiawaye (Espace BRT) ↔ AIBD', caveat:'L’annonce indique un départ toutes les deux heures. Ce n’est pas la ligne urbaine de Rufisque ni une correspondance garantie avec le BRT.'},
     facts:[{from:'Guédiawaye (Espace BRT)', to:'AIBD', morning:'04:30', evening:'00:30', nextDay:true},
       {from:'AIBD', to:'Guédiawaye (Espace BRT)', morning:'06:30', evening:'02:30', nextDay:true}] },
 ]

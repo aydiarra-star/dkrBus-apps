@@ -11,6 +11,6 @@ export function BusCoverageNote({family}: {family: BusFamily}) {
   return <details className="bus-coverage"><summary>Quels arrêts ont des horaires ?</summary>
     <p><strong>{family.toUpperCase()}</strong> : {Object.values(row).some(Boolean) ? `${fmt.format(row.couvert)} rangs couverts, ${fmt.format(row.partiel)} partiels, ${fmt.format(row['non documenté'])} sans heure.` : 'aucun rang d’arrêt attribué. Les repères et secteurs ne sont pas des arrêts horodatés.'}</p>
     <p>Sur les {fmt.format(totals.reduce((a,b)=>a+b,0))} rangs d’arrêt des trois réseaux : {fmt.format(totals[0])} couverts, {fmt.format(totals[1])} partiels et {fmt.format(totals[2])} sans heure.</p>
-    <p>« Couvert » : toutes les colonnes de la fiche à ce rang, pour chaque jour habituel de service. « Partiel » : au moins une heure, mais un jour ou une partie de la journée manque, ou il ne s’agit que d’un relevé isolé. Le décompte vert n’apparaît que si le prochain passage est documenté. Les estimations et les liens externes ne comptent pas.</p>
+    <p>« Couvert » : toutes les colonnes de la fiche à ce rang, pour chaque jour habituel de service. « Partiel » : au moins une heure, mais un jour ou une partie de la journée manque, ou il ne s’agit que d’un relevé isolé. Le décompte vert n’apparaît que si le prochain passage est documenté. Ni les passages estimés ni la consultation d’une fiche externe ne comptent.</p>
   </details>
 }
