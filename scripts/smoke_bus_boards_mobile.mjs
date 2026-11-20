@@ -71,7 +71,7 @@ for (const theme of ['light','dark']) {
     await network('aftu_tata').click(); await estimates.uncheck(); await input.fill('42')
     await wrapper.locator('.station-board-direction-toggle').last().click()
     assert.equal(await wrapper.locator('.bus-occurrences li').count(),68)
-    assert.equal(await wrapper.locator('.bus-occurrences time').count(),10)
+    assert.equal(await wrapper.locator('.bus-occurrences time').count(),68)
     await tick(wrapper.locator('.bus-occurrences time').first(),green)
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)

@@ -589,74 +589,74 @@ aftu:42/3,42,Aller · fiche hebdomadaire,67,"Rue Okm 237, 168",arrêts,1,oui,heb
 aftu:42/3,42,Aller · fiche hebdomadaire,68,"Rue Okm 60, 67",arrêts,1,oui,hebdomadaire,4,0,0,0,oui,,non,début de grille,inconnu,0
 aftu:42/3,42,Aller · fiche hebdomadaire,69,Poste De Sante,arrêts,1,oui,hebdomadaire,4,0,0,0,oui,,non,début de grille,inconnu,0
 aftu:42/3,42,Aller · fiche hebdomadaire,70,"Rue Okm 282, 222",arrêts,1,oui,hebdomadaire,4,0,0,0,oui,,non,début de grille,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,1,Stade Municipal,arrêts,1,oui,hebdomadaire,65,0,0,0,oui,300,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,2,École 6,arrêts,1,oui,hebdomadaire,65,0,0,0,oui,300,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,3,"Rue Okm 60, 67",arrêts,1,oui,hebdomadaire,65,0,0,0,oui,360,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,4,"Rue Okm 237, 168",arrêts,1,oui,hebdomadaire,65,0,0,0,oui,420,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,5,Arrêt De Bus,arrêts,1,oui,hebdomadaire,65,0,0,0,oui,480,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,6,Arrêt De Bus,arrêts,2,oui,hebdomadaire,65,0,0,0,oui,480,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,7,École De Officiers,arrêts,1,oui,hebdomadaire,65,0,0,0,oui,600,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,8,"Rue Okm 195, 9156",arrêts,1,oui,hebdomadaire,65,0,0,0,oui,600,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,9,"Avenue Cheikh Anta Diop, 48",arrêts,1,oui,hebdomadaire,65,0,0,0,oui,660,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,10,Quartier Geille,arrêts,1,oui,hebdomadaire,65,0,0,0,oui,720,non,grille des rangs saisis,décompte,0
-aftu:42/4,42,Retour · fiche hebdomadaire,11,"Rue Mz 198, 918",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,12,"Les Voies De I'Alternance, 155",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,13,"Rue Mz 55, 17",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,14,Arrêt De Bus,arrêts,3,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,15,Terrain Foot,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,16,"Voie De Degagement Nord, 37",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,17,"Rue Lib 03, 4",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,18,Pointe,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,19,Arrêt De Bus,arrêts,4,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,20,Arrêt De Bus,arrêts,5,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,21,Arrêt De Bus,arrêts,6,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,22,Arrêt De Bus,arrêts,7,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,23,Arrêt De Bus,arrêts,8,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,24,Arrêt De Bus,arrêts,9,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,25,Ecolé Elementaire,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,26,Arrêt De Bus,arrêts,10,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,27,Arrêt De Bus,arrêts,11,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,28,"Routes Des Niayes, 373",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,29,Arrêt De Bus,arrêts,12,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,30,Ecolé Soprim,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,31,"Routes Des Niayes, 8",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,32,Arrêt De Bus,arrêts,13,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,33,Arrêt De Bus,arrêts,14,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,34,Arrêt De Bus,arrêts,15,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,35,"Rue GS 04, 128",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,36,"Rue GS 27, 76",arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,37,Lycée Parcelles,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,38,Arrêt De Bus,arrêts,16,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,39,Arrêt De Bus,arrêts,17,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,40,Arrêt De Bus,arrêts,18,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,41,Arrêt De Bus,arrêts,19,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,42,Arrêt De Bus,arrêts,20,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,43,Arrêt De Bus,arrêts,21,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,44,Arrêt De Bus,arrêts,22,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,45,Hopital Dallal Jamm,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,46,Route Bethio / Bvar. Tall,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,47,Arrêt De Bus,arrêts,23,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,48,Arrêt De Bus,arrêts,24,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,49,Arrêt De Bus,arrêts,25,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,50,Arrêt De Bus,arrêts,26,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,51,Arrêt De Bus,arrêts,27,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,52,Arrêt De Bus,arrêts,28,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,53,Arrêt De Bus,arrêts,29,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,54,Arrêt De Bus,arrêts,30,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,55,Arrêt De Bus,arrêts,31,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,56,Route Corniche / Correa,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,57,Mairie Hamos,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,58,Arrêt De Bus,arrêts,32,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,59,Route Corniche / Rue 81,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,60,Route Corniche / Wn-83,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,61,Route Corniche / Wn-69,arrêts,1,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,62,Arrêt De Bus,arrêts,33,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,63,Arrêt De Bus,arrêts,34,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,64,Arrêt De Bus,arrêts,35,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,65,Arrêt De Bus,arrêts,36,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,66,Arrêt De Bus,arrêts,37,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,67,Arrêt De Bus,arrêts,38,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
-aftu:42/4,42,Retour · fiche hebdomadaire,68,Arrêt De Bus,arrêts,39,non,aucun,0,0,0,0,non,,non,rang non transcrit,inconnu,0
+aftu:42/4,42,Retour · fiche hebdomadaire,1,Stade Municipal,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,2,École 6,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,3,"Rue Okm 60, 67",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,360,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,4,"Rue Okm 237, 168",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,5,Arrêt De Bus,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,6,Arrêt De Bus,arrêts,2,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,7,École De Officiers,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,600,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,8,"Rue Okm 195, 9156",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,600,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,9,"Avenue Cheikh Anta Diop, 48",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,10,Quartier Geille,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,720,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,11,"Rue Mz 198, 918",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,840,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,12,"Les Voies De I'Alternance, 155",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,60,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,13,"Rue Mz 55, 17",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,120,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,14,Arrêt De Bus,arrêts,3,oui,hebdomadaire,65,39,39,0,oui,240,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,15,Terrain Foot,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,16,"Voie De Degagement Nord, 37",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,17,"Rue Lib 03, 4",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,600,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,18,Pointe,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,19,Arrêt De Bus,arrêts,4,oui,hebdomadaire,65,39,39,0,oui,780,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,20,Arrêt De Bus,arrêts,5,oui,hebdomadaire,65,39,39,0,oui,840,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,21,Arrêt De Bus,arrêts,6,oui,hebdomadaire,65,39,39,0,oui,60,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,22,Arrêt De Bus,arrêts,7,oui,hebdomadaire,65,39,39,0,oui,120,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,23,Arrêt De Bus,arrêts,8,oui,hebdomadaire,65,39,39,0,oui,240,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,24,Arrêt De Bus,arrêts,9,oui,hebdomadaire,65,39,39,0,oui,240,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,25,Ecolé Elementaire,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,26,Arrêt De Bus,arrêts,10,oui,hebdomadaire,65,39,39,0,oui,360,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,27,Arrêt De Bus,arrêts,11,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,28,"Routes Des Niayes, 373",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,29,Arrêt De Bus,arrêts,12,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,30,Ecolé Soprim,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,540,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,31,"Routes Des Niayes, 8",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,600,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,32,Arrêt De Bus,arrêts,13,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,33,Arrêt De Bus,arrêts,14,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,34,Arrêt De Bus,arrêts,15,oui,hebdomadaire,65,39,39,0,oui,720,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,35,"Rue GS 04, 128",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,780,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,36,"Rue GS 27, 76",arrêts,1,oui,hebdomadaire,65,39,39,0,oui,840,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,37,Lycée Parcelles,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,900,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,38,Arrêt De Bus,arrêts,16,oui,hebdomadaire,65,39,39,0,oui,60,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,39,Arrêt De Bus,arrêts,17,oui,hebdomadaire,65,39,39,0,oui,60,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,40,Arrêt De Bus,arrêts,18,oui,hebdomadaire,65,39,39,0,oui,120,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,41,Arrêt De Bus,arrêts,19,oui,hebdomadaire,65,39,39,0,oui,180,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,42,Arrêt De Bus,arrêts,20,oui,hebdomadaire,65,39,39,0,oui,240,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,43,Arrêt De Bus,arrêts,21,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,44,Arrêt De Bus,arrêts,22,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,45,Hopital Dallal Jamm,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,46,Route Bethio / Bvar. Tall,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,47,Arrêt De Bus,arrêts,23,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,48,Arrêt De Bus,arrêts,24,oui,hebdomadaire,65,39,39,0,oui,540,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,49,Arrêt De Bus,arrêts,25,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,50,Arrêt De Bus,arrêts,26,oui,hebdomadaire,65,39,39,0,oui,660,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,51,Arrêt De Bus,arrêts,27,oui,hebdomadaire,65,39,39,0,oui,720,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,52,Arrêt De Bus,arrêts,28,oui,hebdomadaire,65,39,39,0,oui,720,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,53,Arrêt De Bus,arrêts,29,oui,hebdomadaire,65,39,39,0,oui,780,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,54,Arrêt De Bus,arrêts,30,oui,hebdomadaire,65,39,39,0,oui,840,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,55,Arrêt De Bus,arrêts,31,oui,hebdomadaire,65,39,39,0,oui,840,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,56,Route Corniche / Correa,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,900,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,57,Mairie Hamos,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,60,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,58,Arrêt De Bus,arrêts,32,oui,hebdomadaire,65,39,39,0,oui,120,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,59,Route Corniche / Rue 81,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,180,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,60,Route Corniche / Wn-83,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,240,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,61,Route Corniche / Wn-69,arrêts,1,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,62,Arrêt De Bus,arrêts,33,oui,hebdomadaire,65,39,39,0,oui,300,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,63,Arrêt De Bus,arrêts,34,oui,hebdomadaire,65,39,39,0,oui,360,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,64,Arrêt De Bus,arrêts,35,oui,hebdomadaire,65,39,39,0,oui,420,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,65,Arrêt De Bus,arrêts,36,oui,hebdomadaire,65,39,39,0,oui,480,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,66,Arrêt De Bus,arrêts,37,oui,hebdomadaire,65,39,39,0,oui,540,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,67,Arrêt De Bus,arrêts,38,oui,hebdomadaire,65,39,39,0,oui,540,non,grille des rangs saisis,décompte,0
+aftu:42/4,42,Retour · fiche hebdomadaire,68,Arrêt De Bus,arrêts,39,oui,hebdomadaire,65,39,39,0,oui,600,non,grille des rangs saisis,décompte,0
 aftu:43/1,43,Aller,1,Terminus Ouakam,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:43/1,43,Aller,2,Siège Expresso Ouakam,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50
 aftu:43/1,43,Aller,3,École Normale,repères,1,non,aucun,0,0,0,0,non,,oui,repère sans heure de passage,inconnu,50

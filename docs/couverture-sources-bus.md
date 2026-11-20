@@ -102,7 +102,7 @@ Les colonnes donnent les nombres d’occurrences par liste, sans additionner les
 | 57 | 14 / 56 / 57 | 56 | 57 | catalogue, descriptif, horaires de référence | — |
 | 58 | 12 / 39 / 43 | 39 | 43 | catalogue, descriptif, horaires de référence | — |
 | 59 | 15 | — | — | catalogue, descriptif | — |
-| 60 | 11 | — | — | catalogue, descriptif, repères | — |
+| 60 | 11 | 50 | 48 | catalogue, descriptif, repères | — |
 | 61 | 10 | — | — | catalogue, descriptif, repères | — |
 | 62 | 18 / 68 / 72 | 72 | 68 | catalogue, descriptif, horaires de référence | — |
 | 63 | 18 | — | — | catalogue, descriptif | — |

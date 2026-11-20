@@ -65,3 +65,15 @@ describe('60 : grille AFTU Bargny ↔ Colobane',()=>{
     expect(sign.at(n,date(thursday,limit)).passage.state).toBe('unknown')
   })
 })
+
+describe('42, retour Ouakam → Guédiawaye : toutes les lignes du tableau',()=>{
+  const d=BUS_BOARD_LINES.aftu.find(l=>l.code==='42')!.directions.at(-1)!
+  it.each([[thursday,65,'06:40','19:10'],[saturday,39,'06:50','19:10'],['2026-11-22',39,'06:50','19:10']] as const)('ne confond pas le calendrier du %s',(day,n,first,lastPM)=>{
+    const sign=compileSign(d,date(day,'00:00'))
+    for(const calls of sign.reading!.today.calls.values())expect(calls).toHaveLength(n)
+    expect(sign.reading!.today.calls.get(68)?.[0]).toBe(date(day,first))
+    expect(sign.at(68,date(day,'19:00')).passage).toMatchObject({at:date(day,lastPM)})
+    expect(sign.at(68,date(day,'22:36:59')).passage).toMatchObject({minutes:1,at:date(day,'22:37')})
+    expect(sign.at(68,date(day,'22:37')).passage).toEqual({state:'finished'})
+  })
+})

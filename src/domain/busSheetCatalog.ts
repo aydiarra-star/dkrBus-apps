@@ -13,7 +13,7 @@ import { maristesSheets } from '../data/maristesTimetables'
 import { sequenceCheck } from './busBoardModel'
 import aftu84 from '../data/aftu-84-directions.json'
 
-interface Sheet { family: BusFamily; code: string; side: 'outbound'|'inbound'; from: string; to: string; points: string[]; source: string; timetable: string; fillBlankFrom?: string; weekdays: SourceGrid }
+interface Sheet { family: BusFamily; code: string; side: 'outbound'|'inbound'; from: string; to: string; points: string[]; source: string; timetable: string; fillBlankFrom?: string; weekdays: SourceGrid; weekend?: SourceGrid }
 const files = import.meta.glob<Sheet>('../data/bus-sheets/*.json', {eager:true,import:'default'})
 /** Fill only the specifically reviewed empty index slot. Preserve the index
  * as a second source. A different axis, variant or nonempty list is never
@@ -26,7 +26,7 @@ export function withNewSheetDirections(family: BusFamily, code: string, base: re
     const side = s.side==='outbound' ? 'Aller' : 'Retour'
     const sheet: BusBoardDirection = {label:`${side} · fiche hebdomadaire`, from:s.from, to:s.to,
       points:s.points, pointKind:'arrêts', source:s.source, clock:null,
-      sourceHours:{file:path.replace('../','src/'), source:s.timetable, weekday:s.weekdays}}
+      sourceHours:{file:path.replace('../','src/'), source:s.timetable, weekday:s.weekdays, saturday:s.weekend, sunday:s.weekend}}
     const slots = s.fillBlankFrom ? result.filter(d => !d.points.length && !d.clock && !d.sourceHours &&
       d.label===side && d.from===s.from && d.to===s.to && d.source===s.fillBlankFrom) : []
     if (slots.length===1) result[result.indexOf(slots[0])] = {...sheet, indexSource:slots[0].source}

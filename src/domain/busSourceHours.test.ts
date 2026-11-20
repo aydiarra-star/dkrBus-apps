@@ -19,10 +19,10 @@ describe('cellules de fiches, distinctes des modèles',()=>{
     expect(sourcePassage(back,29,at('23:05'))).toEqual({state:'finished'})
     expect(gridAt(sheet('ddd','7')[0].sourceHours!,day+2*86400000)).toBeUndefined()
   })
-  it('42 : borne la transcription partielle, ne décale ni les anonymes ni les 58 rangs sans heure du retour',()=>{
-    const [go,back]=dirs('aftu','42'); expect(go?.today.calls.size).toBe(70); expect(back?.today.calls.size).toBe(10)
+  it('42 : borne la transcription partielle, ne décale ni les anonymes ni les colonnes de fin du retour',()=>{
+    const [go,back]=dirs('aftu','42'); expect(go?.today.calls.size).toBe(70); expect(back?.today.calls.size).toBe(68)
     expect(sourcePassage(go,68,at('06:19:59'))).toMatchObject({at:at('06:20')});expect(sourcePassage(go,70,at('06:21:59'))).toMatchObject({at:at('06:22'),minutes:1});expect(sourcePassage(go,70,at('06:22'))).toEqual({state:'unknown'})
-    expect(sourcePassage(back,5,at('10:07'))).toMatchObject({at:at('10:22')});expect(sourcePassage(back,6,at('10:07'))).toMatchObject({at:at('10:08')});expect(sourcePassage(back,6,at('10:22'))).toMatchObject({at:at('10:23')});expect(sourcePassage(back,68,at('19:00'))).toEqual({state:'unknown'})
+    expect(sourcePassage(back,5,at('10:07'))).toMatchObject({at:at('10:22')});expect(sourcePassage(back,6,at('10:07'))).toMatchObject({at:at('10:08')});expect(sourcePassage(back,6,at('10:22'))).toMatchObject({at:at('10:23')});expect(sourcePassage(back,68,at('19:00'))).toMatchObject({at:at('19:10')})
   })
   it('ne prolonge pas les transcriptions du matin de la 12 et de la 75 jusqu’aux échantillons du soir',()=>{
     const [go,back]=dirs('ddd','12'), [toColobane]=dirs('aftu','75')

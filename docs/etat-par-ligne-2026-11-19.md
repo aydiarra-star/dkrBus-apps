@@ -121,7 +121,7 @@ Une ligne du tableau est un **couple provenance/code**, pas forcément un servic
 | **57** · Terminus 57 → Route Des Niayes / Av. Abdel Aziz | Non · 56 noms | Non · 57 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/1 suites historiques sur le dessin à 20 m |
 | **58** · Terminus Fass Mbao → Terminus Bvar. Tapée / Rue 18 | Non · 39 noms | Non · 43 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **59** · TERMINUS DIAMALAYE → TERMINUS CITE GENDARMERIE | Non · 15 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
-| **60** · TERMINUS COLOBANE → TERMINUS BARGNY | Non · 11 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
+| **60** · Gare De Colobane → Terminus 60 | Non · 50 noms | Non · 48 noms | Non établi | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **61** · TERMINUS KEUR MASSAR → TERMINUS ALMADIES | Non · 10 noms | Non | Carte · écarts de voirie | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **62** · Terminus 62 → Bvar. Tapée / Rue 59 | Non · 72 noms | Non · 68 noms | Non établi | Non établi | Aucun dossier ciblé | 0 · indicatif seul | Non · 0/2 suites historiques sur le dessin à 20 m |
 | **63** · TERMINUS DIOR PARCELLES → TERMINUS CAMP MARCHAND RUFISQUE | Non | Non | Carte · voirie candidate | Non établi | Aucun dossier ciblé | 0 | Non · 0/2 suites historiques sur le dessin à 20 m |
