@@ -108,10 +108,13 @@ export function genererHorairesTerDakarDiamniadio(
   if (rows.some((row) => row === null)) return null
   const resolvedRows = rows.filter((row): row is NonNullable<typeof row> => row !== null)
 
-  // Garde-fou de production : aucun horaire du même train ne peut reculer.
-  for (let index = 1; index < resolvedRows.length; index += 1) {
-    if (Date.parse(resolvedRows[index].passageAt) < Date.parse(resolvedRows[index - 1].passageAt)) {
-      throw new Error(`Offsets TER non chronologiques entre ${resolvedRows[index - 1].nom} et ${resolvedRows[index].nom}.`)
+  // Chaque gare affiche son propre prochain passage. Ces passages peuvent
+  // appartenir à des trains différents : leur ordre entre gares n'est donc
+  // pas nécessairement celui d'un train unique. En revanche, aucun décompte
+  // ne doit viser un passage déjà passé ou exactement à l'instant courant.
+  for (const row of resolvedRows) {
+    if (Date.parse(row.passageAt) <= maintenant || row.dansMinutes < 1) {
+      throw new Error(`Prochain passage TER non futur à ${row.nom}.`)
     }
   }
 
