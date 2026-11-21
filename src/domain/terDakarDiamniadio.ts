@@ -88,8 +88,10 @@ export function genererHorairesTerDakarDiamniadio(
     const decalageMinutes = sens === 'aller'
       ? gare.offsetAller
       : TER_DAKAR_DIAMNIADIO_DUREE_MINUTES - gare.offsetAller
-    const passageMs = departMs + decalageMinutes * 60_000
-    const passageAt = new Date(passageMs).toISOString()
+    const prochainPassage = nextReferencePassage(TER_DAKAR_DIAMNIADIO_FREQUENCIES, maintenant, decalageMinutes)
+    if (!prochainPassage) return null
+    const passageMs = Date.parse(prochainPassage.nextDepartureAt)
+    if (!Number.isFinite(passageMs)) return null
 
     return {
       id: gare.id,
@@ -99,15 +101,17 @@ export function genererHorairesTerDakarDiamniadio(
       estDepart: index === 0,
       estTerminus: index === gares.length - 1,
       heureFormatee: heureDakar(new Date(passageMs)),
-      passageAt,
-      dansMinutes: Math.max(0, Math.ceil((passageMs - maintenant) / 60_000)),
+      passageAt: prochainPassage.nextDepartureAt,
+      dansMinutes: prochainPassage.minutes,
     }
   })
+  if (rows.some((row) => row === null)) return null
+  const resolvedRows = rows.filter((row): row is NonNullable<typeof row> => row !== null)
 
   // Garde-fou de production : aucun horaire du même train ne peut reculer.
-  for (let index = 1; index < rows.length; index += 1) {
-    if (Date.parse(rows[index].passageAt) < Date.parse(rows[index - 1].passageAt)) {
-      throw new Error(`Offsets TER non chronologiques entre ${rows[index - 1].nom} et ${rows[index].nom}.`)
+  for (let index = 1; index < resolvedRows.length; index += 1) {
+    if (Date.parse(resolvedRows[index].passageAt) < Date.parse(resolvedRows[index - 1].passageAt)) {
+      throw new Error(`Offsets TER non chronologiques entre ${resolvedRows[index - 1].nom} et ${resolvedRows[index].nom}.`)
     }
   }
 
@@ -117,7 +121,7 @@ export function genererHorairesTerDakarDiamniadio(
     heureDepart: heureDakar(new Date(departMs)),
     dureeMinutes: TER_DAKAR_DIAMNIADIO_DUREE_MINUTES,
     frequenceMinutes: prochainDepart.headwayMinutes,
-    rows,
+    rows: resolvedRows,
   }
 }
 
