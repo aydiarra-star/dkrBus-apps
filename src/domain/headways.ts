@@ -158,10 +158,13 @@ export function nextReferencePassage(
   // Une mission partie la veille peut encore passer après minuit à une station
   // aval. On examine donc aussi la journée de service précédente : son
   // départ reste rattaché à J, même si l'instant projeté appartient à J+1.
+  // Comparer toutes les journées candidates avant de choisir : une course
+  // reportée depuis J peut être future, mais ne doit pas masquer un passage
+  // encore plus proche issu de la grille de J+1.
+  let bestOverall: { at: number; slot: number; frequency: OfficialFrequency } | null = null
   for (let offset = -1; offset < SEARCH_DAYS; offset += 1) {
     const dayStart = todayStart + offset * DAY_MS
     const applicableFrequencies = frequenciesForDakarDate(usable, dayStart)
-    let best: { at: number; slot: number; frequency: OfficialFrequency } | null = null
 
     for (const frequency of applicableFrequencies) {
       const start = windowStart(dayStart, frequency)
@@ -176,44 +179,45 @@ export function nextReferencePassage(
       // La fenêtre de service s'apprécie au terminus, origine de la grille.
       if (slot >= end) continue
       const projected = slot + offsetMs
-      if (!best || projected < best.at) best = { at: projected, slot, frequency }
-    }
-
-    if (!best) continue
-
-    // L'état de service se lit sur le DÉPART retenu, pas sur l'arrivée projetée :
-    // la dernière course d'un service part avant sa fermeture et peut arriver
-    // après. La qualifier de « service non commencé » serait un contresens.
-    const todayFrequencies = frequenciesForDakarDate(usable, todayStart)
-    const slotIsToday = best.slot >= todayStart && best.slot - todayStart < DAY_MS
-    const projectedIsToday = best.at >= todayStart && best.at - todayStart < DAY_MS
-    const serviceOpenNow = todayFrequencies.some(
-      (frequency) => windowStart(todayStart, frequency) <= now && now < windowEnd(todayStart, frequency),
-    )
-    const status: PassageStatus = slotIsToday
-      ? windowStart(todayStart, best.frequency) <= now
-        ? 'RUNNING'
-        : 'BEFORE_SERVICE'
-      : projectedIsToday
-        ? 'RUNNING'
-        : serviceOpenNow
-          ? 'LAST_PAST'
-          : 'AFTER_SERVICE'
-    const clockLabel = formatClock(new Date(best.at))
-
-    return {
-      status,
-      nextDepartureAt: new Date(best.at).toISOString(),
-      minutes: Math.max(1, Math.ceil((best.at - now) / MINUTE_MS)),
-      headwayMinutes: best.frequency.headwayMinutes,
-      periodLabel: formatFrequencyPeriod(best.frequency),
-      clockLabel,
-      note: noteFor(status, clockLabel, best.frequency.headwayMinutes),
-      holidayCaveat: best.frequency.excludesPublicHolidays === true && !isSenegalPublicHoliday(best.slot),
+      if (!bestOverall || projected < bestOverall.at) {
+        bestOverall = { at: projected, slot, frequency }
+      }
     }
   }
 
-  return null
+  if (!bestOverall) return null
+
+  // L'état de service se lit sur le DÉPART retenu, pas sur l'arrivée projetée :
+  // la dernière course d'un service part avant sa fermeture et peut arriver
+  // après. La qualifier de « service non commencé » serait un contresens.
+  const best = bestOverall
+  const todayFrequencies = frequenciesForDakarDate(usable, todayStart)
+  const slotIsToday = best.slot >= todayStart && best.slot - todayStart < DAY_MS
+  const projectedIsToday = best.at >= todayStart && best.at - todayStart < DAY_MS
+  const serviceOpenNow = todayFrequencies.some(
+    (frequency) => windowStart(todayStart, frequency) <= now && now < windowEnd(todayStart, frequency),
+  )
+  const status: PassageStatus = slotIsToday
+    ? windowStart(todayStart, best.frequency) <= now
+      ? 'RUNNING'
+      : 'BEFORE_SERVICE'
+    : projectedIsToday
+      ? 'RUNNING'
+      : serviceOpenNow
+        ? 'LAST_PAST'
+        : 'AFTER_SERVICE'
+  const clockLabel = formatClock(new Date(best.at))
+
+  return {
+    status,
+    nextDepartureAt: new Date(best.at).toISOString(),
+    minutes: Math.max(1, Math.ceil((best.at - now) / MINUTE_MS)),
+    headwayMinutes: best.frequency.headwayMinutes,
+    periodLabel: formatFrequencyPeriod(best.frequency),
+    clockLabel,
+    note: noteFor(status, clockLabel, best.frequency.headwayMinutes),
+    holidayCaveat: best.frequency.excludesPublicHolidays === true && !isSenegalPublicHoliday(best.slot),
+  }
 }
 
 /** « 6 min », « 1 h 05 » : jamais « 0 min », jamais de temps réel sous-entendu. */
