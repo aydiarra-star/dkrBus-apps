@@ -47,6 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
+import { TerDakarDiamniadioBoard } from './components/TerDakarDiamniadioBoard'
 import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { ExternalDirections } from './components/ExternalDirections'
 import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
@@ -2366,6 +2367,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
   return (
     <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
       <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ AIBD · heure de Dakar (UTC+0)' : 'Petersen ↔ Guédiawaye'}</p>
+      {network === 'ter' && <TerDakarDiamniadioBoard now={now} />}
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
