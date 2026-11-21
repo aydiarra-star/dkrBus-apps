@@ -57,7 +57,7 @@ export function TerDakarDiamniadioBoard({ now }: TerDakarDiamniadioBoardProps) {
       {schedule ? (
         <>
           <p className="ter-dd-context">
-            Prochain départ à <strong>{schedule.heureDepart}</strong> · Durée env. {schedule.dureeMinutes} min
+            Prochain départ théorique à <strong>{schedule.heureDepart}</strong> · Durée env. {schedule.dureeMinutes} min
           </p>
           <ol className="ter-dd-stops">
             {schedule.rows.map((row) => (
