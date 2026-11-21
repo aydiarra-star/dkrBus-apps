@@ -170,19 +170,18 @@ describe('prochains créneaux théoriques', () => {
     expect(passage.nextDepartureAt).toBe('2026-10-08T00:25:00.000Z')
   })
 
-  it('compare la course reportée de la veille avec les passages du jour', () => {
-    // À 00:20, une course de la veille projetée à 05:45 ne doit pas masquer
-    // le premier départ du jour, projeté à 05:00 (décalage de 7 heures).
-    const lateService = [{
-      ...BRT[0],
-      serviceStart: '22:00',
-      serviceEnd: '23:00',
-      headwayMinutes: 15,
-    }]
+  it('compare la course reportée de la veille avec une grille différente le jour courant', () => {
+    // À 00:20 jeudi, la grille du mercredi projette un passage à 08:00.
+    // La grille propre au jeudi offre toutefois un passage à 05:00, qui est
+    // réellement le prochain. Le moteur ne doit pas s'arrêter au mercredi.
+    const schedules = [
+      { ...BRT[0], days: ['WED'] as const, serviceStart: '22:00', serviceEnd: '23:00', headwayMinutes: 15 },
+      { ...BRT[0], days: ['THU'] as const, serviceStart: '05:00', serviceEnd: '06:00', headwayMinutes: 15 },
+    ]
     const passage = nextReferencePassage(
-      lateService,
+      schedules,
       at('2026-10-08T00:20:00Z'),
-      7 * 60,
+      10 * 60,
     )!
     expect(passage.clockLabel).toBe('05:00')
     expect(passage.minutes).toBe(280)
