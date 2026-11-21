@@ -88,7 +88,7 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
   // Une gare peut exister dans le référentiel cartographique sans disposer
   // d'une durée TER observée. La fonction historique de durée renvoie 0 dans
   // ce cas ; ne surtout pas interpréter ce zéro comme un passage au terminus.
-  if (line.network === 'ter' && stops.some((stop) => !Object.hasOwn(TER_CUMULATIVE_TRAVEL_TIMES, stop.id))) return null
+  if (line.network === 'ter' && stops.some((stop) => !Object.prototype.hasOwnProperty.call(TER_CUMULATIVE_TRAVEL_TIMES, stop.id))) return null
   if (stops.length < 2) return null
 
   const dwell = dwellMinutes(line.network)
