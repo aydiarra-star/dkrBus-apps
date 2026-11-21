@@ -83,8 +83,15 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(diamniadio.inbound!.headwayMinutes).toBe(8)
     expect(diamniadio.outboundAirport!.headwayMinutes).toBe(24)
     expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
-    const outboundPhaseGap = (Date.parse(diamniadio.outboundAirport!.nextDepartureAt) - Date.parse(diamniadio.outbound!.nextDepartureAt)) / 60_000
-    expect([0, 8, 16]).toContain(outboundPhaseGap)
+    // La grille de l'extension est ancrée à Diamniadio, indépendamment
+    // du temps de parcours Dakar → Diamniadio du tronc commun.
+    expect(diamniadio.outboundAirport!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
+        NOW,
+        0,
+      )!.nextDepartureAt,
+    )
     expect(aibd.inbound!.headwayMinutes).toBe(24)
     expect(aibd.outbound!.headwayMinutes).toBe(24)
     expect(aibd.outbound!.nextDepartureAt).toBe(
