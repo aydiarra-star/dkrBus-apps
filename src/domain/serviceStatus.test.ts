@@ -9,6 +9,23 @@ function dakarTime(hours: number, minutes: number): number {
 }
 
 describe('getServiceDisplayState', () => {
+  it('utilise le même instant Dakar quand le téléphone est réglé sur la France', () => {
+    // 05:49 en France (UTC+1 en novembre) correspond à 04:49 à Dakar (UTC).
+    const franceCapture = new Date('2026-11-09T05:49:00+01:00').getTime()
+    expect(new Date(franceCapture).toISOString()).toBe('2026-11-09T04:49:00.000Z')
+
+    expect(getServiceDisplayState(franceCapture, '05:35', '22:00').status).toBe('UPCOMING') // TER
+    expect(getServiceDisplayState(franceCapture, '06:00', '21:00').status).toBe('FINISHED') // BRT
+    expect(getServiceDisplayState(franceCapture, '05:30', '21:00').status).toBe('UPCOMING') // DDD
+    expect(getServiceDisplayState(franceCapture, '06:00', '22:50').status).toBe('FINISHED') // AFTU
+  })
+
+  it('ne passe au vert qu’à l’instant du démarrage effectif', () => {
+    expect(getServiceDisplayState(dakarTime(5, 59), '06:00', '21:00').status).toBe('UPCOMING')
+    expect(getServiceDisplayState(dakarTime(6, 0), '06:00', '21:00').status).toBe('ACTIVE')
+    expect(getServiceDisplayState(dakarTime(21, 0), '06:00', '21:00').status).toBe('FINISHED')
+  })
+
   describe('BRT (06:00–21:00)', () => {
     const START = '06:00'
     const END = '21:00'

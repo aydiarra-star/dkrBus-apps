@@ -102,6 +102,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
+import { getServiceDisplayState } from './domain/serviceStatus'
 import { estimatedFrequencyReference, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { boardLinesForNetwork, buildStationBoard, type StationBoard } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -2304,6 +2305,20 @@ function ExploreMobilityCountdowns({
             : estimatedNextPassage(id, now)
           const clock = passage?.nextDepartureAt.slice(11, 16) ?? null
           const isSelected = selectedNetwork === id
+          // L'horloge de référence du projet est UTC = Africa/Dakar.
+          // L'état de service pilote la couleur, indépendamment de l'existence
+          // d'un prochain créneau calculé (qui peut appartenir au lendemain).
+          const serviceState = getServiceDisplayState(now, network.serviceStart, network.serviceEnd)
+          const statusClass = serviceState.status === 'ACTIVE'
+            ? ' is-counting'
+            : serviceState.status === 'UPCOMING'
+              ? ' status-upcoming'
+              : ' status-finished'
+          const passageClass = serviceState.status === 'ACTIVE'
+            ? ''
+            : serviceState.status === 'UPCOMING'
+              ? ' is-upcoming'
+              : ' is-finished'
           return (
             <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
               <button
@@ -2313,14 +2328,14 @@ function ExploreMobilityCountdowns({
                 aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
-                <span className={`network-summary-dot is-referenced${passage ? ' is-counting' : ''}`} aria-hidden="true" />
+                <span className={`network-summary-dot is-referenced${statusClass}`} aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && id !== 'ddd' && network.label !== network.shortName && (
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
-                <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}`}>
+                <span className={`network-summary-passage${passage ? passageClass : ' is-undeclared'}`}>
                   <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
                   <small>{passage && clock
                     ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
