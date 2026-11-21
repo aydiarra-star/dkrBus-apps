@@ -27,7 +27,7 @@ try {
           const {kind,passage:p} = sign.at(rank,now), loc=`${id} r${rank} ${iso} estimations=${estimates}`
           const secs=el.querySelector('time'),value=el.querySelector('.station-board-passage strong')?.textContent
           const active = p.state==='active' && (kind==='dated'||kind==='weekly')
-          const upcoming = p.state==='upcoming' && 'at' in p
+          const upcoming = kind !== 'model' && p.state==='upcoming' && 'at' in p
           const timed = active || upcoming
           assert.equal(!!secs,timed,loc);assert.equal(!!el.querySelector('[role=timer]'),timed,loc)
           assert.equal(!!el.querySelector('svg.station-board-double-apostrophe'),active,loc)
