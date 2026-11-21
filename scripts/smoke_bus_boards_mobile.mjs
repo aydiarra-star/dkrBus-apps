@@ -41,8 +41,10 @@ for (const theme of ['light','dark']) {
       assert.equal(await items.count(),n); assert.match(await items.last().innerText(),last)
       if (green === null) {
         assert.equal(await timers.count(),0); assert.equal(await items.locator('time,svg').count(),0)
-        assert.equal(await items.locator('.bus-estimate').count(),n)
-        assert((await items.locator('.bus-estimate strong').allTextContents()).every(v=>/^Vers \d{2}:\d{2}$/.test(v)))
+        const estimates = items.locator('.bus-estimate')
+        assert([0,n].includes(await estimates.count()))
+        if (await estimates.count()) assert((await estimates.locator('strong').allTextContents()).every(v=>v === 'Projection non confirmée'))
+        assert((await items.allInnerTexts()).every(v=>!/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/.test(v)))
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
         return
       }
@@ -93,7 +95,9 @@ for (const theme of ['light','dark']) {
     assert.match(await wrapper.locator('.bus-occurrences .bus-survey-note').innerText(),/Mosquée Massalikou Djinane/)
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0)
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
-    assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)
+    assert.equal(await wrapper.locator('.bus-occurrences time, .bus-occurrences [role="timer"]').count(),0)
+    assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Heures de référence · jour non confirmé/)
+    assert.doesNotMatch(await wrapper.locator('.bus-occurrences').innerText(),/\\b05:49\\b/)
     await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,null); await inspect('84',1,73,/Jaxaay2 Route Du 84/,null)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await inspect('60',0,8,/Arrivée au terminus/,null); await inspect('60',1,8,/Dernier secteur/,null)
     // The other axis of the 53 and the return description of the 1 are
