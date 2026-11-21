@@ -13,6 +13,7 @@ import { midnight } from '../domain/stopPassageCountdown'
 import type { Network } from '../routing/model'
 import { PassageClock, usePassageClock } from './PassageClock'
 import { PassageArcs } from './PassageArcs'
+import { formatPassageCountdown } from '../domain/headways'
 import { usePassengerNetwork } from './usePassengerNetwork'
 
 /** Reuse the journey edition only when it is for the day on the sign. */
@@ -23,14 +24,14 @@ function Passage({ passage, now, caption, model = false }: { passage: BusPassage
   // Modelled phases and interpolated stop offsets are useful for planning,
   // not a deadline. Even the opt-in view must not count down to them.
   if (model) {
-    const value = 'at' in p ? `Vers ${new Date(p.at).toISOString().slice(11,16)}`
-      : p.state === 'finished' ? 'Fin du modèle' : '—'
-    return <span className="network-summary-passage station-board-passage is-undeclared bus-estimate"><strong>{value}</strong><small>{caption ?? 'Estimé'}</small></span>
+    return <span className="network-summary-passage station-board-passage is-undeclared bus-estimate"><strong>Projection non confirmée</strong><small>{caption ?? 'Estimé'}</small></span>
   }
-  const value = p.state === 'active' ? `${p.minutes} min` : p.state === 'upcoming' ? `Dès ${new Date(p.at).toISOString().slice(11,16)}`
+  const at = 'at' in p ? p.at : null
+  const minutes = p.state === 'active' ? p.minutes : p.state === 'upcoming' ? Math.max(1, Math.ceil((p.at - now) / 60_000)) : null
+  const value = minutes !== null ? `Dans ${formatPassageCountdown(minutes)}`
     : p.state === 'finished' ? 'Fin de service' : p.state === 'closed' ? 'Pas de créneau' : p.state === 'calendar' ? 'Non confirmé' : '—'
-  return <span className={`network-summary-passage station-board-passage${p.state === 'active' ? '' : p.state === 'upcoming' ? ' is-upcoming' : p.state === 'finished' ? ' is-finished' : ' is-undeclared'}`} role={p.state === 'active' ? 'timer' : undefined} aria-live="off">
-    <strong>{p.state === 'active' && <PassageArcs />}{value}</strong>{p.state === 'active' && <PassageClock atMs={p.at} now={now} />}{caption && <small>{caption}</small>}
+  return <span className={`network-summary-passage station-board-passage${p.state === 'active' ? '' : p.state === 'upcoming' ? ' is-upcoming' : p.state === 'finished' ? ' is-finished' : ' is-undeclared'}`} role={minutes !== null ? 'timer' : undefined} aria-live="off">
+    <strong>{p.state === 'active' && <PassageArcs />}{value}</strong>{at !== null && minutes !== null && <PassageClock atMs={at} now={now} />}{caption && <small>{caption}</small>}
   </span>
 }
 
@@ -66,10 +67,6 @@ export function BusDirectionPanel({ d, sign, estimates, now, name, open, toggle,
           return <li className="station-board-row station-board-row-static" key={index}>
             <span className="station-board-stop"><small className="bus-rank">{index + 1}.</small> <strong>{printed ?? point}</strong>
               {printed && <small>Libellé local : {point} · non repris sur la fiche horaire</small>}
-              {hours?.samples?.map(s => {
-                const i = s.ranks.indexOf(index+1)
-                return i >= 0 && <small key={s.label}>{s.label} : {s.times[i]}</small>
-              })}
               {missing && readingUrl && <small>Heure non renseignée ici · <a href={readingUrl} target="_blank" rel="noreferrer"
                 aria-label={`Consulter la fiche externe de ${name} vers ${d.to}, rang ${index+1} (nouvel onglet)`}>Voir la fiche du sens</a></small>}
             </span>

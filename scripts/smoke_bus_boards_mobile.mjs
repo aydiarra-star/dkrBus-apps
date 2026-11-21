@@ -41,18 +41,20 @@ for (const theme of ['light','dark']) {
       assert.equal(await items.count(),n); assert.match(await items.last().innerText(),last)
       if (green === null) {
         assert.equal(await timers.count(),0); assert.equal(await items.locator('time,svg').count(),0)
-        assert.equal(await items.locator('.bus-estimate').count(),n)
-        assert((await items.locator('.bus-estimate strong').allTextContents()).every(v=>/^Vers \d{2}:\d{2}$/.test(v)))
+        const estimates = items.locator('.bus-estimate')
+        assert([0,n].includes(await estimates.count()))
+        if (await estimates.count()) assert((await estimates.locator('strong').allTextContents()).every(v=>v === 'Projection non confirmée'))
+        assert((await items.allInnerTexts()).every(v=>!/\b(?:[01]\d|2[0-3]):[0-5]\d\b/.test(v)))
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
         return
       }
-      const before = await timers.allTextContents(); assert(before.every(v => /^[1-9]\d* min$/.test(v)))
+      const before = await timers.allTextContents(); assert(before.every(v => /^(?:Dans )?(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v)))
       assert.equal(await timers.locator('svg').count(),n)
       assert.equal(await timers.first().evaluate(el=>getComputedStyle(el).color),green)
       const seconds = items.locator('time.passage-remaining'); assert.equal(await seconds.count(), n)
       await tick(seconds.first(), green)
       await page.clock.fastForward(60_000)
-      const after = await timers.allTextContents(); assert(after.every(v => /^[1-9]\d* min$/.test(v))); assert.notDeepEqual(before,after)
+      const after = await timers.allTextContents(); assert(after.every(v => /^(?:Dans )?(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v))); assert.notDeepEqual(before,after)
       assert.equal(await items.evaluateAll(rows => rows.some(r=>r.scrollWidth>r.clientWidth+1)),false)
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
     }
@@ -75,7 +77,9 @@ for (const theme of ['light','dark']) {
     assert.match(url,/4256165-0$/); await page.context().route(url,r=>r.fulfill({contentType:'text/plain',body:'Fiche externe de recette'}))
     const popup = page.waitForEvent('popup'); await external.click(); const sheet = await popup
     await sheet.waitForURL(url); await sheet.close(); assert.equal(await missing.locator('time').count(),0)
-    assert.match(await wrapper.locator('.bus-occurrences').innerText(),/lacune dès le départ de 05:40/)
+    const gapBoard = await wrapper.locator('.bus-occurrences').innerText()
+    assert.match(gapBoard,/lacune après les départs transcrits/)
+    assert.doesNotMatch(gapBoard,/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
     await inspect('7',2,27,/Gare Palais/,green); await inspect('7',3,29,/Rue Okm 60, 67/,green)
     await inspect('16A',2,65,/Gare Palais/,green); await inspect('16A',3,64,/Terminus Malika/,green)
     await inspect('319',0,27,/Arrivée au terminus/,green); await estimates.check(); await inspect('319',1,26,/Arrivée au terminus/,green)
@@ -87,11 +91,13 @@ for (const theme of ['light','dark']) {
     await inspect('58',2,39,/Bvar\. Tapée \/ Rue 18/,green); await inspect('58',3,43,/Arrêt De Bus/,green)
     await inspect('57',0,56,/Arrivée au terminus/,green); await inspect('57',1,57,/Terminus 57/,green)
     await input.fill('87'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
-    const ref87 = wrapper.getByText('Départ théorique depuis Maristes : 06:35'); await ref87.click()
+    const ref87 = wrapper.locator('.bus-survey-note').filter({hasText:'Départ de référence transmis depuis Maristes'}).locator('summary'); await ref87.click()
     assert.match(await wrapper.locator('.bus-occurrences .bus-survey-note').innerText(),/Mosquée Massalikou Djinane/)
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0)
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
-    assert.equal(await wrapper.locator('.bus-occurrences time').count(),0); assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Relevé non daté : 05:49/)
+    assert.equal(await wrapper.locator('.bus-occurrences time, .bus-occurrences [role="timer"]').count(),0)
+    assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Heures de référence · jour non confirmé/)
+    assert.doesNotMatch(await wrapper.locator('.bus-occurrences').innerText(),/\b05:49\b/)
     await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,null); await inspect('84',1,73,/Jaxaay2 Route Du 84/,null)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await inspect('60',0,8,/Arrivée au terminus/,null); await inspect('60',1,8,/Dernier secteur/,null)
     // The other axis of the 53 and the return description of the 1 are
@@ -134,8 +140,16 @@ for (const theme of ['light','dark']) {
     await page.clock.pauseAt(new Date('2026-11-20T05:30:59Z')); await page.clock.runFor(1000)
     const sides = wrapper.locator('.station-board-direction-toggle')
     assert.equal(await sides.count(),2)
-    assert.match(await sides.nth(0).innerText(),/Dès 05:55/); assert.match(await sides.nth(1).innerText(),/Dès 05:50/)
-    assert.equal(await sides.locator('time').count(),0)
+    for (const side of await sides.all()) {
+      const passage = side.locator('[role="timer"]')
+      assert.equal(await passage.count(),1)
+      assert.match(await passage.innerText(),/Dans \d+ min/)
+      assert.match(await passage.locator('time').innerText(),/^\d+:\d{2}$/)
+      // Exclude the live countdown's mm:ss text; only reject static clock labels.
+      const labels = await side.evaluate(el => { const copy = el.cloneNode(true); copy.querySelectorAll('[role="timer"]').forEach(timer => timer.remove()); return copy.innerText })
+      assert.doesNotMatch(labels,/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
+    }
+    assert.equal(await sides.locator('time').count(),2)
     await page.clock.pauseAt(new Date('2026-11-20T06:51:59Z')); await page.clock.runFor(1000)
     for (const [side, wording] of [/après Cem Thiaroye/, /Le même quai n’est pas confirmé/].entries()) {
       await wrapper.locator('.station-board-direction-toggle').nth(side).click(); await note.locator('summary').click()
@@ -162,13 +176,18 @@ for (const theme of ['light','dark']) {
     await sides.nth(1).click()
     await page.clock.pauseAt(new Date('2026-11-20T23:49:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(), /Fin de service/)
-    // Friday's final *printed* Palais arrival is 00:53, not Thursday's 01:08.
+    // Friday's own final Palais arrival is 00:53. Thursday's 24:00 departure
+    // is still in service until its separately scheduled 01:08 arrival.
     await network('ddd').click(); await estimates.check(); await input.fill('16B'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-20T23:59:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'8:01'); await page.clock.runFor(1000); assert.equal(await clock.textContent(),'8:00')
-    await page.clock.pauseAt(new Date('2026-11-21T00:52:58Z')); await page.clock.runFor(1000)
+    await page.clock.pauseAt(new Date('2026-11-20T00:52:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
-    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Dès 06:43/)
+    assert.equal(await clock.textContent(),'15:00')
+    await page.clock.pauseAt(new Date('2026-11-20T01:07:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
+    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
+    assert.doesNotMatch(await terminal.innerText(),/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
     await estimates.uncheck(); await input.fill('311'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
