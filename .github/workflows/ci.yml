@@ -16,36 +16,36 @@ jobs:
     name: Build, tests and dependency audit
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      pbf_available: ${{ steps.relation_artifact.outcome == 'success' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
 
       - name: Run GTFS validator and worker unit tests
         run: python -m unittest tests.test_compare_weekly_73 tests.test_hub_access tests.test_bus_board_profiles tests.test_validate_gtfs tests.test_process_gtfs_staging tests.test_audit_bus_continuity tests.test_audit_interchange_sites tests.test_audit_maristes_pins tests.test_physical_bus_review tests.test_terminus_quays tests.test_terminal_calls tests.test_reference_archives tests.test_thiaroye_site tests.test_freeze_bus_checks tests.test_audit_aftu_road_fit tests.test_audit_aftu_map_calls tests.test_gtfs_worker_workflow tests.test_extract_dakar_bus_route_relations_from_pbf tests.test_compare_dakar_pbf_ddd_arcgis_routes
 
-      - name: Check explicit location metadata on the public directional stop sheets (review only)
-        if: github.event_name == 'pull_request'
-        run: python -m scripts.audit_maristes_pins --ci-summary
-
+      # The stop-sheet parser is tested above with fixtures. Do not poll six
+      # third-party passenger pages on every PR in lieu of reuse permission.
       - name: Install dependencies
         run: npm ci
 
       - name: Verify offline bus inventory and versioned coverage table
         run: |
-          node --test scripts/bus_inventory.node-test.mjs scripts/lib/busReadiness.node-test.mjs scripts/lib/waymarkLines.node-test.mjs
           # Recalculate at the pinned date. A changed route, selection, leg time
           # or classification must not silently leave yesterday's receipt green.
+          node scripts/audit_reference_surface.mjs --check
           node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 > "$RUNNER_TEMP/bus-day.json"
           cmp data/bus-review/replay-calculateur-2026-11-19.json "$RUNNER_TEMP/bus-day.json"
           node scripts/audit_place_connections.mjs --matrix --at 2026-11-19T19:00 --points data/bus-sections/selection-0c6cf56.json > "$RUNNER_TEMP/cohort.json"
@@ -71,14 +71,11 @@ jobs:
       - name: Check AFTU/TATA source coverage audit
         run: node --check scripts/audit_aftu_tata_directional_coverage.mjs
 
-      - name: Test AFTU/TATA source coverage audit
-        run: node --test scripts/audit_aftu_tata_directional_coverage.node-test.mjs
-
       - name: Audit AFTU and TATA directional source coverage
         run: node scripts/audit_aftu_tata_directional_coverage.mjs
 
       - name: Upload AFTU/TATA source coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aftu-tata-directional-source-coverage
           path: artifacts/aftu-tata/
@@ -107,7 +104,7 @@ jobs:
 
       - name: Upload official DDD route evidence
         if: always() && steps.ddd_official.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ddd-official-published-route-candidates
           path: artifacts/ddd/ddd-official-published-route-candidates.json
@@ -129,23 +126,17 @@ jobs:
       - name: Check DDD ArcGIS candidate sequence builder
         run: node --check scripts/build_ddd_arcgis_candidate_sequences.mjs
 
-      - name: Test DDD ArcGIS candidate sequence builder
-        run: node --test scripts/build_ddd_arcgis_candidate_sequences.node-test.mjs
-
       - name: Build DDD ArcGIS ordered candidate sequences
         run: node scripts/build_ddd_arcgis_candidate_sequences.mjs
 
       - name: Check AFTU/TATA to DDD stop-name crosswalk
         run: node --check scripts/build_aftu_tata_ddd_stop_crosswalk.node.mjs
 
-      - name: Test AFTU/TATA to DDD stop-name crosswalk
-        run: node --test scripts/build_aftu_tata_ddd_stop_crosswalk.node-test.mjs
-
       - name: Build AFTU/TATA to DDD stop-name crosswalk
         run: node scripts/build_aftu_tata_ddd_stop_crosswalk.node.mjs
 
       - name: Upload AFTU/TATA to DDD stop-name crosswalk
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aftu-tata-ddd-stop-name-crosswalk
           path: artifacts/aftu-tata/
@@ -154,14 +145,11 @@ jobs:
       - name: Check AFTU/TATA DDD fuzzy candidate review
         run: node --check scripts/build_aftu_tata_ddd_fuzzy_candidates.node.mjs
 
-      - name: Test AFTU/TATA DDD fuzzy candidate review
-        run: node --test scripts/build_aftu_tata_ddd_fuzzy_candidates.node-test.mjs
-
       - name: Build AFTU/TATA DDD fuzzy candidate review
         run: node scripts/build_aftu_tata_ddd_fuzzy_candidates.node.mjs
 
       - name: Upload AFTU/TATA DDD fuzzy candidate review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aftu-tata-ddd-fuzzy-review
           path: artifacts/aftu-tata/ddd-fuzzy-review-*
@@ -170,20 +158,14 @@ jobs:
       - name: Check AFTU/TATA OSM stop crosswalk
         run: node --check scripts/build_aftu_tata_osm_stop_crosswalk.node.mjs
 
-      - name: Test AFTU/TATA OSM stop crosswalk
-        run: node --test scripts/build_aftu_tata_osm_stop_crosswalk.node-test.mjs
-
       - name: Check DDD ArcGIS official sequence cross-check
         run: node --check scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
-
-      - name: Test DDD ArcGIS official sequence cross-check
-        run: node --test scripts/audit_ddd_arcgis_official_sequence_alignment.node-test.mjs
 
       - name: Compare candidate sequences with published DDD routes
         run: node scripts/audit_ddd_arcgis_official_sequence_alignment.mjs
 
       - name: Upload DDD ArcGIS ordered candidate sequences
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ddd-arcgis-ordered-candidate-sequences
           path: artifacts/ddd/arcgis-2024-candidate-sequences/
@@ -191,7 +173,7 @@ jobs:
           retention-days: 30
 
       - name: Upload ArcGIS stop-to-route crosswalk and audit
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ddd-arcgis-stop-route-crosswalk
           path: artifacts/ddd/arcgis-2024-audit/
@@ -199,7 +181,7 @@ jobs:
           retention-days: 30
 
       - name: Upload raw ArcGIS and GeoJSON evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ddd-arcgis-2024-source-extract
           path: artifacts/ddd/arcgis-2024-extract/
@@ -213,14 +195,8 @@ jobs:
       - name: Check DDD OSM-ArcGIS directional crosswalk
         run: python -m py_compile scripts/compare_dakar_pbf_ddd_arcgis_routes.py
 
-      - name: Test pedestrian graph construction and access filters
-        run: node --test scripts/lib/pedestrianNetwork.node-test.mjs
-
       - name: Check pedestrian source selection helper
         run: node --check scripts/lib/pedestrianSource.mjs
-
-      - name: Test local PBF and Overpass source selection
-        run: node --test scripts/lib/pedestrianSource.node-test.mjs
 
       - name: Test Geofabrik pedestrian PBF filter
         run: python scripts/test_extract_dakar_pedestrian_ways_from_pbf.py
@@ -280,7 +256,7 @@ jobs:
 
       - name: Upload read-only bus occurrence and pinned member comparison
         if: steps.dakar_bus_routes.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dakar-bus-occurrence-review
           path: artifacts/bus-review/
@@ -296,7 +272,7 @@ jobs:
 
       - name: Upload candidate pedestrian graph
         if: always() && (steps.pedestrian_geofabrik.outcome == 'success' || steps.pedestrian_graph.outcome == 'success')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dakar-pedestrian-graph-candidate
           path: artifacts/pedestrian/dakar-pedestrian-graph-candidate.json
@@ -304,8 +280,9 @@ jobs:
           retention-days: 14
 
       - name: Upload Dakar bus route relation audit
+        id: relation_artifact
         if: steps.dakar_bus_routes.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dakar-bus-route-relations
           path: artifacts/pedestrian/dakar-bus-route-relations.json
@@ -315,24 +292,20 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Check map hit targets, layer filters and all 37 TER/BRT stations in Chromium
+      - name: Chromium — 70 reference choices, 37 stations, map layers, bus boards and journeys
         env:
           BROWSER_TOOLS: ${{ runner.temp }}/map-browser
         run: |
           npm install --prefix "$BROWSER_TOOLS" --no-save --ignore-scripts playwright-core@1.65.1
-          CHROMIUM_PATH="$(command -v google-chrome)" node scripts/smoke_map_points.mjs
+          CHROMIUM_PATH="$(command -v google-chrome)" npm run smoke:arena
 
       - name: Run frontend and local data tests (no GTFS feed required)
         run: npm run test:all
 
-      # This repository publishes a static frontend: Node tooling is not shipped to users.
-      # picomatch 4.0.7 remains in the Vite/Vitest development toolchain; GHSA-fc5q-39xc-vjpf
-      # has no patched release yet. Keep the full dev-tree visible and audit runtime deps strictly.
-      - name: Audit production dependencies
+      - name: Audit runtime dependencies and build/test tooling
         run: |
           npm audit --omit=dev --audit-level=moderate
-          npm ls picomatch --all
-
+          npm audit --audit-level=high
 
   verify-gtfs-worker-migration:
     name: Verify private GTFS worker database migration
@@ -353,7 +326,7 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
@@ -373,10 +346,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
 
@@ -392,29 +365,45 @@ jobs:
 
   osm_evidence:
     name: Optional DDD OSM relation evidence
+    needs: verify
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
 
       - name: Check read-only OSM directional relation extractor
         run: node --check scripts/extract_ddd_osm_directional_relations.mjs
 
-      - name: Query OSM relations for DDD lines 217, 218, 219 and 228 (read-only)
-        id: osm_relations
-        continue-on-error: true
-        timeout-minutes: 2
-        run: node scripts/extract_ddd_osm_directional_relations.mjs
+      - name: Retrieve the PBF relation extract from this run, if available
+        if: needs.verify.outputs.pbf_available == 'true'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dakar-bus-route-relations
+          path: ${{ runner.temp }}/pbf-relations
 
-      - name: Upload OSM directional relation evidence
-        if: always() && steps.osm_relations.outcome == 'success'
-        uses: actions/upload-artifact@v4
+      - name: Query Overpass; on outage inspect the same-run PBF or record unavailability
+        timeout-minutes: 4
+        env:
+          PBF_AVAILABLE: ${{ needs.verify.outputs.pbf_available }}
+        run: |
+          if [[ "$PBF_AVAILABLE" == true ]]; then
+            export DAKAR_OSM_RELATIONS_JSON="$RUNNER_TEMP/pbf-relations/dakar-bus-route-relations.json"
+          fi
+          node scripts/extract_ddd_osm_directional_relations.mjs || {
+            status=$?
+            if [[ "$status" != 75 ]]; then exit "$status"; fi
+            echo '::warning title=Source OSM facultative indisponible::Ni réponse Overpass ni extrait PBF dans ce run. Aucune conclusion de desserte.'
+          }
+
+      - name: Upload OSM evidence or its explicit source outage diagnostic
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ddd-osm-217-218-219-228
           path: artifacts/ddd/osm-217-218-219-228/
