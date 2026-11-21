@@ -155,7 +155,7 @@ export function nextReferencePassage(
   const offsetMs = (Number.isFinite(offsetMinutes) ? Math.max(0, offsetMinutes) : 0) * MINUTE_MS
   const todayStart = startOfDakarDay(now)
 
-  for (let offset = 0; offset < SEARCH_DAYS; offset += 1) {
+  // Une mission partie la veille peut encore passer après minuit à une station\n  // aval. On examine donc aussi la journée de service précédente : son\n  // départ reste rattaché à J, même si l'instant projeté appartient à J+1.\n  for (let offset = -1; offset < SEARCH_DAYS; offset += 1) {
     const dayStart = todayStart + offset * DAY_MS
     const applicableFrequencies = frequenciesForDakarDate(usable, dayStart)
     let best: { at: number; slot: number; frequency: OfficialFrequency } | null = null
