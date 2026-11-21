@@ -16,7 +16,7 @@ describe('périmètres géographiques des phases TER', () => {
   })
 
   it('partage Diamniadio comme unique gare de raccord entre les deux phases', () => {
-    expect(TER_PHASE_ONE_STOPS.at(-1)?.id).toBe('ter-diamniadio')
+    expect(TER_PHASE_ONE_STOPS[TER_PHASE_ONE_STOPS.length - 1]?.id).toBe('ter-diamniadio')
     expect(TER_AIBD_EXTENSION_STOPS[0]?.id).toBe('ter-diamniadio')
     expect(TER_PHASE_ONE_STOPS.some((stop) => stop.id === 'ter-aibd')).toBe(false)
     expect(TER_AIBD_EXTENSION_STOPS.some((stop) => stop.id === 'ter-dakar')).toBe(false)
