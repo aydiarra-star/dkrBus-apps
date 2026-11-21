@@ -143,7 +143,7 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
         // Le tronc commun retour est ancré à Diamniadio (offset zéro).
         // Les missions venant d'AIBD sont affichées séparément ci-dessous.
         inbound = nextReferencePassage(terDakarDiamniadio, now, 0)
-        outboundAirport = nextReferencePassage(terDiamniadioAibd, now, fromOrigin)
+        outboundAirport = nextReferencePassage(terDiamniadioAibd, now, 0)
         inboundAirport = nextReferencePassage(
           terDiamniadioAibd,
           now,
@@ -151,7 +151,11 @@ export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoa
         )
       } else {
         // Après Diamniadio : uniquement les missions prolongées jusqu'à AIBD.
-        outbound = nextReferencePassage(terDiamniadioAibd, now, fromOrigin)
+        outbound = nextReferencePassage(
+          terDiamniadioAibd,
+          now,
+          Math.max(0, fromOrigin - terDiamniadioOffset),
+        )
         inbound = nextReferencePassage(terDiamniadioAibd, now, fromDestination)
       }
     } else {
