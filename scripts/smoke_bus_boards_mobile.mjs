@@ -176,14 +176,18 @@ for (const theme of ['light','dark']) {
     await sides.nth(1).click()
     await page.clock.pauseAt(new Date('2026-11-20T23:49:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(), /Fin de service/)
-    // Friday's final *printed* Palais arrival is 00:53, not Thursday's 01:08.
+    // Friday's own final Palais arrival is 00:53. Thursday's 24:00 departure
+    // is still in service until its separately scheduled 01:08 arrival.
     await network('ddd').click(); await estimates.check(); await input.fill('16B'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-20T23:59:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'8:01'); await page.clock.runFor(1000); assert.equal(await clock.textContent(),'8:00')
     await page.clock.pauseAt(new Date('2026-11-21T00:52:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'15:00')
+    await page.clock.pauseAt(new Date('2026-11-21T01:07:58Z')); await page.clock.runFor(1000)
+    assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
     assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
-    assert.doesNotMatch(await terminal.innerText(),/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
+    assert.doesNotMatch(await terminal.innerText(),/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
     await estimates.uncheck(); await input.fill('311'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
