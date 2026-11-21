@@ -8,7 +8,7 @@ Dans **Trajet → Sur la carte**, choisissez un départ, une destination et une 
 
 **Comparer deux bus aux Maristes.** Dans **Trajet → Sur horaires · Maristes**, essayer Terminus Guédiawaye → Gare de Colobane le 19/11/2026 à 05:00 : DDD 12 à 05:00, arrivée à 05:26 ; AFTU 75 à 05:34, arrivée à 05:46. Les 8 min entre les passages sur la même fiche ne prouvent ni le même quai ni le temps nécessaire pour changer. [Exemples dans les deux ordres, sources et limites](docs/trajets-bus-medina-maristes.md).
 
-[Bilan des panneaux, pièces manquantes pour les correspondances et commandes de recette](docs/bilan-panneaux-et-correspondances.md).
+[Bilan des panneaux et pièces manquantes pour les correspondances](docs/bilan-panneaux-et-correspondances.md) · [Revue des lots et recette de la livraison Arena #275](docs/recette-275/README.md).
 
 **Dans combien de minutes passe le bus ?** Dans *Explorer → Prochains passages*, choisir DDD ou AFTU / TATA, puis la famille, le numéro ou un arrêt. Ouvrir le sens : le compteur vert **minutes:secondes** concerne ce rang précis, pas la moyenne du réseau. Il avance sans nouvelle recherche et disparaît à la fin du service. Les heures sur fiche sont affichées par défaut. Sur demande, un modèle montre « Vers HH:MM » sans compte à rebours. La [matrice arrêt par arrêt](docs/panneaux/README.md), les [résultats des modèles par ligne et sens](docs/passages-bus-par-ligne.md) et la [méthode](docs/modeles-passages-bus.md) distinguent heures du jour, modèles, simples repères et données manquantes.
 
