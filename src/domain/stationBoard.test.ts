@@ -8,6 +8,16 @@ import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
 const NOW = Date.parse('2026-10-08T12:00:00.000Z')
 
 describe('tableau des créneaux par station et par sens', () => {
+
+  it('refuse de raccorder silencieusement une gare TER non référencée', () => {
+    const line = boardLinesForNetwork('ter')[0]
+    const incompleteLine = {
+      ...line,
+      stopIds: [...line.stopIds.slice(0, 3), 'ter-station-non-calibree', ...line.stopIds.slice(3)],
+    }
+    expect(buildStationBoard(incompleteLine, NOW)).toBeNull()
+  })
+
   it('construit une ligne par station du TER, avec les deux sens distincts', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
