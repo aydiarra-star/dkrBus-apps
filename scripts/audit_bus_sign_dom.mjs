@@ -30,8 +30,8 @@ try {
           assert.equal(!!el.querySelector('svg.station-board-double-apostrophe'),active,loc)
           if(active) {
             const t=Math.ceil((p.at-now)/1000);assert(t>0,loc);assert.equal(secs.dateTime,`PT${t}S`,loc)
-            assert.equal(value,`${Math.ceil(t/60)} min`,loc);assert.equal(secs.textContent,`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`,loc)
-          } else if (kind==='model' && 'at' in p) assert.equal(value,`Vers ${new Date(p.at).toISOString().slice(11,16)}`,loc)
+            assert.equal(value,`Dans ${Math.ceil(t/60)} min`,loc);assert.equal(secs.textContent,`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`,loc)
+          } else if (kind==='model' && 'at' in p) assert.equal(value,`Dans ${Math.max(1,Math.ceil((p.at-now)/60_000))} min`,loc)
           return {active,estimate:kind==='model' && 'at' in p}
         }
         const toggle=doc.querySelector('.station-board-direction-toggle');assert.equal(toggle.getAttribute('aria-controls'),id);check(toggle,1)
