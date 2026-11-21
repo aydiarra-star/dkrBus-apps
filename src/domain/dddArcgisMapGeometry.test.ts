@@ -48,8 +48,8 @@ describe('points d’arrêt DDD ArcGIS', () => {
   it('convertit les points WGS84 en coordonnées Leaflet', () => {
     expect(dddArcgisFeatureStops('7', [
       { geometry: { type: 'Point', coordinates: [-17.45, 14.72] } },
-    ])).toEqual([{
-      id: 'ddd-arcgis-stop-7-14.72000--17.45000',
+    ], 'urban-2')).toEqual([{
+      id: 'ddd-arcgis-stop-7-urban-2-row0',
       line: '7',
       position: [14.72, -17.45],
     }])
@@ -59,7 +59,7 @@ describe('points d’arrêt DDD ArcGIS', () => {
     const stops = dddArcgisFeatureStops('2', [{
       properties: { Nom_Arret: 'Terminus Daroukhane' },
       geometry: { type: 'Point', coordinates: [-17.31, 14.78] },
-    }])
+    }], 'suburban-0')
     expect(stops[0]).toMatchObject({
       line: '2',
       name: 'Terminus Daroukhane',
@@ -71,6 +71,13 @@ describe('points d’arrêt DDD ArcGIS', () => {
     expect(dddArcgisFeatureStops('8', [
       { geometry: { type: 'LineString', coordinates: [[-17.4, 14.7], [-17.3, 14.8]] } },
       { geometry: { type: 'Point', coordinates: [-3.7, 40.4] } },
-    ])).toHaveLength(0)
+    ], 'urban-3')).toHaveLength(0)
   })
+})
+
+it('keeps distinct historical records at an identical point, including across two layers of line 13', () => {
+  const feature = { properties: { OBJECTID: 1, Nom_Arret: 'Poteau' }, geometry: { type: 'Point', coordinates: [-17.45,14.72] } }
+  const a = dddArcgisFeatureStops('13', [feature, { ...feature, properties: { OBJECTID: 2 } }], 'urban-0')
+  const b = dddArcgisFeatureStops('13', [feature], 'urban-8')
+  expect(new Set([...a,...b].map(s => s.id)).size).toBe(3)
 })

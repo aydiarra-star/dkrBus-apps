@@ -15,11 +15,15 @@
  */
 
 import { QUALIFIED_SHEET_LABELS } from './passengerLineSheets'
+import { REVIEWED_PASSENGER_LINKS } from '../data/reviewedPassengerLinks'
+import { busMapPoints } from '../routing/busGeography'
 import { JOURNEY_LANDMARKS } from './journeyLandmarks'
 import { MAX_ACCESS_M } from './assumptions'
 import {
   ALL_CORRIDOR_STOPS,
   CORRIDOR_TRANSFERS,
+  TER_STOPS,
+  BRT_STOPS,
   haversineMeters,
   linesServingStop,
   type CorridorStop,
@@ -239,7 +243,9 @@ function indexNames(places: readonly PlaceEntry[], passenger = false) {
 const sheetPlaces = QUALIFIED_SHEET_LABELS.map(({ id, name, lines }): PlaceEntry => ({
   kind: 'bus', id, name, aliases: [], busLines: UNIFIED_BUS_LINES.filter(line => lines.has(`${line.network}:${line.code}`)),
 }))
-const passengerPlaces = [...LANDMARK_PLACES, ...sheetPlaces, ...ALL_KNOWN_PLACES, ...otherPoles]
+const busMapPlaces = busMapPoints.map(({ marker }): PlaceEntry => ({ ...marker, kind: 'landmark', aliases: [], busLines: [] }))
+const stationLinks = REVIEWED_PASSENGER_LINKS.places.map((p): PlaceEntry => ({ ...p, kind: p.kind === 'platform' ? 'brt' : 'landmark', aliases: [], busLines: [] }))
+const passengerPlaces = [...LANDMARK_PLACES, ...stationLinks, ...busMapPlaces, ...sheetPlaces, ...ALL_KNOWN_PLACES, ...otherPoles]
 const nameIndexes = {
   reference: indexNames(ALL_KNOWN_PLACES),
   passenger: indexNames(passengerPlaces, true),
@@ -407,7 +413,7 @@ export function unrecognizedPlaceNote(question: string, scope: PlaceScope = 'ref
     if (!name || name.length < 3) continue
     if (/^(?:TER|BRT|DDD|AFTU|TATA|Dem|Dikk)$/i.test(name)) continue
     if (findPlaceMentions(name, scope).length > 0) continue
-    return `« ${name} » ne figure pas dans ma mémoire des lieux (13 gares TER, 23 stations BRT et les lieux cités par les fiches DDD/AFTU) : je ne le situe pas et je ne le devine pas.`
+    return `« ${name} » ne figure pas dans ma mémoire des lieux (${TER_STOPS.length} gares TER, ${BRT_STOPS.length} stations BRT et les lieux cités par les fiches DDD/AFTU) : je ne le situe pas et je ne le devine pas.`
   }
   return null
 }

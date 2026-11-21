@@ -1,0 +1,95 @@
+{
+  "sources": {
+    "north": {
+      "label": "Colobane Nord",
+      "url": "https://www.terdakar.sn/gare-de-colobane-nord-tout-ce-qu-il-faut-savoir/"
+    },
+    "south": {
+      "label": "Colobane Sud",
+      "url": "https://www.terdakar.sn/gare-de-colobane-sud-tout-ce-qu-il-faut-savoir/"
+    },
+    "report": {
+      "label": "Le Soleil · 2 août 2026",
+      "url": "https://lesoleil.sn/actualites/societe-fait-divers/dakar-vide-de-son-monde/"
+    }
+  },
+  "mentions": [
+    {
+      "stop": "Gare de Colobane",
+      "lines": [
+        "60"
+      ],
+      "title": "Arrêt cité par SETER",
+      "sources": [
+        "north",
+        "south"
+      ]
+    },
+    {
+      "stop": "Rond-point Petersen",
+      "lines": [
+        "55",
+        "41",
+        "40"
+      ],
+      "title": "Arrêt cité par SETER",
+      "sources": [
+        "north",
+        "south"
+      ]
+    },
+    {
+      "stop": "Librairie Clairafrique",
+      "lines": [
+        "54"
+      ],
+      "title": "Arrêt cité par SETER",
+      "sources": [
+        "north",
+        "south"
+      ]
+    },
+    {
+      "stop": "Devant l’immeuble EMG",
+      "lines": [
+        "67"
+      ],
+      "title": "Attente rapportée",
+      "destinationSought": "Ouakam",
+      "sources": [
+        "report"
+      ],
+      "note": "Dans le reportage du Magal, deux voyageurs attendent la 67 pour Ouakam. L’attente décrite n’est ni un passage observé ni une fréquence ; le rang et la desserte actuelle ne sont pas confirmés."
+    }
+  ],
+  "axisSource": {
+    "label": "MoMove · guide de Dakar, 9 juin 2026",
+    "url": "https://momove.app/guide"
+  },
+  "axes": {
+    "40": {
+      "listed": "Jakhay → Petersen",
+      "note": "Le guide nomme Jakhay, et les deux fiches du catalogue nomment Grand Mbao et SIPRES. Le passage au rond-point n’est attribué à aucun de ces sens."
+    },
+    "41": {
+      "listed": "Guediawaye → Rebeuss",
+      "note": "Rebeuss n’est pas le libellé Petersen des fiches du catalogue. Aucun quai au rond-point n’est identifié."
+    },
+    "54": {
+      "listed": "Cite Sotrac → Fann",
+      "note": "La fiche de parcours indique Cité MTOA et UCAD. La mention de la librairie ne départage pas les variantes."
+    },
+    "55": {
+      "listed": "Petersen → Rufisque",
+      "note": "L’axe concorde à l’échelle des terminus. Le rond-point cité par SETER n’est pas pour autant un quai de départ identifié."
+    },
+    "60": {
+      "listed": "Bargny → Colobane",
+      "note": "L’axe concorde à l’échelle des terminus. La gare routière citée n’indique ni le point de montée ni le passage du bus."
+    },
+    "67": {
+      "listed": "Ouakam → Rufisque",
+      "note": "Le guide ne situe pas l’arrêt devant EMG. Le reportage décrit des voyageurs allant vers Ouakam, pas une desserte prouvée dans le sens inverse."
+    }
+  }
+}

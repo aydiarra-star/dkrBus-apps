@@ -54,6 +54,7 @@ describe('estimations de temps d’attente', () => {
     expect(estimatedNextPassage('tata', Date.parse('2026-11-07T12:00:00Z'))).toEqual(
       estimatedNextPassage('aftu', Date.parse('2026-11-07T12:00:00Z')),
     )
+    for (const outside of ['2026-11-07T03:00Z','2026-12-25T12:00Z','2027-11-19T12:00Z']) expect(estimatedNextPassage('ddd', Date.parse(outside))).toBeNull()
     expect(estimatedNextPassage('ter', Date.parse('2026-11-07T12:00:00Z'))).toBeNull()
     expect(estimatedNextPassage('aftu', Date.parse('2026-11-07T22:40:00Z'))).toMatchObject({
       nextDepartureAt: '2026-11-07T22:50:00.000Z',

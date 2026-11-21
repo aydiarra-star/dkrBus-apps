@@ -25,11 +25,9 @@ const w = (start: string, end: string, interval: number | string): EstimatedFreq
 
 /**
  * Registre de recherche des plages horaires candidates.
- * La plupart des entrées proviennent de TransitByCity ou Moovit : elles sont
- * conservées pour comparaison documentaire, mais ne pilotent pas le compte à
- * rebours voyageurs. Seules les références explicitement officielles sont
- * autorisées dans EstimatedLineScheduleBoard (AFTU 84 : référence CETUD
- * transmise par le responsable ; DDD 1 : départs publiés par l'opérateur).
+ * Une entrée ne prouve pas que le même numéro parcourt les mêmes arrêts.
+ * Explorer ne l’applique qu’à une fiche de sens rapprochée dans busBoardCatalog ;
+ * les cadences régulières et interpolations y sont des modèles, pas du direct.
  */
 export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '5', weekday: w('06:00', '23:00', 10), saturday: w('06:00', '23:00', 15), sunday: w('06:00', '23:00', 20), sourceUrl: aftuUrl('5'), sourceLabel: tb },
@@ -55,7 +53,7 @@ export const AFTU_ESTIMATED_LINE_SCHEDULES: readonly EstimatedLineSchedule[] = [
   { line: '66', weekday: w('04:50', '20:50', 20), saturday: w('05:00', '21:00', 30), sunday: w('05:00', '21:00', 30), sourceUrl: aftuUrl('66'), sourceLabel: tb },
   { line: '67', weekday: w('05:10', '22:52', 9), saturday: w('05:20', '22:45', 19), sunday: w('05:20', '22:45', 19), sourceUrl: aftuUrl('67'), sourceLabel: tb },
   { line: '72', weekday: w('05:55', '21:55', 24), saturday: w('06:05', '21:33', 29), sunday: w('06:05', '21:33', 29), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-72-Dakar-5996-1618038-18051433-1', sourceLabel: 'Moovit · sens Guédiawaye vers Kounoune' },
-  { line: '73', weekday: w('05:50', '22:55', 25), saturday: w('06:00', '22:55', 35), sunday: w('06:00', '22:55', 35), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0', sourceLabel: 'Moovit · sens Lac Rose vers Poste Thiaroye' },
+  { line: '73', weekday: w('05:50', '22:55', 25), saturday: w('06:00', '22:55', 35), sunday: w('06:00', '22:55', 35), sourceUrl: 'https://moovitapp.com/index/fr/transport_en_commun-line-73-Dakar-5996-1618038-18051511-0', sourceLabel: 'Moovit · sens Poste Thiaroye vers Lac Rose' },
   { line: '76', weekday: w('04:55', '21:52', 9), saturday: w('05:05', '21:53', 14), sunday: w('05:05', '21:53', 14), sourceUrl: aftuUrl('76'), sourceLabel: tb },
   { line: '84', weekday: w('06:00', '21:00', 14), saturday: w('06:00', '21:00', 14), sunday: w('06:00', '21:00', 14), sourceUrl: 'https://cetud.sn/reseaux-de-transport/aftu/', sourceLabel: 'CETUD · fréquence 14 min transmise par le responsable' },
 ]

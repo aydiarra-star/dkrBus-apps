@@ -61,8 +61,9 @@ export interface DddArcgisMapStop {
 export function dddArcgisFeatureStops(
   line: string,
   features: readonly DddArcgisGeoJsonFeature[],
+  sourceLayer: string,
 ): DddArcgisMapStop[] {
-  return features.flatMap((feature) => {
+  return features.flatMap((feature, index) => {
     const geometry = feature.geometry
     if (geometry?.type !== 'Point' || !Array.isArray(geometry.coordinates)) return []
     const [lon, lat] = geometry.coordinates
@@ -77,7 +78,8 @@ export function dddArcgisFeatureStops(
       ? feature.properties.Nom_Arret.trim()
       : ''
     return [{
-      id: `ddd-arcgis-stop-${line}-${latitude.toFixed(5)}-${longitude.toFixed(5)}`,
+      // Distinct source records can occupy the exact same coordinates.
+      id: `ddd-arcgis-stop-${line}-${sourceLayer}-${Number.isSafeInteger(feature.properties?.OBJECTID) ? `oid${feature.properties!.OBJECTID}` : `row${index}`}`,
       line,
       ...(name ? { name } : {}),
       position: [latitude, longitude] as [number, number],

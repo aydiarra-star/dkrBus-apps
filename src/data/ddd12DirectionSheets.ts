@@ -1,0 +1,18 @@
+/** Secondary Guédiawaye–Gare Palais sheets, read separately. NOT the DDD
+ * Palais 1 route via UCAD. Each dot represents one published unnamed call.
+ * Two sampled relative profiles per direction. No date, vehicle or platform link. */
+import type { EstimatedLineSchedule } from '../domain/estimatedSchedules'
+const base = 'https://moovitapp.com/index/fr/transport_en_commun-line-12-Dakar-5996-1618037-18051468-'
+const calls = (s: string) => s.split('|').map(v => v === '.' ? 'Arrêt De Bus' : v)
+const w = (start: string, end: string, minutes: number) => ({ start, end, interval: `${minutes} min` })
+function sheet(id: number, weekday: ReturnType<typeof w>, saturday: ReturnType<typeof w>, sunday: ReturnType<typeof w>): EstimatedLineSchedule {
+  return { line: '12', sourceLabel: 'Moovit · Guédiawaye – Gare Palais', sourceUrl: base + id, weekday, saturday, sunday }
+}
+export const DDD12_SHEETS = [
+  { offsetMinutes: [0,0,0,1,2,2,3,4,4,5,6,6,7,8,9,9,9,10,11,11,12,12,13,14,15,16,17,19,20,20,21,22,23,23,24,25,26,27,27,28,29,30,32,33,34,35,36,36,38,40,41,42,43,44,44,45,45,46,47,48,49,50,51],
+    peakMinutes: [0,0,1,1,2,3,4,5,6,6,7,8,9,10,11,12,12,13,14,15,16,16,17,18,20,21,22,25,26,27,28,29,29,30,31,32,33,35,36,37,38,39,41,43,44,45,47,47,50,52,53,55,56,57,58,58,59,60,61,62,64,65,66], schedule: sheet(1, w('05:00','22:00',15), w('05:00','22:00',20), w('05:00','22:00',30)),
+    points: calls("Terminus Guédiawaye|.|Grande Mosquée De Guédiawaye|Police De Guediawaye|Stade Amadou|.|.|.|Centre Sauvegarde De Pikine-Guediawaye|.|Route De Niaye / Hlm-París|Route De Niaye / Las Palmas|.|Rue GS 197, 190|Rue GS 177, 28|Rue GS 161, 126|Rue GS 161, 72|.|.|Rue GS 95, 24|.|Rue GS 53, 172|.|Rue GS 04, 119|Marché De Cambérene|.|Station D'Épuration De Cambérene|.|Rue Df 101, 114|.|.|.|.|.|.|.|Route Des Maristes, 141|.|.|.|Route De Rufisque, 8|Cercle De L'Etrier|.|Ecolé Marítime|Camp Lemonier|Gendarmerie Du Port|Grands Moulins|Camp Militaire|Route De Rufisque, 2|Avenue Malick Sy, 10|Allees Papa Gueye Fall, 36005|Avenue Faidherbe, 39|Avenue Faidherbe, 7|Boulevard El Hadj Djily Mbaye, 51|Allees Delmas, 1|Rue Malenfant, 17|Avenue Du Pr. L. Sedar Senghor 17|Avenue Du Pr. L. Sedar Senghor, 33|Avenue Nelson Mandela, 12|Avenue Pasteur, 16|Avenue Pasteur, 32|Avenue Pasteur, 43|Gare Palais") },
+  { offsetMinutes: [0,0,1,3,3,4,5,5,6,7,8,8,9,10,12,14,15,16,17,18,20,20,22,23,23,24,25,26,27,27,28,28,29,30,31,31,33,34,35,36,37,38,39,39,40,40,41,41,42,43,43,44,45,46,46,47,48,48,49,50,50,51,51,52,52,53,54],
+    peakMinutes: [0,0,2,4,4,6,6,7,8,9,10,11,12,14,16,18,19,21,22,23,26,26,28,30,30,31,33,33,35,36,36,37,38,39,40,41,43,45,46,47,49,50,50,51,52,53,53,54,55,55,56,57,58,60,60,61,62,63,64,65,66,66,67,68,68,69,70], schedule: sheet(0, w('06:00','21:52',17), w('06:00','21:43',23), w('06:00','21:57',33)),
+    points: calls("Gare Palais|Clinique Du Cap|Hôpital Le Dantec|Avenue Pasteur, 16|Avenue Nelson Mandela, 12|Rue Victor Hugo, 5|Rue Felix Faure, 7|Place De L' Independance|Allees Delmas, 1|Gare De Dakar|Avenue Faidherbe, 7|Rue Du Liban, 34|Allees Papa Gueye Fall, 36005|Avenue Malick Sy, 10|Route De Rufisque, 2|Avenue Felix Eboue, 2|.|Route De Rufisque, 8|Camp Lemonier|Ecolé Marítime|Camp|Cercle De L'Etrier|Route De Rufisque, 8|.|.|.|Route Des Maristes, 141|.|.|.|.|.|.|.|Rue Df 101, 194|.|Station D'Épuration De Cambérene|.|Marché De Cambérene|Rue GS 04, 128|Rue GS 27, 76|Lycée Parcelles|.|.|.|.|.|Rue GS 161, 126|Rue GS 177, 28|Rue GS 156, 353|.|Route De Niaye / Las Palmas|Route De Niaye / Hlm-París|.|Centre Sauvegarde De Pikine-Guediawaye|.|.|.|Stade Amadou|Police De Guediawaye|Pompiers De Guédiawaye|Grande Mosquée De Guédiawaye|.|.|Bvard. Tall / Route Corniche|.|Terminus De Guédiawaye") },
+] as const

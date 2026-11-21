@@ -152,7 +152,7 @@ export const REFERENTIAL_NETWORKS: readonly ReferentialNetwork[] = [
     serviceWindow: NETWORK_REFERENCE_DATA.ter.serviceWindow,
     frequencyStatus: 'SCHEDULED',
     known:
-      '13 gares de Dakar à Diamniadio, ordre de desserte, zones tarifaires, fréquences officielles de référence par période.',
+      '14 gares de référence de Dakar à AIBD via Diamniadio, fréquences par segment et période.',
     missing:
       'Horaires de passage arrêt par arrêt, calendrier daté des exceptions, temps réel et perturbations.',
     source: REFERENTIAL_SOURCES.ter,

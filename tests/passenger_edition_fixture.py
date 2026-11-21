@@ -6,13 +6,14 @@ for an actual API payload to exercise the TypeScript consumer. No network I/O.
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 from pathlib import Path
 
 from scripts.passenger_network import REVIEW_DIR
 from scripts.publish_gtfs import publish_dataset
 from scripts.review_gtfs import approve_dataset
-from scripts.serve_read_api import passenger_network_payload
+from scripts.serve_read_api import network_payload, passenger_network_payload
 from scripts.snapshot_gtfs import resolve_active_snapshot
 from auth_helpers import proof
 from test_serve_admin_api import ApiTestSupport, FULL_ATTESTATIONS
@@ -58,6 +59,7 @@ def fixture():
                                      "direction": f"Vers essai {b}", "stop_ids": [a, b], "stepFree": "yes", "evidence": E, "platformBindings": bindings})
         if previous:
             review["links"]["footways"].append({"id": f"w{i}", "from": f"pB{i-1}", "to": f"p{a}", "name": f"Passage essai {i}", "kind": "crossing", "stepFree": "yes",
+                                              "transferTiming": {"from": f"pB{i-1}", "to": f"p{a}", "seconds": 55, "evidence": E},
                                               "access": "public", "crossingsAndBarriersChecked": True, "evidence": E,
                                               "positions": [previous, {"lat": 14.82012, "lon": x - .00025}, start]})
         previous = end
@@ -81,7 +83,31 @@ def make_publication(directory, change_tables=None):
     return published, sid, path, review
 
 
+def same_position_publication(directory):
+    # Distinct trips explicitly call at the same logical stop. That alone would
+    # admit NO interchange: also name the physical position and reviewed pair.
+    def changes(tables):
+        tables['stop_times.txt'] = tables['stop_times.txt'].replace(',A3,1,', ',B2,1,')
+        rows = tables['shapes.txt'].splitlines()
+        previous = next(r.split(',')[1:3] for r in rows if r.startswith('S2,') and r.endswith(',3'))
+        tables['shapes.txt'] = '\n'.join([('S3,' + ','.join(previous) + ',1' if r.startswith('S3,') and r.endswith(',1') else r) for r in rows]) + '\n'
+    pub, sid, path, review = make_publication(directory, changes)
+    third = review['directions'][3]
+    third['stop_ids'][0] = 'B2'
+    third['platformBindings'][0].update(stopId='B2', platformId='pB2')
+    review['links']['footways'] = []
+    review['links']['samePlatformChanges'] = [{
+        'platformId': 'pB2', 'minimumSeconds': 300, 'stepFree': 'yes', 'evidence': E,
+        'alight': {'directionKey': 'qa2', 'stopId': 'B2'}, 'board': {'directionKey': 'qa3', 'stopId': 'B2'}}]
+    path.write_text(json.dumps(review), encoding='utf-8')
+    return pub, sid, path, review
+
+
 if __name__ == "__main__":
     with tempfile.TemporaryDirectory() as temp:
-        pub, sid, _, _ = make_publication(temp)
-        print(json.dumps(passenger_network_payload(pub, {"date": [DAY], "snapshot": [sid]}, now=NOW)))
+        pub, sid, path, review = (same_position_publication if "--same-position" in sys.argv else make_publication)(temp)
+        if "--access-only" in sys.argv:
+            next(w for w in review['links']['footways'] if w['id'] == 'w3')['onlyFor'] = 'access'
+            path.write_text(json.dumps(review), encoding='utf-8')
+        edition = passenger_network_payload(pub, {"date": [DAY], "snapshot": [sid]}, now=NOW)
+        print(json.dumps({"snapshot": network_payload(pub, now=NOW), "edition": edition} if "--with-snapshot" in sys.argv else edition))

@@ -14,10 +14,11 @@ const endpoint = (id: string) => {
 }
 function plan(from: string, to: string, departAt = morning) { return planDakarJourney(endpoint(from), endpoint(to), { departAt }) }
 
-it('uses only the 13 phase-one calls and 23 B1 calls and does not mutate or publish the wider reference', () => {
+it('keeps the 13 phase-one and 23 B1 calls, adding only the eight southbound and two northbound DDD 1 platforms', () => {
   expect(net.rejected).toEqual([])
-  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23], ['19961993', 22]])
-  expect(net.places.size).toBe(36); expect(net.walking.size).toBe(0)
+  expect(net.patterns.map(p => [p.shape.sourceId, p.calls.length])).toEqual([['13645077', 13], ['19961937', 23], ['19961993', 22], ['6951328/v28:25-32+Poste/OID25', 8], ['DDD1/retour:57-58/Sahm', 2]])
+  expect([...net.places.values()].filter(p => p.kind === 'call')).toHaveLength(36)
+  expect(net.places.size).toBe(50); expect([...net.walking.values()].flat()).toHaveLength(4)
   expect(net.places.has('ter-aibd')).toBe(false)
   expect(TER_STOPS).toHaveLength(14); expect(BRT_STOPS).toHaveLength(23)
   expect(CORRIDOR_TRANSFERS).toHaveLength(6)
@@ -36,7 +37,7 @@ it.each([
   expect(Math.round(t.meters)).toBe(meters); expect(t.waitSeconds).toBe(wait); expect(t.rideSeconds).toBe(ride)
   expect(t.totalSeconds).toBe(wait + ride); expect(t.walkMeters).toBe(0)
   expect(mapItinerary(t).segments[0].positions.length).toBeGreaterThan(2)
-  expect(t.legs[0]).toMatchObject({ from: { id: from }, to: { id: to }, timing: 'frequency', stepFree: 'unknown' })
+  expect(t.legs[0]).toMatchObject({ from: { id: from }, to: { id: to === 'brt-petersen' ? 'brt-petersen-quai-arrivee' : to }, timing: 'frequency', stepFree: 'unknown' })
 })
 
 it.each([

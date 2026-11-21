@@ -8,10 +8,12 @@ import { TER_TRACK } from '../domain/terTrackGeometry'
 import { auditBrtB1DirectionalGeometry, auditTerPhaseOneGeometry } from '../domain/referenceRouteGeometry'
 import { TER_CUMULATIVE_TRAVEL_TIMES, terTravelTimeMidpointMinutes } from '../domain/terTravelTimes'
 import { dwellMinutes, REFERENCE_COMMERCIAL_SPEED_KPH } from '../domain/assumptions'
+import { medinaService } from './medinaService'
 import { brtService, phaseOneService } from './dakarService'
 import { buildNetwork } from './network'
 import { planPlaceJourney, type PlaceJourneyOutcome, type DakarEndpoint, type JourneySettings } from './placeConnections'
 import { interchangeQuestion, prepareChanges, type ChangeLead } from './changePreparation'
+import { findBusMapSections, type BusMapSection } from './busGeography'
 import { documentedDirections, type DirectionNote } from './documentedDirections'
 import type { Dataset, Evidence, Network, PatternInput, Place } from './model'
 
@@ -61,13 +63,18 @@ function referenceDataset(): Dataset {
   // Baseline calls keep their identities. A reviewed directional binding can
   // attach a physical platform without moving the station or editing its times.
   const links = REVIEWED_PASSENGER_LINKS
-  return { ...links, places: [...places, ...links.places], patterns: [...patterns, ...links.patterns] }
+  const medina = medinaService()
+  return { ...links, places: [...places, ...links.places, ...medina.places], patterns: [...patterns, ...links.patterns, ...medina.patterns] }
 }
 export const localPassengerData = referenceDataset()
 export const dakarNetwork = buildNetwork(localPassengerData)
 
 export type { DakarEndpoint } from './placeConnections'
-export type DakarOutcome = Extract<PlaceJourneyOutcome, { ok: true }> | (Extract<PlaceJourneyOutcome, { ok: false }> & { documentation?: DirectionNote[]; changesToCheck?: ChangeLead[] })
+type JourneyRefusal = Extract<PlaceJourneyOutcome, { ok: false }>
+export type DakarOutcome = Extract<PlaceJourneyOutcome, { ok: true }> | (Omit<JourneyRefusal, 'code'> & {
+  code: JourneyRefusal['code'] | 'DOCUMENTED_SECTION_ONLY'
+  mapSections?: BusMapSection[]; documentation?: DirectionNote[]; changesToCheck?: ChangeLead[]
+})
 /** Explicit selection only. Published GTFS IDs are a separate namespace. A GPS
  * fix (even with identical coordinates) cannot silently become a platform. */
 export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options: JourneySettings, network: Network = dakarNetwork): DakarOutcome {
@@ -76,15 +83,23 @@ export function planDakarJourney(from: DakarEndpoint, to: DakarEndpoint, options
   if (!result.ok && (result.code === 'UNVERIFIED_ACCESS' || result.code === 'NO_PATH')) {
     const onSite = interchangeQuestion(from, to)
     if (onSite) return { ...result, message: onSite }
+    const mapSections = findBusMapSections(from, to, options)
     const notes = result.code === 'UNVERIFIED_ACCESS' ? documentedDirections(from, to, options) : []
     const changes = prepareChanges(network, from, to, options)
-    if (result.code === 'UNVERIFIED_ACCESS' || changes.length) return { ...result, documentation: notes, changesToCheck: changes,
-      message: result.code === 'NO_PATH' && changes.length ? 'Aucun cheminement piéton vérifié pour relier les deux dessertes proposées ci-dessous.' : result.message }
+    if (result.code === 'UNVERIFIED_ACCESS' || changes.length || mapSections.length) {
+      const exact = mapSections.some(s => s.fromGapM === null && s.toGapM === null)
+      return { ...result, documentation: notes, changesToCheck: changes, ...(mapSections.length ? { mapSections } : {}),
+        code: exact ? 'DOCUMENTED_SECTION_ONLY' : result.code,
+        message: exact ? 'Une portion de la ligne relie ces repères. Aucun départ de bus n’est confirmé pour la date et l’heure demandées.'
+          : result.code === 'NO_PATH' && changes.length ? 'Aucun cheminement piéton vérifié pour relier les deux dessertes proposées ci-dessous.' : result.message }
+    }
   }
   if (!result.ok && result.code === 'NO_SERVICE' && network === dakarNetwork && !hasSenegalPublicHolidayCalendar(options.departAt * 1000)) {
     return { ...result, message: 'Le calendrier des jours fériés du Sénégal n’est pas confirmé pour cette année. Aucun créneau n’est supposé.' }
   }
-  if (!result.ok && result.code === 'NO_PATH' && !network.walking.size && from.stopId && to.stopId) {
+  if (!result.ok && result.code === 'NO_PATH' && from.stopId && to.stopId && !network.samePlatform.size &&
+      ![...network.walking.values()].some(edges => edges.some(e => !e.onlyFor)) &&
+      network.places.get(from.stopId)?.kind === 'call' && network.places.get(to.stopId)?.kind === 'call') {
     const origin = from.stopId, destination = to.stopId
     const networksOf = (id: string) => network.patterns.filter(p => p.stops.includes(id))
     const here = networksOf(origin), there = networksOf(destination)

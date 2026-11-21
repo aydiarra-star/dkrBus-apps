@@ -1,0 +1,342 @@
+{
+  "before": "32f3776",
+  "after": "dakar-bus-board/v1",
+  "measurements": [
+    {
+      "selection": "data/bus-sections/selection-e624037.json",
+      "points": 97,
+      "pairs": 9312,
+      "atDakar": "2026-11-19T19:00",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 562,
+          "exactBusMap": 0,
+          "stopSection": 1354,
+          "nearbyBusMap": 0,
+          "changeLead": 966,
+          "lineSheet": 338,
+          "noProposal": 6092
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "82ed1db314110b333be4dedfcb68834cbddf969617a89b9580a8f33048b41ce0"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 562,
+          "exactBusMap": 0,
+          "stopSection": 1354,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 6086
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "82ed1db314110b333be4dedfcb68834cbddf969617a89b9580a8f33048b41ce0"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-39517c0.json",
+      "points": 114,
+      "pairs": 12882,
+      "atDakar": "2026-11-19T19:00",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 562,
+          "exactBusMap": 38,
+          "stopSection": 2539,
+          "nearbyBusMap": 0,
+          "changeLead": 966,
+          "lineSheet": 338,
+          "noProposal": 8439
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "82ed1db314110b333be4dedfcb68834cbddf969617a89b9580a8f33048b41ce0"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 562,
+          "exactBusMap": 38,
+          "stopSection": 2539,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 8433
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "82ed1db314110b333be4dedfcb68834cbddf969617a89b9580a8f33048b41ce0"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-3163461.json",
+      "points": 132,
+      "pairs": 17292,
+      "atDakar": "2026-11-19T19:00",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 80,
+          "stopSection": 3645,
+          "nearbyBusMap": 0,
+          "changeLead": 966,
+          "lineSheet": 338,
+          "noProposal": 11547
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 80,
+          "stopSection": 3645,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 11541
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-0c6cf56.json",
+      "points": 144,
+      "pairs": 20592,
+      "atDakar": "2026-11-19T08:10",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4746,
+          "nearbyBusMap": 0,
+          "changeLead": 966,
+          "lineSheet": 338,
+          "noProposal": 13718
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "44e6c504b0313f346ff5bd0f1b145252862b6cacaf49bde1714eeed32b17d1b5"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4746,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 13712
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "44e6c504b0313f346ff5bd0f1b145252862b6cacaf49bde1714eeed32b17d1b5"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-0c6cf56.json",
+      "points": 144,
+      "pairs": 20592,
+      "atDakar": "2026-11-19T19:00",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4746,
+          "nearbyBusMap": 0,
+          "changeLead": 966,
+          "lineSheet": 338,
+          "noProposal": 13718
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4746,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 13712
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-0c6cf56.json",
+      "points": 144,
+      "pairs": 20592,
+      "atDakar": "2026-11-19T21:10",
+      "stepFreeOnly": false,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 389,
+          "exactBusMap": 108,
+          "stopSection": 2097,
+          "nearbyBusMap": 0,
+          "changeLead": 708,
+          "lineSheet": 399,
+          "noProposal": 16891
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 14,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "497a6b1f64324614adc2d283bbc7e36623a03f009d38cfaba65204dac5bab9b7"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 389,
+          "exactBusMap": 108,
+          "stopSection": 2097,
+          "nearbyBusMap": 0,
+          "changeLead": 718,
+          "lineSheet": 395,
+          "noProposal": 16885
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 14,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "497a6b1f64324614adc2d283bbc7e36623a03f009d38cfaba65204dac5bab9b7"
+      }
+    },
+    {
+      "selection": "data/bus-sections/selection-0c6cf56.json",
+      "points": 144,
+      "pairs": 20592,
+      "atDakar": "2026-11-19T19:00",
+      "stepFreeOnly": true,
+      "maxChanges": 3,
+      "before": {
+        "exclusive": {
+          "whole": 0,
+          "exactBusMap": 0,
+          "stopSection": 0,
+          "nearbyBusMap": 0,
+          "changeLead": 0,
+          "lineSheet": 0,
+          "noProposal": 20592
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 0,
+          "exactBusMap": 0,
+          "stopSection": 0,
+          "nearbyBusMap": 0,
+          "changeLead": 0,
+          "lineSheet": 0,
+          "noProposal": 20592
+        },
+        "includes": {
+          "accessWalk": 0,
+          "egressWalk": 0,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "wholeJourneySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ]
+}

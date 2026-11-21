@@ -11,6 +11,8 @@ export type PlatformObservation = Omit<PlatformBinding, 'role' | 'stepFree'>
 export interface TransferProof {
   alight?: PlatformObservation
   board?: PlatformObservation
+  /** Look for the separately admitted directed same-position rule, never an empty path. */
+  samePosition?: true
   path?: {
     scope: 'internal' | 'via-street'
     wayIds: readonly string[] // in observed traversal order, including station passages
@@ -19,13 +21,15 @@ export interface TransferProof {
   }
 }
 export type ReviewCode = 'ALIGHT_PLATFORM' | 'BOARD_PLATFORM' | 'ALIGHT_DIRECTION' | 'BOARD_DIRECTION'
-  | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES'
+  | 'SAME_POSITION_RULE' | 'GRAPH_ADMISSION' | 'PATH_EVIDENCE' | 'DIRECTED_CHAIN' | 'PUBLIC_GATES' | 'WALK_TIME_EVIDENCE'
 export interface Finding { code: ReviewCode; action: string }
 export interface TransferAssessment {
   status: 'blocked' | 'qualified-for-review'
   findings: Finding[]
   meters: number | null
   walkStepFree: StepFree | null
+  measuredWalkSeconds?: number
+  samePosition?: { minimumSeconds: number; evidence: Evidence; stepFree: StepFree }
 }
 
 export function assessTransfer(net: Network, candidate: TransferDirection, proof: TransferProof = {}): TransferAssessment {
@@ -50,6 +54,16 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
   if (net.rejected.length) report('GRAPH_ADMISSION', `Corriger les objets refusés à la compilation du dossier : ${net.rejected.join(', ')}.`)
   const from = endpoint(candidate.from, proof.alight, false), to = endpoint(candidate.to, proof.board, true)
   const path = proof.path
+  if (proof.samePosition) {
+    const a = proof.alight, b = proof.board
+    const inbound = net.patterns.find(p => a && p.mode === a.mode && p.lineId === a.lineId && p.direction === a.direction)
+    const change = a && b && inbound && net.samePlatform.get(inbound)?.get(inbound.stops.indexOf(a.stopId))?.find(({ proof: c }) =>
+      c.platformId === from && from === to && c.board.lineId === b.lineId && c.board.direction === b.direction && c.board.mode === b.mode && c.board.stopId === b.stopId)
+    if (!change || candidate.betweenSites || path) report('SAME_POSITION_RULE', 'Il faut une autorisation revue pour ces deux appels au même emplacement, sans voie ni changement de site.')
+    if (!change || findings.length) return { status: 'blocked', findings, meters: null, walkStepFree: null }
+    const { minimumSeconds, evidence, stepFree } = change.proof
+    return { status: 'qualified-for-review', findings, meters: null, walkStepFree: null, samePosition: { minimumSeconds, evidence, stepFree } }
+  }
   const edges: Footway[] = []
   if (!path || !['internal', 'via-street'].includes(path.scope) || !Array.isArray(path.wayIds) || !path.wayIds.length || !reviewed(path.evidence)) {
     report('PATH_EVIDENCE', 'Fournir une revue datée et les identifiants ordonnés des voies publiques praticables, traversées et obstacles contrôlés, dans ce sens.')
@@ -60,12 +74,14 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
     const nodes = [from]
     for (const id of path.wayIds) {
       const edge = net.walking.get(nodes[nodes.length - 1])?.find(w => w.id === id)
-      if (!edge || nodes.includes(edge.to)) break
+      if (!edge || edge.onlyFor || nodes.includes(edge.to)) break
       edges.push(edge); nodes.push(edge.to)
     }
     if (nodes.at(-1) !== to || edges.length !== path.wayIds.length) {
       report('DIRECTED_CHAIN', 'Vérifier chaque identifiant, extrémité et sens de parcours : la chaîne admise doit relier exactement les deux quais, sans saut ni boucle.')
     }
+    const untimed = edges.filter(w=>!w.transferTiming)
+    if (untimed.length) report('WALK_TIME_EVIDENCE', `Chronométrer la marche et les traversées dans ce sens pour : ${untimed.map(w=>w.id).join(', ')}.`)
     if (path.gates) {
       const [exit, entrance] = path.gates
       if (!Array.isArray(path.gates) || path.gates.length !== 2 || net.places.get(exit)?.kind !== 'entrance' || net.places.get(entrance)?.kind !== 'entrance' ||
@@ -76,6 +92,6 @@ export function assessTransfer(net: Network, candidate: TransferDirection, proof
   }
   if ((candidate.betweenSites && path?.scope !== 'via-street') || ((candidate.betweenSites || path?.scope === 'via-street') && !path?.gates)) report('PUBLIC_GATES', 'Relever la sortie du premier site et l’entrée du second ; le centre d’une gare ne remplace pas une porte.')
   if (findings.length) return { status: 'blocked', findings, meters: null, walkStepFree: null }
-  return { status: 'qualified-for-review', findings, meters: edges.reduce((n, e) => n + e.meters, 0),
+  return { status: 'qualified-for-review', findings, measuredWalkSeconds: edges.reduce((n,w)=>n+w.transferTiming!.seconds,0), meters: edges.reduce((n, e) => n + e.meters, 0),
     walkStepFree: edges.some(e => e.stepFree === 'no') ? 'no' : edges.every(e => e.stepFree === 'yes') ? 'yes' : 'unknown' }
 }

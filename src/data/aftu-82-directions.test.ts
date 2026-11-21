@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import route from './aftu-82-directions.json'
+import official from './mobility-lines.json'
 import { AFTU_PUBLIC_LINE_CATALOG } from '../domain/publicBusLineCatalog'
 
 describe('parcours AFTU 82 dans les deux sens', () => {
@@ -8,7 +9,9 @@ describe('parcours AFTU 82 dans les deux sens', () => {
     expect(route.code).toBe('82')
     expect(route.waypoints).toHaveLength(51)
     expect(route.waypoints[0]).toBe('Avenue Pl 52, 122')
-    expect(route.detailSourceUrl).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-82/')
+    expect(official.find(l => l.network === 'aftu' && l.code === '82')?.detailSourceUrl).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-82/')
+    expect(route.detailSourceUrl).toBe(route.outboundSchedule.sourceUrl)
+    expect(route.outboundDurationMinutes).toBe(60)
     expect(route.outboundSchedule.sourceUrl).toContain('18051521-1')
   })
 
@@ -18,6 +21,7 @@ describe('parcours AFTU 82 dans les deux sens', () => {
     expect(route.inboundWaypoints.at(-1)).toBe('Avenue Pl 52, 122')
     expect(route.inboundDetailSourceUrl).toContain('18051521-0')
     expect(route.inboundSchedule.sourceUrl).toContain('18051521-0')
+    expect(route.inboundDurationMinutes).toBe(58)
   })
 
   it('conserve les horaires distincts publiés pour chaque sens', () => {

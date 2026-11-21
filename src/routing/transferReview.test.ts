@@ -13,7 +13,7 @@ describe('qualification hors graphe, direction par direction', () => {
     const expected = search(fixtureNetwork, fixtureQuery)
     if (!expected.ok) throw Error(expected.message)
     const walk = expected.options[0].legs.find(l => l.kind === 'walk')!
-    expect(r).toEqual({ status: 'qualified-for-review', findings: [], meters: walk.meters, walkStepFree: 'yes' })
+    expect(r).toEqual({ status: 'qualified-for-review', findings: [], measuredWalkSeconds:41, meters: walk.meters, walkStepFree: 'yes' })
     // A review is not a timetable: a qualified path cannot catch a missed departure.
     expect(search(fixtureNetwork, { ...fixtureQuery, modes: ['ter', 'brt'], transferBufferSeconds: 600 })).toMatchObject({ code: 'NO_SERVICE' })
     expect(assessTransfer(fixtureNetwork, { ...candidate, from: candidate.to, to: candidate.from }, proof).status).toBe('blocked')
@@ -46,30 +46,103 @@ describe('qualification hors graphe, direction par direction', () => {
 
 it('keeps the actual Dakar dossiers documentary, including co-located labels, without adding any edge', () => {
   const report = dakarTransferReport(dakarNetwork)
-  expect(report).toHaveLength(16)
+  expect(report).toHaveLength(86)
+  expect(report.filter(d=>['gt54-18-39','maristes-12-75'].includes(d.dossier))).toHaveLength(4)
   expect(new Set(report.map(r => `${r.from.stopId}/${r.to.stopId}`)).size).toBe(report.length)
   for (const r of report) {
     expect(r.status).toBe('blocked'); expect(r.meters).toBeNull()
-    expect(r.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_PLATFORM', 'BOARD_PLATFORM', 'PATH_EVIDENCE']))
-    expect(r.sources.filter(s => s.startsWith('docs/')).every(s => existsSync(s))).toBe(true)
+    const missing = r.findings.map(f => f.code)
+    expect(missing).toContain('PATH_EVIDENCE')
+    expect(missing.includes('ALIGHT_PLATFORM')).toBe(!r.observed.alight)
+    expect(missing.includes('BOARD_PLATFORM')).toBe(!r.observed.board)
+    expect(r.sources.filter(s => !s.startsWith('https://')).every(s => existsSync(s))).toBe(true)
     expect(search(dakarNetwork, { ...fixtureQuery, origin: r.from.stopId, destination: r.to.stopId }).ok).toBe(false)
   }
+  for (const [id,family] of [['colobane-tata-60-ter','tata'],['colobane-aftu-60-ter','aftu'],['colobane-16b-ter','ddd']] as const) {
+    const [go,back]=report.filter(r=>r.dossier===id)
+    expect([go.from.mode,go.to.mode,back.from.mode,back.to.mode]).toEqual([family,'ter','ter',family])
+    expect(go.from.stopId).not.toBe(back.to.stopId); expect(go.from.referenceCall).toBeNull()
+    expect(go.busSources).toEqual([family==='ddd'?'ddd:16B':`${family}:60`])
+  }
+  const [to60,from60]=report.filter(r=>r.dossier==='colobane-aftu-75-60')
+  expect(to60.observation).toContain('04:33');expect(to60.observation).toContain('04:40')
+  expect(from60.observation).toContain('05:16 est déjà partie');expect(from60.observation).toContain('05:25')
+  const patte = report.filter(r => r.dossier === 'patte-doie-ddd-tata')
+  expect(patte.map(r => [r.from.mode, r.to.mode])).toEqual([['ddd','tata'], ['tata','ddd']])
+  for (const r of patte) {
+    expect(r.observation).toContain('23,7 m sur le chemin 639363334')
+    expect(r.busSources).not.toContain('aftu:60')
+    expect(r.meters).toBeNull() // marker-to-marker distance isn't an admitted walk between serviced platforms
+  }
+  const feeders = report.filter(r => r.busSources.some(id => /^ddd:50/.test(id)))
+  expect(feeders).toHaveLength(14)
+  expect(new Set(feeders.flatMap(r => r.busSources)).size).toBe(7)
+  const scat = report.find(r => r.from.stopId === 'brt-scat-urbam')!
+  expect([scat, ...scat.otherServiceDirections].map(v => v.observed.alight?.direction)).toEqual(['Préfecture de Guédiawaye → Petersen','Vers Guédiawaye · portion Petersen → Gueule Tapée'])
+  expect(scat.otherServiceDirections[0].status).toBe('blocked')
   const pair = report.find(r => r.from.stopId === 'ter-dakar' && r.to.stopId === 'brt-petersen')!
   expect(pair.findings.map(f => f.code)).toEqual(expect.arrayContaining(['ALIGHT_DIRECTION','PUBLIC_GATES']))
   expect(pair.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION') // the partial 19961993 now boards at Petersen, not a walk from TER
   const opposite = report.find(r => r.to.stopId === 'ter-dakar' && r.from.stopId === 'brt-petersen')!
   expect(opposite.findings.map(f => f.code)).not.toContain('ALIGHT_DIRECTION')
   expect(opposite.findings.map(f => f.code)).not.toContain('BOARD_DIRECTION')
-  expect(dakarNetwork.walking.size).toBe(0)
+  expect(opposite.observed.alight).toMatchObject({ platformId: 'brt-petersen-quai-arrivee', evidence: { reference: expect.stringContaining('13376766987') } })
+  expect(pair.observed.board).toBeUndefined()
+  expect([...dakarNetwork.walking.values()].flat().every(w => w.onlyFor)).toBe(true)
 })
 
+
+it.each(['thiaroye-218-73', 'thiaroye-218-73-niague', 'ponty-ddd-1-7', 'colobane-aftu-75-65', 'ouakam-7-42', 'ouakam-67-7', 'guediawaye-26-5', 'pikine-16a-65', 'dakar-ddd-16a-23'])('uses four directional roles in dossier %s, never the forward calls in reverse', dossier => {
+  const at = Date.parse('2026-11-19T19:00Z') / 1000
+  const [a, b] = dakarTransferReport(dakarNetwork, at).filter(r => r.dossier === dossier)
+  expect(new Set([a.from.stopId, a.to.stopId, b.from.stopId, b.to.stopId]).size).toBe(4)
+  expect([b.from.mode, b.to.mode]).toEqual([a.to.mode, a.from.mode])
+  expect(a.observation).not.toBe(b.observation)
+  const packet = { dossier, fromStopId: a.to.stopId, toStopId: a.from.stopId, dataset: { places: [], patterns: [], footways: [] }, proof: {} }
+  expect(() => reviewDakarPacket(packet, at)).toThrow(/couple ordonné/)
+  for (const r of [a,b]) {
+    expect(r.timed).toEqual({ status: 'BLOCKED_BEFORE_TIMETABLE' }); expect(r.meters).toBeNull()
+    expect(reviewDakarPacket({ ...packet, fromStopId: r.from.stopId, toStopId: r.to.stopId }, at).timed).toEqual(r.timed)
+  }
+})
+
+it('ne confond pas les deux fiches Gare De Rufisque, ni un rang de la 30 avec un côté de quai', () => {
+  const report = dakarTransferReport(dakarNetwork,Date.parse('2026-11-20T05:43Z') / 1000)
+  const [a,b] = report.filter(r => r.dossier === 'rufisque-66-ter')
+  expect(a.from.name).toContain('44/77'); expect(b.to.name).toContain('34/77')
+  expect(a.observation).toContain('r41 à 05:40'); expect(b.observation).toContain('05:20')
+  const [to30, from30] = report.filter(r => r.dossier === 'colobane-ter-aftu')
+  expect(to30.to.name).toContain('1/74'); expect(from30.from.name).toContain('77/77')
+  for (const r of [a,b,to30,from30]) {
+    expect(r.timed).toEqual({status:'BLOCKED_BEFORE_TIMETABLE'}); expect(r.meters).toBeNull()
+  }
+})
+
+it('retains actual TER observations in a staging network without lending the platform to the feeder bus', () => {
+  const p = dakarNetwork.patterns.find(v => v.mode === 'ter')!, i = p.stops.indexOf('ter-colobane')
+  const base = p.calls[i], platform = { ...base, id: 'qa-station-platform', kind: 'platform' as const }
+  const net = buildNetwork({ places: [...dakarNetwork.places.values(), platform], patterns: [p], footways: [], platformBindings: [{
+    mode: 'ter', lineId: p.lineId, direction: p.direction, role: 'alight', stopId: base.id, platformId: platform.id, stepFree: 'unknown', evidence: base.evidence }] })
+  const pair = dakarTransferReport(net).find(r => r.dossier === 'colobane-ter-502a' && r.from.mode === 'ter')!
+  expect(net.rejected).toEqual([]); expect(pair.observed.alight?.platformId).toBe(platform.id)
+  expect(pair.observed.board).toBeUndefined(); expect(pair.status).toBe('blocked')
+})
 
 it('reviews one staging envelope in one direction only, without changing the Dakar inventory', () => {
   const packet = { dossier: 'petersen-brt-ddd', fromStopId: 'brt-petersen', toStopId: 'ddd-petersen',
     dataset: { places: [], patterns: [], footways: [] }, proof: {} }
+  expect(() => reviewDakarPacket({ ...packet, runOrigins: [1,2] })).toThrow(/--at/)
+  expect(() => reviewDakarPacket({ ...packet, runOrigins: [1,NaN] }, fixtureQuery.departAt)).toThrow(/runOrigins/)
   const original = dakarTransferReport(dakarNetwork)
   expect(reviewDakarPacket(packet)).toMatchObject({ dossier: packet.dossier, status: 'blocked', meters: null, rejected: [] })
   expect(reviewDakarPacket({ ...packet, fromStopId: packet.toStopId, toStopId: packet.fromStopId }).from.mode).toBe('ddd')
   expect(() => reviewDakarPacket({ ...packet, fromStopId: 'ter-colobane' })).toThrow(/couple ordonné/)
   expect(dakarTransferReport(dakarNetwork)).toEqual(original)
+})
+
+it('demands oriented timing on each segment, not just a measured length or the reverse observation',()=>{
+  const w=fixtureData.footways[1],net=(t:typeof w.transferTiming)=>buildNetwork({...fixtureData,footways:fixtureData.footways.map(p=>p===w?{...w,transferTiming:t}:p)})
+  const r=assessTransfer(net(undefined),candidate,proof)
+  expect(r.status).toBe('blocked');expect(r.findings).toContainEqual({code:'WALK_TIME_EVIDENCE',action:expect.stringContaining(w.id)})
+  for(const t of [{...w.transferTiming!,seconds:0},{...w.transferTiming!,from:w.to,to:w.from},{...w.transferTiming!,evidence:{...w.evidence,status:'candidate' as const}}]) expect(net(t).rejected).toContain(`footway-timing:${w.id}`)
 })

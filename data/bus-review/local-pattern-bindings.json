@@ -1,0 +1,20 @@
+[
+  {
+    "mode": "ddd",
+    "lineId": "ddd-1-medina",
+    "direction": "Médina → Sandaga · vers Leclerc",
+    "code": "1",
+    "side": "outbound",
+    "scope": "section",
+    "reference": "DDD Parcelles → Leclerc : appels 34–41, quais OSM 25–32 ; ArcGIS OID 25 pour le giratoire de la Poste. Voir docs/validation-physique.md."
+  },
+  {
+    "mode": "ddd",
+    "lineId": "ddd-1-medina",
+    "direction": "Vers Parcelles · PMI Médina → Rue 37",
+    "code": "1",
+    "side": "inbound",
+    "scope": "section",
+    "reference": "Appels DDD 1 n°57–58 après Leclerc, D_441 / D_421, quais cartographiés 4666430956 v3 / 4666430957 v7. Voir docs/validation-physique.md."
+  }
+]

@@ -16,7 +16,7 @@ const pin = (p: Place): DakarEndpoint => ({ kind: 'map', lat: p.lat, lng: p.lon 
 const gate = (p: Place, id: string): Place => ({ ...p, id: `landmark:${id}`, kind: 'entrance', lat: p.lat + .00004 })
 const home = gate(a, 'start'), end = gate(d, 'end')
 const named = (p: Place): DakarEndpoint => ({ ...pin(p), landmarkId: p.id })
-const foot = (from: Place, to: Place): FootwayInput => ({ ...fixtureData.footways[0], id: `${from.id}/${to.id}`, from: from.id, to: to.id, positions: [from, to] })
+const foot = (from: Place, to: Place): FootwayInput => ({ ...fixtureData.footways[0], transferTiming:undefined, id: `${from.id}/${to.id}`, from: from.id, to: to.id, positions: [from, to] })
 const patterns = fixtureData.patterns.slice(0, 2).map(p => ({ ...p, stops: p.stops.map(id => `call:${id}`) }))
 const links = patterns.flatMap<PlatformBinding>(p => p.stops.map((id, i) => ({
   mode: p.network === 'ter' ? 'ter' : 'brt', lineId: p.lineId, direction: p.direction, role: i === 0 ? 'board' : 'alight',

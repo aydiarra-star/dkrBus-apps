@@ -1,0 +1,627 @@
+{
+  "scope": "SITE_SURVEY_ONLY",
+  "sourceRevision": "bab2c86f35e7d7451d9c0200c0ddd263fe343cfa",
+  "aftuJob": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44674337021/job/136082454703",
+  "regionalJob": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44674337062/job/136082456008",
+  "attribution": "© OpenStreetMap contributors · ODbL 1.0",
+  "boundsWSEN": [
+    -17.382,
+    14.7435,
+    -17.3745,
+    14.7525
+  ],
+  "pbfSha256": "b68aa2f1a5745c471320e6afd6a7d624e70372da160b036df665308b66f70d58",
+  "archiveSha256": {
+    "aftu": "7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428",
+    "ddd": "578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159"
+  },
+  "wayColumns": [
+    "version",
+    "highway",
+    "oneway",
+    "access",
+    "foot"
+  ],
+  "probeDistanceColumns": [
+    "way",
+    "offsetToAxisM"
+  ],
+  "controlNodeHighwayContacts": {
+    "4419421889": [],
+    "6046692545": [
+      178798267
+    ],
+    "6046692541": [
+      178798267,
+      392392834
+    ],
+    "3956188298": [
+      392392834,
+      435850234,
+      435850236
+    ],
+    "6039744390": [
+      328759039,
+      435850234
+    ],
+    "1247815427": [
+      328759039,
+      435850236
+    ]
+  },
+  "probes": {
+    "D_529": {
+      "roadsWithin12m": [
+        [
+          157033674,
+          8.9
+        ]
+      ],
+      "nearestFootway": [
+        494202909,
+        368.6
+      ],
+      "toPoleM": 316.7
+    },
+    "D_545": {
+      "roadsWithin12m": [
+        [
+          1531686089,
+          0.5
+        ],
+        [
+          108840670,
+          6.5
+        ]
+      ],
+      "nearestFootway": [
+        494202909,
+        340.0
+      ],
+      "toPoleM": 311.5
+    },
+    "D_686": {
+      "roadsWithin12m": [
+        [
+          178798267,
+          5.1
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        344.0
+      ],
+      "toPoleM": 3.7
+    },
+    "A_265": {
+      "roadsWithin12m": [
+        [
+          402254518,
+          6.8
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        460.5
+      ],
+      "toPoleM": 483.6
+    },
+    "A_266": {
+      "roadsWithin12m": [
+        [
+          246856568,
+          8.1
+        ],
+        [
+          1158060768,
+          9.9
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        436.7
+      ],
+      "toPoleM": 99.9
+    },
+    "A_585": {
+      "roadsWithin12m": [
+        [
+          494236868,
+          1.7
+        ],
+        [
+          108840667,
+          6.8
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        444.9
+      ],
+      "toPoleM": 111.2
+    },
+    "A_586": {
+      "roadsWithin12m": [
+        [
+          178798267,
+          1.8
+        ]
+      ],
+      "nearestFootway": [
+        494202912,
+        344.9
+      ],
+      "toPoleM": 0.4
+    },
+    "osmPole": {
+      "roadsWithin12m": [
+        [
+          178798267,
+          1.5
+        ]
+      ],
+      "nearestFootway": [
+        494202912,
+        345.0
+      ],
+      "toPoleM": 0.0
+    },
+    "arcgis539": {
+      "roadsWithin12m": [
+        [
+          392392834,
+          1.4
+        ],
+        [
+          178798267,
+          9.5
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        374.5
+      ],
+      "toPoleM": 29.7
+    },
+    "arcgis576": {
+      "roadsWithin12m": [
+        [
+          178798267,
+          4.1
+        ],
+        [
+          642231224,
+          5.0
+        ]
+      ],
+      "nearestFootway": [
+        494202911,
+        324.7
+      ],
+      "toPoleM": 28.9
+    }
+  },
+  "outboundDrawings": {
+    "aftu73": {
+      "overlaySha256": "e1ff63f43629870cf63f6c8ceb86fcd62cc13ab3d198c9be2dec11fe9de6279b",
+      "fromStartM": {
+        "0": [
+          [
+            178798267,
+            0.8
+          ]
+        ],
+        "25": [
+          [
+            392392834,
+            1.1
+          ],
+          [
+            178798267,
+            2.3
+          ]
+        ],
+        "75": [
+          [
+            392392834,
+            0.4
+          ],
+          [
+            1262130568,
+            4.1
+          ]
+        ],
+        "100": [
+          [
+            392392834,
+            0.7
+          ],
+          [
+            1262130568,
+            1.9
+          ],
+          [
+            435850234,
+            8.3
+          ],
+          [
+            435850236,
+            8.3
+          ]
+        ],
+        "150": [
+          [
+            435850236,
+            0.1
+          ],
+          [
+            328759039,
+            7.4
+          ],
+          [
+            516261899,
+            11.5
+          ]
+        ],
+        "200": [
+          [
+            516261897,
+            1.3
+          ],
+          [
+            516261898,
+            1.8
+          ],
+          [
+            328759039,
+            4.3
+          ],
+          [
+            494236857,
+            9.2
+          ],
+          [
+            516261904,
+            9.2
+          ]
+        ],
+        "300": [
+          [
+            108840667,
+            0.8
+          ],
+          [
+            246856568,
+            5.6
+          ],
+          [
+            516261900,
+            10.9
+          ]
+        ]
+      }
+    },
+    "ddd218": {
+      "objectId": 7,
+      "responseSha256": "b715676960d7353c7c65512acf561e30e9f941b824af1ad16d23d4c236dac85a",
+      "fromStartM": {
+        "0": [
+          [
+            392392834,
+            1.4
+          ],
+          [
+            178798267,
+            9.5
+          ]
+        ],
+        "25": [
+          [
+            392392834,
+            1.1
+          ],
+          [
+            642231224,
+            4.1
+          ]
+        ],
+        "75": [
+          [
+            392392834,
+            0.3
+          ],
+          [
+            435850234,
+            1.0
+          ],
+          [
+            435850236,
+            1.0
+          ],
+          [
+            1262130568,
+            5.4
+          ]
+        ],
+        "100": [
+          [
+            435850236,
+            2.4
+          ],
+          [
+            435850234,
+            6.4
+          ]
+        ],
+        "150": [
+          [
+            516261899,
+            3.0
+          ]
+        ],
+        "200": [
+          [
+            516261899,
+            2.5
+          ],
+          [
+            516261903,
+            10.4
+          ]
+        ],
+        "300": [
+          [
+            108840670,
+            6.3
+          ],
+          [
+            516261899,
+            8.0
+          ]
+        ]
+      }
+    }
+  },
+  "ways": {
+    "108840667": [
+      23,
+      "primary",
+      "yes",
+      null,
+      null
+    ],
+    "108840670": [
+      27,
+      "trunk",
+      "yes",
+      null,
+      null
+    ],
+    "157033674": [
+      27,
+      "trunk",
+      "yes",
+      null,
+      null
+    ],
+    "178798267": [
+      6,
+      "service",
+      null,
+      null,
+      null
+    ],
+    "246856568": [
+      12,
+      "primary",
+      "yes",
+      null,
+      null
+    ],
+    "328759039": [
+      15,
+      "primary",
+      "yes",
+      null,
+      null
+    ],
+    "392392834": [
+      9,
+      "service",
+      "no",
+      null,
+      null
+    ],
+    "402254518": [
+      6,
+      "secondary",
+      "yes",
+      null,
+      null
+    ],
+    "435850234": [
+      4,
+      "service",
+      "yes",
+      null,
+      null
+    ],
+    "435850236": [
+      4,
+      "service",
+      "yes",
+      null,
+      null
+    ],
+    "494202909": [
+      1,
+      "footway",
+      null,
+      null,
+      null
+    ],
+    "494202911": [
+      2,
+      "footway",
+      null,
+      null,
+      null
+    ],
+    "494202912": [
+      1,
+      "footway",
+      null,
+      null,
+      null
+    ],
+    "494236857": [
+      3,
+      "residential",
+      null,
+      null,
+      null
+    ],
+    "494236868": [
+      2,
+      "residential",
+      null,
+      null,
+      null
+    ],
+    "516261897": [
+      1,
+      "residential",
+      null,
+      null,
+      null
+    ],
+    "516261898": [
+      4,
+      "primary",
+      "yes",
+      null,
+      null
+    ],
+    "516261899": [
+      5,
+      "trunk_link",
+      "yes",
+      null,
+      null
+    ],
+    "516261900": [
+      3,
+      "service",
+      "yes",
+      null,
+      null
+    ],
+    "516261903": [
+      3,
+      "trunk",
+      "yes",
+      null,
+      null
+    ],
+    "516261904": [
+      3,
+      "trunk",
+      "yes",
+      null,
+      null
+    ],
+    "642231224": [
+      1,
+      "service",
+      null,
+      null,
+      null
+    ],
+    "1158060768": [
+      1,
+      "service",
+      null,
+      null,
+      null
+    ],
+    "1262130568": [
+      1,
+      "service",
+      null,
+      null,
+      null
+    ],
+    "1531686089": [
+      1,
+      "residential",
+      null,
+      null,
+      null
+    ]
+  },
+  "siteColumns": [
+    "platforms",
+    "touchingFootways",
+    "directedPaths"
+  ],
+  "siteWindows": {
+    "Maristes": [
+      19,
+      0,
+      0
+    ],
+    "Médina": [
+      66,
+      1,
+      0
+    ],
+    "Colobane": [
+      21,
+      1,
+      0
+    ],
+    "Petersen": [
+      17,
+      3,
+      2
+    ],
+    "Guédiawaye": [
+      17,
+      4,
+      4
+    ],
+    "Pikine": [
+      3,
+      1,
+      0
+    ],
+    "Rufisque": [
+      8,
+      0,
+      0
+    ],
+    "Diamniadio": [
+      5,
+      1,
+      0
+    ],
+    "Thiaroye dépôt": [
+      4,
+      0,
+      0
+    ],
+    "Ouakam Boutique Diallo": [
+      14,
+      0,
+      0
+    ]
+  },
+  "region": {
+    "extractSha256": "3e5cd6754c49c48d2d87de80e8e58a1cda97a4ec9867f2518f49d253ebb1a4f3",
+    "platforms": 967,
+    "touching": 57,
+    "directedPaths": 52,
+    "shared": 0,
+    "betweenRoles": 0
+  }
+}

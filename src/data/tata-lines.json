@@ -1020,8 +1020,8 @@
   {
     "network": "tata",
     "code": "59",
-    "origin": "Cité Gendarmerie Keur Massar",
-    "destination": "Diamalaye",
+    "origin": "Stade L.S.S",
+    "destination": "Mbarou Samba Dème (Mbeubeuss)",
     "sourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/",
     "consultedAt": "2026-11-10",
     "publishedAt": null,
@@ -1045,8 +1045,8 @@
   {
     "network": "tata",
     "code": "60",
-    "origin": "Bargny",
-    "destination": "Colobane",
+    "origin": "Colobane",
+    "destination": "Bargny",
     "sourceUrl": "https://www.covoiturage.sn/bus-tata-itineraire/",
     "consultedAt": "2026-11-10",
     "publishedAt": null,

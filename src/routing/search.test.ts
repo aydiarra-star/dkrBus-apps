@@ -15,7 +15,7 @@ const entry = place('entry', 0, 0, 'entrance'), corner = place('corner', 0, 1, '
 const c = place('C', 12, 2), d = place('D', 25, 2), e = place('E', 25, 3), f = place('F', 35, 3), exit = place('exit', 36, 3, 'entrance')
 const addresses = [entry, corner, a, b, c, d, e, f, exit]
 function way(from: Place, to: Place): FootwayInput {
-  return { id: `${from.id}/${to.id}`, from: from.id, to: to.id, name: `Way ${from.id}/${to.id}`, kind: 'crossing', access: 'public', crossingsAndBarriersChecked: true, stepFree: 'yes', evidence: proof, positions: [from, to] }
+  return { id: `${from.id}/${to.id}`, from: from.id, to: to.id, name: `Way ${from.id}/${to.id}`, transferTiming:{from:from.id,to:to.id,seconds:24,evidence:proof}, kind: 'crossing', access: 'public', crossingsAndBarriersChecked: true, stepFree: 'yes', evidence: proof, positions: [from, to] }
 }
 function line(lineId: string, network: PatternInput['network'], from: Place, to: Place, when: number, duration: number): PatternInput {
   const direction = `${from.id} → ${to.id}`
@@ -95,14 +95,18 @@ it('can walk without a vehicle only when a complete reviewed path exists', () =>
 it('selects distinct Pareto winners, not merely the earliest intermediate arrival', () => {
   const freq = (p: PatternInput, start: number, every: number): PatternInput => ({ ...p, service: { kind: 'frequency', source: 'test', windows: [{ start: 8 * 3600 + start, end: 13 * 3600, every, weekdays: [3], holidays: 'as-weekday' }] } })
   const slow = freq(line('direct', 'ddd', a, f, 0, 1300), 0, 300)
-  const firstLeg = freq(lines[0], 0, 600), secondLeg = freq(line('rapid', 'brt', c, f, 0, 120), 400, 600)
+  const firstLeg = lines[0], secondLeg = line('rapid', 'brt', c, f, 400, 120)
   const result = run({ patterns: [slow, firstLeg, secondLeg] }, { origin: 'A', destination: 'F' })
   expect(result.ok && result.options.length).toBe(2)
   if (!result.ok) throw Error(result.message)
   const [fast, direct] = result.options
   expect(fast.best).toContain('fastest'); expect(fast.end).toBe(T + 520)
-  expect(direct.best).toEqual(expect.arrayContaining(['walking','simple','changes','cadence']))
+  expect(direct.best).toEqual(expect.arrayContaining(['walking','simple','changes']))
   expect(direct.changes).toBe(0); expect(direct.walkSeconds).toBe(0)
+  // When both headways are known, still keep the more frequent direct
+  // option even if it arrives later. Do not impute a headway to a timetable.
+  const frequent = run({ patterns:[slow, freq(line('fast-direct','ddd',a,f,0,120),0,600)] }, { origin:a.id,destination:f.id })
+  expect(frequent.ok && frequent.options.map(t => t.best)).toEqual([expect.arrayContaining(['fastest']), ['cadence']])
 })
 
 describe('admission rejects the whole invalid direction or edge, without chords', () => {
@@ -171,4 +175,38 @@ it('keeps AFTU and TATA services separately identified even with the same public
     expect(first(r).legs[0]).toMatchObject({ mode: family, lineName: '7' })
     expect(mapItinerary(first(r)).segments[0].busFamily).toBe(family)
   }
+})
+
+it.each([[0,'frequency'],[1,'frequency'],[0,'running time'],[1,'running time']] as const)(
+  'does not advertise a walking change when leg %i has only modelled %s, even on a documented path', (index, model) => {
+    const pair = [lines[0], lines[1]].map((p, i): PatternInput => i !== index ? p : model === 'frequency'
+      ? { ...p, service: { kind:'frequency',source:'synthetic cadence',windows:[{start:28920+i*360,end:30000,every:60,weekdays:[3],holidays:'as-weekday'}] } }
+      : { ...p, times: { kind:'model',speedKph:30,dwellSeconds:0,source:'synthetic speed' } })
+    expect(run({ patterns:pair }, { origin:a.id, destination:d.id })).toMatchObject({ ok:false, code:'NO_SERVICE' })
+    expect(run({ patterns:pair }, { origin:pair[index].stops[0], destination:pair[index].stops[1] }).ok).toBe(true)
+  })
+
+it('an earlier modelled arrival can egress but cannot suppress or impersonate the dated transfer at the same place', () => {
+  const early = line('early','ter',a,b,0,1)
+  const p: PatternInput = { ...early, times: { kind:'model',source:'synthetic',speedKph:60,dwellSeconds:0 } }
+  const pair = [p,lines[0],lines[1]], trip = first(run({ patterns:pair }, {origin:a.id,destination:d.id}))
+  expect(trip.legs.filter(l => l.kind === 'ride').map(l=>l.lineId)).toEqual(['train','rapid'])
+  const egress = first(run({ patterns:[p] }, {origin:a.id,destination:c.id}))
+  expect(egress.legs.map(l=>l.kind === 'walk' ? l.role : l.lineId)).toEqual(['early','egress'])
+})
+
+it('does not sell a connection on metres and generic walking speed without a timed directed crossing', () => {
+  const footways=paths.map(({...w})=>{delete w.transferTiming;return w})
+  expect(run({footways},{origin:a.id,destination:d.id}).ok).toBe(false)
+  expect(run({footways},{origin:a.id,destination:c.id}).ok).toBe(true) // egress is not a change
+})
+
+it('checks a longer timed alternative instead of assuming the geometrically shortest crossing is fastest',()=>{
+  const mid=place('signal',12.5,1.5,'path')
+  const slow={...paths[2],transferTiming:{...paths[2].transferTiming!,seconds:240}}
+  const via=[way(b,mid),way(mid,c)], q={origin:a.id,destination:d.id}
+  expect(run({footways:[slow]},q).ok).toBe(false)
+  const trip=first(run({footways:[slow,...via],places:[...addresses,mid]},q))
+  expect(trip.legs[1]).toMatchObject({role:'transfer',ways:via.map(w=>({id:w.id}))});expect(trip.walkSeconds).toBe(48)
+  expect(run({footways:via,places:[...addresses,mid]}, {...q,walkSpeedMpm:1}).ok).toBe(false)
 })

@@ -18,62 +18,73 @@
     "Terminus Cité COCEHAS"
   ],
   "detailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-74/",
-  "inboundWaypoints": [
-    "Terminus Cité COCEHAS",
-    "Cité SOCABEG",
-    "Tivaouane Peul",
-    "Terminus Keur Massar",
-    "Rond-point Station Shell Keur Massar",
-    "Route de Jaxaay",
-    "Échangeur Rufisque-Ouest",
-    "Route des HLM Rufisque",
-    "Rond-point Djouti Ba Rufisque",
-    "Boulevard Maurice Guèye",
-    "Route nationale n° 1",
-    "Poste Courant",
-    "Colobane Rufisque",
-    "Terminus Bargny (Gare ferroviaire)"
-  ],
-  "inboundDetailSourceUrl": "https://aftu-senegal.org/map/dakar-urbain-ligne-74/",
-  "outboundSchedule": {
-    "line": "74",
-    "weekday": {
-      "start": "05:35",
-      "end": "21:44",
-      "interval": "17 min"
-    },
-    "saturday": {
-      "start": "05:45",
-      "end": "21:51",
-      "interval": "23 min"
-    },
-    "sunday": {
-      "start": "05:45",
-      "end": "21:51",
-      "interval": "23 min"
-    },
-    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-74-Dakar-5996-1618038-18051487-1",
-    "sourceLabel": "Moovit · sens vers Tivaouane Peul"
+  "note": "La fiche AFTU donne un seul ordre de Bargny gare à Cité COCEHAS, via Keur Massar. Le retour reproduit dans le projet n’a pas de source distincte. Les grilles Moovit concernent Rufisque–Tivaouane Peul, pas cette variante.",
+  "outboundOrigin": "Terminus Bargny (Gare ferroviaire)",
+  "outboundDestination": "Terminus Cité COCEHAS",
+  "unconfirmedReturn": {
+    "waypoints": [
+      "Terminus Cité COCEHAS",
+      "Cité SOCABEG",
+      "Tivaouane Peul",
+      "Terminus Keur Massar",
+      "Rond-point Station Shell Keur Massar",
+      "Route de Jaxaay",
+      "Échangeur Rufisque-Ouest",
+      "Route des HLM Rufisque",
+      "Rond-point Djouti Ba Rufisque",
+      "Boulevard Maurice Guèye",
+      "Route nationale n° 1",
+      "Poste Courant",
+      "Colobane Rufisque",
+      "Terminus Bargny (Gare ferroviaire)"
+    ],
+    "url": "https://aftu-senegal.org/map/dakar-urbain-ligne-74/",
+    "reason": "La même fiche AFTU ne publie pas cet ordre de retour."
   },
-  "inboundSchedule": {
-    "line": "74",
-    "weekday": {
-      "start": "05:40",
-      "end": "21:48",
-      "interval": "22 min"
+  "otherCorridor": {
+    "termini": [
+      "Rufisque",
+      "Tivaouane Peul"
+    ],
+    "outboundSchedule": {
+      "line": "74",
+      "weekday": {
+        "start": "05:35",
+        "end": "21:44",
+        "interval": "17 min"
+      },
+      "saturday": {
+        "start": "05:45",
+        "end": "21:51",
+        "interval": "23 min"
+      },
+      "sunday": {
+        "start": "05:45",
+        "end": "21:51",
+        "interval": "23 min"
+      },
+      "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-74-Dakar-5996-1618038-18051487-1",
+      "sourceLabel": "Moovit · sens vers Tivaouane Peul"
     },
-    "saturday": {
-      "start": "05:50",
-      "end": "21:40",
-      "interval": "25 min"
-    },
-    "sunday": {
-      "start": "05:50",
-      "end": "21:40",
-      "interval": "25 min"
-    },
-    "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-74-Dakar-5996-1618038-18051487-0",
-    "sourceLabel": "Moovit · sens vers Rufisque"
-  },
-  "note": "Les 14 points de passage sont retranscrits depuis la fiche officielle AFTU. Moovit documente 51 arrêts par sens sur le corridor Rufisque–Tivaouane Peul, mais de nombreux arrêts sont nommés génériquement « Arrêt de Bus » ; ils ne sont pas transformés en noms supposés. La fiche AFTU étend le parcours jusqu’à Bargny et Cité COCEHAS."
+    "inboundSchedule": {
+      "line": "74",
+      "weekday": {
+        "start": "05:40",
+        "end": "21:48",
+        "interval": "22 min"
+      },
+      "saturday": {
+        "start": "05:50",
+        "end": "21:40",
+        "interval": "25 min"
+      },
+      "sunday": {
+        "start": "05:50",
+        "end": "21:40",
+        "interval": "25 min"
+      },
+      "sourceUrl": "https://moovitapp.com/index/fr/transport_en_commun-line-74-Dakar-5996-1618038-18051487-0",
+      "sourceLabel": "Moovit · sens vers Rufisque"
+    }
+  }
 }

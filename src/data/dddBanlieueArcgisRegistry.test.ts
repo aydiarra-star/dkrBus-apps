@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   DDD_BANLIEUE_ARCGIS_LAYERS,
+  DDD_ARCGIS_MAP_QUERIES,
   DDD_BANLIEUE_ARCGIS_STOP_GROUPS,
   DDD_BANLIEUE_ARCGIS_STOP_GROUP_TOTALS,
   DDD_BANLIEUE_ARCGIS_STOP_LAYER_URL,
@@ -78,4 +79,12 @@ describe('DDD urban ArcGIS stop inventory', () => {
       line: '13', featureCount: 22, namedFeatureCount: 0, geolocatedFeatureCount: 22,
     })
   })
+})
+
+it('only allows the exact 37 geometry query paths, not an ArcGIS origin or wildcard', () => {
+  expect(DDD_ARCGIS_MAP_QUERIES).toHaveLength(37)
+  expect(new Set(DDD_ARCGIS_MAP_QUERIES).size).toBe(37)
+  for (const url of DDD_ARCGIS_MAP_QUERIES) expect(decodeURI(url)).toMatch(
+    /^https:\/\/services1\.arcgis\.com\/tKMirJrirprCZbnf\/ArcGIS\/rest\/services\/(?:Ligne_inter_urbain|Dem_dikk_mise_a_jour|Itinéraire_ligne_de_Banlieue_Dakar_Dem_Dikk)\/FeatureServer\/\d+\/query$/,
+  )
 })

@@ -6,6 +6,7 @@
 import catalog from '../data/mobility-lines.json'
 import tataCatalog from '../data/tata-lines.json'
 import { AFTU_TATA_PUBLIC_LINE_CATALOG, AFTU_TATA_SHARED_ROUTE_KEYS, detailedRouteIdentity, detailedRouteKey } from './publicBusLineCatalog'
+import { formatFrequencyPeriod, NETWORK_REFERENCE_DATA } from './frequencies'
 import { searchCorridorStops } from './corridors'
 import { BUS_OPERATOR_CONTACTS } from './busOperatorContacts'
 
@@ -460,12 +461,21 @@ function practicalReply(text: string): string | null {
     if (/\bb[23]\b/.test(text)) return 'Les pages B2/B3 de SunuBRT étaient en maintenance à la consultation. Des extraits indexés décrivent des services semi-express, mais je ne confirme pas leur service actuel à partir de ces seuls extraits. Contactez SunuBRT au 818 55 55 55.' + source(SOURCES.brtContact)
   }
   if (ter) {
-    if (/\b(horaire|horaires|frequence|frequences|premier|dernier|ouvre|ferme)\b/.test(text) && !/\b(prochain|prochaine|dans combien)\b/.test(text)) return `Horaires de référence publiés par TER Dakar :\n• Lundi–samedi : premier départ 05h35 de Diamniadio, 05h45 de Dakar ; toutes les 10 min jusqu’à 20h55.\n• Puis toutes les 20 min de 21h05 à 22h05 (dernier départ).\n• Dimanches et jours fériés : toutes les 20 min de 06h25 à 22h05.\nCes heures ne sont pas celles de chaque gare intermédiaire et ne garantissent pas le prochain passage.${source(SOURCES.terHours)}`
+    if (/\b(horaire|horaires|frequence|frequences|premier|dernier|ouvre|ferme)\b/.test(text) && !/\b(prochain|prochaine|dans combien)\b/.test(text)) {
+      const ter = NETWORK_REFERENCE_DATA.ter
+      const periods = ter.officialFrequencies.map(f => `${f.scope} : ${formatFrequencyPeriod(f)}`)
+      // A dated document may be asked for explicitly. Keep its last departure
+      // out of the normal board answer and never use it to compute a mission.
+      const document = /\b(publie(?:e?s?)|archive|historique|fiche)\b/.test(text)
+        ? `\nHoraires de référence — fiche opérateur consultée en octobre : premier départ annoncé à 05h35 de Diamniadio et 05h45 de Dakar, dernier à 22h05. Cette fiche documentaire n’est pas la grille actuelle des missions et ne garantit pas un dernier train aujourd’hui.${source(SOURCES.terHours)}`
+        : ''
+      return `Grille de référence du tableau TER :\n• ${periods.join('\n• ')}.\nLes créneaux en gare sont théoriques ; ce n’est pas un passage en temps réel. Voir la gare et le sens dans Explorer. Source de la référence : ${ter.source.sourceUrl}. Fiche opérateur : ${SOURCES.terHours}.${document}`
+    }
     if (/\b(abonnement|abonnements|mensuel|hebdo|hebdomadaire)\b/.test(text)) return `Abonnements adultes TER de référence, 2e classe :\n• Mensuel : 15 000 / 30 000 / 45 000 F CFA pour 1 / 2 / 3 zones, du 1er à la fin du mois.\n• Hebdomadaire : 6 000 / 12 000 / 18 000 F CFA, du lundi au dimanche.\nCarte Sama TER nominative. Des offres jeunes et enfants existent : consultez les conditions d’âge et de zones sur la page de l’opérateur ; ce résumé ne leur applique pas automatiquement un tarif adulte.${source(SOURCES.terSubscriptions)}`
     if (/\b(enfant|enfants|gratuit)\b/.test(text)) return `Le site TER Dakar annonce la gratuité pour les enfants de moins de 5 ans. Les autres offres enfants et jeunes dépendent de l’âge et du titre choisi.${source(SOURCES.terOffers)}`
     if (fares || /\b(sama|paiement)\b/.test(text)) return `Ticket TER, aller simple de référence :\n• 2e classe : 500 F CFA (1 zone), 1 000 F CFA (2 zones), 1 500 F CFA (3 zones).\n• 1re classe : 2 500 F CFA, quelle que soit la zone.\nTicket papier QR code valable 5 jours, acheté aux guichets ou distributeurs ; espèces et monnaie mobile. Cela ne signifie pas des voyages illimités pendant 5 jours.${source(SOURCES.terFares)}`
     if (/\b(commerce|commerces|service|services|kiosque|senter)\b/.test(text)) return `SENTER indique 83 espaces commerciaux répartis sur 13 gares et haltes entre Dakar et Diamniadio, dont 58 kiosques sur les parvis. Contact : contact@senter.sn. Le site institutionnel présente aussi des chiffres de projet plus larges : je ne les transforme pas en desserte aujourd’hui confirmée vers l’AIBD.${source(SOURCES.terServices)}`
-    if (/\b(aibd|aeroport|14 gares)\b/.test(text)) return `Le référentiel de trajet embarqué reste limité à Dakar–Diamniadio. Les présentations SENTER mentionnent 14 gares et l’AIBD, tandis que sa page Services en gare décrit 13 gares et haltes Dakar–Diamniadio. Ces pages seules ne suffisent pas à confirmer l’ouverture et les horaires d’une extension vers l’aéroport.${source(SOURCES.terStations)}`
+    if (/\b(aibd|aeroport|14 gares)\b/.test(text)) return `La carte et les tableaux TER vont de Dakar à AIBD via Diamniadio. Un arrêt de référence n’est pas une garantie de trajet calculable ni de service en temps réel. Les présentations SENTER mentionnent 14 gares et l’AIBD, tandis que sa page Services en gare décrit 13 gares et haltes Dakar–Diamniadio. Ces pages seules ne suffisent pas à confirmer l’ouverture et les horaires d’une extension vers l’aéroport.${source(SOURCES.terStations)}`
   }
   if (/\b(circulation|embouteillage|embouteillages|trafic routier|trafic|accident|travaux routiers|route fermée)\b/.test(text)) return trafficKnowledgeReply()
   return null

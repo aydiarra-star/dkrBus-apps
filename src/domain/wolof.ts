@@ -10,6 +10,7 @@
  * Les noms propres (gares, stations, réseaux) ne sont pas traduits.
  */
 
+import { TER_STOPS, BRT_STOPS, DDD_STOPS, AFTU_STOPS, TATA_STOPS } from './corridors'
 import type { PlannerLeg } from './planner'
 import { formatMeters } from './planner'
 
@@ -17,7 +18,7 @@ export const WOLOF_VALIDATION_NOTE =
   'Modèles wolof de base — en attente de validation par des locuteurs. Le français reste disponible à tout moment.'
 
 export function woGreeting(): string {
-  return `Nanga def ! Maa ngi lay dimbali ci sa yoonu Dakar. Xam naa: 13 gares TER, 23 stations BRT, ak 33 arrêts DDD/AFTU/TATA yi nekk ci référaas bi. Laaj ma, dinaa la tontu ci li ma xam dëgg.\n(${WOLOF_VALIDATION_NOTE})`
+  return `Nanga def ! Maa ngi lay dimbali ci sa yoonu Dakar. Xam naa: ${TER_STOPS.length} gares TER, ${BRT_STOPS.length} stations BRT, ak ${DDD_STOPS.length + AFTU_STOPS.length + TATA_STOPS.length} arrêts DDD/AFTU/TATA yi nekk ci référaas bi. Laaj ma, dinaa la tontu ci li ma xam dëgg.\n(${WOLOF_VALIDATION_NOTE})`
 }
 
 export function woAskOrigin(): string {

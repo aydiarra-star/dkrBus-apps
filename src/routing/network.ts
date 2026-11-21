@@ -4,6 +4,7 @@ import { sliceVerifiedRouteSegment } from '../domain/routeGeometrySlice'
 import { inDakar, reviewed, samePoint, shapeLength } from './geometry'
 import type { Dataset, Footway, Network, ObservedPlatform, Pattern, PatternInput, Place, PlatformBinding, Section } from './model'
 import { patternFromWays } from './vehicleGraph'
+import { compileSamePlatformChanges } from './samePlatformChanges'
 import { validService } from './serviceTime'
 
 function duplicates(ids: readonly string[]) {
@@ -20,7 +21,7 @@ function compilePattern(p: PatternInput, places: ReadonlyMap<string, Place>, anc
   const shape = p.shape
   const maxStep = p.network === 'ter' ? 2000 : 1000
   if (!p.lineId || !p.name || !p.direction || !isMobilityId(p.network) || !reviewed(p.evidence) ||
-      shape?.verified !== true || !['OSM_ROUTE_RELATION', 'OPERATOR_ARCGIS', 'OPERATOR_GEOJSON', 'REVIEWED_GTFS_SHAPE'].includes(shape.source) || !shape.sourceId || shape.lineId !== p.lineId || shape.network !== p.network || shape.directionId !== p.direction ||
+      shape?.verified !== true || !['OSM_ROUTE_RELATION', 'REVIEWED_OSM_WAYS', 'OPERATOR_ARCGIS', 'OPERATOR_GEOJSON', 'REVIEWED_GTFS_SHAPE'].includes(shape.source) || !shape.sourceId || shape.lineId !== p.lineId || shape.network !== p.network || shape.directionId !== p.direction ||
       !shapeLength(shape.positions, maxStep) || !validService(p.service) || !p.times.source || !accessibilityKnown(p.stepFree)) return null
   const calls = p.stops.map(id => places.get(id))
   if (calls.length < 2 || !calls.every(canBoard) || duplicates(p.stops).size) return null
@@ -61,7 +62,7 @@ export function buildNetwork(data: Dataset): Network {
   const places = new Map<string, Place>()
   const duplicatePlaces = duplicates(data.places.map(p => p.id))
   for (const p of data.places) {
-    if (!p.id || !p.name || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || (p.id.startsWith('landmark:') && canBoard(p)) ||
+    if (!p.id || !p.name || p.id.startsWith('landmark:bus-osm-') || !['call', 'platform', 'entrance', 'path'].includes(p.kind) || (p.id.startsWith('landmark:') && canBoard(p)) ||
         duplicatePlaces.has(p.id) || !reviewed(p.evidence) || !inDakar(p)) rejected.push(`place:${p.id}`)
     else places.set(p.id, p)
   }
@@ -110,16 +111,22 @@ export function buildNetwork(data: Dataset): Network {
   const duplicateWays = duplicates(data.footways.map(w => w.id))
   for (const w of data.footways) {
     const a = places.get(w.from), b = places.get(w.to)
-    const meters = shapeLength(w.positions, 250)
+    const meters = shapeLength(w.positions, 250), measured = w.transferTiming
+    if (measured !== undefined && (!measured || measured.from !== w.from || measured.to !== w.to ||
+        !Number.isSafeInteger(measured.seconds) || measured.seconds <= 0 || measured.seconds >= 86400 || !reviewed(measured.evidence))) {
+      rejected.push(`footway-timing:${w.id}`); continue
+    }
     // Match endpoints by explicit identity AND by the actual end vertices.
     // A station's service-call reference never doubles as a pedestrian access.
     if (!meters || !w.id || !w.name || duplicateWays.has(w.id) || w.from === w.to || !a || !b || a.kind === 'call' || b.kind === 'call' ||
         !samePoint(a, w.positions[0]) || !samePoint(b, w.positions.at(-1)!) || !reviewed(w.evidence) ||
+        (w.onlyFor !== undefined && !['access','egress'].includes(w.onlyFor)) ||
         w.access !== 'public' || w.crossingsAndBarriersChecked !== true || !accessibilityKnown(w.stepFree) ||
         !['footway','sidewalk','crossing','steps','ramp','station-path'].includes(w.kind) || (w.kind === 'steps' && w.stepFree === 'yes')) {
       rejected.push(`footway:${w.id}`); continue
     }
     const bucket = walking.get(w.from) ?? []; bucket.push({ ...w, meters }); walking.set(w.from, bucket)
   }
-  return { places, patterns, boarding, platforms, walking, rejected }
+  const samePlatform = compileSamePlatformChanges(patterns, platforms, data.samePlatformChanges ?? [], rejected)
+  return { places, patterns, boarding, platforms, samePlatform, walking, rejected }
 }

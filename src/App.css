@@ -119,6 +119,7 @@ button:disabled { cursor: not-allowed; }
 
 /* The map is deliberately a real geographic basemap; transit features are not synthesized. */
 .map-stage {
+  container-type: size;
   position: relative;
   grid-column: 2;
   grid-row: 1;
@@ -136,7 +137,7 @@ button:disabled { cursor: not-allowed; }
   content: '';
   box-shadow: inset 0 0 0 1px rgba(37, 76, 54, 0.06), inset 0 0 100px rgba(39, 69, 46, 0.045);
 }
-.leaflet-map { width: 100%; height: 100%; background: #e4f0ea; font: inherit; }
+.leaflet-map { position: relative; z-index: 0; width: 100%; height: 100%; background: #e4f0ea; font: inherit; }
 .leaflet-tile { filter: saturate(.77) contrast(.98) brightness(1.025); }
 /* Crédit légal OSM conservé, mais réduit au minimum visuel et sur une seule ligne. */
 .leaflet-control-attribution {
@@ -216,6 +217,9 @@ button:disabled { cursor: not-allowed; }
   top: 52px;
   right: 0;
   width: 306px;
+  max-height: calc(100cqh - 70px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 17px;
   border: 1px solid #e5efea;
   border-radius: 19px;
@@ -310,38 +314,44 @@ button:disabled { cursor: not-allowed; }
 .map-control.is-located { background: var(--green-100); box-shadow: inset 0 0 0 1px rgba(25, 135, 84, .22); color: var(--green-700); }
 .control-divider { display: block; height: 1px; margin: 2px 3px; background: #e8efec; }
 
-.dakar-marker-shell { border: 0; background: transparent; }
-.mobility-stop-label-shell { border: 0; background: transparent; overflow: visible; }
-.mobility-stop-label {
-  display: block;
-  width: max-content;
-  height: auto;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--stop-label-color);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: -.035em;
-  line-height: 1;
-  white-space: nowrap;
-  text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px rgba(255,255,255,.9);
-  pointer-events: none;
-}
+/* Same hit rectangle as packMapPoints, including at maximum zoom. */
+.map-point-marker { display: grid; place-items: center; border: 0; background: transparent; }
+.map-point-face { position: relative; display: flex; align-items: center; justify-content: center; gap: 2px;
+  min-width: 28px; max-width: 100%; box-sizing: border-box; padding: 3px 3px 4px; overflow: hidden;
+  border: 1px solid #6a7d75; border-radius: 6px; background: #fff; color: #142e22;
+  font: 800 10px/1.25 system-ui, sans-serif; white-space: nowrap; box-shadow: 0 1px 3px #152e2740; }
+.map-point-stripe { position: absolute; display: flex; inset: auto 0 0; height: 3px; background: #546762; }
+.map-point-stripe i { flex: 1; background: var(--point-color); }
+.point-ter { --point-color: #003366; } .point-brt { --point-color: #00a859; }
+.point-ddd { --point-color: #f59e0b; } .point-aftu, .point-aftu-tata { --point-color: #d97706; }
+.point-tata { --point-color: #93461b; } .point-bus { --point-color: #64748b; }
+.map-point-face:has(small) { display: grid; grid-template-columns: auto auto; gap: 0 2px; padding-block: 1px 4px; }
+.map-point-face small { grid-area: 2 / 1 / 3 / 3; text-align: center; font: 700 8px/1.15 system-ui, sans-serif; }
+.map-point-face:has(small) .map-point-count { grid-area: 1 / 2; }
+.map-point-count { padding: 0 2px; border-radius: 3px; background: #254236; color: white; font-size: 9px; }
+.map-point-marker:focus-visible .map-point-face { outline: 3px solid #1756ae; }
+.map-point-panel { position: absolute; z-index: 720; left: 8px; bottom: 8px; display: flex; flex-direction: column;
+  width: min(340px, calc(100% - 16px)); max-height: calc(100% - 16px); box-sizing: border-box; padding: 10px 12px;
+  overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line-strong); border-radius: 12px;
+  background: var(--surface-card); color: var(--text); box-shadow: 0 4px 20px #172d2340; font-size: 13px; line-height: 1.35; }
+.map-point-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.map-point-panel > p { font-size: 12px; margin: 0 0 4px; }
+.map-point-panel input { width: 100%; padding: 4px; font-size: 16px; }
+.map-point-panel ul { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0; margin: 0; list-style: none; }
+.map-point-panel li { display: grid; gap: 3px; padding: 8px 0; border-top: 1px solid var(--line-strong); }
+.map-point-panel li > strong { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.map-point-panel small { display: block; font-size: 12px; }
+.map-point-panel button { min-height: 32px; width: fit-content; padding: 2px 8px; color: var(--text); background: var(--surface-sunken); border: 1px solid var(--line-strong); border-radius: 6px; }
+.map-point-panel > header button { min-width: 36px; min-height: 36px; font-size: 18px; }
+.map-point-panel > p button { min-height: 26px; }
+.map-point-badge { padding: 1px 4px; border: 1px solid var(--point-color); border-left-width: 4px; border-radius: 3px; font-size: 10px; }
+.map-point-link { padding-left: 6px; border-left: 2px solid var(--line-strong); }
 .mobility-route-flow {
   animation: mobility-route-flow 1.8s linear infinite;
   pointer-events: none;
 }
 
-.map-user-marker, .map-route-marker { position: relative; display: grid; width: 32px; height: 32px; place-items: center; border: 3px solid white; border-radius: 50%; background: var(--marker-color); box-shadow: 0 3px 14px rgba(21, 115, 71, .32); }
-.map-user-marker::before { position: absolute; inset: -9px; border: 1px solid rgba(25, 135, 84, .24); border-radius: 50%; content: ''; animation: location-pulse 2.4s ease-out infinite; }
-.map-user-marker > span { width: 8px; height: 8px; border-radius: 50%; background: white; }
-.map-route-marker { width: 27px; height: 27px; border-width: 3px; }
-.map-route-marker-origin { background: #146b43; }
-.map-route-marker-destination { background: #d78a32; }
-.map-route-marker > span { width: 6px; height: 6px; border-radius: 50%; background: white; }
+
 
 .sidebar {
   position: relative;
@@ -554,7 +564,6 @@ button:disabled { cursor: not-allowed; }
 .is-spinning { animation: spin 1s linear infinite; }
 
 @keyframes mobility-route-flow { from { stroke-dashoffset: 26; } to { stroke-dashoffset: 0; } }
-@keyframes location-pulse { 0% { transform: scale(.75); opacity: .8; } 100% { transform: scale(1.45); opacity: 0; } }
 @keyframes panel-enter { from { opacity: .7; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pop-in { from { opacity: 0; transform: translateY(4px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1792,6 +1801,9 @@ button:disabled { cursor: not-allowed; }
   letter-spacing: .025em;
 }
 .network-summary-passage { display: grid; justify-items: end; gap: 1px; text-align: right; }
+.passage-remaining { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.network-summary-passage > .passage-remaining { font-size: 11px; line-height: 1.1; }
+.passage-clock-key { margin: 2px 0 8px; color: var(--muted); font-size: 11px; }
 .station-board-double-apostrophe { display: inline-block; flex: 0 0 auto; width: 0.5625em; height: 0.9em; margin-right: 0.35em; vertical-align: -0.09em; overflow: visible; fill: none; stroke: var(--passage-green); stroke-width: 4.6; stroke-linecap: round; filter: drop-shadow(0 0 0.8px color-mix(in srgb, var(--passage-green) 50%, transparent)); animation: station-board-apostrophe-twinkle 1.35s ease-in-out infinite; }
 @keyframes station-board-apostrophe-twinkle {
   0%, 100% { opacity: .65; filter: drop-shadow(0 0 0 color-mix(in srgb, var(--passage-green) 25%, transparent)); }
@@ -1800,8 +1812,8 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .station-board-double-apostrophe { animation: none; opacity: 1; }
 }
+.network-summary-passage > strong, .passage-remaining { color: var(--passage-green); }
 .network-summary-passage > strong {
-  color: var(--passage-green);
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: -.015em;
@@ -1835,7 +1847,7 @@ button:disabled { cursor: not-allowed; }
   opacity: .75;
   font-weight: 500;
 }
-.network-summary-dot.status-finished {
+.network-summary-header[data-service-status="FINISHED"] .network-summary-dot {
   background: #DC2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, .15);
   animation: none;
@@ -1850,8 +1862,9 @@ button:disabled { cursor: not-allowed; }
   opacity: .75;
   font-weight: 500;
 }
-.network-summary-dot.status-upcoming {
-  background: #D97706;
+.network-summary-header[data-service-status="UPCOMING"] .network-summary-dot {
+  --pulse-color: #D97706;
+  background: var(--pulse-color);
   box-shadow: 0 0 0 3px rgba(217, 119, 6, .18);
   animation: dot-pulse 2s ease-in-out infinite;
 }
@@ -1895,11 +1908,12 @@ button:disabled { cursor: not-allowed; }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes dot-pulse {
-  0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--dot, var(--green-600)) 28%, transparent); }
-  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--dot, var(--green-600)) 8%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--pulse-color, var(--green-600)) 28%, transparent); }
+  50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--pulse-color, var(--green-600)) 8%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .network-summary-dot.is-counting { animation: none; }
+  .network-summary-dot.is-counting,
+  .network-summary-header[data-service-status="UPCOMING"] .network-summary-dot { animation: none; }
   .station-board { animation: none; }
 }
 
@@ -2043,7 +2057,7 @@ button:disabled { cursor: not-allowed; }
 .point-search-input:focus-visible { outline: 0; }
 .combobox-picked { display: grid; min-width: 0; gap: 1px; }
 .combobox-picked-label { overflow: hidden; color: #1d4634; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.combobox-picked small { color: #7d958a; font-size: 9px; font-weight: 600; }
+.combobox-picked small { color: var(--muted); font-size: 12px; line-height: 1.3; font-weight: 600; }
 .point-field-search-icon { flex: 0 0 auto; color: #9ab3a8; }
 .point-icon-button { display: grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border: 1px solid transparent; border-radius: 9px; background: transparent; color: #6b8a7c; cursor: pointer; }
 .point-icon-button:hover { border-color: var(--line-strong); background: var(--green-50); color: var(--green-700); }
@@ -2629,13 +2643,7 @@ button:disabled { cursor: not-allowed; }
   box-shadow: inset 0 0 0 1.5px var(--mobility-bright);
 }
 
-.mobility-ter .network-summary-dot,
-.mobility-brt .network-summary-dot,
-.mobility-ddd .network-summary-dot,
-.mobility-aftu_tata .network-summary-dot {
-  background: var(--dot);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 28%, transparent);
-}
+/* Network identity stays on the badge and selected card; the dot is service status. */
 .network-summary-list > li.network-summary-item.mobility-ter.is-selected,
 .network-summary-list > li.network-summary-item.mobility-brt.is-selected,
 .network-summary-list > li.network-summary-item.mobility-ddd.is-selected,
@@ -3034,15 +3042,11 @@ button:disabled { cursor: not-allowed; }
   stroke-linecap: round;
   pointer-events: none;
 }
-.mobility-stop-label { font-size: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .mobility-route-flow { animation: none !important; }
 }
 
 
-/* Tous les réseaux gardent la taille de référence TER/BRT, quel que soit le zoom. */
-.leaflet-map--citywide .mobility-stop-label,
-.leaflet-map--district .mobility-stop-label { font-size: 8px; letter-spacing: -.035em; }
 /* Un seul nom court par itinéraire, placé discrètement sur son tracé. */
 .leaflet-tooltip.mobility-route-name-label {
   margin: 0;
@@ -4145,6 +4149,8 @@ button:disabled { cursor: not-allowed; }
   gap: 3px;
 }
 .map-mobility-legend-compact .map-legend-badge-button {
+  pointer-events: auto;
+  min-height: 24px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -4267,6 +4273,29 @@ button:disabled { cursor: not-allowed; }
   white-space: nowrap;
 }
 
+/* Bus signs use the station palette in both themes. A street reference is
+   not a clickable platform; long labels wrap without obscuring the minutes. */
+.bus-board > .station-board-head, .bus-occurrences-head {
+  display: flex; align-items: center; justify-content: space-between; gap: .65rem;
+}
+.bus-board-switch { display: inline-flex; gap: 2px; }
+.bus-board-switch button { border: 1px solid var(--line); border-radius: .4rem; background: var(--surface-card); color: var(--muted); padding: .35rem .6rem; font: inherit; cursor: pointer; }
+.bus-board-switch button[aria-pressed=true] { color: var(--text); background: var(--surface-sunken); font-weight: 750; }
+.bus-board-section-title, .bus-occurrences-head { color: var(--muted); padding: 6px 12px; font-size: 10px; }
+.bus-occurrences { padding: 0; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) { margin: 4px 12px 8px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) summary { cursor: pointer; }
+:is(.bus-coverage, .bus-variant-note, .bus-survey-note) p { margin: 4px 0; }
+.bus-occurrences .bus-occurrences-list { list-style: none; padding: 0; gap: 0; }
+.bus-occurrences .bus-occurrences-list > li { padding: 6px 14px; }
+.bus-board .station-board-stop { min-width: 0; overflow-wrap: anywhere; }
+.bus-board .station-board-direction-action, .bus-occurrences .station-board-passage { flex: 0 0 auto; }
+.bus-occurrences .station-board-itinerary-source, .bus-occurrences .station-board-itinerary-pending { display: block; margin: 6px 12px; font-size: 11px; }
+.bus-occurrences .bus-rank { display: inline; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+.bus-board-filter { display: block; width: calc(100% - 24px); margin: 8px 12px; padding: 6px 9px; border-radius: .4rem; border: 1px solid var(--line); background: var(--surface-card); color: var(--text); font: inherit; }
+
+.bus-model-option { display: flex; align-items: center; gap: .5rem; font-size: .875rem; padding: .4rem 0; }
 
 /* Tableau dédié au tronc commun TER Dakar ↔ Diamniadio.
    Les styles sont préfixés ter-dd- pour ne pas modifier le panneau AIBD. */

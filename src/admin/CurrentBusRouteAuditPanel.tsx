@@ -5,9 +5,14 @@ import { AFTU_OFFICIAL_PAGE_AUDIT } from '../data/aftuOfficialPageAudit'
 import type { CetudFrequencyObservation } from '../data/cetudFrequencyObservations'
 import type { AftuPublishedRouteCandidate } from '../data/aftuPublishedRouteCandidates'
 import type { TataPublishedRouteCandidate } from '../data/tataPublishedRouteCandidates'
-import type { DddPublishedDepartureWindow } from '../data/dddPublishedDepartureWindows'
+import { DDD_PUBLISHED_DEPARTURE_WINDOWS as dddPublishedDepartureWindows } from '../data/dddPublishedDepartureWindows'
+import { DDD_BANLIEUE_ARCGIS_LAYERS as dddBanlieueArcgisLayers, DDD_URBAN_ARCGIS_STOP_LAYERS as dddUrbanArcgisStopLayers, DDD_URBAN_ARCGIS_AUDIT_TOTALS as dddUrbanArcgisTotals } from '../data/dddBanlieueArcgisRegistry'
+import { DDD_OFFICIAL_ROUTE_SOURCE as dddOfficialRouteSource, DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES } from '../data/dddOfficialPublishedRoutes'
 import type { DirectionAuditFinding } from './bidirectionalRouteAudit'
+import { ReportedBusRunsPanel } from './ReportedBusRunsPanel'
 import './CurrentBusRouteAuditPanel.css'
+
+const dddOfficialRoutes: readonly { line:string; stops:readonly string[]; codeSource?:string; conflictNote?:string }[] = DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES
 
 type Filter = 'all' | 'missing' | 'unverified' | 'invalid'
 
@@ -31,33 +36,17 @@ export function CurrentBusRouteAuditPanel() {
   const [frequencyObservations, setFrequencyObservations] = useState<readonly CetudFrequencyObservation[]>([])
   const [aftuCandidates, setAftuCandidates] = useState<readonly AftuPublishedRouteCandidate[]>([])
   const [tataCandidates, setTataCandidates] = useState<readonly TataPublishedRouteCandidate[]>([])
-  const [dddPublishedDepartureWindows, setDddPublishedDepartureWindows] = useState<readonly DddPublishedDepartureWindow[]>([])
-  const [dddOfficialRoutes, setDddOfficialRoutes] = useState<readonly { line: string; stops: readonly string[]; codeSource?: string; conflictNote?: string }[]>([])
-  const [dddOfficialRouteSource, setDddOfficialRouteSource] = useState({ url: 'https://demdikk.sn/reseau-urbain-dakar/', infoUrl: 'https://demdikk.sn/info-voyageurs/' })
-  const [dddBanlieueArcgisLayers, setDddBanlieueArcgisLayers] = useState<readonly { line: string; layerUrl: string; dataLastEditDate: string | null }[]>([])
-  const [dddUrbanArcgisStopLayers, setDddUrbanArcgisStopLayers] = useState<readonly { line: string; layerId: number; layerUrl: string; featureCount: number; namedFeatureCount: number; geolocatedFeatureCount: number }[]>([])
-  const [dddUrbanArcgisTotals, setDddUrbanArcgisTotals] = useState({ routeFeatures: 0, routeLayers: 0, nonEmptyRouteFeatures: 0, emptyRouteFeatures: 0, stopFeatures: 0, stopLayers: 0, namedStopFeatures: 0, missingNameStopFeatures: 0, geolocatedStopFeatures: 0 })
-
   useEffect(() => {
     let active = true
     void Promise.all([
       import('../data/cetudFrequencyObservations'),
-      import('../data/dddBanlieueArcgisRegistry'),
       import('../data/aftuPublishedRouteCandidates'),
       import('../data/tataPublishedRouteCandidates'),
-      import('../data/dddPublishedDepartureWindows'),
-      import('../data/dddOfficialPublishedRoutes'),
-    ]).then(([frequencyData, gisData, aftuData, tataData, departureData, officialRouteData]) => {
+    ]).then(([frequencyData, aftuData, tataData]) => {
       if (!active) return
       setFrequencyObservations(frequencyData.CETUD_FREQUENCY_OBSERVATIONS)
-      setDddBanlieueArcgisLayers(gisData.DDD_BANLIEUE_ARCGIS_LAYERS)
-      setDddUrbanArcgisStopLayers(gisData.DDD_URBAN_ARCGIS_STOP_LAYERS)
-      setDddUrbanArcgisTotals(gisData.DDD_URBAN_ARCGIS_AUDIT_TOTALS)
       setAftuCandidates(aftuData.AFTU_PUBLISHED_ROUTE_CANDIDATES)
       setTataCandidates(tataData.TATA_PUBLISHED_ROUTE_CANDIDATES)
-      setDddPublishedDepartureWindows(departureData.DDD_PUBLISHED_DEPARTURE_WINDOWS)
-      setDddOfficialRoutes(officialRouteData.DDD_OFFICIAL_PUBLISHED_ROUTE_SEQUENCES)
-      setDddOfficialRouteSource({ url: officialRouteData.DDD_OFFICIAL_ROUTE_SOURCE.url, infoUrl: officialRouteData.DDD_OFFICIAL_ROUTE_SOURCE.infoUrl })
     })
     return () => { active = false }
   }, [])
@@ -89,6 +78,8 @@ export function CurrentBusRouteAuditPanel() {
         <ShieldCheck size={15} />
         <span>L’IA recherche et recoupe les sources pour qualifier les lignes. Aucune correction des arrêts ni publication dans le catalogue voyageurs n’est automatique.</span>
       </div>
+
+      <ReportedBusRunsPanel />
 
       <details className="bus-route-audit-sources">
         <summary>Fréquences observées par site · CETUD · {frequencyObservations.length || 'chargement…'} relevés</summary>

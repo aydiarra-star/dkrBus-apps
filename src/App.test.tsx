@@ -327,11 +327,15 @@ describe('Dakar Bus experience safety', () => {
     expect(panel.textContent).toContain('Carrefour Keur Massar'); expect(panel.textContent).toContain('04:50–20:50')
     expect(within(panel).getByRole('link', { name: /sens Yoff vers Gorom/ }).getAttribute('href')).toMatch(/18051499-0$/)
     expect(panel.textContent).toContain('Cela ne signifie pas qu’aucun bus ne circule')
-    fireEvent.click(within(panel).getByText('Vérifier auprès du réseau AFTU'))
-    expect(within(panel).getByText(/le 18 novembre 2026 vers 19:00.*ligne 66.*Marche De Yoff.*puis « Carrefour Keur Massar »/i)).toBeTruthy()
-    expect(within(panel).getByRole('link', { name: /appeler AFTU/i }).getAttribute('href')).toBe('tel:+221338590288')
-    expect(within(panel).getByRole('link', { name: /fiche officielle AFTU 66/i }).getAttribute('href')).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-66/')
-    expect(within(panel).getByRole('link', { name: /source du numéro/i }).getAttribute('href')).toBe('https://aftu-senegal.org/infos-pratiques/')
+    // Two distinct readings of the 66: the aggregator window is not the
+    // source or the timetable of the operator's Terminus Yoff → Gorom drawing.
+    const aggregator = within(within(panel).getByRole('link', { name: /sens Yoff vers Gorom/ }).closest('li')!)
+    expect(within(panel).getByRole('link', { name: 'Carte du sens publié par l’AFTU' }).getAttribute('href')).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-66/')
+    fireEvent.click(aggregator.getByText('Vérifier auprès du réseau AFTU'))
+    expect(aggregator.getByText(/le 18 novembre 2026 vers 19:00.*ligne 66.*Marche De Yoff.*puis « Carrefour Keur Massar »/i)).toBeTruthy()
+    expect(aggregator.getByRole('link', { name: /appeler AFTU/i }).getAttribute('href')).toBe('tel:+221338590288')
+    expect(aggregator.getByRole('link', { name: /fiche officielle AFTU 66/i }).getAttribute('href')).toBe('https://aftu-senegal.org/map/dakar-urbain-ligne-66/')
+    expect(aggregator.getByRole('link', { name: /source du numéro/i }).getAttribute('href')).toBe('https://aftu-senegal.org/infos-pratiques/')
     expect(within(panel).queryByRole('button', { name: /choisir ce tronçon/i })).toBeNull()
     expect(screen.getByTestId('highlighted-lines').textContent).toBe('')
     const url = new URL(String(fetch.mock.calls.find(([u]) => String(u).startsWith('/api/journeys'))![0]), 'https://example.invalid')
@@ -354,6 +358,44 @@ describe('Dakar Bus experience safety', () => {
     fireEvent.click(within(panel).getAllByRole('button', { name: /choisir ce tronçon/i })[0])
     expect(panel.textContent).toContain('Votre trajet'); expect(panel.textContent).toContain('19:52')
     expect(panel.textContent).not.toContain('115 m'); expect(screen.getByTestId('highlighted-lines').textContent).toBe('brt-b1')
+  })
+
+  it('affiche uniquement la portion de voirie explicitement choisie et la retire au changement de sens ou de profil', () => {
+    stubApi([]); render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    chooseStopInField('Départ', 'sortie des Maristes', /^Carrefour des Civilisations · sortie/)
+    chooseStopInField('Destination', 'Route des pères Maristes × Front de Terre', /^Route des pères Maristes × Front/)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toContain('Portion cartographiée · sans horaire')
+    expect(panel.textContent).toMatch(/délimitent la voirie, pas des arrêts/)
+    expect(panel.textContent).not.toContain('Votre trajet')
+    const map = screen.getByTestId('highlighted-lines')
+    expect(map.textContent).toBe('')
+    fireEvent.click(within(panel).getByRole('button', { name: /voir cette portion/i }))
+    expect(JSON.parse(map.getAttribute('data-segments')!)).toMatchObject([{ geographyOnly: true, network: 'aftu_tata' }])
+    expect(screen.getByTestId('highlighted-stops').textContent).toBe('landmark:bus-osm-305375476,landmark:bus-osm-5563118329,landmark:bus-osm-3403676386')
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Portion cartographiée')
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(map.textContent).toBe('')
+    fireEvent.click(within(panel).getByRole('button', { name: /voir cette portion/i }))
+    fireEvent.click(screen.getByRole('button', { name: /inverser départ et destination/i }))
+    expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Portion cartographiée')
+  })
+
+  it('trace la marche depuis l’îlot de Scat Urbam puis B1 et retire les deux en mode sans marches', () => {
+    stubApi([]); render(<App />)
+    fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
+    fireEvent.change(screen.getByLabelText(/date et heure de départ à Dakar/i), { target: { value: '2026-11-18T19:00' } })
+    chooseStopInField('Départ', 'Scat Urbam', /^Scat Urbam · îlot du passage piéton nord/)
+    chooseStopInField('Destination', 'Petersen', /^Petersen – Papa Gueye Fall .*BRT/i)
+    const panel = screen.getByRole('region', { name: /itinéraires sur tracés vérifiés/i })
+    expect(panel.textContent).toMatch(/Accès à pied.*îlot du passage piéton nord.*61 m/)
+    expect(panel.textContent).toContain('Descendre à Petersen · quai de descente B1 vers 19:28')
+    const map = screen.getByTestId('highlighted-lines')
+    expect(JSON.parse(map.getAttribute('data-segments')!)).toMatchObject([{ network: 'walk' }, { network: 'brt' }])
+    fireEvent.click(screen.getByLabelText(/uniquement les parcours sans marches/i))
+    expect(map.textContent).toBe(''); expect(panel.textContent).not.toContain('Votre trajet')
   })
 
   it('sépare le changement à Bargny en deux recherches, respecte les filtres et ne trace que le tronçon choisi', () => {
@@ -495,22 +537,22 @@ describe('structure en quatre piliers', () => {
     render(<App />)
 
     expect(screen.getByRole('region', { name: 'Réseaux de référence' })).toBeTruthy()
-    // Les quatre cartes ont un décompte vivant ; TER/BRT gardent leur sous-ligne existante.
+    // Les résumés TER/BRT gardent leurs horloges ; aucune horloge globale pour les bus.
     expect(document.querySelectorAll('.network-summary-dot.is-referenced')).toHaveLength(4)
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
       expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2} · \d+ min$/)
     }
-    // DDD et le réseau unifié AFTU / TATA affichent chacun un seul prochain passage.
-    for (const [network, minutes] of [['ddd', '2 min'], ['aftu_tata', '12 min']]) {
+    // DDD et le réseau unifié AFTU / TATA invitent à choisir un arrêt, sans phase réseau inventée.
+    for (const network of ['ddd','aftu_tata']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
       const badge = document.querySelector(`.network-item-${network} .mobility-badge`)
       expect(passage).toBeTruthy()
       expect(badge).toBeTruthy()
-      expect(passage!.querySelector('strong')?.textContent).toBe(minutes)
-      expect(passage!.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage!.querySelector('strong')?.textContent).toBe('Par arrêt')
+      expect(passage!.querySelector('small')?.textContent).toBe('Voir les lignes')
       expect(passage!.compareDocumentPosition(badge!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy()
     }
     expect(document.querySelectorAll('.network-item-aftu_tata')).toHaveLength(1)
@@ -781,7 +823,7 @@ describe('published snapshot in the app', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('tab', { name: /^trajet$/i }))
     chooseStopInField('Départ', 'petersen', /petersen.*BRT/i)
-    chooseStopInField('Destination', 'keur mbaye', /keur mbaye fall/i)
+    chooseStopInField('Destination', 'keur mbaye', /^Keur Mbaye Fall · TER/i)
     fireEvent.click(screen.getByRole('button', { name: /rechercher mon itinéraire/i }))
 
     const results = await screen.findByRole('region', { name: /courses directes proposées/i })
@@ -826,6 +868,9 @@ describe('published snapshot in the app', () => {
       await Promise.resolve()
     })
     expect(screen.getByText(/Départ programmé dans 6 min/)).toBeTruthy()
+    expect(view.container.querySelector('.journey-countdown time')?.textContent).toBe('5:01')
+    act(() => vi.advanceTimersByTime(1000))
+    expect(view.container.querySelector('.journey-countdown time')?.textContent).toBe('5:00')
     await act(async () => {
       await vi.advanceTimersByTimeAsync(31_000)
     })
@@ -1109,13 +1154,13 @@ describe('governance console', () => {
 describe('décomptes dynamiques de l’Explorer', () => {
   it('fait descendre en temps réel le décompte des réseaux de référence', async () => {
     vi.useFakeTimers()
-    // Jeudi 8 octobre 2026, 12:00 UTC : BRT toutes les 6 min, TER toutes les 10 min.
+    // Jeudi 8 octobre 2026, 12:00 UTC : BRT toutes les 6 min, tronc commun TER toutes les 8 min.
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
 
-    // Les quatre réseaux affichent un compte à rebours numérique qui diminue avec le temps.
-    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(4)
+    // Seuls les deux résumés TER/BRT ont un créneau réseau.
+    expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
       expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
@@ -1136,17 +1181,16 @@ describe('décomptes dynamiques de l’Explorer', () => {
     }
   })
 
-  it('affiche DDD et AFTU / TATA dans les cartes existantes avec un compte à rebours', async () => {
+  it('ouvre les fiches DDD et AFTU / TATA sans inventer un départ pour tout le réseau', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-11-07T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    const expected = { ddd: '2 min', aftu_tata: '12 min' }
-    for (const [network, value] of Object.entries(expected)) {
+    for (const network of ['ddd','aftu_tata']) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('strong')?.textContent).toBe(value)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2}$/)
+      expect(passage?.querySelector('strong')?.textContent).toBe('Par arrêt')
+      expect(passage?.querySelector('small')?.textContent).toBe('Voir les lignes')
     }
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
@@ -1157,8 +1201,45 @@ describe('décomptes dynamiques de l’Explorer', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
     })
-    expect(container.querySelector('.network-item-ddd .network-summary-passage strong')?.textContent).toBe('1 min')
-    expect(container.querySelector('.network-item-aftu_tata .network-summary-passage strong')?.textContent).toBe('11 min')
+    expect(container.querySelector('.network-item-ddd .network-summary-passage time')).toBeNull()
+    expect(container.querySelector('.network-item-aftu_tata .network-summary-passage time')).toBeNull()
+    vi.useRealTimers()
+  })
+
+  it.each([
+    ['2026-11-22T03:00:00Z', 'FINISHED', 'Fin de service'],
+    ['2026-11-22T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
+    ['2026-12-25T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
+    ['2027-01-04T06:05:00Z', 'ACTIVE', '—'], // pas de calendrier férié confirmé
+  ])('distingue l’amplitude de Dakar du prochain passage déclaré à %s', (at, state, text) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(at))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+    const header = container.querySelector('.network-item-ter .network-summary-header')!
+    expect(header.getAttribute('data-service-status')).toBe(state)
+    expect(header.querySelector('.network-summary-passage strong')?.textContent).toBe(text)
+    expect(header.querySelector('time, .is-counting, .station-board-double-apostrophe')).toBeNull()
+    for (const id of ['ddd', 'aftu_tata']) {
+      const bus = container.querySelector(`.network-item-${id} .network-summary-header`)!
+      expect(bus.querySelector('.network-summary-passage strong')?.textContent).toBe('Par arrêt')
+      expect(bus.querySelector('time, .is-counting')).toBeNull()
+    }
+  })
+
+  it('la fermeture du modèle réseau n’éteint pas les derniers passages dans un sens', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-19T23:29:00Z'))
+    stubApi([{ match:'/api/network',respond:()=>jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+    const network = container.querySelector<HTMLButtonElement>('.network-item-ddd .network-summary-header')!
+    expect(network.textContent).toContain('Voir les lignes'); expect(network.querySelector('.station-board-double-apostrophe')).toBeNull()
+    fireEvent.click(network); const board = container.querySelector('[data-line-code="16B"]')!
+    const row = [...board.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.includes('Retour · fiche détaillée · Gare Palais'))!
+    expect(row.querySelector('time')?.dateTime).toBe('PT60S') // 23:30 depuis Gare Palais
+    fireEvent.click(container.querySelector('.bus-model-option input')!); fireEvent.click(row)
+    expect(board.querySelectorAll('.bus-occurrences li')).toHaveLength(82)
+    expect(board.querySelector<HTMLTimeElement>('.bus-occurrences li:last-child time')?.dateTime).toBe('PT540S') // 23:38 au rang 82
+    expect(board.querySelector('.bus-occurrences li:nth-child(15) time')).toBeNull() // modèle seul, sans compteur
     vi.useRealTimers()
   })
 
@@ -1169,8 +1250,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     const { container } = render(<App />)
 
-    // Les quatre réseaux décomptent : chacun affiche les deux arcs devant ses minutes.
-    for (const network of ['ter', 'brt', 'ddd', 'aftu_tata'] as const) {
+    // Pas d’horloge pour une moyenne de réseau bus. Les lignes avec grille restent vertes.
+    for (const network of ['ter', 'brt'] as const) {
       const passage = container.querySelector(`.network-item-${network} .network-summary-passage`)
       expect(passage?.textContent).toMatch(/\d+ min/)
       expect(passage?.querySelector('.station-board-double-apostrophe')).not.toBeNull()
@@ -1208,11 +1289,16 @@ describe('décomptes dynamiques de l’Explorer', () => {
       ['DDD', 'ddd'],
       ['AFTU', 'aftu_tata'],
     ] as const
+    const legend = within(screen.getByRole('region', { name: 'Réseaux de référence' }))
     for (const [label, network] of cases) {
-      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+      // Scope the accessible-name lookup to the four controls, not the entire
+      // timetable just expanded (hundreds of unrelated interactive rows).
+      const button = legend.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` })
+      fireEvent.click(button)
       expect(container.querySelector(`.network-item-${network}`)?.className).toContain('is-selected')
       expect(container.querySelector(`.network-item-${network} .network-summary-detail .station-board`)).not.toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: `Afficher les horaires et arrêts ${label}` }))
+      fireEvent.click(button)
+      expect(button.getAttribute('aria-pressed')).toBe('false')
     }
     vi.useRealTimers()
   })
@@ -1314,7 +1400,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(recenter()).toBe('')
 
     fireEvent.click(container.querySelector('.network-item-ter .network-summary-header')!)
-    fireEvent.click(within(container.querySelector('.station-board') as HTMLElement).getAllByText('Colobane')[0])
+    const outbound = container.querySelector('.station-direction-outbound') as HTMLElement
+    fireEvent.click(within(outbound).getByRole('button', { name: /^Colobane/ }))
     expect(recenter()).not.toBe('')
     vi.useRealTimers()
   })
@@ -1331,9 +1418,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const board = container.querySelector('.station-board') as HTMLElement
     expect(board).toBeTruthy()
     const firstOutboundRow = board.querySelector('.station-direction-outbound .station-board-row') as HTMLElement
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Fin de service')
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).toContain('Reprise demain')
-    expect(firstOutboundRow.querySelector('.station-board-passage')?.textContent).not.toMatch(/créneau|7 h/i)
+    const passage = firstOutboundRow.querySelector('.station-board-passage')!
+    expect(passage.textContent).toMatch(/Fin de serviceProchain créneau : 09\/10\/2026 à \d{2}:\d{2}/)
+    expect(passage.classList.contains('is-finished')).toBe(true)
+    expect(passage.querySelector('time, .passage-arcs')).toBeNull()
     vi.useRealTimers()
   })
 
@@ -1415,14 +1503,15 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(board.textContent).not.toMatch(/Estimation|créneau théorique/i)
     if (networkId === 'ddd') {
       expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
-      expect(board.textContent).toContain('En service')
-      expect(rows.every((row) => /^\d+ min$|^En service$|^Fin de service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      // 48 catalogue identities, one shared TO1 / TAF_TAF_TO1 sign.
+      const codes = new Set(rows.map(r => r.closest('[data-line-code]')!.getAttribute('data-line-code')))
+      expect(codes.size).toBe(47); expect(codes.has('TO1')).toBe(true); expect(codes.has('TAF_TAF_TO1')).toBe(false)
+      expect(rows.some(r => /^[1-9]\d* min$/.test(r.querySelector('.station-board-passage strong')!.textContent!))).toBe(true)
     } else {
       expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
-      expect(board.querySelectorAll('.station-board-direction-toggle')).toHaveLength(146)
       expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
-      expect(rows.every((row) => row.querySelector('.station-board-passage strong'))).toBe(true)
-      expect(rows.every((row) => /^\d+ min$|^En service$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      expect(rows.every((row) => /^([1-9]\d* min|—)$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      expect(board.querySelectorAll('[data-line-code="80"] .station-board-passage svg')).toHaveLength(0) // repères seuls, hors mode estimé
       fireEvent.click(rows[0])
       expect(rows[0].getAttribute('aria-expanded')).toBe('true')
       expect(rows[1].getAttribute('aria-expanded')).toBe('false')
@@ -1467,7 +1556,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
       expect(board).toBeTruthy()
       if (network === 'aftu_tata') {
         const directionButtons = [...board.querySelectorAll('.station-board-direction-toggle')]
-        expect(directionButtons).toHaveLength(146)
+        expect(directionButtons.length).toBeGreaterThanOrEqual(2 * 73) // distinct source variants may have additional rows
         expect(board.querySelectorAll('.station-board-line-group')).toHaveLength(73)
         fireEvent.click(directionButtons[0])
         const opened = directionButtons[0].closest('li')!

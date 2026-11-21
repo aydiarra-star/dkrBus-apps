@@ -1,0 +1,353 @@
+{
+  "scope": "SURVEY_ONLY",
+  "sourceRevision": "12668df487eb86dc31f845f0020c60650c6d6313",
+  "regionalJob": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44682883487/job/136110227623",
+  "aftuJob": "https://github.com/aydiarra-star/dkrBus-apps/actions/runs/44682883570/job/136110227472",
+  "attribution": "© OpenStreetMap contributors · ODbL 1.0 ; dessins : AFTU Sénégal (mesures seulement)",
+  "pbfSha256": "b68aa2f1a5745c471320e6afd6a7d624e70372da160b036df665308b66f70d58",
+  "regionalTopology": {
+    "extractSha256": "3e5cd6754c49c48d2d87de80e8e58a1cda97a4ec9867f2518f49d253ebb1a4f3",
+    "platforms": 967,
+    "touching": 57,
+    "directedPaths": 52,
+    "shared": 0,
+    "betweenRoles": 0
+  },
+  "sampleColumns": [
+    "fromLine",
+    "toLine",
+    "object",
+    "fromRelation",
+    "alightRank",
+    "previousMember",
+    "toRelation",
+    "boardRank",
+    "nextMember"
+  ],
+  "withinBusFamily": {
+    "ddd": {
+      "rankedCalls": 336,
+      "sharedObjects": 58,
+      "orderedOccurrences": 246,
+      "linkedObjects": 0,
+      "orderedLinePairsAtSameObject": 26,
+      "sample": [
+        [
+          "1",
+          "4",
+          "n4666430939",
+          6951328,
+          37,
+          "n4666430941",
+          7203970,
+          31,
+          "n4754514479"
+        ],
+        [
+          "1",
+          "7",
+          "n4666430941",
+          6951328,
+          36,
+          "n4666430943",
+          7500475,
+          30,
+          "n4754571946"
+        ],
+        [
+          "1",
+          "9",
+          "n4666430941",
+          6951328,
+          36,
+          "n4666430943",
+          7487218,
+          26,
+          "n4754571946"
+        ],
+        [
+          "10",
+          "23",
+          "n4323807985",
+          6990845,
+          27,
+          "n4363242527",
+          7495279,
+          31,
+          "n4363242542"
+        ],
+        [
+          "10",
+          "4",
+          "n4323807985",
+          6990845,
+          27,
+          "n4363242527",
+          6990830,
+          31,
+          "n4363242542"
+        ],
+        [
+          "10",
+          "7",
+          "n4754561629",
+          6990845,
+          3,
+          "n4754561630",
+          6990669,
+          3,
+          "n4754571947"
+        ],
+        [
+          "10",
+          "9",
+          "n4754561629",
+          6990845,
+          3,
+          "n4754561630",
+          6996431,
+          3,
+          "n4754571947"
+        ],
+        [
+          "23",
+          "10",
+          "n4323807985",
+          7495279,
+          31,
+          "n4755215627",
+          6990845,
+          27,
+          "n4363242542"
+        ],
+        [
+          "23",
+          "4",
+          "n4323807985",
+          7495279,
+          31,
+          "n4755215627",
+          6990830,
+          31,
+          "n4363242542"
+        ],
+        [
+          "23",
+          "7",
+          "n4666430946",
+          7495279,
+          7,
+          "n4755191564",
+          6990669,
+          8,
+          "n4666430948"
+        ],
+        [
+          "23",
+          "9",
+          "n4666430946",
+          7495279,
+          7,
+          "n4755191564",
+          6996431,
+          8,
+          "n4666430948"
+        ],
+        [
+          "4",
+          "1",
+          "n4666430939",
+          7203970,
+          31,
+          "n4754647800",
+          6951328,
+          37,
+          "n4754514479"
+        ],
+        [
+          "4",
+          "10",
+          "n4323807985",
+          6990830,
+          31,
+          "n4363242527",
+          6990845,
+          27,
+          "n4363242542"
+        ],
+        [
+          "4",
+          "23",
+          "n4323807985",
+          6990830,
+          31,
+          "n4363242527",
+          7495279,
+          31,
+          "n4363242542"
+        ],
+        [
+          "4",
+          "7",
+          "n4666430945",
+          7203970,
+          27,
+          "n4666430947",
+          7500475,
+          27,
+          "n4666430944"
+        ],
+        [
+          "4",
+          "9",
+          "n4666430945",
+          7203970,
+          27,
+          "n4666430947",
+          7487218,
+          23,
+          "n4666430944"
+        ],
+        [
+          "7",
+          "1",
+          "n4666430941",
+          7500475,
+          30,
+          "n4666430943",
+          6951328,
+          36,
+          "n4666430939"
+        ],
+        [
+          "7",
+          "10",
+          "n4754561629",
+          6990669,
+          3,
+          "n4754561630",
+          6990845,
+          3,
+          "n4754571947"
+        ]
+      ]
+    },
+    "aftu": {
+      "rankedCalls": 0,
+      "sharedObjects": 0,
+      "orderedOccurrences": 0,
+      "linkedObjects": 0,
+      "orderedLinePairsAtSameObject": 0,
+      "sample": []
+    }
+  },
+  "drawingSampleColumns": [
+    "endingLine",
+    "startingLine",
+    "finishLabel",
+    "startLabel",
+    "betweenSymbolsM",
+    "betweenLineEndsM"
+  ],
+  "aftuFinishToStartAt20m": {
+    "count": 49,
+    "sample": [
+      [
+        "75",
+        "65",
+        "TERMINUS GARE ROUTIERE COLOBANE",
+        "TERMINUS GARE COLOBANE",
+        0.4,
+        1.4
+      ],
+      [
+        "75",
+        "60",
+        "TERMINUS GARE ROUTIERE COLOBANE",
+        "TERMINUS COLOBANE",
+        0.5,
+        1.6
+      ],
+      [
+        "39",
+        "59",
+        "TERMINUS DIAMALAYE",
+        "TERMINUS DIAMALAYE",
+        1.8,
+        1.0
+      ],
+      [
+        "42",
+        "43",
+        "TERMINUS OUAKAM BAYE",
+        "TERMINUS OUAKAME",
+        1.3,
+        2.4
+      ],
+      [
+        "39",
+        "80",
+        "TERMINUS DIAMALAYE",
+        "TERMINUS DIAMALAYE",
+        2.7,
+        3.5
+      ],
+      [
+        "52",
+        "56",
+        "TERMINUS JAXAAY",
+        "TERMINUS JAXAAY",
+        3.8,
+        2.7
+      ],
+      [
+        "52",
+        "51",
+        "TERMINUS JAXAAY",
+        "TERMINUS JAXAAY",
+        2.8,
+        5.1
+      ],
+      [
+        "76",
+        "56",
+        "TERMINUS CITE ASSURANCE",
+        "TERMINUS JAXAAY",
+        3.3,
+        5.4
+      ],
+      [
+        "51",
+        "52",
+        "TERMINUS GARE DES BEAUX MARAÎCHERS",
+        "TERMINUS BEAUX MARAÎCHERS",
+        3.8,
+        5.9
+      ],
+      [
+        "32",
+        "70",
+        "TERMINUS SERIGNE ASSANE",
+        "TERMINUS DAROUKHANE KEUR SERIGNE ASSANE",
+        6.3,
+        4.4
+      ],
+      [
+        "76",
+        "51",
+        "TERMINUS CITE ASSURANCE",
+        "TERMINUS JAXAAY",
+        2.0,
+        6.3
+      ],
+      [
+        "65",
+        "51",
+        "TERMINUS JAXAAY 2",
+        "TERMINUS JAXAAY",
+        4.6,
+        6.8
+      ]
+    ]
+  }
+}

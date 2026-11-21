@@ -1,10 +1,9 @@
 // @vitest-environment jsdom
 /**
- * Ce que la carte reçoit réellement : le TER est dessiné avec la géométrie des
- * voies, les autres mobilités gardent exactement leur dessin d'avant.
+ * Contrats des couches Leaflet : tracés directionnels et accès aux points indépendants.
  */
 import type { ReactNode } from 'react'
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ALL_CORRIDOR_STOPS, CORRIDOR_LINES, TER_STOPS, type CorridorLine } from '../domain/corridors'
 import { TER_TRACK } from '../domain/terTrackGeometry'
@@ -17,19 +16,22 @@ interface DrawnPolyline {
   pathOptions: { color: string; weight: number; opacity: number; dashArray?: string; dashOffset?: string; className?: string; lineCap?: string; lineJoin?: string }
 }
 
-const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[] }))
+const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[], fitBounds: vi.fn() }))
 
 vi.mock('react-leaflet', () => {
   const Layer = ({ children }: { children?: ReactNode }) => <>{children}</>
   const Leaf = () => null
+  const container = document.body.appendChild(document.createElement('div'))
   const map = {
     attributionControl: { setPrefix: () => undefined },
-    fitBounds: () => undefined,
+    fitBounds: drawn.fitBounds,
     flyTo: () => undefined,
-    getZoom: () => 12,
+    getZoom: () => 19, getMaxZoom: () => 19,
+    getSize: () => ({ x: 1000, y: 800 }),
+    latLngToContainerPoint: ([lat, lng]: number[]) => ({ x: (lng + 17.4) * 400000, y: (14.7 - lat) * 400000 }),
     setZoom: () => undefined,
     invalidateSize: () => undefined,
-    getContainer: () => document.createElement('div'),
+    getContainer: () => container,
   }
   return {
     MapContainer: Layer,
@@ -39,7 +41,8 @@ vi.mock('react-leaflet', () => {
     CircleMarker: Leaf,
     Marker: (props: Record<string, unknown>) => {
       drawn.markers.push(props)
-      return null
+      const handlers = props.eventHandlers as { click: (e: unknown) => void }
+      return <button type="button" onClick={e => handlers.click({ target: { getElement: () => e.currentTarget } })}>{String(props.title)}</button>
     },
     Rectangle: Leaf,
     Polyline: (props: Record<string, unknown>) => {
@@ -152,92 +155,24 @@ describe('carte : tracé du TER sur les voies réelles', () => {
   })
 })
 
-describe('carte : libellés texte des arrêts et exclusivité des corridors', () => {
-  it('affiche uniquement le texte TER aux gares TER et aucun autre réseau sur la géométrie ferroviaire', () => {
+describe('carte : sélection des points sans exclusivité de voie', () => {
+  it('ouvre les trois identités et seulement les liens déclarés à Petersen, même au zoom maximal', () => {
     drawMap()
-    const markers = drawn.markers as Array<{
-      position: [number, number]
-      icon: { options: { html: string | HTMLElement; iconSize: [number, number] } }
-    }>
-
-    for (const stop of TER_STOPS) {
-      const atStation = markers.filter((marker) =>
-        marker.position[0] === stop.lat && marker.position[1] === stop.lon,
-      )
-      expect(atStation.length, stop.name).toBeGreaterThan(0)
-      expect(atStation.every((marker) => String(marker.icon.options.html).includes('data-mobility="ter"') && String(marker.icon.options.html).includes('>TER</span>')), stop.name).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: /points sur la carte.*autour de Petersen/ }))
+    const panel = screen.getByRole('dialog', { name: 'Points sur la carte' })
+    for (const id of ['brt-petersen', 'ddd-petersen', 'aftu-petersen']) {
+      expect(panel.querySelector(`[data-point-key="ref:${id}"]`)).not.toBeNull()
     }
-
-    for (const marker of markers) {
-      const nearTerTrack = TER_TRACK.positions.slice(1).some((end, index) => {
-        const start = TER_TRACK.positions[index]
-        const lat = (start[0] + end[0]) / 2
-        const meters = Math.hypot(
-          (marker.position[0] - lat) * 111_000,
-          (marker.position[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
-        )
-        return meters <= 35
-      })
-      if (nearTerTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="ter"')
-      expect(String(marker.icon.options.html)).toContain('mobility-stop-label')
-      expect(String(marker.icon.options.html)).not.toContain('mobility-stop-badge')
-      expect(String(marker.icon.options.html)).not.toContain('background:')
-    }
-
-    for (const marker of markers) {
-      const nearBrtTrack = BRT_B1_TRACKS.some((track) => track.positions.slice(1).some((end, index) => {
-        const start = track.positions[index]
-        const lat = (start[0] + end[0]) / 2
-        const meters = Math.hypot(
-          (marker.position[0] - lat) * 111_000,
-          (marker.position[1] - (start[1] + end[1]) / 2) * 111_000 * Math.cos(lat * Math.PI / 180),
-        )
-        return meters <= 35
-      }))
-      if (nearBrtTrack) expect(String(marker.icon.options.html)).toContain('data-mobility="brt"')
-    }
+    const brt = panel.querySelector('[data-point-key="ref:brt-petersen"]')!
+    expect(brt.textContent).toContain('Pôle commun déclaré : DDD')
+    expect(brt.textContent).toContain('Marche de référence, chemin non vérifié : TER')
+    expect(brt.querySelectorAll('[data-peer]')).toHaveLength(3)
+    fireEvent.keyDown(within(panel).getByRole('button', { name: 'Fermer les points' }), { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).toBeNull()
   })
-
-  it.each([
-    ['brt', 'BRT'],
-    ['ddd', 'DDD'],
-    ['aftu_tata', 'AFTU'],
-  ] as const)('affiche uniquement le sigle %s sur ses arrêts', (network, label) => {
-    const lines = lineOf(network)
-    const networkStopIds = new Set(lines.flatMap((line) => line.stopIds))
-    const networkStops = ALL_CORRIDOR_STOPS.filter((stop) => networkStopIds.has(stop.id))
-    drawMap(lines, networkStops)
-    const markers = drawn.markers as Array<{ position: [number, number]; icon: { options: { html: string | HTMLElement; iconSize: [number, number] } } }>
-    const expectedPositions = new Set(networkStops.map((stop) => `${stop.lat},${stop.lon}`))
-    const stopMarkers = markers.filter((marker) => expectedPositions.has(`${marker.position[0]},${marker.position[1]}`))
-    expect(stopMarkers.length).toBeGreaterThan(0)
-    expect(stopMarkers.every((marker) =>
-      String(marker.icon.options.html).includes(`data-mobility="${network}"`) &&
-      (network === 'aftu_tata'
-        ? />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html))
-        : String(marker.icon.options.html).includes(`>${label}</span>`)) &&
-      String(marker.icon.options.html).includes('mobility-stop-label') &&
-      !String(marker.icon.options.html).includes('mobility-stop-badge'),
-    )).toBe(true)
-    if (network === 'aftu_tata') {
-      expect(stopMarkers.every((marker) => />(AFTU|TATA)<\/span>/.test(String(marker.icon.options.html)))).toBe(true)
-    }
-  })
-
-  it('identifie les arrêts sans réseau déclaré par le libellé BUS', () => {
-    drawMap([], [{
-      id: 'bus-stop-test',
-      name: 'Arrêt bus test',
-      lat: 14.7,
-      lon: -17.4,
-      order: 0,
-      aliases: [],
-    }])
-    const markers = drawn.markers as Array<{ position: [number, number]; icon: { options: { html: string | HTMLElement } } }>
-    const testMarkers = markers.filter((marker) => marker.position[0] === 14.7 && marker.position[1] === -17.4)
-    expect(testMarkers).toHaveLength(1)
-    expect(String(testMarkers[0].icon.options.html)).toContain('data-mobility="bus"')
-    expect(String(testMarkers[0].icon.options.html)).toContain('>BUS</span>')
+  it('identifie un arrêt sans réseau déclaré comme BUS', () => {
+    drawMap([], [{ id: 'bus-stop-test', name: 'Arrêt bus test', lat: 14.7, lon: -17.4, order: 0, aliases: [] }])
+    expect(screen.getByRole('button', { name: 'BUS — Arrêt bus test' })).toBeTruthy()
   })
 })
 
@@ -278,6 +213,15 @@ describe('carte : les autres mobilités ne changent pas', () => {
 
 
 describe('carte de trajet, distincte de la carte de référence', () => {
+  it.each([true,false])('honours reduced motion (%s) when fitting the actual journey bounds', reduce => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduce && query === '(prefers-reduced-motion: reduce)' }))
+    try {
+      drawn.fitBounds.mockClear()
+      const positions = [[14.67,-17.43],[14.70,-17.44]] as const
+      drawMap([], [], [{ id:'view-test', network:'ter', positions }], true)
+      expect(drawn.fitBounds).toHaveBeenCalledWith(positions, expect.objectContaining({ animate:!reduce, maxZoom:15 }))
+    } finally { vi.unstubAllGlobals() }
+  })
   it('draws the exact selected Dakar ride and its calls, not whole lines, both directions or unrelated stops', () => {
     const result = search(dakarNetwork, { origin: 'ter-colobane', destination: 'ter-pikine', departAt: Date.parse('2026-11-18T08:01Z') / 1000 })
     if (!result.ok) throw Error(result.message)
@@ -297,14 +241,16 @@ it('picking a marker keeps its namespace even if a published ID and coordinates 
   const s = TER_STOPS[0], choose = vi.fn(), open = vi.fn()
   render(<TransitMap location={null} routePoints={{}} pickingPoint="origin" recenterTo={null} zoomAction={null}
     onChoosePoint={choose} corridorLines={CORRIDOR_LINES} corridorStops={[s]} onSelectStop={open} onSelectCorridorStop={open}
-    publishedStops={[{ stopId: s.id, stopName: 'Arrêt du flux QA', lat: s.lat, lon: s.lon, distanceM: null, locationType: null, parentStation: null }]} />)
-  const markers = drawn.markers as { title: string; eventHandlers?: { click: () => void } }[]
-  const pick = (title: RegExp) => markers.find(m => title.test(m.title))!.eventHandlers!.click()
-  pick(/^Yoff$/); pick(/— Dakar$/); pick(/^Arrêt du flux QA$/)
+    publishedStops={[{ snapshotId: 'édition-qa', stopId: s.id, stopName: 'Arrêt du flux QA', lat: s.lat, lon: s.lon, distanceM: null, locationType: null, parentStation: null }]} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Yoff' }))
+  for (const name of ['Choisir ce point : TER — Dakar', 'Choisir ce point : Arrêt du flux QA']) {
+    fireEvent.click(screen.getByRole('button', { name: /points sur la carte.*autour de Dakar$/ }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name }))
+  }
   expect(choose.mock.calls.map(([p]) => p)).toEqual([
     expect.objectContaining({ landmarkId: 'landmark:yoff', kind: 'map' }),
     { label: s.name, stopId: s.id, lat: s.lat, lng: s.lon },
-    { label: 'Arrêt du flux QA', kind: 'stop', stopId: s.id, lat: s.lat, lng: s.lon },
+    { label: 'Arrêt du flux QA', kind: 'stop', snapshotId: 'édition-qa', stopId: s.id, lat: s.lat, lng: s.lon },
   ])
   expect(open).not.toHaveBeenCalled()
 })

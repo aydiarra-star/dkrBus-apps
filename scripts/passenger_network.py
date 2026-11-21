@@ -67,6 +67,8 @@ def _coord(lat: str | float, lon: str | float) -> dict:
 
 def _physical(sid: str, place_id: str) -> str:
     # A reviewed landmark entrance deliberately retains its local identity.
+    # Street-map markers are a separate, non-walkable namespace.
+    require(isinstance(place_id, str) and place_id.strip() and not place_id.startswith("landmark:bus-osm-"), "Un repère de carte ne peut pas devenir un accès voyageur.")
     return place_id if place_id.startswith("landmark:") else f"access:{sid}:{place_id}"
 
 
@@ -76,20 +78,70 @@ def _binding(sid: str, row: dict) -> dict:
 
 
 def _links(sid: str, raw: dict) -> dict:
-    require(not set(raw) - {"places", "footways", "platformBindings"}, "Les liaisons ne peuvent pas injecter de services.")
+    require(not set(raw) - {"places", "footways", "platformBindings", "samePlatformChanges"}, "Les liaisons ne peuvent pas injecter de services.")
     result = {"places": [], "footways": [], "platformBindings": [], "patterns": []}
     for p in raw.get("places", []):
         require(p["kind"] in ("entrance", "path", "platform"), "Un accès ne peut pas créer un arrêt de ligne.")
         result["places"].append({"id": _physical(sid, p["id"]), "name": p["name"], "kind": p["kind"],
                                  "evidence": _proof(p["evidence"]), **_coord(p["lat"], p["lon"])})
     for w in raw.get("footways", []):
-        result["footways"].append({**{k: w[k] for k in ("kind", "name", "access", "stepFree", "crossingsAndBarriersChecked")},
+        require("onlyFor" not in w or w["onlyFor"] in ("access", "egress"), "Usage du cheminement inconnu.")
+        timing = {}
+        if "transferTiming" in w:
+            t = w["transferTiming"]
+            require(isinstance(t, dict) and set(t) == {"from", "to", "seconds", "evidence"}
+                    and (t["from"], t["to"]) == (w["from"], w["to"]) and type(t["seconds"]) is int
+                    and 0 < t["seconds"] < 86400, "Chronométrage de marche absent, invalide ou dans l’autre sens.")
+            timing["transferTiming"] = {"from": _physical(sid, t["from"]), "to": _physical(sid, t["to"]),
+                                        "seconds": t["seconds"], "evidence": _proof(t["evidence"])}
+        result["footways"].append({**timing, **{k: w[k] for k in ("kind", "name", "access", "stepFree", "crossingsAndBarriersChecked")},
+                                  **({"onlyFor": w["onlyFor"]} if "onlyFor" in w else {}),
                                   "id": _physical(sid, w["id"]), "from": _physical(sid, w["from"]), "to": _physical(sid, w["to"]),
                                   "positions": [_coord(v["lat"], v["lon"]) for v in w["positions"]], "evidence": _proof(w["evidence"])})
     # Optionally bind an observed platform to a local TER/B1 call. Admission
     # still requires the exact line, direction, call, role and shape position.
     for b in raw.get("platformBindings", []):
         result["platformBindings"].append({**_binding(sid, b), **{k: b[k] for k in ("lineId", "mode", "direction")}})
+    return result
+
+
+def _same_platform_changes(sid, review, active):
+    """A pair of sidecar direction IDs, NOT all lines serving a station. Expand
+    only profiles actually supplied for this service day. No implied reverse."""
+    links = review.get("links", {})
+    changes = links.get("samePlatformChanges", [])
+    require(isinstance(changes, list) and len(changes) <= 5000, "Liste de changements au même quai invalide.")
+    by_key = {d["id"]: d for d in review["directions"]}
+    platforms = {p["id"] for p in links.get("places", []) if p["kind"] == "platform"}
+    result, seen = [], set()
+    for c in changes:
+        require(isinstance(c, dict) and set(c) == {"alight", "board", "platformId", "stepFree", "minimumSeconds", "evidence"},
+                "Un changement au même emplacement ne peut pas inclure de voie ou de porte.")
+        quay, seconds, access = c["platformId"], c["minimumSeconds"], c["stepFree"]
+        require(quay in platforms and not quay.startswith("landmark:") and type(seconds) is int and 0 < seconds < 86400 and
+                access in ("yes", "unknown", "no"), "Quai ou délai du changement non vérifié.")
+        evidence = _proof(c["evidence"])
+        ends = []
+        for role in ("alight", "board"):
+            end = c[role]
+            require(isinstance(end, dict) and set(end) == {"directionKey", "stopId"}, "Appel du changement non identifié.")
+            d, stop = by_key[end["directionKey"]], end["stopId"]
+            require(stop in (d["stop_ids"][1:] if role == "alight" else d["stop_ids"][:-1]), "Rôle impossible à cet appel.")
+            bindings = [b for b in d.get("platformBindings", []) if b["role"] == role and b["stopId"] == stop]
+            require(len(bindings) == 1 and bindings[0]["platformId"] == quay, "Les deux rôles doivent être liés au même quai précis.")
+            ends.append((d, stop))
+        (a, first), (b, second) = ends
+        pair = (a["id"], first, b["id"], second)
+        require(pair not in seen and (a["route_id"], a["direction_id"]) != (b["route_id"], b["direction_id"]), "Changement au même quai ambigu ou dupliqué.")
+        seen.add(pair)
+        require(len(result) + len(active[a["id"]]) * len(active[b["id"]]) <= 5000, "Trop de changements au même quai pour l’édition mobile.")
+
+        def ref(d, stop, line):
+            return {"mode": d["mode"], "lineId": line, "direction": d["direction"], "stopId": f"gtfs:{sid}:stop:{stop}"}
+        for inbound in active[a["id"]]:
+            for outbound in active[b["id"]]:
+                result.append({"platformId": _physical(sid, quay), "alight": ref(a, first, inbound), "board": ref(b, second, outbound),
+                               "minimumSeconds": seconds, "stepFree": access, "evidence": evidence})
     return result
 
 
@@ -129,6 +181,7 @@ def _profiles(conn, d, ids, dated, frequency, inaccessible: bool) -> dict:
                 all((v.get("drop_off_type") or "0") == "0" for v in times[1:]) and
                 not any(v.get(k) for v in times for k in ("start_pickup_drop_off_window", "end_pickup_drop_off_window", "pickup_booking_rule_id", "drop_off_booking_rule_id")),
                 "Restrictions de montée/descente non prises en charge.")
+        require(all((v.get("timepoint") or "1") == "1" for v in times), "Heures de passage approximatives non admises dans cette édition datée.")
         arrivals = [_clock(v["arrival_time"]) for v in times]
         departures = [_clock(v["departure_time"]) for v in times]
         require(all(b >= a and (i == 0 or a > departures[i-1]) for i, (a, b) in enumerate(zip(arrivals, departures))), "Horaires non monotones.")
@@ -170,6 +223,7 @@ def _compiled(root: Path, sid: str, digest: str, day: date, midnight: int, raw: 
     require(isinstance(directions, list) and 0 < len(directions) <= 1000, "Périmètre de lignes invalide.")
     dataset = _links(sid, review.get("links", {}))
     seen, keys, places = set(), set(), {}
+    active = defaultdict(list)
     projection_work = 0
     with closing(connect_read_only(root / sid)) as conn:
         dated, frequency = _validated_service_day(conn, day)
@@ -208,6 +262,7 @@ def _compiled(root: Path, sid: str, digest: str, day: date, midnight: int, raw: 
             require(projection_work <= 2_000_000 and len(dataset["patterns"]) + len(groups) <= 2000, "Édition trop grande pour le calcul mobile.")
             for i, ((arrivals, departures, step_free), runs) in enumerate(sorted(groups.items())):
                 line = f"gtfs:{sid}:{key}:{i}"
+                active[key].append(line)
                 dataset["patterns"].append({
                     "network": network, **({"busFamily": mode} if network == "aftu_tata" else {}), "lineId": line,
                     "name": dict(r).get("route_short_name") or dict(r).get("route_long_name") or route, "direction": label,
@@ -220,6 +275,8 @@ def _compiled(root: Path, sid: str, digest: str, day: date, midnight: int, raw: 
                 for b in d.get("platformBindings", []):
                     dataset["platformBindings"].append({**_binding(sid, b), "stopId": f"gtfs:{sid}:stop:{b['stopId']}",
                                                        "lineId": line, "mode": mode, "direction": label})
+    if "samePlatformChanges" in review.get("links", {}):
+        dataset["samePlatformChanges"] = _same_platform_changes(sid, review, active)
     dataset["places"].extend(places.values())
     pack = {"version": 1, "snapshot_id": sid, "date": day.isoformat(), "attribution": review["attribution"],
             "revision": hashlib.sha256(raw).hexdigest(), "dataset": dataset}

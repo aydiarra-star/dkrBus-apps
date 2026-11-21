@@ -40,3 +40,19 @@ it('checks the second service cannot already be over; a working northbound B1 se
   expect(planDakarJourney(x, y, { departAt: at('20:55') })).toMatchObject({ ok: false, code: 'NO_SERVICE' })
   expect(planDakarJourney(x, a, q).ok).toBe(false)
 })
+
+it('names the 121 terminus as a separate enquiry, not a B1 connection from the central platform', () => {
+  const r = prepareChanges(dakarNetwork, stop('brt-prefecture-guediawaye'), stop('ddd-petersen'), q)
+  expect(r.find(x => x.hub === 'Scat Urbam')).toMatchObject({ before: { kind: 'section', line: 'B1' }, after: { kind: 'sheet', line: 'DDD 121', from: 'Terminus Scat Urbam', to: 'Petersen' } })
+  expect(planDakarJourney(stop('brt-prefecture-guediawaye'), stop('ddd-petersen'), q).ok).toBe(false)
+})
+
+
+it('shows the signed GT-54 pole only for the documented 18/39 directions, never as a reachable change', () => {
+  const a = stop('ddd-colobane'), b = stop('aftu-diamalaye'), hub = 'Gueule Tapée · rue GT-54'
+  const r = planDakarJourney(a,b,q)
+  if (r.ok) throw Error('No compatible services for this date')
+  expect(r.changesToCheck?.find(c=>c.hub===hub)).toMatchObject({before:{line:'DDD 18'},after:{line:'AFTU 39'},poleUrl:'https://www.openstreetmap.org/node/2175197258'})
+  for (const settings of [{modes:['ddd','tata'] as const},{maxChanges:0},{stepFreeOnly:true}]) expect(prepareChanges(dakarNetwork,a,b,{...q,...settings}).some(c=>c.hub===hub)).toBe(false)
+  expect(prepareChanges(dakarNetwork,b,a,q).some(c=>c.hub===hub)).toBe(false)
+})

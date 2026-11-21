@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { EstimatedLineScheduleBoard } from './EstimatedLineScheduleBoard'
@@ -48,9 +48,9 @@ describe('PassageArcs', () => {
     expect(css).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{\s*\.station-board-double-apostrophe\s*\{\s*animation:\s*none;/)
   })
 
-  it('affiche exactement le même tracé sur tous les horaires de toutes les mobilités (TER, BRT, DDD, AFTU / TATA)', () => {
+  it('garde les mêmes arcs TER/BRT et bus sur les minutes sourcées, jamais sur le résumé bus ni sur un modèle TATA', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+    vi.setSystemTime(new Date('2026-11-19T12:00:00.000Z'))
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false, status: 404, json: async () => ({ error: 'NOT_FOUND' }) })))
 
     const expectedSvgHtml = render(<PassageArcs />).container.querySelector('svg')!.outerHTML
@@ -59,13 +59,21 @@ describe('PassageArcs', () => {
     const { container } = render(<App />)
 
     for (const network of ['ter', 'brt', 'ddd', 'aftu_tata'] as const) {
-      const summaryPassage = container.querySelector(`.network-item-${network} .network-summary-passage strong`)
-      expect(summaryPassage?.textContent).toMatch(/\d+ min/)
-      const summaryIcon = summaryPassage?.querySelector('svg.station-board-double-apostrophe')
-      expect(summaryIcon?.outerHTML).toBe(expectedSvgHtml)
+      const item = container.querySelector(`.network-item-${network}`)!
+      const header = item.querySelector('.network-summary-header')!
+      const summaryPassage = header.querySelector('.network-summary-passage strong')!
+      const summaryIcon = summaryPassage.querySelector('svg.station-board-double-apostrophe')
+      if (network === 'ter' || network === 'brt') {
+        expect(summaryPassage.textContent).toMatch(/[1-9]\d* min/)
+        expect(summaryIcon?.outerHTML).toBe(expectedSvgHtml)
+      } else {
+        expect(summaryPassage.textContent).toBe('Par arrêt')
+        expect(header.querySelector('time, [role="timer"]')).toBeNull()
+        expect(summaryIcon).toBeNull()
+      }
 
-      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
-      const board = container.querySelector('.station-board') as HTMLElement
+      fireEvent.click(header)
+      const board = item.querySelector('.station-board') as HTMLElement
       expect(board).toBeTruthy()
       const countdowns = Array.from(board.querySelectorAll('.station-board-passage strong'))
         .filter((strong) => /\d+ min/.test(strong.textContent ?? ''))
@@ -73,7 +81,14 @@ describe('PassageArcs', () => {
       for (const strong of countdowns) {
         expect(strong.querySelector('svg.station-board-double-apostrophe')?.outerHTML).toBe(expectedSvgHtml)
       }
-      fireEvent.click(container.querySelector(`.network-item-${network} .network-summary-header`)!)
+      if (network === 'aftu_tata') {
+        fireEvent.click(within(board).getByRole('button', {name:'TATA'}))
+        expect(board.querySelectorAll('.station-board-double-apostrophe')).toHaveLength(0)
+        fireEvent.click(within(board).getByRole('checkbox', {name:'Inclure les passages estimés'}))
+        expect(board.textContent).toMatch(/Vers \d{2}:\d{2}/)
+        expect(board.querySelector('svg.station-board-double-apostrophe, time, [role="timer"]')).toBeNull()
+      }
+      fireEvent.click(header)
     }
   })
 

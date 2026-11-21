@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { DDD_ARCGIS_MAP_QUERIES } from './src/data/dddBanlieueArcgisRegistry.ts'
 
 /**
  * Politique de sécurité de contenu, injectée uniquement au build de production.
@@ -12,7 +13,7 @@ const PRODUCTION_CSP = [
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
-  "connect-src 'self'",
+  `connect-src 'self' ${DDD_ARCGIS_MAP_QUERIES.join(' ')}`,
   "font-src 'self' data:",
   "manifest-src 'self'",
   "worker-src 'self'",
@@ -70,6 +71,25 @@ export default defineConfig({
               // Shared by the application and the lazily loaded route-audit panel.
               // Keep it in its own chunk so the audit panel never imports the entry chunk.
               test: /bidirectionalBusLines|publicBusLineCatalog|dddPublishedRoutes/,
+            },
+            {
+              name: 'bus-geography',
+              priority: 15,
+              test: /[\\/]src[\\/](?:data[\\/](?:busSection(?:Review|Ways)|reviewedPassengerLinks)|routing[\\/](?:geometry|busGeography)|domain[\\/](?:roadNetworkRouting|routeGeometrySlice))\.ts$/,
+            },
+            {
+              name: 'passenger-graph',
+              priority: 15,
+              // Pure admission and scan, shared by local and dated editions.
+              test: /[\\/]src[\\/]routing[\\/](?:network|search|walking|ranking|serviceTime|vehicleGraph|samePlatformChanges|passengerEdition)\.ts$/,
+            },
+            {
+              // Explorer and the lazy TER board share this clock. Neither should
+              // have to import the application entry to project a passage.
+              name: 'reference-clock',
+              priority: 16,
+              includeDependenciesRecursively: false,
+              test: /[\\/]src[\\/]domain[\\/](?:headways|frequencies|senegalPublicHolidays)\.ts$/,
             },
             {
               name: 'schedule-board',

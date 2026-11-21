@@ -1,0 +1,368 @@
+{
+  "baseRevision": "1c720c699aebf3f546db563d1b6a163eb2432b11",
+  "atDakar": "2026-11-19T19:00",
+  "filters": "sans édition opérateur, tous réseaux, trois changements maximum, accessibilité non stricte",
+  "cohorts": {
+    "144": {
+      "ids": "../bus-sections/selection-0c6cf56.json",
+      "pairs": 20592,
+      "before": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4804,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 13654
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "diagnosis": {
+          "minimumChanges": {
+            "direct": 716,
+            "one": 0,
+            "multiple": 0
+          },
+          "usesMode": {
+            "ter": 78,
+            "brt": 638,
+            "ddd": 0,
+            "aftu": 0,
+            "tata": 0
+          },
+          "refusalsByCode": {
+            "OUT_OF_SCOPE": 286,
+            "NO_PATH": 844,
+            "UNVERIFIED_ACCESS": 18638,
+            "DOCUMENTED_SECTION_ONLY": 108
+          }
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162",
+        "movementSha256": "f728e23c4c436225e508d2ed2b635f774ce65153a62cd2c4af636acc99f9327e"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 716,
+          "exactBusMap": 108,
+          "stopSection": 4804,
+          "nearbyBusMap": 0,
+          "changeLead": 979,
+          "lineSheet": 331,
+          "noProposal": 13654
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 0
+        },
+        "diagnosis": {
+          "minimumChanges": {
+            "direct": 716,
+            "one": 0,
+            "multiple": 0
+          },
+          "usesMode": {
+            "ter": 78,
+            "brt": 638,
+            "ddd": 0,
+            "aftu": 0,
+            "tata": 0
+          },
+          "refusalsByCode": {
+            "OUT_OF_SCOPE": 286,
+            "NO_PATH": 844,
+            "UNVERIFIED_ACCESS": 18638,
+            "DOCUMENTED_SECTION_ONLY": 108
+          }
+        },
+        "wholeJourneySha256": "8b88d089a4f8fe5a998e82f6c00d964275a2de3e2c3b7d30b832a54506dbf162",
+        "movementSha256": "f728e23c4c436225e508d2ed2b635f774ce65153a62cd2c4af636acc99f9327e"
+      }
+    },
+    "150": {
+      "ids": "../bus-sections/selection-1c720c6.json",
+      "pairs": 22350,
+      "before": {
+        "exclusive": {
+          "whole": 731,
+          "exactBusMap": 108,
+          "stopSection": 5040,
+          "nearbyBusMap": 0,
+          "changeLead": 976,
+          "lineSheet": 334,
+          "noProposal": 15161
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 15
+        },
+        "diagnosis": {
+          "minimumChanges": {
+            "direct": 731,
+            "one": 0,
+            "multiple": 0
+          },
+          "usesMode": {
+            "ter": 78,
+            "brt": 638,
+            "ddd": 15,
+            "aftu": 0,
+            "tata": 0
+          },
+          "refusalsByCode": {
+            "OUT_OF_SCOPE": 298,
+            "NO_PATH": 1339,
+            "UNVERIFIED_ACCESS": 19874,
+            "DOCUMENTED_SECTION_ONLY": 108
+          }
+        },
+        "wholeJourneySha256": "e36444488a415f31674646d0559152cc5addc2ab8fd11428e4e9eaf85074b2a5",
+        "movementSha256": "e52dea221c8b05d325f468aaee574a273a219b1e7d1a010ee7f0b8457842d63d"
+      },
+      "after": {
+        "exclusive": {
+          "whole": 731,
+          "exactBusMap": 108,
+          "stopSection": 5050,
+          "nearbyBusMap": 0,
+          "changeLead": 979,
+          "lineSheet": 331,
+          "noProposal": 15151
+        },
+        "includes": {
+          "accessWalk": 44,
+          "egressWalk": 44,
+          "transferWalk": 0,
+          "samePositionChange": 0,
+          "anyChange": 0,
+          "bus": 15
+        },
+        "diagnosis": {
+          "minimumChanges": {
+            "direct": 731,
+            "one": 0,
+            "multiple": 0
+          },
+          "usesMode": {
+            "ter": 78,
+            "brt": 638,
+            "ddd": 15,
+            "aftu": 0,
+            "tata": 0
+          },
+          "refusalsByCode": {
+            "OUT_OF_SCOPE": 298,
+            "NO_PATH": 1339,
+            "UNVERIFIED_ACCESS": 19874,
+            "DOCUMENTED_SECTION_ONLY": 108
+          }
+        },
+        "wholeJourneySha256": "5e281600654a0ea2a4ad808880ea8da664f2e16339f3c264e17d93c0322cb1f8",
+        "movementSha256": "e52dea221c8b05d325f468aaee574a273a219b1e7d1a010ee7f0b8457842d63d"
+      }
+    }
+  },
+  "modePairs150": {
+    "beforeEqualsAfter": true,
+    "atDakar": "2026-11-19T19:00",
+    "points": 150,
+    "orderedPairsPerFilter": 22350,
+    "selectionSha256": "dee9144475028b412ac0b21b8bbc488e12de345a36dde56df13c94625388b370",
+    "results": [
+      {
+        "modes": [
+          "ddd",
+          "aftu"
+        ],
+        "whole": 15,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 15,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1877,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 20052,
+          "DOCUMENTED_SECTION_ONLY": 108
+        },
+        "movementSha256": "cbce121d078f61ad1b8b77f55e29657ca944f81a861889f9c28e423a54ac34f1"
+      },
+      {
+        "modes": [
+          "ddd",
+          "tata"
+        ],
+        "whole": 15,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 15,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1877,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 20063,
+          "DOCUMENTED_SECTION_ONLY": 97
+        },
+        "movementSha256": "cbce121d078f61ad1b8b77f55e29657ca944f81a861889f9c28e423a54ac34f1"
+      },
+      {
+        "modes": [
+          "aftu",
+          "tata"
+        ],
+        "whole": 0,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 0,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1892,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 20138,
+          "DOCUMENTED_SECTION_ONLY": 22
+        },
+        "movementSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "modes": [
+          "ter",
+          "ddd"
+        ],
+        "whole": 93,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 93,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "OUT_OF_SCOPE": 298,
+          "NO_PATH": 1799,
+          "UNVERIFIED_ACCESS": 20069,
+          "DOCUMENTED_SECTION_ONLY": 91
+        },
+        "movementSha256": "7d284261cbaa101b82bbf7a1dea6e490a15c688c5a5a1c1e5ea6b93f7c0e218c"
+      },
+      {
+        "modes": [
+          "ter",
+          "aftu"
+        ],
+        "whole": 78,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 78,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "OUT_OF_SCOPE": 298,
+          "NO_PATH": 1814,
+          "UNVERIFIED_ACCESS": 20138,
+          "DOCUMENTED_SECTION_ONLY": 22
+        },
+        "movementSha256": "d816b9396ffaf3c5ef31ef825717131c857bd63d0c8d9a104c492bb92057caee"
+      },
+      {
+        "modes": [
+          "ter",
+          "tata"
+        ],
+        "whole": 78,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 78,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "OUT_OF_SCOPE": 298,
+          "NO_PATH": 1814,
+          "UNVERIFIED_ACCESS": 20150,
+          "DOCUMENTED_SECTION_ONLY": 10
+        },
+        "movementSha256": "d816b9396ffaf3c5ef31ef825717131c857bd63d0c8d9a104c492bb92057caee"
+      },
+      {
+        "modes": [
+          "brt",
+          "ddd"
+        ],
+        "whole": 653,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 653,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1417,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 19891,
+          "DOCUMENTED_SECTION_ONLY": 91
+        },
+        "movementSha256": "da96f9b4f654e16de95ab8f9e87daa47a1890397fcd1175dd50211faf80c98a0"
+      },
+      {
+        "modes": [
+          "brt",
+          "aftu"
+        ],
+        "whole": 638,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 638,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1432,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 19960,
+          "DOCUMENTED_SECTION_ONLY": 22
+        },
+        "movementSha256": "7f7d8b1e8ae268d10b8196f42f9e174db7b0216c2e4289d22cffe2e2fed17b4b"
+      },
+      {
+        "modes": [
+          "brt",
+          "tata"
+        ],
+        "whole": 638,
+        "withBoth": 0,
+        "minimumChanges": {
+          "direct": 638,
+          "one": 0,
+          "multiple": 0
+        },
+        "refusals": {
+          "NO_PATH": 1432,
+          "OUT_OF_SCOPE": 298,
+          "UNVERIFIED_ACCESS": 19972,
+          "DOCUMENTED_SECTION_ONLY": 10
+        },
+        "movementSha256": "7f7d8b1e8ae268d10b8196f42f9e174db7b0216c2e4289d22cffe2e2fed17b4b"
+      }
+    ]
+  }
+}

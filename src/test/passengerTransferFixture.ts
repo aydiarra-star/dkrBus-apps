@@ -22,6 +22,7 @@ const inbound = line('Inbound', 'ter', a, b, 10, 110), outbound = line('Outbound
 const direct = line('Direct', 'ddd', a, d, 901, 200)
 const ways: FootwayInput[] = [[b, exit], [exit, entry], [entry, c]].map(([from, to], i) => ({
   id: `qa-way-${i}`, from: from.id, to: to.id, name: `qa-way-${i}`, kind: i === 1 ? 'crossing' : 'station-path',
+  transferTiming:{from:from.id,to:to.id,seconds:[10,18,13][i],evidence},
   evidence, stepFree: 'yes', access: 'public', crossingsAndBarriersChecked: true, positions: [from, to],
 }))
 export const fixtureData = { places: [a, b, exit, entry, c, d], patterns: [inbound, outbound, direct], footways: ways }

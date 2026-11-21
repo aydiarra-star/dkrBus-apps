@@ -1,0 +1,565 @@
+{
+  "scope": "HISTORICAL_REVIEW_ONLY",
+  "archiveSha256": {
+    "aftu": "7fae6b438de6177ff1d777546684e83c8882927b67efa4645dbecca3d77af428",
+    "ddd": "578323c9fa4375313d57c4120071da3d0da499eb9216e5a4a22a28ffae707159"
+  },
+  "attribution": "© OpenStreetMap contributors · ODbL 1.0",
+  "routes": {
+    "DDD_218": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_218_AEROPORT-LSS",
+          "directionId": "0",
+          "calls": 35,
+          "status": "MATCH",
+          "trips": 66,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 35,
+              "before": "D_529",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_218_THIAROYE",
+          "directionId": "1",
+          "calls": 34,
+          "status": "MATCH",
+          "trips": 87,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 1,
+              "before": null,
+              "after": "D_545",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "DDD_217": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_217_OUAKAM",
+          "directionId": "0",
+          "calls": 63,
+          "status": "MATCH",
+          "trips": 91,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 63,
+              "before": "D_362",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_217_THIAROYE",
+          "directionId": "1",
+          "calls": 0,
+          "status": "NO_JOINED_CALLS",
+          "trips": 4,
+          "occurrences": []
+        },
+        {
+          "shape": "DDD_217_THIAROYE",
+          "directionId": "1",
+          "calls": 63,
+          "status": "MATCH",
+          "trips": 97,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 1,
+              "before": null,
+              "after": "D_1101",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "DDD_402": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_402_AIBD",
+          "directionId": "0",
+          "calls": 26,
+          "status": "MATCH",
+          "trips": 84,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 26,
+              "before": "D_946",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_402_THIAROYE",
+          "directionId": "1",
+          "calls": 28,
+          "status": "MATCH",
+          "trips": 63,
+          "occurrences": [
+            {
+              "stop": "D_686",
+              "rank": 1,
+              "before": null,
+              "after": "D_945",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "DDD_315": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_315_RUFISQUE",
+          "directionId": "1",
+          "calls": 22,
+          "status": "MATCH",
+          "trips": 144,
+          "occurrences": [
+            {
+              "stop": "D_1210",
+              "rank": 22,
+              "before": "D_1208",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_315_YENNE",
+          "directionId": "0",
+          "calls": 23,
+          "status": "MATCH",
+          "trips": 144,
+          "occurrences": [
+            {
+              "stop": "D_1210",
+              "rank": 1,
+              "before": null,
+              "after": "D_1209",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "DDD_07": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_07_OUAKAM",
+          "directionId": "1",
+          "calls": 36,
+          "status": "MATCH",
+          "trips": 160,
+          "occurrences": [
+            {
+              "stop": "D_58",
+              "rank": 7,
+              "before": "D_56",
+              "after": "D_60",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "D_60",
+              "rank": 8,
+              "before": "D_58",
+              "after": "D_62",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "D_62",
+              "rank": 9,
+              "before": "D_60",
+              "after": "D_873",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_07_PALAIS-02",
+          "directionId": "0",
+          "calls": 36,
+          "status": "NO_TARGET",
+          "trips": 138,
+          "occurrences": []
+        }
+      ]
+    },
+    "DDD_05": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_05_GUEDIAWAYE",
+          "directionId": "1",
+          "calls": 40,
+          "status": "MATCH",
+          "trips": 111,
+          "occurrences": [
+            {
+              "stop": "D_1082",
+              "rank": 1,
+              "before": null,
+              "after": "D_1084",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "D_406",
+              "rank": 3,
+              "before": "D_1084",
+              "after": "D_1050",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_05_PALAIS1",
+          "directionId": "0",
+          "calls": 33,
+          "status": "MATCH",
+          "trips": 105,
+          "occurrences": [
+            {
+              "stop": "D_1082",
+              "rank": 33,
+              "before": "D_1083",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "DDD_12": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": "20231225",
+      "variants": [
+        {
+          "shape": "DDD_12_Guediawaye",
+          "directionId": "1",
+          "calls": 59,
+          "status": "MATCH",
+          "trips": 101,
+          "occurrences": [
+            {
+              "stop": "D_1082",
+              "rank": 1,
+              "before": null,
+              "after": "D_1084",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "D_406",
+              "rank": 3,
+              "before": "D_1084",
+              "after": "D_1050",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "DDD_12_Palais-1",
+          "directionId": "0",
+          "calls": 60,
+          "status": "MATCH",
+          "trips": 95,
+          "occurrences": [
+            {
+              "stop": "D_1082",
+              "rank": 60,
+              "before": "D_1083",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "AFTU_73": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": null,
+      "variants": [
+        {
+          "shape": "AFTU_73_Lac Rose",
+          "directionId": "1",
+          "calls": 79,
+          "status": "MATCH",
+          "trips": 111,
+          "occurrences": [
+            {
+              "stop": "A_586",
+              "rank": 78,
+              "before": "A_265",
+              "after": "A_266",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "A_266",
+              "rank": 79,
+              "before": "A_586",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "AFTU_73_POSTE THIAROYE",
+          "directionId": "0",
+          "calls": 78,
+          "status": "MATCH",
+          "trips": 119,
+          "occurrences": [
+            {
+              "stop": "A_586",
+              "rank": 1,
+              "before": null,
+              "after": "A_585",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "AFTU_53": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": null,
+      "variants": [
+        {
+          "shape": "AFTU_53_KEUR MASSAR",
+          "directionId": "1",
+          "calls": 87,
+          "status": "MATCH",
+          "trips": 87,
+          "occurrences": [
+            {
+              "stop": "A_1572",
+              "rank": 87,
+              "before": "A_2120",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "AFTU_53_SΓö£├óΓö¼ΓîÉbikotane",
+          "directionId": "0",
+          "calls": 0,
+          "status": "NO_JOINED_CALLS",
+          "trips": 89,
+          "occurrences": []
+        }
+      ]
+    },
+    "AFTU_26": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": null,
+      "variants": [
+        {
+          "shape": "AFTU_26_Parcelle-Assainies",
+          "directionId": "1",
+          "calls": 41,
+          "status": "MATCH",
+          "trips": 94,
+          "occurrences": [
+            {
+              "stop": "A_586",
+              "rank": 41,
+              "before": "A_266",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "AFTU_26_Poste-Thiaroye",
+          "directionId": "0",
+          "calls": 40,
+          "status": "MATCH",
+          "trips": 88,
+          "occurrences": [
+            {
+              "stop": "A_586",
+              "rank": 1,
+              "before": null,
+              "after": "A_274",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    },
+    "AFTU_67": {
+      "lastCalendarDate": "20231231",
+      "lastExceptionForTheseServices": null,
+      "variants": [
+        {
+          "shape": "AFTU_67_Ouakam",
+          "directionId": "1",
+          "calls": 77,
+          "status": "MATCH",
+          "trips": 53,
+          "occurrences": [
+            {
+              "stop": "A_378",
+              "rank": 1,
+              "before": null,
+              "after": "A_2028",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "A_26",
+              "rank": 4,
+              "before": "A_708",
+              "after": "A_2030",
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        },
+        {
+          "shape": "AFTU_67_thiawlene",
+          "directionId": "0",
+          "calls": 75,
+          "status": "MATCH",
+          "trips": 62,
+          "occurrences": [
+            {
+              "stop": "A_25",
+              "rank": 72,
+              "before": "A_2029",
+              "after": "A_24",
+              "pickup": "0",
+              "dropOff": "0"
+            },
+            {
+              "stop": "A_378",
+              "rank": 75,
+              "before": "A_17",
+              "after": null,
+              "pickup": "0",
+              "dropOff": "0"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "offsetsM": {
+    "toThiaroyeNode4419421889": {
+      "D_686": 3.7,
+      "A_586": 0.4,
+      "A_266": 99.9,
+      "arcgis539": 29.7,
+      "arcgis576": 28.9
+    },
+    "toGuediawayeNode5038866775": {
+      "D_406": 6.7,
+      "D_1082": 68.8,
+      "A_586": 3111.1,
+      "arcgis453": 12.0
+    },
+    "toOuakamNode4363242525": {
+      "D_60": 9.4,
+      "A_26": 4.3,
+      "A_25": 14.7,
+      "A_378": 565.2,
+      "arcgis343": 1.1
+    },
+    "ouakamOnRoadTowardsPalais": {
+      "n4323807979": {
+        "alongM": 34.7,
+        "leftM": -2.6
+      },
+      "n4363242525": {
+        "alongM": 232.5,
+        "leftM": -5.9
+      },
+      "n4363242516": {
+        "alongM": 422.5,
+        "leftM": -5.9
+      },
+      "arcgis342": {
+        "alongM": 34.6,
+        "leftM": -5.3
+      },
+      "arcgis343": {
+        "alongM": 233.2,
+        "leftM": -6.7
+      },
+      "arcgis344": {
+        "alongM": 421.6,
+        "leftM": -5.4
+      },
+      "D_58": {
+        "alongM": 20.8,
+        "leftM": -6.8
+      },
+      "D_60": {
+        "alongM": 224.1,
+        "leftM": -1.7
+      },
+      "D_62": {
+        "alongM": 412.8,
+        "leftM": -6.6
+      },
+      "A_25": {
+        "alongM": 237.6,
+        "leftM": 7.9
+      },
+      "A_26": {
+        "alongM": 233.2,
+        "leftM": -1.6
+      }
+    },
+    "betweenSebikotaneArchiveTermini": 1996.2
+  }
+}

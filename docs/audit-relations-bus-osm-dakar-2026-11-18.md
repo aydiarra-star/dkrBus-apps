@@ -43,11 +43,11 @@ Le décompte de 19 relations DDD dans le résumé global inclut également des r
 | DDD 7 — Palais / Ouakam (6990669) | 31 | 64 | 4 | 4 | Fragmentée |
 | DDD 7 — Ouakam / Palais (7500475) | 34 | 57 | 4 | 4 | Fragmentée |
 | DDD 121 — « Ligne 121 » (2792903) | 3 | 4 | 1 | 0 | Candidat incomplet |
-| AFTU/TATA 40 (3982642) | 0 | 31 | 5 | 3 | Aucun arrêt ; fragmentée |
+| AFTU/TATA 40 (3982642), filtre initial¹ | 0 | 31 | 5 | 3 | Aucun arrêt ; quatre rôles omis¹ |
 
 La relation DDD 121 (2792903) est topologiquement continue, mais ne décrit que trois arrêts et quatre ways. Une seconde relation 121 (6999013) comporte sept arrêts et 18 ways, mais son attribution opérateur n'est pas portée explicitement par la relation elle-même. Ces éléments sont des pistes de revue manuelle, pas des lignes commerciales certifiées.
 
-La relation AFTU/TATA 40 ne contient aucun membre d'arrêt ; ses 31 ways sont répartis en cinq composantes et trois nœuds de branchement. Elle ne peut pas être utilisée pour construire un itinéraire passager.
+¹ **Correction du filtre pour la 40.** La [relation 3982642 v25](https://api.openstreetmap.org/api/0.6/relation/3982642/25.json) contient **35 occurrences de ways** (34 IDs distincts), pas 31, et aucun membre d’arrêt. L’extracteur initial ignorait les quatre rôles `Forward` avec majuscule. Les cinq composantes et trois nœuds de branchement du tableau décrivent les seuls 31 membres comptés le 18, pas la topologie des 35. Le filtre corrigé classe ces quatre membres comme voies orientées et conserve le rôle brut dans le JSON. À eux seuls, ils ne donnent ni quai ni sens commercial.
 
 ## Interprétation et décision
 
@@ -65,3 +65,5 @@ Décision :
 ## Reproductibilité
 
 L'artefact `dakar-bus-route-relations` du workflow CI contient le JSON complet, avec identifiants de relations et de nœuds, versions, horodatages, changesets, utilisateurs, membres ordonnés et audit topologique. Le script `scripts/extract_dakar_bus_route_relations_from_pbf.py` produit cet audit sans fabriquer de géométrie.
+
+**Revue ultérieure bornée :** [onze portions documentaires](../data/bus-sections/README.md) ont été examinées séparément à partir de relations ou de descriptions de rues et de ways versionnés. Elles ne valident pas les relations entières et n’ajoutent aucune course ou correspondance au réseau daté.

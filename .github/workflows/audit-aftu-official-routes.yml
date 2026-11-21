@@ -4,6 +4,32 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "scripts/lib/waymarkLines*"
+      - "scripts/lib/aftuIndex*"
+      - "scripts/audit_aftu_road_fit.py"
+      - "scripts/audit_aftu_map_calls.py"
+      - "scripts/audit_gt54.py"
+      - "scripts/audit_patte_doie.py"
+      - "scripts/audit_terminus_quays.py"
+      - "scripts/bus_change_candidates.py"
+      - "scripts/audit_terminal_calls.py"
+      - "scripts/audit_reference_archives.py"
+      - "scripts/audit_exchange_calls.py"
+      - "scripts/audit_hub_access.py"
+      - "tests/test_hub_access.py"
+      - "data/bus-review/exchange-call-comparison.json"
+      - "docs/panneaux/fiches.csv"
+      - "data/bus-review/reported-218-73.json"
+      - "data/bus-review/reference-archives.json"
+      - "scripts/ouakam_site.py"
+      - "scripts/audit_thiaroye_site.py"
+      - "tests/test_thiaroye_site.py"
+      - "data/bus-review/ouakam-road.json"
+      - "data/bus-review/terminal-occurrences.json"
+      - "data/bus-review/patte-doie-occurrences.json"
+      - "scripts/medina_phase.py"
+      - "data/bus-sections/gt54-pins.json"
+      - "scripts/compare_bus_occurrences.py"
       - "scripts/export_aftu_official_routes.mjs"
       - ".github/workflows/audit-aftu-official-routes.yml"
 
@@ -15,16 +41,118 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
+      - run: node --test scripts/lib/{waymarkLines,aftuIndex}.node-test.mjs
       - name: Retrieve official AFTU route pages
-        run: node scripts/export_aftu_official_routes.mjs
+        run: AFTU_TEMP_MAPS="$RUNNER_TEMP/aftu-maps" node scripts/export_aftu_official_routes.mjs
+      - name: Report overlay measurements (not passenger geometry)
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const r = JSON.parse(readFileSync('artifacts/aftu/aftu-official-route-pages.json'));
+          // One compact receipt per batch, no redistribution of point arrays.
+          console.log(`::notice title=Acquisition AFTU::${r.status} · ${r.summary.pagesFetched} pages · ${r.errors.length} erreurs`);
+          console.log('::notice title=Pages AFTU non acquises::'+JSON.stringify(r.errors.map(e => [e.slug,e.error])).replaceAll('%','%25'));
+          // Do not reduce an index-only axis to a fetch outage, nor a 404 to an absent bus line.
+          const notes = r.errors.filter(e => e.slug).map(e => [e.slug,e.indexHeading,e.indexAxis,e.discovery,e.detailLinkInSitemap,e.status,e.httpStatus]);
+          console.log('::notice title=Index et sondes AFTU::'+JSON.stringify([Object.keys(r.indexHeadings ?? {}).length, r.sitemap ?? null, notes]).replaceAll('%','%25'));
+          const rows = r.routes.map(({line,mapReview:m}) => [line,m.status,m.markers,m.lines?.map(l => [l.vertices,l.meters,l.maxStepM,l.over300?.length,l.endpoints,l.markerOffsetsM,l.shapeHash]),m.sha256,m.other,m.markerNames]);
+          for (let i = 0; i < rows.length; i+=10) console.log('::notice title=Cartes AFTU::'+JSON.stringify(rows.slice(i,i+10)).replaceAll('%','%25'));
+          JS
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - name: Check directed road continuity of the acquired AFTU drawings
+        if: hashFiles('artifacts/aftu/aftu-official-route-pages.json') != ''
+        run: |
+          if ! test -d "$RUNNER_TEMP/aftu-maps"; then
+            echo '::warning::Aucune géométrie AFTU acquise : contrôle de voirie non exécuté.'
+            exit 0
+          fi
+          python -m pip install osmium
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          source=https://download.geofabrik.de/africa/senegal-and-gambia-latest.osm.pbf
+          if ! curl -fLsS --retry 2 "$source" -o "$pbf"; then
+            source=https://data.bbbike.org/osm/pbf/region/africa/senegal-and-gambia.osm.pbf
+            curl -fLsS --retry 2 "$source" -o "$pbf"
+          fi
+          python -m scripts.audit_aftu_road_fit "$pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/road-fit.json --source-url "$source"
+      - name: Compare actual directional AFTU terminal markers with named OSM platform nodes across Dakar
+        run: |
+          if test -s "$RUNNER_TEMP/senegal.osm.pbf" && test -d "$RUNNER_TEMP/aftu-maps"; then
+            python -m scripts.audit_terminus_quays "$RUNNER_TEMP/senegal.osm.pbf" "$RUNNER_TEMP/aftu-maps" artifacts/aftu/terminus-quays.json --ci-summary
+          else
+            echo '::warning::Comparaison des terminus non exécutée (PBF ou dessins manquants).'
+          fi
+      - name: Read bus-station boundary, platform and crossing contacts at Colobane and Ponty
+        run: |
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          if test -s "$pbf"; then
+            python -m scripts.audit_hub_access "$pbf" artifacts/aftu/hub-access.json
+          else
+            echo '::warning::Accès de Colobane et Ponty non mesurés (PBF absent).'
+          fi
+      - name: Check historical call roles, terminal sites and independent approach phases at Médina
+        run: |
+          # One immutable public source archive; no unauthenticated API rate
+          # quota. Each analysis also verifies the SHA-256 of both inner ZIPs.
+          ref=7a2b99824699cb10daf69852c8fbecb746200d77
+          tarball="$RUNNER_TEMP/passbi.tar.gz"
+          curl -fLsS --retry 3 "https://codeload.github.com/impactsolutionsas/passbi_core/tar.gz/$ref" -o "$tarball"
+          for file in AFTU Dem_Dikk; do
+            tar -xOzf "$tarball" "passbi_core-$ref/gtfs_folder/gtfs_$file.zip" > "$RUNNER_TEMP/$file.zip"
+          done
+          ddd="$RUNNER_TEMP/Dem_Dikk.zip"
+          python -m scripts.audit_gt54 "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/gt54.json
+          cmp data/bus-review/gt54-occurrences.json artifacts/aftu/gt54.json
+          python -m scripts.audit_patte_doie "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/patte-doie.json
+          cmp data/bus-review/patte-doie-occurrences.json artifacts/aftu/patte-doie.json
+          python -m scripts.audit_terminal_calls "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/terminal-calls.json
+          cmp data/bus-review/terminal-occurrences.json artifacts/aftu/terminal-calls.json
+          python -m scripts.audit_reference_archives "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/reference-archives.json
+          cmp data/bus-review/reference-archives.json artifacts/aftu/reference-archives.json
+          python -m scripts.audit_exchange_calls "$ddd" "$RUNNER_TEMP/AFTU.zip" > artifacts/aftu/exchange-calls.json
+          cmp data/bus-review/exchange-call-comparison.json artifacts/aftu/exchange-calls.json
+          test "$(python -m scripts.medina_phase "$ddd")" = '119 2097 3518 4645'
+          test "$(python -m scripts.medina_phase "$ddd" --direction inbound)" = '89 631 1066 1355'
+      - name: Inspect depot exits, archived calls and the two outward drawings at Thiaroye (no walking links)
+        run: |
+          pbf="$RUNNER_TEMP/senegal.osm.pbf"
+          if ! test -s "$pbf"; then
+            echo '::warning::Contrôle du site de Thiaroye non exécuté : PBF absent.'
+            exit 0
+          fi
+          layer="$RUNNER_TEMP/thiaroye-218.json"
+          url='https://services1.arcgis.com/tKMirJrirprCZbnf/ArcGIS/rest/services/Dem_dikk_mise_a_jour/FeatureServer/1/query'
+          # A missing layer is not a negative spatial result. Never leave a
+          # partial HTTP response at the filename of an acquired input.
+          if curl -fLsS --max-time 60 --retry 2 -G "$url" --data 'objectIds=7' --data 'outFields=OBJECTID_12,Nom_Ligne' --data 'outSR=4326' --data 'geometryPrecision=7' --data 'f=json' -o "$layer.part" && jq -e '.features | length == 1' "$layer.part" >/dev/null; then
+            mv "$layer.part" "$layer"
+          else
+            echo '::warning::Dessin ArcGIS de la 218 non acquis.'
+          fi
+          python -m scripts.audit_thiaroye_site "$pbf" "$RUNNER_TEMP/Dem_Dikk.zip" "$RUNNER_TEMP/AFTU.zip" "$RUNNER_TEMP/aftu-maps/73.json" "$layer" artifacts/aftu/thiaroye-site.json
+      - name: Compare every archived call sequence with the one marked map direction
+        run: |
+          if test -d "$RUNNER_TEMP/aftu-maps"; then
+            python -m scripts.audit_aftu_map_calls "$RUNNER_TEMP/aftu-maps" "$RUNNER_TEMP/AFTU.zip" artifacts/aftu/archived-call-fit.json
+          fi
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from scripts.audit_gt54 import drawing_control
+          f = Path(os.environ['RUNNER_TEMP']) / 'aftu-maps/39.json'
+          r = drawing_control(json.loads(f.read_text())) if f.exists() else {'status':'DESSIN_NON_ACQUIS'}
+          print('::notice title=Rue GT-54 sur le dessin marqué 39::'+json.dumps(r))
+          PY
       - name: Save route audit
-        uses: actions/upload-artifact@v4
+        if: always() && hashFiles('artifacts/aftu/aftu-official-route-pages.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aftu-official-route-pages
-          path: artifacts/aftu/aftu-official-route-pages.json
+          path: artifacts/aftu/
           if-no-files-found: error
           retention-days: 14

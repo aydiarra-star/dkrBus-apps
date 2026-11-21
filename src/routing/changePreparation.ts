@@ -1,6 +1,7 @@
+import type { OperatorDrawing } from '../data/reviewedAftuDrawings'
 import { BUS_OPERATOR_CONTACTS, type BusOperatorContact } from '../domain/busOperatorContacts'
 import { normalizeSearchTerm } from '../domain/stops'
-import { sheetEnabled, sheetHits } from './busSheetIndex'
+import { sheetEnabled, sheetHits, type Sheet } from './busSheetIndex'
 import { referenceName, sheetClosingTime } from './documentedDirections'
 import type { Network, Pattern, Place } from './model'
 import { selectedVertex, type DakarEndpoint, type JourneySettings } from './placeConnections'
@@ -9,20 +10,28 @@ import { dayOf, nextRuns } from './serviceTime'
 /** A guide to two separate enquiries, NOT an Itinerary. No transfer arc,
  * access geometry, departure after a change, fare or combined duration. */
 export type ChangeSide = { line: string; from: string; to: string } & (
-  { kind: 'sheet'; source: string; url: string; contact: BusOperatorContact } |
+  { kind: 'sheet'; source: string; url: string; contact: BusOperatorContact; drawing?: OperatorDrawing } |
   { kind: 'section'; section: { from: Place; to: Place } }
 )
-export interface ChangeLead { hub: string; check: string; before: ChangeSide; after: ChangeSide }
+export interface ChangeLead { hub: string; check: string; before: ChangeSide; after: ChangeSide; poleUrl?: string }
 
 // Exact labels in the published descriptions, not interchangeable stop IDs.
 // See docs/preparer-une-correspondance.md. Never join every identical street
 // or commune name: e.g. Colobane Rufisque is not the Dakar bus station.
-interface Sector { name: string; calls: string[]; references?: string[]; labels: string[]; check: string }
+interface Sector { name: string; calls: string[]; references?: string[]; labels: string[]; check: string
+  /** A street with a signed pole is not a hub for every line that names the neighbourhood. */
+  acceptsSheet?: (sheet: Sheet) => boolean; poleUrl?: string }
 const sectors: Sector[] = [
-  { name: 'Petersen', calls: ['brt-petersen'], references: ['ddd-petersen', 'aftu-petersen'], labels: ['Petersen', 'Terminus Petersen', 'Terminus Gare Petersen'], check: 'Identifier le quai du bus et l’accès BRT ou bus correspondant dans le pôle.' },
+  { name: 'Gueule Tapée · rue GT-54', calls: [], labels: ['Gueule Tapée'],
+    acceptsSheet: s => (s.network === 'ddd' && s.line === '18' && s.url === 'https://demdikk.sn/reseau-urbain-dakar/' && s.labels.includes('Lycée Delafosse')) ||
+      (s.network === 'aftu' && s.line === '39' && s.url === 'https://aftu-senegal.org/map/dakar-urbain-ligne-39/' && s.labels[0] === 'Terminus Lat-Dior' && s.labels.at(-1) === 'Terminus Diamalaye'),
+    poleUrl: 'https://www.openstreetmap.org/node/2175197258',
+    check: 'Le poteau « 18 / 39 » est du côté qui va vers la route de Fann. La 18 étudiée continue vers le lycée Delafosse et la 39 vers Diamalaye. La 39 vers Lat Dior est de l’autre côté. Confirmez la desserte et le prochain passage : aucun horaire compatible à ce poteau n’est établi.' },
+  { name: 'Petersen', calls: ['brt-petersen'], references: ['ddd-petersen', 'aftu-petersen'], labels: ['Petersen', 'Terminus Petersen', 'Terminus Gare Petersen'], check: 'Les accès cartographiés entre les quais BRT ne rejoignent pas le quai du bus. Confirmer où prendre le bus et comment y accéder.' },
   { name: 'Colobane', calls: ['ter-colobane'], references: ['ddd-colobane', 'aftu-colobane', 'tata-colobane'], labels: ['Colobane', 'Terminus Colobane', 'Terminus Gare de Colobane'], check: 'Distinguer gare TER, gare DDD et gare routière AFTU. Demander les deux accès et les traversées.' },
-  { name: 'Bargny · gare ferroviaire', calls: ['ter-bargny'], labels: ['Terminus Bargny (Gare ferroviaire)'], check: 'Localiser le terminus AFTU 74, la sortie de la gare TER et le chemin à pied entre les deux.' },
-  { name: 'Guédiawaye', calls: ['brt-prefecture-guediawaye'], references: ['ddd-guediawaye'], labels: ['Terminus Guédiawaye'], check: 'Confirmer la position du terminus de bus par rapport au pôle BRT. Notaire n’est pas assimilé à Préfecture.' },
+  { name: 'Bargny · gare ferroviaire', calls: ['ter-bargny'], labels: ['Terminus Bargny (Gare ferroviaire)'], check: 'Les quais TER sont cartographiés. Confirmer la sortie, le quai AFTU 74, la marche et le passage vers Keur Massar. La grille Rufisque–Tivaouane Peul ne part pas de Bargny.' },
+  { name: 'Guédiawaye', calls: ['brt-prefecture-guediawaye'], references: ['ddd-guediawaye'], labels: ['Terminus Guédiawaye'], check: 'Les liaisons entre quais BRT à Préfecture ne mènent pas au poteau DDD. Confirmer le chemin jusqu’au bus. Notaire n’est pas assimilé à Préfecture.' },
+  { name: 'Scat Urbam', calls: ['brt-scat-urbam'], labels: ['Terminus Scat Urbam', 'Terminus Scat Urban'], check: 'Le quai central est celui de B1. Le terminus de la DDD 121 et le chemin entre les deux restent à localiser.' },
   { name: 'Grand Médine', calls: ['brt-grand-medine'], labels: ['Marché Grand Médine', 'HLM Grand Médine'], check: 'Vérifier l’arrêt de bus exact : le marché et les HLM ne désignent pas le quai BRT.' },
   { name: 'UCAD', calls: [], labels: ['UCAD', 'Terminus Université Cheikh Anta Diop'], check: 'Demander de quel côté de l’avenue et à quel portail se trouvent les deux arrêts.' },
   { name: 'Lat Dior', calls: [], labels: ['Lat Dior', 'Terminus Lat-Dior', 'Gare Lat Dior'], check: 'Confirmer les deux emplacements de bus ; un terminus et un point de passage peuvent être distincts.' },
@@ -57,7 +66,7 @@ function sides(net: Network, point: DakarEndpoint, sector: typeof indexed[number
   const name = referenceName(point)
   if (!name || !sector.names.size) return []
   for (const { sheet, index } of sheetHits(name)) {
-    if (!sheetEnabled(sheet, q)) continue
+    if (!sheetEnabled(sheet, q) || (sector.acceptsSheet && !sector.acceptsSheet(sheet))) continue
     const closes = sheetClosingTime(sheet.schedule, q.departAt)
     if (closes !== undefined && q.departAt >= closes) continue
     for (let k = 0; k < sheet.labels.length; k++) {
@@ -65,7 +74,7 @@ function sides(net: Network, point: DakarEndpoint, sector: typeof indexed[number
       const from = sheet.labels[before ? index : k], to = sheet.labels[before ? k : index]
       if (from === to) continue
       list.push({ closes, identity: `${sheet.network === 'ddd' ? 'ddd' : 'minibus'}:${sheet.line}`, count: Math.abs(k-index),
-        side: { kind: 'sheet', line: `${sheet.network.toUpperCase()} ${sheet.line}`, from, to, url: sheet.url, source: sheet.source,
+        side: { kind: 'sheet', line: `${sheet.network.toUpperCase()} ${sheet.line}`, from, to, url: sheet.url, source: sheet.source, drawing: sheet.drawing,
           contact: BUS_OPERATOR_CONTACTS[sheet.network === 'ddd' ? 'ddd' : 'aftu'] } })
     }
   }
@@ -93,7 +102,7 @@ export function prepareChanges(net: Network, from: DakarEndpoint, to: DakarEndpo
       }
       best = { a, b }
     }
-    if (best) results.push({ hub: s.name, check: s.check, before: best.a.side, after: best.b.side })
+    if (best) results.push({ hub: s.name, check: s.check, ...(s.poleUrl && { poleUrl: s.poleUrl }), before: best.a.side, after: best.b.side })
   }
   return results
 }

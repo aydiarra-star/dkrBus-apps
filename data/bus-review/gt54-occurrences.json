@@ -1,0 +1,95 @@
+{
+  "status": "historical-evidence-only",
+  "poleSignedOffsetM": -3.1,
+  "arcgis112ToPoleM": 1.5,
+  "arcgis112SignedOffsetM": -2.4,
+  "variants": {
+    "DDD_18_DIEUPEUL": {
+      "tripsWithThreeRegularCalls": 39,
+      "ranks": [
+        28,
+        29,
+        30
+      ],
+      "calls": [
+        {
+          "stop": "D_440",
+          "way": 233379481,
+          "chainageM": 81.9,
+          "signedOffsetM": -4.2
+        },
+        {
+          "stop": "D_437",
+          "way": 233379481,
+          "chainageM": 423.3,
+          "signedOffsetM": -5.2
+        },
+        {
+          "stop": "D_436",
+          "way": 44134446,
+          "chainageM": 174.1,
+          "signedOffsetM": -3.5
+        }
+      ],
+      "middleToPoleM": 14.6
+    },
+    "AFTU_39_Lat Dior": {
+      "tripsWithThreeRegularCalls": 54,
+      "ranks": [
+        12,
+        13,
+        14
+      ],
+      "calls": [
+        {
+          "stop": "A_875",
+          "way": 233379481,
+          "chainageM": 84.3,
+          "signedOffsetM": -2.2
+        },
+        {
+          "stop": "A_1992",
+          "way": 233379481,
+          "chainageM": 408.6,
+          "signedOffsetM": -2.9
+        },
+        {
+          "stop": "A_871",
+          "way": 44134446,
+          "chainageM": 216.5,
+          "signedOffsetM": -4.1
+        }
+      ],
+      "middleToPoleM": 0.3
+    },
+    "AFTU_39_Diamalaye": {
+      "tripsWithThreeRegularCalls": 72,
+      "ranks": [
+        54,
+        55,
+        56
+      ],
+      "calls": [
+        {
+          "stop": "A_872",
+          "way": 44134446,
+          "chainageM": 158.2,
+          "signedOffsetM": 4.5
+        },
+        {
+          "stop": "A_874",
+          "way": 233379481,
+          "chainageM": 414.5,
+          "signedOffsetM": 3.7
+        },
+        {
+          "stop": "A_873",
+          "way": 233379481,
+          "chainageM": 125.2,
+          "signedOffsetM": 2.7
+        }
+      ],
+      "middleToPoleM": 8.8
+    }
+  }
+}

@@ -102,7 +102,8 @@ describe('copilote : questions libres fondées sur les données', () => {
 
   it('donne le dernier départ publié avec son statut, jamais un passage observé', () => {
     const { reply } = ask('Quel est le dernier horaire publié pour le TER ?')
-    expect(reply.text).toContain('22h05')
+    expect(reply.text).toMatch(/fiche opérateur consultée en octobre[^\n]*22h05/)
+    expect(reply.text).toContain('pas la grille actuelle des missions')
     expect(reply.text).toContain('Horaires de référence')
     expect(reply.text).toContain('pas un suivi en direct')
     const brt = ask('Dernier bus BRT ?')

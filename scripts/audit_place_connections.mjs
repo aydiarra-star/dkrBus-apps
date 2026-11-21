@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 // Read-only replay of the passenger form. Optionally preflight a service-day edition; never activate it.
+import { admittedServices, journeyWitnesses } from './lib/journeyWitness.mjs'
+import { createHash } from 'node:crypto'
 import { readFileSync, statSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { createServer } from 'vite'
 
 const { values } = parseArgs({ options: { from: { type: 'string' }, to: { type: 'string' }, at: { type: 'string' },
-  edition: { type: 'string' }, 'max-changes': { type: 'string' }, matrix: { type: 'boolean' }, 'step-free': { type: 'boolean' } } })
+  points: { type: 'string' }, modes: { type: 'string' }, edition: { type: 'string' }, 'max-changes': { type: 'string' }, matrix: { type: 'boolean' }, 'step-free': { type: 'boolean' } } })
+const modes = values.modes?.split(',')
+if (modes && (new Set(modes).size !== modes.length || modes.some(m => !['ter','brt','ddd','aftu','tata'].includes(m)))) throw Error('--modes : familles explicites séparées par des virgules (ter,brt,ddd,aftu,tata).')
 const departAt = Date.parse(`${values.at}Z`) / 1000
 if (!values.at || !/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(values.at) || !Number.isFinite(departAt) || new Date(departAt * 1000).toISOString().slice(0, 16) !== values.at ||
-    (!values.matrix && (!values.from || !values.to))) {
-  console.error('Spécifier --at AAAA-MM-JJTHH:MM (Dakar) et soit --from landmark:yoff --to 14.7900,-17.3100, soit --matrix. Options : --step-free, --max-changes 0…5, --edition <fichier JSON>.'); process.exit(2)
+    (!values.matrix && (values.points || !values.from || !values.to))) {
+  console.error('Spécifier --at AAAA-MM-JJTHH:MM (Dakar) et soit --from landmark:yoff --to 14.7900,-17.3100, soit --matrix [--points fichier-identifiants.json]. Options : --modes ddd,aftu, --step-free, --max-changes 0…5, --edition <fichier JSON>.'); process.exit(2)
 }
-const server = await createServer({ configFile: false, appType: 'custom', server: { middlewareMode: true, hmr: false, watch: null, ws: false } })
+const server = await createServer({ configFile: false, appType: 'custom', logLevel: 'error', optimizeDeps: { noDiscovery: true, include: [] }, server: { middlewareMode: true, hmr: false, watch: null, ws: false } })
 try {
   const { localPassengerData, dakarNetwork, planDakarJourney } = await server.ssrLoadModule('/src/routing/dakar.ts')
   const { buildStopIndex } = await server.ssrLoadModule('/src/domain/stops.ts')
@@ -38,29 +42,77 @@ try {
     throw Error(`Point inconnu : ${value}. Choisir un identifiant landmark:…, ref:… ou published:… (avec --edition), ou une paire latitude,longitude.`)
   }
   if (network.rejected.length) throw Error(`Admission refusée : ${network.rejected.join(', ')}`)
-  const plan = (a, b) => planDakarJourney(a, b, { departAt, maxChanges, stepFreeOnly: Boolean(values['step-free']) }, network)
+  const plan = (a, b) => planDakarJourney(a, b, { departAt, maxChanges, modes, stepFreeOnly: Boolean(values['step-free']) }, network)
   if (values.matrix) {
     // Count every ordered pair of distinct local form selections. Retain
     // separate identities even for catalogue poles at identical coordinates.
-    const selected = options.filter(o => o.selectable).map(o => ({ point: point(o.value),
-      group: o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
-    const matrix = {}
+    const form = new Map(options.filter(o => o.selectable).map(o => [o.value, o]))
+    const ids = values.points ? JSON.parse(readFileSync(values.points, 'utf8')) : [...form.keys()]
+    if (!Array.isArray(ids) || ids.length < 2 || new Set(ids).size !== ids.length || !ids.every(id => form.has(id))) throw Error('Cohorte invalide : fournir des identifiants de sélections distincts du formulaire courant.')
+    const selected = ids.map(id => form.get(id)).map(o => ({ id: o.value, point: point(o.value),
+      group: o.value.startsWith('landmark:bus-osm-') ? 'repère de portion bus' : o.kind === 'landmark' ? 'repère' : (o.kind === 'published' || network.places.has(o.stopId)) ? 'graphe' : 'catalogue seul' }))
+    const matrix = {}, witnesses = journeyWitnesses()
+    // Same totals are not proof that the SAME OD pairs and journeys survived.
+    // Stream stable selected IDs and leg timings (not mutable UI prose).
+    const completeDigest = createHash('sha256'), movement = createHash('sha256')
+    // Exclusive minimum changes per OD; mode counts may overlap. Using both
+    // modes requires ONE actual option with both, never two unrelated directs.
+    const diagnosis = { minimumChanges: { direct: 0, one: 0, multiple: 0 }, usesMode: { ter: 0, brt: 0, ddd: 0, aftu: 0, tata: 0 },
+      refusalsByCode: {}, ...(modes && { requiredModes: modes, withAllRequiredModes: 0 }) }
+    // Exclusive best evidence for the requested pair. Unlike withBusMap and
+    // withChangeLead below, these bins can be added to recover the denominator.
+    const totals = { whole: 0, exactBusMap: 0, stopSection: 0, nearbyBusMap: 0, changeLead: 0, lineSheet: 0, noProposal: 0 }
+
+    // Within whole journeys only. These overlapping counters are not extra trips.
+    const includes = { accessWalk: 0, egressWalk: 0, transferWalk: 0, samePositionChange: 0, anyChange: 0, bus: 0 }
     for (const a of selected) for (const b of selected) {
       if (a === b) continue
       const key = `${a.group} → ${b.group}`
-      const row = matrix[key] ??= { pairs: 0, whole: 0, sectionsOnly: 0, neither: 0, withChangeLead: 0 }
+      const row = matrix[key] ??= { pairs: 0, whole: 0, sectionsOnly: 0, neither: 0, withChangeLead: 0, withBusMap: 0, withExactBusMap: 0, wholeWithBus: 0 }
       const r = plan(a.point, b.point)
+      const exact = !r.ok && r.mapSections?.some(s => s.fromGapM === null && s.toGapM === null)
+      const bin = r.ok ? 'whole' : exact ? 'exactBusMap' : r.connections?.sections.length ? 'stopSection'
+        : r.mapSections?.length ? 'nearbyBusMap' : r.changesToCheck?.length ? 'changeLead' : r.documentation?.length ? 'lineSheet' : 'noProposal'
+      totals[bin]++
       row.pairs++
       if (!r.ok && r.changesToCheck?.length) row.withChangeLead++
+      if (!r.ok && r.mapSections?.length) row.withBusMap++
+      if (exact) row.withExactBusMap++
+      if (!r.ok) diagnosis.refusalsByCode[r.code] = (diagnosis.refusalsByCode[r.code] ?? 0) + 1
+      if (r.ok) {
+        const changes = Math.min(...r.options.map(t => t.changes))
+        diagnosis.minimumChanges[changes === 0 ? 'direct' : changes === 1 ? 'one' : 'multiple']++
+        const perOption = r.options.map(t => new Set(t.legs.filter(l => l.kind === 'ride').map(l => l.mode)))
+        for (const m of Object.keys(diagnosis.usesMode)) if (perOption.some(set => set.has(m))) diagnosis.usesMode[m]++
+        if (modes && perOption.some(set => modes.every(m => set.has(m)))) diagnosis.withAllRequiredModes++
+        // Independent of an editorial direction label. Compare rides, calls,
+        // walking ways, seconds and millimetres, not just their totals.
+        movement.update(JSON.stringify([a.id,b.id,r.options.map(t => [t.start,t.end,t.legs.map(l => [l.kind,l.from.id,l.to.id,l.start,l.end,
+          Math.round(l.meters*1000),l.kind === 'ride' ? [l.mode,l.lineId,l.stops.map(s=>s.id),l.waitSeconds,l.timing,l.samePlatformChange?.platformId] : [l.role,l.ways.map(w=>w.id)]])])]) + '\n')
+        witnesses.record(a.id, b.id, r.options)
+        completeDigest.update(JSON.stringify([a.id, b.id, r.options.map(t => [t.id, t.start, t.end,
+          t.legs.map(l => [l.from.id, l.to.id, l.start, l.end, l.meters, l.kind === 'ride' ? l.waitSeconds : l.role])])]) + '\n')
+        if (r.options.some(t => t.changes > 0)) includes.anyChange++
+        const legs = r.options.flatMap(t => t.legs)
+        if (legs.some(l => l.kind === 'ride' && l.samePlatformChange)) includes.samePositionChange++
+        if (legs.some(l => l.kind === 'ride' && ['aftu','ddd','tata'].includes(l.mode))) { row.wholeWithBus++; includes.bus++ }
+        for (const role of ['access', 'egress', 'transfer']) if (legs.some(l => l.kind === 'walk' && l.role === role)) includes[`${role}Walk`]++
+      }
       if (r.ok) row.whole++
       else if (r.connections?.sections.length) row.sectionsOnly++
       else row.neither++
     }
-    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, matrix }, null, 2))
+    console.log(JSON.stringify({ atDakar: values.at, maxChanges, ...(snapshotId && { snapshotId }), stepFreeOnly: Boolean(values['step-free']), points: selected.length, pointIds: ids, exclusive: totals, diagnosis, movementSha256: movement.digest('hex'), wholeJourneySha256: completeDigest.digest('hex'), includes, matrix, wholeForm: !values.points && !modes, admittedServices: admittedServices(network, Math.floor(departAt / 86400)*86400, departAt), rideWitnesses: witnesses.rows() }, null, 2))
   } else {
     const from = point(values.from), to = point(values.to), r = plan(from, to)
     console.log(`${from.label} → ${to.label} · ${values.at} (Dakar)`)
-    if (r.ok) r.options.forEach(t => console.log(tripSummary(t)))
+    if (r.ok) for (const t of r.options) {
+      console.log(tripSummary(t))
+      for (const leg of t.legs) {
+        console.log(`  ${leg.kind === 'walk' ? `Marche (${leg.role})` : leg.lineName} : ${leg.from.name} → ${leg.to.name} · ${Math.round(leg.meters)} m · ${dakarClock(leg.start)}–${dakarClock(leg.end)}`)
+        if (leg.kind === 'ride' && leg.timing === 'frequency' && leg.mode === 'ddd') console.log(`  Passage modélisé : ${leg.serviceSource}`)
+      }
+    }
     else {
       console.log(`${r.code} : ${r.message}`)
       if (r.connections) {
@@ -69,6 +121,7 @@ try {
         for (const s of c.sections) console.log(`Tronçon seul : ${s.from.name} → ${s.to.name} · ${s.lines.join(' → ')} · ${dakarClock(s.boardAt)}–${dakarClock(s.arriveAt)}`)
       }
       for (const c of r.changesToCheck ?? []) console.log(`À confirmer séparément (${c.hub}) : ${c.before.line} · ${c.before.from} → ${c.before.to} ; ${c.after.line} · ${c.after.from} → ${c.after.to}. ${c.check}`)
+      for (const s of r.mapSections ?? []) console.log(`Carte uniquement : ${s.review.family.toUpperCase()} ${s.review.line} vers ${s.review.towards} · ${s.markers[0].name} → ${s.markers.at(-1).name} · ${Math.round(s.meters)} m sur voirie · aucun horaire.`)
       for (const d of r.documentation ?? []) console.log(`Fiche uniquement : ${d.line} · ${d.fromLabel} puis ${d.toLabel}. ${d.window ?? ''}\n${d.url}`)
     }
   }
