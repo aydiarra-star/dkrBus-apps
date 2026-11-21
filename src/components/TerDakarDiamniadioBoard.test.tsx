@@ -15,6 +15,7 @@ describe('affichage TER Dakar ↔ Diamniadio', () => {
     expect(getByText('36 km')).toBeTruthy()
     expect(getByText('13')).toBeTruthy()
     expect(getByText('Dakar → Diamniadio')).toBeTruthy()
+    expect(getByText(/Prochain départ théorique à/)).toBeTruthy()
   })
 
   it('bascule le libellé, l’origine, la destination et l’ordre des gares au retour', () => {
