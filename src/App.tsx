@@ -2335,7 +2335,7 @@ function ExploreMobilityCountdowns({
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
-                <span className={`network-summary-passage${passage ? passageClass : ' is-undeclared'}`}>
+                <span className={`network-summary-passage${passage ? '' : ' is-undeclared'}${passageClass}`}>
                   <strong>{passage ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : '—'}</strong>
                   <small>{passage && clock
                     ? `créneau ${clock}${id === 'ter' || id === 'brt' ? ` · ${passage.headwayMinutes} min` : ''}`
