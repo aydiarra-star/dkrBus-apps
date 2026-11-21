@@ -1,6 +1,7 @@
 import terGeometryRaw from '../../data/ter/ter-dakar-aibd.geojson?raw'
 import brtGeometryRaw from '../../data/brt/brt-b1-osm.geojson?raw'
-import { BRT_STOPS, TER_STOPS, type CorridorStop } from './corridors'
+import { BRT_STOPS, type CorridorStop } from './corridors'
+import { TER_PHASE_ONE_STOPS } from './terServiceScopes'
 import { projectStopToLine, type RoadPoint } from './roadNetworkRouting'
 
 interface GeoJsonLineFeature {
@@ -49,14 +50,13 @@ export function auditTerPhaseOneGeometry() {
     ...feature.geometry,
     coordinates: feature.geometry.coordinates.slice(0, phaseOneEnd + 1),
   } })
-  const stops = TER_STOPS.filter((stop) => stop.id !== 'ter-aibd').slice().sort((a, b) => a.order - b.order)
   return {
     source: 'OpenStreetMap physical railway alignment',
     sourceId: String(feature.properties.osm_relation),
     extractedOn: String(feature.properties.extracted_on),
     scope: 'Dakar ↔ Diamniadio (phase 1 only)',
     phaseOneLengthM: Number(feature.properties.phase_1_length_m),
-    ...auditOrderedStops(stops, positions),
+    ...auditOrderedStops(TER_PHASE_ONE_STOPS, positions),
   }
 }
 
