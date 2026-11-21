@@ -44,7 +44,7 @@ for (const theme of ['light','dark']) {
         const estimates = items.locator('.bus-estimate')
         assert([0,n].includes(await estimates.count()))
         if (await estimates.count()) assert((await estimates.locator('strong').allTextContents()).every(v=>v === 'Projection non confirmée'))
-        assert((await items.allInnerTexts()).every(v=>!/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/.test(v)))
+        assert((await items.allInnerTexts()).every(v=>!/\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/.test(v)))
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
         return
       }
@@ -79,7 +79,7 @@ for (const theme of ['light','dark']) {
     await sheet.waitForURL(url); await sheet.close(); assert.equal(await missing.locator('time').count(),0)
     const gapBoard = await wrapper.locator('.bus-occurrences').innerText()
     assert.match(gapBoard,/lacune après les départs transcrits/)
-    assert.doesNotMatch(gapBoard,/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
+    assert.doesNotMatch(gapBoard,/\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
     await inspect('7',2,27,/Gare Palais/,green); await inspect('7',3,29,/Rue Okm 60, 67/,green)
     await inspect('16A',2,65,/Gare Palais/,green); await inspect('16A',3,64,/Terminus Malika/,green)
     await inspect('319',0,27,/Arrivée au terminus/,green); await estimates.check(); await inspect('319',1,26,/Arrivée au terminus/,green)
@@ -97,7 +97,7 @@ for (const theme of ['light','dark']) {
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
     assert.equal(await wrapper.locator('.bus-occurrences time, .bus-occurrences [role="timer"]').count(),0)
     assert.match(await wrapper.locator('.bus-occurrences').innerText(),/Heures de référence · jour non confirmé/)
-    assert.doesNotMatch(await wrapper.locator('.bus-occurrences').innerText(),/\\b05:49\\b/)
+    assert.doesNotMatch(await wrapper.locator('.bus-occurrences').innerText(),/\b05:49\\b/)
     await estimates.check(); await inspect('84',0,73,/Arrivée au terminus/,null); await inspect('84',1,73,/Jaxaay2 Route Du 84/,null)
     await wrapper.getByRole('button',{name:'TATA',exact:true}).click(); await inspect('60',0,8,/Arrivée au terminus/,null); await inspect('60',1,8,/Dernier secteur/,null)
     // The other axis of the 53 and the return description of the 1 are
