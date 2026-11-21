@@ -75,7 +75,9 @@ for (const theme of ['light','dark']) {
     assert.match(url,/4256165-0$/); await page.context().route(url,r=>r.fulfill({contentType:'text/plain',body:'Fiche externe de recette'}))
     const popup = page.waitForEvent('popup'); await external.click(); const sheet = await popup
     await sheet.waitForURL(url); await sheet.close(); assert.equal(await missing.locator('time').count(),0)
-    assert.match(await wrapper.locator('.bus-occurrences').innerText(),/lacune dès le départ de 05:40/)
+    const gapBoard = await wrapper.locator('.bus-occurrences').innerText()
+    assert.match(gapBoard,/lacune après les départs transcrits/)
+    assert.doesNotMatch(gapBoard,/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
     await inspect('7',2,27,/Gare Palais/,green); await inspect('7',3,29,/Rue Okm 60, 67/,green)
     await inspect('16A',2,65,/Gare Palais/,green); await inspect('16A',3,64,/Terminus Malika/,green)
     await inspect('319',0,27,/Arrivée au terminus/,green); await estimates.check(); await inspect('319',1,26,/Arrivée au terminus/,green)
