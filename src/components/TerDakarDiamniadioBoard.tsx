@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { PassageClock } from './PassageClock'
-import { formatPassageCountdown } from '../domain/headways'
+import { formatPassageCountdown, nextReferencePassage } from '../domain/headways'
 import {
-  genererHorairesTerDakarDiamniadio,
+  GARES_TER_DAKAR_DIAMNIADIO,
   libelleFrequenceTerDakarDiamniadio,
   TER_DAKAR_DIAMNIADIO_DISTANCE_KM,
+  TER_DAKAR_DIAMNIADIO_DUREE_MINUTES,
+  TER_DAKAR_DIAMNIADIO_FREQUENCIES,
   type TerDakarDiamniadioDirection,
 } from '../domain/terDakarDiamniadio'
 
@@ -14,10 +16,31 @@ interface TerDakarDiamniadioBoardProps {
 
 export function TerDakarDiamniadioBoard({ now }: TerDakarDiamniadioBoardProps) {
   const [direction, setDirection] = useState<TerDakarDiamniadioDirection>('aller')
-  const schedule = useMemo(
-    () => genererHorairesTerDakarDiamniadio(direction, now),
-    [direction, now],
-  )
+  const schedule = useMemo(() => {
+    const gares = direction === 'aller'
+      ? GARES_TER_DAKAR_DIAMNIADIO
+      : [...GARES_TER_DAKAR_DIAMNIADIO].reverse()
+    const rows = gares.map((gare, index) => {
+      const decalageMinutes = direction === 'aller'
+        ? gare.offsetAller
+        : TER_DAKAR_DIAMNIADIO_DUREE_MINUTES - gare.offsetAller
+      const passage = nextReferencePassage(TER_DAKAR_DIAMNIADIO_FREQUENCIES, now, decalageMinutes)
+      return passage ? {
+        id: gare.id,
+        nom: gare.nom,
+        decalageMinutes,
+        estDepart: index === 0,
+        estTerminus: index === gares.length - 1,
+        passageAt: passage.nextDepartureAt,
+        dansMinutes: passage.minutes,
+      } : null
+    })
+    if (rows.some((row) => row === null)) return null
+    return {
+      dureeMinutes: TER_DAKAR_DIAMNIADIO_DUREE_MINUTES,
+      rows: rows.filter((row): row is NonNullable<typeof row> => row !== null),
+    }
+  }, [direction, now])
   const destination = direction === 'aller' ? 'Diamniadio' : 'Dakar'
   const origine = direction === 'aller' ? 'Dakar' : 'Diamniadio'
 
