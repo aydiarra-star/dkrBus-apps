@@ -155,7 +155,10 @@ export function nextReferencePassage(
   const offsetMs = (Number.isFinite(offsetMinutes) ? Math.max(0, offsetMinutes) : 0) * MINUTE_MS
   const todayStart = startOfDakarDay(now)
 
-  // Une mission partie la veille peut encore passer après minuit à une station\n  // aval. On examine donc aussi la journée de service précédente : son\n  // départ reste rattaché à J, même si l'instant projeté appartient à J+1.\n  for (let offset = -1; offset < SEARCH_DAYS; offset += 1) {
+  // Une mission partie la veille peut encore passer après minuit à une station
+  // aval. On examine donc aussi la journée de service précédente : son
+  // départ reste rattaché à J, même si l'instant projeté appartient à J+1.
+  for (let offset = -1; offset < SEARCH_DAYS; offset += 1) {
     const dayStart = todayStart + offset * DAY_MS
     const applicableFrequencies = frequenciesForDakarDate(usable, dayStart)
     let best: { at: number; slot: number; frequency: OfficialFrequency } | null = null
@@ -183,16 +186,19 @@ export function nextReferencePassage(
     // après. La qualifier de « service non commencé » serait un contresens.
     const todayFrequencies = frequenciesForDakarDate(usable, todayStart)
     const slotIsToday = best.slot >= todayStart && best.slot - todayStart < DAY_MS
+    const projectedIsToday = best.at >= todayStart && best.at - todayStart < DAY_MS
     const serviceOpenNow = todayFrequencies.some(
       (frequency) => windowStart(todayStart, frequency) <= now && now < windowEnd(todayStart, frequency),
     )
-    const status: PassageStatus = slotIsToday
-      ? windowStart(todayStart, best.frequency) <= now
-        ? 'RUNNING'
-        : 'BEFORE_SERVICE'
-      : serviceOpenNow
-        ? 'LAST_PAST'
-        : 'AFTER_SERVICE'
+    const status: PassageStatus = projectedIsToday
+      ? 'RUNNING'
+      : slotIsToday
+        ? windowStart(todayStart, best.frequency) <= now
+          ? 'RUNNING'
+          : 'BEFORE_SERVICE'
+        : serviceOpenNow
+          ? 'LAST_PAST'
+          : 'AFTER_SERVICE'
     const clockLabel = formatClock(new Date(best.at))
 
     return {
