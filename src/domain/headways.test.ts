@@ -148,6 +148,28 @@ describe('prochains créneaux théoriques', () => {
     expect(projected.minutes).toBe(3)
   })
 
+
+  it('conserve la journée de service J pour un passage projeté après minuit', () => {
+    // Départ du terminus le mercredi à 22:45, passage à la station aval
+    // le jeudi à 00:25 (offset de 100 min). À 00:20, la course de J doit
+    // rester prioritaire sur la grille du jeudi matin.
+    const lateService = [{
+      ...BRT[0],
+      serviceStart: '22:00',
+      serviceEnd: '23:00',
+      headwayMinutes: 15,
+    }]
+    const passage = nextReferencePassage(
+      lateService,
+      at('2026-10-08T00:20:00Z'),
+      100,
+    )!
+    expect(passage.clockLabel).toBe('00:25')
+    expect(passage.minutes).toBe(5)
+    expect(passage.status).toBe('RUNNING')
+    expect(passage.nextDepartureAt).toBe('2026-10-08T00:25:00.000Z')
+  })
+
   it('garde un décalage nul strictement équivalent au comportement historique', () => {
     const now = at('2026-10-08T12:00:00Z')
     expect(nextReferencePassage(BRT, now, 0)!.clockLabel).toBe('12:06')
