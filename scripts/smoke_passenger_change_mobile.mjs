@@ -17,7 +17,7 @@ for (const same of [false,true]) {
   for (const theme of ['light','dark']) {
     const browser = await chromium.launch({ headless:true, executablePath:process.env.CHROMIUM_PATH ?? await binary.executablePath(), args:binary?.args })
     try {
-      const page = await browser.newPage({viewport:{width:393,height:852},isMobile:true,timezoneId:'Africa/Dakar',locale:'fr-FR',colorScheme:theme,serviceWorkers:'block'})
+      const page = await browser.newPage({viewport:{width:393,height:852},isMobile:true,reducedMotion:'reduce',timezoneId:'Africa/Dakar',locale:'fr-FR',colorScheme:theme,serviceWorkers:'block'})
       const errors=[]; let requests=0
       page.on('pageerror', err => errors.push(err.message))
       await page.route('**/api/**', route => {

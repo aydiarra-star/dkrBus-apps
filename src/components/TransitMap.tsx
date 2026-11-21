@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react'
+import type { FitBoundsOptions } from 'leaflet'
 import { Circle, MapContainer, Polyline, Rectangle, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import type { PublishedStop, SnapshotBounds } from '../domain/published'
 import { type CorridorLine, type CorridorStop } from '../domain/corridors'
@@ -135,6 +136,13 @@ function MapInitialFit({ bounds }: { bounds: RegionBounds | null }) {
   return null
 }
 
+// A fit requested by a route change must also honour reduced motion. An
+// animated camera can regroup points while a rider is opening a stop sheet.
+function routeFitOptions(): FitBoundsOptions {
+  return { padding:[38,38], maxZoom:15,
+    animate:!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, duration:0.8 }
+}
+
 /** Cadre automatiquement le trajet multimodal entre ses deux points. */
 function MapRoutePointsFit({
   origin,
@@ -150,7 +158,7 @@ function MapRoutePointsFit({
     if (hasSearchRoute || !origin || !destination) return
     map.fitBounds(
       [[origin.lat, origin.lng], [destination.lat, destination.lng]],
-      { padding: [38, 38], maxZoom: 15, animate: true, duration: 0.8 },
+      routeFitOptions(),
     )
   }, [map, origin?.lat, origin?.lng, destination?.lat, destination?.lng, hasSearchRoute])
   return null
@@ -160,7 +168,7 @@ function MapSearchRouteFit({ positions }: { positions: [number, number][] }) {
   const map = useMap()
   useEffect(() => {
     if (positions.length < 2) return
-    map.fitBounds(positions, { padding: [38, 38], maxZoom: 15, animate: true, duration: 0.8 })
+    map.fitBounds(positions, routeFitOptions())
   }, [map, positions])
   return null
 }

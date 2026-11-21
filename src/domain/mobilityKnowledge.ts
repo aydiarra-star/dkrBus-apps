@@ -464,7 +464,12 @@ function practicalReply(text: string): string | null {
     if (/\b(horaire|horaires|frequence|frequences|premier|dernier|ouvre|ferme)\b/.test(text) && !/\b(prochain|prochaine|dans combien)\b/.test(text)) {
       const ter = NETWORK_REFERENCE_DATA.ter
       const periods = ter.officialFrequencies.map(f => `${f.scope} : ${formatFrequencyPeriod(f)}`)
-      return `Grille de référence du tableau TER :\n• ${periods.join('\n• ')}.\nLes créneaux en gare sont théoriques ; ce n’est pas un passage en temps réel. Voir la gare et le sens dans Explorer. Source de la référence : ${ter.source.sourceUrl}. Fiche opérateur : ${SOURCES.terHours}.`
+      // A dated document may be asked for explicitly. Keep its last departure
+      // out of the normal board answer and never use it to compute a mission.
+      const document = /\b(publie(?:e?s?)|archive|historique|fiche)\b/.test(text)
+        ? `\nHoraires de référence — fiche opérateur consultée en octobre : premier départ annoncé à 05h35 de Diamniadio et 05h45 de Dakar, dernier à 22h05. Cette fiche documentaire n’est pas la grille actuelle des missions et ne garantit pas un dernier train aujourd’hui.${source(SOURCES.terHours)}`
+        : ''
+      return `Grille de référence du tableau TER :\n• ${periods.join('\n• ')}.\nLes créneaux en gare sont théoriques ; ce n’est pas un passage en temps réel. Voir la gare et le sens dans Explorer. Source de la référence : ${ter.source.sourceUrl}. Fiche opérateur : ${SOURCES.terHours}.${document}`
     }
     if (/\b(abonnement|abonnements|mensuel|hebdo|hebdomadaire)\b/.test(text)) return `Abonnements adultes TER de référence, 2e classe :\n• Mensuel : 15 000 / 30 000 / 45 000 F CFA pour 1 / 2 / 3 zones, du 1er à la fin du mois.\n• Hebdomadaire : 6 000 / 12 000 / 18 000 F CFA, du lundi au dimanche.\nCarte Sama TER nominative. Des offres jeunes et enfants existent : consultez les conditions d’âge et de zones sur la page de l’opérateur ; ce résumé ne leur applique pas automatiquement un tarif adulte.${source(SOURCES.terSubscriptions)}`
     if (/\b(enfant|enfants|gratuit)\b/.test(text)) return `Le site TER Dakar annonce la gratuité pour les enfants de moins de 5 ans. Les autres offres enfants et jeunes dépendent de l’âge et du titre choisi.${source(SOURCES.terOffers)}`

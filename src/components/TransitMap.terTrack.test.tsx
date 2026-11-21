@@ -16,7 +16,7 @@ interface DrawnPolyline {
   pathOptions: { color: string; weight: number; opacity: number; dashArray?: string; dashOffset?: string; className?: string; lineCap?: string; lineJoin?: string }
 }
 
-const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[] }))
+const drawn = vi.hoisted(() => ({ polylines: [] as unknown[], markers: [] as unknown[], fitBounds: vi.fn() }))
 
 vi.mock('react-leaflet', () => {
   const Layer = ({ children }: { children?: ReactNode }) => <>{children}</>
@@ -24,7 +24,7 @@ vi.mock('react-leaflet', () => {
   const container = document.body.appendChild(document.createElement('div'))
   const map = {
     attributionControl: { setPrefix: () => undefined },
-    fitBounds: () => undefined,
+    fitBounds: drawn.fitBounds,
     flyTo: () => undefined,
     getZoom: () => 19, getMaxZoom: () => 19,
     getSize: () => ({ x: 1000, y: 800 }),
@@ -213,6 +213,15 @@ describe('carte : les autres mobilités ne changent pas', () => {
 
 
 describe('carte de trajet, distincte de la carte de référence', () => {
+  it.each([true,false])('honours reduced motion (%s) when fitting the actual journey bounds', reduce => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduce && query === '(prefers-reduced-motion: reduce)' }))
+    try {
+      drawn.fitBounds.mockClear()
+      const positions = [[14.67,-17.43],[14.70,-17.44]] as const
+      drawMap([], [], [{ id:'view-test', network:'ter', positions }], true)
+      expect(drawn.fitBounds).toHaveBeenCalledWith(positions, expect.objectContaining({ animate:!reduce, maxZoom:15 }))
+    } finally { vi.unstubAllGlobals() }
+  })
   it('draws the exact selected Dakar ride and its calls, not whole lines, both directions or unrelated stops', () => {
     const result = search(dakarNetwork, { origin: 'ter-colobane', destination: 'ter-pikine', departAt: Date.parse('2026-11-18T08:01Z') / 1000 })
     if (!result.ok) throw Error(result.message)

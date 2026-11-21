@@ -12,7 +12,7 @@ const binary = process.env.CHROMIUM_PATH ? null : (await import(pathToFileURL(re
 for (const theme of ['light','dark']) {
   const browser = await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH ?? await binary.executablePath(),args:binary?.args})
   try {
-    const page = await browser.newPage({viewport:{width:393,height:852},isMobile:true,locale:'fr-FR',timezoneId:'Africa/Dakar',colorScheme:theme,serviceWorkers:'block',
+    const page = await browser.newPage({viewport:{width:393,height:852},isMobile:true,reducedMotion:'reduce',locale:'fr-FR',timezoneId:'Africa/Dakar',colorScheme:theme,serviceWorkers:'block',
       permissions:['geolocation'],geolocation:{latitude:14.6890347,longitude:-17.4577499}})
     page.setDefaultTimeout(10000)
     const errors=[], apiTrips=[]; page.on('pageerror', e=>errors.push(e.message))

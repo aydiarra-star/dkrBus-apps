@@ -32,6 +32,7 @@ describe('assistant mobilité', () => {
     expect(answer).toMatch(/Diamniadio ↔ AIBD[^\n]*24 min/)
     expect(answer).toMatch(/Diamniadio ↔ AIBD[^\n]*30 min/)
     expect(answer).toContain('pas un passage en temps réel')
+    expect(answer).not.toContain('22h05')
     expect(answer).not.toMatch(/prochain.*dans \d+ min/i)
   })
 
