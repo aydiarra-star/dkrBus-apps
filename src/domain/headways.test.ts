@@ -172,8 +172,8 @@ describe('prochains créneaux théoriques', () => {
 
   it('compare la course reportée de la veille avec une grille différente le jour courant', () => {
     // À 00:20 jeudi, la grille du mercredi projette un passage à 08:00.
-    // La grille propre au jeudi offre toutefois un passage à 05:00, qui est
-    // réellement le prochain. Le moteur ne doit pas s'arrêter au mercredi.
+    // La grille propre au jeudi, avec le même décalage, projette son premier
+    // passage à 15:00 : la course de mercredi reste donc bien la prochaine.
     const schedules = [
       { ...BRT[0], days: ['WED'] as const, serviceStart: '22:00', serviceEnd: '23:00', headwayMinutes: 15 },
       { ...BRT[0], days: ['THU'] as const, serviceStart: '05:00', serviceEnd: '06:00', headwayMinutes: 15 },
@@ -183,9 +183,9 @@ describe('prochains créneaux théoriques', () => {
       at('2026-10-08T00:20:00Z'),
       10 * 60,
     )!
-    expect(passage.clockLabel).toBe('05:00')
-    expect(passage.minutes).toBe(280)
-    expect(passage.nextDepartureAt).toBe('2026-10-08T05:00:00.000Z')
+    expect(passage.clockLabel).toBe('08:00')
+    expect(passage.minutes).toBe(460)
+    expect(passage.nextDepartureAt).toBe('2026-10-08T08:00:00.000Z')
   })
 
   it('garde un décalage nul strictement équivalent au comportement historique', () => {
