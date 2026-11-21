@@ -34,7 +34,7 @@ try {
           if(timed) {
             const t=Math.ceil((p.at-now)/1000);assert(t>0,loc);assert.equal(secs.dateTime,`PT${t}S`,loc)
             assert.equal(value,`Dans ${formatPassageCountdown(Math.max(1,Math.ceil(t/60)))}`,loc);assert.equal(secs.textContent,`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`,loc)
-            assert(!/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/.test(value),loc)
+            assert(!/\b(?:[01]\d|2[0-3]):[0-5]\d\b/.test(value),loc)
           }
           return {active,estimate:kind==='model' && 'at' in p}
         }
