@@ -46,13 +46,13 @@ for (const theme of ['light','dark']) {
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
         return
       }
-      const before = await timers.allTextContents(); assert(before.every(v => /^(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v)))
+      const before = await timers.allTextContents(); assert(before.every(v => /^(?:Dans )?(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v)))
       assert.equal(await timers.locator('svg').count(),n)
       assert.equal(await timers.first().evaluate(el=>getComputedStyle(el).color),green)
       const seconds = items.locator('time.passage-remaining'); assert.equal(await seconds.count(), n)
       await tick(seconds.first(), green)
       await page.clock.fastForward(60_000)
-      const after = await timers.allTextContents(); assert(after.every(v => /^(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v))); assert.notDeepEqual(before,after)
+      const after = await timers.allTextContents(); assert(after.every(v => /^(?:Dans )?(?:[1-9]\d* min|[1-9]\d* h(?: [0-5]\d)?)$/.test(v))); assert.notDeepEqual(before,after)
       assert.equal(await items.evaluateAll(rows => rows.some(r=>r.scrollWidth>r.clientWidth+1)),false)
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
     }
