@@ -91,7 +91,7 @@ describe('tableau des créneaux par station et par sens', () => {
       nextReferencePassage(
         OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
         NOW,
-        56.5,
+        12,
       )!.nextDepartureAt,
     )
   })
@@ -110,7 +110,7 @@ describe('tableau des créneaux par station et par sens', () => {
       nextReferencePassage(
         OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
         Date.parse('2026-10-08T13:44:00.000Z'),
-        44.5,
+        0,
       )!.nextDepartureAt,
     )
     expect(aibd.inbound!.headwayMinutes).toBe(24)
