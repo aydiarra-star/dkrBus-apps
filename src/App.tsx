@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import {
   AlertTriangle,
   ArrowDownUp,
@@ -47,6 +47,7 @@ import { nextTrafficExpiry } from './domain/trafficFeed'
 import { AssistantChat } from './components/AssistantChat'
 import { MobilityBadge, MobilityText } from './components/MobilityBadge'
 import { PassageArcs } from './components/PassageArcs'
+const TerDakarDiamniadioBoard = lazy(() => import('./components/TerDakarDiamniadioBoard').then(({ TerDakarDiamniadioBoard: Board }) => ({ default: Board })))
 import { EstimatedLineScheduleBoard } from './components/EstimatedLineScheduleBoard'
 import { ExternalDirections } from './components/ExternalDirections'
 import { VerifiedJourneys, type ChooseSection } from './components/VerifiedJourneys'
@@ -2366,6 +2367,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
   return (
     <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
       <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ AIBD · heure de Dakar (UTC+0)' : 'Petersen ↔ Guédiawaye'}</p>
+      {network === 'ter' && <Suspense fallback={null}><TerDakarDiamniadioBoard now={now} /></Suspense>}
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
