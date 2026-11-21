@@ -89,7 +89,7 @@ for (const theme of ['light','dark']) {
     await inspect('58',2,39,/Bvar\. Tapée \/ Rue 18/,green); await inspect('58',3,43,/Arrêt De Bus/,green)
     await inspect('57',0,56,/Arrivée au terminus/,green); await inspect('57',1,57,/Terminus 57/,green)
     await input.fill('87'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
-    const ref87 = wrapper.getByText('Départ théorique depuis Maristes : 06:35'); await ref87.click()
+    const ref87 = wrapper.locator('.bus-survey-note').filter({hasText:'Départ de référence transmis depuis Maristes'}).locator('summary'); await ref87.click()
     assert.match(await wrapper.locator('.bus-occurrences .bus-survey-note').innerText(),/Mosquée Massalikou Djinane/)
     assert.equal(await wrapper.locator('.bus-occurrences time').count(),0)
     await input.fill('84'); await wrapper.locator('.station-board-direction-toggle').nth(1).click()
