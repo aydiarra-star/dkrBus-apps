@@ -8,6 +8,24 @@ import { OFFICIAL_REFERENCE_FREQUENCIES } from './frequencies'
 const NOW = Date.parse('2026-10-08T12:00:00.000Z')
 
 describe('tableau des créneaux par station et par sens', () => {
+
+  it('refuse de raccorder silencieusement une gare TER non référencée', () => {
+    const line = boardLinesForNetwork('ter')[0]
+    const incompleteLine = {
+      ...line,
+      stopIds: [...line.stopIds.slice(0, 3), 'ter-station-non-calibree', ...line.stopIds.slice(3)],
+    }
+    expect(buildStationBoard(incompleteLine, NOW)).toBeNull()
+  })
+
+  it('refuse une gare cartographiée sans durée TER calibrée', () => {
+    const line = boardLinesForNetwork('ter')[0]
+    // brt-petersen existe dans le référentiel des arrêts, mais n'a aucune
+    // durée TER observée : il ne doit pas recevoir artificiellement l'offset 0.
+    const uncalibratedLine = { ...line, stopIds: ['ter-dakar', 'brt-petersen'] }
+    expect(buildStationBoard(uncalibratedLine, NOW)).toBeNull()
+  })
+
   it('construit une ligne par station du TER, avec les deux sens distincts', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
@@ -65,15 +83,22 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(diamniadio.inbound!.headwayMinutes).toBe(8)
     expect(diamniadio.outboundAirport!.headwayMinutes).toBe(24)
     expect(diamniadio.inboundAirport!.headwayMinutes).toBe(24)
-    const outboundPhaseGap = (Date.parse(diamniadio.outboundAirport!.nextDepartureAt) - Date.parse(diamniadio.outbound!.nextDepartureAt)) / 60_000
-    expect([0, 8, 16]).toContain(outboundPhaseGap)
+    // La grille de l'extension est ancrée à Diamniadio, indépendamment
+    // du temps de parcours Dakar → Diamniadio du tronc commun.
+    expect(diamniadio.outboundAirport!.nextDepartureAt).toBe(
+      nextReferencePassage(
+        OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
+        NOW,
+        0,
+      )!.nextDepartureAt,
+    )
     expect(aibd.inbound!.headwayMinutes).toBe(24)
     expect(aibd.outbound!.headwayMinutes).toBe(24)
     expect(aibd.outbound!.nextDepartureAt).toBe(
       nextReferencePassage(
         OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
         NOW,
-        56.5,
+        12,
       )!.nextDepartureAt,
     )
   })
@@ -92,7 +117,7 @@ describe('tableau des créneaux par station et par sens', () => {
       nextReferencePassage(
         OFFICIAL_REFERENCE_FREQUENCIES.ter.filter((frequency) => frequency.routeSegment === 'DIAMNIADIO_AIBD'),
         Date.parse('2026-10-08T13:44:00.000Z'),
-        44.5,
+        0,
       )!.nextDepartureAt,
     )
     expect(aibd.inbound!.headwayMinutes).toBe(24)

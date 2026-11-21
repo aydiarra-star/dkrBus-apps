@@ -86,8 +86,8 @@ describe('contraste des minutes d’attente', () => {
     }
   })
 
-  it('laisse les trois vues sur le même jeton, sans recopier un hexadécimal', () => {
-    expect(css.match(/color:\s*var\(--passage-green\)/g)).toHaveLength(3)
+  it('laisse les quatre vues sur le même jeton, sans recopier un hexadécimal', () => {
+    expect(css.match(/color:\s*var\(--passage-green\)/g)).toHaveLength(4)
     expect(css).not.toMatch(/color:\s*#00B140/i)
     expect(css).not.toMatch(/color:\s*#007A2D/i)
   })

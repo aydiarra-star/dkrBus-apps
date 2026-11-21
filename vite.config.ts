@@ -84,6 +84,14 @@ export default defineConfig({
               test: /[\\/]src[\\/]routing[\\/](?:network|search|walking|ranking|serviceTime|vehicleGraph|samePlatformChanges|passengerEdition)\.ts$/,
             },
             {
+              // Explorer and the lazy TER board share this clock. Neither should
+              // have to import the application entry to project a passage.
+              name: 'reference-clock',
+              priority: 16,
+              includeDependenciesRecursively: false,
+              test: /[\\/]src[\\/]domain[\\/](?:headways|frequencies|senegalPublicHolidays)\.ts$/,
+            },
+            {
               name: 'schedule-board',
               priority: 15,
               test: /EstimatedLineScheduleBoard/,

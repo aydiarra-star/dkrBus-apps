@@ -182,6 +182,36 @@ for (const theme of ['light','dark']) {
     await report.locator('summary').click(); assert.match(await report.innerText(),/pour Ouakam/)
     assert.equal(await report.locator('time,[role=timer]').count(),0)
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
+    // Check the rendered cascade, not just the status attribute: a mobility
+    // badge must not recolour the service light. The bus header is never a clock.
+    const header = network('ter'), dot = header.locator('.network-summary-dot')
+    await header.click()
+    const dd = page.getByRole('region', {name:'Horaires TER Dakar - Diamniadio'})
+    await dd.waitFor()
+    assert.equal(await dd.getByRole('listitem').count(),13)
+    await dd.getByRole('button',{name:'Basculer vers le sens Retour'}).click()
+    assert.match(await dd.getByRole('listitem').first().innerText(),/Diamniadio/)
+    assert.equal(await page.locator('.station-direction-outbound .station-board-row').count(),14)
+    for (const [clock, status, color] of [
+      ['03:00', 'FINISHED', 'rgb(220, 38, 38)'],
+      ['06:05', 'UPCOMING', 'rgb(217, 119, 6)'],
+      ['12:00', 'ACTIVE', theme === 'dark' ? 'rgb(34, 160, 101)' : 'rgb(25, 135, 84)'],
+    ]) {
+      await page.clock.pauseAt(new Date(`2026-11-22T${clock}:00Z`))
+      await page.clock.runFor(1000)
+      assert.equal(await header.getAttribute('data-service-status'),status)
+      assert.equal(await dot.evaluate(el => getComputedStyle(el).backgroundColor),color)
+      assert.equal(await header.locator('time').count(),status === 'ACTIVE' ? 1 : 0)
+      assert.equal(await network('ddd').locator('.network-summary-passage strong').textContent(),'Par arrêt')
+      assert.equal(await network('ddd').locator('time').count(),0)
+    }
+    const interchange = page.locator('.station-board-row').filter({hasText:'Tous trains'});
+    assert.equal(await interchange.count(),2)
+    for (const text of await interchange.allTextContents()) {
+      assert.match(text,/Tous trains · 20 min/)
+      assert.match(text,/AIBD · 30 min/)
+    }
+    console.log(`TER ${theme} : tableau 13 + 14 gares, retour, trois couleurs effectives, dimanche 20/30, bus sans horloge réseau OK`)
     assert.deepEqual(errors,[]); console.log(`393 × 852 · ${theme} : TER, BRT, DDD, AFTU, TATA : deux sens, rangs, secondes vertes sur fiche, modèles sans timer, 16A et 57 dans les deux sens à 19 h, mentions SETER et EMG hors rang, fin de la 30 samedi, 58 en soirée, 60/65/75 matin, 73 Lac Rose 75 rangs par sens, documents TATA 1/53 sans heure, fins 73 et 311 samedi, 16B à minuit et retour absent OK`)
   } finally { await browser.close() }
 }

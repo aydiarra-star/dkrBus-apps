@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import {
   AlertTriangle,
   ArrowDownUp,
@@ -105,6 +105,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
+import { getServiceDisplayState, serviceWindowForDay, type ServiceDisplayStatus } from './domain/serviceStatus'
 import { estimatedFrequencyReference, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { boardLinesForNetwork, buildStationBoard, type StationBoard } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -165,6 +166,9 @@ import {
   type PipelineSummary,
 } from './domain/review'
 import './App.css'
+
+const TerDakarDiamniadioBoard = lazy(() => import('./components/TerDakarDiamniadioBoard')
+  .then(({ TerDakarDiamniadioBoard: Board }) => ({ default: Board })))
 
 /** Quatre piliers fonctionnels, un rôle exclusif par onglet. */
 type TabId = 'explore' | 'route' | 'alerts' | 'settings'
@@ -2308,32 +2312,38 @@ function ExploreMobilityCountdowns({
       <ul className="network-summary-list" aria-label="Comptes à rebours des mobilités">
         {MOBILITY_IDS.map((id) => {
           const network = NETWORK_REFERENCE_DATA[id]
-          const passage = id === 'ter' || id === 'brt'
-            ? nextReferencePassage(network.officialFrequencies, now)
-            : null
+          const referenceNetwork = id === 'ter' || id === 'brt'
+          const passage = referenceNetwork ? nextReferencePassage(network.officialFrequencies, now) : null
           const isSelected = selectedNetwork === id
+          // The dot describes the network's declared window in Dakar, not a departure at a stop.
+          const { start, end } = serviceWindowForDay(now, network.officialFrequencies, { start: network.serviceStart, end: network.serviceEnd })
+          const { status, label } = getServiceDisplayState(now, start, end)
+          const counting = status === 'ACTIVE' && passage?.status === 'RUNNING'
           return (
             <li className={`network-summary-item network-item-${id} mobility-${id}${isSelected ? ' is-selected' : ''}`} key={id}>
               <button
                 type="button"
                 className="network-summary-header"
+                data-service-status={status}
+                title={`Amplitude de référence du réseau (heure de Dakar) : ${label}`}
                 aria-pressed={isSelected}
                 aria-label={`Afficher le réseau ${id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}`}
                 onClick={() => onSelectNetwork(id)}
               >
-                <span className={`network-summary-dot is-referenced${passage?.status === 'RUNNING' ? ' is-counting' : ''}`} aria-hidden="true" />
+                <span className={`network-summary-dot is-referenced${counting ? ' is-counting' : ''}`} aria-hidden="true" />
                 <span className="network-summary-name">
                   <MobilityBadge id={id}>{id === 'aftu_tata' ? 'AFTU / TATA' : network.shortName}</MobilityBadge>
                   {id !== 'aftu_tata' && id !== 'ddd' && network.label !== network.shortName && (
                     <span className="network-summary-fullname">{network.label}</span>
                   )}
                 </span>
-                {id === 'ter' || id === 'brt' ? <ReferencePassage passage={passage} now={now} network={id} />
-                  : <span className="network-summary-passage is-undeclared"><strong>Par arrêt</strong><small>Voir les lignes</small></span>}
+                {referenceNetwork
+                  ? <ReferencePassage passage={passage} now={now} summaryStatus={status} />
+                  : <span className={`network-summary-passage is-undeclared${inactivePassageClass(status)}`}><strong>Par arrêt</strong><small>Voir les lignes</small></span>}
               </button>
               {isSelected && (
                 <div className="network-summary-detail">
-                  {(id === 'ter' || id === 'brt')
+                  {referenceNetwork
                     ? <ReferenceStationBoard network={id} now={now} onSelectStop={onFocusNearbyStop} />
                     : <BusLineScheduleBoard now={now} network={id} published={busEdition} />}
                 </div>
@@ -2346,18 +2356,26 @@ function ExploreMobilityCountdowns({
   )
 }
 
-/** The origin's service window, not the calendar date of an offset at this
- * station, decides whether a late running slot is still on the sign. */
-function ReferencePassage({ passage, now, network, terminus }: {
-  passage: NextPassage | null; now: number; network?: NetworkId; terminus?: boolean
+function inactivePassageClass(status?: ServiceDisplayStatus) {
+  return status === 'FINISHED' ? ' is-finished' : status === 'UPCOMING' ? ' is-upcoming' : ''
+}
+
+/** Only the network summary takes its colour from today's service window.
+ * At a station, a train that departed before closing may still be on its way. */
+function ReferencePassage({ passage, now, summaryStatus, terminus }: {
+  passage: NextPassage | null; now: number; summaryStatus?: ServiceDisplayStatus; terminus?: boolean
 }) {
-  const status = passage?.status
-  const active = passage && passage.status === 'RUNNING'
-  const upcoming = status === 'BEFORE_SERVICE', clock = passage?.nextDepartureAt.slice(11,16)
+  let status = summaryStatus
+  if (passage && (!status || status === 'ACTIVE')) {
+    status = passage.status === 'RUNNING' ? 'ACTIVE' : passage.status === 'BEFORE_SERVICE' ? 'UPCOMING' : 'FINISHED'
+  }
+  const active = passage && status === 'ACTIVE'
+  const upcoming = status === 'UPCOMING'
+  const clock = passage?.clockLabel
   const missing = terminus ? 'Terminus' : 'Aucun créneau déclaré'
   const caption = !passage ? missing : active || upcoming ? `créneau ${clock} · ${passage.headwayMinutes} min`
     : `Prochain créneau : ${formatJourneyDate(passage.nextDepartureAt.slice(0,10))} à ${clock}`
-  return <span className={`network-summary-passage${network ? '' : ' station-board-passage'}${active ? '' : !passage ? ' is-undeclared' : upcoming ? ' is-upcoming' : ' is-finished'}`} role="timer" aria-live="off">
+  return <span className={`network-summary-passage${summaryStatus ? '' : ' station-board-passage'}${passage ? '' : ' is-undeclared'}${inactivePassageClass(status)}`} role="timer" aria-live="off">
     <strong>{active ? <><PassageArcs />{formatPassageCountdown(passage.minutes)}</> : !passage ? terminus ? 'Terminus' : '—' : upcoming ? `Dès ${clock}` : 'Fin de service'}</strong>
     {active && <PassageClock atMs={Date.parse(passage.nextDepartureAt)} now={now} />}
     <small>{caption}</small>
@@ -2372,6 +2390,7 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
   return (
     <div className="station-board" aria-label={`Horaires ${network.toUpperCase()} par station`}>
       <p className="station-board-context">{network === 'ter' ? 'Dakar ↔ AIBD · heure de Dakar (UTC+0)' : 'Petersen ↔ Guédiawaye'}</p>
+      {network === 'ter' && <Suspense fallback={null}><TerDakarDiamniadioBoard now={now} /></Suspense>}
       {boards.map((board) => (
         <div className="station-board-line" key={board.line.id}>
           <div className="station-direction station-direction-outbound">
@@ -2383,12 +2402,12 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
                 <span className="station-board-passage-stack">
-                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains · 8 min</small>}
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains{row.outbound && ` · ${row.outbound.headwayMinutes} min`}</small>}
                   {network === 'ter' && row.stop.id === 'ter-aibd' && <small className="station-board-mission-label">Prochaine arrivée · mission AIBD</small>}
                   <ReferencePassage passage={row.outbound} now={now} terminus={row.stop.id === board.destinationStop.id} />
                   {network === 'ter' && row.stop.id === 'ter-diamniadio' && row.outboundAirport && (
                     <span className="station-board-mission">
-                      <small className="station-board-mission-label">Direction AIBD · 1 train sur 3</small>
+                      <small className="station-board-mission-label">Direction AIBD · {row.outboundAirport.headwayMinutes} min</small>
                       <ReferencePassage passage={row.outboundAirport} now={now} />
                     </span>
                   )}
@@ -2405,11 +2424,11 @@ function ReferenceStationBoard({ network, now, onSelectStop }: { network: 'ter' 
               <button type="button" className="station-board-row" key={row.stop.id} onClick={() => onSelectStop(row.stop)}>
                 <span className="station-board-stop"><strong>{row.stop.name}</strong></span>
                 <span className="station-board-passage-stack">
-                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains · 8 min</small>}
+                  {network === 'ter' && row.stop.id === 'ter-diamniadio' && <small className="station-board-mission-label">Tous trains{row.inbound && ` · ${row.inbound.headwayMinutes} min`}</small>}
                   <ReferencePassage passage={row.inbound} now={now} terminus={row.stop.id === board.originStop.id} />
                   {network === 'ter' && row.stop.id === 'ter-diamniadio' && row.inboundAirport && (
                     <span className="station-board-mission">
-                      <small className="station-board-mission-label">En provenance d'AIBD · 24 min</small>
+                      <small className="station-board-mission-label">En provenance d'AIBD · {row.inboundAirport.headwayMinutes} min</small>
                       <ReferencePassage passage={row.inboundAirport} now={now} />
                     </span>
                   )}

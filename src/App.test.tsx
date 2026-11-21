@@ -1154,7 +1154,7 @@ describe('governance console', () => {
 describe('décomptes dynamiques de l’Explorer', () => {
   it('fait descendre en temps réel le décompte des réseaux de référence', async () => {
     vi.useFakeTimers()
-    // Jeudi 8 octobre 2026, 12:00 UTC : BRT toutes les 6 min, TER toutes les 10 min.
+    // Jeudi 8 octobre 2026, 12:00 UTC : BRT toutes les 6 min, tronc commun TER toutes les 8 min.
     vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
     stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
     render(<App />)
@@ -1204,6 +1204,27 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(container.querySelector('.network-item-ddd .network-summary-passage time')).toBeNull()
     expect(container.querySelector('.network-item-aftu_tata .network-summary-passage time')).toBeNull()
     vi.useRealTimers()
+  })
+
+  it.each([
+    ['2026-11-22T03:00:00Z', 'FINISHED', 'Fin de service'],
+    ['2026-11-22T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
+    ['2026-12-25T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
+    ['2027-01-04T06:05:00Z', 'ACTIVE', '—'], // pas de calendrier férié confirmé
+  ])('distingue l’amplitude de Dakar du prochain passage déclaré à %s', (at, state, text) => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(at))
+    stubApi([{ match: '/api/network', respond: () => jsonResponse(NETWORK_EMPTY) }])
+    const { container } = render(<App />)
+    const header = container.querySelector('.network-item-ter .network-summary-header')!
+    expect(header.getAttribute('data-service-status')).toBe(state)
+    expect(header.querySelector('.network-summary-passage strong')?.textContent).toBe(text)
+    expect(header.querySelector('time, .is-counting, .station-board-double-apostrophe')).toBeNull()
+    for (const id of ['ddd', 'aftu_tata']) {
+      const bus = container.querySelector(`.network-item-${id} .network-summary-header`)!
+      expect(bus.querySelector('.network-summary-passage strong')?.textContent).toBe('Par arrêt')
+      expect(bus.querySelector('time, .is-counting')).toBeNull()
+    }
   })
 
   it('la fermeture du modèle réseau n’éteint pas les derniers passages dans un sens', () => {
@@ -1379,7 +1400,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(recenter()).toBe('')
 
     fireEvent.click(container.querySelector('.network-item-ter .network-summary-header')!)
-    fireEvent.click(within(container.querySelector('.station-board') as HTMLElement).getAllByText('Colobane')[0])
+    const outbound = container.querySelector('.station-direction-outbound') as HTMLElement
+    fireEvent.click(within(outbound).getByRole('button', { name: /^Colobane/ }))
     expect(recenter()).not.toBe('')
     vi.useRealTimers()
   })
