@@ -187,7 +187,7 @@ for (const theme of ['light','dark']) {
     await page.clock.pauseAt(new Date('2026-11-21T01:07:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
     assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
-    assert.doesNotMatch(await terminal.innerText(),/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
+    assert.doesNotMatch(await terminal.innerText(),/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
     await estimates.uncheck(); await input.fill('311'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
