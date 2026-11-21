@@ -190,12 +190,12 @@ export function nextReferencePassage(
     const serviceOpenNow = todayFrequencies.some(
       (frequency) => windowStart(todayStart, frequency) <= now && now < windowEnd(todayStart, frequency),
     )
-    const status: PassageStatus = projectedIsToday
-      ? 'RUNNING'
-      : slotIsToday
-        ? windowStart(todayStart, best.frequency) <= now
-          ? 'RUNNING'
-          : 'BEFORE_SERVICE'
+    const status: PassageStatus = slotIsToday
+      ? windowStart(todayStart, best.frequency) <= now
+        ? 'RUNNING'
+        : 'BEFORE_SERVICE'
+      : projectedIsToday
+        ? 'RUNNING'
         : serviceOpenNow
           ? 'LAST_PAST'
           : 'AFTER_SERVICE'
