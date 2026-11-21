@@ -102,7 +102,7 @@ import { NETWORK_SOURCES, type NetworkId, type NetworkSource } from './domain/ne
 import { MOBILITY_IDS, isMobilityId, mobilityFromLabel, mobilityFromStopId, type MobilityId } from './domain/mobilityColors'
 import { NETWORK_REFERENCE_DATA, formatFrequencyPeriod, formatSourceVerification } from './domain/frequencies'
 import { formatPassageCountdown, nextCountdownTickDelay, nextReferencePassage, type NextPassage } from './domain/headways'
-import { getServiceDisplayState } from './domain/serviceStatus'
+import { getServiceDisplayState, serviceWindowForDay } from './domain/serviceStatus'
 import { estimatedFrequencyReference, estimatedNextPassage, estimatedWaitMinutes } from './domain/estimatedWaits'
 import { boardLinesForNetwork, buildStationBoard, type StationBoard } from './domain/stationBoard'
 import { buildStopIndex, type StopOption } from './domain/stops'
@@ -2308,7 +2308,8 @@ function ExploreMobilityCountdowns({
           // L'horloge de référence du projet est UTC = Africa/Dakar.
           // L'état de service pilote la couleur, indépendamment de l'existence
           // d'un prochain créneau calculé (qui peut appartenir au lendemain).
-          const serviceState = getServiceDisplayState(now, network.serviceStart, network.serviceEnd)
+          const serviceWindow = serviceWindowForDay(now, network.officialFrequencies, { start: network.serviceStart, end: network.serviceEnd })
+          const serviceState = getServiceDisplayState(now, serviceWindow.start, serviceWindow.end)
           const statusClass = serviceState.status === 'ACTIVE'
             ? ' is-counting'
             : serviceState.status === 'UPCOMING'
