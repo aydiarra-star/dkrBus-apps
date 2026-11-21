@@ -145,7 +145,9 @@ for (const theme of ['light','dark']) {
       assert.equal(await passage.count(),1)
       assert.match(await passage.innerText(),/Dans \d+ min/)
       assert.match(await passage.locator('time').innerText(),/^\d+:\d{2}$/)
-      assert.doesNotMatch(await side.innerText(),/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
+      // Exclude the live countdown's mm:ss text; only reject static clock labels.
+      const labels = await side.evaluate(el => { const copy = el.cloneNode(true); copy.querySelectorAll('[role="timer"]').forEach(timer => timer.remove()); return copy.innerText })
+      assert.doesNotMatch(labels,/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
     }
     assert.equal(await sides.locator('time').count(),2)
     await page.clock.pauseAt(new Date('2026-11-20T06:51:59Z')); await page.clock.runFor(1000)
