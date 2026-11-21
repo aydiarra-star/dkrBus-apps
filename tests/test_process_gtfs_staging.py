@@ -11,6 +11,7 @@ from scripts.process_gtfs_staging import (
     MAX_ARCHIVE_BYTES,
     MAX_MANIFEST_BYTES,
     MAX_JSON_RESPONSE_BYTES,
+    MAX_VALIDATION_REPORT_BYTES,
     NoRedirectHandler,
     STAGING_BUCKET,
     SUPABASE_HOST,
@@ -60,7 +61,7 @@ def valid_job() -> dict:
 
 class GTFSWorkerTests(unittest.TestCase):
     def test_validator_version_tracks_the_current_structural_rules(self) -> None:
-        self.assertEqual(VALIDATOR_VERSION, "dakar-gtfs-validator-v5")
+        self.assertEqual(VALIDATOR_VERSION, "dakar-gtfs-validator-v7")
 
     def test_archive_hash_and_size_are_verified(self) -> None:
         payload = b"PK\x03\x04synthetic-test"
@@ -130,6 +131,18 @@ class GTFSWorkerTests(unittest.TestCase):
     def test_report_accepts_complete_hash_and_size_bound_validator_output(self) -> None:
         report = validate_report(valid_report(), VALID_SHA, 128)
         self.assertFalse(report["production_ready"])
+
+    def test_report_payload_size_is_bounded_before_database_submission(self) -> None:
+        report = valid_report()
+        report["structure_valid"] = False
+        report["counts"]["errors"] = 1
+        report["issues"] = [{
+            "severity": "ERROR",
+            "code": "SYNTHETIC",
+            "message": "x" * MAX_VALIDATION_REPORT_BYTES,
+        }]
+        with self.assertRaisesRegex(WorkerError, "VALIDATOR_REPORT_TOO_LARGE"):
+            validate_report(report, VALID_SHA, 128)
 
     def test_report_must_be_bound_to_the_claimed_archive_hash(self) -> None:
         with self.assertRaisesRegex(WorkerError, "VALIDATOR_REPORT_HASH_MISMATCH"):
@@ -221,6 +234,7 @@ class GTFSWorkerTests(unittest.TestCase):
             f" https://{SUPABASE_HOST}",
             f"https://{SUPABASE_HOST} ",
             "https://other-project.supabase.co",
+            "https://mdmuxzaewzqzqutkqdylo.supabase.co",
             f"http://{SUPABASE_HOST}",
             f"https://{SUPABASE_HOST}/other",
             f"https://user:pass@{SUPABASE_HOST}",
