@@ -79,9 +79,12 @@ function segmentMinutes(line: BoardLine, index: number): number {
  * résolus sont ignorés — aucune station n'est inventée.
  */
 export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoard | null {
-  const stops = line.stopIds
-    .map((stopId) => getCorridorStop(stopId))
-    .filter((stop): stop is CorridorStop => stop !== null)
+  const resolvedStops = line.stopIds.map((stopId) => getCorridorStop(stopId))
+  // TER : ne jamais supprimer silencieusement une gare inconnue du parcours,
+  // car cela recollerait deux gares non adjacentes et fabriquerait un segment.
+  // Le tableau reste indisponible jusqu'à ce que l'identifiant soit référencé.
+  if (line.network === 'ter' && resolvedStops.some((stop) => stop === null)) return null
+  const stops = resolvedStops.filter((stop): stop is CorridorStop => stop !== null)
   if (stops.length < 2) return null
 
   const dwell = dwellMinutes(line.network)
