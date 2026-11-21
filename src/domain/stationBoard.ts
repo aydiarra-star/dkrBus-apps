@@ -21,7 +21,7 @@
  */
 
 import { CORRIDOR_LINES, getCorridorStop, haversineMeters, type CorridorStop } from './corridors'
-import { terTravelTimeMidpointMinutes } from './terTravelTimes'
+import { TER_CUMULATIVE_TRAVEL_TIMES, terTravelTimeMidpointMinutes } from './terTravelTimes'
 import type { OfficialFrequency } from './frequencies'
 import { dwellMinutes } from './assumptions'
 import { nextReferencePassage, type NextPassage } from './headways'
@@ -79,9 +79,16 @@ function segmentMinutes(line: BoardLine, index: number): number {
  * résolus sont ignorés — aucune station n'est inventée.
  */
 export function buildStationBoard(line: BoardLine, now = Date.now()): StationBoard | null {
-  const stops = line.stopIds
-    .map((stopId) => getCorridorStop(stopId))
-    .filter((stop): stop is CorridorStop => stop !== null)
+  const resolvedStops = line.stopIds.map((stopId) => getCorridorStop(stopId))
+  // TER : ne jamais supprimer silencieusement une gare inconnue du parcours,
+  // car cela recollerait deux gares non adjacentes et fabriquerait un segment.
+  // Le tableau reste indisponible jusqu'à ce que l'identifiant soit référencé.
+  if (line.network === 'ter' && resolvedStops.some((stop) => stop === null)) return null
+  const stops = resolvedStops.filter((stop): stop is CorridorStop => stop !== null)
+  // Une gare peut exister dans le référentiel cartographique sans disposer
+  // d'une durée TER observée. La fonction historique de durée renvoie 0 dans
+  // ce cas ; ne surtout pas interpréter ce zéro comme un passage au terminus.
+  if (line.network === 'ter' && stops.some((stop) => !Object.prototype.hasOwnProperty.call(TER_CUMULATIVE_TRAVEL_TIMES, stop.id))) return null
   if (stops.length < 2) return null
 
   const dwell = dwellMinutes(line.network)
