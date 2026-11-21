@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
+const previewUrl = process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/'
 const require = createRequire(resolve(process.env.BROWSER_TOOLS ?? '.', 'package.json'))
 const { chromium } = require('playwright-core')
 const binary = process.env.CHROMIUM_PATH ? null : (await import(pathToFileURL(require.resolve('@sparticuz/chromium')).href)).default
@@ -14,10 +15,10 @@ for (const theme of ['light','dark']) {
     const page = await browser.newPage({ viewport:{width:393,height:852},isMobile:true,locale:'fr-FR',timezoneId:'Africa/Dakar',colorScheme:theme,serviceWorkers:'block' })
     const errors = []; page.on('pageerror', e => errors.push(e.message))
     await page.route('**/api/**',r => r.fulfill({status:404,contentType:'application/json',body:'{}'}))
-    await page.route(/^https:\/\/.*\.tile\.openstreetmap\.org\//,r => r.abort())
+    await page.route(/^https:\/\//, r => new URL(r.request().url()).origin === new URL(previewUrl).origin ? r.fallback() : r.abort())
     await page.clock.install({ time:new Date('2026-11-19T19:00:00Z') })
     await page.clock.pauseAt(new Date('2026-11-19T19:00:01Z'))
-    await page.goto(process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/',{waitUntil:'domcontentloaded'})
+    await page.goto(previewUrl,{waitUntil:'domcontentloaded'})
     assert.equal(await page.locator('html').getAttribute('data-theme'),theme)
     const network = f => page.locator(`.network-item-${f} .network-summary-header`)
     const wrapper = page.locator('.bus-board'), input = wrapper.getByRole('searchbox')

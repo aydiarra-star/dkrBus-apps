@@ -31,3 +31,15 @@ it('does not label arbitrary published IDs TER because they start with the same 
   const s = {stopId:'terminus-central', stopName:'Quai', lat:14.71,lon:-17.42,distanceM:null,parentStation:null,locationType:null}
   expect(referenceMapPoints({...sources,published:[s],layers:{ter:false}}).find(p=>p.key==='published::terminus-central')?.badges).toEqual(['BUS'])
 })
+
+it('hands off each exact reference, not the first stop or the centre of a group', () => {
+  const choose = vi.fn()
+  const points = referenceMapPoints({ ...sources, picking: true, choose })
+  for (const stop of ALL_CORRIDOR_STOPS) {
+    const matches = points.filter(p => p.key === `ref:${stop.id}`)
+    expect(matches).toHaveLength(1)
+    matches[0].action!.run()
+    expect(choose).toHaveBeenLastCalledWith({ label: stop.name, stopId: stop.id, lat: stop.lat, lng: stop.lon })
+  }
+  expect(new Set(choose.mock.calls.map(([p]) => p.stopId)).size).toBe(70)
+})

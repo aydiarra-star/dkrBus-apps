@@ -135,7 +135,7 @@ export function StopCombobox({
       </div>
 
       {point ? (
-        <button type="button" className="point-icon-button" aria-label={`Retirer le ${title.toLowerCase()}`} onClick={onClear}>
+        <button type="button" className="point-icon-button" aria-label={title === 'Départ' ? 'Retirer le départ' : 'Retirer la destination'} onClick={onClear}>
           <X size={15} />
         </button>
       ) : (

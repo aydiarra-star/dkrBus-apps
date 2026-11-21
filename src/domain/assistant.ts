@@ -294,12 +294,12 @@ export function answerAssistant(question: string, context: AssistantContext, now
   //    (« bonjour, je suis à Rufisque… ») est traitée comme une demande.
   const greeted = /^(bonjour|bonsoir|salut|coucou|bonjour dakarbus)/.test(text)
   if ((greeted && !isRouteQuestion(question) && findPlaceMentions(question).length === 0) || text.length <= 3) {
-    return `Bonjour ! Décrivez votre déplacement comme vous le parlez — « je suis à Keur Mbaye Fall, comment aller à Dakar ? » — : je repère vos lieux, je choisis le mode le plus adapté (TER, BRT, lignes DDD/AFTU documentées) et je calcule l’itinéraire avec les correspondances. Je connais les 23 stations du BRT, les 13 gares du TER et les fiches de lignes DDD/AFTU. ${HONEST_LIMIT}`
+    return `Bonjour ! Décrivez votre déplacement comme vous le parlez — « je suis à Keur Mbaye Fall, comment aller à Dakar ? » — : je repère vos lieux, je choisis le mode le plus adapté (TER, BRT, lignes DDD/AFTU documentées) et je calcule l’itinéraire avec les correspondances. Je connais les ${BRT_STOPS.length} stations du BRT, les ${TER_STOPS.length} gares du TER et les fiches de lignes DDD/AFTU. ${HONEST_LIMIT}`
   }
   if (includesAny(text, ['aide', 'qui es tu', 'que sais tu', 'capable', 'comment ca marche'])) {
     return `Je peux :
 • Comprendre une phrase libre (« je suis à Parcelles Assainies, je voudrais aller à Diamniadio ») et en déduire départ, destination et itinéraire ;
-• Lister les 23 stations BRT ou les 13 gares TER (« liste des stations BRT ») ;
+• Lister les ${BRT_STOPS.length} stations BRT ou les ${TER_STOPS.length} gares TER (« liste des stations BRT ») ;
 • Dire si un lieu est desservi, par quel mode et avec quelles correspondances (« Parcelles Assainies », « Rufisque ») ;
 • Calculer un itinéraire multimodal (« trajet de Petersen à Rufisque ») ;
 • Comparer durée, marche ou correspondances (« compare les trajets de Guédiawaye à Rufisque, moins de marche »), estimer un départ pour une heure d’arrivée sans garantir le service ;
@@ -317,7 +317,7 @@ ${HONEST_LIMIT}`
       const recall = 'Donnez-moi un lieu déclaré — « je suis à Keur Mbaye Fall, je vais à Dakar » — : je préfère le dire plutôt qu’inventer un trajet.'
       return unknown
         ? `${unknown} ${recall}`
-        : `Ni votre départ ni votre destination ne sont reconnus dans la mémoire des lieux (13 gares TER, 23 stations BRT et les lieux des fiches DDD/AFTU). ${recall}`
+        : `Ni votre départ ni votre destination ne sont reconnus dans la mémoire des lieux (${TER_STOPS.length} gares TER, ${BRT_STOPS.length} stations BRT et les lieux des fiches DDD/AFTU). ${recall}`
     }
     if (context.passengerRoute && intent.origin && intent.destination) return context.passengerRoute(intent.origin, intent.destination, question, 'fr').text
     if (intent.priority === 'cheapest') {
@@ -442,7 +442,7 @@ ${BRT_STOPS.map((stop, index) => `${index + 1}. ${stop.name}`).join('\n')}
       return `${reference.operator} : ${reference.lineCount} lignes, ${reference.vehicleCount?.toLocaleString('fr-FR')} bus, ${reference.gieCount} GIE, service ${reference.serviceStart}–${reference.serviceEnd}. ${estimatedFrequencyReference('aftu_tata')}. Estimation : ${estimatedWaitMinutes('aftu_tata', now) ?? '—'} min d’attente moyenne.`
     }
     if (wantsTer && !wantsBrt) {
-      return `Les 14 gares et haltes du TER, de Dakar à AIBD :
+      return `Les ${TER_STOPS.length} gares et haltes du TER, de Dakar à AIBD :
 ${TER_STOPS.map((stop, index) => `${index + 1}. ${stop.name}${stop.note ? ` — ${stop.note}` : ''}`).join('\n')}
 Fréquences officielles de référence : ${OFFICIAL_REFERENCE_FREQUENCIES.ter.map(formatFrequencyPeriod).join('; ')}. Source : TER / SETER (${NETWORK_REFERENCE_DATA.ter.source.sourceUrl}). ${formatSourceVerification(NETWORK_REFERENCE_DATA.ter.source)}.`
     }

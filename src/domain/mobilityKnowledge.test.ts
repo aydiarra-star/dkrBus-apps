@@ -161,9 +161,9 @@ describe('mémoire documentaire actualisée le 10 novembre 2026', () => {
   })
 
   it('précise les directions et les jours pour les horaires TER', () => {
-    expect(ask('horaires TER')).toContain('05h35 de Diamniadio, 05h45 de Dakar')
-    expect(ask('horaires TER')).toContain('Dimanches et jours fériés')
-    expect(ask('horaires TER')).toContain('ne sont pas celles de chaque gare intermédiaire')
+    expect(ask('horaires TER')).toMatch(/Diamniadio ↔ AIBD[^\n]*24 min/)
+    expect(ask('horaires TER')).toMatch(/dim\. et jours fériés[^\n]*30 min/)
+    expect(ask('horaires TER')).toContain('Les créneaux en gare sont théoriques')
   })
 
 

@@ -5,6 +5,7 @@ import { journeyMapRows } from './lib/mapPointSmoke.mjs'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
+const previewUrl = process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/'
 const require = createRequire(resolve(process.env.BROWSER_TOOLS ?? '.', 'package.json'))
 const { chromium } = require('playwright-core')
 const binary = process.env.CHROMIUM_PATH ? null : (await import(pathToFileURL(require.resolve('@sparticuz/chromium')).href)).default
@@ -16,10 +17,10 @@ for (const theme of ['light','dark']) {
     page.setDefaultTimeout(10000)
     const errors=[], apiTrips=[]; page.on('pageerror', e=>errors.push(e.message))
     await page.route('**/api/**', r=>{ if (new URL(r.request().url()).pathname==='/api/journeys') apiTrips.push(r.request().url()); return r.fulfill({status:404,contentType:'application/json',body:'{}'}) })
-    await page.route(/^https:\/\/.*\.tile\.openstreetmap\.org\//, r=>r.abort())
+    await page.route(/^https:\/\//, r => new URL(r.request().url()).origin === new URL(previewUrl).origin ? r.fallback() : r.abort())
     await page.clock.install({time:new Date('2026-11-19T18:59:59Z')})
     await page.clock.pauseAt(new Date('2026-11-19T19:00:00Z'))
-    await page.goto(process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/', {waitUntil:'domcontentloaded'})
+    await page.goto(previewUrl, {waitUntil:'domcontentloaded'})
     assert.equal(await page.locator('html').getAttribute('data-theme'),theme)
     await page.locator('.mobile-nav').getByRole('button',{name:/trajet/i}).click()
     const date=page.getByLabel('Date et heure de départ à Dakar'), strict=page.getByLabel(/Uniquement les parcours sans marches vérifiés/)

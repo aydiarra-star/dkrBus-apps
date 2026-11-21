@@ -84,13 +84,15 @@ function MapClickHandler({
   pickingPoint,
   onChoosePoint,
 }: Pick<TransitMapProps, 'pickingPoint' | 'onChoosePoint'>) {
-  useMapEvents({
+  const map = useMapEvents({
     click(event) {
       if (pickingPoint) {
         onChoosePoint({ kind: 'map', lat: event.latlng.lat, lng: event.latlng.lng })
       }
     },
   })
+  // React Leaflet does not update MapContainer.className after mounting.
+  useEffect(() => { map.getContainer().classList.toggle('leaflet-map-picking', Boolean(pickingPoint)) }, [map, pickingPoint])
   return null
 }
 
@@ -391,7 +393,7 @@ function TransitMapView({
       /* Leaflet n'écoute plus `resize` : le clavier mobile ne redimensionne
          plus la carte. MapResizeController décide du recalcul. */
       trackResize={false}
-      className={`leaflet-map${pickingPoint ? ' leaflet-map-picking' : ''}`}
+      className="leaflet-map"
       aria-label="Carte interactive de l’agglomération de Dakar et de ses dessertes périphériques"
     >
       <TileLayer

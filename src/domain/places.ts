@@ -22,6 +22,8 @@ import { MAX_ACCESS_M } from './assumptions'
 import {
   ALL_CORRIDOR_STOPS,
   CORRIDOR_TRANSFERS,
+  TER_STOPS,
+  BRT_STOPS,
   haversineMeters,
   linesServingStop,
   type CorridorStop,
@@ -411,7 +413,7 @@ export function unrecognizedPlaceNote(question: string, scope: PlaceScope = 'ref
     if (!name || name.length < 3) continue
     if (/^(?:TER|BRT|DDD|AFTU|TATA|Dem|Dikk)$/i.test(name)) continue
     if (findPlaceMentions(name, scope).length > 0) continue
-    return `« ${name} » ne figure pas dans ma mémoire des lieux (13 gares TER, 23 stations BRT et les lieux cités par les fiches DDD/AFTU) : je ne le situe pas et je ne le devine pas.`
+    return `« ${name} » ne figure pas dans ma mémoire des lieux (${TER_STOPS.length} gares TER, ${BRT_STOPS.length} stations BRT et les lieux cités par les fiches DDD/AFTU) : je ne le situe pas et je ne le devine pas.`
   }
   return null
 }

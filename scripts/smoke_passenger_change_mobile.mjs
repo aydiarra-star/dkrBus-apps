@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+const previewUrl = process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/'
 const require = createRequire(resolve(process.env.BROWSER_TOOLS ?? '.', 'package.json'))
 const { chromium } = require('playwright-core')
 const binary = process.env.CHROMIUM_PATH ? null : (await import(pathToFileURL(require.resolve('@sparticuz/chromium')).href)).default
@@ -26,12 +27,12 @@ for (const same of [false,true]) {
         if (pathname==='/api/journeys') requests++
         return route.fulfill({status:404,json:{}})
       })
-      await page.route(/^https:\/\/.*\.tile\.openstreetmap\.org\//, route => route.abort())
+      await page.route(/^https:\/\//, r => new URL(r.request().url()).origin === new URL(previewUrl).origin ? r.fallback() : r.abort())
       // Select the same three-minute comfort buffer as the offline dossier.
       await page.addInitScript(() => localStorage.setItem('dakar-bus:preferences:v1', JSON.stringify({mobility:{transferBufferMin:3}})))
       await page.clock.install({time:new Date('2026-11-18T08:18:58Z')})
       await page.clock.pauseAt(new Date('2026-11-18T08:19:00Z'))
-      await page.goto(process.env.PREVIEW_URL ?? 'http://127.0.0.1:4173/dkrBus-apps/', {waitUntil:'domcontentloaded'})
+      await page.goto(previewUrl, {waitUntil:'domcontentloaded'})
       await page.locator('.mobile-nav').getByRole('button',{name:/trajet/i}).click()
       const date=page.getByLabel('Date et heure de départ à Dakar'); await date.fill('2026-11-18T08:19')
       await page.getByText('Réseau publié du jour intégré au calcul sur tracés vérifiés.').waitFor()

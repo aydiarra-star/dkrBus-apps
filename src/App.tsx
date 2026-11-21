@@ -77,6 +77,7 @@ import {
   TATA_STOPS,
   TER_STOPS,
   haversineMeters,
+  getCorridorStop,
   linesServingStop,
   searchCorridorStops,
   networkLabelOf,
@@ -419,8 +420,15 @@ const NETWORK_ICONS: Record<NetworkId, typeof TrainFront> = {
   other: BusFront,
 }
 
-function formatCoordinates(point: Coordinates): string {
-  return `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`
+/** Display only. A published stop can share both a name and an ID with a local
+ * reference; never infer a network for a snapshot or a free map selection. */
+function pickedPointDetail(point: MapPoint): string {
+  const coords = `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`
+  if (point.kind === 'stop') return `${coords} · arrêt publié`
+  if (point.landmarkId) return `${coords} · repère géographique`
+  const stop = !point.kind && !point.snapshotId && point.stopId ? getCorridorStop(point.stopId) : null
+  return stop && stop.lat === point.lat && stop.lon === point.lng
+    ? `${stop.id.split('-')[0].toUpperCase()} · référence · ${coords}` : coords
 }
 
 function NetworkIcon({ id, size = 18 }: { id: NetworkId; size?: number }) {
@@ -2536,7 +2544,7 @@ function PointComboboxField({
   return (
     <StopCombobox
       title={title}
-      point={point ? { label: point.label, detail: `${formatCoordinates(point)}${point.kind === 'stop' ? ' · arrêt publié' : point.landmarkId ? ' · repère géographique' : ''}` } : null}
+      point={point ? { label: point.label, detail: pickedPointDetail(point) } : null}
       options={stopOptions} snapshotId={snapshotId}
       isPicking={isPicking}
       onPick={(option) => onPick(pointKey, option)}
