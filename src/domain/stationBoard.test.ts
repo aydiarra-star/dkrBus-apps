@@ -18,6 +18,14 @@ describe('tableau des créneaux par station et par sens', () => {
     expect(buildStationBoard(incompleteLine, NOW)).toBeNull()
   })
 
+  it('refuse une gare cartographiée sans durée TER calibrée', () => {
+    const line = boardLinesForNetwork('ter')[0]
+    // brt-petersen existe dans le référentiel des arrêts, mais n'a aucune
+    // durée TER observée : il ne doit pas recevoir artificiellement l'offset 0.
+    const uncalibratedLine = { ...line, stopIds: ['ter-dakar', 'brt-petersen'] }
+    expect(buildStationBoard(uncalibratedLine, NOW)).toBeNull()
+  })
+
   it('construit une ligne par station du TER, avec les deux sens distincts', () => {
     const line = boardLinesForNetwork('ter')[0]
     const board = buildStationBoard(line, NOW)!
