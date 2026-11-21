@@ -170,6 +170,25 @@ describe('prochains créneaux théoriques', () => {
     expect(passage.nextDepartureAt).toBe('2026-10-08T00:25:00.000Z')
   })
 
+  it('compare la course reportée de la veille avec les passages du jour', () => {
+    // À 00:20, une course de la veille projetée à 05:45 ne doit pas masquer
+    // le premier départ du jour, projeté à 05:00 (décalage de 7 heures).
+    const lateService = [{
+      ...BRT[0],
+      serviceStart: '22:00',
+      serviceEnd: '23:00',
+      headwayMinutes: 15,
+    }]
+    const passage = nextReferencePassage(
+      lateService,
+      at('2026-10-08T00:20:00Z'),
+      7 * 60,
+    )!
+    expect(passage.clockLabel).toBe('05:00')
+    expect(passage.minutes).toBe(280)
+    expect(passage.nextDepartureAt).toBe('2026-10-08T05:00:00.000Z')
+  })
+
   it('garde un décalage nul strictement équivalent au comportement historique', () => {
     const now = at('2026-10-08T12:00:00Z')
     expect(nextReferencePassage(BRT, now, 0)!.clockLabel).toBe('12:06')
