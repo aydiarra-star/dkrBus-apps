@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { PassageClock } from './PassageClock'
+import { formatPassageCountdown } from '../domain/headways'
 import {
   genererHorairesTerDakarDiamniadio,
   libelleFrequenceTerDakarDiamniadio,
@@ -57,7 +59,7 @@ export function TerDakarDiamniadioBoard({ now }: TerDakarDiamniadioBoardProps) {
       {schedule ? (
         <>
           <p className="ter-dd-context">
-            Prochain départ théorique à <strong>{schedule.heureDepart}</strong> · Durée env. {schedule.dureeMinutes} min
+            Prochains passages par gare · Durée de parcours env. {schedule.dureeMinutes} min
           </p>
           <ol className="ter-dd-stops">
             {schedule.rows.map((row) => (
@@ -72,9 +74,9 @@ export function TerDakarDiamniadioBoard({ now }: TerDakarDiamniadioBoardProps) {
                         : `+ ${row.decalageMinutes} min`}
                   </small>
                 </span>
-                <span className="ter-dd-passage">
-                  <strong>{row.heureFormatee}</strong>
-                  <small>{row.dansMinutes === 0 ? 'À l’instant' : `dans ${row.dansMinutes} min`}</small>
+                <span className="ter-dd-passage" role="timer" aria-live="off">
+                  <strong>Dans {formatPassageCountdown(row.dansMinutes)}</strong>
+                  <PassageClock atMs={Date.parse(row.passageAt)} now={now} />
                 </span>
               </li>
             ))}
