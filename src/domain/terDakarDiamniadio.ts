@@ -88,10 +88,8 @@ export function genererHorairesTerDakarDiamniadio(
     const decalageMinutes = sens === 'aller'
       ? gare.offsetAller
       : TER_DAKAR_DIAMNIADIO_DUREE_MINUTES - gare.offsetAller
-    const prochainPassage = nextReferencePassage(TER_DAKAR_DIAMNIADIO_FREQUENCIES, maintenant, decalageMinutes)
-    if (!prochainPassage) return null
-    const passageMs = Date.parse(prochainPassage.nextDepartureAt)
-    if (!Number.isFinite(passageMs)) return null
+    const passageMs = departMs + decalageMinutes * 60_000
+    const passageAt = new Date(passageMs).toISOString()
 
     return {
       id: gare.id,
@@ -101,20 +99,15 @@ export function genererHorairesTerDakarDiamniadio(
       estDepart: index === 0,
       estTerminus: index === gares.length - 1,
       heureFormatee: heureDakar(new Date(passageMs)),
-      passageAt: prochainPassage.nextDepartureAt,
-      dansMinutes: prochainPassage.minutes,
+      passageAt,
+      dansMinutes: Math.max(0, Math.ceil((passageMs - maintenant) / 60_000)),
     }
   })
-  if (rows.some((row) => row === null)) return null
-  const resolvedRows = rows.filter((row): row is NonNullable<typeof row> => row !== null)
 
-  // Chaque gare affiche son propre prochain passage. Ces passages peuvent
-  // appartenir à des trains différents : leur ordre entre gares n'est donc
-  // pas nécessairement celui d'un train unique. En revanche, aucun décompte
-  // ne doit viser un passage déjà passé ou exactement à l'instant courant.
-  for (const row of resolvedRows) {
-    if (Date.parse(row.passageAt) <= maintenant || row.dansMinutes < 1) {
-      throw new Error(`Prochain passage TER non futur à ${row.nom}.`)
+  // Garde-fou de production : aucun horaire du même train ne peut reculer.
+  for (let index = 1; index < rows.length; index += 1) {
+    if (Date.parse(rows[index].passageAt) < Date.parse(rows[index - 1].passageAt)) {
+      throw new Error(`Offsets TER non chronologiques entre ${rows[index - 1].nom} et ${rows[index].nom}.`)
     }
   }
 
@@ -124,7 +117,7 @@ export function genererHorairesTerDakarDiamniadio(
     heureDepart: heureDakar(new Date(departMs)),
     dureeMinutes: TER_DAKAR_DIAMNIADIO_DUREE_MINUTES,
     frequenceMinutes: prochainDepart.headwayMinutes,
-    rows: resolvedRows,
+    rows,
   }
 }
 
