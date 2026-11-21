@@ -13,6 +13,7 @@ try {
   const { BusDirectionPanel } = await app.ssrLoadModule('/src/components/EstimatedLineScheduleBoard.tsx')
   const { BUS_BOARD_LINES } = await app.ssrLoadModule('/src/domain/busBoardCatalog.ts')
   const { compileSign } = await app.ssrLoadModule('/src/domain/busSignReading.ts')
+  const { formatPassageCountdown } = await app.ssrLoadModule('/src/domain/headways.ts')
   for (const iso of ['2026-11-19T05:10:59Z','2026-11-19T14:00:00Z','2026-11-19T19:00:00Z','2026-11-20T23:59:59Z','2026-11-21T00:52:59Z','2026-11-21T14:00:00Z','2026-11-22T19:00:00Z']) for (const estimates of [false,true]) {
     const now = Date.parse(iso), day = Date.parse(iso.slice(0,10)+'T00:00Z')
     let panels=0, occurrences=0, timers=0, projections=0, readingLinks=0
@@ -32,7 +33,7 @@ try {
           assert.equal(!!el.querySelector('svg.station-board-double-apostrophe'),active,loc)
           if(timed) {
             const t=Math.ceil((p.at-now)/1000);assert(t>0,loc);assert.equal(secs.dateTime,`PT${t}S`,loc)
-            assert.equal(value,`Dans ${Math.max(1,Math.ceil(t/60))} min`,loc);assert.equal(secs.textContent,`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`,loc)
+            assert.equal(value,`Dans ${formatPassageCountdown(Math.max(1,Math.ceil(t/60)))}`,loc);assert.equal(secs.textContent,`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`,loc)
             assert(!/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/.test(value),loc)
           }
           return {active,estimate:kind==='model' && 'at' in p}
