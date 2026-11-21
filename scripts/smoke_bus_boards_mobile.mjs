@@ -140,8 +140,14 @@ for (const theme of ['light','dark']) {
     await page.clock.pauseAt(new Date('2026-11-20T05:30:59Z')); await page.clock.runFor(1000)
     const sides = wrapper.locator('.station-board-direction-toggle')
     assert.equal(await sides.count(),2)
-    assert.match(await sides.nth(0).innerText(),/Dès 05:55/); assert.match(await sides.nth(1).innerText(),/Dès 05:50/)
-    assert.equal(await sides.locator('time').count(),0)
+    for (const side of await sides.all()) {
+      const passage = side.locator('[role="timer"]')
+      assert.equal(await passage.count(),1)
+      assert.match(await passage.innerText(),/Dans \\d+ min/)
+      assert.match(await passage.locator('time').innerText(),/^\\d+:\\d{2}$/)
+      assert.doesNotMatch(await side.innerText(),/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
+    }
+    assert.equal(await sides.locator('time').count(),2)
     await page.clock.pauseAt(new Date('2026-11-20T06:51:59Z')); await page.clock.runFor(1000)
     for (const [side, wording] of [/après Cem Thiaroye/, /Le même quai n’est pas confirmé/].entries()) {
       await wrapper.locator('.station-board-direction-toggle').nth(side).click(); await note.locator('summary').click()
@@ -174,7 +180,8 @@ for (const theme of ['light','dark']) {
     assert.equal(await clock.textContent(),'8:01'); await page.clock.runFor(1000); assert.equal(await clock.textContent(),'8:00')
     await page.clock.pauseAt(new Date('2026-11-21T00:52:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
-    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Dès 06:43/)
+    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
+    assert.doesNotMatch(await terminal.innerText(),/\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b/)
     await estimates.uncheck(); await input.fill('311'); await sides.nth(2).click()
     await page.clock.pauseAt(new Date('2026-11-21T20:14:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000); assert.match(await terminal.innerText(),/Fin de service/)
