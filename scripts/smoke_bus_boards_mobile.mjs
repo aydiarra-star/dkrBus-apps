@@ -122,13 +122,15 @@ for (const theme of ['light','dark']) {
     const sides = wrapper.locator('.station-board-direction-toggle')
     await sides.nth(2).click()
     const terminal = wrapper.locator('.bus-occurrences li').last(), clock = terminal.locator('time.passage-remaining')
-    // Thursday's 24:00 departure remains on the road until 01:08 Friday.
+    // Thursday's 24:00 arrival is followed by Friday's first 04:30 departure.
     await page.clock.pauseAt(new Date('2026-11-20T00:52:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'15:00')
     await page.clock.pauseAt(new Date('2026-11-20T01:07:58Z')); await page.clock.runFor(1000)
     assert.equal(await clock.textContent(),'0:01'); await page.clock.runFor(1000)
-    assert.equal(await clock.count(),0); assert.match(await terminal.innerText(),/Fin de service/)
+    assert.equal(await clock.count(),1)
+    assert.equal(await clock.textContent(),'270:00')
+    assert.match(await terminal.innerText(),/Dans 4 h 30/)
     assert.doesNotMatch(await terminal.innerText(),/\b(?:[01]\d|2[0-3]):[0-5]\d\b/)
     await network('aftu_tata').click(); await estimates.uncheck()
     await input.fill('65'); await wrapper.locator('.station-board-direction-toggle').last().click()
