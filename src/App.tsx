@@ -2370,9 +2370,9 @@ function ReferencePassage({ passage, now, summaryStatus, terminus }: {
     status = passage.status === 'RUNNING' ? 'ACTIVE' : passage.status === 'BEFORE_SERVICE' ? 'UPCOMING' : 'FINISHED'
   }
   const active = passage && status === 'ACTIVE'
-  const missing = terminus ? 'Terminus' : 'Aucun créneau déclaré'
-  const caption = !passage ? missing : `Fréquence ${passage.headwayMinutes} min · créneau théorique`
-  return <span className={`network-summary-passage${summaryStatus ? '' : ' station-board-passage'}${passage ? '' : ' is-undeclared'}${inactivePassageClass(status)}`} role="timer" aria-live="off">
+  const missing = terminus ? 'Terminus' : 'Projection non confirmée'
+  const caption = !passage ? (terminus ? 'Terminus' : 'Aucun passage confirmé') : `Fréquence ${passage.headwayMinutes} min · créneau théorique`
+  return <span className={`network-summary-passage${summaryStatus ? '' : ' station-board-passage'}${passage ? '' : ' is-undeclared'}${inactivePassageClass(status)}`} role={passage ? 'timer' : undefined} aria-live="off">
     <strong>{passage ? <>{active && <PassageArcs />}Dans {formatPassageCountdown(passage.minutes)}</> : missing}</strong>
     {active && passage && <PassageClock atMs={Date.parse(passage.nextDepartureAt)} now={now} />}
     <small>{caption}</small>
