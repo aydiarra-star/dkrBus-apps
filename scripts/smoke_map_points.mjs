@@ -43,7 +43,22 @@ try {
       await page.route('**/api/**',r=>r.fulfill({status:404,contentType:'application/json',body:'{}'}))
       await page.goto(url,{waitUntil:'domcontentloaded'})
       const pins=page.locator('.map-point-marker'), sheet=page.getByRole('dialog',{name:'Points sur la carte'})
-      const tap=el=>touch ? el.tap() : el.click({noWaitAfter:true})
+      // Leaflet can replace a cluster marker between the map-centre assertion
+      // and the physical tap. Retry only this transient detached-node condition;
+      // a genuinely missing or unclickable marker still fails the smoke test.
+      async function tap(el) {
+        for (let attempt=0; attempt<4; attempt++) {
+          try {
+            if (touch) await el.tap({timeout:4000})
+            else await el.click({timeout:4000,noWaitAfter:true})
+            return
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error)
+            if (!/detached from the DOM|not attached to the DOM/i.test(message) || attempt===3) throw error
+            await page.waitForTimeout(150)
+          }
+        }
+      }
       const marker=title=>pins.and(page.getByTitle(title,{exact:true}))
       const row=id=>sheet.locator(`[data-point-key="${id}"]`)
       const close=async()=>{await tap(sheet.getByRole('button',{name:'Fermer les points'})); await sheet.waitFor({state:'detached'})}
