@@ -104,7 +104,11 @@ describe('panneaux voyageurs des bus', () => {
     const fetcher = vi.fn((_input: RequestInfo | URL) => Promise.resolve(new Response('{}',{status:404}))); vi.stubGlobal('fetch',fetcher)
     const { container } = render(<EstimatedLineScheduleBoard network="ddd" published={published} />)
     expect(container.querySelector('.bus-board-section-title')?.textContent).toBe('Horaires du jour'); expect(fetcher).not.toHaveBeenCalled()
-    fireEvent.click(buttons(container,'Bus de recette')[0]); expect(opened(container).at(-1)?.textContent).toContain('Dans 5 min')
+    fireEvent.click(buttons(container,'Bus de recette')[0])
+    const terminal = opened(container).at(-1)!
+    expect(terminal.textContent).toContain('Dans 6 min')
+    expect(terminal.querySelector('time')?.textContent).toBe('5:20')
+    expect(terminal.querySelector('time')?.dateTime).toBe('PT320S')
     vi.setSystemTime(new Date('2026-11-20T07:40Z')); act(() => document.dispatchEvent(new Event('visibilitychange')))
     expect(buttons(container,'Bus de recette')).toHaveLength(0); expect(fetcher.mock.calls[0]?.[0]).toContain('date=2026-11-20')
   })
