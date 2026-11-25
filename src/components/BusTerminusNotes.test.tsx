@@ -23,8 +23,10 @@ it.each([
 it.each([[0,'Bambilor','06:30','06:35'],[1,'Maristes','06:35','06:30']] as const)('separates the 87 field reference from the index and from rank one: %d', (side,terminus,time,otherTime) => {
   const d = BUS_BOARD_LINES.aftu.find(l=>l.code==='87')!.directions[side]
   const {container,rerender} = render(<AftuReferenceNote name="AFTU 87" d={d} />)
-  expect(container.querySelector('summary')?.textContent).toContain(`${terminus} : ${time}`)
-  expect(container.textContent).toContain('Mosquée Massalikou Djinane'); expect(container.textContent).not.toContain(otherTime)
+  expect(container.querySelector('summary')?.textContent).toContain(`Départ de référence transmis depuis ${terminus}`)
+  expect(container.textContent).toContain('Mosquée Massalikou Djinane')
+  expect(container.textContent).not.toContain(time); expect(container.textContent).not.toContain(otherTime)
+  expect(container.textContent).not.toMatch(/\b\d{2}:\d{2}\b/)
   expect(container.querySelector('time,[role=timer]')).toBeNull(); expect(d.sourceHours).toBeUndefined(); expect(d.clock).toBeNull()
   rerender(<AftuReferenceNote name="AFTU 87" d={{...d,points:[...d.points].reverse()}} />); expect(container.firstChild).toBeNull()
 })
@@ -39,7 +41,8 @@ it.each([['6','Palais 1','07:15'],['Espace BRT','AIBD','02:30 le lendemain']])('
   const {container} = render(<BusLineScheduleBoard network="ddd" now={now} />)
   fireEvent.change(within(container).getByRole('searchbox'),{target:{value:query}})
   const note = container.querySelector('[data-line-code] details')!
-  expect(note.querySelector('summary')?.textContent).toContain(to); expect(note.textContent).toContain(time)
+  expect(note.querySelector('summary')?.textContent).toContain(to); expect(note.textContent).not.toContain(time)
+  expect(note.textContent).not.toMatch(/\b\d{2}:\d{2}\b/)
   expect(note.querySelector('li,time,[role=timer]')).toBeNull(); expect(note.closest('.bus-occurrences')).toBeNull()
   expect(container.querySelector('.station-board-direction-toggle')?.textContent).not.toContain(time)
 })

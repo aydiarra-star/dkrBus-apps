@@ -542,8 +542,8 @@ describe('structure en quatre piliers', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     for (const network of ['ter', 'brt']) {
       const passage = document.querySelector(`.network-item-${network} .network-summary-passage`)
-      expect(passage?.querySelector('strong')?.textContent).toMatch(/^\d+ min$/)
-      expect(passage?.querySelector('small')?.textContent).toMatch(/^créneau \d{2}:\d{2} · \d+ min$/)
+      expect(passage?.querySelector('strong')?.textContent).toMatch(/^Dans \d+ min$/)
+      expect(passage?.querySelector('small')?.textContent).toMatch(/^Fréquence \d+ min · créneau théorique$/)
     }
     // DDD et le réseau unifié AFTU / TATA invitent à choisir un arrêt, sans phase réseau inventée.
     for (const network of ['ddd','aftu_tata']) {
@@ -1163,8 +1163,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(document.querySelectorAll('.network-summary-dot.is-counting')).toHaveLength(2)
     const readMinutes = (network: string) => {
       const value = document.querySelector(`.network-item-${network} .network-summary-passage strong`)?.textContent ?? ''
-      expect(value).toMatch(/^(\d+ min|En service|Reprise dans \d+ min|Fin de service)$/)
-      return /^\d+ min$/.test(value) ? Number.parseInt(value, 10) : null
+      expect(value).toMatch(/^Dans \d+ min$/)
+      return Number(value.match(/^Dans (\d+) min$/)?.[1] ?? NaN)
     }
     const brtBefore = readMinutes('brt')
     const terBefore = readMinutes('ter')
@@ -1195,8 +1195,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(container.querySelector('.network-summary-estimates')).toBeNull()
 
     // Les affichages TER et BRT conservent leurs informations de fréquence existantes.
-    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^(?:\d{2}:\d{2}–\d{2}:\d{2}|créneau \d{2}:\d{2} · \d+ min)$/)
-    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^(?:\d{2}:\d{2}–\d{2}:\d{2}|créneau \d{2}:\d{2} · \d+ min)$/)
+    expect(container.querySelector('.network-item-ter .network-summary-passage small')?.textContent).toMatch(/^Fréquence \d+ min · créneau théorique$/)
+    expect(container.querySelector('.network-item-brt .network-summary-passage small')?.textContent).toMatch(/^Fréquence \d+ min · créneau théorique$/)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(61_000)
@@ -1207,10 +1207,10 @@ describe('décomptes dynamiques de l’Explorer', () => {
   })
 
   it.each([
-    ['2026-11-22T03:00:00Z', 'FINISHED', 'Fin de service'],
-    ['2026-11-22T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
-    ['2026-12-25T06:05:00Z', 'UPCOMING', 'Dès 06:17'],
-    ['2027-01-04T06:05:00Z', 'ACTIVE', '—'], // pas de calendrier férié confirmé
+    ['2026-11-22T03:00:00Z', 'FINISHED', 'Dans 3 h 17'],
+    ['2026-11-22T06:05:00Z', 'UPCOMING', 'Dans 12 min'],
+    ['2026-12-25T06:05:00Z', 'UPCOMING', 'Dans 12 min'],
+    ['2027-01-04T06:05:00Z', 'ACTIVE', 'Projection non confirmée'], // pas de calendrier férié confirmé
   ])('distingue l’amplitude de Dakar du prochain passage déclaré à %s', (at, state, text) => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date(at))
@@ -1419,7 +1419,7 @@ describe('décomptes dynamiques de l’Explorer', () => {
     expect(board).toBeTruthy()
     const firstOutboundRow = board.querySelector('.station-direction-outbound .station-board-row') as HTMLElement
     const passage = firstOutboundRow.querySelector('.station-board-passage')!
-    expect(passage.textContent).toMatch(/Fin de serviceProchain créneau : 09\/10\/2026 à \d{2}:\d{2}/)
+    expect(passage.textContent).toMatch(/Dans \d+ h(?: \d{2})?Fréquence 8 min · créneau théorique/)
     expect(passage.classList.contains('is-finished')).toBe(true)
     expect(passage.querySelector('time, .passage-arcs')).toBeNull()
     vi.useRealTimers()
@@ -1460,8 +1460,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneOut = outRows.find((row) => row.textContent!.includes('Colobane'))!
     const colobaneIn = inRows.find((row) => row.textContent!.includes('Colobane'))!
     expect(colobaneOut.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
-    expect(colobaneOut.textContent).toMatch(/créneau 12:02 · 8 min/)
-    expect(colobaneIn.textContent).toMatch(/créneau 12:00 · 8 min/)
+    expect(colobaneOut.textContent).toMatch(/Dans 2 min/)
+    expect(colobaneIn.textContent).toMatch(/Dans 1 min/)
 
     // Au terminus d'arrivée de chaque sens, aucun départ : c'est dit, pas inventé.
     expect(outRows[outRows.length - 1].textContent).toMatch(/Prochaine arrivée.*mission AIBD/)
@@ -1475,13 +1475,13 @@ describe('décomptes dynamiques de l’Explorer', () => {
     const colobaneTimes = () => [colobaneOut, colobaneIn].map((row) => row.querySelector('.station-board-passage > strong')!.textContent)
     // Les créneaux par station descendent au même rythme que les réseaux.
     // (Avancement par pas : chaque tic réarme le suivant après le rendu.)
-    expect(colobaneTimes()).toEqual(['2 min', '1 min'])
+    expect(colobaneTimes()).toEqual(['Dans 2 min', 'Dans 1 min'])
     for (let step = 0; step < 20; step += 1) {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(2_000)
       })
     }
-    expect(colobaneTimes()).toEqual(['2 min', '8 min'])
+    expect(colobaneTimes()).toEqual(['Dans 2 min', 'Dans 8 min'])
     vi.useRealTimers()
   })
 
@@ -1506,11 +1506,11 @@ describe('décomptes dynamiques de l’Explorer', () => {
       // 48 catalogue identities, one shared TO1 / TAF_TAF_TO1 sign.
       const codes = new Set(rows.map(r => r.closest('[data-line-code]')!.getAttribute('data-line-code')))
       expect(codes.size).toBe(47); expect(codes.has('TO1')).toBe(true); expect(codes.has('TAF_TAF_TO1')).toBe(false)
-      expect(rows.some(r => /^[1-9]\d* min$/.test(r.querySelector('.station-board-passage strong')!.textContent!))).toBe(true)
+      expect(rows.some(r => /^Dans [1-9]\d* min$/.test(r.querySelector('.station-board-passage strong')!.textContent!))).toBe(true)
     } else {
       expect(board.querySelectorAll('.station-board-line-toggle')).toHaveLength(0)
       expect(new Set([...board.querySelectorAll('.station-board-line-group')].map((group) => group.getAttribute('data-line-code'))).size).toBe(73)
-      expect(rows.every((row) => /^([1-9]\d* min|—)$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
+      expect(rows.every((row) => /^(Dans [1-9]\d* min|Projection non confirmée|—)$/.test(row.querySelector('.station-board-passage strong')!.textContent!.trim()))).toBe(true)
       expect(board.querySelectorAll('[data-line-code="80"] .station-board-passage svg')).toHaveLength(0) // repères seuls, hors mode estimé
       fireEvent.click(rows[0])
       expect(rows[0].getAttribute('aria-expanded')).toBe('true')
@@ -1539,7 +1539,8 @@ describe('décomptes dynamiques de l’Explorer', () => {
     // Une station intermédiaire (près de Colobane) : deux créneaux au format du résumé.
     const placeNation = [...board.querySelectorAll('.station-direction-outbound .station-board-row')].find((row) => row.textContent!.includes('Place de la Nation'))!
     expect(placeNation.querySelectorAll('.station-board-passage:not(.is-undeclared)')).toHaveLength(1)
-    expect(placeNation.textContent).toMatch(/créneau \d{2}:\d{2} · 6 min/)
+    expect(placeNation.textContent).toMatch(/Dans 1 min/)
+    expect(placeNation.textContent).toMatch(/Fréquence 6 min · créneau théorique/)
     vi.useRealTimers()
   })
 

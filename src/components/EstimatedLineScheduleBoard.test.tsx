@@ -16,10 +16,10 @@ function withEstimates(node: React.ReactElement) {
   fireEvent.click(within(r.container).getByRole('checkbox',{name:'Inclure les passages estimés'}))
   return r
 }
-const approximate = /^Vers \d{2}:\d{2}$/
+const approximate = /^Projection non confirmée$/
 
 describe('panneaux voyageurs des bus', () => {
-  it('garde une heure indicative et le relevé non daté sans décompter les créneaux issus de la seule cadence', async () => {
+  it('ne transforme pas les projections en échéances et conserve le relevé non daté sans faux compteur', async () => {
     vi.setSystemTime(new Date('2026-11-19T05:50:00Z'))
     const { container } = withEstimates(<EstimatedLineScheduleBoard network="aftu_tata" />)
     const [a,b] = buttons(container,'84'); fireEvent.click(b)
@@ -27,9 +27,9 @@ describe('panneaux voyageurs des bus', () => {
     expect(rows.map(r => r.querySelector('.bus-rank')!.textContent)).toEqual(Array.from({ length:73 },(_,i) => `${i+1}.`))
     for (const r of rows) { expect(value(r)).toMatch(approximate); expect(r.querySelector('time, [role=timer], .station-board-double-apostrophe')).toBeNull() }
     expect(rows[0].textContent).toContain('Delafosse Commerce'); expect(rows.at(-1)?.textContent).toContain('Arrivée au terminus')
-    expect([2,3,72].map(i => value(rows[i]))).toEqual(['Vers 05:51','Vers 05:51','Vers 07:09'])
+    expect([2,3,72].map(i => value(rows[i]))).toEqual(['Projection non confirmée','Projection non confirmée','Projection non confirmée'])
     await act(async () => { await vi.advanceTimersByTimeAsync(60_000) })
-    expect([2,3,72].map(i => value(rows[i]))).toEqual(['Vers 06:05','Vers 06:05','Vers 07:09'])
+    expect([2,3,72].map(i => value(rows[i]))).toEqual(['Projection non confirmée','Projection non confirmée','Projection non confirmée'])
     fireEvent.click(a); expect(b.getAttribute('aria-expanded')).toBe('false'); expect(opened(container)[0].textContent).toContain('Jaxaay 2 Pénitence')
     expect(container.textContent).not.toMatch(/\b0 min|moins d.une minute|\bFCFA\b|temps réel/i)
   })
@@ -47,7 +47,7 @@ describe('panneaux voyageurs des bus', () => {
     }
     const variants = buttons(container,'58').slice(2); expect(variants).toHaveLength(2)
     for (const [i,b] of variants.entries()) {
-      expect(value(b)).toBe(i ? '15 min' : '2 min') // les prochaines origines imprimées à 07:40 sont 07:55 / 07:42
+      expect(value(b)).toBe(i ? 'Dans 15 min' : 'Dans 2 min') // les prochaines origines imprimées à 07:40 sont 07:55 / 07:42
       fireEvent.click(b); expect(opened(container)).toHaveLength(i ? 43 : 39)
       expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(i ? 43 : 39)
       expect(opened(container)[i ? 42 : 0].textContent).toContain('Libellé local')
@@ -91,10 +91,10 @@ describe('panneaux voyageurs des bus', () => {
   it('met une borne avant l’ouverture, sans arc vert ni attente réseau; après fermeture, ne projette pas demain', () => {
     vi.setSystemTime(new Date('2026-11-19T05:20:00Z'))
     const { container } = withEstimates(<EstimatedLineScheduleBoard network="ddd" />)
-    const [a,b] = buttons(container,'1'); expect(value(a)).toBe('Vers 05:30'); expect(value(b)).toBe('Vers 06:30')
+    const [a,b] = buttons(container,'1'); expect(value(a)).toMatch(approximate); expect(value(b)).toMatch(approximate)
     expect(a.querySelector('svg')).toBeNull()
     vi.setSystemTime(new Date('2026-11-19T22:30Z')); act(() => document.dispatchEvent(new Event('visibilitychange')))
-    expect(value(a)).toBe('Fin du modèle'); expect(value(b)).toBe('Fin du modèle'); expect(b.querySelector('svg')).toBeNull()
+    expect(value(a)).toMatch(approximate); expect(value(b)).toMatch(approximate); expect(b.querySelector('svg')).toBeNull()
   })
   it('préfère la grille datée distincte en tête et ne montre plus l’édition de recherche d’hier', () => {
     const base = fixtureNetwork.patterns[0], origin = Date.parse('2026-11-19T07:42Z')/1000
@@ -104,7 +104,11 @@ describe('panneaux voyageurs des bus', () => {
     const fetcher = vi.fn((_input: RequestInfo | URL) => Promise.resolve(new Response('{}',{status:404}))); vi.stubGlobal('fetch',fetcher)
     const { container } = render(<EstimatedLineScheduleBoard network="ddd" published={published} />)
     expect(container.querySelector('.bus-board-section-title')?.textContent).toBe('Horaires du jour'); expect(fetcher).not.toHaveBeenCalled()
-    fireEvent.click(buttons(container,'Bus de recette')[0]); expect(opened(container).at(-1)?.textContent).toContain('Dès 07:45')
+    fireEvent.click(buttons(container,'Bus de recette')[0])
+    const terminal = opened(container).at(-1)!
+    expect(terminal.textContent).toContain('Dans 6 min')
+    expect(terminal.querySelector('time')?.textContent).toBe('5:20')
+    expect(terminal.querySelector('time')?.dateTime).toBe('PT320S')
     vi.setSystemTime(new Date('2026-11-20T07:40Z')); act(() => document.dispatchEvent(new Event('visibilitychange')))
     expect(buttons(container,'Bus de recette')).toHaveLength(0); expect(fetcher.mock.calls[0]?.[0]).toContain('date=2026-11-20')
   })
@@ -184,12 +188,15 @@ it('n’attribue à la 218 depuis Aéroport ni l’arrivée au dépôt ni un pas
   fireEvent.click(buttons(container,'218')[2]); expect(container.querySelector('.bus-survey-note')).toBeNull()
 })
 
-it('présente les heures source par défaut, avec les colonnes non datées sans faux compteur', () => {
+it('conserve les heures source dans les données sans les afficher ni créer de faux compteur', () => {
   const { container } = render(<EstimatedLineScheduleBoard network="aftu_tata" />)
   const toggle=within(container).getByRole('checkbox') as HTMLInputElement
   expect(toggle.checked).toBe(false)
   fireEvent.click(buttons(container,'84')[1]); expect(opened(container)).toHaveLength(73)
-  expect(opened(container)[0].textContent).toMatch(/Relevé non daté : 05:49/);expect(opened(container).at(-1)?.textContent).toContain('07:09')
+  const sourceTimes = BUS_BOARD_LINES.aftu.find(l => l.code === '84')!.directions[1].sourceHours?.samples?.flatMap(s => s.times) ?? []
+  expect(sourceTimes).toContain('05:49'); expect(sourceTimes).toContain('07:09')
+  expect(opened(container)[0].querySelector('.station-board-passage strong')?.textContent).toBe('—')
+  expect(container.querySelector('.bus-occurrences')?.textContent).not.toMatch(/\b\d{2}:\d{2}\b/)
   expect(container.querySelector('.bus-occurrences time')).toBeNull()
   fireEvent.click(buttons(container,'42').at(-1)!);expect(opened(container)).toHaveLength(68);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(68)
   fireEvent.click(buttons(container,'73')[0]);expect(container.querySelectorAll('.bus-occurrences time')).toHaveLength(75)

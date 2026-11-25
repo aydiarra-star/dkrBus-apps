@@ -85,7 +85,9 @@ describe('PassageArcs', () => {
         fireEvent.click(within(board).getByRole('button', {name:'TATA'}))
         expect(board.querySelectorAll('.station-board-double-apostrophe')).toHaveLength(0)
         fireEvent.click(within(board).getByRole('checkbox', {name:'Inclure les passages estimés'}))
-        expect(board.textContent).toMatch(/Vers \d{2}:\d{2}/)
+        const estimates = Array.from(board.querySelectorAll('.bus-estimate strong'))
+        expect(estimates.length).toBeGreaterThan(0)
+        expect(estimates.every((strong) => strong.textContent === 'Projection non confirmée')).toBe(true)
         expect(board.querySelector('svg.station-board-double-apostrophe, time, [role="timer"]')).toBeNull()
       }
       fireEvent.click(header)
